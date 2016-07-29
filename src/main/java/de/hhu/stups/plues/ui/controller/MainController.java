@@ -1,0 +1,155 @@
+package de.hhu.stups.plues.ui.controller;
+
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.prob.Solver;
+import de.hhu.stups.plues.tasks.SolverLoaderTask;
+import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.tasks.StoreLoaderTask;
+import de.hhu.stups.plues.ui.events.CourseSelectionChanged;
+import de.prob.scripting.Api;
+import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import org.controlsfx.control.TaskProgressView;
+
+import java.net.URL;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.IntStream;
+
+public class MainController implements Initializable {
+
+    private final Api api;
+    private final ObjectProperty<Store> storeProperty;
+    private final ObjectProperty<Solver> solverProperty;
+    private final Properties properties;
+
+    @FXML
+    public GridPane foo;
+
+    @FXML
+    public TaskProgressView taskProgress;
+    @FXML
+    public Label selection;
+    public Button checkSelection;
+    public Label result;
+    private ObjectProperty<Course> courseProperty = new SimpleObjectProperty<>();
+
+    private ExecutorService executor = Executors.newWorkStealingPool();
+    private ExecutorService solverExecutor = Executors.newSingleThreadExecutor();
+
+
+    @Subscribe
+    public void courseChanged(CourseSelectionChanged event) {
+        System.out.println(event.getCourse().getName() + " selected.");
+        this.courseProperty.set(event.getCourse());
+    }
+
+    @Inject
+    // TODO: do not inject store, use provider and event or a property or something
+    public MainController(@de.hhu.stups.plues.injector.Store ObjectProperty storeProp, @de.hhu.stups.plues.injector.Solver ObjectProperty solverProp, Properties properties, Api api, EventBus bus) {
+        this.api = api;
+        this.storeProperty = storeProp;
+        this.solverProperty = solverProp;
+        this.properties = properties;
+
+        bus.register(this);
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        if (properties.get("dbpath") != null) {
+            loadData();
+        } else {
+            // rely on user opening a database
+        }
+
+
+        selection.textProperty().bind(Bindings.selectString(courseProperty, "name"));
+
+        checkSelection.setDefaultButton(true);
+        checkSelection.disableProperty().bind(courseProperty.isNull().or(solverProperty.isNull()));
+
+        IntStream.range(1, 20).forEach(x -> foo.add(new Label(String.valueOf(x)), x % foo.getColumnConstraints().size(), x % foo.getRowConstraints().size()));
+    }
+
+    private void loadData() {
+        StoreLoaderTask storeLoader = new StoreLoaderTask(properties);
+
+        storeLoader.setOnSucceeded(value -> System.out.println("STORE:loading Store succeeded"));
+        storeLoader.progressProperty().addListener((observable, oldValue, newValue) -> System.out.println("STORE " + newValue));
+        storeLoader.messageProperty().addListener((observable, oldValue, newValue) -> System.out.println("STORE " + newValue));
+        storeLoader.setOnFailed(event -> {
+            System.out.println(event);
+            System.out.println("STORE: Loading failed");
+        });
+        storeLoader.setOnSucceeded(event -> {
+            Platform.runLater(() -> {
+                Store s = (Store) event.getSource().getValue();
+                this.storeProperty.set(s);
+            });
+        });
+
+
+        this.storeProperty.addListener((observable, oldValue, newValue) -> Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                newValue.close();
+            }
+        }));
+
+        SolverLoaderTask solverLoader = new SolverLoaderTask(api, storeLoader, properties);
+        solverLoader.setOnSucceeded(value -> System.out.println("loading Solver succeeded"));
+        solverLoader.progressProperty().addListener((observable, oldValue, newValue) -> System.out.println(newValue));
+        solverLoader.messageProperty().addListener((observable, oldValue, newValue) -> System.out.println(newValue));
+
+
+        solverLoader.setOnFailed(event -> {
+            System.out.println(event);
+            System.out.println("Loading failed");
+        });
+        solverLoader.setOnSucceeded(event -> {
+            System.out.println(event);
+            Solver s = (Solver) event.getSource().getValue();
+            Platform.runLater(() -> this.solverProperty.set(s));
+        });
+        this.submitTask(storeLoader);
+        this.submitTask(solverLoader);
+    }
+
+    public void checkButtonPressed(ActionEvent actionEvent) {
+        Course course = courseProperty.get();
+        Solver solver = solverProperty.get();
+        SolverService s = new SolverService(solver);
+        Task<Boolean> t = s.checkFeasibilityTask(course);
+        t.setOnSucceeded(event -> {
+            Boolean i = (Boolean) event.getSource().getValue();
+            result.setText(i.toString());
+            System.out.println(course.getName() + ": " + i.toString());
+        });
+        this.submitTask(t, solverExecutor);
+    }
+
+    private void submitTask(Task<Boolean> t, ExecutorService exec) {
+        this.taskProgress.getTasks().add(t);
+        exec.submit(t);
+    }
+
+    private void submitTask(Task t) {
+        submitTask(t, this.executor);
+    }
+}

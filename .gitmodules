@@ -1,6 +1,6 @@
 [submodule "model-generator"]
 	path = model-generator
-	url = git@github.com:plues/model-generator.git
+	url = ../model-generator.git
 [submodule "musterstudienplaene"]
 	path = musterstudienplaene
-	url = https://github.com/plues/musterstudienplaene
+	url = ../musterstudienplaene.git
