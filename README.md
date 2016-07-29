@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/plues/plues.svg)](https://travis-ci.org/plues/plues)
 
+**Current Version:** 1.0.0-SNAPSHOT
+
 This is the main application component of the
 [ProB](https://www3.hhu.de/stups/prob/) based timetable validation tool
 [PlÜS](https://github.com/plues) built using the [Prob2

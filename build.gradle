@@ -28,7 +28,7 @@ sourceSets {
     }
 }
 
-version = "0.0.1-SNAPSHOT"
+version = "2.0.0-SNAPSHOT"
 
 mainClassName = "de.hhu.stups.plues.ui.Main"
 
