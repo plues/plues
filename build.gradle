@@ -1,32 +1,15 @@
 plugins {
-    id 'groovy'
     id 'java'
     id 'application'
     id 'idea'
     id 'eclipse'
+    id 'findbugs'
     id 'edu.sc.seis.launch4j' version '1.6.1'
     id "edu.sc.seis.macAppBundle" version "2.1.6"
 }
 
 sourceCompatibility = 8
 targetCompatibility = 8
-
-// https://coderwall.com/p/wuqopq/compile-groovy-before-java-in-gradle-build
-sourceSets {
-    main {
-        groovy {
-            // this makes the groovy-compiler compile groovy- as well
-            // as java-files.
-            // Needed, because java is normally compiled before groovy.
-            // Since we are using groovy objects from java, we need it
-            // the other way round.
-            srcDirs = ['src/main/groovy', 'src/main/java']
-        }
-        java {
-            srcDirs = [] // don't compile Java code twice
-        }
-    }
-}
 
 version = "2.0.0-SNAPSHOT"
 
@@ -35,6 +18,13 @@ mainClassName = "de.hhu.stups.plues.ui.Main"
 applicationDefaultJvmArgs = ["-Dapple.awt.UIElement=true"]
 def appName = "plues-" + project.version
 
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
+}
 
 repositories {
     mavenCentral()

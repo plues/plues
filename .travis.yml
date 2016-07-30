@@ -1,4 +1,4 @@
-language: groovy
+language: java
 notification:
   email:
     on_success: never
@@ -8,11 +8,12 @@ jdk:
   - oraclejdk8
 
 before_cache:
-- rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+ - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+ - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
-  directories:
-  - $HOME/.gradle/caches/
-  - $HOME/.gradle/wrapper/
+ directories:
+   - $HOME/.gradle/caches/
+   - $HOME/.gradle/wrapper/
 notifications:
   slack:
     secure: wDz+vKX+GTOP+dE1MHMZyFnvDNzfFhsPoyIR1AL4hjHEVLOi8bmGoqurzOcmeYbdsjnf10Ins6/5Di4pHHRqwMAC9egeeWsKjSoBphASpQG5GRnshE+mLikacSrR3WmcWlT9j21ISjKvpij26RY+XBaXqkSS2Mgzs5J4lfH2JmEX5c9s5r0GpNLCh0L7U95RtY6m9p24NCNPCJA//bjiAotCQxItp4wFKKSiQAI4RAJmUQw8RIEpqCUNnRqWrnt67ocQ3fmpbCH2Eh3FprXkMazCkS5ztoEhj+gqknoj9mwPpCaCYzO3ncsOirX3Y0Su/ToC2eDMCVH5X4hrnJVs2XSBVaknXtFolKL6zuPO23N28sSiFrkMupV2MRdAXSv/ifm1H6ihxkPWcuhb55xjaoqJ2TxJ3Wr2smkcwdu5WI2M+wHPjY6KKrZRAGs2yCCly/vdd0l6Js9wKZrA3uyLWZefyCwJSRUX0hO2QGQCKJtH/lUfvNIdmj9bL9KHmfoCmq0Ag4YPAHElxlIVtLSeu1ZTptQK7fiN13tr6g/J0aB/O3z9ZAkUEyolgdtiuidJNO//p1JRc7MV20JYBu93+fhlXk8You1iNp9HLCF2Kk4HBQCIrEroOaAb6Quw+onmcbzzNY0+DYRqtDHU5J8uqFzY43JoMjhvYZnXXUv/8jI=
