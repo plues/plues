@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 public class Solver {
     public static final String CHECK = "check";
+    public static final String MOVE = "move";
     private Trace trace;
     private final Api api;
     private StateSpace stateSpace;
@@ -27,12 +28,6 @@ public class Solver {
         return ((Trace) stateSpace.asType(Trace.class)).execute("$setup_constants").execute("$initialise_machine");
     }
 
-    public Boolean checkFeasibility(String... courses) {
-        String op = CHECK;
-        String predicate = getFeasibilityPredicate(courses);
-        return executeOperation(op, predicate);
-    }
-
     private Boolean executeOperation(String op, String predicate) {
         if (this.trace.canExecuteEvent(op, predicate)) {
             this.trace = this.trace.execute(op, predicate);
@@ -43,13 +38,26 @@ public class Solver {
 
     private String getFeasibilityPredicate(String[] courses) {
         Iterator<String> i = Arrays.asList(courses).stream()
-                                            .filter(it -> it != null && !it.equals(""))
-                                            .map(it -> "\"" + it + "\"").iterator();
+                .filter(it -> it != null && !it.equals(""))
+                .map(it -> "\"" + it + "\"").iterator();
         return "ccss={" + Joiner.on(", ").join(i) + "}";
     }
 
     public void interrupt() {
         System.out.println("Sending interrupt to state space");
         this.stateSpace.sendInterrupt();
+    }
+
+    // OPERATIONS
+
+    public Boolean checkFeasibility(String... courses) {
+        String op = CHECK;
+        String predicate = getFeasibilityPredicate(courses);
+        return executeOperation(op, predicate);
+    }
+
+    public void move(String sessionId, String day, String slot) {
+        String predicate = "session=session" + sessionId + " & dow=" + day + " & slot=slot" + slot;
+        executeOperation(MOVE, predicate);
     }
 }

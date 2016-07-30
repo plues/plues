@@ -48,6 +48,7 @@ dependencies {
     compile project(':musterstudienplaene')
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile "org.mockito:mockito-core:1.+"
 }
 
 launch4j {
