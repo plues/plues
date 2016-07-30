@@ -42,7 +42,7 @@ public class MainController implements Initializable {
     public GridPane foo;
 
     @FXML
-    public TaskProgressView taskProgress;
+    public TaskProgressView<Task<?>> taskProgress;
     @FXML
     public Label selection;
     public Button checkSelection;
@@ -60,11 +60,12 @@ public class MainController implements Initializable {
     }
 
     @Inject
+    @SuppressWarnings("unchecked")
     // TODO: do not inject store, use provider and event or a property or something
     public MainController(@de.hhu.stups.plues.injector.Store ObjectProperty storeProp, @de.hhu.stups.plues.injector.Solver ObjectProperty solverProp, Properties properties, Api api, EventBus bus) {
         this.api = api;
-        this.storeProperty = storeProp;
-        this.solverProperty = solverProp;
+        this.storeProperty = (ObjectProperty<Store>) storeProp;
+        this.solverProperty = (ObjectProperty<Solver>) solverProp;
         this.properties = properties;
 
         bus.register(this);
@@ -144,12 +145,12 @@ public class MainController implements Initializable {
         this.submitTask(t, solverExecutor);
     }
 
-    private void submitTask(Task<Boolean> t, ExecutorService exec) {
+    private void submitTask(Task<?> t, ExecutorService exec) {
         this.taskProgress.getTasks().add(t);
         exec.submit(t);
     }
 
-    private void submitTask(Task t) {
+    private void submitTask(Task<?> t) {
         submitTask(t, this.executor);
     }
 }

@@ -12,6 +12,7 @@ public class SolverService {
     }
 
     public Task<Boolean> checkFeasibilityTask(Course course) {
-        return new SolverTask<Boolean>("Checking Feasibility", course.getName(), solver, () -> (Boolean) solver.checkFeasibility(course.getName()));
+        return new SolverTask<>("Checking Feasibility", course.getName(), solver,
+                                () -> solver.checkFeasibility(course.getName()));
     }
 }

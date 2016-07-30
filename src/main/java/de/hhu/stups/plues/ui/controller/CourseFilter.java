@@ -41,8 +41,9 @@ public class CourseFilter extends VBox implements Initializable {
     TableColumn<Course, String> kzfaColumn;
 
     @Inject
+    @SuppressWarnings("unchecked")
     public CourseFilter(FXMLLoader loader, @Store ObjectProperty storeProperty, EventBus ev) {
-        this.storeProperty = storeProperty;
+        this.storeProperty = (ObjectProperty<AbstractStore>) storeProperty;
         this.eventBus = ev;
         loader.setLocation(getClass().getResource("/fxml/CourseFilter.fxml"));
 
