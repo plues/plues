@@ -10,14 +10,13 @@ import javafx.util.BuilderFactory;
 
 public class GuiceBuilderFactory implements BuilderFactory {
 
+    BuilderFactory javafxDefaultBuilderFactory = new JavaFXBuilderFactory();
     private Injector injector;
 
     @Inject
     public GuiceBuilderFactory(Injector injector) {
         this.injector = injector;
     }
-
-    BuilderFactory javafxDefaultBuilderFactory = new JavaFXBuilderFactory();
 
     @Override
     public Builder<?> getBuilder(Class<?> type) {

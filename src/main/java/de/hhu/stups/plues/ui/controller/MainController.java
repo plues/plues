@@ -53,12 +53,6 @@ public class MainController implements Initializable {
     private ExecutorService solverExecutor = Executors.newSingleThreadExecutor();
 
 
-    @Subscribe
-    public void courseChanged(CourseSelectionChanged event) {
-        System.out.println(event.getCourse().getName() + " selected.");
-        this.courseProperty.set(event.getCourse());
-    }
-
     @Inject
     @SuppressWarnings("unchecked")
     // TODO: do not inject store, use provider and event or a property or something
@@ -69,6 +63,12 @@ public class MainController implements Initializable {
         this.properties = properties;
 
         bus.register(this);
+    }
+
+    @Subscribe
+    public void courseChanged(CourseSelectionChanged event) {
+        System.out.println(event.getCourse().getName() + " selected.");
+        this.courseProperty.set(event.getCourse());
     }
 
     @Override

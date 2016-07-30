@@ -12,12 +12,11 @@ import java.util.Properties;
 
 public class StoreLoaderTask extends Task<Store> {
     private static final long MAX_STEPS = 3;
-    private final Properties properties;
-
     private static final String PLUES = "plues";
     private static final String EXTENSION = ".sqlite3";
     private static Path dbPath;
     private static Path dbWorkingPath;
+    private final Properties properties;
 
     public StoreLoaderTask(Properties properties) {
         this.properties = properties;
@@ -27,7 +26,7 @@ public class StoreLoaderTask extends Task<Store> {
     @Override
     protected Store call() throws Exception {
         checkExportDatabase();
-        Store s =  new Store();
+        Store s = new Store();
         try {
             s.init(dbWorkingPath.toString());
         } catch (IncompatibleSchemaError i) {

@@ -1,7 +1,7 @@
 package de.hhu.stups.plues.tasks;
 
-import de.hhu.stups.plues.Helpers;
 import de.be4.classicalb.core.parser.exceptions.BException;
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.modelgenerator.FileType;
 import de.hhu.stups.plues.modelgenerator.Renderer;
@@ -21,15 +21,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class SolverLoaderTask extends Task<Solver> {
+    public static final int MAX_STEPS = 4;
     private static final String MODEL_FILE = "Solver.mch";
     private static final String MODEL_PATH = "models";
     private static final String MODELS_ZIP = "models.zip";
-    public static final int MAX_STEPS = 4;
-
     private static Path modelDirectory;
     private final Api api;
-    private Store store;
     private final StoreLoaderTask storeLoader;
+    private Store store;
     private Solver solver;
     private Properties properties;
 
