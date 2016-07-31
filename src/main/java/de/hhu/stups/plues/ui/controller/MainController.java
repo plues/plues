@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.controller;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import de.hhu.stups.plues.data.AbstractStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.Solver;
@@ -34,7 +35,7 @@ import java.util.stream.IntStream;
 public class MainController implements Initializable {
 
     private final Api api;
-    private final ObjectProperty<Store> storeProperty;
+    private final ObjectProperty<AbstractStore> storeProperty;
     private final ObjectProperty<Solver> solverProperty;
     private final Properties properties;
 
@@ -56,10 +57,10 @@ public class MainController implements Initializable {
     @Inject
     @SuppressWarnings("unchecked")
     // TODO: do not inject store, use provider and event or a property or something
-    public MainController(@de.hhu.stups.plues.injector.Store ObjectProperty storeProp, @de.hhu.stups.plues.injector.Solver ObjectProperty solverProp, Properties properties, Api api, EventBus bus) {
+    public MainController(ObjectProperty<AbstractStore> storeProp, ObjectProperty<Solver> solverProp, Properties properties, Api api, EventBus bus) {
         this.api = api;
-        this.storeProperty = (ObjectProperty<Store>) storeProp;
-        this.solverProperty = (ObjectProperty<Solver>) solverProp;
+        this.storeProperty = storeProp;
+        this.solverProperty = solverProp;
         this.properties = properties;
 
         bus.register(this);

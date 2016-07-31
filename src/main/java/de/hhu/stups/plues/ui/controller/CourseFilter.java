@@ -4,7 +4,6 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.hhu.stups.plues.data.AbstractStore;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.injector.Store;
 import de.hhu.stups.plues.ui.events.CourseSelectionChanged;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
@@ -42,8 +41,8 @@ public class CourseFilter extends VBox implements Initializable {
 
     @Inject
     @SuppressWarnings("unchecked")
-    public CourseFilter(FXMLLoader loader, @Store ObjectProperty storeProperty, EventBus ev) {
-        this.storeProperty = (ObjectProperty<AbstractStore>) storeProperty;
+    public CourseFilter(FXMLLoader loader, ObjectProperty<AbstractStore> storeProperty, EventBus ev) {
+        this.storeProperty = storeProperty;
         this.eventBus = ev;
         loader.setLocation(getClass().getResource("/fxml/CourseFilter.fxml"));
 

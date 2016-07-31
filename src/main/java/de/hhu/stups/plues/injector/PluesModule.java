@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
+import com.google.inject.TypeLiteral;
 import de.hhu.stups.plues.data.AbstractStore;
 import de.hhu.stups.plues.ui.controller.CourseFilter;
 import de.prob.MainModule;
@@ -59,9 +60,8 @@ public class PluesModule extends AbstractModule {
         bind(CourseFilter.class);
         bind(EventBus.class).toInstance(new EventBus());
 
-        bind(ObjectProperty.class).annotatedWith(Store.class).toInstance(new SimpleObjectProperty<AbstractStore>());
-        bind(ObjectProperty.class).annotatedWith(Solver.class).toInstance(new SimpleObjectProperty<de.hhu.stups.plues.prob.Solver>());
-
+        bind(new TypeLiteral<ObjectProperty<AbstractStore>>(){}).toInstance(new SimpleObjectProperty<>());
+        bind(new TypeLiteral<ObjectProperty<de.hhu.stups.plues.prob.Solver>>(){}).toInstance(new SimpleObjectProperty<>());
     }
 
     @Provides
