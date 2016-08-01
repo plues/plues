@@ -22,17 +22,13 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Injector injector = Guice.createInjector(
-                com.google.inject.Stage.DEVELOPMENT, new PluesModule());
+                com.google.inject.Stage.DEVELOPMENT, new PluesModule(primaryStage));
 
-        FXMLLoader loader = injector.getInstance(FXMLLoader.class);
+        Router router = injector.getInstance(Router.class);
 
-        URL main = getClass().getResource("/fxml/main.fxml");
-        loader.setLocation(main);
-
-        Parent root = loader.load();
+        router.transitionTo("index");
 
         primaryStage.setTitle("PlÜS");
-        primaryStage.setScene(new Scene(root, 800, 600));
 
         // TODO: properly close the application on close request
         Platform.setImplicitExit(true);

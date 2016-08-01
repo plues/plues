@@ -11,10 +11,13 @@ import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
+import de.hhu.stups.plues.provider.RouterProvider;
+import de.hhu.stups.plues.ui.Router;
 import de.hhu.stups.plues.ui.controller.CourseFilter;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
 import de.prob.MainModule;
 import javafx.fxml.FXMLLoader;
+import javafx.stage.Stage;
 
 public class PluesModule extends AbstractModule {
 
@@ -26,6 +29,12 @@ public class PluesModule extends AbstractModule {
             = new TypeLiteral<Delayed<SolverService>>() {
     };
 
+    private final Stage primaryStage;
+
+    public PluesModule(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+    }
+
     @Override
     public final void configure() {
         // prob 2.0
@@ -36,6 +45,9 @@ public class PluesModule extends AbstractModule {
         install(new FactoryModuleBuilder()
                         .build(SolverLoaderTaskFactory.class));
         install(new FactoryModuleBuilder().build(SolverFactory.class));
+
+        bind(Stage.class).toInstance(primaryStage);
+        bind(Router.class).toProvider(RouterProvider.class);
 
         bind(CourseFilter.class);
         bind(Musterstudienplaene.class);
