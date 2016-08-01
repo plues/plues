@@ -45,4 +45,8 @@ final class Mappers {
         }
         return collectedModules;
     }
+
+    public static java.util.Set<String> mapCourseSet(Set value) {
+        return value.stream().map(i -> i.toString()).collect(Collectors.toSet());
+    }
 }

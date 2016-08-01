@@ -9,6 +9,7 @@ import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
 import de.prob.translator.Translator;
 import de.prob.translator.types.BObject;
+import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
 
 import java.io.IOException;
@@ -20,8 +21,9 @@ import java.util.stream.Collectors;
 
 public class Solver {
     // TODO: move ops to an enum
-    public static final String CHECK = "check";
-    public static final String MOVE = "move";
+    private static final String CHECK = "check";
+    private static final String MOVE = "move";
+    private static final String IMPOSSIBLE_COURSES = "getImpossibleCourses";
     private final Api api;
     private Trace trace;
     private StateSpace stateSpace;
@@ -50,6 +52,11 @@ public class Solver {
                 .filter(it -> it != null && !it.equals(""))
                 .map(it -> "\"" + it + "\"").iterator();
         return "ccss={" + Joiner.on(", ").join(i) + "}";
+    }
+
+    private <T extends BObject> List<T> executeOperationWithResult(String op, Class<T> type) throws Exception {
+        return executeOperationWithResult(op, "1=1", type);
+
     }
 
     private <T extends BObject> List<T> executeOperationWithResult(String op, String predicate, Class<T> type) throws Exception {
@@ -103,5 +110,12 @@ public class Solver {
     public void move(String sessionId, String day, String slot) {
         String predicate = "session=session" + sessionId + " & dow=" + day + " & slot=slot" + slot;
         executeOperation(MOVE, predicate);
+    }
+
+    public java.util.Map<String, java.util.Set<String>> getImpossibleCourses() throws Exception {
+        List<Record> r = executeOperationWithResult(IMPOSSIBLE_COURSES, Record.class);
+        assert r.size() == 1;
+        Record result = r.get(0);
+        return result.entrySet().stream().collect(Collectors.toMap(i -> i.getKey().toString(), i -> Mappers.mapCourseSet((Set) i.getValue())));
     }
 }
