@@ -1,9 +1,12 @@
 package de.hhu.stups.plues.tasks;
 
+import com.google.inject.Inject;
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.IncompatibleSchemaError;
 import de.hhu.stups.plues.data.Store;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.scene.control.Alert;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,10 +19,10 @@ public class StoreLoaderTask extends Task<Store> {
     private static final String EXTENSION = ".sqlite3";
     private static Path dbPath;
     private static Path dbWorkingPath;
-    private final Properties properties;
+    private final String path;
 
-    public StoreLoaderTask(Properties properties) {
-        this.properties = properties;
+    public StoreLoaderTask(String path) {
+        this.path = path;
         updateTitle("Opening Database"); // TODO i18n
     }
 
@@ -36,13 +39,14 @@ public class StoreLoaderTask extends Task<Store> {
         return s;
     }
 
-    private void checkExportDatabase() throws Exception {
-        if (!this.properties.containsKey("dbpath")) {
-            throw new Exception("No dbpath found. Please " + // TODO: use a different exception
-                    "specify a dbpath property in the resources file.");
-        }
+    @Override
+    protected void failed() {
+        System.out.println("Loading store Failed");
+    }
 
-        dbPath = Helpers.expandPath((String) properties.get("dbpath"));
+    private void checkExportDatabase() throws Exception {
+
+        dbPath = Helpers.expandPath((String) this.path);
         updateProgress(1, MAX_STEPS);
 
         updateMessage("Creating a work location"); //TODO: i18n

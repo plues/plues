@@ -1,5 +1,9 @@
 package de.hhu.stups.plues.tasks;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
+
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
@@ -33,9 +37,10 @@ public class SolverLoaderTask extends Task<Solver> {
     private Properties properties;
 
 
-    public SolverLoaderTask(Api api, StoreLoaderTask store, Properties properties) {
+    @Inject
+    public SolverLoaderTask(Api api, Properties properties, @Assisted StoreLoaderTask storeLoader) {
         this.api = api;
-        this.storeLoader = store;
+        this.storeLoader = storeLoader;
         this.properties = properties;
         updateTitle("Loading ProB"); // TODO i18n
     }

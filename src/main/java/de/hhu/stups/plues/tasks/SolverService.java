@@ -1,16 +1,22 @@
 package de.hhu.stups.plues.tasks;
 
 import com.google.common.base.Joiner;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.Solver;
+import javafx.beans.property.ObjectProperty;
 import javafx.concurrent.Task;
 
+@Singleton
 public class SolverService {
     private final Solver solver;
 
-    public SolverService(Solver solver) {
-        this.solver = solver;
+    @Inject
+    public SolverService(ObjectProperty<Solver> solver) {
+        this.solver = solver.get();
+        assert this.solver != null;
     }
 
     public Task<Boolean> checkFeasibilityTask(Course... courses) {

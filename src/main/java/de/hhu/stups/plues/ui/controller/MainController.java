@@ -3,15 +3,16 @@ package de.hhu.stups.plues.ui.controller;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import de.hhu.stups.plues.data.AbstractStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
+import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.events.CourseSelectionChanged;
-import de.prob.scripting.Api;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -34,10 +35,13 @@ import java.util.stream.IntStream;
 
 public class MainController implements Initializable {
 
-    private final Api api;
     private final ObjectProperty<AbstractStore> storeProperty;
-    private final ObjectProperty<Solver> solverProperty;
+
     private final Properties properties;
+
+    private final ObjectProperty<Solver> solverProperty;
+    private final Provider<SolverService> solverServiceProvider;
+    private SolverLoaderTaskFactory solverLoaderTaskFactory;
 
     @FXML
     public GridPane foo;
@@ -55,13 +59,16 @@ public class MainController implements Initializable {
 
 
     @Inject
-    @SuppressWarnings("unchecked")
-    // TODO: do not inject store, use provider and event or a property or something
-    public MainController(ObjectProperty<AbstractStore> storeProp, ObjectProperty<Solver> solverProp, Properties properties, Api api, EventBus bus) {
-        this.api = api;
+    public MainController(ObjectProperty<AbstractStore> storeProp, ObjectProperty<Solver> solverProp,
+                          SolverLoaderTaskFactory solverLoaderTaskFactory,
+                          Provider<SolverService> solverServiceProvider,
+                          Properties properties, EventBus bus) {
         this.storeProperty = storeProp;
-        this.solverProperty = solverProp;
         this.properties = properties;
+
+        this.solverProperty = solverProp;
+        this.solverLoaderTaskFactory = solverLoaderTaskFactory;
+        this.solverServiceProvider = solverServiceProvider;
 
         bus.register(this);
     }
@@ -77,6 +84,7 @@ public class MainController implements Initializable {
         if (properties.get("dbpath") != null) {
             loadData();
         } else {
+            throw new RuntimeException("No dbpath found. Please specify a dbpath property in the resources file.");
             // rely on user opening a database
         }
 
@@ -90,21 +98,22 @@ public class MainController implements Initializable {
     }
 
     private void loadData() {
-        StoreLoaderTask storeLoader = new StoreLoaderTask(properties);
+
+        StoreLoaderTask storeLoader = new StoreLoaderTask((String) properties.get("dbpath"));
 
         storeLoader.setOnSucceeded(value -> System.out.println("STORE:loading Store succeeded"));
         storeLoader.progressProperty().addListener((observable, oldValue, newValue) -> System.out.println("STORE " + newValue));
         storeLoader.messageProperty().addListener((observable, oldValue, newValue) -> System.out.println("STORE " + newValue));
         storeLoader.setOnFailed(event -> {
             System.out.println(event);
-            System.out.println("STORE: Loading failed");
+            // TODO: proper error handling
+            System.err.println("STORE: Loading failed");
+            throw new RuntimeException("STORE: Loading failed");
         });
-        storeLoader.setOnSucceeded(event -> {
-            Platform.runLater(() -> {
-                Store s = (Store) event.getSource().getValue();
-                this.storeProperty.set(s);
-            });
-        });
+        storeLoader.setOnSucceeded(event -> Platform.runLater(() -> {
+            Store s = (Store) event.getSource().getValue();
+            this.storeProperty.set(s);
+        }));
 
 
         this.storeProperty.addListener((observable, oldValue, newValue) -> Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -114,7 +123,7 @@ public class MainController implements Initializable {
             }
         }));
 
-        SolverLoaderTask solverLoader = new SolverLoaderTask(api, storeLoader, properties);
+        SolverLoaderTask solverLoader = this.solverLoaderTaskFactory.create(storeLoader);
         solverLoader.setOnSucceeded(value -> System.out.println("loading Solver succeeded"));
         solverLoader.progressProperty().addListener((observable, oldValue, newValue) -> System.out.println(newValue));
         solverLoader.messageProperty().addListener((observable, oldValue, newValue) -> System.out.println(newValue));
@@ -135,8 +144,7 @@ public class MainController implements Initializable {
 
     public void checkButtonPressed(ActionEvent actionEvent) {
         Course course = courseProperty.get();
-        Solver solver = solverProperty.get();
-        SolverService s = new SolverService(solver);
+        SolverService s = this.solverServiceProvider.get();
         Task<Boolean> t = s.checkFeasibilityTask(course);
         t.setOnSucceeded(event -> {
             Boolean i = (Boolean) event.getSource().getValue();
