@@ -39,7 +39,7 @@
         </MenuBar>
     </top>
     <left>
-        <CourseFilter/>
+        <CourseFilter fx:id="courseFilter"/>
     </left>
     <right>
         <ScrollPane prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">

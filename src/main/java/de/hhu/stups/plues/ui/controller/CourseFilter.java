@@ -1,11 +1,10 @@
 package de.hhu.stups.plues.ui.controller;
 
-import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.hhu.stups.plues.data.AbstractStore;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.ui.events.CourseSelectionChanged;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -24,7 +23,6 @@ import static tlc2.util.SimpUtil.store;
 
 public class CourseFilter extends VBox implements Initializable {
 
-    private final EventBus eventBus;
     private final ObjectProperty<AbstractStore> storeProperty;
 
     @FXML
@@ -40,9 +38,8 @@ public class CourseFilter extends VBox implements Initializable {
     TableColumn<Course, String> kzfaColumn;
 
     @Inject
-    public CourseFilter(FXMLLoader loader, ObjectProperty<AbstractStore> storeProperty, EventBus ev) {
+    public CourseFilter(FXMLLoader loader, ObjectProperty<AbstractStore> storeProperty) {
         this.storeProperty = storeProperty;
-        this.eventBus = ev;
         loader.setLocation(getClass().getResource("/fxml/CourseFilter.fxml"));
 
         loader.setRoot(this);
@@ -75,9 +72,13 @@ public class CourseFilter extends VBox implements Initializable {
 
     private void initializeCourseListView(List<Course> courses) {
         courseListView.setItems(FXCollections.observableArrayList(courses));
-        courseListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            System.out.println(newSelection.getName());
-            eventBus.post(new CourseSelectionChanged(newSelection));
-        });
+    }
+
+    public ReadOnlyObjectProperty<Course> selectedItemProperty() {
+        return courseListView.getSelectionModel().selectedItemProperty();
+    }
+
+    public Course selectedItem() {
+        return courseListView.getSelectionModel().getSelectedItem();
     }
 }

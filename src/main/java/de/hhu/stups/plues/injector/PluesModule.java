@@ -28,7 +28,7 @@ public class PluesModule extends AbstractModule {
                 .build(SolverLoaderTaskFactory.class));
 
         bind(CourseFilter.class);
-        bind(EventBus.class).toInstance(new EventBus());
+
         bind(SolverService.class);
 
         bind(new TypeLiteral<ObjectProperty<AbstractStore>>() {}).toInstance(new SimpleObjectProperty<>());

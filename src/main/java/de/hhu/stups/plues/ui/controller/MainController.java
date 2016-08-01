@@ -1,7 +1,5 @@
 package de.hhu.stups.plues.ui.controller;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import de.hhu.stups.plues.data.AbstractStore;
@@ -12,7 +10,6 @@ import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
-import de.hhu.stups.plues.ui.events.CourseSelectionChanged;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -52,6 +49,9 @@ public class MainController implements Initializable {
     public Label selection;
     public Button checkSelection;
     public Label result;
+    @FXML
+    private CourseFilter courseFilter;
+
     private ObjectProperty<Course> courseProperty = new SimpleObjectProperty<>();
 
     private ExecutorService executor = Executors.newWorkStealingPool();
@@ -62,21 +62,13 @@ public class MainController implements Initializable {
     public MainController(ObjectProperty<AbstractStore> storeProp, ObjectProperty<Solver> solverProp,
                           SolverLoaderTaskFactory solverLoaderTaskFactory,
                           Provider<SolverService> solverServiceProvider,
-                          Properties properties, EventBus bus) {
+                          Properties properties) {
         this.storeProperty = storeProp;
         this.properties = properties;
 
         this.solverProperty = solverProp;
         this.solverLoaderTaskFactory = solverLoaderTaskFactory;
         this.solverServiceProvider = solverServiceProvider;
-
-        bus.register(this);
-    }
-
-    @Subscribe
-    public void courseChanged(CourseSelectionChanged event) {
-        System.out.println(event.getCourse().getName() + " selected.");
-        this.courseProperty.set(event.getCourse());
     }
 
     @Override
@@ -88,6 +80,7 @@ public class MainController implements Initializable {
             // rely on user opening a database
         }
 
+        courseProperty.bind(courseFilter.selectedItemProperty());
 
         selection.textProperty().bind(Bindings.selectString(courseProperty, "name"));
 
