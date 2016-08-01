@@ -40,7 +40,6 @@ public class CourseFilter extends VBox implements Initializable {
     TableColumn<Course, String> kzfaColumn;
 
     @Inject
-    @SuppressWarnings("unchecked")
     public CourseFilter(FXMLLoader loader, ObjectProperty<AbstractStore> storeProperty, EventBus ev) {
         this.storeProperty = storeProperty;
         this.eventBus = ev;
