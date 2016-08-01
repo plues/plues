@@ -1,17 +1,13 @@
 package de.hhu.stups.plues.tasks;
 
-import com.google.inject.Inject;
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.IncompatibleSchemaError;
 import de.hhu.stups.plues.data.Store;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.scene.control.Alert;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Properties;
 
 public class StoreLoaderTask extends Task<Store> {
     private static final long MAX_STEPS = 3;
