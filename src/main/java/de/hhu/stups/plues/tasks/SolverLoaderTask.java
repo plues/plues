@@ -127,6 +127,12 @@ public class SolverLoaderTask extends Task<Solver> {
         updateMessage("Done!"); // TODO i18n
     }
 
+    @Override
+    protected void failed() {
+        System.err.println("Loading failed");
+        this.getException().printStackTrace();
+    }
+
     private void initSolver() throws IOException, BException {
         String modelPath = modelDirectory.resolve(MODEL_FILE).toString();
         this.solver = new Solver(this.api, modelPath);

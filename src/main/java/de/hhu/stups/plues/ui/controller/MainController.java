@@ -122,10 +122,6 @@ public class MainController implements Initializable {
         solverLoader.messageProperty().addListener((observable, oldValue, newValue) -> System.out.println(newValue));
 
 
-        solverLoader.setOnFailed(event -> {
-            System.out.println(event);
-            System.out.println("Loading failed");
-        });
         solverLoader.setOnSucceeded(event -> {
             System.out.println(event);
             Solver s = (Solver) event.getSource().getValue();
