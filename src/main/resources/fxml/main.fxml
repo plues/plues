@@ -16,69 +16,80 @@
 <?import org.controlsfx.control.TaskProgressView?>
 <?import de.hhu.stups.plues.ui.controller.CourseFilter?>
 <?import javafx.scene.control.Button?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.hhu.stups.plues.ui.controller.MainController">
-    <top>
-        <MenuBar BorderPane.alignment="CENTER">
-            <menus>
-                <Menu mnemonicParsing="false" text="File">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Close" />
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Edit">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Delete" />
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Help">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="About" />
-                    </items>
-                </Menu>
-            </menus>
-        </MenuBar>
-    </top>
-    <left>
-        <CourseFilter fx:id="courseFilter"/>
-    </left>
-    <right>
-        <ScrollPane prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
-            <content>
-                <TaskProgressView fx:id="taskProgress" prefWidth="300"/>
-            </content>
-        </ScrollPane>
-    </right>
-    <bottom>
-        <HBox prefHeight="20.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
-    </bottom>
-    <center>
-        <VBox>
-            <children>
-                <GridPane fx:id="foo" maxHeight="Infinity" maxWidth="Infinity" BorderPane.alignment="CENTER">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                    <BorderPane.margin>
-                        <Insets />
-                    </BorderPane.margin>
-                </GridPane>
+<?import javafx.scene.control.TabPane?>
 
-            <Label text="Selection" />
-            <Label fx:id="selection" />
-                <Button fx:id="checkSelection" text="Check!"  onAction="#checkButtonPressed"/>
-                <Label text="Result" />
-                <Label fx:id="result"  />
-            </children>
-        </VBox>
-    </center>
-</BorderPane>
+<?import javafx.scene.control.Tab?>
+<?import de.hhu.stups.plues.ui.controller.Musterstudienplaene?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.hhu.stups.plues.ui.controller.MainController">
+    <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+            <Menu mnemonicParsing="false" text="File">
+                <items>
+                    <MenuItem mnemonicParsing="false" text="Close" />
+                </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Edit">
+                <items>
+                    <MenuItem mnemonicParsing="false" text="Delete" />
+                </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+                <items>
+                    <MenuItem mnemonicParsing="false" text="About" />
+                </items>
+            </Menu>
+        </menus>
+    </MenuBar>
+    <TabPane>
+        <Tab text="Musterstudienplaene" closable="false">
+            <Musterstudienplaene fx:id="timetable"/>
+        </Tab>
+        <Tab text="Timetable" closable="false">
+            <BorderPane>
+                <left>
+                    <CourseFilter fx:id="courseFilter"/>
+                </left>
+                <right>
+                    <ScrollPane prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
+                        <content>
+                            <TaskProgressView fx:id="taskProgress" prefWidth="300"/>
+                        </content>
+                    </ScrollPane>
+                </right>
+                <bottom>
+                    <HBox prefHeight="20.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+                </bottom>
+                <center>
+                    <VBox>
+                        <children>
+                            <GridPane fx:id="foo" maxHeight="Infinity" maxWidth="Infinity" BorderPane.alignment="CENTER">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                <BorderPane.margin>
+                                    <Insets />
+                                </BorderPane.margin>
+                            </GridPane>
+
+                            <Label text="Selection" />
+                            <Label fx:id="selection" />
+                            <Button fx:id="checkSelection" text="Check!"  onAction="#checkButtonPressed"/>
+                            <Label text="Result" />
+                            <Label fx:id="result"  />
+                        </children>
+                    </VBox>
+                </center>
+            </BorderPane>
+        </Tab>
+    </TabPane>
+</VBox>
