@@ -26,7 +26,7 @@ public class Main extends Application {
 
         Parent root = loader.load();
 
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("PlÜS");
         primaryStage.setScene(new Scene(root, 800, 600));
 
         // TODO: properly close the application on close request
