@@ -29,13 +29,10 @@ public class PluesModule extends AbstractModule {
                 .build(SolverLoaderTaskFactory.class));
 
         bind(CourseFilter.class);
-
         bind(Musterstudienplaene.class);
 
-        bind(SolverService.class);
-
         bind(new TypeLiteral<Delayed<AbstractStore>>() {}).toInstance(new Delayed<>());
-        bind(new TypeLiteral<ObjectProperty<de.hhu.stups.plues.prob.Solver>>() {}).toInstance(new SimpleObjectProperty<>());
+        bind(new TypeLiteral<Delayed<SolverService>>() {}).toInstance(new Delayed<>());
     }
 
     @Provides

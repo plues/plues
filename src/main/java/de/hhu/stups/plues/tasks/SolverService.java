@@ -2,28 +2,30 @@ package de.hhu.stups.plues.tasks;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.Solver;
-import javafx.beans.property.ObjectProperty;
 import javafx.concurrent.Task;
 
-@Singleton
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class SolverService {
-    private final Solver solver;
+    private final ExecutorService executor;
+    private Solver solver;
 
     @Inject
-    public SolverService(ObjectProperty<Solver> solver) {
-        this.solver = solver.get();
-        assert this.solver != null;
+    public SolverService(Solver s) {
+        this.executor = Executors.newSingleThreadExecutor();
+        this.solver = s;
     }
 
     public Task<Boolean> checkFeasibilityTask(Course... courses) {
+        assert this.solver != null;
         String[] names = getNames(courses);
         String msg = Joiner.on(", ").join(names);
-        return new SolverTask<>("Checking Feasibility", msg, solver,
-                () -> solver.checkFeasibility(names));
+        return new SolverTask<>("Checking Feasibility", msg, this.solver,
+                () -> this.solver.checkFeasibility(names));
     }
 
     public Task<FeasibilityResult> computeFeasibilityTask(Course... courses) {
@@ -46,4 +48,7 @@ public class SolverService {
 //                    .toArray(new String[courses.length]);
     }
 
+    public void submit(Task<?> command) {
+        this.executor.submit(command);
+    }
 }

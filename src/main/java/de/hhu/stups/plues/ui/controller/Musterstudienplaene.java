@@ -1,11 +1,10 @@
 package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
+import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.AbstractStore;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.Solver;
-import de.hhu.stups.plues.Delayed;
-import javafx.beans.property.ObjectProperty;
+import de.hhu.stups.plues.tasks.SolverService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,8 +20,8 @@ import java.util.stream.Collectors;
 
 public class Musterstudienplaene extends GridPane implements Initializable {
 
-    private final ObjectProperty<Solver> solverProperty;
     private final Delayed<AbstractStore> delayedStore;
+    private final Delayed<SolverService> delayedSolverService;
 
     @FXML
     ComboBox<Course> cbMajor;
@@ -30,9 +29,10 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     ComboBox<Course> cbMinor;
 
     @Inject
-    public Musterstudienplaene(FXMLLoader loader, Delayed<AbstractStore> delayedStore, ObjectProperty<Solver> solverProperty) {
+    public Musterstudienplaene(FXMLLoader loader, Delayed<AbstractStore> delayedStore,
+                               Delayed<SolverService> delayedSolverService) {
         this.delayedStore = delayedStore;
-        this.solverProperty = solverProperty;
+        this.delayedSolverService = delayedSolverService;
 
         loader.setLocation(getClass().getResource("/fxml/musterstudienplaene.fxml"));
 
@@ -47,7 +47,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     }
 
     @FXML
-    public void btGeneratePressed(){
+    public void btGeneratePressed() {
     }
 
     @Override
@@ -55,7 +55,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         delayedStore.whenAvailable(this::initializeComboBoxes);
     }
 
-    private void initializeComboBoxes(AbstractStore store){
+    private void initializeComboBoxes(AbstractStore store) {
         List<Course> courses = store.getCourses();
 
         List<Course> majorCourses = courses.stream().filter(c -> c.isMajor()).collect(Collectors.toList());

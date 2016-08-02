@@ -1,9 +1,9 @@
 package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
+import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.AbstractStore;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.Delayed;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
