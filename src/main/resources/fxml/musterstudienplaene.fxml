@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.ComboBox?>
-<fx:root prefHeight="600" prefWidth="250.0" type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/8"
-         xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-        <GridPane>
-            <ComboBox fx:id="major"/>
-            <ComboBox fx:id="minor"/>
-        </GridPane>
-    </children>
+<?import javafx.scene.control.Button?>
+<fx:root prefHeight="600" prefWidth="250.0" type="javafx.scene.layout.GridPane" xmlns="http://javafx.com/javafx/8"
+         xmlns:fx="http://javafx.com/fxml/1" alignment="center">
+    <ComboBox fx:id="cbMajor" GridPane.columnIndex="5" GridPane.rowIndex="0"/>
+    <ComboBox fx:id="cbMinor" GridPane.columnIndex="5" GridPane.rowIndex="2"/>
+    <Button fx:id="btGenerate" onAction="#btGeneratePressed" text="Generate"  GridPane.columnIndex="5" GridPane.rowIndex="4"/>
 </fx:root>
