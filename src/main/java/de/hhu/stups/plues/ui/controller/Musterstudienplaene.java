@@ -64,18 +64,12 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     private void initializeComboBoxes(AbstractStore store){
         List<Course> courses = store.getCourses();
-        List<Course> majorCourses = new ArrayList<>();
-        List<Course> minorCourses = new ArrayList<>();
-        for (Course c : courses){
-            String kzfa = c.getKzfa();
-            if (kzfa.equals("H")){
-                majorCourses.add(c);
-            } else {
-                minorCourses.add(c);
-            }
-        }
-        cbMajor.setItems((FXCollections.observableArrayList(majorCourses)));
-        cbMinor.setItems((FXCollections.observableArrayList(minorCourses)));
+
+        List<Course> majorCourses = courses.stream().filter(c -> c.isMajor()).collect(Collectors.toList());
+        List<Course> minorCourses = courses.stream().filter(c -> c.isMinor()).collect(Collectors.toList());
+
+        cbMajor.setItems(FXCollections.observableArrayList(majorCourses));
+        cbMinor.setItems(FXCollections.observableArrayList(minorCourses));
     }
 
 }
