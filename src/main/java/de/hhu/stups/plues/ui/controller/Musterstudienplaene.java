@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.AbstractStore;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.Solver;
+import de.hhu.stups.plues.Delayed;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -14,14 +15,14 @@ import javafx.scene.layout.GridPane;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class Musterstudienplaene extends GridPane implements Initializable {
 
-    private final ObjectProperty<AbstractStore> storeProperty;
     private final ObjectProperty<Solver> solverProperty;
+    private final Delayed<AbstractStore> delayedStore;
 
     @FXML
     ComboBox<Course> cbMajor;
@@ -29,8 +30,8 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     ComboBox<Course> cbMinor;
 
     @Inject
-    public Musterstudienplaene(FXMLLoader loader, ObjectProperty<AbstractStore> storeProperty, ObjectProperty<Solver> solverProperty) {
-        this.storeProperty = storeProperty;
+    public Musterstudienplaene(FXMLLoader loader, Delayed<AbstractStore> delayedStore, ObjectProperty<Solver> solverProperty) {
+        this.delayedStore = delayedStore;
         this.solverProperty = solverProperty;
 
         loader.setLocation(getClass().getResource("/fxml/musterstudienplaene.fxml"));
@@ -51,15 +52,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-        AbstractStore store = storeProperty.get();
-
-        if (store == null){
-            storeProperty.addListener((observable, oldValue, newValue) -> {
-                    this.initializeComboBoxes(newValue);});
-        } else {
-            this.initializeComboBoxes(store);
-        }
+        delayedStore.whenAvailable(this::initializeComboBoxes);
     }
 
     private void initializeComboBoxes(AbstractStore store){

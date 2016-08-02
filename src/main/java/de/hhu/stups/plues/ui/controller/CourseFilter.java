@@ -3,7 +3,7 @@ package de.hhu.stups.plues.ui.controller;
 import com.google.inject.Inject;
 import de.hhu.stups.plues.data.AbstractStore;
 import de.hhu.stups.plues.data.entities.Course;
-import javafx.beans.property.ObjectProperty;
+import de.hhu.stups.plues.Delayed;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -19,11 +19,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static tlc2.util.SimpUtil.store;
-
 public class CourseFilter extends VBox implements Initializable {
 
-    private final ObjectProperty<AbstractStore> storeProperty;
+    private final Delayed<AbstractStore> delayedStore;
 
     @FXML
     TableView<Course> courseListView;
@@ -38,8 +36,8 @@ public class CourseFilter extends VBox implements Initializable {
     TableColumn<Course, String> kzfaColumn;
 
     @Inject
-    public CourseFilter(FXMLLoader loader, ObjectProperty<AbstractStore> storeProperty) {
-        this.storeProperty = storeProperty;
+    public CourseFilter(FXMLLoader loader, Delayed<AbstractStore> delayedStore) {
+        this.delayedStore = delayedStore;
         loader.setLocation(getClass().getResource("/fxml/CourseFilter.fxml"));
 
         loader.setRoot(this);
@@ -50,7 +48,6 @@ public class CourseFilter extends VBox implements Initializable {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-        System.out.println("Store" + store);
     }
 
     @Override
@@ -59,15 +56,7 @@ public class CourseFilter extends VBox implements Initializable {
         kzfaColumn.setCellValueFactory(new PropertyValueFactory<>("kzfa"));
         poColumn.setCellValueFactory(new PropertyValueFactory<>("po"));
 
-        AbstractStore store = storeProperty.get();
-
-        if (store == null) {
-            storeProperty.addListener((observable, oldValue, newValue) -> {
-                this.initializeCourseListView(newValue.getCourses());
-            });
-        } else {
-            this.initializeCourseListView(store.getCourses());
-        }
+        delayedStore.whenAvailable(s -> this.initializeCourseListView(s.getCourses()));
     }
 
     private void initializeCourseListView(List<Course> courses) {

@@ -2,14 +2,12 @@ package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.AbstractStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.Solver;
-import de.hhu.stups.plues.tasks.SolverLoaderTask;
-import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
-import de.hhu.stups.plues.tasks.SolverService;
-import de.hhu.stups.plues.tasks.StoreLoaderTask;
+import de.hhu.stups.plues.tasks.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -32,12 +30,11 @@ import java.util.stream.IntStream;
 
 public class MainController implements Initializable {
 
-    private final ObjectProperty<AbstractStore> storeProperty;
-
     private final Properties properties;
 
     private final ObjectProperty<Solver> solverProperty;
     private final Provider<SolverService> solverServiceProvider;
+    private final Delayed<AbstractStore> delayedStore;
     private SolverLoaderTaskFactory solverLoaderTaskFactory;
 
     @FXML
@@ -59,11 +56,11 @@ public class MainController implements Initializable {
 
 
     @Inject
-    public MainController(ObjectProperty<AbstractStore> storeProp, ObjectProperty<Solver> solverProp,
+    public MainController(Delayed<AbstractStore> storeProp, ObjectProperty<Solver> solverProp,
                           SolverLoaderTaskFactory solverLoaderTaskFactory,
                           Provider<SolverService> solverServiceProvider,
                           Properties properties) {
-        this.storeProperty = storeProp;
+        this.delayedStore = storeProp;
         this.properties = properties;
 
         this.solverProperty = solverProp;
@@ -105,14 +102,14 @@ public class MainController implements Initializable {
         });
         storeLoader.setOnSucceeded(event -> Platform.runLater(() -> {
             Store s = (Store) event.getSource().getValue();
-            this.storeProperty.set(s);
+            this.delayedStore.set(s);
         }));
 
 
-        this.storeProperty.addListener((observable, oldValue, newValue) -> Runtime.getRuntime().addShutdownHook(new Thread() {
+        this.delayedStore.whenAvailable(s -> Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                newValue.close();
+                s.close();
             }
         }));
 

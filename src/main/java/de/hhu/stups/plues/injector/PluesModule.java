@@ -1,12 +1,12 @@
 package de.hhu.stups.plues.injector;
 
-import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.hhu.stups.plues.data.AbstractStore;
+import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.controller.CourseFilter;
@@ -34,7 +34,7 @@ public class PluesModule extends AbstractModule {
 
         bind(SolverService.class);
 
-        bind(new TypeLiteral<ObjectProperty<AbstractStore>>() {}).toInstance(new SimpleObjectProperty<>());
+        bind(new TypeLiteral<Delayed<AbstractStore>>() {}).toInstance(new Delayed<>());
         bind(new TypeLiteral<ObjectProperty<de.hhu.stups.plues.prob.Solver>>() {}).toInstance(new SimpleObjectProperty<>());
     }
 
