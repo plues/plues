@@ -1,5 +1,7 @@
 package de.hhu.stups.plues;
 
+import com.google.inject.Provider;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -12,7 +14,7 @@ import java.util.function.Consumer;
  *
  * @param <T>
  */
-public class Delayed<T> {
+public class Delayed<T> implements Provider<T> {
     private T instance;
     private List<Consumer<T>> listeners;
 
