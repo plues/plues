@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.tasks;
 
 import de.hhu.stups.plues.Helpers;
+import de.hhu.stups.plues.data.AbstractStore;
 import de.hhu.stups.plues.data.IncompatibleSchemaError;
 import de.hhu.stups.plues.data.Store;
 import javafx.concurrent.Task;
@@ -9,11 +10,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class StoreLoaderTask extends Task<Store> {
+public class StoreLoaderTask extends Task<AbstractStore> {
     private static final long MAX_STEPS = 3;
     private static final String PLUES = "plues";
     private static final String EXTENSION = ".sqlite3";
-    private static Path dbPath;
     private static Path dbWorkingPath;
     private final String path;
 
@@ -42,7 +42,7 @@ public class StoreLoaderTask extends Task<Store> {
 
     private void checkExportDatabase() throws Exception {
 
-        dbPath = Helpers.expandPath((String) this.path);
+        Path dbPath = Helpers.expandPath(this.path);
         updateProgress(1, MAX_STEPS);
 
         updateMessage("Creating a work location"); //TODO: i18n

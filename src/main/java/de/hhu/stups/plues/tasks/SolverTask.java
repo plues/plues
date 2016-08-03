@@ -5,13 +5,13 @@ import javafx.concurrent.Task;
 
 import java.util.concurrent.*;
 
-public class SolverTask<T> extends Task<T> {
+class SolverTask<T> extends Task<T> {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Callable<T> function;
     private final Solver solver;
-    Future<T> r;
+    private Future<T> r;
 
-    public SolverTask(String title, String message, Solver solver, Callable<T> func) {
+    SolverTask(String title, String message, Solver solver, Callable<T> func) {
         this.function = func;
         this.solver = solver;
         updateTitle(title);

@@ -24,16 +24,20 @@ public class CourseFilter extends VBox implements Initializable {
     private final Delayed<AbstractStore> delayedStore;
 
     @FXML
-    TableView<Course> courseListView;
+    @SuppressWarnings("unused")
+    private TableView<Course> courseListView;
 
     @FXML
-    TableColumn<Course, String> nameColumn;
+    @SuppressWarnings("unused")
+    private TableColumn<Course, String> nameColumn;
 
     @FXML
-    TableColumn<Course, String> poColumn;
+    @SuppressWarnings("unused")
+    private TableColumn<Course, String> poColumn;
 
     @FXML
-    TableColumn<Course, String> kzfaColumn;
+    @SuppressWarnings("unused")
+    private TableColumn<Course, String> kzfaColumn;
 
     @Inject
     public CourseFilter(FXMLLoader loader, Delayed<AbstractStore> delayedStore) {
@@ -63,11 +67,13 @@ public class CourseFilter extends VBox implements Initializable {
         courseListView.setItems(FXCollections.observableArrayList(courses));
     }
 
-    public ReadOnlyObjectProperty<Course> selectedItemProperty() {
+    @SuppressWarnings("unused")
+    ReadOnlyObjectProperty<Course> selectedItemProperty() {
         return courseListView.getSelectionModel().selectedItemProperty();
     }
 
-    public Course selectedItem() {
+    @SuppressWarnings("unused")
+    Course selectedItem() {
         return courseListView.getSelectionModel().getSelectedItem();
     }
 }

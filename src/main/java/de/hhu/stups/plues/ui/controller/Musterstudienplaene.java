@@ -19,13 +19,14 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
-import org.controlsfx.control.TaskProgressView;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class Musterstudienplaene extends GridPane implements Initializable {
@@ -42,14 +43,23 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     private Task<FeasibilityResult> resultTask;
 
     @FXML
+    @SuppressWarnings("unused")
     private ComboBox<String> cbMajor;
+
     @FXML
+    @SuppressWarnings("unused")
     private ComboBox<String> cbMinor;
+
     @FXML
+    @SuppressWarnings("unused")
     private Button btGenerate;
+
     @FXML
+    @SuppressWarnings("unused")
     private Button btCancel;
+
     @FXML
+    @SuppressWarnings("unused")
     private ProgressBar progressGenerate;
 
     @Inject
@@ -77,7 +87,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         Course selectedMajorCourse = majorCourses.get(cbMajor.getSelectionModel().getSelectedIndex());
         Course selectedMinorCourse = minorCourses.get(cbMinor.getSelectionModel().getSelectedIndex());
 
-        resultTask = solverService.computeFeasibilityTask(selectedMajorCourse,selectedMinorCourse);
+        resultTask = solverService.computeFeasibilityTask(selectedMajorCourse, selectedMinorCourse);
 
         progressGenerate.progressProperty().bind(resultTask.progressProperty());
         progressGenerate.visibleProperty().bind(resultTask.runningProperty());
@@ -93,13 +103,13 @@ public class Musterstudienplaene extends GridPane implements Initializable {
             DirectoryChooser directoryChooser = new DirectoryChooser();
             directoryChooser.setTitle("Choose the pdf file's location");
             File selectedDirectory = directoryChooser.showDialog(null);
-            if (selectedDirectory == null){
+            if (selectedDirectory == null) {
                 resultTask.cancel();
             } else {
-                try(OutputStream out = new FileOutputStream(selectedDirectory.getAbsolutePath()+
-                        "/musterstudienplan_"+selectedMajorCourse.getName()+"_"+selectedMinorCourse.getName()+".pdf")) {
+                try (OutputStream out = new FileOutputStream(selectedDirectory.getAbsolutePath() +
+                        "/musterstudienplan_" + selectedMajorCourse.getName() + "_" + selectedMinorCourse.getName() + ".pdf")) {
                     renderer.getResult().writeTo(out);
-                } catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -114,8 +124,8 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     }
 
     @FXML
-    public void btCancelPressed(){
-        if (resultTask != null && resultTask.isRunning()){
+    public void btCancelPressed() {
+        if (resultTask != null && resultTask.isRunning()) {
             resultTask.cancel();
         }
     }
@@ -137,11 +147,13 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     private void initializeComboBoxes(AbstractStore store) {
         List<Course> courses = store.getCourses();
 
-        majorCourses = courses.stream().filter(c -> c.isMajor()).collect(Collectors.toList());
-        minorCourses = courses.stream().filter(c -> c.isMinor()).collect(Collectors.toList());
+        List<String> majorCourseDisplayNames = courses.stream().filter(Course::isMajor)
+                                                               .map(Course::getFullName)
+                                                               .collect(Collectors.toList());
 
-        List<String> majorCourseDisplayNames = majorCourses.stream().map(c -> c.getFullName()).collect(Collectors.toList());
-        List<String> minorCourseDisplayNames = minorCourses.stream().map(c -> c.getFullName()).collect(Collectors.toList());
+        List<String> minorCourseDisplayNames = courses.stream().filter(Course::isMinor)
+                                                               .map(Course::getFullName)
+                                                               .collect(Collectors.toList());
 
         cbMajor.setItems(FXCollections.observableArrayList(majorCourseDisplayNames));
         cbMinor.setItems(FXCollections.observableArrayList(minorCourseDisplayNames));

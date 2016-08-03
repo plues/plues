@@ -26,12 +26,11 @@ public class Solver {
     private static final String MOVE = "move";
     private static final String IMPOSSIBLE_COURSES = "getImpossibleCourses";
     private static final String UNSAT_CORE = "unsatCore";
-    private final Api api;
+
     private Trace trace;
     private StateSpace stateSpace;
 
     public Solver(final Api api, String modelPath) throws IOException, BException {
-        this.api = api;
         this.stateSpace = api.b_load(modelPath);
         this.stateSpace.getSubscribedFormulas().forEach(it -> this.stateSpace.unsubscribe(this.stateSpace, it));
         this.trace = traceFrom(stateSpace);
@@ -50,7 +49,7 @@ public class Solver {
     }
 
     private String getFeasibilityPredicate(String[] courses) {
-        Iterator<String> i = Arrays.asList(courses).stream()
+        Iterator<String> i = Arrays.stream(courses)
                 .filter(it -> it != null && !it.equals(""))
                 .map(it -> "\"" + it + "\"").iterator();
         return "ccss={" + Joiner.on(", ").join(i) + "}";

@@ -9,8 +9,8 @@ public class FeasibilityResult {
     private final Map<Integer, Integer> semesterChoice;
     private final Map<Integer, Integer> unitChoice;
 
-    public FeasibilityResult(Map<String, Set<Integer>> moduleChoice, Map<Integer, Integer> unitChoice,
-                             Map<Integer, Integer> semesterChoice, Map<Integer, Integer> groupChoice) {
+    FeasibilityResult(Map<String, Set<Integer>> moduleChoice, Map<Integer, Integer> unitChoice,
+                      Map<Integer, Integer> semesterChoice, Map<Integer, Integer> groupChoice) {
         this.moduleChoice = moduleChoice;
         this.semesterChoice = semesterChoice;
         this.unitChoice = unitChoice;

@@ -1,7 +1,6 @@
 package de.hhu.stups.plues.injector;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,8 +9,8 @@ import java.util.Properties;
 
 import static java.lang.Thread.currentThread;
 
-public class PropertiesModule extends AbstractModule {
-    static Properties setupProperties() {
+class PropertiesModule extends AbstractModule {
+    private static Properties setupProperties() {
         Properties defaults = new Properties();
         Properties properties = loadProperties(defaults, "main", "local");
 

@@ -147,6 +147,7 @@ public class MainController implements Initializable {
         return solverLoader;
     }
 
+    @SuppressWarnings("UnusedParameters")
     public void checkButtonPressed(ActionEvent actionEvent) {
         Course course = courseProperty.get();
 

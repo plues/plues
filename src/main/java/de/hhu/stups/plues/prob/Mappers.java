@@ -35,7 +35,7 @@ final class Mappers {
         return Integer.parseInt(idVal);
     }
 
-    public static Map<String, java.util.Set<Integer>> mapModuleChoice(Set moduleChoice) {
+    static Map<String, java.util.Set<Integer>> mapModuleChoice(Set moduleChoice) {
         java.util.Map<java.lang.String, java.util.Set<Integer>> collectedModules = new HashMap<>();
         for (BObject o : moduleChoice) {
             Tuple mc = (Tuple) o;
@@ -48,20 +48,20 @@ final class Mappers {
         return collectedModules;
     }
 
-    public static java.util.Set<String> mapCourseSet(Set value) {
-        return value.stream().map(i -> i.toString()).collect(Collectors.toSet());
+    static java.util.Set<String> mapCourseSet(Set value) {
+        return value.stream().map(Object::toString).collect(Collectors.toSet());
     }
 
-    public static List<Integer> mapSessions(Set modelResult) {
+    static List<Integer> mapSessions(Set modelResult) {
         return modelResult.stream().map(
                 v -> mapValue(v.toString(), "session"))
                 .collect(Collectors.toList());
     }
 
-    public static String mapToModuleChoice(Map<String, List<Integer>> moduleChoice) {
+    static String mapToModuleChoice(Map<String, List<Integer>> moduleChoice) {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
-        moduleChoice.entrySet().stream().forEach(e -> {
+        moduleChoice.entrySet().forEach(e -> {
             sb.append("(\"");
             sb.append(e.getKey());
             sb.append("\" |-> {");
