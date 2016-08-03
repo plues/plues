@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Button?>
-<fx:root prefHeight="600" prefWidth="250.0" type="javafx.scene.layout.GridPane" xmlns="http://javafx.com/javafx/8"
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<fx:root type="javafx.scene.layout.GridPane" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1" alignment="center">
-    <ComboBox fx:id="cbMajor" GridPane.columnIndex="5" GridPane.rowIndex="0"/>
-    <ComboBox fx:id="cbMinor" GridPane.columnIndex="5" GridPane.rowIndex="2"/>
-    <Button fx:id="btGenerate" onAction="#btGeneratePressed" text="Generate"  GridPane.columnIndex="5" GridPane.rowIndex="4"/>
+    <children>
+        <ComboBox prefHeight="30" prefWidth="400" fx:id="cbMajor" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2"/>
+        <ComboBox prefHeight="30" prefWidth="400" fx:id="cbMinor" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2"/>
+        <ProgressBar prefHeight="20" prefWidth="400" fx:id="progressGenerate" visible="false" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2"/>
+        <Button prefHeight="30" prefWidth="200" fx:id="btGenerate" GridPane.columnIndex="0" GridPane.rowIndex="3" onAction="#btGeneratePressed" text="Generate"/>
+        <Button prefHeight="30" prefWidth="200" fx:id="btCancel" GridPane.columnIndex="1" GridPane.rowIndex="3" onAction="#btCancelPressed" text="Cancel"/>
+    </children>
 </fx:root>
