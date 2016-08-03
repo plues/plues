@@ -22,8 +22,10 @@ import java.util.stream.Collectors;
 public class Solver {
     // TODO: move ops to an enum
     private static final String CHECK = "check";
+    private static final String CHECK_PARTIAL = "checkPartial";
     private static final String MOVE = "move";
     private static final String IMPOSSIBLE_COURSES = "getImpossibleCourses";
+    private static final String UNSAT_CORE = "unsatCore";
     private final Api api;
     private Trace trace;
     private StateSpace stateSpace;
@@ -85,9 +87,8 @@ public class Solver {
     // OPERATIONS
 
     public Boolean checkFeasibility(String... courses) {
-        String op = CHECK;
         String predicate = getFeasibilityPredicate(courses);
-        return executeOperation(op, predicate);
+        return executeOperation(CHECK, predicate);
     }
 
     // TODO: proper exception type
@@ -107,6 +108,42 @@ public class Solver {
         return new FeasibilityResult(moduleChoice, unitChoice, semesterChoice, groupChoice);
     }
 
+    // TODO: proper exception type
+    public FeasibilityResult computePartialFeasibility(List<String> courses, Map<String, List<Integer>> moduleChoice, List<Integer> abstractUnitChoice) throws Exception {
+        String predicate = getFeasibilityPredicate(courses.toArray(new String[0]));
+        String mc = Mappers.mapToModuleChoice(moduleChoice);
+        String ac = Joiner.on(',').join(abstractUnitChoice.stream().map(i -> "au" + i).iterator());
+
+        predicate += " & partialModuleChoice=" + mc + " & partialAbstractUnitChoice={" + ac + "}";
+
+        /* Check returns values in the following order:
+         *  0: Semester choice - map from abstract unit to a semester
+         *  1: Group choice - map from unit to the group chosen for each
+         *  2: Module choice - set of modules
+         *  3: Unit choice - map from abstract units to units
+         */
+        List<Set> modelResult = executeOperationWithResult(CHECK_PARTIAL, predicate, Set.class);
+        Map<Integer, Integer> computedSemesterChoice = Mappers.mapSemesterChoice(modelResult.get(0));
+        Map<Integer, Integer> computedGroupChoice = Mappers.mapGroupChoice(modelResult.get(1));
+        Map<String, java.util.Set<Integer>> computedModuleChoice = Mappers.mapModuleChoice(modelResult.get(2));
+        Map<Integer, Integer> computedUnitChoice = Mappers.mapUnitChoice(modelResult.get(3));
+
+        return new FeasibilityResult(computedModuleChoice, computedUnitChoice,
+                computedSemesterChoice, computedGroupChoice);
+    }
+
+    // TODO: proper exception
+    public List<Integer> unsatCore(String... courses) throws Exception {
+        String predicate = getFeasibilityPredicate(courses);
+        //
+        List<Set> modelResult = executeOperationWithResult(UNSAT_CORE, predicate, Set.class);
+        assert modelResult.size() == 1;
+        Set uc = modelResult.get(0);
+        //
+        return Mappers.mapSessions(uc);
+    }
+
+
     public void move(String sessionId, String day, String slot) {
         String predicate = "session=session" + sessionId + " & dow=" + day + " & slot=slot" + slot;
         executeOperation(MOVE, predicate);
@@ -116,6 +153,6 @@ public class Solver {
         List<Record> r = executeOperationWithResult(IMPOSSIBLE_COURSES, Record.class);
         assert r.size() == 1;
         Record result = r.get(0);
-        return result.entrySet().stream().collect(Collectors.toMap(i -> i.getKey().toString(), i -> Mappers.mapCourseSet((Set) i.getValue())));
+        return result.entrySet().stream().collect(Collectors.toMap(i -> i.getKey(), i -> Mappers.mapCourseSet((Set) i.getValue())));
     }
 }

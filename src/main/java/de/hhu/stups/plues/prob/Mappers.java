@@ -1,10 +1,12 @@
 package de.hhu.stups.plues.prob;
 
+import com.google.common.base.Joiner;
 import de.prob.translator.types.BObject;
 import de.prob.translator.types.Set;
 import de.prob.translator.types.Tuple;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -48,5 +50,26 @@ final class Mappers {
 
     public static java.util.Set<String> mapCourseSet(Set value) {
         return value.stream().map(i -> i.toString()).collect(Collectors.toSet());
+    }
+
+    public static List<Integer> mapSessions(Set modelResult) {
+        return modelResult.stream().map(
+                v -> mapValue(v.toString(), "session"))
+                .collect(Collectors.toList());
+    }
+
+    public static String mapToModuleChoice(Map<String, List<Integer>> moduleChoice) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        moduleChoice.entrySet().stream().forEach(e -> {
+            sb.append("(\"");
+            sb.append(e.getKey());
+            sb.append("\" |-> {");
+            sb.append(Joiner.on(',').join(e.getValue().stream().map(i -> "mod" + i).iterator()));
+            sb.append("})");
+        });
+        sb.append("}");
+
+        return sb.toString();
     }
 }

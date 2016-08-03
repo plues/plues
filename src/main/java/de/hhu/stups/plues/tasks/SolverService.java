@@ -2,13 +2,18 @@ package de.hhu.stups.plues.tasks;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
+import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.Solver;
 import javafx.concurrent.Task;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class SolverService {
     private final ExecutorService executor;
@@ -34,6 +39,25 @@ public class SolverService {
         return new SolverTask<>("Computing Feasibility",
                 msg, solver,
                 () -> solver.computeFeasibility(names));
+    }
+
+    public Task<FeasibilityResult> computePartialFeasibility(List<Course> courses, Map<Course, List<Module>> moduleChoice, List<AbstractUnit> abstractUnitChoice) {
+        List<String> names = courses.stream().map(c -> c.getName()).collect(Collectors.toList());
+        Map<String, List<Integer>> mc = moduleChoice.entrySet().stream().collect(Collectors.toMap(
+                e -> e.getKey().getName(),
+                e -> e.getValue().stream().map(m -> m.getId()).collect(Collectors.toList())));
+        List<Integer> auc = abstractUnitChoice.stream().map(au -> au.getId()).collect(Collectors.toList());
+
+        String msg = Joiner.on(", ").join(names);
+        return new SolverTask<>("Computing Feasibility",
+                msg, solver,
+                () -> solver.computePartialFeasibility(names, mc, auc));
+    }
+
+    public Task<List<Integer>> unsatCore(Course... courses) {
+        String[] names = getNames(courses);
+        String msg = Joiner.on(", ").join(names);
+        return new SolverTask<>("Computing UNSAT Core", msg, solver, () -> solver.unsatCore(names));
     }
 
     private String[] getNames(Course[] courses) {
