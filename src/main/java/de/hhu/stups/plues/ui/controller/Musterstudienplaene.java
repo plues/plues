@@ -2,7 +2,7 @@ package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.AbstractStore;
+import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.studienplaene.Renderer;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 public class Musterstudienplaene extends GridPane implements Initializable {
 
-    private final Delayed<AbstractStore> delayedStore;
+    private final Delayed<Store> delayedStore;
     private final Delayed<SolverService> delayedSolverService;
 
     private List<Course> majorCourses;
@@ -63,7 +63,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     private ProgressBar progressGenerate;
 
     @Inject
-    public Musterstudienplaene(FXMLLoader loader, Delayed<AbstractStore> delayedStore,
+    public Musterstudienplaene(FXMLLoader loader, Delayed<Store> delayedStore,
                                Delayed<SolverService> delayedSolverService) {
         this.delayedStore = delayedStore;
         this.delayedSolverService = delayedSolverService;
@@ -95,7 +95,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         resultTask.setOnSucceeded(event -> {
             FeasibilityResult result = (FeasibilityResult) event.getSource().getValue();
 
-            AbstractStore store = delayedStore.get();
+            Store store = delayedStore.get();
             // TODO: get colorChoice (?), empty string by now
             Renderer renderer = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
                     result.getModuleChoice(), result.getUnitChoice(), selectedMajorCourse, "");
@@ -144,7 +144,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         });
     }
 
-    private void initializeComboBoxes(AbstractStore store) {
+    private void initializeComboBoxes(Store store) {
         List<Course> courses = store.getCourses();
 
         List<String> majorCourseDisplayNames = courses.stream().filter(Course::isMajor)

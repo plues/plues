@@ -1,16 +1,16 @@
 package de.hhu.stups.plues.tasks;
 
 import de.hhu.stups.plues.Helpers;
-import de.hhu.stups.plues.data.AbstractStore;
-import de.hhu.stups.plues.data.IncompatibleSchemaError;
 import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.data.IncompatibleSchemaError;
+import de.hhu.stups.plues.data.SQLiteStore;
 import javafx.concurrent.Task;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class StoreLoaderTask extends Task<AbstractStore> {
+public class StoreLoaderTask extends Task<Store> {
     private static final long MAX_STEPS = 3;
     private static final String PLUES = "plues";
     private static final String EXTENSION = ".sqlite3";
@@ -25,7 +25,7 @@ public class StoreLoaderTask extends Task<AbstractStore> {
     @Override
     protected Store call() throws Exception {
         checkExportDatabase();
-        Store s = new Store();
+        SQLiteStore s = new SQLiteStore();
         try {
             s.init(dbWorkingPath.toString());
         } catch (IncompatibleSchemaError i) {

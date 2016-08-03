@@ -2,7 +2,7 @@ package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.AbstractStore;
+import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
@@ -21,7 +21,7 @@ import java.util.ResourceBundle;
 
 public class CourseFilter extends VBox implements Initializable {
 
-    private final Delayed<AbstractStore> delayedStore;
+    private final Delayed<Store> delayedStore;
 
     @FXML
     @SuppressWarnings("unused")
@@ -40,7 +40,7 @@ public class CourseFilter extends VBox implements Initializable {
     private TableColumn<Course, String> kzfaColumn;
 
     @Inject
-    public CourseFilter(FXMLLoader loader, Delayed<AbstractStore> delayedStore) {
+    public CourseFilter(FXMLLoader loader, Delayed<Store> delayedStore) {
         this.delayedStore = delayedStore;
         loader.setLocation(getClass().getResource("/fxml/CourseFilter.fxml"));
 

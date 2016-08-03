@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.hhu.stups.plues.Helpers;
-import de.hhu.stups.plues.data.AbstractStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.modelgenerator.FileType;
 import de.hhu.stups.plues.modelgenerator.Renderer;
@@ -31,7 +30,7 @@ public class SolverLoaderTask extends Task<Solver> {
     private static Path modelDirectory;
     private final Api api;
     private final StoreLoaderTask storeLoader;
-    private AbstractStore store;
+    private Store store;
     private Solver solver;
     private Properties properties;
 

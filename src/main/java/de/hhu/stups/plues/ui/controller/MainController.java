@@ -2,7 +2,6 @@ package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.AbstractStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.Solver;
@@ -36,7 +35,7 @@ public class MainController implements Initializable {
 
     private final Properties properties;
 
-    private final Delayed<AbstractStore> delayedStore;
+    private final Delayed<Store> delayedStore;
     private final Delayed<SolverService> delayedSolverService;
     private SolverLoaderTaskFactory solverLoaderTaskFactory;
 
@@ -60,7 +59,7 @@ public class MainController implements Initializable {
 
 
     @Inject
-    public MainController(Delayed<AbstractStore> storeProp,
+    public MainController(Delayed<Store> storeProp,
                           Delayed<SolverService> delayedSolverService,
                           SolverLoaderTaskFactory solverLoaderTaskFactory,
                           Properties properties) {
