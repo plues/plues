@@ -35,4 +35,8 @@ public class Delayed<T> {
         }
         this.listeners.clear();
     }
+
+    public synchronized T get(){
+        return this.instance;
+    }
 }
