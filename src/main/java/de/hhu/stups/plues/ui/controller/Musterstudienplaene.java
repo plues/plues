@@ -35,7 +35,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     private final Delayed<Store> delayedStore;
     private final Delayed<SolverService> delayedSolverService;
 
-    private BooleanProperty solverProperty = new SimpleBooleanProperty(false);
+    private final BooleanProperty solverProperty = new SimpleBooleanProperty(false);
     private SolverService solverService;
 
     private Task<FeasibilityResult> resultTask;
@@ -61,8 +61,8 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     private ProgressBar progressGenerate;
 
     @Inject
-    public Musterstudienplaene(FXMLLoader loader, Delayed<Store> delayedStore,
-                               Delayed<SolverService> delayedSolverService) {
+    public Musterstudienplaene(final FXMLLoader loader, final Delayed<Store> delayedStore,
+                               final Delayed<SolverService> delayedSolverService) {
         this.delayedStore = delayedStore;
         this.delayedSolverService = delayedSolverService;
 
@@ -75,15 +75,15 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
         try {
             loader.load();
-        } catch (IOException exception) {
+        } catch (final IOException exception) {
             throw new RuntimeException(exception);
         }
     }
 
     @FXML
     public void btGeneratePressed() {
-        Course selectedMajorCourse = cbMajor.getSelectionModel().getSelectedItem();
-        Course selectedMinorCourse = cbMinor.getSelectionModel().getSelectedItem();
+        final Course selectedMajorCourse = cbMajor.getSelectionModel().getSelectedItem();
+        final Course selectedMinorCourse = cbMinor.getSelectionModel().getSelectedItem();
 
         resultTask = solverService.computeFeasibilityTask(selectedMajorCourse, selectedMinorCourse);
 
@@ -91,23 +91,23 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         progressGenerate.visibleProperty().bind(resultTask.runningProperty());
 
         resultTask.setOnSucceeded(event -> {
-            FeasibilityResult result = (FeasibilityResult) event.getSource().getValue();
+            final FeasibilityResult result = (FeasibilityResult) event.getSource().getValue();
 
-            Store store = delayedStore.get();
+            final Store store = delayedStore.get();
             // TODO: get colorChoice (?), empty string by now
-            Renderer renderer = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
+            final Renderer renderer = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
                     result.getModuleChoice(), result.getUnitChoice(), selectedMajorCourse, "");
 
-            DirectoryChooser directoryChooser = new DirectoryChooser();
+            final DirectoryChooser directoryChooser = new DirectoryChooser();
             directoryChooser.setTitle("Choose the pdf file's location");
-            File selectedDirectory = directoryChooser.showDialog(null);
+            final File selectedDirectory = directoryChooser.showDialog(null);
             if (selectedDirectory == null) {
                 resultTask.cancel();
             } else {
                 try (OutputStream out = new FileOutputStream(selectedDirectory.getAbsolutePath() +
                         "/musterstudienplan_" + selectedMajorCourse.getName() + "_" + selectedMinorCourse.getName() + ".pdf")) {
                     renderer.getResult().writeTo(out);
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -122,19 +122,24 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     }
 
     @FXML
-    public void btCancelPressed() {
+    public final void btCancelPressed() {
         if (resultTask != null && resultTask.isRunning()) {
             resultTask.cancel();
         }
     }
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public final void initialize(final URL location,
+                                 final ResourceBundle resources) {
         delayedStore.whenAvailable(this::initializeComboBoxes);
 
         btGenerate.setDefaultButton(true);
-        btGenerate.disableProperty().bind(solverProperty.not().or(progressGenerate.visibleProperty()));
-        btCancel.disableProperty().bind(solverProperty.not().or(progressGenerate.visibleProperty().not()));
+        btGenerate.disableProperty().bind(
+                solverProperty.not()
+                        .or(progressGenerate.visibleProperty()));
+        btCancel.disableProperty().bind(
+                solverProperty.not()
+                        .or(progressGenerate.visibleProperty().not()));
 
         delayedSolverService.whenAvailable(s -> {
             this.solverService = s;
@@ -142,33 +147,37 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         });
     }
 
-    private void initializeComboBoxes(Store store) {
-        List<Course> courses = store.getCourses();
+    private void initializeComboBoxes(final Store store) {
+        final List<Course> courses = store.getCourses();
 
-        List<Course> majorCourseDisplayNames = courses.stream().filter(Course::isMajor)
+        final List<Course> majorCourseDisplayNames = courses.stream()
+                .filter(Course::isMajor)
                 .collect(Collectors.toList());
 
-        List<Course> minorCourseDisplayNames = courses.stream().filter(Course::isMinor)
+        final List<Course> minorCourseDisplayNames = courses.stream()
+                .filter(Course::isMinor)
                 .collect(Collectors.toList());
 
         cbMajor.setConverter(new CourseConverter());
         cbMinor.setConverter(new CourseConverter());
 
-        cbMajor.setItems(FXCollections.observableArrayList(majorCourseDisplayNames));
-        cbMinor.setItems(FXCollections.observableArrayList(minorCourseDisplayNames));
+        cbMajor.setItems(
+                FXCollections.observableArrayList(majorCourseDisplayNames));
+        cbMinor.setItems(
+                FXCollections.observableArrayList(minorCourseDisplayNames));
 
         cbMajor.getSelectionModel().select(0);
         cbMinor.getSelectionModel().select(0);
     }
 
-    static class CourseConverter extends StringConverter<Course> {
+    private static class CourseConverter extends StringConverter<Course> {
         @Override
-        public String toString(Course object) {
+        public String toString(final Course object) {
             return object.getFullName();
         }
 
         @Override
-        public Course fromString(String string) {
+        public Course fromString(final String string) {
             throw new RuntimeException();
         }
     }
