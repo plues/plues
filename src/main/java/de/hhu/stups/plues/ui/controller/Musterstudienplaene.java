@@ -19,6 +19,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
+import javafx.util.StringConverter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,9 +35,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     private final Delayed<Store> delayedStore;
     private final Delayed<SolverService> delayedSolverService;
 
-    private List<Course> majorCourses;
-    private List<Course> minorCourses;
-
     private BooleanProperty solverProperty = new SimpleBooleanProperty(false);
     private SolverService solverService;
 
@@ -44,11 +42,11 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     @FXML
     @SuppressWarnings("unused")
-    private ComboBox<String> cbMajor;
+    private ComboBox<Course> cbMajor;
 
     @FXML
     @SuppressWarnings("unused")
-    private ComboBox<String> cbMinor;
+    private ComboBox<Course> cbMinor;
 
     @FXML
     @SuppressWarnings("unused")
@@ -84,8 +82,8 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     @FXML
     public void btGeneratePressed() {
-        Course selectedMajorCourse = majorCourses.get(cbMajor.getSelectionModel().getSelectedIndex());
-        Course selectedMinorCourse = minorCourses.get(cbMinor.getSelectionModel().getSelectedIndex());
+        Course selectedMajorCourse = cbMajor.getSelectionModel().getSelectedItem();
+        Course selectedMinorCourse = cbMinor.getSelectionModel().getSelectedItem();
 
         resultTask = solverService.computeFeasibilityTask(selectedMajorCourse, selectedMinorCourse);
 
@@ -147,18 +145,31 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     private void initializeComboBoxes(Store store) {
         List<Course> courses = store.getCourses();
 
-        List<String> majorCourseDisplayNames = courses.stream().filter(Course::isMajor)
-                                                               .map(Course::getFullName)
-                                                               .collect(Collectors.toList());
+        List<Course> majorCourseDisplayNames = courses.stream().filter(Course::isMajor)
+                .collect(Collectors.toList());
 
-        List<String> minorCourseDisplayNames = courses.stream().filter(Course::isMinor)
-                                                               .map(Course::getFullName)
-                                                               .collect(Collectors.toList());
+        List<Course> minorCourseDisplayNames = courses.stream().filter(Course::isMinor)
+                .collect(Collectors.toList());
+
+        cbMajor.setConverter(new CourseConverter());
+        cbMinor.setConverter(new CourseConverter());
 
         cbMajor.setItems(FXCollections.observableArrayList(majorCourseDisplayNames));
         cbMinor.setItems(FXCollections.observableArrayList(minorCourseDisplayNames));
+
         cbMajor.getSelectionModel().select(0);
         cbMinor.getSelectionModel().select(0);
     }
 
+    static class CourseConverter extends StringConverter<Course> {
+        @Override
+        public String toString(Course object) {
+            return object.getFullName();
+        }
+
+        @Override
+        public Course fromString(String string) {
+            throw new RuntimeException();
+        }
+    }
 }
