@@ -5,7 +5,7 @@ import javafx.concurrent.Task;
 
 import java.util.concurrent.*;
 
-class SolverTask<T> extends Task<T> {
+public class SolverTask<T> extends Task<T> {
     private static final ExecutorService EXECUTOR
             = Executors.newSingleThreadExecutor();
 
