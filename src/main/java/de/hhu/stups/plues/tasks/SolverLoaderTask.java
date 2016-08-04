@@ -8,6 +8,7 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.modelgenerator.FileType;
 import de.hhu.stups.plues.modelgenerator.Renderer;
 import de.hhu.stups.plues.prob.Solver;
+import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.scripting.Api;
 import groovy.lang.Writable;
@@ -27,30 +28,34 @@ public class SolverLoaderTask extends Task<Solver> {
     private static final String MODEL_FILE = "Solver.mch";
     private static final String MODEL_PATH = "models";
     private static final String MODELS_ZIP = "models.zip";
-    private static Path modelDirectory;
-    private final Api api;
+
+    private Path modelDirectory;
     private final StoreLoaderTask storeLoader;
     private Store store;
     private Solver solver;
-    private Properties properties;
+    private final Properties properties;
+    private SolverFactory solverFactory;
 
 
     @Inject
-    public SolverLoaderTask(Api api, Properties properties, @Assisted StoreLoaderTask storeLoader) {
-        this.api = api;
-        this.storeLoader = storeLoader;
-        this.properties = properties;
+    public SolverLoaderTask(
+            final SolverFactory sf, final Properties pp,
+            @Assisted final StoreLoaderTask storeLoaderTask) {
+
+        this.solverFactory = sf;
+        this.storeLoader = storeLoaderTask;
+        this.properties = pp;
         updateTitle("Loading ProB"); // TODO i18n
     }
 
     private void prepareModels() throws Exception {
-        String modelBase = (String) properties.get("modelpath");
-        if (modelBase == null) {
+        final String modelBase = (String) properties.get("modelpath");
+        if(modelBase == null) {
             // use bundled files
             copyModelsToTemp();
         } else {
             Path p = Helpers.expandPath(modelBase);
-            if (!new File(p.toString()).exists()) {
+            if(!new File(p.toString()).exists()) {
                 throw new IllegalArgumentException("Path does not exist");
             }
             System.out.println("Using models from " + p);
@@ -60,34 +65,38 @@ public class SolverLoaderTask extends Task<Solver> {
 
 
     private void copyModelsToTemp() throws Exception {
-        Path tmpDirectory = Files.createTempDirectory("slottool");
-        Path modelDirectory = tmpDirectory.resolve(MODEL_PATH);
+
+        final Path tmpDirectory = Files.createTempDirectory("slottool");
+        modelDirectory = tmpDirectory.resolve(MODEL_PATH);
+
         Files.createDirectory(modelDirectory);
         System.out.println("Exporting models to " + modelDirectory);
-
         //
-        InputStream zipStream = MainController.class.getClassLoader().getResourceAsStream(MODELS_ZIP);
-        if (zipStream == null) {
+        final ClassLoader classLoader = MainController.class.getClassLoader();
+        final InputStream zipStream
+                = classLoader.getResourceAsStream(MODELS_ZIP);
+        //
+        if(zipStream == null) {
 //            throw new AnomalousMaterialsException("Could not find models.zip resource!!");
             throw new Exception("Foo");
         }
         // copy zip-file to tmpDirectory
-        Path zipPath = tmpDirectory.resolve(MODELS_ZIP);
+        final Path zipPath = tmpDirectory.resolve(MODELS_ZIP);
         Files.copy(zipStream, zipPath);
 
         // read zip-file entries
         ZipFile zipFile = new ZipFile(zipPath.toFile());
-        Enumeration<? extends ZipEntry> entries = zipFile.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry entry = entries.nextElement();
-            String name = entry.getName();
+        final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        while(entries.hasMoreElements()) {
+            final ZipEntry entry = entries.nextElement();
+            final String name = entry.getName();
 
-            if (name.equals("")) {
+            if(name.equals("")) {
                 System.out.println("Empty File");
                 continue;
             }
-            InputStream stream = zipFile.getInputStream(entry);
-            Path modelPath = Paths.get(MODEL_PATH).resolve(name);
+            final InputStream stream = zipFile.getInputStream(entry);
+            final Path modelPath = Paths.get(MODEL_PATH).resolve(name);
             System.out.println("Exporting " + modelPath);
             Files.copy(stream, tmpDirectory.resolve(modelPath));
         }
@@ -96,7 +105,7 @@ public class SolverLoaderTask extends Task<Solver> {
     }
 
     @Override
-    protected Solver call() throws Exception {
+    protected final Solver call() throws Exception {
 
         updateMessage("Prepare models"); // TODO i18n
         updateProgress(0, MAX_STEPS);
@@ -120,14 +129,14 @@ public class SolverLoaderTask extends Task<Solver> {
     }
 
     @Override
-    protected void succeeded() {
+    protected final void succeeded() {
         super.succeeded();
         updateMessage("Done!"); // TODO i18n
     }
 
     @Override
     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-    protected void failed() {
+    protected final void failed() {
         System.err.println("Loading failed");
         this.getException().printStackTrace();
     }
@@ -138,34 +147,40 @@ public class SolverLoaderTask extends Task<Solver> {
     }
 
     private void exportDataModel() throws IOException {
-        Renderer renderer = new Renderer(this.store);
+        final Renderer renderer = new Renderer(this.store);
 
-        String target = "data.mch";
-        Writable modeldata = renderer.renderFor(FileType.BMachine);
-        File targetFile = new File(modelDirectory.resolve(target).toString());
+        final String target = "data.mch";
 
-        String flavor = this.store.getInfoByKey("short-name");
-        String targetxml = flavor + "-data.xml";
-        Writable xmldata = renderer.renderFor(FileType.ModuleCombination);
-        File targetXMLFile = new File(modelDirectory.resolve(targetxml).toString());
+        final Writable modeldata = renderer.renderFor(FileType.BMachine);
+
+        final File targetFile
+                = new File(modelDirectory.resolve(target).toString());
+        //
+        final String flavor = this.store.getInfoByKey("short-name");
+
+        final String targetxml = flavor + "-data.xml";
+
+        final Writable xmldata = renderer.renderFor(FileType.ModuleCombination);
+
+        final File targetXMLFile
+                = new File(modelDirectory.resolve(targetxml).toString());
 
 
-        OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8");
-        try {
+        try (OutputStreamWriter fw = new OutputStreamWriter(
+                new FileOutputStream(targetFile), "UTF-8")) {
             modeldata.writeTo(fw);
-        } finally {
-            fw.close();
         }
-        System.out.println("Wrote model data to " + targetFile.getAbsolutePath());
 
-        fw = new OutputStreamWriter(new FileOutputStream(targetXMLFile), "UTF-8");
-        try {
+        System.out.println("Wrote model data to "
+                + targetFile.getAbsolutePath());
+
+        try (OutputStreamWriter fw = new OutputStreamWriter(
+                new FileOutputStream(targetXMLFile), "UTF-8")) {
             xmldata.writeTo(fw);
-        } finally {
-            fw.close();
         }
 
-        System.out.println("Wrote module combination data to " + targetXMLFile.getAbsolutePath());
+        System.out.println("Wrote module combination data to "
+                + targetXMLFile.getAbsolutePath());
     }
 
 }

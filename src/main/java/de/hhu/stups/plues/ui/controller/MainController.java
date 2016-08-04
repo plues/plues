@@ -37,32 +37,40 @@ public class MainController implements Initializable {
 
     private final Delayed<Store> delayedStore;
     private final Delayed<SolverService> delayedSolverService;
-    private SolverLoaderTaskFactory solverLoaderTaskFactory;
+    private final SolverLoaderTaskFactory solverLoaderTaskFactory;
 
     @FXML
-    public GridPane foo;
+    private GridPane foo;
 
     @FXML
-    public TaskProgressView<Task<?>> taskProgress;
+    private TaskProgressView<Task<?>> taskProgress;
     @FXML
-    public Label selection;
-    public Button checkSelection;
-    public Label result;
+    private Label selection;
+
+    @FXML
+    private Button checkSelection;
+
+    @FXML
+    private Label result;
+
     @FXML
     private CourseFilter courseFilter;
 
-    private ObjectProperty<Course> courseProperty = new SimpleObjectProperty<>();
-    private BooleanProperty solverProperty = new SimpleBooleanProperty(false);
+    private final ObjectProperty<Course>
+            courseProperty = new SimpleObjectProperty<>();
+    private final BooleanProperty
+            solverProperty = new SimpleBooleanProperty(false);
 
-    private ExecutorService executor = Executors.newWorkStealingPool();
+    private final ExecutorService
+            executor = Executors.newWorkStealingPool();
     private SolverService solverService;
 
 
     @Inject
-    public MainController(Delayed<Store> storeProp,
-                          Delayed<SolverService> delayedSolverService,
-                          SolverLoaderTaskFactory solverLoaderTaskFactory,
-                          Properties properties) {
+    public MainController(final Delayed<Store> storeProp,
+                          final Delayed<SolverService> delayedSolverService,
+                          final SolverLoaderTaskFactory solverLoaderTaskFactory,
+                          final Properties properties) {
         this.delayedStore = storeProp;
         this.properties = properties;
 
@@ -71,8 +79,8 @@ public class MainController implements Initializable {
     }
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        if (properties.get("dbpath") != null) {
+    public void initialize(final URL location, final ResourceBundle resources) {
+        if(properties.get("dbpath") != null) {
             loadData();
         } else {
             throw new RuntimeException("No dbpath found. Please specify a dbpath property in the resources file.");
@@ -106,56 +114,69 @@ public class MainController implements Initializable {
 
     private void loadData() {
 
-        StoreLoaderTask storeLoader = getStoreLoaderTask();
-        SolverLoaderTask solverLoader = getSolverLoaderTask(storeLoader);
+        final StoreLoaderTask storeLoader = getStoreLoaderTask();
+        final SolverLoaderTask solverLoader = getSolverLoaderTask(storeLoader);
 
         this.submitTask(storeLoader);
         this.submitTask(solverLoader);
     }
 
     private StoreLoaderTask getStoreLoaderTask() {
-        StoreLoaderTask storeLoader = new StoreLoaderTask((String) properties.get("dbpath"));
 
-        storeLoader.setOnSucceeded(value -> System.out.println("STORE:loading Store succeeded"));
-        storeLoader.progressProperty().addListener((observable, oldValue, newValue) -> System.out.println("STORE " + newValue));
-        storeLoader.messageProperty().addListener((observable, oldValue, newValue) -> System.out.println("STORE " + newValue));
+        final StoreLoaderTask storeLoader = new StoreLoaderTask((String) properties.get("dbpath"));
+        //
+        storeLoader.progressProperty().addListener(
+                (observable, oldValue, newValue) ->
+                        System.out.println("STORE " + newValue));
+        //
+        storeLoader.messageProperty().addListener(
+                (observable, oldValue, newValue) ->
+                        System.out.println("STORE " + newValue));
+        //
         storeLoader.setOnFailed(event -> {
             System.out.println(event);
             // TODO: proper error handling
             System.err.println("STORE: Loading failed");
             throw new RuntimeException("STORE: Loading failed");
         });
+        //
+        storeLoader.setOnSucceeded(value -> System.out.println("STORE:loading Store succeeded"));
         storeLoader.setOnSucceeded(event -> Platform.runLater(() -> {
-            Store s = (Store) event.getSource().getValue();
+            final Store s = (Store) event.getSource().getValue();
             this.delayedStore.set(s);
         }));
         return storeLoader;
     }
 
-    private SolverLoaderTask getSolverLoaderTask(StoreLoaderTask storeLoader) {
-        SolverLoaderTask solverLoader = this.solverLoaderTaskFactory.create(storeLoader);
-        solverLoader.setOnSucceeded(value -> System.out.println("loading Solver succeeded"));
+    private SolverLoaderTask getSolverLoaderTask(final StoreLoaderTask storeLoader) {
+
+        final SolverLoaderTask solverLoader = this.solverLoaderTaskFactory.create(storeLoader);
+
         solverLoader.progressProperty().addListener((observable, oldValue, newValue) -> System.out.println(newValue));
+        //
         solverLoader.messageProperty().addListener((observable, oldValue, newValue) -> System.out.println(newValue));
+        //
+        solverLoader.setOnSucceeded(value -> System.out.println("loading Solver succeeded"));
         solverLoader.setOnSucceeded(event -> {
-            System.out.println(event);
-            Solver s = (Solver) event.getSource().getValue();
+            final Solver s = (Solver) event.getSource().getValue();
             // TODO: check if this needs to run on UI thread
             this.delayedSolverService.set(new SolverService(s));
         });
+
         return solverLoader;
     }
 
-    @SuppressWarnings("UnusedParameters")
-    public void checkButtonPressed(ActionEvent actionEvent) {
-        Course course = courseProperty.get();
+    @FXML
+    @SuppressWarnings({"UnusedParameters", "unused"})
+    final private void checkButtonPressed(final ActionEvent actionEvent) {
+        final Course course = courseProperty.get();
 
-        SolverService s = this.solverService;
+        final SolverService s = this.solverService;
         assert s != null;
 
-        Task<Boolean> t = s.checkFeasibilityTask(course);
+        final Task<Boolean> t = s.checkFeasibilityTask(course);
         t.setOnSucceeded(event -> {
-            Boolean i = (Boolean) event.getSource().getValue();
+            final Boolean i = (Boolean) event.getSource().getValue();
             result.setText(i.toString());
             System.out.println(course.getName() + ": " + i.toString());
         });
@@ -163,12 +184,12 @@ public class MainController implements Initializable {
         s.submit(t);
     }
 
-    private void submitTask(Task<?> t, ExecutorService exec) {
+    private void submitTask(final Task<?> t, final ExecutorService exec) {
         this.taskProgress.getTasks().add(t);
         exec.submit(t);
     }
 
-    private void submitTask(Task<?> t) {
+    private void submitTask(final Task<?> t) {
         submitTask(t, this.executor);
     }
 }

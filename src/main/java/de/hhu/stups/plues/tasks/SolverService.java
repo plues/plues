@@ -17,57 +17,88 @@ import java.util.stream.Collectors;
 
 public class SolverService {
     private final ExecutorService executor;
-    private Solver solver;
+    private final Solver solver;
 
     @Inject
-    public SolverService(Solver s) {
+    public SolverService(final Solver s) {
         this.executor = Executors.newSingleThreadExecutor();
         this.solver = s;
     }
 
     @SuppressWarnings("unused")
-    public Task<Boolean> checkFeasibilityTask(Course... courses) {
+    public final Task<Boolean> checkFeasibilityTask(final Course... courses) {
         assert this.solver != null;
-        String[] names = getNames(courses);
-        String msg = Joiner.on(", ").join(names);
+
+        final String[] names = getNames(courses);
+        final String msg = getMessage(names);
+        //
         return new SolverTask<>("Checking Feasibility", msg, this.solver,
                 () -> this.solver.checkFeasibility(names));
     }
 
     @SuppressWarnings("unused")
-    public Task<FeasibilityResult> computeFeasibilityTask(Course... courses) {
-        String[] names = getNames(courses);
-        String msg = Joiner.on(", ").join(names);
+    public final Task<FeasibilityResult> computeFeasibilityTask(
+            final Course... courses) {
+
+        final String[] names = getNames(courses);
+        final String msg = getMessage(names);
+        //
         return new SolverTask<>("Computing Feasibility",
                 msg, solver,
                 () -> solver.computeFeasibility(names));
     }
 
     @SuppressWarnings("unused")
-    public Task<FeasibilityResult> computePartialFeasibility(List<Course> courses, Map<Course, List<Module>> moduleChoice, List<AbstractUnit> abstractUnitChoice) {
-        List<String> names = courses.stream().map(Course::getName).collect(Collectors.toList());
-        Map<String, List<Integer>> mc = moduleChoice.entrySet().stream().collect(Collectors.toMap(
-                e -> e.getKey().getName(),
-                e -> e.getValue().stream().map(Module::getId).collect(Collectors.toList())));
-        List<Integer> auc = abstractUnitChoice.stream().map(AbstractUnit::getId).collect(Collectors.toList());
+    public final Task<FeasibilityResult> computePartialFeasibility(
+            final List<Course> courses,
+            final Map<Course, List<Module>> moduleChoice,
+            final List<AbstractUnit> abstractUnitChoice) {
 
-        String msg = Joiner.on(", ").join(names);
+        final List<String> names = courses.stream()
+                .map(Course::getName)
+                .collect(Collectors.toList());
+
+        final Map<String, List<Integer>> mc = moduleChoice.entrySet().stream()
+                .collect(Collectors.toMap(
+                        e -> e.getKey().getName(),
+                        e -> e.getValue().stream()
+                                .map(Module::getId)
+                                .collect(Collectors.toList())));
+
+        final List<Integer> auc = abstractUnitChoice.stream()
+                .map(AbstractUnit::getId)
+                .collect(Collectors.toList());
+
+        final String msg = getMessage(names);
+        //
         return new SolverTask<>("Computing Feasibility",
                 msg, solver,
                 () -> solver.computePartialFeasibility(names, mc, auc));
     }
 
     @SuppressWarnings("unused")
-    public Task<List<Integer>> unsatCore(Course... courses) {
-        String[] names = getNames(courses);
-        String msg = Joiner.on(", ").join(names);
-        return new SolverTask<>("Computing UNSAT Core", msg, solver, () -> solver.unsatCore(names));
+    public final Task<List<Integer>> unsatCore(final Course... courses) {
+
+        final String[] names = getNames(courses);
+        final String msg = getMessage(names);
+        //
+        return new SolverTask<>("Computing UNSAT Core", msg, solver,
+                () -> solver.unsatCore(names));
     }
 
+    private String getMessage(final String[] names) {
+        return Joiner.on(", ").join(names);
+    }
+
+    private String getMessage(final List<String> names) {
+        return Joiner.on(", ").join(names);
+    }
+
+
     @SuppressWarnings("unused")
-    private String[] getNames(Course[] courses) {
-        String[] names = new String[courses.length];
-        for (int i = 0; i < courses.length; i++) {
+    private String[] getNames(final Course[] courses) {
+        final String[] names = new String[courses.length];
+        for(int i = 0; i < courses.length; i++) {
             names[i] = courses[i].getName();
         }
         return names;
@@ -77,7 +108,7 @@ public class SolverService {
 //                    .toArray(new String[courses.length]);
     }
 
-    public void submit(Task<?> command) {
+    public final void submit(final Task<?> command) {
         this.executor.submit(command);
     }
 }
