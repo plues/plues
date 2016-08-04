@@ -1,6 +1,8 @@
 package de.hhu.stups.plues.prob;
 
 import com.google.common.base.Joiner;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.scripting.Api;
@@ -30,7 +32,9 @@ public class Solver {
     private Trace trace;
     private StateSpace stateSpace;
 
-    public Solver(final Api api, String modelPath) throws IOException, BException {
+    @Inject
+    public Solver(final Api api, @Assisted final String modelPath)
+            throws IOException, BException {
         this.stateSpace = api.b_load(modelPath);
         this.stateSpace.getSubscribedFormulas()
                 .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));

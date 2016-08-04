@@ -143,7 +143,7 @@ public class SolverLoaderTask extends Task<Solver> {
 
     private void initSolver() throws IOException, BException {
         String modelPath = modelDirectory.resolve(MODEL_FILE).toString();
-        this.solver = new Solver(this.api, modelPath);
+        this.solver = this.solverFactory.create(modelPath);
     }
 
     private void exportDataModel() throws IOException {

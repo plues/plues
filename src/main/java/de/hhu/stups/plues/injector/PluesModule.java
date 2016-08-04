@@ -7,6 +7,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.controller.CourseFilter;
@@ -25,6 +26,7 @@ public class PluesModule extends AbstractModule {
 
         install(new FactoryModuleBuilder()
                 .build(SolverLoaderTaskFactory.class));
+        install(new FactoryModuleBuilder().build(SolverFactory.class));
 
         bind(CourseFilter.class);
         bind(Musterstudienplaene.class);
