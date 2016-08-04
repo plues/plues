@@ -10,7 +10,6 @@ import de.hhu.stups.plues.modelgenerator.Renderer;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
-import de.prob.scripting.Api;
 import groovy.lang.Writable;
 import javafx.concurrent.Task;
 
@@ -34,7 +33,7 @@ public class SolverLoaderTask extends Task<Solver> {
     private Store store;
     private Solver solver;
     private final Properties properties;
-    private SolverFactory solverFactory;
+    private final SolverFactory solverFactory;
 
 
     @Inject
@@ -54,7 +53,7 @@ public class SolverLoaderTask extends Task<Solver> {
             // use bundled files
             copyModelsToTemp();
         } else {
-            Path p = Helpers.expandPath(modelBase);
+            final Path p = Helpers.expandPath(modelBase);
             if(!new File(p.toString()).exists()) {
                 throw new IllegalArgumentException("Path does not exist");
             }
@@ -85,8 +84,9 @@ public class SolverLoaderTask extends Task<Solver> {
         Files.copy(zipStream, zipPath);
 
         // read zip-file entries
-        ZipFile zipFile = new ZipFile(zipPath.toFile());
+        final ZipFile zipFile = new ZipFile(zipPath.toFile());
         final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+
         while(entries.hasMoreElements()) {
             final ZipEntry entry = entries.nextElement();
             final String name = entry.getName();
@@ -95,8 +95,10 @@ public class SolverLoaderTask extends Task<Solver> {
                 System.out.println("Empty File");
                 continue;
             }
+
             final InputStream stream = zipFile.getInputStream(entry);
             final Path modelPath = Paths.get(MODEL_PATH).resolve(name);
+
             System.out.println("Exporting " + modelPath);
             Files.copy(stream, tmpDirectory.resolve(modelPath));
         }
@@ -142,7 +144,7 @@ public class SolverLoaderTask extends Task<Solver> {
     }
 
     private void initSolver() throws IOException, BException {
-        String modelPath = modelDirectory.resolve(MODEL_FILE).toString();
+        final String modelPath = modelDirectory.resolve(MODEL_FILE).toString();
         this.solver = this.solverFactory.create(modelPath);
     }
 

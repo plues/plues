@@ -6,14 +6,18 @@ import javafx.concurrent.Task;
 import java.util.concurrent.*;
 
 class SolverTask<T> extends Task<T> {
-    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private static final ExecutorService EXECUTOR
+            = Executors.newSingleThreadExecutor();
+
     private final Callable<T> function;
     private final Solver solver;
     private Future<T> r;
 
-    SolverTask(String title, String message, Solver solver, Callable<T> func) {
+    SolverTask(final String title, final String message,
+               final Solver s, final Callable<T> func) {
+
         this.function = func;
-        this.solver = solver;
+        this.solver = s;
         updateTitle(title);
         updateMessage(message);
     }
@@ -22,16 +26,16 @@ class SolverTask<T> extends Task<T> {
     protected T call() throws Exception {
         updateTitle("Starting Task");
         updateProgress(10, 100);
-        r = executor.submit(function);
+        r = EXECUTOR.submit(function);
         int p = 10;
-        while (!r.isDone()) {
+        while(!r.isDone()) {
             p = (p + 5) % 95;
             updateProgress(p, 100);
-            if (this.isCancelled()) {
+            if(this.isCancelled()) {
                 updateMessage("Task canceled");
                 return null;
             }
-            if (r.isCancelled()) {
+            if(r.isCancelled()) {
                 updateMessage("ProB exited");
                 return null;
             }
@@ -53,7 +57,7 @@ class SolverTask<T> extends Task<T> {
     protected void succeeded() {
         super.succeeded();
         updateMessage("Done!");
-        T i = this.getValue();
+        final T i = this.getValue();
         System.out.println("Result: " + i.toString());
     }
 }

@@ -5,8 +5,8 @@ import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
@@ -17,8 +17,16 @@ import javafx.fxml.FXMLLoader;
 
 public class PluesModule extends AbstractModule {
 
+    private final TypeLiteral<Delayed<Store>> delayedStoreType
+            = new TypeLiteral<Delayed<Store>>() {
+    };
+
+    private final TypeLiteral<Delayed<SolverService>> delayedSolverServiceType
+            = new TypeLiteral<Delayed<SolverService>>() {
+    };
+
     @Override
-    public void configure() {
+    public final void configure() {
         // prob 2.0
         install(new MainModule());
 
@@ -31,13 +39,16 @@ public class PluesModule extends AbstractModule {
         bind(CourseFilter.class);
         bind(Musterstudienplaene.class);
 
-        bind(new TypeLiteral<Delayed<Store>>() {}).toInstance(new Delayed<>());
-        bind(new TypeLiteral<Delayed<SolverService>>() {}).toInstance(new Delayed<>());
+        bind(delayedStoreType).toInstance(new Delayed<>());
+        bind(delayedSolverServiceType).toInstance(new Delayed<>());
     }
 
     @Provides
-    public FXMLLoader provideLoader(Injector injector, GuiceBuilderFactory builderFactory) {
-        FXMLLoader fxmlLoader = new FXMLLoader();
+    public final FXMLLoader provideLoader(final Injector injector,
+                                          final GuiceBuilderFactory
+                                                  builderFactory) {
+
+        final FXMLLoader fxmlLoader = new FXMLLoader();
 
         fxmlLoader.setBuilderFactory(builderFactory);
         fxmlLoader.setControllerFactory(injector::getInstance);

@@ -9,27 +9,30 @@ public class FeasibilityResult {
     private final Map<Integer, Integer> semesterChoice;
     private final Map<Integer, Integer> unitChoice;
 
-    FeasibilityResult(Map<String, Set<Integer>> moduleChoice, Map<Integer, Integer> unitChoice,
-                      Map<Integer, Integer> semesterChoice, Map<Integer, Integer> groupChoice) {
+    FeasibilityResult(final Map<String, Set<Integer>> moduleChoice,
+                      final Map<Integer, Integer> unitChoice,
+                      final Map<Integer, Integer> semesterChoice,
+                      final Map<Integer, Integer> groupChoice) {
+
         this.moduleChoice = moduleChoice;
         this.semesterChoice = semesterChoice;
         this.unitChoice = unitChoice;
         this.groupChoice = groupChoice;
     }
 
-    public Map<Integer, Integer> getGroupChoice() {
+    public final Map<Integer, Integer> getGroupChoice() {
         return groupChoice;
     }
 
-    public Map<String, Set<Integer>> getModuleChoice() {
+    public final Map<String, Set<Integer>> getModuleChoice() {
         return moduleChoice;
     }
 
-    public Map<Integer, Integer> getSemesterChoice() {
+    public final Map<Integer, Integer> getSemesterChoice() {
         return semesterChoice;
     }
 
-    public Map<Integer, Integer> getUnitChoice() {
+    public final Map<Integer, Integer> getUnitChoice() {
         return unitChoice;
     }
 }

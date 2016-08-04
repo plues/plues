@@ -4,7 +4,10 @@ import java.io.File;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
-public class Helpers {
+public final class Helpers {
+    private Helpers() {
+    }
+
     public static Path expandPath(String base) {
         // handle ~ in paths
         if (base.startsWith("~" + File.separator)) {

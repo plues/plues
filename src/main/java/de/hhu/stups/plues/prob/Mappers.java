@@ -11,61 +11,86 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 final class Mappers {
-    static Map<Integer, Integer> mapSemesterChoice(Set p) {
+
+    private Mappers() {
+    }
+
+    static Map<Integer, Integer> mapSemesterChoice(final Set p) {
         return convertToMap(p, "au", "sem");
     }
 
-    static Map<Integer, Integer> mapGroupChoice(Set p) {
+    static Map<Integer, Integer> mapGroupChoice(final Set p) {
         return convertToMap(p, "unit", "group");
     }
 
-    static Map<Integer, Integer> mapUnitChoice(Set p) {
+    static Map<Integer, Integer> mapUnitChoice(final Set p) {
         return convertToMap(p, "au", "unit");
     }
 
-    private static Map<Integer, Integer> convertToMap(Set set, String keyPrefix, String valuePrefix) {
+    private static Map<Integer, Integer> convertToMap(final Set set,
+                                                      final String keyPrefix,
+                                                      final String valuePrefix) {
         return set.stream().collect(
                 Collectors.toMap(
-                        i -> mapValue((((Tuple) i).getFirst()).toString(), keyPrefix),
-                        i -> mapValue((((Tuple) i).getSecond()).toString(), valuePrefix)));
+                        i -> mapValue((((Tuple) i).getFirst()).toString(),
+                                keyPrefix),
+                        i -> mapValue((((Tuple) i).getSecond()).toString(),
+                                valuePrefix)));
     }
 
-    private static Integer mapValue(String val, String prefix) {
-        String idVal = val.substring(prefix.length(), val.length());
+    private static Integer mapValue(final String val, final String prefix) {
+        final String idVal = val.substring(prefix.length(), val.length());
         return Integer.parseInt(idVal);
     }
 
-    static Map<String, java.util.Set<Integer>> mapModuleChoice(Set moduleChoice) {
-        java.util.Map<java.lang.String, java.util.Set<Integer>> collectedModules = new HashMap<>();
-        for (BObject o : moduleChoice) {
-            Tuple mc = (Tuple) o;
-            String key = ((de.prob.translator.types.String) mc.getFirst()).getValue();
-            Set modules = (Set) mc.getSecond();
+    static Map<String, java.util.Set<Integer>> mapModuleChoice(
+            final Set moduleChoice) {
+
+        final java.util.Map<java.lang.String, java.util.Set<Integer>>
+                collectedModules = new HashMap<>();
+
+        for(final BObject o : moduleChoice) {
+
+            final Tuple mc = (Tuple) o;
+            final Set modules = (Set) mc.getSecond();
+
+            final String key =
+                    ((de.prob.translator.types.String) mc.getFirst())
+                            .getValue();
 
             collectedModules
-                    .put(key, modules.stream().map(m -> mapValue(m.toString(), "mod")).collect(Collectors.toSet()));
+                    .put(key, modules.stream()
+                            .map(m -> mapValue(m.toString(), "mod"))
+                            .collect(Collectors.toSet()));
         }
         return collectedModules;
     }
 
-    static java.util.Set<String> mapCourseSet(Set value) {
+    static java.util.Set<String> mapCourseSet(final Set value) {
         return value.stream().map(Object::toString).collect(Collectors.toSet());
     }
 
-    static List<Integer> mapSessions(Set modelResult) {
+    static List<Integer> mapSessions(final Set modelResult) {
         return modelResult.stream().map(
                 v -> mapValue(v.toString(), "session"))
                 .collect(Collectors.toList());
     }
 
-    static String mapToModuleChoice(Map<String, List<Integer>> moduleChoice) {
-        StringBuilder sb = new StringBuilder();
+    static String mapToModuleChoice(
+            final Map<String, List<Integer>> moduleChoice) {
+
+        final StringBuilder sb = new StringBuilder();
+
         sb.append("{");
         moduleChoice.entrySet().forEach(e -> {
             sb.append("(\"");
             sb.append(e.getKey());
             sb.append("\" |-> {");
-            sb.append(Joiner.on(',').join(e.getValue().stream().map(i -> "mod" + i).iterator()));
+
+            sb.append(Joiner.on(',')
+                    .join(e.getValue().stream()
+                            .map(i -> "mod" + i).iterator()));
+
             sb.append("})");
         });
         sb.append("}");
