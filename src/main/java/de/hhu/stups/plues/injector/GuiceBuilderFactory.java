@@ -20,7 +20,7 @@ public class GuiceBuilderFactory implements BuilderFactory {
 
     @Override
     public Builder<?> getBuilder(Class<?> type) {
-        if (isGuiceResponsibleForType(type)) {
+        if(isGuiceResponsibleForType(type)) {
             Object instance = injector.getInstance(type);
             return wrapInstanceInBuilder(instance);
         }

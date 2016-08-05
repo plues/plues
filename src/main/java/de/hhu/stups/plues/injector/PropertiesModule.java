@@ -30,9 +30,10 @@ class PropertiesModule extends AbstractModule {
         for(final String propertyFile : propertyFiles) {
             try {
                 final ClassLoader classLoader = currentThread()
-                        .getContextClassLoader();
+                                                        .getContextClassLoader();
                 final InputStream p = classLoader
-                        .getResourceAsStream(propertyFile + ".properties");
+                                              .getResourceAsStream(propertyFile
+                                                                           + ".properties");
 
                 if(p == null) {
                     continue;
@@ -41,10 +42,10 @@ class PropertiesModule extends AbstractModule {
                 properties.load(p);
             } catch (final FileNotFoundException e) {
                 System.err.println(propertyFile
-                        + ".properties is missing!");
+                                           + ".properties is missing!");
             } catch (final IOException e) {
                 System.err.println(propertyFile
-                        + ".properties produced IO Error!");
+                                           + ".properties produced IO Error!");
             }
         }
         return properties;

@@ -33,7 +33,7 @@ public class PluesModule extends AbstractModule {
         install(new PropertiesModule());
 
         install(new FactoryModuleBuilder()
-                .build(SolverLoaderTaskFactory.class));
+                        .build(SolverLoaderTaskFactory.class));
         install(new FactoryModuleBuilder().build(SolverFactory.class));
 
         bind(CourseFilter.class);

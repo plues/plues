@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 
 /**
  * Delayed<T> represents an instance of T that becomes available with an
- *  arbitrary delay.
+ * arbitrary delay.
  * Consumers can register Event handlers to be executed once the T object
  * is available.
  * If the T object is already set, new event handlers are executed immediately.
@@ -25,7 +25,7 @@ public class Delayed<T> implements Provider<T> {
     }
 
     public final synchronized void whenAvailable(final Consumer<T> r) {
-        if (this.instance != null) {
+        if(this.instance != null) {
             r.accept(this.instance);
         } else {
             this.listeners.add(r);
@@ -34,7 +34,7 @@ public class Delayed<T> implements Provider<T> {
 
     public final synchronized void set(final T i) {
         this.instance = i;
-        for (final Consumer<T> r : this.listeners) {
+        for(final Consumer<T> r : this.listeners) {
             r.accept(this.instance);
         }
         this.listeners.clear();

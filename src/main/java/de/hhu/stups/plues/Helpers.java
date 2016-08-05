@@ -10,7 +10,7 @@ public final class Helpers {
 
     public static Path expandPath(String base) {
         // handle ~ in paths
-        if (base.startsWith("~" + File.separator)) {
+        if(base.startsWith("~" + File.separator)) {
             base = System.getProperty("user.home") + base.substring(1);
         }
         return FileSystems.getDefault().getPath(base).toAbsolutePath();

@@ -15,9 +15,14 @@ import java.net.URL;
 public class Main extends Application {
 
 
+    public static void main(String[] args) {
+        launch(args);
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Injector injector = Guice.createInjector(com.google.inject.Stage.DEVELOPMENT, new PluesModule());
+        Injector injector = Guice.createInjector(
+                com.google.inject.Stage.DEVELOPMENT, new PluesModule());
 
         FXMLLoader loader = injector.getInstance(FXMLLoader.class);
 
@@ -34,9 +39,5 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(t -> Platform.exit());
 
         primaryStage.show();
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }
