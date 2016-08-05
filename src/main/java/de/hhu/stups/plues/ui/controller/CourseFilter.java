@@ -1,8 +1,6 @@
 package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
-import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
@@ -21,8 +19,6 @@ import java.util.ResourceBundle;
 
 public class CourseFilter extends VBox implements Initializable {
 
-    private final Delayed<Store> delayedStore;
-
     @FXML
     @SuppressWarnings("unused")
     private TableView<Course> courseListView;
@@ -40,8 +36,7 @@ public class CourseFilter extends VBox implements Initializable {
     private TableColumn<Course, String> kzfaColumn;
 
     @Inject
-    public CourseFilter(FXMLLoader loader, Delayed<Store> delayedStore) {
-        this.delayedStore = delayedStore;
+    public CourseFilter(FXMLLoader loader) {
         loader.setLocation(getClass().getResource("/fxml/CourseFilter.fxml"));
 
         loader.setRoot(this);
@@ -59,11 +54,10 @@ public class CourseFilter extends VBox implements Initializable {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("short_name"));
         kzfaColumn.setCellValueFactory(new PropertyValueFactory<>("kzfa"));
         poColumn.setCellValueFactory(new PropertyValueFactory<>("po"));
-
-        delayedStore.whenAvailable(s -> this.initializeCourseListView(s.getCourses()));
     }
 
-    private void initializeCourseListView(List<Course> courses) {
+    @SuppressWarnings("unused")
+    public void setCourses(List<Course> courses) {
         courseListView.setItems(FXCollections.observableArrayList(courses));
     }
 

@@ -95,6 +95,9 @@ public class MainController implements Initializable {
         this.delayedStore.whenAvailable(s
                                                 -> System.out.println("Store Loaded " + s));
 
+        //
+        this.delayedStore.whenAvailable(store
+                -> courseFilter.setCourses(store.getCourses()));
         courseProperty.bind(courseFilter.selectedItemProperty());
         //
         selection.textProperty().bind(
