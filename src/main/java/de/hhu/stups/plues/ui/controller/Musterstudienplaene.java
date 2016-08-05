@@ -14,11 +14,11 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
 
 import java.io.File;
@@ -81,6 +81,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     }
 
     @FXML
+    @SuppressWarnings("unused")
     public void btGeneratePressed() {
         final Course selectedMajorCourse = cbMajor.getSelectionModel().getSelectedItem();
         final Course selectedMinorCourse = cbMinor.getSelectionModel().getSelectedItem();
@@ -94,9 +95,8 @@ public class Musterstudienplaene extends GridPane implements Initializable {
             final FeasibilityResult result = (FeasibilityResult) event.getSource().getValue();
 
             final Store store = delayedStore.get();
-            // TODO: get colorChoice (?), empty string by now
             final Renderer renderer = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-                    result.getModuleChoice(), result.getUnitChoice(), selectedMajorCourse, "");
+                    result.getModuleChoice(), result.getUnitChoice(), selectedMajorCourse, "true");
 
             final DirectoryChooser directoryChooser = new DirectoryChooser();
             directoryChooser.setTitle("Choose the pdf file's location");
@@ -104,8 +104,9 @@ public class Musterstudienplaene extends GridPane implements Initializable {
             if (selectedDirectory == null) {
                 resultTask.cancel();
             } else {
-                try (OutputStream out = new FileOutputStream(selectedDirectory.getAbsolutePath() +
-                        "/musterstudienplan_" + selectedMajorCourse.getName() + "_" + selectedMinorCourse.getName() + ".pdf")) {
+                final String path = selectedDirectory.getAbsolutePath() + "/musterstudienplan_" +
+                        selectedMajorCourse.getName() + "_" + selectedMinorCourse.getName() + ".pdf";
+                try (OutputStream out = new FileOutputStream(path)) {
                     renderer.getResult().writeTo(out);
                 } catch (final IOException e) {
                     e.printStackTrace();
@@ -114,14 +115,19 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         });
 
         resultTask.setOnFailed(event -> {
-            // TODO: show proper message
-            System.out.println("Failed due to invalid combination!");
+            final Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Generation failed");
+            alert.setHeaderText("Invalid course combination");
+            alert.setContentText("The chosen combination of major and minor course is not possible.");
+            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+            alert.showAndWait();
         });
 
         solverService.submit(resultTask);
     }
 
     @FXML
+    @SuppressWarnings("unused")
     public final void btCancelPressed() {
         if (resultTask != null && resultTask.isRunning()) {
             resultTask.cancel();
