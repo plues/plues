@@ -80,21 +80,20 @@ public class MainController implements Initializable {
             loadData();
         } else {
             throw new RuntimeException("No dbpath found. Please specify a "
-                                               + "dbpath property in the resources file.");
+                    + "dbpath property in the resources file.");
             // rely on user opening a database
         }
 
 
         this.delayedStore.whenAvailable(s
-                                                -> Runtime.getRuntime().addShutdownHook(new Thread() {
+                -> Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 s.close();
             }
         }));
         this.delayedStore.whenAvailable(s
-                                                -> System.out.println("Store Loaded " + s));
-
+                -> System.out.println("Store Loaded " + s));
         //
         this.delayedStore.whenAvailable(store
                 -> courseFilter.setCourses(store.getCourses()));
@@ -113,7 +112,10 @@ public class MainController implements Initializable {
         });
 
         //
-        IntStream.range(1, 20).forEach(x -> foo.add(new Label(String.valueOf(x)), x % foo.getColumnConstraints().size(), x % foo.getRowConstraints().size()));
+        IntStream.range(1, 20).forEach(x ->
+                foo.add(new Label(String.valueOf(x)),
+                        x % foo.getColumnConstraints().size(),
+                        x % foo.getRowConstraints().size()));
     }
 
     private void loadData() {
@@ -146,7 +148,7 @@ public class MainController implements Initializable {
         });
         //
         storeLoader.setOnSucceeded(value
-                                           -> System.out.println("STORE:loading Store succeeded"));
+                -> System.out.println("STORE:loading Store succeeded"));
 
         storeLoader.setOnSucceeded(event -> Platform.runLater(() -> {
             final Store s = (Store) event.getSource().getValue();
@@ -156,18 +158,18 @@ public class MainController implements Initializable {
     }
 
     private SolverLoaderTask getSolverLoaderTask(
-                                                        final StoreLoaderTask storeLoader) {
+            final StoreLoaderTask storeLoader) {
 
         final SolverLoaderTask solverLoader
                 = this.solverLoaderTaskFactory.create(storeLoader);
 
         solverLoader.progressProperty()
                 .addListener((observable, oldValue, newValue)
-                                     -> System.out.println(newValue));
+                        -> System.out.println(newValue));
         //
         solverLoader.messageProperty()
                 .addListener((observable, oldValue, newValue)
-                                     -> System.out.println(newValue));
+                        -> System.out.println(newValue));
         //
         solverLoader.setOnSucceeded(
                 value -> System.out.println("loading Solver succeeded"));
