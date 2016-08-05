@@ -2,6 +2,7 @@ package de.hhu.stups.plues.prob;
 
 import com.google.common.base.Joiner;
 import de.prob.translator.types.BObject;
+import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
 import de.prob.translator.types.Tuple;
 
@@ -67,13 +68,19 @@ final class Mappers {
     }
 
     static java.util.Set<String> mapCourseSet(final Set value) {
-        return value.stream().map(Object::toString).collect(Collectors.toSet());
+        return value.stream().map(Object::toString)
+                .map(c -> c.substring(1, c.length() - 1)).collect
+                        (Collectors.toSet());
     }
 
     static List<Integer> mapSessions(final Set modelResult) {
         return modelResult.stream().map(
                 v -> mapValue(v.toString(), "session"))
                 .collect(Collectors.toList());
+    }
+
+    public static String mapSession(final Integer session) {
+        return "session" + session;
     }
 
     static String mapToModuleChoice(
@@ -96,5 +103,15 @@ final class Mappers {
         sb.append("}");
 
         return sb.toString();
+    }
+
+    public static List<Alternative> mapAlternatives(final Set modelResult) {
+        return modelResult.stream().map(
+                o -> {
+                    Record r = (Record) o;
+                    String day = r.get("day").toString();
+                    return new Alternative(day.substring(1, day.length() - 1),
+                            r.get("slot").toString());
+                }).collect(Collectors.toList());
     }
 }

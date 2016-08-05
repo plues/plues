@@ -9,12 +9,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 public class SolverTest {
@@ -67,13 +77,7 @@ public class SolverTest {
         String predicate = "ccss={\"foo\", \"bar\"}";
         String[] modelReturnValues = new String[]{"{(au1,sem2)}", "{(unit3,group4)}", "{\"foo\" |-> {mod5,mod6}}", "{(au7,unit8)}"};
 
-        Transition transition = mock(Transition.class);
-
-        when(trace.canExecuteEvent(op, predicate)).thenReturn(true);
-        when(trace.execute(op, predicate)).thenReturn(trace);
-        when(trace.getCurrentTransition()).thenReturn(transition);
-        when(transition.evaluate(FormulaExpand.expand)).thenReturn(transition);
-        when(transition.getReturnValues()).thenReturn(Arrays.asList(modelReturnValues));
+        setupOperation(modelReturnValues, op, predicate);
 
         Map<Integer, Integer> gc = new HashMap<>();
         Map<Integer, Integer> sc = new HashMap<>();
@@ -103,13 +107,7 @@ public class SolverTest {
         String predicate = "ccss={\"foo\", \"bar\"} & partialModuleChoice={(\"foo\" |-> {mod5})} & partialAbstractUnitChoice={au7}";
         String[] modelReturnValues = new String[]{"{(au1,sem2)}", "{(unit3,group4)}", "{\"foo\" |-> {mod5,mod6}}", "{(au7,unit8)}"};
 
-        Transition transition = mock(Transition.class);
-
-        when(trace.canExecuteEvent(op, predicate)).thenReturn(true);
-        when(trace.execute(op, predicate)).thenReturn(trace);
-        when(trace.getCurrentTransition()).thenReturn(transition);
-        when(transition.evaluate(FormulaExpand.expand)).thenReturn(transition);
-        when(transition.getReturnValues()).thenReturn(Arrays.asList(modelReturnValues));
+        setupOperation(modelReturnValues, op, predicate);
 
         Map<Integer, Integer> gc = new HashMap<>();
         Map<Integer, Integer> sc = new HashMap<>();
@@ -158,21 +156,29 @@ public class SolverTest {
 
     @Test
     public void unsatCore() throws Exception {
-        Transition transition = mock(Transition.class);
         String[] modelReturnValues = new String[]{"{session1, session77}"};
 
         String op = "unsatCore";
         String predicate = "ccss={\"foo\", \"bar\"}";
-        when(trace.canExecuteEvent(op, predicate)).thenReturn(true);
-
-
-        when(trace.execute(op, predicate)).thenReturn(trace);
-        when(trace.getCurrentTransition()).thenReturn(transition);
-        when(transition.evaluate(FormulaExpand.expand)).thenReturn(transition);
-        when(transition.getReturnValues()).thenReturn(Arrays.asList(modelReturnValues));
+        setupOperation(modelReturnValues, op, predicate);
 
         Integer[] uc = new Integer[]{1, 77};
         assertEquals(solver.unsatCore("foo", "bar"), Arrays.asList(uc));
+    }
+
+    @Test
+    public void getImpossibleCourses() throws Exception {
+        String[] modelReturnValues = new String[]{
+                "{\"BK-C1-H-2013\", \"BA-C2-N-2011\"}"};
+
+        String op = "getImpossibleCourses";
+        String predicate = "1=1";
+
+        setupOperation(modelReturnValues, op, predicate);
+
+        String[] impossible = new String[]{"BK-C1-H-2013", "BA-C2-N-2011"};
+        assertTrue(solver.getImpossibleCourses()
+                .containsAll(Arrays.asList(impossible)));
     }
 
     @Test
@@ -185,4 +191,35 @@ public class SolverTest {
         verify(trace).canExecuteEvent(op, predicate);
     }
 
+    @Test
+    public void alternatives() throws Exception {
+        String[] modelReturnValues = new String[]{
+                "{rec(day:\"mon\", slot:slot1), rec(day:\"tue\", slot:slot2)}"};
+        String op = "localAlternatives";
+        String predicate = "ccss={\"foo\", \"bar\"} & session=session1";
+
+        setupOperation(modelReturnValues, op, predicate);
+
+        final List<Alternative> r = solver.getLocalAlternatives(1, "foo", "bar");
+
+        List<Alternative> alternatives = new ArrayList<>();
+
+        alternatives.add(new Alternative("mon", "slot1"));
+        alternatives.add(new Alternative("tue", "slot2"));
+
+        assertTrue(r.containsAll(alternatives));
+    }
+
+    private void setupOperation(final String[] modelReturnValues, final String op, final String predicate) {
+        final Transition transition = mock(Transition.class);
+
+        when(trace.canExecuteEvent(op, predicate)).thenReturn(true);
+        when(trace.execute(op, predicate)).thenReturn(trace);
+        when(trace.getCurrentTransition()).thenReturn(transition);
+
+        when(transition.evaluate(FormulaExpand.expand))
+                .thenReturn(transition);
+        when(transition.getReturnValues())
+                .thenReturn(Arrays.asList(modelReturnValues));
+    }
 }

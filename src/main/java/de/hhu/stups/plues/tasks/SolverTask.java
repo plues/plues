@@ -3,7 +3,11 @@ package de.hhu.stups.plues.tasks;
 import de.hhu.stups.plues.prob.Solver;
 import javafx.concurrent.Task;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class SolverTask<T> extends Task<T> {
     private static final ExecutorService EXECUTOR
@@ -13,13 +17,18 @@ public class SolverTask<T> extends Task<T> {
     private final Solver solver;
     private Future<T> r;
 
-    SolverTask(final String title, final String message,
-               final Solver s, final Callable<T> func) {
+    SolverTask(final String title, final String message, final Solver s,
+               final Callable<T> func) {
+        this(title, s, func);
 
+        updateMessage(message);
+    }
+
+    SolverTask(final String title, final Solver s, final Callable<T> func) {
         this.function = func;
         this.solver = s;
+
         updateTitle(title);
-        updateMessage(message);
     }
 
     @Override

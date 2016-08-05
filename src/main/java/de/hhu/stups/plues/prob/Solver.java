@@ -11,7 +11,6 @@ import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
 import de.prob.translator.Translator;
 import de.prob.translator.types.BObject;
-import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
 
 import java.io.IOException;
@@ -28,12 +27,14 @@ public class Solver {
     private static final String MOVE = "move";
     private static final String IMPOSSIBLE_COURSES = "getImpossibleCourses";
     private static final String UNSAT_CORE = "unsatCore";
+    private static final String LOCAL_ALTERNATIVES = "localAlternatives";
+    public static final String DEFAULT_PREDICATE = "1=1";
 
     private Trace trace;
-    private StateSpace stateSpace;
+    private final StateSpace stateSpace;
 
     @Inject
-    public Solver(final Api api, @Assisted final String modelPath)
+    Solver(final Api api, @Assisted final String modelPath)
             throws IOException, BException {
         this.stateSpace = api.b_load(modelPath);
         this.stateSpace.getSubscribedFormulas()
@@ -62,10 +63,21 @@ public class Solver {
         return "ccss={" + Joiner.on(", ").join(i) + "}";
     }
 
-    private <T extends BObject> List<T> executeOperationWithResult(
-            final String op, final Class<T> type) throws Exception {
-        return executeOperationWithResult(op, "1=1", type);
+    private <T extends BObject> T executeOperationWithOneResult(
+            final String op,
+            final String predicate,
+            final Class<T> type) throws Exception {
+        final List<T> modelResult = executeOperationWithResult(
+                op, predicate, type);
 
+        assert modelResult.size() == 1;
+        return modelResult.get(0);
+    }
+
+    private <T extends BObject> T executeOperationWithOneResult(
+            final String op,
+            final Class<T> type) throws Exception {
+        return executeOperationWithOneResult(op, DEFAULT_PREDICATE, type);
     }
 
     private <T extends BObject> List<T> executeOperationWithResult(
@@ -80,7 +92,7 @@ public class Solver {
                     + predicate);
         }
 
-        Transition trans = trace.getCurrentTransition();
+        final Transition trans = trace.getCurrentTransition();
         final List<String> returnValues
                 = trans.evaluate(FormulaExpand.expand).getReturnValues();
 
@@ -181,13 +193,11 @@ public class Solver {
     public final List<Integer> unsatCore(
             final String... courses) throws Exception {
 
-        String predicate = getFeasibilityPredicate(courses);
+        final String predicate = getFeasibilityPredicate(courses);
         //
-        List<Set> modelResult = executeOperationWithResult(UNSAT_CORE,
+        final Set uc = executeOperationWithOneResult(UNSAT_CORE,
                 predicate,
                 Set.class);
-        assert modelResult.size() == 1;
-        Set uc = modelResult.get(0);
         //
         return Mappers.mapSessions(uc);
     }
@@ -201,15 +211,25 @@ public class Solver {
         executeOperation(MOVE, predicate);
     }
 
-    public final java.util.Map<String, java.util.Set<String>>
-    getImpossibleCourses() throws Exception {
-        List<Record> r = executeOperationWithResult(
-                IMPOSSIBLE_COURSES, Record.class);
-        assert r.size() == 1;
-        Record result = r.get(0);
-        return result.entrySet().stream()
-                .collect(Collectors.toMap(
-                        i -> i.getKey(),
-                        i -> Mappers.mapCourseSet((Set) i.getValue())));
+    public final java.util.Set<String> getImpossibleCourses() throws Exception {
+        Set result = executeOperationWithOneResult(
+                IMPOSSIBLE_COURSES, Set.class);
+
+        return Mappers.mapCourseSet(result);
     }
+
+    // TODO: proper exception
+    public final List<Alternative> getLocalAlternatives(
+            final int session, final String... courses) throws Exception {
+
+        final String coursePredicate = getFeasibilityPredicate(courses);
+        final String predicate = coursePredicate + " & session=" + Mappers
+                .mapSession(session);
+        final Set modelResult = executeOperationWithOneResult(
+                LOCAL_ALTERNATIVES,
+                predicate, Set.class);
+
+        return Mappers.mapAlternatives(modelResult);
+    }
+
 }
