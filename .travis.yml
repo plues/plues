@@ -12,6 +12,7 @@ addons:
     packages: # needed for windres et.al. in launch4j
       - lib32z1
       - lib32ncurses5
+      - oracle-java8-installer
 
 before_cache:
  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
