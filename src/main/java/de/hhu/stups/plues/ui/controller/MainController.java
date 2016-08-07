@@ -21,18 +21,23 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 import org.controlsfx.control.TaskProgressView;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.prefs.Preferences;
 import java.util.stream.IntStream;
 
 public class MainController implements Initializable {
 
+    private static final String LAST_DIR = "LAST_DIR";
     private final Properties properties;
 
     private final Delayed<Store> delayedStore;
@@ -44,6 +49,9 @@ public class MainController implements Initializable {
             solverProperty = new SimpleBooleanProperty(false);
     private final ExecutorService
             executor = Executors.newWorkStealingPool();
+
+    @FXML
+    private MenuItem openFileMenuItem;
     @FXML
     private GridPane foo;
     @FXML
@@ -77,26 +85,24 @@ public class MainController implements Initializable {
                                  final ResourceBundle resources) {
 
         if(properties.get("dbpath") != null) {
-            loadData();
-        } else {
-            throw new RuntimeException("No dbpath found. Please specify a "
-                    + "dbpath property in the resources file.");
-            // rely on user opening a database
+            loadData((String) properties.get("dbpath"));
         }
 
 
         this.delayedStore.whenAvailable(s
-                -> Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                s.close();
-            }
-        }));
+                                                -> Runtime.getRuntime()
+                                                          .addShutdownHook(new Thread() {
+                                                              @Override
+                                                              public void run() {
+                                                                  s.close();
+                                                              }
+                                                          }));
         this.delayedStore.whenAvailable(s
-                -> System.out.println("Store Loaded " + s));
+                                                -> System.out.println(
+                "Store Loaded " + s));
         //
         this.delayedStore.whenAvailable(store
-                -> courseFilter.setCourses(store.getCourses()));
+                                                -> courseFilter.setCourses(store.getCourses()));
         courseProperty.bind(courseFilter.selectedItemProperty());
         //
         selection.textProperty().bind(
@@ -113,24 +119,30 @@ public class MainController implements Initializable {
 
         //
         IntStream.range(1, 20).forEach(x ->
-                foo.add(new Label(String.valueOf(x)),
-                        x % foo.getColumnConstraints().size(),
-                        x % foo.getRowConstraints().size()));
+                                               foo.add(new Label(String.valueOf(x)),
+                                                       x
+                                                               % foo.getColumnConstraints()
+                                                                    .size(),
+                                                       x
+                                                               % foo.getRowConstraints()
+                                                                    .size()));
     }
 
-    private void loadData() {
+    private void loadData(final String path) {
 
-        final StoreLoaderTask storeLoader = getStoreLoaderTask();
+        final StoreLoaderTask storeLoader = getStoreLoaderTask(path);
         final SolverLoaderTask solverLoader = getSolverLoaderTask(storeLoader);
 
+        this.openFileMenuItem.setDisable(true);
         this.submitTask(storeLoader);
+
         this.submitTask(solverLoader);
     }
 
-    private StoreLoaderTask getStoreLoaderTask() {
+    private StoreLoaderTask getStoreLoaderTask(String path) {
 
         final StoreLoaderTask storeLoader
-                = new StoreLoaderTask((String) properties.get("dbpath"));
+                = new StoreLoaderTask(path);
         //
         storeLoader.progressProperty().addListener(
                 (observable, oldValue, newValue) ->
@@ -144,11 +156,12 @@ public class MainController implements Initializable {
             System.out.println(event);
             // TODO: proper error handling
             System.err.println("STORE: Loading failed");
+            this.openFileMenuItem.setDisable(false);
             throw new RuntimeException("STORE: Loading failed");
         });
         //
         storeLoader.setOnSucceeded(value
-                -> System.out.println("STORE:loading Store succeeded"));
+                                           -> System.out.println("STORE:loading Store succeeded"));
 
         storeLoader.setOnSucceeded(event -> Platform.runLater(() -> {
             final Store s = (Store) event.getSource().getValue();
@@ -164,12 +177,12 @@ public class MainController implements Initializable {
                 = this.solverLoaderTaskFactory.create(storeLoader);
 
         solverLoader.progressProperty()
-                .addListener((observable, oldValue, newValue)
-                        -> System.out.println(newValue));
+                    .addListener((observable, oldValue, newValue)
+                                         -> System.out.println(newValue));
         //
         solverLoader.messageProperty()
-                .addListener((observable, oldValue, newValue)
-                        -> System.out.println(newValue));
+                    .addListener((observable, oldValue, newValue)
+                                         -> System.out.println(newValue));
         //
         solverLoader.setOnSucceeded(
                 value -> System.out.println("loading Solver succeeded"));
@@ -207,5 +220,32 @@ public class MainController implements Initializable {
 
     private void submitTask(final Task<?> t) {
         submitTask(t, this.executor);
+    }
+
+    @SuppressWarnings("UnusedParameters")
+    public void openFile(final ActionEvent actionEvent) {
+        final Preferences prefs
+                = Preferences.userNodeForPackage(MainController.class);
+        final String initialDir
+                = prefs.get(LAST_DIR, System.getProperty("user.home"));
+        //
+        final FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open a Database"); // TODO: i18n
+
+        fileChooser.setInitialDirectory(new File(initialDir));
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter(
+                "SQLite3 Database", "*.sqlite", "*.sqlite3"));
+        //
+        final File file = fileChooser.showOpenDialog(result.getScene()
+                                                           .getWindow());
+        //
+        if(file != null) {
+            String newInitialDir = file.getAbsoluteFile().getParent();
+            if(!newInitialDir.equals(initialDir)) {
+                prefs.put(LAST_DIR, newInitialDir);
+            }
+            //
+            loadData(file.getAbsolutePath());
+        }
     }
 }
