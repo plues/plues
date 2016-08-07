@@ -51,7 +51,7 @@ public class CourseFilter extends VBox implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("short_name"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("shortName"));
         kzfaColumn.setCellValueFactory(new PropertyValueFactory<>("kzfa"));
         poColumn.setCellValueFactory(new PropertyValueFactory<>("po"));
     }

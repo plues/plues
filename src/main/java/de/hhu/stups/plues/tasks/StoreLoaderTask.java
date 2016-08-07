@@ -4,6 +4,7 @@ import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.IncompatibleSchemaError;
 import de.hhu.stups.plues.data.SQLiteStore;
 import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.data.StoreExeception;
 import javafx.concurrent.Task;
 
 import java.io.IOException;
@@ -32,6 +33,9 @@ public class StoreLoaderTask extends Task<Store> {
         } catch (final IncompatibleSchemaError i) {
             i.printStackTrace();
             updateMessage(i.getMessage());
+        } catch (StoreExeception storeExeception) {
+            storeExeception.printStackTrace();
+            updateMessage(storeExeception.getMessage());
         }
         return s;
     }

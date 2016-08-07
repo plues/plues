@@ -153,7 +153,7 @@ public class SolverLoaderTask extends Task<Solver> {
 
         final String target = "data.mch";
 
-        final Writable modeldata = renderer.renderFor(FileType.BMachine);
+        final ByteArrayOutputStream modeldata = renderer.renderFor(FileType.BMachine);
 
         final File targetFile
                 = new File(modelDirectory.resolve(target).toString());
@@ -162,27 +162,26 @@ public class SolverLoaderTask extends Task<Solver> {
 
         final String targetxml = flavor + "-data.xml";
 
-        final Writable xmldata = renderer.renderFor(FileType.ModuleCombination);
+        final ByteArrayOutputStream xmldata = renderer.renderFor(FileType.ModuleCombination);
 
         final File targetXMLFile
                 = new File(modelDirectory.resolve(targetxml).toString());
 
 
-        try (OutputStreamWriter fw = new OutputStreamWriter(
-                new FileOutputStream(targetFile), "UTF-8")) {
-            modeldata.writeTo(fw);
+        try (FileOutputStream fos =  new FileOutputStream(targetFile)) {
+            fos.write(modeldata.toByteArray());
         }
 
         System.out.println("Wrote model data to "
                 + targetFile.getAbsolutePath());
 
-        try (OutputStreamWriter fw = new OutputStreamWriter(
-                new FileOutputStream(targetXMLFile), "UTF-8")) {
-            xmldata.writeTo(fw);
-        }
+        try (FileOutputStream fos = new FileOutputStream(targetXMLFile)) {
+            fos.write(xmldata.toByteArray());
+       }
 
         System.out.println("Wrote module combination data to "
                 + targetXMLFile.getAbsolutePath());
+        this.store.clear();
     }
 
 }
