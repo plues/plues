@@ -108,6 +108,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
             } else {
                 final String path = selectedDirectory.getAbsolutePath() + "/musterstudienplan_" +
                         selectedMajorCourse.getName() + "_" + selectedMinorCourse.getName() + ".pdf";
+                // TODO: this should run in a background thread
                 try (OutputStream out = new FileOutputStream(path)) {
                     renderer.getResult().writeTo(out);
                 } catch (final IOException e) {

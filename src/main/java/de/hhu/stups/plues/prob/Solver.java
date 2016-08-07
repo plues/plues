@@ -21,13 +21,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Solver {
-    // TODO: move ops to an enum
     private static final String CHECK = "check";
     private static final String CHECK_PARTIAL = "checkPartial";
     private static final String MOVE = "move";
     private static final String IMPOSSIBLE_COURSES = "getImpossibleCourses";
     private static final String UNSAT_CORE = "unsatCore";
     private static final String LOCAL_ALTERNATIVES = "localAlternatives";
+    
     public static final String DEFAULT_PREDICATE = "1=1";
 
     private Trace trace;
