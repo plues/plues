@@ -10,10 +10,11 @@ import de.hhu.stups.plues.modelgenerator.Renderer;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
-import groovy.lang.Writable;
 import javafx.concurrent.Task;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -151,34 +152,21 @@ public class SolverLoaderTask extends Task<Solver> {
     private void exportDataModel() throws IOException {
         final Renderer renderer = new Renderer(this.store);
 
-        final String target = "data.mch";
-
-        final ByteArrayOutputStream modeldata = renderer.renderFor(FileType.BMachine);
-
         final File targetFile
-                = new File(modelDirectory.resolve(target).toString());
+                = modelDirectory.resolve("data.mch").toFile();
+
+        renderer.renderFor(FileType.BMachine, targetFile);
         //
         final String flavor = this.store.getInfoByKey("short-name");
 
-        final String targetxml = flavor + "-data.xml";
-
-        final ByteArrayOutputStream xmldata = renderer.renderFor(FileType.ModuleCombination);
-
         final File targetXMLFile
-                = new File(modelDirectory.resolve(targetxml).toString());
+                = modelDirectory.resolve(flavor + "-data.xml").toFile();
 
+        renderer.renderFor(FileType.ModuleCombination, targetXMLFile);
 
-        try (FileOutputStream fos =  new FileOutputStream(targetFile)) {
-            fos.write(modeldata.toByteArray());
-        }
 
         System.out.println("Wrote model data to "
                 + targetFile.getAbsolutePath());
-
-        try (FileOutputStream fos = new FileOutputStream(targetXMLFile)) {
-            fos.write(xmldata.toByteArray());
-       }
-
         System.out.println("Wrote module combination data to "
                 + targetXMLFile.getAbsolutePath());
         this.store.clear();
