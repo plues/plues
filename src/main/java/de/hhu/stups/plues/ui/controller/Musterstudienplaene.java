@@ -14,18 +14,24 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.List;
@@ -37,7 +43,8 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     private final Delayed<Store> delayedStore;
     private final Delayed<SolverService> delayedSolverService;
 
-    private final BooleanProperty solverProperty = new SimpleBooleanProperty(false);
+    private final BooleanProperty solverProperty
+            = new SimpleBooleanProperty(false);
     private SolverService solverService;
 
     private Task<FeasibilityResult> resultTask;
@@ -77,7 +84,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
         try {
             loader.load();
-        } catch (final IOException exception) {
+        } catch(final IOException exception) {
             throw new RuntimeException(exception);
         }
     }
@@ -85,33 +92,53 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     @FXML
     @SuppressWarnings("unused")
     public void btGeneratePressed() {
-        final Course selectedMajorCourse = cbMajor.getSelectionModel().getSelectedItem();
-        final Course selectedMinorCourse = cbMinor.getSelectionModel().getSelectedItem();
+        final Course selectedMajorCourse = cbMajor.getSelectionModel()
+                                                  .getSelectedItem();
+        final Course selectedMinorCourse = cbMinor.getSelectionModel()
+                                                  .getSelectedItem();
 
-        resultTask = solverService.computeFeasibilityTask(selectedMajorCourse, selectedMinorCourse);
+        resultTask
+                = solverService.computeFeasibilityTask(selectedMajorCourse, selectedMinorCourse);
 
         progressGenerate.progressProperty().bind(resultTask.progressProperty());
         progressGenerate.visibleProperty().bind(resultTask.runningProperty());
 
         resultTask.setOnSucceeded(event -> {
-            final FeasibilityResult result = (FeasibilityResult) event.getSource().getValue();
+            final FeasibilityResult result
+                    = (FeasibilityResult) event.getSource().getValue();
 
+            try(OutputStream file = new FileOutputStream("result.ser");
+                final OutputStream buffer = new BufferedOutputStream(file);
+                ObjectOutput output = new ObjectOutputStream(buffer)) {
+                output.writeObject(result);
+            } catch(FileNotFoundException e) {
+                e.printStackTrace();
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
             final Store store = delayedStore.get();
-            final Renderer renderer = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-                    result.getModuleChoice(), result.getUnitChoice(), selectedMajorCourse, "true");
+            final Renderer renderer
+                    = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
+                                   result.getModuleChoice(), result.getUnitChoice(), selectedMajorCourse, "true");
 
             final DirectoryChooser directoryChooser = new DirectoryChooser();
             directoryChooser.setTitle("Choose the pdf file's location");
             final File selectedDirectory = directoryChooser.showDialog(null);
-            if (selectedDirectory == null) {
+            if(selectedDirectory == null) {
                 resultTask.cancel();
             } else {
-                final String path = selectedDirectory.getAbsolutePath() + "/musterstudienplan_" +
-                        selectedMajorCourse.getName() + "_" + selectedMinorCourse.getName() + ".pdf";
+                final String path = selectedDirectory.getAbsolutePath()
+                        + "/musterstudienplan_" +
+                        selectedMajorCourse.getName() + "_"
+                        + selectedMinorCourse.getName() + ".pdf";
                 // TODO: this should run in a background thread
-                try (OutputStream out = new FileOutputStream(path)) {
+                try(OutputStream out = new FileOutputStream(path)) {
                     renderer.getResult().writeTo(out);
-                } catch (final IOException e) {
+                } catch(final IOException e) {
+                    e.printStackTrace();
+                } catch(ParserConfigurationException e) {
+                    e.printStackTrace();
+                } catch(SAXException e) {
                     e.printStackTrace();
                 }
             }
@@ -132,7 +159,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     @FXML
     @SuppressWarnings("unused")
     public final void btCancelPressed() {
-        if (resultTask != null && resultTask.isRunning()) {
+        if(resultTask != null && resultTask.isRunning()) {
             resultTask.cancel();
         }
     }
@@ -145,10 +172,10 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         btGenerate.setDefaultButton(true);
         btGenerate.disableProperty().bind(
                 solverProperty.not()
-                        .or(progressGenerate.visibleProperty()));
+                              .or(progressGenerate.visibleProperty()));
         btCancel.disableProperty().bind(
                 solverProperty.not()
-                        .or(progressGenerate.visibleProperty().not()));
+                              .or(progressGenerate.visibleProperty().not()));
 
         delayedSolverService.whenAvailable(s -> {
             this.solverService = s;
@@ -160,12 +187,12 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         final List<Course> courses = store.getCourses();
 
         final List<Course> majorCourseDisplayNames = courses.stream()
-                .filter(Course::isMajor)
-                .collect(Collectors.toList());
+                                                            .filter(Course::isMajor)
+                                                            .collect(Collectors.toList());
 
         final List<Course> minorCourseDisplayNames = courses.stream()
-                .filter(Course::isMinor)
-                .collect(Collectors.toList());
+                                                            .filter(Course::isMinor)
+                                                            .collect(Collectors.toList());
 
         cbMajor.setConverter(new CourseConverter());
         cbMinor.setConverter(new CourseConverter());
