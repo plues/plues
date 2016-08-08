@@ -23,7 +23,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class MajorMinorCourseSelection extends VBox implements Initializable{
+public class MajorMinorCourseSelection extends VBox implements Initializable {
 
     @FXML
     @SuppressWarnings("unused")
@@ -66,6 +66,37 @@ public class MajorMinorCourseSelection extends VBox implements Initializable{
 
         setMajorCourseList(FXCollections.observableList(majorCourseList));
         setMinorCourseList(FXCollections.observableList(minorCourseList));
+    }
+
+    public void highlightImpossibleCourses(final Set<String> impossibleCourses) {
+        cbMajor.setCellFactory(getCallbackForImpossibleCourses(impossibleCourses));
+        cbMinor.setCellFactory(getCallbackForImpossibleCourses(impossibleCourses));
+    }
+
+    private Callback<ListView<Course>, ListCell<Course>> getCallbackForImpossibleCourses(final Set<String> impossibleCourses) {
+        return new Callback<ListView<Course>, ListCell<Course>>() {
+            @Override
+            public ListCell<Course> call(ListView<Course> p) {
+                return new ListCell<Course>() {
+                    @Override
+                    protected void updateItem(Course item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item != null) {
+                            setText(item.getFullName());
+
+                            if (impossibleCourses.contains(item.getName())) {
+                                setTextFill(Color.RED);
+                            } else {
+                                setTextFill(Color.BLACK);
+                            }
+
+                        }
+
+                    }
+                };
+            }
+        };
     }
 
     public Course getSelectedMajorCourse(){

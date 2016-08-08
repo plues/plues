@@ -158,6 +158,13 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         delayedSolverService.whenAvailable(s -> {
             this.solverService = s;
             this.solverProperty.set(true);
+
+            Task<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
+            impossibleCoursesTask.setOnSucceeded(event -> {
+                courseSelection.highlightImpossibleCourses((Set<String>) event.getSource().getValue());
+            });
+            solverService.submit(impossibleCoursesTask);
+
         });
     }
 }
