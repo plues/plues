@@ -12,6 +12,7 @@ import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.controller.CourseFilter;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
+import de.hhu.stups.plues.ui.controller.ResultBox;
 import de.prob.MainModule;
 import javafx.fxml.FXMLLoader;
 
@@ -38,6 +39,7 @@ public class PluesModule extends AbstractModule {
 
         bind(CourseFilter.class);
         bind(Musterstudienplaene.class);
+        bind(ResultBox.class);
 
         bind(delayedStoreType).toInstance(new Delayed<>());
         bind(delayedSolverServiceType).toInstance(new Delayed<>());
