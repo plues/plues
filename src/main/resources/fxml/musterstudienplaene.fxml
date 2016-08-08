@@ -2,13 +2,13 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection?>
 <fx:root type="javafx.scene.layout.GridPane" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1" alignment="center">
     <children>
-        <ComboBox prefHeight="30" prefWidth="400" fx:id="cbMajor" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2"/>
-        <ComboBox prefHeight="30" prefWidth="400" fx:id="cbMinor" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2"/>
-        <ProgressBar prefHeight="20" prefWidth="400" fx:id="progressGenerate" visible="false" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2"/>
-        <Button prefHeight="30" prefWidth="200" fx:id="btGenerate" GridPane.columnIndex="0" GridPane.rowIndex="3" onAction="#btGeneratePressed" text="Generate"/>
-        <Button prefHeight="30" prefWidth="200" fx:id="btCancel" GridPane.columnIndex="1" GridPane.rowIndex="3" onAction="#btCancelPressed" text="Cancel"/>
+        <MajorMinorCourseSelection fx:id="courseSelection" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2"/>
+        <ProgressBar prefHeight="20" prefWidth="400" fx:id="progressGenerate" visible="false" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2"/>
+        <Button prefHeight="30" prefWidth="200" fx:id="btGenerate" GridPane.columnIndex="0" GridPane.rowIndex="2" onAction="#btGeneratePressed" text="Generate"/>
+        <Button prefHeight="30" prefWidth="200" fx:id="btCancel" GridPane.columnIndex="1" GridPane.rowIndex="2" onAction="#btCancelPressed" text="Cancel"/>
     </children>
 </fx:root>

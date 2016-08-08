@@ -10,6 +10,7 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.controller.CourseFilter;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
 import de.prob.MainModule;
@@ -38,6 +39,7 @@ public class PluesModule extends AbstractModule {
 
         bind(CourseFilter.class);
         bind(Musterstudienplaene.class);
+        bind(MajorMinorCourseSelection.class);
 
         bind(delayedStoreType).toInstance(new Delayed<>());
         bind(delayedSolverServiceType).toInstance(new Delayed<>());
