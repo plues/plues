@@ -25,13 +25,9 @@ import javafx.util.StringConverter;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.List;
@@ -107,15 +103,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
             final FeasibilityResult result
                     = (FeasibilityResult) event.getSource().getValue();
 
-            try(OutputStream file = new FileOutputStream("result.ser");
-                final OutputStream buffer = new BufferedOutputStream(file);
-                ObjectOutput output = new ObjectOutputStream(buffer)) {
-                output.writeObject(result);
-            } catch(FileNotFoundException e) {
-                e.printStackTrace();
-            } catch(IOException e) {
-                e.printStackTrace();
-            }
             final Store store = delayedStore.get();
             final Renderer renderer
                     = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
