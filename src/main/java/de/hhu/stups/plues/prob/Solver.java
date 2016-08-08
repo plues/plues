@@ -11,6 +11,7 @@ import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
 import de.prob.translator.Translator;
 import de.prob.translator.types.BObject;
+import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
 
 import java.io.IOException;
@@ -212,10 +213,9 @@ public class Solver {
     }
 
     public final java.util.Set<String> getImpossibleCourses() throws Exception {
-        Set result = executeOperationWithOneResult(
-                IMPOSSIBLE_COURSES, Set.class);
-
-        return Mappers.mapCourseSet(result);
+        Record result = executeOperationWithOneResult(
+                IMPOSSIBLE_COURSES, Record.class);
+        return Mappers.mapCourseSet((Set) result.get("courses"));
     }
 
     // TODO: proper exception
