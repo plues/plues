@@ -2,7 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import de.hhu.stups.plues.ui.controller.ResultBox?>
+<?import de.hhu.stups.plues.ui.components.ResultBox?>
 <?import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection?>
 <fx:root type="javafx.scene.layout.GridPane" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1" alignment="center">
@@ -11,6 +11,6 @@
         <ProgressBar prefHeight="20" prefWidth="400" fx:id="progressGenerate" visible="false" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2"/>
         <Button prefHeight="30" prefWidth="200" fx:id="btGenerate" GridPane.columnIndex="0" GridPane.rowIndex="2" onAction="#btGeneratePressed" text="Generate"/>
         <Button prefHeight="30" prefWidth="200" fx:id="btCancel" GridPane.columnIndex="1" GridPane.rowIndex="2" onAction="#btCancelPressed" text="Cancel"/>
-        <ResultBox fx:id="resultbox" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+        <ResultBox fx:id="resultbox" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="5" />
     </children>
 </fx:root>

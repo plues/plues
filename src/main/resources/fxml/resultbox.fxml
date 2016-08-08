@@ -6,20 +6,17 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.media.MediaView?>
 
-
-<fx:root prefHeight="200" prefWidth="400" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" type="javafx.scene.layout.HBox">
+<fx:root prefHeight="200" prefWidth="400" type="javafx.scene.layout.HBox" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-      <VBox prefHeight="200.0" prefWidth="100.0">
+      <ImageView fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+      <VBox prefHeight="200.0" prefWidth="200.0">
          <children>
             <Label fx:id="major" textAlignment="CENTER" />
             <Label fx:id="minor" textAlignment="CENTER" />
             <Separator orientation="VERTICAL" prefHeight="200.0" />
-            <Button fx:id="send" mnemonicParsing="false" text="Send" textAlignment="CENTER" />
-            <Button fx:id="download" mnemonicParsing="false" text="Download" textAlignment="CENTER" />
-            <MediaView fitHeight="200.0" fitWidth="200.0" />
+            <Button fx:id="send" contentDisplay="CENTER" mnemonicParsing="false" text="Send" textAlignment="CENTER"/>
+            <Button fx:id="download" contentDisplay="CENTER" mnemonicParsing="false" text="Download" textAlignment="CENTER"/>
          </children>
       </VBox>
    </children>
