@@ -131,16 +131,18 @@ public class Musterstudienplaene extends GridPane implements Initializable {
                         + "/musterstudienplan_" +
                         selectedMajorCourse.getName() + "_"
                         + selectedMinorCourse.getName() + ".pdf";
-                // TODO: this should run in a background thread
-                try(OutputStream out = new FileOutputStream(path)) {
-                    renderer.getResult().writeTo(out);
-                } catch(final IOException e) {
-                    e.printStackTrace();
-                } catch(ParserConfigurationException e) {
-                    e.printStackTrace();
-                } catch(SAXException e) {
-                    e.printStackTrace();
-                }
+                Thread writeToPDF = new Thread(() -> {
+                    try(OutputStream out = new FileOutputStream(path)) {
+                        renderer.getResult().writeTo(out);
+                    } catch(final IOException e) {
+                        e.printStackTrace();
+                    } catch(ParserConfigurationException e) {
+                        e.printStackTrace();
+                    } catch(SAXException e) {
+                        e.printStackTrace();
+                    }
+                });
+                writeToPDF.start();
             }
         });
 
