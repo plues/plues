@@ -169,7 +169,7 @@ public class SolverTest {
     @Test
     public void getImpossibleCourses() throws Exception {
         String[] modelReturnValues = new String[]{
-                "{\"BK-C1-H-2013\", \"BA-C2-N-2011\"}"};
+                "rec(courses:{\"BK-C1-H-2013\", \"BA-C2-N-2011\"})"};
 
         String op = "getImpossibleCourses";
         String predicate = "1=1";
