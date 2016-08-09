@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
@@ -8,6 +9,7 @@ import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.studienplaene.Renderer;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
+import de.hhu.stups.plues.ui.components.ResultBox;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
@@ -18,6 +20,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.stage.DirectoryChooser;
 import org.xml.sax.SAXException;
@@ -37,6 +40,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     private final Delayed<SolverService> delayedSolverService;
 
     private final BooleanProperty solverProperty;
+    private final Provider<ResultBox> resulBoxProvider;
     private SolverService solverService;
 
     private Task<FeasibilityResult> resultTask;
@@ -57,11 +61,17 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     @SuppressWarnings("unused")
     private ProgressBar progressGenerate;
 
+    @FXML
+    @SuppressWarnings("unused")
+    private HBox resultBox;
+
     @Inject
     public Musterstudienplaene(final FXMLLoader loader, final Delayed<Store> delayedStore,
-                               final Delayed<SolverService> delayedSolverService) {
+                               final Delayed<SolverService> delayedSolverService,
+                               final Provider<ResultBox> resultBoxProvider) {
         this.delayedStore = delayedStore;
         this.delayedSolverService = delayedSolverService;
+        this.resulBoxProvider = resultBoxProvider;
 
         this.solverProperty = new SimpleBooleanProperty(false);
 
@@ -89,6 +99,11 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
         progressGenerate.progressProperty().bind(resultTask.progressProperty());
         progressGenerate.visibleProperty().bind(resultTask.runningProperty());
+
+        ResultBox rb = resulBoxProvider.get();
+        rb.setMajorCourse(selectedMajorCourse);
+        rb.setMinorCourse(selectedMinorCourse);
+        resultBox.getChildren().add(rb);
 
         resultTask.setOnSucceeded(event -> {
             final FeasibilityResult result = (FeasibilityResult) event.getSource().getValue();
@@ -121,6 +136,8 @@ public class Musterstudienplaene extends GridPane implements Initializable {
                 });
                 writeToPDF.start();
             }
+
+            rb.setFeasible(true);
         });
 
         resultTask.setOnFailed(event -> {
@@ -130,6 +147,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
             alert.setContentText("The chosen combination of major and minor course is not possible.");
             alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
             alert.showAndWait();
+            rb.setFeasible(false);
         });
 
         solverService.submit(resultTask);
