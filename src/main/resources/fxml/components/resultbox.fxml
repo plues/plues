@@ -15,8 +15,8 @@
             <Label fx:id="major" textAlignment="CENTER" />
             <Label fx:id="minor" textAlignment="CENTER" />
             <Separator orientation="VERTICAL" prefHeight="200.0" />
-            <Button fx:id="send" contentDisplay="CENTER" mnemonicParsing="false" text="Send" textAlignment="CENTER"/>
-            <Button fx:id="download" contentDisplay="CENTER" mnemonicParsing="false" text="Download" textAlignment="CENTER"/>
+            <Button fx:id="send" contentDisplay="CENTER" mnemonicParsing="false" text="Send" textAlignment="CENTER" visible="false" />
+            <Button fx:id="download" contentDisplay="CENTER" mnemonicParsing="false" text="Download" textAlignment="CENTER" visible="false" />
          </children>
       </VBox>
    </children>
