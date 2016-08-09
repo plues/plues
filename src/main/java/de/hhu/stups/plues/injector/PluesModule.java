@@ -15,7 +15,6 @@ import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.ui.Router;
 import de.hhu.stups.plues.ui.controller.CourseFilter;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
-import de.hhu.stups.plues.ui.components.ResultBox;
 import de.prob.MainModule;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
@@ -52,7 +51,6 @@ public class PluesModule extends AbstractModule {
 
         bind(CourseFilter.class);
         bind(Musterstudienplaene.class);
-        bind(ResultBox.class);
         bind(MajorMinorCourseSelection.class);
 
         bind(delayedStoreType).toInstance(new Delayed<>());
