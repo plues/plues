@@ -28,8 +28,8 @@ public class Solver {
     private static final String IMPOSSIBLE_COURSES = "getImpossibleCourses";
     private static final String UNSAT_CORE = "unsatCore";
     private static final String LOCAL_ALTERNATIVES = "localAlternatives";
-    
-    public static final String DEFAULT_PREDICATE = "1=1";
+
+    private static final String DEFAULT_PREDICATE = "1=1";
 
     private Trace trace;
     private final StateSpace stateSpace;
@@ -43,7 +43,7 @@ public class Solver {
         this.trace = traceFrom(stateSpace);
     }
 
-    private Trace traceFrom(final StateSpace space) {
+    private static Trace traceFrom(final StateSpace space) {
         return ((Trace) space.asType(Trace.class))
                 .execute("$setup_constants")
                 .execute("$initialise_machine");
@@ -57,7 +57,7 @@ public class Solver {
         return false;
     }
 
-    private String getFeasibilityPredicate(final String[] courses) {
+    private static String getFeasibilityPredicate(final String[] courses) {
         Iterator<String> i = Arrays.stream(courses)
                 .filter(it -> it != null && !it.equals(""))
                 .map(it -> "\"" + it + "\"").iterator();
@@ -229,7 +229,7 @@ public class Solver {
      * @throws Exception
      */
     public final java.util.Set<String> getImpossibleCourses() throws Exception {
-        Record result = executeOperationWithOneResult(
+        final Record result = this.executeOperationWithOneResult(
                 IMPOSSIBLE_COURSES, Record.class);
         return Mappers.mapCourseSet((Set) result.get("courses"));
     }
@@ -241,7 +241,7 @@ public class Solver {
         final String coursePredicate = getFeasibilityPredicate(courses);
         final String predicate = coursePredicate + " & session=" + Mappers
                 .mapSession(session);
-        final Set modelResult = executeOperationWithOneResult(
+        final Set modelResult = this.executeOperationWithOneResult(
                 LOCAL_ALTERNATIVES,
                 predicate, Set.class);
 
