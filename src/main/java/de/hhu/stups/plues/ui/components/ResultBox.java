@@ -29,7 +29,7 @@ public class ResultBox extends GridPane implements Initializable {
     private ObjectProperty<Course> majorCourse, minorCourse;
 
     @FXML
-    @SuppressWarnings("usused")
+    @SuppressWarnings("unused")
     private Pane icon;
 
     @FXML
@@ -104,13 +104,13 @@ public class ResultBox extends GridPane implements Initializable {
     }
 
     @FXML
-    @SuppressWarnings("usused")
+    @SuppressWarnings("unused")
     public void showPdf() {
 
     }
 
     @FXML
-    @SuppressWarnings("usused")
+    @SuppressWarnings("unused")
     public void downloadPdf() {
 
     }
