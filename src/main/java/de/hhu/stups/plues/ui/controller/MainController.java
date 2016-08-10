@@ -85,33 +85,31 @@ public class MainController implements Initializable {
     public final void initialize(final URL location,
                                  final ResourceBundle resources) {
 
-        if(properties.get("dbpath") != null) {
-            loadData((String) properties.get("dbpath"));
+        if(this.properties.get("dbpath") != null) {
+            this.loadData((String) this.properties.get("dbpath"));
         }
 
 
-        this.delayedStore.whenAvailable(s
-                                                -> Runtime.getRuntime()
-                                                          .addShutdownHook(new Thread() {
-                                                              @Override
-                                                              public void run() {
-                                                                  s.close();
-                                                              }
-                                                          }));
-        this.delayedStore.whenAvailable(s
-                                                -> System.out.println(
-                "Store Loaded " + s));
+        this.delayedStore.whenAvailable(s -> {
+            Runtime.getRuntime().addShutdownHook(
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            s.close();
+                        }
+                    });
+            System.out.println("Store Loaded " + s);
+            this.courseFilter.setCourses(s.getCourses());
+        });
         //
-        this.delayedStore.whenAvailable(store
-                                                -> courseFilter.setCourses(store.getCourses()));
-        courseProperty.bind(courseFilter.selectedItemProperty());
+        this.courseProperty.bind(this.courseFilter.selectedItemProperty());
+        this.selection.textProperty().bind(
+                Bindings.selectString(this.courseProperty, "name"));
         //
-        selection.textProperty().bind(
-                Bindings.selectString(courseProperty, "name"));
-        //
-        checkSelection.setDefaultButton(true);
-        checkSelection.disableProperty().bind(
-                courseProperty.isNull().or(solverProperty.not()));
+        this.checkSelection.setDefaultButton(true);
+        this.checkSelection.disableProperty().bind(
+                this.courseProperty.isNull().or(this.solverProperty.not()));
+        
         this.delayedSolverService.whenAvailable(s -> {
             this.solverService = s;
             this.solverProperty.set(true);
@@ -119,20 +117,17 @@ public class MainController implements Initializable {
         });
 
         //
-        IntStream.range(1, 20).forEach(x ->
-                                               foo.add(new Label(String.valueOf(x)),
-                                                       x
-                                                               % foo.getColumnConstraints()
-                                                                    .size(),
-                                                       x
-                                                               % foo.getRowConstraints()
-                                                                    .size()));
+        IntStream.range(1, 20).forEach(x -> this.foo.add(
+                new Label(String.valueOf(x)),
+                x % this.foo.getColumnConstraints().size(),
+                x % this.foo.getRowConstraints().size()));
     }
 
     private void loadData(final String path) {
 
-        final StoreLoaderTask storeLoader = getStoreLoaderTask(path);
-        final SolverLoaderTask solverLoader = getSolverLoaderTask(storeLoader);
+        final StoreLoaderTask storeLoader = this.getStoreLoaderTask(path);
+        final SolverLoaderTask solverLoader
+                = this.getSolverLoaderTask(storeLoader);
 
         this.openFileMenuItem.setDisable(true);
         this.submitTask(storeLoader);
@@ -140,7 +135,7 @@ public class MainController implements Initializable {
         this.submitTask(solverLoader);
     }
 
-    private StoreLoaderTask getStoreLoaderTask(String path) {
+    private StoreLoaderTask getStoreLoaderTask(final String path) {
 
         final StoreLoaderTask storeLoader
                 = new StoreLoaderTask(path);
@@ -165,8 +160,8 @@ public class MainController implements Initializable {
             Platform.exit();
         });
         //
-        storeLoader.setOnSucceeded(value
-                                           -> System.out.println("STORE:loading Store succeeded"));
+        storeLoader.setOnSucceeded(
+                value -> System.out.println("STORE:loading Store succeeded"));
 
         storeLoader.setOnSucceeded(event -> Platform.runLater(() -> {
             final Store s = (Store) event.getSource().getValue();
@@ -203,7 +198,7 @@ public class MainController implements Initializable {
     @FXML
     @SuppressWarnings({"UnusedParameters", "unused"})
     private void checkButtonPressed(final ActionEvent actionEvent) {
-        final Course course = courseProperty.get();
+        final Course course = this.courseProperty.get();
 
         final SolverService s = this.solverService;
         assert s != null;
@@ -211,7 +206,7 @@ public class MainController implements Initializable {
         final Task<Boolean> t = s.checkFeasibilityTask(course);
         t.setOnSucceeded(event -> {
             final Boolean i = (Boolean) event.getSource().getValue();
-            result.setText(i.toString());
+            this.result.setText(i.toString());
             System.out.println(course.getName() + ": " + i.toString());
         });
         this.taskProgress.getTasks().add(t);
@@ -224,11 +219,11 @@ public class MainController implements Initializable {
     }
 
     private void submitTask(final Task<?> t) {
-        submitTask(t, this.executor);
+        this.submitTask(t, this.executor);
     }
 
     @SuppressWarnings("UnusedParameters")
-    public void openFile(final ActionEvent actionEvent) {
+    public final void openFile(final ActionEvent actionEvent) {
         final Preferences prefs
                 = Preferences.userNodeForPackage(MainController.class);
         final String initialDir
@@ -241,16 +236,16 @@ public class MainController implements Initializable {
         fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter(
                 "SQLite3 Database", "*.sqlite", "*.sqlite3"));
         //
-        final File file = fileChooser.showOpenDialog(result.getScene()
-                                                           .getWindow());
+        final File file = fileChooser.showOpenDialog(this.result.getScene()
+                                                                .getWindow());
         //
         if(file != null) {
-            String newInitialDir = file.getAbsoluteFile().getParent();
+            final String newInitialDir = file.getAbsoluteFile().getParent();
             if(!newInitialDir.equals(initialDir)) {
                 prefs.put(LAST_DIR, newInitialDir);
             }
             //
-            loadData(file.getAbsolutePath());
+            this.loadData(file.getAbsolutePath());
         }
     }
 }
