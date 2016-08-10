@@ -4,7 +4,7 @@ import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.IncompatibleSchemaError;
 import de.hhu.stups.plues.data.SQLiteStore;
 import de.hhu.stups.plues.data.Store;
-import de.hhu.stups.plues.data.StoreExeception;
+import de.hhu.stups.plues.data.StoreException;
 import javafx.concurrent.Task;
 
 import java.io.IOException;
@@ -30,22 +30,26 @@ public class StoreLoaderTask extends Task<Store> {
         final SQLiteStore s = new SQLiteStore();
         try {
             s.init(dbWorkingPath.toString());
-        } catch (final IncompatibleSchemaError i) {
+        } catch (IncompatibleSchemaError|StoreException i) {
             i.printStackTrace();
             updateMessage(i.getMessage());
-        } catch (StoreExeception storeExeception) {
-            storeExeception.printStackTrace();
-            updateMessage(storeExeception.getMessage());
+            s.close();
+            throw(i);
         }
         return s;
     }
 
     @Override
     protected final void failed() {
-        System.out.println("Loading store Failed");
+        System.err.println("Loading store Failed");
     }
 
-    private void checkExportDatabase() throws Exception {
+    @Override
+    protected final void cancelled() {
+        System.err.println("Loading store Failed");
+    }
+
+    private void checkExportDatabase() throws IOException {
 
         final Path dbPath = Helpers.expandPath(this.path);
         updateProgress(1, MAX_STEPS);
