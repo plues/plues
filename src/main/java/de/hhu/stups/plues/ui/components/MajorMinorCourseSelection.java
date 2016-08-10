@@ -1,9 +1,7 @@
 package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
-import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,10 +16,8 @@ import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class MajorMinorCourseSelection extends VBox implements Initializable {
 

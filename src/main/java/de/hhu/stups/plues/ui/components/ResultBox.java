@@ -11,7 +11,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,7 +22,6 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -86,7 +84,7 @@ public class ResultBox extends GridPane implements Initializable {
 
         ProgressIndicator progressIndicator = new ProgressIndicator();
 
-        progressIndicator.setPrefSize(100, 100);
+        progressIndicator.setPrefSize(50, 50);
         progressIndicator.setStyle(" -fx-progress-color: #BDE5F8;");
 
         icon.getChildren().add(progressIndicator);
@@ -95,18 +93,18 @@ public class ResultBox extends GridPane implements Initializable {
 
         feasible.addListener(((observable, oldValue, newValue) -> {
             Label label = new Label();
-            label.setPrefSize(100, 100);
+            label.setPrefSize(50, 50);
             label.setAlignment(Pos.CENTER);
             if(newValue) {
                 FontAwesomeIconFactory.get()
-                                      .setIcon(label, FontAwesomeIcon.CHECK, "100");
+                                      .setIcon(label, FontAwesomeIcon.CHECK, "50");
                 label.setStyle("-fx-background-color: #DFF2BF");
                 show.setDisable(false);
                 download.setDisable(false);
                 cancel.setDisable(true);
             } else {
                 FontAwesomeIconFactory.get()
-                                      .setIcon(label, FontAwesomeIcon.REMOVE, "100");
+                                      .setIcon(label, FontAwesomeIcon.REMOVE, "50");
                 label.setStyle("-fx-background-color: #FFBABA");
                 show.setDisable(true);
                 download.setDisable(true);
@@ -133,10 +131,10 @@ public class ResultBox extends GridPane implements Initializable {
     @SuppressWarnings("unused")
     public void interrupt() {
         Label label = new Label();
-        label.setPrefSize(100, 100);
+        label.setPrefSize(50, 50);
         label.setAlignment(Pos.CENTER);
         FontAwesomeIconFactory.get()
-                              .setIcon(label, FontAwesomeIcon.QUESTION, "100");
+                              .setIcon(label, FontAwesomeIcon.QUESTION, "50");
         label.setStyle("-fx-background-color: #FEEFB3");
         icon.getChildren().clear();
         icon.getChildren().add(label);

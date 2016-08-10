@@ -1,7 +1,6 @@
 package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
@@ -21,9 +20,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import org.xml.sax.SAXException;
 
@@ -44,6 +44,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     private final Delayed<SolverService> delayedSolverService;
 
     private final BooleanProperty solverProperty;
+    private final BooleanProperty generationStarted;
     private final ResultBoxFactory resultBoxFactory;
     private SolverService solverService;
 
@@ -67,7 +68,11 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     @FXML
     @SuppressWarnings("unused")
-    private HBox resultBox;
+    private VBox resultBox;
+
+    @FXML
+    @SuppressWarnings("unused")
+    private ScrollPane scrollPane;
 
     @Inject
     public Musterstudienplaene(final FXMLLoader loader, final Delayed<Store> delayedStore,
@@ -78,6 +83,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         this.resultBoxFactory = resultBoxFactory;
 
         this.solverProperty = new SimpleBooleanProperty(false);
+        this.generationStarted = new SimpleBooleanProperty(false);
 
         this.setVgap(10.0);
 
@@ -98,6 +104,8 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     public void btGeneratePressed() {
         final Course selectedMajorCourse = courseSelection.getSelectedMajorCourse();
         final Course selectedMinorCourse = courseSelection.getSelectedMinorCourse();
+
+        this.generationStarted.set(true);
 
         resultTask = solverService.computeFeasibilityTask(selectedMajorCourse, selectedMinorCourse);
 
@@ -190,16 +198,15 @@ public class Musterstudienplaene extends GridPane implements Initializable {
                 solverProperty.not()
                               .or(progressGenerate.visibleProperty().not()));
 
+        scrollPane.visibleProperty().bind(generationStarted);
+
         delayedSolverService.whenAvailable(s -> {
             this.solverService = s;
             this.solverProperty.set(true);
 
             Task<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
-            impossibleCoursesTask.setOnSucceeded(event -> {
-                courseSelection.highlightImpossibleCourses((Set<String>) event.getSource().getValue());
-            });
+            impossibleCoursesTask.setOnSucceeded(event -> courseSelection.highlightImpossibleCourses((Set<String>) event.getSource().getValue()));
             solverService.submit(impossibleCoursesTask);
-
         });
     }
 }
