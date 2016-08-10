@@ -13,6 +13,7 @@ import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,8 +33,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Musterstudienplaene extends GridPane implements Initializable {
 
@@ -164,7 +167,20 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     @Override
     public final void initialize(final URL location, final ResourceBundle resources) {
-        delayedStore.whenAvailable(courseSelection::initializeItemsFromStore);
+        delayedStore.whenAvailable(s -> {
+            final List<Course> courses = s.getCourses();
+
+            final List<Course> majorCourseList = courses.stream()
+                    .filter(Course::isMajor)
+                    .collect(Collectors.toList());
+
+            final List<Course> minorCourseList = courses.stream()
+                    .filter(Course::isMinor)
+                    .collect(Collectors.toList());
+
+            courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
+            courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
+        });
 
         btGenerate.setDefaultButton(true);
         btGenerate.disableProperty().bind(
