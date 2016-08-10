@@ -20,7 +20,7 @@ public class ExceptionDialog extends Alert {
     public ExceptionDialog() {
         super(AlertType.ERROR);
 
-        this.exceptionText = new SimpleStringProperty();
+        this.exceptionText = new SimpleStringProperty(this, "exceptionText");
 
         this.setup();
     }
