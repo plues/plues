@@ -76,7 +76,10 @@ public class ResultBox extends GridPane implements Initializable {
         minor.textProperty().bind(Bindings.selectString(this.minorCourse, "fullName"));
 
         ProgressIndicator progressIndicator = new ProgressIndicator();
+
         progressIndicator.setPrefSize(100, 100);
+        progressIndicator.setStyle(" -fx-progress-color: #BDE5F8;");
+
         icon.getChildren().add(progressIndicator);
 
         cancel.setDisable(false);
@@ -87,13 +90,13 @@ public class ResultBox extends GridPane implements Initializable {
             label.setAlignment(Pos.CENTER);
             if (newValue) {
                 FontAwesomeIconFactory.get().setIcon(label, FontAwesomeIcon.CHECK, "100");
-                label.setStyle("-fx-background-color: green");
+                label.setStyle("-fx-background-color: #DFF2BF");
                 show.setDisable(false);
                 download.setDisable(false);
                 cancel.setDisable(true);
             } else {
                 FontAwesomeIconFactory.get().setIcon(label, FontAwesomeIcon.REMOVE, "100");
-                label.setStyle("-fx-background-color: red");
+                label.setStyle("-fx-background-color: #FFBABA");
                 show.setDisable(true);
                 download.setDisable(true);
                 cancel.setDisable(true);
@@ -122,7 +125,7 @@ public class ResultBox extends GridPane implements Initializable {
         label.setPrefSize(100, 100);
         label.setAlignment(Pos.CENTER);
         FontAwesomeIconFactory.get().setIcon(label, FontAwesomeIcon.QUESTION, "100");
-        label.setStyle("-fx-background-color: yellow");
+        label.setStyle("-fx-background-color: #FEEFB3");
         icon.getChildren().clear();
         icon.getChildren().add(label);
         cancel.setDisable(true);
