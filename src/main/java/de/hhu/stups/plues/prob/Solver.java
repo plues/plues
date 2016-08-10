@@ -114,11 +114,22 @@ public class Solver {
 
     // OPERATIONS
 
+    /**
+     * Check if a combination of major and minor courses is feasible.
+     * @param courses The combination of major and minor courses.
+     * @return Return true if the combination is feasible otherwise false.
+     */
     public final Boolean checkFeasibility(final String... courses) {
         final String predicate = getFeasibilityPredicate(courses);
         return executeOperation(CHECK, predicate);
     }
 
+    /**
+     * Compute the {@link FeasibilityResult feasibility result} for a given combination of major and minor courses.
+     * @param courses The combination of major and minor courses.
+     * @return Return the computed {@link FeasibilityResult FeasibilityResult}.
+     * @throws Exception
+     */
     // TODO: proper exception type
     public final FeasibilityResult computeFeasibility(
             final String... courses) throws Exception {
@@ -212,6 +223,11 @@ public class Solver {
         executeOperation(MOVE, predicate);
     }
 
+    /**
+     * An abstract course is impossible if there is no explicit course available.
+     * @return Return the set of all impossible courses.
+     * @throws Exception
+     */
     public final java.util.Set<String> getImpossibleCourses() throws Exception {
         Record result = executeOperationWithOneResult(
                 IMPOSSIBLE_COURSES, Record.class);

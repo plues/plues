@@ -53,33 +53,29 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
         cbMinor.setConverter(new CourseConverter());
     }
 
-    public void initializeItemsFromStore(final Store store) {
-        final List<Course> courses = store.getCourses();
-
-        final List<Course> majorCourseList = courses.stream()
-                .filter(Course::isMajor)
-                .collect(Collectors.toList());
-
-        final List<Course> minorCourseList = courses.stream()
-                .filter(Course::isMinor)
-                .collect(Collectors.toList());
-
-        setMajorCourseList(FXCollections.observableList(majorCourseList));
-        setMinorCourseList(FXCollections.observableList(minorCourseList));
-    }
-
+    /**
+     * Highlight the impossible courses in red to signalize the user invalid course choices
+     * before trying to generate the pdf file. This method is called as soon as the solver is available.
+     * @param impossibleCourses The set of impossible courses obtained by {@link de.hhu.stups.plues.prob.Solver#getImpossibleCourses() getImpossibleCourses}.
+     */
     public void highlightImpossibleCourses(final Set<String> impossibleCourses) {
         cbMajor.setCellFactory(getCallbackForImpossibleCourses(impossibleCourses));
         cbMinor.setCellFactory(getCallbackForImpossibleCourses(impossibleCourses));
     }
 
+    /**
+     * Create callback for a given set of impossible courses to use as the combo box's cell factory.
+     * This is necessary to change the item's color later on.
+     * @param impossibleCourses The set of impossible courses obtained by {@link #highlightImpossibleCourses(Set) highlightImpossibleCourses}.
+     * @return The callback providing the updated list cells of courses.
+     */
     private Callback<ListView<Course>, ListCell<Course>> getCallbackForImpossibleCourses(final Set<String> impossibleCourses) {
         return new Callback<ListView<Course>, ListCell<Course>>() {
             @Override
-            public ListCell<Course> call(ListView<Course> p) {
+            public ListCell<Course> call(final ListView<Course> p) {
                 return new ListCell<Course>() {
                     @Override
-                    protected void updateItem(Course item, boolean empty) {
+                    protected void updateItem(final Course item,final boolean empty) {
                         super.updateItem(item, empty);
 
                         if (item != null) {
@@ -107,16 +103,20 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
         return cbMinor.getSelectionModel().getSelectedItem();
     }
 
-    private void setMajorCourseList(ObservableList<Course> majorCourseList) {
+    public void setMajorCourseList(final ObservableList<Course> majorCourseList) {
         cbMajor.setItems(majorCourseList);
         cbMajor.getSelectionModel().select(0);
     }
 
-    private void setMinorCourseList(ObservableList<Course> minorCourseList) {
+    public void setMinorCourseList(final ObservableList<Course> minorCourseList) {
         cbMinor.setItems(minorCourseList);
         cbMinor.getSelectionModel().select(0);
     }
 
+    /**
+     * Convert from String to Course and vice versa to be able to use the Course objects
+     * directly within the combo boxes.
+     */
     private static class CourseConverter extends StringConverter<Course> {
         @Override
         public String toString(final Course object) {
