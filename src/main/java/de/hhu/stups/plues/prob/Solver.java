@@ -224,7 +224,7 @@ public class Solver {
     }
 
     /**
-     * An abstract course is impossible if there is no explicit course available.
+     * A course is impossible if it is statically known to be infeasible.
      * @return Return the set of all impossible courses.
      * @throws Exception
      */
