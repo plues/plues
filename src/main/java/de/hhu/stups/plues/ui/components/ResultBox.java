@@ -1,7 +1,9 @@
 package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.binding.Bindings;
@@ -9,6 +11,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -19,12 +23,14 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class ResultBox extends GridPane implements Initializable {
 
+    private final Worker<FeasibilityResult> task;
     private BooleanProperty feasible;
     private ObjectProperty<Course> majorCourse, minorCourse;
 
@@ -53,10 +59,11 @@ public class ResultBox extends GridPane implements Initializable {
     private Button cancel;
 
     @Inject
-    public ResultBox(final FXMLLoader loader) {
+    public ResultBox(final FXMLLoader loader, @Assisted final Worker<FeasibilityResult> task) {
         majorCourse = new SimpleObjectProperty<>();
         minorCourse = new SimpleObjectProperty<>();
         feasible = new SimpleBooleanProperty();
+        this.task = task;
 
         loader.setLocation(getClass().getResource("/fxml/components/resultbox.fxml"));
 
@@ -71,9 +78,11 @@ public class ResultBox extends GridPane implements Initializable {
     }
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        major.textProperty().bind(Bindings.selectString(this.majorCourse, "fullName"));
-        minor.textProperty().bind(Bindings.selectString(this.minorCourse, "fullName"));
+    public final void initialize(URL location, ResourceBundle resources) {
+        major.textProperty()
+             .bind(Bindings.selectString(this.majorCourse, "fullName"));
+        minor.textProperty()
+             .bind(Bindings.selectString(this.minorCourse, "fullName"));
 
         ProgressIndicator progressIndicator = new ProgressIndicator();
 
@@ -88,14 +97,16 @@ public class ResultBox extends GridPane implements Initializable {
             Label label = new Label();
             label.setPrefSize(100, 100);
             label.setAlignment(Pos.CENTER);
-            if (newValue) {
-                FontAwesomeIconFactory.get().setIcon(label, FontAwesomeIcon.CHECK, "100");
+            if(newValue) {
+                FontAwesomeIconFactory.get()
+                                      .setIcon(label, FontAwesomeIcon.CHECK, "100");
                 label.setStyle("-fx-background-color: #DFF2BF");
                 show.setDisable(false);
                 download.setDisable(false);
                 cancel.setDisable(true);
             } else {
-                FontAwesomeIconFactory.get().setIcon(label, FontAwesomeIcon.REMOVE, "100");
+                FontAwesomeIconFactory.get()
+                                      .setIcon(label, FontAwesomeIcon.REMOVE, "100");
                 label.setStyle("-fx-background-color: #FFBABA");
                 show.setDisable(true);
                 download.setDisable(true);
@@ -124,7 +135,8 @@ public class ResultBox extends GridPane implements Initializable {
         Label label = new Label();
         label.setPrefSize(100, 100);
         label.setAlignment(Pos.CENTER);
-        FontAwesomeIconFactory.get().setIcon(label, FontAwesomeIcon.QUESTION, "100");
+        FontAwesomeIconFactory.get()
+                              .setIcon(label, FontAwesomeIcon.QUESTION, "100");
         label.setStyle("-fx-background-color: #FEEFB3");
         icon.getChildren().clear();
         icon.getChildren().add(label);

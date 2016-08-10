@@ -10,6 +10,7 @@ import de.hhu.stups.plues.studienplaene.Renderer;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
+import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
@@ -40,7 +41,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     private final Delayed<SolverService> delayedSolverService;
 
     private final BooleanProperty solverProperty;
-    private final Provider<ResultBox> resulBoxProvider;
+    private final ResultBoxFactory resultBoxFactory;
     private SolverService solverService;
 
     private Task<FeasibilityResult> resultTask;
@@ -68,10 +69,10 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     @Inject
     public Musterstudienplaene(final FXMLLoader loader, final Delayed<Store> delayedStore,
                                final Delayed<SolverService> delayedSolverService,
-                               final Provider<ResultBox> resultBoxProvider) {
+                               final ResultBoxFactory resultBoxFactory) {
         this.delayedStore = delayedStore;
         this.delayedSolverService = delayedSolverService;
-        this.resulBoxProvider = resultBoxProvider;
+        this.resultBoxFactory = resultBoxFactory;
 
         this.solverProperty = new SimpleBooleanProperty(false);
 
@@ -100,7 +101,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         progressGenerate.progressProperty().bind(resultTask.progressProperty());
         progressGenerate.visibleProperty().bind(resultTask.runningProperty());
 
-        ResultBox rb = resulBoxProvider.get();
+        ResultBox rb = resultBoxFactory.create(resultTask);
         rb.setMajorCourse(selectedMajorCourse);
         rb.setMinorCourse(selectedMinorCourse);
         resultBox.getChildren().add(rb);

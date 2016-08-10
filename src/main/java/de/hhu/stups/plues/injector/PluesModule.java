@@ -13,6 +13,7 @@ import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.ui.Router;
+import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.controller.CourseFilter;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
 import de.prob.MainModule;
@@ -45,6 +46,7 @@ public class PluesModule extends AbstractModule {
         install(new FactoryModuleBuilder()
                         .build(SolverLoaderTaskFactory.class));
         install(new FactoryModuleBuilder().build(SolverFactory.class));
+        install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
 
         bind(Stage.class).toInstance(primaryStage);
         bind(Router.class).toProvider(RouterProvider.class);
