@@ -9,6 +9,7 @@ import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
+import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -153,11 +154,15 @@ public class MainController implements Initializable {
                         System.out.println("STORE " + newValue));
         //
         storeLoader.setOnFailed(event -> {
-            System.out.println(event);
-            // TODO: proper error handling
-            System.err.println("STORE: Loading failed");
-            this.openFileMenuItem.setDisable(false);
-            throw new RuntimeException("STORE: Loading failed");
+            final Throwable ex = event.getSource().getException();
+            final ExceptionDialog ed = new ExceptionDialog();
+
+            ed.setTitle("Critical Exception");
+            ed.setHeaderText("Database could not be loaded");
+            ed.setException(ex);
+
+            ed.showAndWait();
+            Platform.exit();
         });
         //
         storeLoader.setOnSucceeded(value
