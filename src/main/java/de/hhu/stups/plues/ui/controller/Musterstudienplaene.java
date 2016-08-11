@@ -139,6 +139,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         resultBox.getChildren().add(rb);
 
         task.setOnSucceeded(event -> {
+            rb.setFeasible(true);
             final FeasibilityResult result
                     = (FeasibilityResult) event.getSource().getValue();
 
@@ -168,18 +169,17 @@ public class Musterstudienplaene extends GridPane implements Initializable {
                 });
                 writeToPDF.start();
             }
-
-            rb.setFeasible(true);
         });
 
         task.setOnFailed(event -> {
+            rb.setFeasible(false);
+
             final Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Generation failed");
             alert.setHeaderText("Invalid course combination");
             alert.setContentText("The chosen combination of major and minor course is not possible.");
             alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
             alert.showAndWait();
-            rb.setFeasible(false);
         });
 
         solverService.submit(task);
