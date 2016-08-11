@@ -136,7 +136,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         rb.setMajorCourse(selectedMajorCourse);
         selectedMinorCourse.ifPresent(m -> rb.setMinorCourse(m));
 
-        resultBox.getChildren().add(rb);
+        resultBox.getChildren().add(0, rb);
 
         task.setOnSucceeded(event -> {
             rb.setFeasible(true);
