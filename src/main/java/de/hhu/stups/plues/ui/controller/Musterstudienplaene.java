@@ -224,7 +224,9 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         btGenerate.setDefaultButton(true);
         btGenerate.disableProperty().bind(
                 solverProperty.not()
-                              .or(progressGenerate.visibleProperty()));
+                              .or(progressGenerate.visibleProperty())
+                              .or(Bindings.selectBoolean(resultTask, "running")));
+        //
         btCancel.disableProperty().bind(
                 solverProperty.not()
                               .or(progressGenerate.visibleProperty().not()));
