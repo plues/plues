@@ -10,8 +10,11 @@ import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -49,7 +52,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     private final ResultBoxFactory resultBoxFactory;
     private SolverService solverService;
 
-    private Task<FeasibilityResult> resultTask;
+    private ObjectProperty<Task<FeasibilityResult>> resultTask;
 
     @FXML
     @SuppressWarnings("unused")
@@ -85,6 +88,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
         this.solverProperty = new SimpleBooleanProperty(false);
         this.generationStarted = new SimpleBooleanProperty(false);
+        this.resultTask = new SimpleObjectProperty<>();
 
         this.setVgap(10.0);
 
@@ -103,38 +107,38 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     @FXML
     @SuppressWarnings("unused")
     public void btGeneratePressed() {
+        this.generationStarted.set(true);
+
         final Course selectedMajorCourse
                 = courseSelection.getSelectedMajorCourse();
         final Optional<Course> selectedMinorCourse
                 = courseSelection.getSelectedMinorCourse();
-        String documentName;
 
-        this.generationStarted.set(true);
-
+        final String documentName;
+        final Task<FeasibilityResult> task;
         if(selectedMinorCourse.isPresent()) {
-            resultTask
+            task
                     = solverService.computeFeasibilityTask(
                             selectedMajorCourse, selectedMinorCourse.get());
             documentName
                     = Musterstudienplaene.getDocumentName(
                             selectedMajorCourse, selectedMinorCourse.get());
         } else {
-            resultTask
+            task
                     = solverService.computeFeasibilityTask(selectedMajorCourse);
             documentName
                     = Musterstudienplaene.getDocumentName(selectedMajorCourse);
         }
+        resultTask.set(task);
 
-        progressGenerate.progressProperty().bind(resultTask.progressProperty());
-        progressGenerate.visibleProperty().bind(resultTask.runningProperty());
 
-        ResultBox rb = resultBoxFactory.create(resultTask);
+        ResultBox rb = resultBoxFactory.create(task);
         rb.setMajorCourse(selectedMajorCourse);
         selectedMinorCourse.ifPresent(m -> rb.setMinorCourse(m));
 
         resultBox.getChildren().add(rb);
 
-        resultTask.setOnSucceeded(event -> {
+        task.setOnSucceeded(event -> {
             final FeasibilityResult result
                     = (FeasibilityResult) event.getSource().getValue();
 
@@ -148,7 +152,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
             final File selectedDirectory = directoryChooser.showDialog(null);
 
             if(selectedDirectory == null) {
-                resultTask.cancel();
+                task.cancel();
             } else {
                 final String path = selectedDirectory.getAbsolutePath()
                         + "/" + documentName;
@@ -168,7 +172,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
             rb.setFeasible(true);
         });
 
-        resultTask.setOnFailed(event -> {
+        task.setOnFailed(event -> {
             final Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Generation failed");
             alert.setHeaderText("Invalid course combination");
@@ -178,7 +182,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
             rb.setFeasible(false);
         });
 
-        solverService.submit(resultTask);
+        solverService.submit(task);
     }
 
     private static String getDocumentName(final Course major, final Course minor) {
@@ -193,9 +197,11 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     @FXML
     @SuppressWarnings("unused")
     public final void btCancelPressed() {
-        if(resultTask != null && resultTask.isRunning()) {
-            resultTask.cancel();
+        final Task<FeasibilityResult> task = this.resultTask.get();
+        if(task == null || !task.isRunning()) {
+            return;
         }
+        task.cancel();
     }
 
     @Override
@@ -233,5 +239,11 @@ public class Musterstudienplaene extends GridPane implements Initializable {
             impossibleCoursesTask.setOnSucceeded(event -> courseSelection.highlightImpossibleCourses((Set<String>) event.getSource().getValue()));
             solverService.submit(impossibleCoursesTask);
         });
+
+
+        progressGenerate.progressProperty().bind(
+                Bindings.selectDouble(this.resultTask, "progress"));
+        progressGenerate.visibleProperty().bind(
+                Bindings.selectBoolean(this.resultTask, "running"));
     }
 }
