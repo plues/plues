@@ -19,6 +19,7 @@ import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -110,8 +111,13 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
         return cbMajor.getSelectionModel().getSelectedItem();
     }
 
-    public Course getSelectedMinorCourse(){
-        return cbMinor.getSelectionModel().getSelectedItem();
+    public final Optional<Course> getSelectedMinorCourse() {
+        if(this.cbMinor.isDisabled()) {
+            return Optional.empty();
+        } else {
+            return Optional.of(this.cbMinor.getSelectionModel()
+                                                   .getSelectedItem());
+        }
     }
 
     public void setMajorCourseList(final ObservableList<Course> majorCourseList) {
