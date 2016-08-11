@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -102,23 +103,40 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     @FXML
     @SuppressWarnings("unused")
     public void btGeneratePressed() {
-        final Course selectedMajorCourse = courseSelection.getSelectedMajorCourse();
-        final Course selectedMinorCourse = courseSelection.getSelectedMinorCourse();
+        final Course selectedMajorCourse
+                = courseSelection.getSelectedMajorCourse();
+        final Optional<Course> selectedMinorCourse
+                = courseSelection.getSelectedMinorCourse();
+        String documentName;
 
         this.generationStarted.set(true);
 
-        resultTask = solverService.computeFeasibilityTask(selectedMajorCourse, selectedMinorCourse);
+        if(selectedMinorCourse.isPresent()) {
+            resultTask
+                    = solverService.computeFeasibilityTask(
+                            selectedMajorCourse, selectedMinorCourse.get());
+            documentName
+                    = Musterstudienplaene.getDocumentName(
+                            selectedMajorCourse, selectedMinorCourse.get());
+        } else {
+            resultTask
+                    = solverService.computeFeasibilityTask(selectedMajorCourse);
+            documentName
+                    = Musterstudienplaene.getDocumentName(selectedMajorCourse);
+        }
 
         progressGenerate.progressProperty().bind(resultTask.progressProperty());
         progressGenerate.visibleProperty().bind(resultTask.runningProperty());
 
         ResultBox rb = resultBoxFactory.create(resultTask);
         rb.setMajorCourse(selectedMajorCourse);
-        rb.setMinorCourse(selectedMinorCourse);
+        selectedMinorCourse.ifPresent(m -> rb.setMinorCourse(m));
+
         resultBox.getChildren().add(rb);
 
         resultTask.setOnSucceeded(event -> {
-            final FeasibilityResult result = (FeasibilityResult) event.getSource().getValue();
+            final FeasibilityResult result
+                    = (FeasibilityResult) event.getSource().getValue();
 
             final Store store = delayedStore.get();
             final Renderer renderer
@@ -133,9 +151,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
                 resultTask.cancel();
             } else {
                 final String path = selectedDirectory.getAbsolutePath()
-                        + "/musterstudienplan_"
-                        + selectedMajorCourse.getName() + "_"
-                        + selectedMinorCourse.getName() + ".pdf";
+                        + "/" + documentName;
 
                 Thread writeToPDF = new Thread(() -> {
 
@@ -163,6 +179,15 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         });
 
         solverService.submit(resultTask);
+    }
+
+    private static String getDocumentName(final Course major, final Course minor) {
+        return "musterstudienplan_" + major.getName() + "_" + minor.getName()
+                + ".pdf";
+    }
+
+    private static String getDocumentName(final Course course) {
+        return "musterstudienplan_" + course.getName() + ".pdf";
     }
 
     @FXML
