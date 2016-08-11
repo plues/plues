@@ -206,21 +206,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     @Override
     public final void initialize(final URL location, final ResourceBundle resources) {
-        delayedStore.whenAvailable(s -> {
-            final List<Course> courses = s.getCourses();
-
-            final List<Course> majorCourseList = courses.stream()
-                    .filter(Course::isMajor)
-                    .collect(Collectors.toList());
-
-            final List<Course> minorCourseList = courses.stream()
-                    .filter(Course::isMinor)
-                    .collect(Collectors.toList());
-
-            courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
-            courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
-        });
-
         btGenerate.setDefaultButton(true);
         btGenerate.disableProperty().bind(
                 solverProperty.not()
@@ -230,8 +215,15 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         btCancel.disableProperty().bind(
                 solverProperty.not()
                               .or(progressGenerate.visibleProperty().not()));
-
+        //
         scrollPane.visibleProperty().bind(generationStarted);
+        //
+        progressGenerate.progressProperty().bind(
+                Bindings.selectDouble(this.resultTask, "progress"));
+        progressGenerate.visibleProperty().bind(
+                Bindings.selectBoolean(this.resultTask, "running"));
+        //
+        delayedStore.whenAvailable(this::initializeCourseSelection);
 
         delayedSolverService.whenAvailable(s -> {
             this.solverService = s;
@@ -241,11 +233,20 @@ public class Musterstudienplaene extends GridPane implements Initializable {
             impossibleCoursesTask.setOnSucceeded(event -> courseSelection.highlightImpossibleCourses((Set<String>) event.getSource().getValue()));
             solverService.submit(impossibleCoursesTask);
         });
+    }
 
+    private void initializeCourseSelection(final Store s) {
+        final List<Course> courses = s.getCourses();
 
-        progressGenerate.progressProperty().bind(
-                Bindings.selectDouble(this.resultTask, "progress"));
-        progressGenerate.visibleProperty().bind(
-                Bindings.selectBoolean(this.resultTask, "running"));
+        final List<Course> majorCourseList = courses.stream()
+                .filter(Course::isMajor)
+                .collect(Collectors.toList());
+
+        final List<Course> minorCourseList = courses.stream()
+                .filter(Course::isMinor)
+                .collect(Collectors.toList());
+
+        courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
+        courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
     }
 }
