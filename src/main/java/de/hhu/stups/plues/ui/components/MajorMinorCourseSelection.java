@@ -2,6 +2,9 @@ package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.Course;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -47,11 +50,23 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
     public void initialize(final URL location, final ResourceBundle resources) {
         cbMajor.setConverter(new CourseConverter());
         cbMinor.setConverter(new CourseConverter());
+
+        final ReadOnlyObjectProperty<Course> selectedMajor
+                = this.cbMajor.getSelectionModel().selectedItemProperty();
+
+        final BooleanBinding majorIsCombinable
+                = Bindings.createBooleanBinding(() -> {
+            final Course c = selectedMajor.get();
+            return c != null && c.isCombinable();
+        }, selectedMajor);
+
+        cbMinor.disableProperty().bind(majorIsCombinable.not());
     }
 
     /**
      * Highlight the impossible courses in red to signalize the user invalid course choices
      * before trying to generate the pdf file. This method is called as soon as the solver is available.
+     *
      * @param impossibleCourses The set of impossible courses obtained by {@link de.hhu.stups.plues.prob.Solver#getImpossibleCourses() getImpossibleCourses}.
      */
     public void highlightImpossibleCourses(final Set<String> impossibleCourses) {
