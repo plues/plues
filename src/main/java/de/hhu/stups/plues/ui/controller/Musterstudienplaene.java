@@ -139,7 +139,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         resultBox.getChildren().add(0, rb);
 
         task.setOnSucceeded(event -> {
-            rb.setFeasible(true);
             final FeasibilityResult result
                     = (FeasibilityResult) event.getSource().getValue();
 
@@ -172,8 +171,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         });
 
         task.setOnFailed(event -> {
-            rb.setFeasible(false);
-
             final Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Generation failed");
             alert.setHeaderText("Invalid course combination");
