@@ -150,13 +150,7 @@ public class MainController implements Initializable {
         //
         storeLoader.setOnFailed(event -> {
             final Throwable ex = event.getSource().getException();
-            final ExceptionDialog ed = new ExceptionDialog();
-
-            ed.setTitle("Critical Exception");
-            ed.setHeaderText("Database could not be loaded");
-            ed.setException(ex);
-
-            ed.showAndWait();
+            showCriticalExceptionDialog(ex, "Database could not be loaded");
             Platform.exit();
         });
         //
@@ -168,6 +162,16 @@ public class MainController implements Initializable {
             this.delayedStore.set(s);
         }));
         return storeLoader;
+    }
+
+    private void showCriticalExceptionDialog(final Throwable ex, final String message) {
+        final ExceptionDialog ed = new ExceptionDialog();
+
+        ed.setTitle("Critical Exception");
+        ed.setHeaderText(message);
+        ed.setException(ex);
+
+        ed.showAndWait();
     }
 
     private SolverLoaderTask getSolverLoaderTask(
@@ -190,6 +194,12 @@ public class MainController implements Initializable {
             final Solver s = (Solver) event.getSource().getValue();
             // TODO: check if this needs to run on UI thread
             this.delayedSolverService.set(new SolverService(s));
+        });
+        //
+        solverLoader.setOnFailed(event -> {
+            final Throwable ex = event.getSource().getException();
+            showCriticalExceptionDialog(ex, "Solver could not be loaded");
+            Platform.exit();
         });
 
         return solverLoader;

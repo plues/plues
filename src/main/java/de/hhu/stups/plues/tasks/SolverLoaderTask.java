@@ -138,9 +138,16 @@ public class SolverLoaderTask extends Task<Solver> {
     }
 
     @Override
+    protected final void cancelled() {
+        this.store.close();
+        System.err.println("Loading solver cancelled");
+    }
+
+    @Override
     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     protected final void failed() {
-        System.err.println("Loading failed");
+        this.store.close();
+        System.err.println("Loading solver failed");
         this.getException().printStackTrace();
     }
 
