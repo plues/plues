@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-public class SolverTest {
+public class ProBSolverTest {
     private Solver solver;
     private Trace trace;
     private StateSpace stateSpace;
@@ -45,7 +45,7 @@ public class SolverTest {
         when(trace.execute("$setup_constants")).thenReturn(trace);
         when(trace.execute("$initialise_machine")).thenReturn(trace);
 
-        this.solver = new Solver(api, "model");
+        this.solver = new ProBSolver(api, "model");
     }
 
     @After
