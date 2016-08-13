@@ -43,6 +43,14 @@ public class Solver {
         this.trace = traceFrom(stateSpace);
     }
 
+    /**
+     * Checks if the version of the loaded model is compatible with the version
+     * provided as parameter.
+     * Currently strings must be an excact match.
+     *
+     * @param expectedVersion
+     * @throws SolverException
+     */
     public final void checkModelVersion(final String expectedVersion) /* or read properties here? */
             throws SolverException {
         final String modelVersion = this.getModelVersion();
@@ -258,6 +266,12 @@ public class Solver {
     }
 
 
+    /**
+     * Get the model's version
+     * @return String the version string of the model
+     * @throws SolverException
+     */
+    @SuppressWarnings("WeakerAccess")
     public final String getModelVersion() throws SolverException {
         final BObject result
                 = this.executeOperationWithOneResult("getVersion", BObject.class);
