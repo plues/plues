@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Enumeration;
+import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -77,8 +78,10 @@ public class SolverLoaderTask extends Task<Solver> {
                 = classLoader.getResourceAsStream(MODELS_ZIP);
         //
         if(zipStream == null) {
-//            throw new AnomalousMaterialsException("Could not find models.zip resource!!");
-            throw new Exception("Foo");
+            throw new MissingResourceException(
+                    "Could not find models.zip resource!!",
+                    this.getClass().getName(),
+                    MODELS_ZIP);
         }
         // copy zip-file to tmpDirectory
         final Path zipPath = tmpDirectory.resolve(MODELS_ZIP);
