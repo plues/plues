@@ -43,6 +43,19 @@ public class Solver {
         this.trace = traceFrom(stateSpace);
     }
 
+    public final void checkModelVersion(final String expectedVersion) /* or read properties here? */
+            throws SolverException {
+        final String modelVersion = this.getModelVersion();
+        if(modelVersion.equals(expectedVersion)) {
+            return;
+        }
+        throw new SolverException(
+                "Incompatible model version numbers, expected "
+                        + expectedVersion
+                        + " but was " + modelVersion);
+
+    }
+
     private static Trace traceFrom(final StateSpace space) {
         return ((Trace) space.asType(Trace.class))
                 .execute("$setup_constants")
@@ -244,4 +257,10 @@ public class Solver {
         return Mappers.mapAlternatives(modelResult);
     }
 
+
+    public final String getModelVersion() throws SolverException {
+        final BObject result
+                = this.executeOperationWithOneResult("getVersion", BObject.class);
+        return Mappers.mapString(result.toString());
+    }
 }

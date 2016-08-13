@@ -24,7 +24,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class SolverLoaderTask extends Task<Solver> {
-    private static final int MAX_STEPS = 4;
+    private static final int MAX_STEPS = 5;
     private static final String MODEL_FILE = "Solver.mch";
     private static final String MODEL_PATH = "models";
     private static final String MODELS_ZIP = "models.zip";
@@ -127,8 +127,13 @@ public class SolverLoaderTask extends Task<Solver> {
         updateMessage("Init solver (this can take a while)"); // TODO i18n
         initSolver();
         updateProgress(4, MAX_STEPS);
-
-        return solver;
+        //
+        this.updateMessage("Checking model version"); // TODO i18n
+        this.solver.checkModelVersion(
+                (String) this.properties.get("model_version"));
+        this.updateProgress(5, MAX_STEPS);
+        //
+        return this.solver;
     }
 
     @Override
