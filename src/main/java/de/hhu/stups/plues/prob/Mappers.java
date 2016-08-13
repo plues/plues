@@ -69,8 +69,7 @@ final class Mappers {
 
     static java.util.Set<String> mapCourseSet(final Set value) {
         return value.stream().map(Object::toString)
-                .map(c -> c.substring(1, c.length() - 1)).collect
-                        (Collectors.toSet());
+                .map(c -> mapString(c)).collect(Collectors.toSet());
     }
 
     static List<Integer> mapSessions(final Set modelResult) {
@@ -110,8 +109,12 @@ final class Mappers {
                 o -> {
                     Record r = (Record) o;
                     String day = r.get("day").toString();
-                    return new Alternative(day.substring(1, day.length() - 1),
+                    return new Alternative(mapString(day),
                             r.get("slot").toString());
                 }).collect(Collectors.toList());
+    }
+
+    static String mapString(final String s) {
+        return s.substring(1, s.length() - 1);
     }
 }
