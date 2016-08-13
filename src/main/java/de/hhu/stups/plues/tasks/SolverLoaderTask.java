@@ -46,21 +46,21 @@ public class SolverLoaderTask extends Task<Solver> {
         this.solverFactory = sf;
         this.storeLoader = storeLoaderTask;
         this.properties = pp;
-        updateTitle("Loading ProB"); // TODO i18n
+        this.updateTitle("Loading ProB"); // TODO i18n
     }
 
     private void prepareModels() throws Exception {
-        final String modelBase = (String) properties.get("modelpath");
+        final String modelBase = (String) this.properties.get("modelpath");
         if(modelBase == null) {
             // use bundled files
-            copyModelsToTemp();
+            this.copyModelsToTemp();
         } else {
             final Path p = Helpers.expandPath(modelBase);
             if(!new File(p.toString()).exists()) {
                 throw new IllegalArgumentException("Path does not exist");
             }
             System.out.println("Using models from " + p);
-            modelDirectory = p;
+            this.modelDirectory = p;
         }
     }
 
@@ -68,10 +68,10 @@ public class SolverLoaderTask extends Task<Solver> {
     private void copyModelsToTemp() throws Exception {
 
         final Path tmpDirectory = Files.createTempDirectory("slottool");
-        modelDirectory = tmpDirectory.resolve(MODEL_PATH);
+        this.modelDirectory = tmpDirectory.resolve(MODEL_PATH);
 
-        Files.createDirectory(modelDirectory);
-        System.out.println("Exporting models to " + modelDirectory);
+        Files.createDirectory(this.modelDirectory);
+        System.out.println("Exporting models to " + this.modelDirectory);
         //
         final ClassLoader classLoader = MainController.class.getClassLoader();
         final InputStream zipStream
@@ -113,23 +113,23 @@ public class SolverLoaderTask extends Task<Solver> {
     @Override
     protected final Solver call() throws Exception {
 
-        updateMessage("Prepare models"); // TODO i18n
-        updateProgress(0, MAX_STEPS);
-
-        prepareModels();
-        updateProgress(1, MAX_STEPS);
-
-        updateMessage("Waiting for Store"); // TODO i18n
+        this.updateMessage("Prepare models"); // TODO i18n
+        this.updateProgress(0, MAX_STEPS);
+        //
+        this.prepareModels();
+        this.updateProgress(1, MAX_STEPS);
+        //
+        this.updateMessage("Waiting for Store"); // TODO i18n
         this.store = this.storeLoader.get();
-        updateProgress(2, MAX_STEPS);
-
-        updateMessage("Export data model (this can take a while)"); // TODO i18n
-        exportDataModel();
-        updateProgress(3, MAX_STEPS);
-
-        updateMessage("Init solver (this can take a while)"); // TODO i18n
-        initSolver();
-        updateProgress(4, MAX_STEPS);
+        this.updateProgress(2, MAX_STEPS);
+        //
+        this.updateMessage("Export data model (this can take a while)"); // TODO i18n
+        this.exportDataModel();
+        this.updateProgress(3, MAX_STEPS);
+        //
+        this.updateMessage("Init solver (this can take a while)"); // TODO i18n
+        this.initSolver();
+        this.updateProgress(4, MAX_STEPS);
         //
         this.updateMessage("Checking model version"); // TODO i18n
         this.solver.checkModelVersion(
@@ -142,7 +142,7 @@ public class SolverLoaderTask extends Task<Solver> {
     @Override
     protected final void succeeded() {
         super.succeeded();
-        updateMessage("Done!"); // TODO i18n
+        this.updateMessage("Done!"); // TODO i18n
     }
 
     @Override
@@ -160,7 +160,8 @@ public class SolverLoaderTask extends Task<Solver> {
     }
 
     private void initSolver() throws IOException, BException {
-        final String modelPath = modelDirectory.resolve(MODEL_FILE).toString();
+        final String modelPath = this.modelDirectory.resolve(MODEL_FILE)
+                                                    .toString();
         this.solver = this.solverFactory.create(modelPath);
     }
 
@@ -168,22 +169,22 @@ public class SolverLoaderTask extends Task<Solver> {
         final Renderer renderer = new Renderer(this.store);
 
         final File targetFile
-                = modelDirectory.resolve("data.mch").toFile();
+                = this.modelDirectory.resolve("data.mch").toFile();
 
         renderer.renderFor(FileType.BMachine, targetFile);
         //
         final String flavor = this.store.getInfoByKey("short-name");
 
         final File targetXMLFile
-                = modelDirectory.resolve(flavor + "-data.xml").toFile();
+                = this.modelDirectory.resolve(flavor + "-data.xml").toFile();
 
         renderer.renderFor(FileType.ModuleCombination, targetXMLFile);
 
 
         System.out.println("Wrote model data to "
-                + targetFile.getAbsolutePath());
+                                   + targetFile.getAbsolutePath());
         System.out.println("Wrote module combination data to "
-                + targetXMLFile.getAbsolutePath());
+                                   + targetXMLFile.getAbsolutePath());
         this.store.clear();
     }
 
