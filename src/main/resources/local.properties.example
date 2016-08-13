@@ -9,3 +9,5 @@
 # Specify the path where the sqlite database is located at
 # dbpath=../data/wiwi_data.sqlite3
 
+# Specify which solver class to use for development. Options are prob (default) or mock
+# solver=mock

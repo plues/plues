@@ -5,14 +5,18 @@ import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import com.google.inject.name.Names;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.prob.MockSolver;
+import de.hhu.stups.plues.prob.ProBSolver;
+import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverFactory;
+import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
-import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
-import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.ui.Router;
+import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.controller.CourseFilter;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
@@ -45,7 +49,10 @@ public class PluesModule extends AbstractModule {
 
         install(new FactoryModuleBuilder()
                         .build(SolverLoaderTaskFactory.class));
-        install(new FactoryModuleBuilder().build(SolverFactory.class));
+        install(new FactoryModuleBuilder()
+                        .implement(Solver.class, Names.named("prob"), ProBSolver.class)
+                        .implement(Solver.class, Names.named("mock"), MockSolver.class)
+                        .build(SolverFactory.class));
         install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
 
         bind(Stage.class).toInstance(primaryStage);

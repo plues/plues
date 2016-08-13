@@ -15,6 +15,8 @@ import javafx.concurrent.Task;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,6 +48,7 @@ public class SolverLoaderTask extends Task<Solver> {
         this.solverFactory = sf;
         this.storeLoader = storeLoaderTask;
         this.properties = pp;
+        this.properties.putIfAbsent("solver", "prob");
         this.updateTitle("Loading ProB"); // TODO i18n
     }
 
@@ -159,10 +162,29 @@ public class SolverLoaderTask extends Task<Solver> {
         this.getException().printStackTrace();
     }
 
-    private void initSolver() throws IOException, BException {
+    private void initSolver() throws IOException, BException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         final String modelPath = this.modelDirectory.resolve(MODEL_FILE)
                                                     .toString();
-        this.solver = this.solverFactory.create(modelPath);
+
+        final String solverName = (String) this.properties.get("solver");
+        //
+        System.out.println("Using " + solverName + " solver");
+        //
+        final String solver = solverName.substring(0, 1).toUpperCase() + solverName.substring(1);
+        //
+        try {
+            final Method method
+                    = this.solverFactory.getClass()
+                                        .getMethod(
+                                                "create" + solver + "Solver",
+                                                String.class);
+            
+            this.solver = (Solver) method.invoke(this.solverFactory, modelPath);
+
+        } catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private void exportDataModel() throws IOException {
