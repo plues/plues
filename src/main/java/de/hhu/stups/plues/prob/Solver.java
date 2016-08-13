@@ -67,7 +67,7 @@ public class Solver {
     private <T extends BObject> T executeOperationWithOneResult(
             final String op,
             final String predicate,
-            final Class<T> type) throws Exception {
+            final Class<T> type) throws SolverException {
         final List<T> modelResult = executeOperationWithResult(
                 op, predicate, type);
 
@@ -77,20 +77,19 @@ public class Solver {
 
     private <T extends BObject> T executeOperationWithOneResult(
             final String op,
-            final Class<T> type) throws Exception {
+            final Class<T> type) throws SolverException {
         return executeOperationWithOneResult(op, DEFAULT_PREDICATE, type);
     }
 
     private <T extends BObject> List<T> executeOperationWithResult(
             final String op,
             final String predicate,
-            final Class<T> type) throws Exception {
+            final Class<T> type) throws SolverException {
 
         if(!executeOperation(op, predicate)) {
-//            throw new AnomalousMaterialsException("Could not execute operation " + op + " - " + predicate);
-            throw new Exception("Could not execute operation "
-                    + op + " - "
-                    + predicate);
+            throw new SolverException("Could not execute operation "
+                                              + op + " - "
+                                              + predicate);
         }
 
         final Transition trans = trace.getCurrentTransition();
@@ -128,11 +127,10 @@ public class Solver {
      * Compute the {@link FeasibilityResult feasibility result} for a given combination of major and minor courses.
      * @param courses The combination of major and minor courses.
      * @return Return the computed {@link FeasibilityResult FeasibilityResult}.
-     * @throws Exception
+     * @throws SolverException
      */
-    // TODO: proper exception type
     public final FeasibilityResult computeFeasibility(
-            final String... courses) throws Exception {
+            final String... courses) throws SolverException {
 
         final String predicate = getFeasibilityPredicate(courses);
         /* Check returns values in the following order:
@@ -160,11 +158,10 @@ public class Solver {
                 semesterChoice, groupChoice);
     }
 
-    // TODO: proper exception type
     public final FeasibilityResult computePartialFeasibility(
             final List<String> courses,
             final Map<String, List<Integer>> moduleChoice,
-            final List<Integer> abstractUnitChoice) throws Exception {
+            final List<Integer> abstractUnitChoice) throws SolverException {
 
         final String mc = Mappers.mapToModuleChoice(moduleChoice);
         final String ac = Joiner.on(',').join(
@@ -201,9 +198,8 @@ public class Solver {
                 computedSemesterChoice, computedGroupChoice);
     }
 
-    // TODO: proper exception
     public final List<Integer> unsatCore(
-            final String... courses) throws Exception {
+            final String... courses) throws SolverException {
 
         final String predicate = getFeasibilityPredicate(courses);
         //
@@ -225,18 +221,18 @@ public class Solver {
 
     /**
      * A course is impossible if it is statically known to be infeasible.
+     *
      * @return Return the set of all impossible courses.
-     * @throws Exception
+     * @throws SolverException
      */
-    public final java.util.Set<String> getImpossibleCourses() throws Exception {
+    public final java.util.Set<String> getImpossibleCourses() throws SolverException {
         final Record result = this.executeOperationWithOneResult(
                 IMPOSSIBLE_COURSES, Record.class);
         return Mappers.mapCourseSet((Set) result.get("courses"));
     }
 
-    // TODO: proper exception
     public final List<Alternative> getLocalAlternatives(
-            final int session, final String... courses) throws Exception {
+            final int session, final String... courses) throws SolverException {
 
         final String coursePredicate = getFeasibilityPredicate(courses);
         final String predicate = coursePredicate + " & session=" + Mappers

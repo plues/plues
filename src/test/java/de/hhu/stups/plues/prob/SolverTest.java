@@ -146,7 +146,7 @@ public class SolverTest {
     }
 
     // TODO: Proper exception
-    @Test(expected = Exception.class)
+    @Test(expected = SolverException.class)
     public void computeFeasibilityInfeasibleCourse() throws Exception {
         String op = "check";
         String predicate = "ccss={\"foo\", \"bar\"}";
