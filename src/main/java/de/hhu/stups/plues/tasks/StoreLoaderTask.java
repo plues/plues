@@ -2,7 +2,7 @@ package de.hhu.stups.plues.tasks;
 
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.IncompatibleSchemaError;
-import de.hhu.stups.plues.data.SQLiteStore;
+import de.hhu.stups.plues.data.SqliteStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.StoreException;
 import javafx.concurrent.Task;
@@ -27,7 +27,7 @@ public class StoreLoaderTask extends Task<Store> {
     @Override
     protected final Store call() throws Exception {
         checkExportDatabase();
-        final SQLiteStore s = new SQLiteStore();
+        final SqliteStore s = new SqliteStore();
         try {
             s.init(dbWorkingPath.toString());
         } catch (IncompatibleSchemaError|StoreException i) {
