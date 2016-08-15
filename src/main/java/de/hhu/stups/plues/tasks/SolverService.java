@@ -27,7 +27,7 @@ public class SolverService {
     private final Solver solver;
 
     @Inject
-    public SolverService(ExecutorService executorService, @Assisted Solver solver) {
+    public SolverService(@ProB ExecutorService executorService, @Assisted Solver solver) {
         this.executor = executorService;
         this.solver = solver;
     }
