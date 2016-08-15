@@ -1,6 +1,10 @@
 package de.hhu.stups.plues.tasks;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import de.hhu.stups.plues.prob.Solver;
+
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
 import java.util.concurrent.Callable;
@@ -8,11 +12,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-
 public class SolverTask<T> extends Task<T> {
-    private static final ExecutorService EXECUTOR
-            = Executors.newSingleThreadExecutor();
+
+    private static final ExecutorService EXECUTOR;
+      static {
+        final ThreadFactory threadFactoryBuilder
+          = new ThreadFactoryBuilder().setDaemon(true)
+                                      .setNameFormat("solver-task-runner-%d")
+                                      .build();
+        EXECUTOR = Executors.newSingleThreadExecutor(threadFactoryBuilder);
+      }
 
     private final Callable<T> function;
     private final Solver solver;
