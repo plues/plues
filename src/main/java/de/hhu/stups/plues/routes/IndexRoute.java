@@ -15,7 +15,7 @@ public class IndexRoute implements Route {
 
   @Inject
   public IndexRoute(Inflater inflater, Stage stage) {
-    this.root = inflater.inflate("main.fxml");
+    this.root = inflater.inflate("main");
     this.stage = stage;
   }
 

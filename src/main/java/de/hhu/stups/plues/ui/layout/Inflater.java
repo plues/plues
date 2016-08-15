@@ -25,8 +25,25 @@ public class Inflater {
    * @return {@link Parent}
    */
   public Parent inflate(String name) {
+    return inflate(name, null, null);
+  }
+
+  /**
+   * Inflate a fxml resource as a layout from <tt>/fxml/</tt>.
+   * @param name The name of the xml file without the <tt>.xml</tt> extension.
+   * @param root optional root node to inflate this layout into
+   */
+  public Parent inflate(String name, Parent root, Object controller) {
     // set location explicitly to ensure using the injected fxml loader
-    loader.setLocation(getClass().getResource("/fxml/" + name));
+    loader.setLocation(getClass().getResource("/fxml/" + name + ".fxml"));
+
+    if (root != null) {
+      loader.setRoot(root);
+    }
+
+    if (controller != null) {
+      loader.setController(controller);
+    }
 
     try {
       return loader.load();
