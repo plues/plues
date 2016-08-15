@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
+
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
@@ -10,6 +11,7 @@ import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -28,9 +30,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
+
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,208 +45,235 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 public class Musterstudienplaene extends GridPane implements Initializable {
 
-    private final Delayed<Store> delayedStore;
-    private final Delayed<SolverService> delayedSolverService;
+  private final Delayed<Store> delayedStore;
+  private final Delayed<SolverService> delayedSolverService;
 
-    private final BooleanProperty solverProperty;
-    private final BooleanProperty generationStarted;
-    private final ResultBoxFactory resultBoxFactory;
-    private SolverService solverService;
+  private final BooleanProperty solverProperty;
+  private final BooleanProperty generationStarted;
+  private final ResultBoxFactory resultBoxFactory;
+  private SolverService solverService;
 
-    private ObjectProperty<Task<FeasibilityResult>> resultTask;
+  private ObjectProperty<Task<FeasibilityResult>> resultTask;
 
-    @FXML
-    @SuppressWarnings("unused")
-    private MajorMinorCourseSelection courseSelection;
+  @FXML
+  @SuppressWarnings("unused")
+  private MajorMinorCourseSelection courseSelection;
 
-    @FXML
-    @SuppressWarnings("unused")
-    private Button btGenerate;
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btGenerate;
 
-    @FXML
-    @SuppressWarnings("unused")
-    private Button btCancel;
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btCancel;
 
-    @FXML
-    @SuppressWarnings("unused")
-    private ProgressBar progressGenerate;
+  @FXML
+  @SuppressWarnings("unused")
+  private ProgressBar progressGenerate;
 
-    @FXML
-    @SuppressWarnings("unused")
-    private VBox resultBox;
+  @FXML
+  @SuppressWarnings("unused")
+  private VBox resultBox;
 
-    @FXML
-    @SuppressWarnings("unused")
-    private ScrollPane scrollPane;
+  @FXML
+  @SuppressWarnings("unused")
+  private ScrollPane scrollPane;
 
-    @Inject
-    public Musterstudienplaene(final FXMLLoader loader, final Delayed<Store> delayedStore,
-                               final Delayed<SolverService> delayedSolverService,
-                               final ResultBoxFactory resultBoxFactory) {
-        this.delayedStore = delayedStore;
-        this.delayedSolverService = delayedSolverService;
-        this.resultBoxFactory = resultBoxFactory;
+  /**
+   * Constructor for musterstudienplaene controller.
+   * @param loader TaskLoader to load fxml file and to set controller
+   * @param delayedStore Store containing relevant data
+   * @param delayedSolverService SolverService for usage of ProB solver
+   * @param resultBoxFactory Factory to create ResultBox entities
+   */
+  @Inject
+  public Musterstudienplaene(final FXMLLoader loader, final Delayed<Store> delayedStore,
+                             final Delayed<SolverService> delayedSolverService,
+                             final ResultBoxFactory resultBoxFactory) {
+    this.delayedStore = delayedStore;
+    this.delayedSolverService = delayedSolverService;
+    this.resultBoxFactory = resultBoxFactory;
 
-        this.solverProperty = new SimpleBooleanProperty(false);
-        this.generationStarted = new SimpleBooleanProperty(false);
-        this.resultTask = new SimpleObjectProperty<>();
+    this.solverProperty = new SimpleBooleanProperty(false);
+    this.generationStarted = new SimpleBooleanProperty(false);
+    this.resultTask = new SimpleObjectProperty<>();
 
-        this.setVgap(10.0);
+    this.setVgap(10.0);
 
-        loader.setLocation(getClass().getResource("/fxml/musterstudienplaene.fxml"));
+    loader.setLocation(getClass().getResource("/fxml/musterstudienplaene.fxml"));
 
-        loader.setRoot(this);
-        loader.setController(this);
+    loader.setRoot(this);
+    loader.setController(this);
 
-        try {
-            loader.load();
-        } catch(final IOException exception) {
-            throw new RuntimeException(exception);
-        }
+    try {
+      loader.load();
+    } catch (final IOException exception) {
+      throw new RuntimeException(exception);
     }
+  }
 
-    @FXML
-    @SuppressWarnings("unused")
-    public void btGeneratePressed() {
-        this.generationStarted.set(true);
+  /**
+   * Function to handle generation of resultbox containing result for choosen major and minor.
+   */
+  @FXML
+  @SuppressWarnings("unused")
+  public void btGeneratePressed() {
+    this.generationStarted.set(true);
 
-        final Course selectedMajorCourse
-                = courseSelection.getSelectedMajorCourse();
-        final Optional<Course> selectedMinorCourse
-                = courseSelection.getSelectedMinorCourse();
+    final Course selectedMajorCourse
+        = courseSelection.getSelectedMajorCourse();
+    final Optional<Course> selectedMinorCourse
+        = courseSelection.getSelectedMinorCourse();
 
-        final String documentName;
-        final Task<FeasibilityResult> task;
-        if(selectedMinorCourse.isPresent()) {
-            task
-                    = solverService.computeFeasibilityTask(
-                            selectedMajorCourse, selectedMinorCourse.get());
-            documentName
-                    = Musterstudienplaene.getDocumentName(
-                            selectedMajorCourse, selectedMinorCourse.get());
-        } else {
-            task
-                    = solverService.computeFeasibilityTask(selectedMajorCourse);
-            documentName
-                    = Musterstudienplaene.getDocumentName(selectedMajorCourse);
-        }
-        resultTask.set(task);
-
-
-        ResultBox rb = resultBoxFactory.create(task);
-        rb.setMajorCourse(selectedMajorCourse);
-        selectedMinorCourse.ifPresent(m -> rb.setMinorCourse(m));
-
-        resultBox.getChildren().add(0, rb);
-
-        task.setOnSucceeded(event -> {
-            final FeasibilityResult result
-                    = (FeasibilityResult) event.getSource().getValue();
-
-            final Store store = delayedStore.get();
-            final Renderer renderer
-                    = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-                                   result.getModuleChoice(), result.getUnitChoice(), selectedMajorCourse, "true");
-
-            final DirectoryChooser directoryChooser = new DirectoryChooser();
-            directoryChooser.setTitle("Choose the pdf file's location");
-            final File selectedDirectory = directoryChooser.showDialog(null);
-
-            if(selectedDirectory == null) {
-                task.cancel();
-            } else {
-                final String path = selectedDirectory.getAbsolutePath()
-                        + "/" + documentName;
-
-                Thread writeToPDF = new Thread(() -> {
-
-                    try(OutputStream out = new FileOutputStream(path)) {
-                        renderer.getResult().writeTo(out);
-                    } catch(final IOException | ParserConfigurationException | SAXException e) {
-                        e.printStackTrace();
-                    }
-
-                });
-                writeToPDF.start();
-            }
-        });
-
-        task.setOnFailed(event -> {
-            final Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Generation failed");
-            alert.setHeaderText("Invalid course combination");
-            alert.setContentText("The chosen combination of major and minor course is not possible.");
-            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-            alert.showAndWait();
-        });
-
-        solverService.submit(task);
+    final String documentName;
+    final Task<FeasibilityResult> task;
+    if (selectedMinorCourse.isPresent()) {
+      task
+          = solverService.computeFeasibilityTask(
+          selectedMajorCourse, selectedMinorCourse.get());
+      documentName
+          = Musterstudienplaene.getDocumentName(
+          selectedMajorCourse, selectedMinorCourse.get());
+    } else {
+      task
+          = solverService.computeFeasibilityTask(selectedMajorCourse);
+      documentName
+          = Musterstudienplaene.getDocumentName(selectedMajorCourse);
     }
+    resultTask.set(task);
 
-    private static String getDocumentName(final Course major, final Course minor) {
-        return "musterstudienplan_" + major.getName() + "_" + minor.getName()
-                + ".pdf";
-    }
 
-    private static String getDocumentName(final Course course) {
-        return "musterstudienplan_" + course.getName() + ".pdf";
-    }
+    ResultBox rb = resultBoxFactory.create(task);
+    rb.setMajorCourse(selectedMajorCourse);
+    selectedMinorCourse.ifPresent(m -> rb.setMinorCourse(m));
 
-    @FXML
-    @SuppressWarnings("unused")
-    public final void btCancelPressed() {
-        final Task<FeasibilityResult> task = this.resultTask.get();
-        if(task == null || !task.isRunning()) {
-            return;
-        }
+    resultBox.getChildren().add(0, rb);
+
+    task.setOnSucceeded(event -> {
+      final FeasibilityResult result
+          = (FeasibilityResult) event.getSource().getValue();
+
+      final Store store = delayedStore.get();
+      final Renderer renderer
+          = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
+          result.getModuleChoice(), result.getUnitChoice(), selectedMajorCourse, "true");
+
+      final DirectoryChooser directoryChooser = new DirectoryChooser();
+      directoryChooser.setTitle("Choose the pdf file's location");
+      final File selectedDirectory = directoryChooser.showDialog(null);
+
+      if (selectedDirectory == null) {
         task.cancel();
-    }
+      } else {
+        final String path = selectedDirectory.getAbsolutePath()
+            + "/" + documentName;
 
-    @Override
-    public final void initialize(final URL location, final ResourceBundle resources) {
-        btGenerate.setDefaultButton(true);
-        btGenerate.disableProperty().bind(
-                solverProperty.not()
-                              .or(progressGenerate.visibleProperty())
-                              .or(Bindings.selectBoolean(resultTask, "running")));
-        //
-        btCancel.disableProperty().bind(
-                solverProperty.not()
-                              .or(progressGenerate.visibleProperty().not()));
-        //
-        scrollPane.visibleProperty().bind(generationStarted);
-        //
-        progressGenerate.progressProperty().bind(
-                Bindings.selectDouble(this.resultTask, "progress"));
-        progressGenerate.visibleProperty().bind(
-                Bindings.selectBoolean(this.resultTask, "running"));
-        //
-        delayedStore.whenAvailable(this::initializeCourseSelection);
+        Thread writeTo = new Thread(() -> {
 
-        delayedSolverService.whenAvailable(s -> {
-            this.solverService = s;
-            this.solverProperty.set(true);
+          try (OutputStream out = new FileOutputStream(path)) {
+            renderer.getResult().writeTo(out);
+          } catch (final IOException | ParserConfigurationException | SAXException exc) {
+            exc.printStackTrace();
+          }
 
-            Task<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
-            impossibleCoursesTask.setOnSucceeded(event -> courseSelection.highlightImpossibleCourses((Set<String>) event.getSource().getValue()));
-            solverService.submit(impossibleCoursesTask);
         });
+        writeTo.start();
+      }
+    });
+
+    task.setOnFailed(event -> {
+      final Alert alert = new Alert(Alert.AlertType.ERROR);
+      alert.setTitle("Generation failed");
+      alert.setHeaderText("Invalid course combination");
+      alert.setContentText("The chosen combination of major and minor course is not possible.");
+      alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+      alert.showAndWait();
+    });
+
+    solverService.submit(task);
+  }
+
+  /**
+   * Helper function to find the file name containing major and minor name.
+   * @param major Course object representing the choosen major course
+   * @param minor Course object representing the choosen minor course
+   * @return String representing the file name
+   */
+  private static String getDocumentName(final Course major, final Course minor) {
+    return "musterstudienplan_" + major.getName() + "_" + minor.getName()
+        + ".pdf";
+  }
+
+  /**
+   * Helper function to find file name containing major name and no minor existing.
+   * @param course Course object representing the choosen major course
+   * @return String representing the file name
+   */
+  private static String getDocumentName(final Course course) {
+    return "musterstudienplan_" + course.getName() + ".pdf";
+  }
+
+  /**
+   * Function to handle user interruption on creating pdf.
+   */
+  @FXML
+  @SuppressWarnings("unused")
+  public final void btCancelPressed() {
+    final Task<FeasibilityResult> task = this.resultTask.get();
+    if (task == null || !task.isRunning()) {
+      return;
     }
+    task.cancel();
+  }
 
-    private void initializeCourseSelection(final Store s) {
-        final List<Course> courses = s.getCourses();
+  @Override
+  public final void initialize(final URL location, final ResourceBundle resources) {
+    btGenerate.setDefaultButton(true);
+    btGenerate.disableProperty().bind(
+        solverProperty.not()
+            .or(progressGenerate.visibleProperty())
+            .or(Bindings.selectBoolean(resultTask, "running")));
+    //
+    btCancel.disableProperty().bind(
+        solverProperty.not()
+            .or(progressGenerate.visibleProperty().not()));
+    //
+    scrollPane.visibleProperty().bind(generationStarted);
+    //
+    progressGenerate.progressProperty().bind(
+        Bindings.selectDouble(this.resultTask, "progress"));
+    progressGenerate.visibleProperty().bind(
+        Bindings.selectBoolean(this.resultTask, "running"));
+    //
+    delayedStore.whenAvailable(this::initializeCourseSelection);
 
-        final List<Course> majorCourseList = courses.stream()
-                .filter(Course::isMajor)
-                .collect(Collectors.toList());
+    delayedSolverService.whenAvailable(s -> {
+      this.solverService = s;
+      this.solverProperty.set(true);
 
-        final List<Course> minorCourseList = courses.stream()
-                .filter(Course::isMinor)
-                .collect(Collectors.toList());
+      Task<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
+      impossibleCoursesTask.setOnSucceeded(event ->
+          courseSelection.highlightImpossibleCourses((Set<String>) event.getSource().getValue()));
+      solverService.submit(impossibleCoursesTask);
+    });
+  }
 
-        courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
-        courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
-    }
+  private void initializeCourseSelection(final Store store) {
+    final List<Course> courses = store.getCourses();
+
+    final List<Course> majorCourseList = courses.stream()
+        .filter(Course::isMajor)
+        .collect(Collectors.toList());
+
+    final List<Course> minorCourseList = courses.stream()
+        .filter(Course::isMinor)
+        .collect(Collectors.toList());
+
+    courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
+    courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
+  }
 }
