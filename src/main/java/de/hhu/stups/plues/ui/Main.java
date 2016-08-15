@@ -2,6 +2,7 @@ package de.hhu.stups.plues.ui;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import de.hhu.stups.plues.injector.PluesModule;
 import de.hhu.stups.plues.routes.Router;
 
@@ -22,14 +23,22 @@ public class Main extends Application {
                 com.google.inject.Stage.DEVELOPMENT, new PluesModule(primaryStage));
 
         Router router = injector.getInstance(Router.class);
-
+        ResourceManager rm = injector.getInstance(ResourceManager.class);
         router.transitionTo("index");
 
         primaryStage.setTitle("PlÜS");
 
         // TODO: properly close the application on close request
         Platform.setImplicitExit(true);
-        primaryStage.setOnCloseRequest(t -> Platform.exit());
+        primaryStage.setOnCloseRequest(t -> {
+          try {
+            rm.close();
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+          Platform.exit();
+          }
+        );
 
         primaryStage.show();
     }
