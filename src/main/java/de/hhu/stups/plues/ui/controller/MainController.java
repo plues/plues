@@ -9,6 +9,7 @@ import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.tasks.SolverServiceFactory;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 
@@ -38,12 +39,14 @@ public class MainController implements Initializable {
 
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
+
   private final SolverLoaderTaskFactory solverLoaderTaskFactory;
+  private final SolverServiceFactory solverServiceFactory;
+
   private final Properties properties;
   private final Stage stage;
 
-  private final ExecutorService
-      executor = Executors.newWorkStealingPool();
+  private final ExecutorService executor;
 
   @FXML
   private MenuItem openFileMenuItem;
@@ -57,13 +60,17 @@ public class MainController implements Initializable {
   public MainController(final Delayed<Store> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final SolverLoaderTaskFactory solverLoaderTaskFactory,
+                        final SolverServiceFactory solverServiceFactory,
                         final Properties properties,
-                        final Stage stage) {
+                        final Stage stage,
+                        final ExecutorService executorService) {
     this.delayedStore = delayedStore;
     this.delayedSolverService = delayedSolverService;
     this.solverLoaderTaskFactory = solverLoaderTaskFactory;
+    this.solverServiceFactory = solverServiceFactory;
     this.properties = properties;
     this.stage = stage;
+    this.executor = executorService;
   }
 
   @Override
@@ -157,7 +164,7 @@ public class MainController implements Initializable {
     solverLoader.setOnSucceeded(event -> {
       final Solver s = (Solver) event.getSource().getValue();
       // TODO: check if this needs to run on UI thread
-      this.delayedSolverService.set(new SolverService(s));
+      this.delayedSolverService.set(solverServiceFactory.create(s));
     });
     //
     solverLoader.setOnFailed(event -> {

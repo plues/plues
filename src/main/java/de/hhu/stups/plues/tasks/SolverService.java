@@ -1,11 +1,15 @@
 package de.hhu.stups.plues.tasks;
 
 import com.google.common.base.Joiner;
+import com.google.common.primitives.Booleans;
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
+import de.hhu.stups.plues.injector.ProB;
 import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.Solver;
@@ -23,9 +27,9 @@ public class SolverService {
     private final Solver solver;
 
     @Inject
-    public SolverService(final Solver s) {
-        this.executor = Executors.newSingleThreadExecutor();
-        this.solver = s;
+    public SolverService(ExecutorService executorService, @Assisted Solver solver) {
+        this.executor = executorService;
+        this.solver = solver;
     }
 
     @SuppressWarnings("unused")

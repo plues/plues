@@ -17,9 +17,13 @@ import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.tasks.SolverServiceFactory;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
@@ -34,7 +38,7 @@ public class PluesModule extends AbstractModule {
 
   private final Stage primaryStage;
 
-  public PluesModule(Stage primaryStage) {
+  public PluesModule(final Stage primaryStage) {
     this.primaryStage = primaryStage;
   }
 
@@ -45,12 +49,14 @@ public class PluesModule extends AbstractModule {
 
     install(new PropertiesModule());
 
-    install(new FactoryModuleBuilder()
-        .build(SolverLoaderTaskFactory.class));
+    install(new FactoryModuleBuilder().build(SolverLoaderTaskFactory.class));
+    install(new FactoryModuleBuilder().build(SolverServiceFactory.class));
+
     install(new FactoryModuleBuilder()
         .implement(Solver.class, Names.named("prob"), ProBSolver.class)
         .implement(Solver.class, Names.named("mock"), MockSolver.class)
         .build(SolverFactory.class));
+
     install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
 
     bind(Stage.class).toInstance(primaryStage);
@@ -61,12 +67,16 @@ public class PluesModule extends AbstractModule {
 
     bind(delayedStoreType).toInstance(new Delayed<>());
     bind(delayedSolverServiceType).toInstance(new Delayed<>());
+
+    bind(ExecutorService.class).toInstance(Executors.newWorkStealingPool());
+    bind(ExecutorService.class).annotatedWith(ProB.class)
+      .toInstance(Executors.newSingleThreadExecutor());
   }
 
   @Provides
-  public final FXMLLoader provideLoader(final Injector injector,
-                                        final GuiceBuilderFactory
-                                          builderFactory) {
+  final FXMLLoader provideLoader(final Injector injector,
+                                 final GuiceBuilderFactory
+                                   builderFactory) {
 
     final FXMLLoader fxmlLoader = new FXMLLoader();
 
