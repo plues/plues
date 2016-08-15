@@ -146,8 +146,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     }
     resultTask.set(task);
 
-
-    ResultBox rb = resultBoxFactory.create(task);
+    ResultBox rb = resultBoxFactory.create(task, delayedStore);
     rb.setMajorCourse(selectedMajorCourse);
     selectedMinorCourse.ifPresent(m -> rb.setMinorCourse(m));
 
