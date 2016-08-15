@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.controller;
+package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.Course;

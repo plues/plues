@@ -18,7 +18,7 @@ import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
-import de.hhu.stups.plues.ui.controller.CourseFilter;
+import de.hhu.stups.plues.ui.components.CourseFilter;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
 import de.prob.MainModule;
 import javafx.fxml.FXMLLoader;
