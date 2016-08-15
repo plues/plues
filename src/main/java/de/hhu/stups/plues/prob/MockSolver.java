@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class MockSolver implements Solver {
   public MockSolver() {
     try {
-      TimeUnit.SECONDS.sleep(5);
+      TimeUnit.SECONDS.sleep(3);
     } catch (InterruptedException exception) {
       exception.printStackTrace();
     }
