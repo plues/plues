@@ -3,14 +3,11 @@ package de.hhu.stups.plues.ui;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.hhu.stups.plues.injector.PluesModule;
+import de.hhu.stups.plues.routes.Router;
+
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import java.net.URL;
 
 public class Main extends Application {
 

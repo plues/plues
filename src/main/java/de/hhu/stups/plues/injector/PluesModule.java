@@ -15,7 +15,7 @@ import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
-import de.hhu.stups.plues.ui.Router;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.controller.CourseFilter;
