@@ -1,13 +1,11 @@
 package de.hhu.stups.plues.ui;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
-import de.hhu.stups.plues.injector.ProB;
-import de.hhu.stups.plues.tasks.SolverService;
 
-import java.sql.Time;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -17,15 +15,15 @@ public class ResourceManager {
   private final ExecutorService probExecutor;
 
   @Inject
-  public ResourceManager(Delayed<Store> store, ExecutorService executorService, @ProB final ExecutorService probExecutor) {
+  public ResourceManager(Delayed<Store> store, ExecutorService executorService, @Named("prob") final ExecutorService probExecutor) {
     this.store = store;
     this.executorService = executorService;
     this.probExecutor = probExecutor;
   }
 
-  public void close () throws InterruptedException {
+  public void close() throws InterruptedException {
     Store store = this.store.get();
-    if(store != null) {
+    if (store != null) {
       this.store.get().close();
     }
     System.out.println("Store closed");

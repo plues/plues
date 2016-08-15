@@ -68,9 +68,9 @@ public class PluesModule extends AbstractModule {
     bind(delayedStoreType).toInstance(new Delayed<>());
     bind(delayedSolverServiceType).toInstance(new Delayed<>());
 
-    bind(ExecutorService.class).toInstance(Executors.newWorkStealingPool());
-    bind(ExecutorService.class).annotatedWith(ProB.class)
+    bind(ExecutorService.class).annotatedWith(Names.named("prob"))
       .toInstance(Executors.newSingleThreadExecutor());
+    bind(ExecutorService.class).toInstance(Executors.newWorkStealingPool());
   }
 
   @Provides
