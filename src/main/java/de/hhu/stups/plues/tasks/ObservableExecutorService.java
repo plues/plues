@@ -1,4 +1,4 @@
-package de.hhu.stups.plues;
+package de.hhu.stups.plues.tasks;
 
 import java.util.Collection;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeoutException;
 public class ObservableExecutorService extends Observable implements ExecutorService {
   private final ExecutorService excecutorService;
 
-  public ObservableExecutorService(ExecutorService service) {
+  public ObservableExecutorService(final ExecutorService service) {
     this.excecutorService = service;
   }
 
