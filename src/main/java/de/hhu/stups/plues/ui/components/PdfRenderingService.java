@@ -7,7 +7,9 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
+import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.studienplaene.Renderer;
+import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 
 import javafx.beans.property.ObjectProperty;
@@ -29,8 +31,9 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class PdfRenderingService extends Service<Path> {
 
-  private final SolverTask<FeasibilityResult> solverTask;
+  private SolverTask<FeasibilityResult> solverTask;
   private final Delayed<Store> delayedStore;
+  private final Delayed<SolverService> delayedSolverService;
   private ObjectProperty<Course> major = new SimpleObjectProperty<>();
   private ObjectProperty<Course> minor = new SimpleObjectProperty<>();
 
@@ -38,28 +41,31 @@ public class PdfRenderingService extends Service<Path> {
    * Create a service for rendering a pdf.
    * @param delayedStore Store containing necessary data
    * @param executor ExecutorService for background tasks
-   * @param solverTask Task containing result if feasible
    */
   @Inject
   public PdfRenderingService(Delayed<Store> delayedStore,
-                             final ExecutorService executor,
-                             @Assisted SolverTask<FeasibilityResult> solverTask) {
-    this.solverTask = solverTask;
+                             Delayed<SolverService> delayedSolverService,
+                             final ExecutorService executor) {
+    this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
     this.setExecutor(executor);
   }
 
   @Override
   protected Task<Path> createTask() {
+    SolverService solver = delayedSolverService.get();
+    solverTask =
+      (SolverTask<FeasibilityResult>) solver.computeFeasibilityTask(major.get(), minor.get());
     return new Task<Path>() {
       @Override
       protected Path call() throws Exception {
         solverTask.setOnFailed(event -> this.failed());
         solverTask.setOnCancelled(event -> this.cancel());
 
+        solver.submit(solverTask);
+
         final FeasibilityResult result = solverTask.get();
         final Course majorCourse = major.get();
-        final Course minorCourse = minor.get();
 
         final Store store = delayedStore.get();
         final Renderer renderer
@@ -77,7 +83,9 @@ public class PdfRenderingService extends Service<Path> {
   @Override
   protected void cancelled() {
     super.cancelled();
-    this.solverTask.cancel();
+    if (solverTask != null) {
+      solverTask.cancel();
+    }
   }
 
   /**
