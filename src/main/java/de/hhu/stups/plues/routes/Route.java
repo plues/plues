@@ -1,10 +1,8 @@
 package de.hhu.stups.plues.routes;
 
-import javafx.stage.Stage;
-
 /**
- * Created by Tobias Witt on 01.08.16.
+ * Interface for defining a transition between {@link javafx.scene.Scene}.
  */
-public interface Route {
-    public void transition();
+interface Route {
+  void transition();
 }

@@ -6,6 +6,7 @@ import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
+
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.prob.MockSolver;
@@ -13,70 +14,76 @@ import de.hhu.stups.plues.prob.ProBSolver;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.provider.RouterProvider;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
-import de.hhu.stups.plues.ui.Router;
-import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
+import de.hhu.stups.plues.tasks.SolverServiceFactory;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
-import de.hhu.stups.plues.ui.controller.CourseFilter;
-import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
+import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 
 public class PluesModule extends AbstractModule {
 
-    private final TypeLiteral<Delayed<Store>> delayedStoreType
-            = new TypeLiteral<Delayed<Store>>() {
-    };
+  private final TypeLiteral<Delayed<Store>> delayedStoreType
+      = new TypeLiteral<Delayed<Store>>() {};
 
-    private final TypeLiteral<Delayed<SolverService>> delayedSolverServiceType
-            = new TypeLiteral<Delayed<SolverService>>() {
-    };
+  private final TypeLiteral<Delayed<SolverService>> delayedSolverServiceType
+      = new TypeLiteral<Delayed<SolverService>>() {};
 
-    private final Stage primaryStage;
+  private final Stage primaryStage;
 
-    public PluesModule(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-    }
+  public PluesModule(final Stage primaryStage) {
+    this.primaryStage = primaryStage;
+  }
 
-    @Override
-    public final void configure() {
-        // prob 2.0
-        install(new MainModule());
+  @Override
+  public final void configure() {
+    // prob 2.0
+    install(new MainModule());
 
-        install(new PropertiesModule());
+    install(new PropertiesModule());
 
-        install(new FactoryModuleBuilder()
-                        .build(SolverLoaderTaskFactory.class));
-        install(new FactoryModuleBuilder()
-                        .implement(Solver.class, Names.named("prob"), ProBSolver.class)
-                        .implement(Solver.class, Names.named("mock"), MockSolver.class)
-                        .build(SolverFactory.class));
-        install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
+    install(new FactoryModuleBuilder().build(SolverLoaderTaskFactory.class));
+    install(new FactoryModuleBuilder().build(SolverServiceFactory.class));
 
-        bind(Stage.class).toInstance(primaryStage);
-        bind(Router.class).toProvider(RouterProvider.class);
+    install(new FactoryModuleBuilder()
+        .implement(Solver.class, Names.named("prob"), ProBSolver.class)
+        .implement(Solver.class, Names.named("mock"), MockSolver.class)
+        .build(SolverFactory.class));
 
-        bind(CourseFilter.class);
-        bind(Musterstudienplaene.class);
-        bind(MajorMinorCourseSelection.class);
+    install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
 
-        bind(delayedStoreType).toInstance(new Delayed<>());
-        bind(delayedSolverServiceType).toInstance(new Delayed<>());
-    }
+    bind(Stage.class).toInstance(primaryStage);
+    bind(Router.class).toProvider(RouterProvider.class);
 
-    @Provides
-    public final FXMLLoader provideLoader(final Injector injector,
-                                          final GuiceBuilderFactory
-                                                  builderFactory) {
+    bind(MainController.class);
+    install(new ComponentsModule());
 
-        final FXMLLoader fxmlLoader = new FXMLLoader();
+    bind(delayedStoreType).toInstance(new Delayed<>());
+    bind(delayedSolverServiceType).toInstance(new Delayed<>());
 
-        fxmlLoader.setBuilderFactory(builderFactory);
-        fxmlLoader.setControllerFactory(injector::getInstance);
+    bind(ExecutorService.class).annotatedWith(Names.named("prob"))
+      .toInstance(Executors.newSingleThreadExecutor());
+    bind(ExecutorService.class).toInstance(Executors.newWorkStealingPool());
+  }
 
-        return fxmlLoader;
-    }
+  @Provides
+  final FXMLLoader provideLoader(final Injector injector,
+                                 final GuiceBuilderFactory
+                                   builderFactory) {
+
+    final FXMLLoader fxmlLoader = new FXMLLoader();
+
+    fxmlLoader.setBuilderFactory(builderFactory);
+    fxmlLoader.setControllerFactory(injector::getInstance);
+
+    return fxmlLoader;
+  }
 
 }

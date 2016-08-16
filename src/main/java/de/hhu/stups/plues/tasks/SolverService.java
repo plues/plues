@@ -2,6 +2,9 @@ package de.hhu.stups.plues.tasks;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.name.Named;
+
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
@@ -15,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class SolverService {
@@ -23,9 +25,9 @@ public class SolverService {
     private final Solver solver;
 
     @Inject
-    public SolverService(final Solver s) {
-        this.executor = Executors.newSingleThreadExecutor();
-        this.solver = s;
+    public SolverService(@Named("prob") ExecutorService executorService, @Assisted Solver solver) {
+        this.executor = executorService;
+        this.solver = solver;
     }
 
     @SuppressWarnings("unused")

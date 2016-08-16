@@ -1,39 +1,46 @@
 package de.hhu.stups.plues.ui;
 
+import static com.google.inject.Stage.DEVELOPMENT;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import de.hhu.stups.plues.injector.PluesModule;
+import de.hhu.stups.plues.routes.Router;
+
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.net.URL;
 
 public class Main extends Application {
 
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+  public static void main(final String[] args) {
+    launch(args);
+  }
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        Injector injector = Guice.createInjector(
-                com.google.inject.Stage.DEVELOPMENT, new PluesModule(primaryStage));
+  @Override
+  public void start(final Stage primaryStage) throws Exception {
+    final Injector injector = Guice.createInjector(DEVELOPMENT, new PluesModule(primaryStage));
 
-        Router router = injector.getInstance(Router.class);
+    final Router router = injector.getInstance(Router.class);
+    final ResourceManager rm = injector.getInstance(ResourceManager.class);
+    router.transitionTo("index");
 
-        router.transitionTo("index");
+    primaryStage.setTitle("PlÜS");
 
-        primaryStage.setTitle("PlÜS");
+    Platform.setImplicitExit(true);
 
-        // TODO: properly close the application on close request
-        Platform.setImplicitExit(true);
-        primaryStage.setOnCloseRequest(t -> Platform.exit());
+    primaryStage.setOnCloseRequest(t -> {
+      try {
+        rm.close();
+      } catch (final InterruptedException exception) {
+        exception.printStackTrace();
+      }
+      Platform.exit();
+    });
 
-        primaryStage.show();
-    }
+    primaryStage.show();
+  }
 }
