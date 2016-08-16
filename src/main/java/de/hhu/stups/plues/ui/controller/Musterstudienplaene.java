@@ -8,6 +8,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.studienplaene.Renderer;
 import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
@@ -130,7 +131,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         = courseSelection.getSelectedMinorCourse();
 
     final String documentName;
-    final Task<FeasibilityResult> task;
+    final SolverTask<FeasibilityResult> task;
     if (selectedMinorCourse.isPresent()) {
       task
           = solverService.computeFeasibilityTask(
@@ -255,7 +256,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
       this.solverService = s;
       this.solverProperty.set(true);
 
-      Task<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
+      SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
       impossibleCoursesTask.setOnSucceeded(event ->
           courseSelection.highlightImpossibleCourses((Set<String>) event.getSource().getValue()));
       solverService.submit(impossibleCoursesTask);
