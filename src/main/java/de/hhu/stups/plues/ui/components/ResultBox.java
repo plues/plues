@@ -17,8 +17,11 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
@@ -41,8 +44,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+
 import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -54,13 +60,13 @@ public class ResultBox extends GridPane implements Initializable {
   private static final String SUCCESS_COLOR = "#DFF2BF";
   private static final String WORKING_COLOR = "#BDE5F8";
 
-  private final Worker<FeasibilityResult> task;
+  private final Task<FeasibilityResult> task;
   private final BooleanProperty feasible;
   private final ObjectProperty<Course> majorCourse;
   private final ObjectProperty<Course> minorCourse;
   private final Delayed<Store> delayedStore;
-
-  private File temp;
+  private final ExecutorService executor;
+  private final ObjectProperty<Path> pdf;
 
   @FXML
   private StackPane statePane;
@@ -94,13 +100,16 @@ public class ResultBox extends GridPane implements Initializable {
    */
   @Inject
   public ResultBox(final FXMLLoader loader,
-                   @Assisted final Worker<FeasibilityResult> task,
-                   @Assisted final Delayed<Store> delayedStore) {
+                   final ExecutorService executor,
+                   final Delayed<Store> delayedStore,
+                   @Assisted final Task<FeasibilityResult> task) {
     super();
     this.majorCourse = new SimpleObjectProperty<>();
     this.minorCourse = new SimpleObjectProperty<>();
     this.feasible = new SimpleBooleanProperty(false);
+    this.pdf = new SimpleObjectProperty<>();
     this.task = task;
+    this.executor = executor;
     this.delayedStore = delayedStore;
     this.feasible.bind( // set if task has a value
         Bindings.createBooleanBinding(() -> true, task.valueProperty()));
@@ -110,6 +119,12 @@ public class ResultBox extends GridPane implements Initializable {
 
     loader.setRoot(this);
     loader.setController(this);
+
+    task.setOnSucceeded(event -> {
+      if (feasible.get()) {
+        pdf.set(handlePdf());
+      }
+    });
 
     try {
       loader.load();
@@ -137,12 +152,13 @@ public class ResultBox extends GridPane implements Initializable {
     //
     // progressIndicator.progressProperty().bind(this.task.progressProperty());
     //
-    final BooleanBinding p = this.task.stateProperty()
-        .isEqualTo(State.SUCCEEDED).not();
+
+    //
+    final BooleanBinding p = this.pdf.isNull();
     //
     this.show.disableProperty().bind(p);
     this.save.disableProperty().bind(p);
-    this.cancel.disableProperty().bind(this.task.runningProperty().not());
+    this.cancel.disableProperty().bind(task.runningProperty().not());
     //
     this.icon.graphicProperty().bind(this.getIconBinding());
     this.icon.styleProperty().bind(this.getStyleBinding());
@@ -245,11 +261,7 @@ public class ResultBox extends GridPane implements Initializable {
    * Handle pdf file. If show is true, create a temporary file and open it, if false, save this temp
    * file where ever the user wants to to be saved.
    */
-  private File handlePdf() {
-    if (temp != null) {
-      return this.temp;
-    }
-
+  private Path handlePdf() {
     final FeasibilityResult result = task.getValue();
 
     final Store store = delayedStore.get();
@@ -261,8 +273,7 @@ public class ResultBox extends GridPane implements Initializable {
     File tmp = getTempFile();
 
     getTempFile(renderer, tmp);
-    this.temp = tmp;
-    return this.temp;
+    return Paths.get(tmp.getAbsolutePath());
   }
 
   /**
@@ -289,10 +300,10 @@ public class ResultBox extends GridPane implements Initializable {
 
   @FXML
   private final void showPdf() {
-    final File file = handlePdf();
+    final Path file = pdf.get();
     SwingUtilities.invokeLater(() -> {
       try {
-        Desktop.getDesktop().open(file);
+        Desktop.getDesktop().open(file.toFile());
       } catch (IOException exc) {
         exc.printStackTrace();
       }
@@ -314,7 +325,7 @@ public class ResultBox extends GridPane implements Initializable {
 
     if (selectedDirectory != null) {
       try {
-        Files.copy(Paths.get(handlePdf().getAbsolutePath()),
+        Files.copy(pdf.get(),
             Paths.get(selectedDirectory.getAbsolutePath()).resolve(documentName));
       } catch (Exception exc) {
         exc.printStackTrace();
@@ -333,5 +344,9 @@ public class ResultBox extends GridPane implements Initializable {
 
   public final void setMinorCourse(final Course minorCourse) {
     this.minorCourse.set(minorCourse);
+  }
+
+  public final void submit(final Task<?> command) {
+    this.executor.submit(command);
   }
 }
