@@ -79,17 +79,20 @@ public class ResultBox extends GridPane implements Initializable {
    * Constructor for ResultBox.
    *
    * @param loader TaskLoader to load fxml and to set controller
-   * @param task   Task which is bind to this result box
+   * @param service Rendering service used handling tasks
+   * @param major Major course
+   * @param minor Minor course if present, else null
    */
   @Inject
   public ResultBox(final FXMLLoader loader,
-                   final PdfRenderingServiceFactory factory,
-                   @Assisted final Task<FeasibilityResult> task) {
+                   final PdfRenderingService service,
+                   @Assisted("major") Course major,
+                   @Assisted("minor") Course minor) {
     super();
-    this.majorCourse = new SimpleObjectProperty<>();
-    this.minorCourse = new SimpleObjectProperty<>();
+    this.majorCourse = new SimpleObjectProperty<>(major);
+    this.minorCourse = new SimpleObjectProperty<>(minor);
     this.pdf = new SimpleObjectProperty<>();
-    this.service = factory.create((SolverTask<FeasibilityResult>) task);
+    this.service = service;
 
     loader.setLocation(this.getClass()
         .getResource("/fxml/components/resultbox.fxml"));
