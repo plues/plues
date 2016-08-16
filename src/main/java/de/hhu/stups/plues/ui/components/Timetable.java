@@ -6,6 +6,7 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -104,13 +105,12 @@ public class Timetable extends BorderPane implements Initializable {
     final SolverService s = this.solverService;
     assert s != null;
 
-    final Task<Boolean> t = s.checkFeasibilityTask(course);
+    final SolverTask<Boolean> t = s.checkFeasibilityTask(course);
     t.setOnSucceeded(event -> {
       final Boolean i = (Boolean) event.getSource().getValue();
       this.result.setText(i.toString());
       System.out.println(course.getName() + ": " + i.toString());
     });
-    this.mainController.submitTask(t);
     s.submit(t);
   }
 }

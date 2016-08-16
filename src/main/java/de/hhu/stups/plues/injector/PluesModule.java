@@ -3,11 +3,13 @@ package de.hhu.stups.plues.injector;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.tasks.ObservableExecutorService;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.prob.MockSolver;
 import de.hhu.stups.plues.prob.ProBSolver;
@@ -48,14 +50,16 @@ public class PluesModule extends AbstractModule {
     install(new MainModule());
 
     install(new PropertiesModule());
+    install(new ComponentsModule());
+    install(new ExecutorServiceModule());
 
     install(new FactoryModuleBuilder().build(SolverLoaderTaskFactory.class));
     install(new FactoryModuleBuilder().build(SolverServiceFactory.class));
 
     install(new FactoryModuleBuilder()
-        .implement(Solver.class, Names.named("prob"), ProBSolver.class)
-        .implement(Solver.class, Names.named("mock"), MockSolver.class)
-        .build(SolverFactory.class));
+      .implement(Solver.class, Names.named("prob"), ProBSolver.class)
+      .implement(Solver.class, Names.named("mock"), MockSolver.class)
+      .build(SolverFactory.class));
 
     install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
 
@@ -63,14 +67,9 @@ public class PluesModule extends AbstractModule {
     bind(Router.class).toProvider(RouterProvider.class);
 
     bind(MainController.class);
-    install(new ComponentsModule());
 
     bind(delayedStoreType).toInstance(new Delayed<>());
     bind(delayedSolverServiceType).toInstance(new Delayed<>());
-
-    bind(ExecutorService.class).annotatedWith(Names.named("prob"))
-      .toInstance(Executors.newSingleThreadExecutor());
-    bind(ExecutorService.class).toInstance(Executors.newWorkStealingPool());
   }
 
   @Provides

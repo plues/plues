@@ -31,7 +31,7 @@ public class SolverService {
     }
 
     @SuppressWarnings("unused")
-    public final Task<Boolean> checkFeasibilityTask(final Course... courses) {
+    public final SolverTask<Boolean> checkFeasibilityTask(final Course... courses) {
         assert this.solver != null;
 
         final String[] names = getNames(courses);
@@ -42,7 +42,7 @@ public class SolverService {
     }
 
     @SuppressWarnings("unused")
-    public final Task<FeasibilityResult> computeFeasibilityTask(
+    public final SolverTask<FeasibilityResult> computeFeasibilityTask(
             final Course... courses) {
 
         final String[] names = getNames(courses);
@@ -54,7 +54,7 @@ public class SolverService {
     }
 
     @SuppressWarnings("unused")
-    public final Task<FeasibilityResult> computePartialFeasibility(
+    public final SolverTask<FeasibilityResult> computePartialFeasibility(
             final List<Course> courses,
             final Map<Course, List<Module>> moduleChoice,
             final List<AbstractUnit> abstractUnitChoice) {
@@ -82,7 +82,7 @@ public class SolverService {
     }
 
     @SuppressWarnings("unused")
-    public final Task<List<Integer>> unsatCore(final Course... courses) {
+    public final SolverTask<List<Integer>> unsatCore(final Course... courses) {
 
         final String[] names = getNames(courses);
         final String msg = getMessage(names);
@@ -91,7 +91,7 @@ public class SolverService {
                 () -> solver.unsatCore(names));
     }
 
-    public Task<List<Alternative>> localAlternativesTask(final Session session,
+    public SolverTask<List<Alternative>> localAlternativesTask(final Session session,
                                                          final Course... courses) {
         String[] names = getNames(courses);
         String msg = getMessage(names);
@@ -99,7 +99,7 @@ public class SolverService {
                 () -> solver.getLocalAlternatives(session.getId(), names));
     }
 
-    public Task<Set<String>> impossibleCoursesTask() {
+    public SolverTask<Set<String>> impossibleCoursesTask() {
         return new SolverTask<>("Collecting impossible courses", "Impossible",
                 solver, () -> solver.getImpossibleCourses());
     }
@@ -126,7 +126,7 @@ public class SolverService {
 //                    .toArray(new String[courses.length]);
     }
 
-    public final void submit(final Task<?> command) {
+    public final void submit(final SolverTask<?> command) {
         this.executor.submit(command);
     }
 
