@@ -36,6 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
+import javax.annotation.Nullable;
 import javax.swing.SwingUtilities;
 
 public class ResultBox extends GridPane implements Initializable {
@@ -86,8 +87,8 @@ public class ResultBox extends GridPane implements Initializable {
   @Inject
   public ResultBox(final FXMLLoader loader,
                    final PdfRenderingService service,
-                   @Assisted("major") Course major,
-                   @Assisted("minor") Course minor) {
+                   @Assisted("major") final Course major,
+                   @Nullable @Assisted("minor") final Course minor) {
     super();
     this.majorCourse = new SimpleObjectProperty<>(major);
     this.minorCourse = new SimpleObjectProperty<>(minor);
