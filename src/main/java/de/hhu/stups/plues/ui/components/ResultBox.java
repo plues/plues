@@ -11,21 +11,6 @@ import de.hhu.stups.plues.studienplaene.Renderer;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
-import org.xml.sax.SAXException;
-
-import java.awt.*;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ResourceBundle;
-
-import javax.swing.*;
-import javax.xml.parsers.ParserConfigurationException;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
@@ -35,6 +20,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Worker;
+import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -46,7 +32,19 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 
-import static javafx.concurrent.Worker.State;
+import org.xml.sax.SAXException;
+
+import java.awt.Desktop;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ResourceBundle;
+import javax.swing.SwingUtilities;
+import javax.xml.parsers.ParserConfigurationException;
 
 public class ResultBox extends GridPane implements Initializable {
 
@@ -83,9 +81,10 @@ public class ResultBox extends GridPane implements Initializable {
   private Button show;
 
   @FXML
-  private Button save;
-  @FXML
   private Button cancel;
+
+  @FXML
+  private Button save;
 
   /**
    * Constructor for ResultBox.
@@ -147,6 +146,33 @@ public class ResultBox extends GridPane implements Initializable {
     //
     this.icon.graphicProperty().bind(this.getIconBinding());
     this.icon.styleProperty().bind(this.getStyleBinding());
+  }
+
+  /**
+   * Helper method to get temporary file.
+   * @param renderer Renderer object to create file
+   * @param tmp Temporary file
+   */
+  private void getTempFile(Renderer renderer, File tmp) {
+    final File temp = tmp;
+    try (OutputStream out = new FileOutputStream(temp)) {
+      renderer.getResult().writeTo(out);
+    } catch (final IOException | ParserConfigurationException | SAXException exc) {
+      exc.printStackTrace();
+    }
+  }
+
+  private File getTempFile() {
+    try {
+      if (minorCourse.get() == null) {
+        return File.createTempFile(getDocumentName(majorCourse.get()), ".pdf");
+      } else {
+        return File.createTempFile(getDocumentName(majorCourse.get(), minorCourse.get()), ".pdf");
+      }
+    } catch (IOException exc) {
+      exc.printStackTrace();
+      return null;
+    }
   }
 
   private StringBinding getStyleBinding() {
@@ -232,25 +258,11 @@ public class ResultBox extends GridPane implements Initializable {
         result.getModuleChoice(), result.getUnitChoice(), majorCourse.get(), "true");
 
 
-    File tmp = null;
-    try {
-      tmp = getTempFile();
-    } catch (IOException exc) {
-      exc.printStackTrace();
-    }
+    File tmp = getTempFile();
 
     getTempFile(renderer, tmp);
     this.temp = tmp;
     return this.temp;
-  }
-
-  private void getTempFile(Renderer renderer, File tmp) {
-    final File temp = tmp;
-    try (OutputStream out = new FileOutputStream(temp)) {
-      renderer.getResult().writeTo(out);
-    } catch (final IOException | ParserConfigurationException | SAXException exc) {
-      exc.printStackTrace();
-    }
   }
 
   /**
@@ -281,18 +293,10 @@ public class ResultBox extends GridPane implements Initializable {
     SwingUtilities.invokeLater(() -> {
       try {
         Desktop.getDesktop().open(file);
-      } catch (IOException e) {
-        e.printStackTrace();
+      } catch (IOException exc) {
+        exc.printStackTrace();
       }
     });
-  }
-
-  private File getTempFile() throws IOException {
-    if (minorCourse.get() == null) {
-      return File.createTempFile(getDocumentName(majorCourse.get()), ".pdf");
-    } else {
-      return File.createTempFile(getDocumentName(majorCourse.get(), minorCourse.get()), ".pdf");
-    }
   }
 
   @FXML
