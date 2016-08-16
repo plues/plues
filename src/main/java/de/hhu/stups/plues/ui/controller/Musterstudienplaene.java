@@ -11,7 +11,6 @@ import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -21,12 +20,10 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
@@ -45,7 +42,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   private final BooleanProperty solverProperty;
   private final BooleanProperty generationStarted;
   private final ResultBoxFactory resultBoxFactory;
-  private SolverService solverService;
 
   private ObjectProperty<Task<FeasibilityResult>> resultTask;
 
@@ -56,10 +52,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Button btGenerate;
-
-  @FXML
-  @SuppressWarnings("unused")
-  private Button btCancel;
 
   @FXML
   @SuppressWarnings("unused")
@@ -112,82 +104,38 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   public void btGeneratePressed() {
-    this.generationStarted.set(true);
-
+    generationStarted.set(true);
     final Course selectedMajorCourse
         = courseSelection.getSelectedMajorCourse();
-    final Optional<Course> selectedMinorCourse
+    final Optional<Course> optinalMinorCourse
         = courseSelection.getSelectedMinorCourse();
 
-    final Task<FeasibilityResult> task;
-    if (selectedMinorCourse.isPresent()) {
-      task = solverService.computeFeasibilityTask(
-          selectedMajorCourse, selectedMinorCourse.get());
-    } else {
-      task = solverService.computeFeasibilityTask(selectedMajorCourse);
+    Course selectedMinorCourse = null;
+    if (optinalMinorCourse.get() != null) {
+      selectedMinorCourse = optinalMinorCourse.get();
     }
-    resultTask.set(task);
 
-    ResultBox rb = resultBoxFactory.create(task);
-    rb.setMajorCourse(selectedMajorCourse);
-    selectedMinorCourse.ifPresent(m -> rb.setMinorCourse(m));
+    ResultBox rb = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse);
 
     resultBox.getChildren().add(0, rb);
-
-    task.setOnFailed(event -> {
-      final Alert alert = new Alert(Alert.AlertType.ERROR);
-      alert.setTitle("Generation failed");
-      alert.setHeaderText("Invalid course combination");
-      alert.setContentText("The chosen combination of major and minor course is not possible.");
-      alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-      alert.showAndWait();
-    });
-
-    solverService.submit(task);
-  }
-
-  /**
-   * Function to handle user interruption on creating pdf.
-   */
-  @FXML
-  @SuppressWarnings("unused")
-  public final void btCancelPressed() {
-    final Task<FeasibilityResult> task = this.resultTask.get();
-    if (task == null || !task.isRunning()) {
-      return;
-    }
-    task.cancel();
   }
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     btGenerate.setDefaultButton(true);
-    btGenerate.disableProperty().bind(
-        solverProperty.not()
-            .or(progressGenerate.visibleProperty())
-            .or(Bindings.selectBoolean(resultTask, "running")));
-    //
-    btCancel.disableProperty().bind(
-        solverProperty.not()
-            .or(progressGenerate.visibleProperty().not()));
+    btGenerate.disableProperty().bind(solverProperty.not());
     //
     scrollPane.visibleProperty().bind(generationStarted);
-    //
-    progressGenerate.progressProperty().bind(
-        Bindings.selectDouble(this.resultTask, "progress"));
-    progressGenerate.visibleProperty().bind(
-        Bindings.selectBoolean(this.resultTask, "running"));
     //
     delayedStore.whenAvailable(this::initializeCourseSelection);
 
     delayedSolverService.whenAvailable(s -> {
-      this.solverService = s;
       this.solverProperty.set(true);
 
-      Task<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
+      Task<Set<String>> impossibleCoursesTask = s.impossibleCoursesTask();
       impossibleCoursesTask.setOnSucceeded(event ->
           courseSelection.highlightImpossibleCourses((Set<String>) event.getSource().getValue()));
-      solverService.submit(impossibleCoursesTask);
+      s.submit(impossibleCoursesTask);
     });
   }
 
