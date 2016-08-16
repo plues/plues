@@ -1,50 +1,42 @@
 package de.hhu.stups.plues.ui.components;
 
-import static javafx.concurrent.Worker.State;
-
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
-import de.hhu.stups.plues.studienplaene.Renderer;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 
-import org.xml.sax.SAXException;
+import org.controlsfx.control.Notifications;
 
 import java.awt.Desktop;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
-import javax.xml.parsers.ParserConfigurationException;
+import javax.swing.SwingUtilities;
 
 public class ResultBox extends GridPane implements Initializable {
 
@@ -54,11 +46,10 @@ public class ResultBox extends GridPane implements Initializable {
   private static final String SUCCESS_COLOR = "#DFF2BF";
   private static final String WORKING_COLOR = "#BDE5F8";
 
-  private final Worker<FeasibilityResult> task;
-  private final BooleanProperty feasible;
   private final ObjectProperty<Course> majorCourse;
   private final ObjectProperty<Course> minorCourse;
-  private final Delayed<Store> delayedStore;
+  private final ObjectProperty<Path> pdf;
+  private final PdfRenderingService service;
 
   @FXML
   private StackPane statePane;
@@ -79,29 +70,29 @@ public class ResultBox extends GridPane implements Initializable {
   private Button show;
 
   @FXML
-  private Button download;
+  private Button cancel;
 
   @FXML
-  private Button cancel;
+  private Button save;
 
   /**
    * Constructor for ResultBox.
    *
    * @param loader TaskLoader to load fxml and to set controller
-   * @param task   Task which is bind to this result box
+   * @param service Rendering service used handling tasks
+   * @param major Major course
+   * @param minor Minor course if present, else null
    */
   @Inject
   public ResultBox(final FXMLLoader loader,
-                   @Assisted final Worker<FeasibilityResult> task,
-                   @Assisted final Delayed<Store> delayedStore) {
+                   final PdfRenderingService service,
+                   @Assisted("major") Course major,
+                   @Assisted("minor") Course minor) {
     super();
-    this.majorCourse = new SimpleObjectProperty<>();
-    this.minorCourse = new SimpleObjectProperty<>();
-    this.feasible = new SimpleBooleanProperty(false);
-    this.task = task;
-    this.delayedStore = delayedStore;
-    this.feasible.bind( // set if task has a value
-        Bindings.createBooleanBinding(() -> true, task.valueProperty()));
+    this.majorCourse = new SimpleObjectProperty<>(major);
+    this.minorCourse = new SimpleObjectProperty<>(minor);
+    this.pdf = new SimpleObjectProperty<>();
+    this.service = service;
 
     loader.setLocation(this.getClass()
         .getResource("/fxml/components/resultbox.fxml"));
@@ -124,44 +115,75 @@ public class ResultBox extends GridPane implements Initializable {
     this.minor.textProperty()
         .bind(Bindings.selectString(this.minorCourse, "fullName"));
     //
+    service.majorProperty().bind(this.majorCourse);
+    service.minorProperty().bind(this.minorCourse);
+    service.setOnSucceeded(event -> {
+      Platform.runLater(() ->
+          pdf.set((Path) event.getSource().getValue()));
+    });
+
+    // TODO: Add status bar later to let the user know whats going on
+    //    final Task<FeasibilityResult> task;
+    //    if (selectedMinorCourse.isPresent()) {
+    //      task = solverService.computeFeasibilityTask(
+    //          selectedMajorCourse, selectedMinorCourse.get());
+    //    } else {
+    //      task = solverService.computeFeasibilityTask(selectedMajorCourse);
+    //    }
+    //    resultTask.set(task);
+
+
+    //  task.setOnFailed(event -> {
+    //    final Alert alert = new Alert(Alert.AlertType.ERROR);
+    //    alert.setTitle("Generation failed");
+    //    alert.setHeaderText("Invalid course combination");
+    //    alert.setContentText("The chosen combination of major and minor course is not possible.");
+    //    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+    //    alert.showAndWait();
+    //  });
+
+
+    service.setOnFailed(event -> {
+      Notifications message = Notifications.create();
+      message.title("Error! Could not generate PDF");
+      message.text(event.getSource().getException().getMessage());
+      message.show();
+    });
+    //
     this.progressIndicator.setStyle(
         " -fx-progress-color: " + WORKING_COLOR);
     this.progressIndicator.visibleProperty()
-        .bind(this.task.runningProperty());
+        .bind(service.runningProperty());
     //
     // Binding the progress property of the indicator shows a the percentage
     // of completion which in this case is arbitrary since we do not know how
     // long the process will take.
     //
     // progressIndicator.progressProperty().bind(this.task.progressProperty());
-    //
-    final BooleanBinding p = this.task.stateProperty()
-        .isEqualTo(State.SUCCEEDED).not();
+    final BooleanBinding p = this.pdf.isNull();
     //
     this.show.disableProperty().bind(p);
-    this.download.disableProperty().bind(p);
-    this.cancel.disableProperty().bind(this.task.runningProperty().not());
+    this.save.disableProperty().bind(p);
+    this.cancel.disableProperty().bind(service.runningProperty().not());
     //
     this.icon.graphicProperty().bind(this.getIconBinding());
     this.icon.styleProperty().bind(this.getStyleBinding());
+    //
+    service.start();
   }
 
   private StringBinding getStyleBinding() {
     return Bindings.createStringBinding(() -> {
       String color = null;
 
-      switch (this.task.getState()) {
+      switch (service.getState()) {
         case READY:
         case SCHEDULED:
         case RUNNING:
           return "";
 
         case SUCCEEDED:
-          if (this.feasible.get()) {
-            color = SUCCESS_COLOR;
-          } else {
-            color = FAILURE_COLOR;
-          }
+          color = SUCCESS_COLOR;
           break;
         case CANCELLED:
           color = WARNING_COLOR;
@@ -175,25 +197,21 @@ public class ResultBox extends GridPane implements Initializable {
 
       return "-fx-background-color: " + color;
 
-    }, this.task.stateProperty(), this.feasible);
+    }, service.stateProperty());
   }
 
   private ObjectBinding<Text> getIconBinding() {
     return Bindings.createObjectBinding(() -> {
       FontAwesomeIcon symbol = null;
 
-      switch (this.task.getState()) {
+      switch (service.getState()) {
         case READY:
         case SCHEDULED:
         case RUNNING:
           return null;
 
         case SUCCEEDED:
-          if (this.feasible.get()) {
-            symbol = FontAwesomeIcon.CHECK;
-          } else {
-            symbol = FontAwesomeIcon.REMOVE;
-          }
+          symbol = FontAwesomeIcon.CHECK;
           break;
         case CANCELLED:
           symbol = FontAwesomeIcon.QUESTION;
@@ -209,66 +227,7 @@ public class ResultBox extends GridPane implements Initializable {
           = FontAwesomeIconFactory.get();
       return iconFactory.createIcon(symbol, ICON_SIZE);
 
-    }, this.task.stateProperty(), this.feasible);
-  }
-
-  /**
-   * Handle pdf file. If show is true, create a temporary file and open it, if false, save this temp
-   * file whereever the user wants to to be saved.
-   *
-   * @param show Switch to differ between showing the pdf and saving it
-   */
-  @FXML
-  public void handlePdf(boolean show) {
-    String documentName;
-    if (minorCourse.isNotNull().get()) {
-      documentName = getDocumentName(majorCourse.get(), minorCourse.get());
-    } else {
-      documentName = getDocumentName(majorCourse.get());
-    }
-
-    final FeasibilityResult result
-        = (FeasibilityResult) task;
-
-    final Store store = delayedStore.get();
-    final Renderer renderer
-        = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-        result.getModuleChoice(), result.getUnitChoice(), majorCourse.get(), "true");
-
-    final DirectoryChooser directoryChooser = new DirectoryChooser();
-    directoryChooser.setTitle("Choose the pdf file's location");
-    final File selectedDirectory = directoryChooser.showDialog(null);
-
-    if (selectedDirectory == null) {
-      task.cancel();
-    } else {
-      final String path;
-      if (show) {
-        path = System.getProperty("java.io.tmpdir") + "/" + documentName;
-      } else {
-        path = selectedDirectory.getAbsolutePath() + "/" + documentName;
-      }
-
-      Thread writeTo = new Thread(() -> {
-
-        try (OutputStream out = new FileOutputStream(path)) {
-          renderer.getResult().writeTo(out);
-        } catch (final IOException | ParserConfigurationException | SAXException exc) {
-          exc.printStackTrace();
-        }
-
-      });
-      writeTo.start();
-
-      if (show) {
-        try {
-          Desktop.getDesktop().open(new File(path));
-        } catch (IOException exc) {
-          exc.printStackTrace();
-        }
-      }
-    }
-
+    }, service.stateProperty());
   }
 
   /**
@@ -293,10 +252,50 @@ public class ResultBox extends GridPane implements Initializable {
     return "musterstudienplan_" + course.getName() + ".pdf";
   }
 
+  @FXML
+  private final void showPdf() {
+    final Path file = pdf.get();
+    SwingUtilities.invokeLater(() -> {
+      try {
+        Desktop.getDesktop().open(file.toFile());
+      } catch (IOException exc) {
+        Notifications message = Notifications.create();
+        message.text("Error! File could not be opened.");
+        message.show();
+        exc.printStackTrace();
+      }
+    });
+  }
+
+  @FXML
+  private final void savePdf() {
+    final DirectoryChooser directoryChooser = new DirectoryChooser();
+    directoryChooser.setTitle("Choose the pdf file's location");
+    final File selectedDirectory = directoryChooser.showDialog(null);
+
+    String documentName;
+    if (minorCourse.get() == null) {
+      documentName = getDocumentName(majorCourse.get());
+    } else {
+      documentName = getDocumentName(majorCourse.get(), minorCourse.get());
+    }
+
+    if (selectedDirectory != null) {
+      try {
+        Files.copy(pdf.get(),
+            Paths.get(selectedDirectory.getAbsolutePath()).resolve(documentName));
+      } catch (Exception exc) {
+        Notifications message = Notifications.create();
+        message.text("Error! Copying of temporary file into target file failed.");
+        message.show();
+        exc.printStackTrace();
+      }
+    }
+  }
 
   @FXML
   final void interrupt() {
-    this.task.cancel();
+    this.service.cancel();
   }
 
   public final void setMajorCourse(final Course majorCourse) {

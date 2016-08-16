@@ -1,11 +1,9 @@
 package de.hhu.stups.plues.ui.components;
 
-import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
-import de.hhu.stups.plues.prob.FeasibilityResult;
+import com.google.inject.assistedinject.Assisted;
 
-import javafx.concurrent.Worker;
+import de.hhu.stups.plues.data.entities.Course;
 
 public interface ResultBoxFactory {
-  ResultBox create(Worker<FeasibilityResult> task, Delayed<Store> delayedStore);
+  ResultBox create(@Assisted("major") Course major, @Assisted("minor") Course minor);
 }

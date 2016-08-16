@@ -20,15 +20,16 @@ import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverServiceFactory;
+import de.hhu.stups.plues.ui.components.PdfRenderingService;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PluesModule extends AbstractModule {
 
@@ -55,17 +56,16 @@ public class PluesModule extends AbstractModule {
 
     install(new FactoryModuleBuilder().build(SolverLoaderTaskFactory.class));
     install(new FactoryModuleBuilder().build(SolverServiceFactory.class));
+    install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
 
     install(new FactoryModuleBuilder()
       .implement(Solver.class, Names.named("prob"), ProBSolver.class)
       .implement(Solver.class, Names.named("mock"), MockSolver.class)
       .build(SolverFactory.class));
 
-    install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
-
     bind(Stage.class).toInstance(primaryStage);
     bind(Router.class).toProvider(RouterProvider.class);
-
+    bind(PdfRenderingService.class);
     bind(MainController.class);
 
     bind(delayedStoreType).toInstance(new Delayed<>());
