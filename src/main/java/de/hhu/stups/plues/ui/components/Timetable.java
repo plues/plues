@@ -111,7 +111,6 @@ public class Timetable extends BorderPane implements Initializable {
       this.result.setText(i.toString());
       System.out.println(course.getName() + ": " + i.toString());
     });
-    this.mainController.submitTask(t);
     s.submit(t);
   }
 }

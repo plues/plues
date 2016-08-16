@@ -2,8 +2,10 @@ package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.tasks.ObservableExecutorService;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
@@ -13,6 +15,15 @@ import de.hhu.stups.plues.tasks.SolverServiceFactory;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 
+import org.controlsfx.control.TaskProgressView;
+
+import java.io.File;
+import java.net.URL;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.prefs.Preferences;
+
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -21,16 +32,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
-import org.controlsfx.control.TaskProgressView;
-
-import java.io.File;
-import java.net.URL;
-import java.util.Properties;
-import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.prefs.Preferences;
 
 @Singleton
 public class MainController implements Initializable {
@@ -63,7 +64,8 @@ public class MainController implements Initializable {
                         final SolverServiceFactory solverServiceFactory,
                         final Properties properties,
                         final Stage stage,
-                        final ExecutorService executorService) {
+                        @Named("prob") final ObservableExecutorService probExecutor,
+                        final ObservableExecutorService executorService) {
     this.delayedStore = delayedStore;
     this.delayedSolverService = delayedSolverService;
     this.solverLoaderTaskFactory = solverLoaderTaskFactory;
@@ -71,6 +73,18 @@ public class MainController implements Initializable {
     this.properties = properties;
     this.stage = stage;
     this.executor = executorService;
+
+    probExecutor.addObserver((observable, arg) -> this.register(arg));
+    executorService.addObserver((observable, arg) -> this.register(arg));
+  }
+
+  private void register(final Object task) {
+    if(task instanceof Task<?>) {
+      System.out.println("registering task");
+      this.taskProgress.getTasks().add((Task<?>) task);
+    } else {
+      System.out.println("ignoring task");
+    }
   }
 
   @Override
@@ -187,7 +201,6 @@ public class MainController implements Initializable {
   }
 
   private void submitTask(final Task<?> task, final ExecutorService exec) {
-    this.taskProgress.getTasks().add(task);
     exec.submit(task);
   }
 
