@@ -21,8 +21,8 @@
         <Label fx:id="minor" text="minor" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1" />
         <ButtonBar prefHeight="40.0" prefWidth="100.0" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.rowSpan="2">
             <buttons>
-                <Button fx:id="show" disable="true" mnemonicParsing="false" onAction="#handlePdf(true)" text="Show" textAlignment="CENTER" />
-                <Button fx:id="save" disable="true" mnemonicParsing="false" onAction="#handlePdf(false)" text="Save" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                <Button fx:id="show" disable="true" mnemonicParsing="false" onAction="#showPdf" text="Show" textAlignment="CENTER" />
+                <Button fx:id="save" disable="true" mnemonicParsing="false" onAction="#savePdf" text="Save" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                 <Button fx:id="cancel" disable="true" mnemonicParsing="false" onAction="#interrupt" text="Cancel" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="3" />
             </buttons>
         </ButtonBar>

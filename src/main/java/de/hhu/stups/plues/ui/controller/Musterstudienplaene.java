@@ -152,38 +152,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     resultBox.getChildren().add(0, rb);
 
-    task.setOnSucceeded(event -> {
-      final FeasibilityResult result
-          = (FeasibilityResult) event.getSource().getValue();
-
-      final Store store = delayedStore.get();
-      final Renderer renderer
-          = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-          result.getModuleChoice(), result.getUnitChoice(), selectedMajorCourse, "true");
-
-      final DirectoryChooser directoryChooser = new DirectoryChooser();
-      directoryChooser.setTitle("Choose the pdf file's location");
-      final File selectedDirectory = directoryChooser.showDialog(null);
-
-      if (selectedDirectory == null) {
-        task.cancel();
-      } else {
-        final String path = selectedDirectory.getAbsolutePath()
-            + "/" + documentName;
-
-        Thread writeTo = new Thread(() -> {
-
-          try (OutputStream out = new FileOutputStream(path)) {
-            renderer.getResult().writeTo(out);
-          } catch (final IOException | ParserConfigurationException | SAXException exc) {
-            exc.printStackTrace();
-          }
-
-        });
-        writeTo.start();
-      }
-    });
-
     task.setOnFailed(event -> {
       final Alert alert = new Alert(Alert.AlertType.ERROR);
       alert.setTitle("Generation failed");

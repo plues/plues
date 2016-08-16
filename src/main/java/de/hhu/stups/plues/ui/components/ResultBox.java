@@ -62,6 +62,8 @@ public class ResultBox extends GridPane implements Initializable {
   private final ObjectProperty<Course> minorCourse;
   private final Delayed<Store> delayedStore;
 
+  private File temp;
+
   @FXML
   private StackPane statePane;
 
@@ -216,61 +218,40 @@ public class ResultBox extends GridPane implements Initializable {
 
   /**
    * Handle pdf file. If show is true, create a temporary file and open it, if false, save this temp
-   * file whereever the user wants to to be saved.
-   *
-   * @param show Switch to differ between showing the pdf and saving it
+   * file where ever the user wants to to be saved.
    */
-  @FXML
-  public void handlePdf(boolean show) {
-    String documentName;
-    if (minorCourse.isNotNull().get()) {
-      documentName = getDocumentName(majorCourse.get(), minorCourse.get());
-    } else {
-      documentName = getDocumentName(majorCourse.get());
+  private File handlePdf() {
+    if (temp != null) {
+      return this.temp;
     }
 
-    final FeasibilityResult result
-        = (FeasibilityResult) task;
+    final FeasibilityResult result = task.getValue();
 
     final Store store = delayedStore.get();
     final Renderer renderer
         = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
         result.getModuleChoice(), result.getUnitChoice(), majorCourse.get(), "true");
 
-    final DirectoryChooser directoryChooser = new DirectoryChooser();
-    directoryChooser.setTitle("Choose the pdf file's location");
-    final File selectedDirectory = directoryChooser.showDialog(null);
 
-    if (selectedDirectory == null) {
-      task.cancel();
-    } else {
-      final String path;
-      if (show) {
-        path = System.getProperty("java.io.tmpdir") + "/" + documentName;
-      } else {
-        path = selectedDirectory.getAbsolutePath() + "/" + documentName;
-      }
-
-      Thread writeTo = new Thread(() -> {
-
-        try (OutputStream out = new FileOutputStream(path)) {
-          renderer.getResult().writeTo(out);
-        } catch (final IOException | ParserConfigurationException | SAXException exc) {
-          exc.printStackTrace();
-        }
-
-      });
-      writeTo.start();
-
-      if (show) {
-        try {
-          Desktop.getDesktop().open(new File(path));
-        } catch (IOException exc) {
-          exc.printStackTrace();
-        }
-      }
+    File tmp = null;
+    try {
+      tmp = getTempFile();
+    } catch (IOException exc) {
+      exc.printStackTrace();
     }
 
+    getTempFile(renderer, tmp);
+    this.temp = tmp;
+    return this.temp;
+  }
+
+  private void getTempFile(Renderer renderer, File tmp) {
+    final File temp = tmp;
+    try (OutputStream out = new FileOutputStream(temp)) {
+      renderer.getResult().writeTo(out);
+    } catch (final IOException | ParserConfigurationException | SAXException exc) {
+      exc.printStackTrace();
+    }
   }
 
   /**
@@ -295,6 +276,48 @@ public class ResultBox extends GridPane implements Initializable {
     return "musterstudienplan_" + course.getName() + ".pdf";
   }
 
+  @FXML
+  private final void showPdf() {
+    final File file = handlePdf();
+    SwingUtilities.invokeLater(() -> {
+      try {
+        Desktop.getDesktop().open(file);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    });
+  }
+
+  private File getTempFile() throws IOException {
+    if (minorCourse.get() == null) {
+      return File.createTempFile(getDocumentName(majorCourse.get()), ".pdf");
+    } else {
+      return File.createTempFile(getDocumentName(majorCourse.get(), minorCourse.get()), ".pdf");
+    }
+  }
+
+  @FXML
+  private final void savePdf() {
+    final DirectoryChooser directoryChooser = new DirectoryChooser();
+    directoryChooser.setTitle("Choose the pdf file's location");
+    final File selectedDirectory = directoryChooser.showDialog(null);
+
+    String documentName;
+    if (minorCourse.get() == null) {
+      documentName = getDocumentName(majorCourse.get());
+    } else {
+      documentName = getDocumentName(majorCourse.get(), minorCourse.get());
+    }
+
+    if (selectedDirectory != null) {
+      try {
+        Files.copy(Paths.get(handlePdf().getAbsolutePath()),
+            Paths.get(selectedDirectory.getAbsolutePath()).resolve(documentName));
+      } catch (Exception exc) {
+        exc.printStackTrace();
+      }
+    }
+  }
 
   @FXML
   final void interrupt() {

@@ -3,6 +3,8 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.injector.PluesModule;
 import de.hhu.stups.plues.prob.FeasibilityResult;
@@ -32,10 +34,12 @@ public class ResultBoxMain extends Application {
       e.submit(i);
     }
 
-    final ResultBox running = rbf.create(tasks[0]);
-    final ResultBox success = rbf.create(tasks[1]);
-    final ResultBox failure = rbf.create(tasks[2]);
-    final ResultBox interrupted = rbf.create(tasks[3]);
+    Delayed<Store> store = new Delayed<>();
+
+    final ResultBox running = rbf.create(tasks[0], store);
+    final ResultBox success = rbf.create(tasks[1], store);
+    final ResultBox failure = rbf.create(tasks[2], store);
+    final ResultBox interrupted = rbf.create(tasks[3], store);
 
     Course major = new Course();
     major.setLongName("Informatik Bachelor");
