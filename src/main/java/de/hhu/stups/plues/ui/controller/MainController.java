@@ -81,7 +81,7 @@ public class MainController implements Initializable {
   private void register(final Object task) {
     if(task instanceof Task<?>) {
       System.out.println("registering task");
-      this.taskProgress.getTasks().add((Task<?>) task);
+      Platform.runLater(() -> this.taskProgress.getTasks().add((Task<?>) task));
     } else {
       System.out.println("ignoring task");
     }
