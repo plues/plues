@@ -21,54 +21,54 @@ import java.util.concurrent.TimeUnit;
 public class ResultBoxMain extends Application {
   @Override
   public void start(Stage primaryStage) throws Exception {
-    Injector injector = Guice.createInjector(
-        com.google.inject.Stage.DEVELOPMENT, new PluesModule(primaryStage));
-    final ExecutorService e = Executors.newWorkStealingPool();
-
-    ResultBoxFactory rbf = injector.getInstance(ResultBoxFactory.class);
-    Task<FeasibilityResult>[] tasks = getTasks();
-
-    for (Task<FeasibilityResult> i : tasks) {
-      e.submit(i);
-    }
-
-    final ResultBox running = rbf.create(tasks[0]);
-    final ResultBox success = rbf.create(tasks[1]);
-    final ResultBox failure = rbf.create(tasks[2]);
-    final ResultBox interrupted = rbf.create(tasks[3]);
-
-    Course major = new Course();
-    major.setLongName("Informatik Bachelor");
-    major.setPo(2013);
-    major.setDegree("ba");
-    major.setKzfa("H");
-
-    Course minor = new Course();
-    minor.setLongName("Nebenfach Physik");
-    minor.setPo(2013);
-    minor.setDegree("ba");
-    minor.setKzfa("N");
-
-    running.setMajorCourse(major);
-    success.setMajorCourse(major);
-    failure.setMajorCourse(major);
-    interrupted.setMajorCourse(major);
-
-    running.setMinorCourse(minor);
-    success.setMinorCourse(minor);
-    failure.setMinorCourse(minor);
-    interrupted.setMinorCourse(minor);
-
-    VBox root = new VBox(running, success, failure, interrupted);
-    primaryStage.setScene(new Scene(root, 800, 600));
-
-    primaryStage.setTitle("PlÜS");
-
-    // TODO: properly close the application on close request
-    Platform.setImplicitExit(true);
-    primaryStage.setOnCloseRequest(x -> Platform.exit());
-
-    primaryStage.show();
+  //    Injector injector = Guice.createInjector(
+  //        com.google.inject.Stage.DEVELOPMENT, new PluesModule(primaryStage));
+  //    final ExecutorService e = Executors.newWorkStealingPool();
+  //
+  //    ResultBoxFactory rbf = injector.getInstance(ResultBoxFactory.class);
+  //    Task<FeasibilityResult>[] tasks = getTasks();
+  //
+  //    for (Task<FeasibilityResult> i : tasks) {
+  //      e.submit(i);
+  //    }
+  //
+  //    final ResultBox running = rbf.create(tasks[0]);
+  //    final ResultBox success = rbf.create(tasks[1]);
+  //    final ResultBox failure = rbf.create(tasks[2]);
+  //    final ResultBox interrupted = rbf.create(tasks[3]);
+  //
+  //    Course major = new Course();
+  //    major.setLongName("Informatik Bachelor");
+  //    major.setPo(2013);
+  //    major.setDegree("ba");
+  //    major.setKzfa("H");
+  //
+  //    Course minor = new Course();
+  //    minor.setLongName("Nebenfach Physik");
+  //    minor.setPo(2013);
+  //    minor.setDegree("ba");
+  //    minor.setKzfa("N");
+  //
+  //    running.setMajorCourse(major);
+  //    success.setMajorCourse(major);
+  //    failure.setMajorCourse(major);
+  //    interrupted.setMajorCourse(major);
+  //
+  //    running.setMinorCourse(minor);
+  //    success.setMinorCourse(minor);
+  //    failure.setMinorCourse(minor);
+  //    interrupted.setMinorCourse(minor);
+  //
+  //    VBox root = new VBox(running, success, failure, interrupted);
+  //    primaryStage.setScene(new Scene(root, 800, 600));
+  //
+  //    primaryStage.setTitle("PlÜS");
+  //
+  //    // TODO: properly close the application on close request
+  //    Platform.setImplicitExit(true);
+  //    primaryStage.setOnCloseRequest(x -> Platform.exit());
+  //
+  //    primaryStage.show();
   }
 
   private Task<FeasibilityResult>[] getTasks() {
