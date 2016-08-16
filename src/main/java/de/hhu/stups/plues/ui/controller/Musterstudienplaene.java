@@ -129,20 +129,14 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     final Optional<Course> selectedMinorCourse
         = courseSelection.getSelectedMinorCourse();
 
-    final String documentName;
     final Task<FeasibilityResult> task;
     if (selectedMinorCourse.isPresent()) {
       task
           = solverService.computeFeasibilityTask(
           selectedMajorCourse, selectedMinorCourse.get());
-      documentName
-          = Musterstudienplaene.getDocumentName(
-          selectedMajorCourse, selectedMinorCourse.get());
     } else {
       task
           = solverService.computeFeasibilityTask(selectedMajorCourse);
-      documentName
-          = Musterstudienplaene.getDocumentName(selectedMajorCourse);
     }
     resultTask.set(task);
 
@@ -162,26 +156,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     });
 
     solverService.submit(task);
-  }
-
-  /**
-   * Helper function to find the file name containing major and minor name.
-   * @param major Course object representing the choosen major course
-   * @param minor Course object representing the choosen minor course
-   * @return String representing the file name
-   */
-  private static String getDocumentName(final Course major, final Course minor) {
-    return "musterstudienplan_" + major.getName() + "_" + minor.getName()
-        + ".pdf";
-  }
-
-  /**
-   * Helper function to find file name containing major name and no minor existing.
-   * @param course Course object representing the choosen major course
-   * @return String representing the file name
-   */
-  private static String getDocumentName(final Course course) {
-    return "musterstudienplan_" + course.getName() + ".pdf";
   }
 
   /**
