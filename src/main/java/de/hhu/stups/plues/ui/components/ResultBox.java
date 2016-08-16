@@ -32,6 +32,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 
+import org.controlsfx.control.Notifications;
 import org.xml.sax.SAXException;
 
 import java.awt.Desktop;
@@ -185,7 +186,20 @@ public class ResultBox extends GridPane implements Initializable {
   private void getTempFile(Renderer renderer, File temp) {
     try (OutputStream out = new FileOutputStream(temp)) {
       renderer.getResult().writeTo(out);
-    } catch (final IOException | ParserConfigurationException | SAXException exc) {
+    } catch (final IOException exc) {
+      Notifications message = Notifications.create();
+      message.text("Error! Temporary file was not found.");
+      message.show();
+      exc.printStackTrace();
+    } catch (final ParserConfigurationException exc) {
+      Notifications message = Notifications.create();
+      message.text("Error! Parsing failed.");
+      message.show();
+      exc.printStackTrace();
+    } catch (final SAXException exc) {
+      Notifications message = Notifications.create();
+      message.text("Error! API throws an exception. Contact development.");
+      message.show();
       exc.printStackTrace();
     }
   }
@@ -198,6 +212,9 @@ public class ResultBox extends GridPane implements Initializable {
         return File.createTempFile(getDocumentName(major, minor), ".pdf");
       }
     } catch (IOException exc) {
+      Notifications message = Notifications.create();
+      message.text("Error! Creation of temporary file failed");
+      message.show();
       exc.printStackTrace();
       return null;
     }
@@ -317,6 +334,9 @@ public class ResultBox extends GridPane implements Initializable {
       try {
         Desktop.getDesktop().open(file.toFile());
       } catch (IOException exc) {
+        Notifications message = Notifications.create();
+        message.text("Error! File could not be opened.");
+        message.show();
         exc.printStackTrace();
       }
     });
@@ -340,6 +360,9 @@ public class ResultBox extends GridPane implements Initializable {
         Files.copy(pdf.get(),
             Paths.get(selectedDirectory.getAbsolutePath()).resolve(documentName));
       } catch (Exception exc) {
+        Notifications message = Notifications.create();
+        message.text("Error! Copying of temporary file into target file failed.");
+        message.show();
         exc.printStackTrace();
       }
     }
