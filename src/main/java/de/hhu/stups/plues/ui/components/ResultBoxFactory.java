@@ -1,9 +1,9 @@
 package de.hhu.stups.plues.ui.components;
 
-import de.hhu.stups.plues.prob.FeasibilityResult;
+import com.google.inject.assistedinject.Assisted;
 
-import javafx.concurrent.Task;
+import de.hhu.stups.plues.data.entities.Course;
 
 public interface ResultBoxFactory {
-  ResultBox create(Task<FeasibilityResult> task);
+  ResultBox create(@Assisted("major") Course major, @Assisted("minor") Course minor);
 }
