@@ -4,8 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
-import de.hhu.stups.plues.tasks.SolverTask;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
@@ -16,7 +14,6 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -121,6 +118,28 @@ public class ResultBox extends GridPane implements Initializable {
       Platform.runLater(() ->
           pdf.set((Path) event.getSource().getValue()));
     });
+
+    // TODO: Add status bar later to let the user know whats going on
+    //    final Task<FeasibilityResult> task;
+    //    if (selectedMinorCourse.isPresent()) {
+    //      task = solverService.computeFeasibilityTask(
+    //          selectedMajorCourse, selectedMinorCourse.get());
+    //    } else {
+    //      task = solverService.computeFeasibilityTask(selectedMajorCourse);
+    //    }
+    //    resultTask.set(task);
+
+
+    //  task.setOnFailed(event -> {
+    //    final Alert alert = new Alert(Alert.AlertType.ERROR);
+    //    alert.setTitle("Generation failed");
+    //    alert.setHeaderText("Invalid course combination");
+    //    alert.setContentText("The chosen combination of major and minor course is not possible.");
+    //    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+    //    alert.showAndWait();
+    //  });
+
+
     service.setOnFailed(event -> {
       Notifications message = Notifications.create();
       message.title("Error! Could not generate PDF");
