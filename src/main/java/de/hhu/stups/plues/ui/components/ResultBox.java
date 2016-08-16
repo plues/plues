@@ -83,8 +83,7 @@ public class ResultBox extends GridPane implements Initializable {
   private Button show;
 
   @FXML
-  private Button download;
-
+  private Button save;
   @FXML
   private Button cancel;
 
@@ -143,7 +142,7 @@ public class ResultBox extends GridPane implements Initializable {
         .isEqualTo(State.SUCCEEDED).not();
     //
     this.show.disableProperty().bind(p);
-    this.download.disableProperty().bind(p);
+    this.save.disableProperty().bind(p);
     this.cancel.disableProperty().bind(this.task.runningProperty().not());
     //
     this.icon.graphicProperty().bind(this.getIconBinding());
