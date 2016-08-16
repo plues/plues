@@ -121,12 +121,10 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     final Task<FeasibilityResult> task;
     if (selectedMinorCourse.isPresent()) {
-      task
-          = solverService.computeFeasibilityTask(
+      task = solverService.computeFeasibilityTask(
           selectedMajorCourse, selectedMinorCourse.get());
     } else {
-      task
-          = solverService.computeFeasibilityTask(selectedMajorCourse);
+      task = solverService.computeFeasibilityTask(selectedMajorCourse);
     }
     resultTask.set(task);
 
