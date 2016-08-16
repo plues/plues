@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.ComboBox?>
-
+<?import javafx.scene.layout.VBox?>
 <fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1" spacing="10">
     <children>
-        <ComboBox prefHeight="30" prefWidth="400" fx:id="cbMajor"/>
-        <ComboBox prefHeight="30" prefWidth="400" fx:id="cbMinor"/>
+        <ComboBox fx:id="cbMajor" maxWidth="10000.0"/>
+        <ComboBox fx:id="cbMinor" maxWidth="10000.0"/>
     </children>
 </fx:root>
