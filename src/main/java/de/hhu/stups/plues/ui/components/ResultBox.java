@@ -11,19 +11,16 @@ import de.hhu.stups.plues.studienplaene.Renderer;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
-import javafx.concurrent.Worker;
-import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -47,6 +44,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 import javax.swing.SwingUtilities;
@@ -122,7 +120,25 @@ public class ResultBox extends GridPane implements Initializable {
 
     task.setOnSucceeded(event -> {
       if (feasible.get()) {
-        pdf.set(handlePdf());
+        final Course major = majorCourse.get();
+        final Course minor = minorCourse.get();
+        FeasibilityResult result = null;
+        try {
+          result = task.get();
+        } catch (InterruptedException | ExecutionException exc) {
+          exc.printStackTrace();
+        }
+        final FeasibilityResult finalResult = result;
+        Task<Path> pdfCreationTask = new Task<Path>() {
+          @Override
+          protected Path call() throws Exception {
+            return handlePdf(major, minor, finalResult);
+          }
+        };
+        pdfCreationTask.setOnSucceeded(creationEvent ->
+            Platform.runLater(() ->
+              pdf.set((Path) creationEvent.getSource().getValue())));
+        submit(pdfCreationTask);
       }
     });
 
@@ -151,9 +167,6 @@ public class ResultBox extends GridPane implements Initializable {
     // long the process will take.
     //
     // progressIndicator.progressProperty().bind(this.task.progressProperty());
-    //
-
-    //
     final BooleanBinding p = this.pdf.isNull();
     //
     this.show.disableProperty().bind(p);
@@ -167,10 +180,9 @@ public class ResultBox extends GridPane implements Initializable {
   /**
    * Helper method to get temporary file.
    * @param renderer Renderer object to create file
-   * @param tmp Temporary file
+   * @param temp Temporary file
    */
-  private void getTempFile(Renderer renderer, File tmp) {
-    final File temp = tmp;
+  private void getTempFile(Renderer renderer, File temp) {
     try (OutputStream out = new FileOutputStream(temp)) {
       renderer.getResult().writeTo(out);
     } catch (final IOException | ParserConfigurationException | SAXException exc) {
@@ -178,12 +190,12 @@ public class ResultBox extends GridPane implements Initializable {
     }
   }
 
-  private File getTempFile() {
+  private File getTempFile(Course major, Course minor) {
     try {
-      if (minorCourse.get() == null) {
-        return File.createTempFile(getDocumentName(majorCourse.get()), ".pdf");
+      if (minor == null) {
+        return File.createTempFile(getDocumentName(major), ".pdf");
       } else {
-        return File.createTempFile(getDocumentName(majorCourse.get(), minorCourse.get()), ".pdf");
+        return File.createTempFile(getDocumentName(major, minor), ".pdf");
       }
     } catch (IOException exc) {
       exc.printStackTrace();
@@ -260,17 +272,17 @@ public class ResultBox extends GridPane implements Initializable {
   /**
    * Handle pdf file. If show is true, create a temporary file and open it, if false, save this temp
    * file where ever the user wants to to be saved.
+   * @param major Course object representing major course
+   * @param minor Course object representing minor course. Could be null if major is integrated
+   * @param result Instance of FeasiblityResult containing choice maps
    */
-  private Path handlePdf() {
-    final FeasibilityResult result = task.getValue();
-
+  private Path handlePdf(Course major, Course minor, FeasibilityResult result) {
     final Store store = delayedStore.get();
     final Renderer renderer
         = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-        result.getModuleChoice(), result.getUnitChoice(), majorCourse.get(), "true");
+        result.getModuleChoice(), result.getUnitChoice(), major, "true");
 
-
-    File tmp = getTempFile();
+    File tmp = getTempFile(major, minor);
 
     getTempFile(renderer, tmp);
     return Paths.get(tmp.getAbsolutePath());
