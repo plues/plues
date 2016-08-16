@@ -53,15 +53,15 @@ public class PdfRenderingService extends Service<Path> {
 
   @Override
   protected Task<Path> createTask() {
-    SolverService solver = delayedSolverService.get();
-    solverTask =
-      (SolverTask<FeasibilityResult>) solver.computeFeasibilityTask(major.get(), minor.get());
+    this.createSolverTask();
     return new Task<Path>() {
       @Override
       protected Path call() throws Exception {
         solverTask.setOnFailed(event -> this.failed());
         solverTask.setOnCancelled(event -> this.cancel());
 
+        SolverService solver = delayedSolverService.get();
+        assert solver != null;
         solver.submit(solverTask);
 
         final FeasibilityResult result = solverTask.get();
@@ -78,6 +78,21 @@ public class PdfRenderingService extends Service<Path> {
         return Paths.get(tmp.getAbsolutePath());
       }
     };
+  }
+
+  private void createSolverTask() {
+    SolverService solver = delayedSolverService.get();
+    assert solver != null;
+    if(this.minorProperty().get() == null) {
+      // TODO: raise a proper exception
+      assert !this.major.get().isCombinable(); // major must be a standalone course
+      solverTask =
+        (SolverTask<FeasibilityResult>) solver.computeFeasibilityTask(major.get());
+
+    } else {
+      solverTask =
+        (SolverTask<FeasibilityResult>) solver.computeFeasibilityTask(major.get(), minor.get());
+    }
   }
 
   @Override
