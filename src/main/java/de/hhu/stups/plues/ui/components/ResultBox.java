@@ -298,12 +298,4 @@ public class ResultBox extends GridPane implements Initializable {
   final void interrupt() {
     this.service.cancel();
   }
-
-  public final void setMajorCourse(final Course majorCourse) {
-    this.majorCourse.set(majorCourse);
-  }
-
-  public final void setMinorCourse(final Course minorCourse) {
-    this.minorCourse.set(minorCourse);
-  }
 }
