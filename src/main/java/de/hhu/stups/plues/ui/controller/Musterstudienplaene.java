@@ -155,10 +155,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
     courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
-
-    courseSelection.getMajorComboBox().valueProperty().addListener(((observable, oldValue, newValue) -> {
-      final String majorShortName = courseSelection.getSelectedMajorCourse().getShortName();
-      courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList).filtered(course -> !course.getShortName().equals(majorShortName)));
-    }));
+    courseSelection.setInitialMinorCourseList(FXCollections.observableList(minorCourseList));
   }
 }
