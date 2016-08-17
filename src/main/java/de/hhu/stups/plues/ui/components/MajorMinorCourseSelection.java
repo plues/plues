@@ -35,6 +35,8 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private ComboBox<Course> cbMinor;
 
+  private ObservableList<Course> initialMinorCourseList;
+
   /**
    * Create the component containing the combo boxes to choose major and minor courses. The combo
    * boxes will fill the parent's width, therefore wrap the component in a grid pane for example.
@@ -70,6 +72,14 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
     }, selectedMajor);
 
     cbMinor.disableProperty().bind(majorIsCombinable.not());
+
+    cbMajor.valueProperty().addListener(((observable, oldValue, newValue) -> {
+      final String majorShortName = getSelectedMajorCourse().getShortName();
+      if (initialMinorCourseList != null) {
+        setMinorCourseList(initialMinorCourseList.filtered(course -> !course.getShortName().equals(majorShortName)));
+      }
+    }));
+
   }
 
   public ComboBox<Course> getMajorComboBox() {
@@ -139,6 +149,14 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
       return Optional.of(this.cbMinor.getSelectionModel()
           .getSelectedItem());
     }
+  }
+
+  /**
+   * Set the initial minor course list. We need to store this list to be able to remove courses
+   * within the major combo box's change listener.
+   */
+  public void setInitialMinorCourseList(ObservableList<Course> initialMinorCourseList) {
+    this.initialMinorCourseList = initialMinorCourseList;
   }
 
   public void setMajorCourseList(final ObservableList<Course> majorCourseList) {
