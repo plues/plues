@@ -112,8 +112,8 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         = courseSelection.getSelectedMinorCourse();
 
     Course selectedMinorCourse = null;
-      selectedMinorCourse = optinalMinorCourse.get();
     if (optinalMinorCourse.isPresent()) {
+      selectedMinorCourse = optinalMinorCourse.get();
     }
 
     ResultBox rb = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse);
