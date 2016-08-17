@@ -4,6 +4,12 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -19,12 +25,6 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.Set;
-
 public class MajorMinorCourseSelection extends VBox implements Initializable {
 
   @FXML
@@ -36,7 +36,8 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
   private ComboBox<Course> cbMinor;
 
   /**
-   * Create the component, i.e. load the specific fxml file etc.
+   * Create the component containing the combo boxes to choose major and minor courses. The combo
+   * boxes will fill the parent's width, therefore wrap the component in a grid pane for example.
    *
    * @param loader The injected FXMLLoader.
    */
@@ -69,6 +70,10 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
     }, selectedMajor);
 
     cbMinor.disableProperty().bind(majorIsCombinable.not());
+  }
+
+  public ComboBox<Course> getMajorComboBox() {
+    return this.cbMajor;
   }
 
   /**
