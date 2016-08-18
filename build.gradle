@@ -45,7 +45,7 @@ repositories {
 }
 
 dependencies {
-    compile 'de.hhu.stups:de.prob2.kernel:2.0.1-SNAPSHOT'
+    compile group:'de.hhu.stups', name:'de.prob2.kernel', version:'2.0.3-SNAPSHOT'
     compile group: 'org.fxmisc.easybind', name: 'easybind', version: '1.0.3'
     compile 'org.controlsfx:controlsfx:8.40.11'
     compile 'com.google.code.findbugs:annotations:3.0.1'
