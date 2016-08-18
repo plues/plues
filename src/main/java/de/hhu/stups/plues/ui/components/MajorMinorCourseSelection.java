@@ -4,12 +4,6 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.Set;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -24,6 +18,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
+
 
 public class MajorMinorCourseSelection extends VBox implements Initializable {
 
@@ -40,6 +41,11 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
   /**
    * Create the component containing the combo boxes to choose major and minor courses. The combo
    * boxes will fill the parent's width, therefore wrap the component in a grid pane for example.
+   * When using the component we need to initially call
+   * {@link #setMajorCourseList(ObservableList<Course>)},
+   * {@link #setMinorCourseList(ObservableList<Course>)} as well as
+   * {@link #setInitialMinorCourseList(ObservableList)}. Latter is needed within the major
+   * combo box's change listener.
    *
    * @param loader The injected FXMLLoader.
    */
@@ -76,7 +82,8 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
     cbMajor.valueProperty().addListener(((observable, oldValue, newValue) -> {
       final String majorShortName = getSelectedMajorCourse().getShortName();
       if (initialMinorCourseList != null) {
-        setMinorCourseList(initialMinorCourseList.filtered(course -> !course.getShortName().equals(majorShortName)));
+        setMinorCourseList(initialMinorCourseList.filtered(
+            course -> !course.getShortName().equals(majorShortName)));
       }
     }));
 
@@ -152,8 +159,8 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
   }
 
   /**
-   * Set the initial minor course list. We need to store this list to be able to remove courses
-   * within the major combo box's change listener.
+   * Set the initial minor course list. We need to store this list to be able to filter the possible
+   * minor courses according to the currently chosen major course.
    */
   public void setInitialMinorCourseList(ObservableList<Course> initialMinorCourseList) {
     this.initialMinorCourseList = initialMinorCourseList;
