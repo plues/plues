@@ -182,7 +182,7 @@ public class ProBSolver implements Solver {
     //
     final FeasibilityResult result = new FeasibilityResult(moduleChoice, unitChoice,
         semesterChoice, groupChoice);
-    this.putToCache(key,new SolverCacheObject(result));
+    this.putToCache(key, result);
     return result;
   }
 
