@@ -2,6 +2,7 @@ package de.hhu.stups.plues.tasks;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
@@ -10,6 +11,7 @@ import de.hhu.stups.plues.modelgenerator.Renderer;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
+
 import javafx.concurrent.Task;
 
 import java.io.File;
@@ -26,188 +28,187 @@ import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+
 public class SolverLoaderTask extends Task<Solver> {
-    private static final int MAX_STEPS = 5;
-    private static final String MODEL_FILE = "Solver.mch";
-    private static final String MODEL_PATH = "models";
-    private static final String MODELS_ZIP = "models.zip";
+  private static final int MAX_STEPS = 5;
+  private static final String MODEL_FILE = "Solver.mch";
+  private static final String MODEL_PATH = "models";
+  private static final String MODELS_ZIP = "models.zip";
+  private final StoreLoaderTask storeLoader;
+  private final Properties properties;
+  private final SolverFactory solverFactory;
+  private Path modelDirectory;
+  private Store store;
+  private Solver solver;
 
-    private Path modelDirectory;
-    private final StoreLoaderTask storeLoader;
-    private Store store;
-    private Solver solver;
-    private final Properties properties;
-    private final SolverFactory solverFactory;
 
+  /**
+   * Create a new solver loader instance to setup and instantiate the requested solver type.
+   * @param sf SolverFactory factory to create solver instances
+   * @param pp Properties
+   * @param storeLoaderTask tore loader task, task that setups and loads a data store to be used
+   *                        for the solver instance
+   */
+  @Inject
+  public SolverLoaderTask(
+      final SolverFactory sf, final Properties pp,
+      @Assisted final StoreLoaderTask storeLoaderTask) {
 
-    @Inject
-    public SolverLoaderTask(
-            final SolverFactory sf, final Properties pp,
-            @Assisted final StoreLoaderTask storeLoaderTask) {
+    this.solverFactory = sf;
+    this.storeLoader = storeLoaderTask;
+    this.properties = pp;
+    this.properties.putIfAbsent("solver", "prob");
+    this.updateTitle("Loading ProB"); // TODO i18n
+  }
 
-        this.solverFactory = sf;
-        this.storeLoader = storeLoaderTask;
-        this.properties = pp;
-        this.properties.putIfAbsent("solver", "prob");
-        this.updateTitle("Loading ProB"); // TODO i18n
+  private void prepareModels() throws Exception {
+    final String modelBase = (String) this.properties.get("modelpath");
+    if (modelBase == null) {
+      // use bundled files
+      this.copyModelsToTemp();
+    } else {
+      final Path p = Helpers.expandPath(modelBase);
+      if (!new File(p.toString()).exists()) {
+        throw new IllegalArgumentException("Path does not exist");
+      }
+      System.out.println("Using models from " + p);
+      this.modelDirectory = p;
     }
+  }
 
-    private void prepareModels() throws Exception {
-        final String modelBase = (String) this.properties.get("modelpath");
-        if(modelBase == null) {
-            // use bundled files
-            this.copyModelsToTemp();
-        } else {
-            final Path p = Helpers.expandPath(modelBase);
-            if(!new File(p.toString()).exists()) {
-                throw new IllegalArgumentException("Path does not exist");
-            }
-            System.out.println("Using models from " + p);
-            this.modelDirectory = p;
-        }
+
+  private void copyModelsToTemp() throws Exception {
+
+    final Path tmpDirectory = Files.createTempDirectory("slottool");
+    this.modelDirectory = tmpDirectory.resolve(MODEL_PATH);
+
+    Files.createDirectory(this.modelDirectory);
+    System.out.println("Exporting models to " + this.modelDirectory);
+    //
+    final ClassLoader classLoader = MainController.class.getClassLoader();
+    final InputStream zipStream = classLoader.getResourceAsStream(MODELS_ZIP);
+    //
+    if (zipStream == null) {
+      throw new MissingResourceException(
+        "Could not find models.zip resource!!",
+        this.getClass().getName(),
+        MODELS_ZIP);
     }
+    // copy zip-file to tmpDirectory
+    final Path zipPath = tmpDirectory.resolve(MODELS_ZIP);
+    Files.copy(zipStream, zipPath);
 
+    // read zip-file entries
+    final ZipFile zipFile = new ZipFile(zipPath.toFile());
+    final Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
-    private void copyModelsToTemp() throws Exception {
+    while (entries.hasMoreElements()) {
+      final ZipEntry entry = entries.nextElement();
+      final String name = entry.getName();
 
-        final Path tmpDirectory = Files.createTempDirectory("slottool");
-        this.modelDirectory = tmpDirectory.resolve(MODEL_PATH);
+      if (name.equals("")) {
+        System.out.println("Empty File");
+        continue;
+      }
 
-        Files.createDirectory(this.modelDirectory);
-        System.out.println("Exporting models to " + this.modelDirectory);
-        //
-        final ClassLoader classLoader = MainController.class.getClassLoader();
-        final InputStream zipStream
-                = classLoader.getResourceAsStream(MODELS_ZIP);
-        //
-        if(zipStream == null) {
-            throw new MissingResourceException(
-                    "Could not find models.zip resource!!",
-                    this.getClass().getName(),
-                    MODELS_ZIP);
-        }
-        // copy zip-file to tmpDirectory
-        final Path zipPath = tmpDirectory.resolve(MODELS_ZIP);
-        Files.copy(zipStream, zipPath);
+      final InputStream stream = zipFile.getInputStream(entry);
+      final Path modelPath = Paths.get(MODEL_PATH).resolve(name);
 
-        // read zip-file entries
-        final ZipFile zipFile = new ZipFile(zipPath.toFile());
-        final Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-        while(entries.hasMoreElements()) {
-            final ZipEntry entry = entries.nextElement();
-            final String name = entry.getName();
-
-            if(name.equals("")) {
-                System.out.println("Empty File");
-                continue;
-            }
-
-            final InputStream stream = zipFile.getInputStream(entry);
-            final Path modelPath = Paths.get(MODEL_PATH).resolve(name);
-
-            System.out.println("Exporting " + modelPath);
-            Files.copy(stream, tmpDirectory.resolve(modelPath));
-        }
-        zipFile.close();
-        System.out.println("Done exporting model files.");
+      System.out.println("Exporting " + modelPath);
+      Files.copy(stream, tmpDirectory.resolve(modelPath));
     }
+    zipFile.close();
+    System.out.println("Done exporting model files.");
+  }
 
-    @Override
-    protected final Solver call() throws Exception {
+  @Override
+  protected final Solver call() throws Exception {
 
-        this.updateMessage("Prepare models"); // TODO i18n
-        this.updateProgress(0, MAX_STEPS);
-        //
-        this.prepareModels();
-        this.updateProgress(1, MAX_STEPS);
-        //
-        this.updateMessage("Waiting for Store"); // TODO i18n
-        this.store = this.storeLoader.get();
-        this.updateProgress(2, MAX_STEPS);
-        //
-        this.updateMessage("Export data model (this can take a while)"); // TODO i18n
-        this.exportDataModel();
-        this.updateProgress(3, MAX_STEPS);
-        //
-        this.updateMessage("Init solver (this can take a while)"); // TODO i18n
-        this.initSolver();
-        this.updateProgress(4, MAX_STEPS);
-        //
-        this.updateMessage("Checking model version"); // TODO i18n
-        this.solver.checkModelVersion(
-                (String) this.properties.get("model_version"));
-        this.updateProgress(5, MAX_STEPS);
-        //
-        return this.solver;
+    this.updateMessage("Prepare models"); // TODO i18n
+    this.updateProgress(0, MAX_STEPS);
+    //
+    this.prepareModels();
+    this.updateProgress(1, MAX_STEPS);
+    //
+    this.updateMessage("Waiting for Store"); // TODO i18n
+    this.store = this.storeLoader.get();
+    this.updateProgress(2, MAX_STEPS);
+    //
+    this.updateMessage("Export data model (this can take a while)"); // TODO i18n
+    this.exportDataModel();
+    this.updateProgress(3, MAX_STEPS);
+    //
+    this.updateMessage("Init solver (this can take a while)"); // TODO i18n
+    this.initSolver();
+    this.updateProgress(4, MAX_STEPS);
+    //
+    this.updateMessage("Checking model version"); // TODO i18n
+    this.solver.checkModelVersion((String) this.properties.get("model_version"));
+    this.updateProgress(5, MAX_STEPS);
+    //
+    return this.solver;
+  }
+
+  @Override
+  protected final void succeeded() {
+    super.succeeded();
+    this.updateMessage("Done!"); // TODO i18n
+  }
+
+  @Override
+  protected final void cancelled() {
+    this.store.close();
+    System.err.println("Loading solver cancelled");
+  }
+
+  @Override
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  protected final void failed() {
+    this.store.close();
+    System.err.println("Loading solver failed");
+    this.getException().printStackTrace();
+  }
+
+  private void initSolver() throws IOException, BException,
+      NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    final String modelPath = this.modelDirectory.resolve(MODEL_FILE).toString();
+
+    final String solverName = (String) this.properties.get("solver");
+    //
+    System.out.println("Using " + solverName + " solver");
+    //
+    final String solver = solverName.substring(0, 1).toUpperCase() + solverName.substring(1);
+    //
+    try {
+      final Method method = this.solverFactory.getClass()
+          .getMethod("create" + solver + "Solver", String.class);
+
+      this.solver = (Solver) method.invoke(this.solverFactory, modelPath);
+
+    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
+      exception.printStackTrace();
+      throw exception;
     }
+  }
 
-    @Override
-    protected final void succeeded() {
-        super.succeeded();
-        this.updateMessage("Done!"); // TODO i18n
-    }
+  private void exportDataModel() throws IOException {
+    final Renderer renderer = new Renderer(this.store);
 
-    @Override
-    protected final void cancelled() {
-        this.store.close();
-        System.err.println("Loading solver cancelled");
-    }
+    final File targetFile = this.modelDirectory.resolve("data.mch").toFile();
 
-    @Override
-    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-    protected final void failed() {
-        this.store.close();
-        System.err.println("Loading solver failed");
-        this.getException().printStackTrace();
-    }
+    renderer.renderFor(FileType.BMachine, targetFile);
+    //
+    final String flavor = this.store.getInfoByKey("short-name");
 
-    private void initSolver() throws IOException, BException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        final String modelPath = this.modelDirectory.resolve(MODEL_FILE)
-                                                    .toString();
+    final File targetXmlFile = this.modelDirectory.resolve(flavor + "-data.xml").toFile();
 
-        final String solverName = (String) this.properties.get("solver");
-        //
-        System.out.println("Using " + solverName + " solver");
-        //
-        final String solver = solverName.substring(0, 1).toUpperCase() + solverName.substring(1);
-        //
-        try {
-            final Method method
-                    = this.solverFactory.getClass()
-                                        .getMethod(
-                                                "create" + solver + "Solver",
-                                                String.class);
-            
-            this.solver = (Solver) method.invoke(this.solverFactory, modelPath);
-
-        } catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }
-
-    private void exportDataModel() throws IOException {
-        final Renderer renderer = new Renderer(this.store);
-
-        final File targetFile
-                = this.modelDirectory.resolve("data.mch").toFile();
-
-        renderer.renderFor(FileType.BMachine, targetFile);
-        //
-        final String flavor = this.store.getInfoByKey("short-name");
-
-        final File targetXMLFile
-                = this.modelDirectory.resolve(flavor + "-data.xml").toFile();
-
-        renderer.renderFor(FileType.ModuleCombination, targetXMLFile);
+    renderer.renderFor(FileType.ModuleCombination, targetXmlFile);
 
 
-        System.out.println("Wrote model data to "
-                                   + targetFile.getAbsolutePath());
-        System.out.println("Wrote module combination data to "
-                                   + targetXMLFile.getAbsolutePath());
-        this.store.clear();
-    }
+    System.out.println("Wrote model data to " + targetFile.getAbsolutePath());
+    System.out.println("Wrote module combination data to " + targetXmlFile.getAbsolutePath());
+
+    this.store.clear();
+  }
 
 }
