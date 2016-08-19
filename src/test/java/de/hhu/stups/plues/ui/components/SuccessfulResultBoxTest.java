@@ -30,9 +30,9 @@ public class SuccessfulResultBoxTest extends ResultBoxTest {
 
     @Override
     public Task<Path> createTask() {
-      return new Task() {
+      return new Task<Path>() {
         @Override
-        protected Object call() throws Exception {
+        protected Path call() throws Exception {
           return Paths.get(".");
         }
       };
