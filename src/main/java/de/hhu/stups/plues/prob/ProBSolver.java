@@ -33,10 +33,9 @@ public class ProBSolver implements Solver {
 
   private static final String DEFAULT_PREDICATE = "1=1";
   private final StateSpace stateSpace;
-  private Trace trace;
-
-  private HashMap<String,SolverCacheObject> solverCache;
+  private final HashMap<String, SolverCacheObject> solverCache;
   private final int cacheSize = 10;
+  private Trace trace;
 
   @Inject
   ProBSolver(final Api api, @Assisted final String modelPath)
@@ -96,7 +95,7 @@ public class ProBSolver implements Solver {
     return modelResult.get(0);
   }
 
-  private <T extends BObject> T executeOperationWithOneResult(final String op,final Class<T> type)
+  private <T extends BObject> T executeOperationWithOneResult(final String op, final Class<T> type)
       throws SolverException {
 
     return executeOperationWithOneResult(op, DEFAULT_PREDICATE, type);
@@ -137,14 +136,14 @@ public class ProBSolver implements Solver {
    */
   public final Boolean checkFeasibility(final String... courses) {
 
-    String key = "checkFeasibility" + Arrays.toString(courses);
+    final String key = "checkFeasibility" + Arrays.toString(courses);
     if (this.getFromCache(key) != null) {
       return (Boolean) this.getFromCache(key);
     }
 
     final String predicate = getFeasibilityPredicate(courses);
-    Boolean result = executeOperation(CHECK, predicate);
-    this.putToCache(key,result);
+    final Boolean result = executeOperation(CHECK, predicate);
+    this.putToCache(key, result);
     return result;
   }
 
@@ -158,7 +157,7 @@ public class ProBSolver implements Solver {
   public final FeasibilityResult computeFeasibility(final String... courses)
       throws SolverException {
 
-    String key = "computeFeasibility" + Arrays.toString(courses);
+    final String key = "computeFeasibility" + Arrays.toString(courses);
     if (this.getFromCache(key) != null) {
       return (FeasibilityResult) this.getFromCache(key);
     }
@@ -181,7 +180,7 @@ public class ProBSolver implements Solver {
 
     final Map<Integer, Integer> unitChoice = Mappers.mapUnitChoice(modelResult.get(3));
     //
-    FeasibilityResult result = new FeasibilityResult(moduleChoice, unitChoice,
+    final FeasibilityResult result = new FeasibilityResult(moduleChoice, unitChoice,
         semesterChoice, groupChoice);
     this.putToCache(key,new SolverCacheObject(result));
     return result;
@@ -220,7 +219,7 @@ public class ProBSolver implements Solver {
         = Mappers.mapUnitChoice(modelResult.get(3));
     //
     return new FeasibilityResult(computedModuleChoice, computedUnitChoice,
-        computedSemesterChoice, computedGroupChoice);
+      computedSemesterChoice, computedGroupChoice);
   }
 
   public final List<Integer> unsatCore(final String... courses) throws SolverException {
@@ -279,11 +278,11 @@ public class ProBSolver implements Solver {
    * Get an object from the cache and update its last access time.
    *
    * @param key The cached object's key.
-   * @return Return the cached object which needs to be casted to
-   *         the expected result. If the key does not exist return null.
+   * @return Return the cached object which needs to be casted to the expected result. If the key
+   *         does not exist return null.
    */
-  private synchronized Object getFromCache(String key) {
-    SolverCacheObject cacheObject = solverCache.get(key);
+  private synchronized Object getFromCache(final String key) {
+    final SolverCacheObject cacheObject = solverCache.get(key);
     if (cacheObject == null) {
       return null;
     } else {
@@ -299,11 +298,11 @@ public class ProBSolver implements Solver {
    * @param key The cached object's key.
    * @param obj The object to be cached.
    */
-  private synchronized void putToCache(String key,Object obj) {
+  private synchronized void putToCache(final String key, final Object obj) {
     if (solverCache.size() == cacheSize) {
       removeLruFromCache();
     }
-    solverCache.put(key,new SolverCacheObject(obj));
+    solverCache.put(key, new SolverCacheObject(obj));
   }
 
   /**
@@ -311,7 +310,7 @@ public class ProBSolver implements Solver {
    */
   private synchronized void removeLruFromCache() {
     String acc = null;
-    for (Map.Entry<String,SolverCacheObject> entry : solverCache.entrySet()) {
+    for (final Map.Entry<String, SolverCacheObject> entry : solverCache.entrySet()) {
       if (acc == null) {
         acc = entry.getKey();
       } else {
