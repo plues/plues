@@ -5,9 +5,9 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.tasks.ObservableExecutorService;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.prob.Solver;
+import de.hhu.stups.plues.tasks.ObservableExecutorService;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
@@ -18,6 +18,15 @@ import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.control.MenuItem;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import org.controlsfx.control.TaskProgressView;
 
 import java.io.File;
@@ -29,15 +38,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.prefs.Preferences;
 
-import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.control.MenuItem;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 @Singleton
 public class MainController implements Initializable {
@@ -89,7 +89,7 @@ public class MainController implements Initializable {
   }
 
   private void register(final Object task) {
-    if(task instanceof Task<?>) {
+    if (task instanceof Task<?>) {
       System.out.println("registering task");
       Platform.runLater(() -> this.taskProgress.getTasks().add((Task<?>) task));
     } else {
