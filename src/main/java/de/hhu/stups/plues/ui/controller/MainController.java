@@ -12,13 +12,18 @@ import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverServiceFactory;
+import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import org.controlsfx.control.TaskProgressView;
 
 import java.io.File;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
@@ -29,6 +34,7 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -36,19 +42,22 @@ import javafx.stage.Stage;
 @Singleton
 public class MainController implements Initializable {
 
+  final static Map<Class, FontAwesomeIcon> iconMap = new HashMap<>();
   private static final String LAST_DIR = "LAST_DIR";
+
+  static {
+    iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
+    iconMap.put(SolverLoaderTask.class, FontAwesomeIcon.COGS);
+    iconMap.put(SolverTask.class, FontAwesomeIcon.CALENDAR);
+  }
 
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
-
   private final SolverLoaderTaskFactory solverLoaderTaskFactory;
   private final SolverServiceFactory solverServiceFactory;
-
   private final Properties properties;
   private final Stage stage;
-
   private final ExecutorService executor;
-
   @FXML
   private MenuItem openFileMenuItem;
   @FXML
@@ -87,9 +96,20 @@ public class MainController implements Initializable {
     }
   }
 
+  private Node getGraphicForTask(Task<?> task) {
+    FontAwesomeIcon icon = FontAwesomeIcon.TASKS;
+    if (iconMap.containsKey(task.getClass())) {
+      icon = iconMap.get(task.getClass());
+    }
+    return FontAwesomeIconFactory.get().createIcon(icon, "2em");
+  }
+
   @Override
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
+
+    this.taskProgress.setGraphicFactory(this::getGraphicForTask);
+
     if (this.properties.get("dbpath") != null) {
       this.loadData((String) this.properties.get("dbpath"));
     }
