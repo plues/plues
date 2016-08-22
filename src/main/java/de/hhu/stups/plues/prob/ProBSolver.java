@@ -17,7 +17,6 @@ import de.prob.translator.types.Set;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +32,7 @@ public class ProBSolver implements Solver {
 
   private static final String DEFAULT_PREDICATE = "1=1";
   private final StateSpace stateSpace;
-  private final HashMap<String, SolverCacheObject> solverCache;
-  private final int cacheSize = 10;
+  private SolverCache solverCache;
   private Trace trace;
 
   @Inject
@@ -43,8 +41,8 @@ public class ProBSolver implements Solver {
     this.stateSpace = api.b_load(modelPath);
     this.stateSpace.getSubscribedFormulas()
       .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
+    this.solverCache = new SolverCache(100);
     this.trace = traceFrom(stateSpace);
-    this.solverCache = new HashMap<>(cacheSize);
   }
 
   private static Trace traceFrom(final StateSpace space) {
@@ -63,7 +61,7 @@ public class ProBSolver implements Solver {
   /**
    * Checks if the version of the loaded model is compatible with the version
    * provided as parameter.
-   * Currently strings must be an excact match.
+   * Currently strings must be an exact match.
    */
   public final void checkModelVersion(final String expectedVersion) /* or read properties here? */
       throws SolverException {
@@ -101,8 +99,18 @@ public class ProBSolver implements Solver {
     return executeOperationWithOneResult(op, DEFAULT_PREDICATE, type);
   }
 
+  @SuppressWarnings("unchecked")
   private <T extends BObject> List<T> executeOperationWithResult(final String op,
       final String predicate, final Class<T> type) throws SolverException {
+
+    final String key = op + predicate;
+    synchronized (solverCache) {
+      final Object cacheObject = solverCache.get(key);
+      if (cacheObject != null) {
+        // the result has already been computed and cached
+        return (List<T>) cacheObject;
+      }
+    }
 
     if (!executeOperation(op, predicate)) {
       throw new SolverException("Could not execute operation " + op + " - " + predicate);
@@ -111,7 +119,7 @@ public class ProBSolver implements Solver {
     final Transition trans = trace.getCurrentTransition();
     final List<String> returnValues = trans.evaluate(FormulaExpand.expand).getReturnValues();
 
-    return returnValues.stream().map(i -> {
+    List<T> result = returnValues.stream().map(i -> {
       try {
         return type.cast(Translator.translate(i));
       } catch (BException bexception) {
@@ -119,6 +127,12 @@ public class ProBSolver implements Solver {
       }
       return null;
     }).collect(Collectors.toList());
+
+    synchronized (solverCache) {
+      solverCache.put(key, result);
+    }
+
+    return result;
   }
 
   public final void interrupt() {
@@ -136,15 +150,8 @@ public class ProBSolver implements Solver {
    */
   public final Boolean checkFeasibility(final String... courses) {
 
-    final String key = "checkFeasibility" + Arrays.toString(courses);
-    if (this.getFromCache(key) != null) {
-      return (Boolean) this.getFromCache(key);
-    }
-
     final String predicate = getFeasibilityPredicate(courses);
-    final Boolean result = executeOperation(CHECK, predicate);
-    this.putToCache(key, result);
-    return result;
+    return executeOperation(CHECK, predicate);
   }
 
   /**
@@ -156,11 +163,6 @@ public class ProBSolver implements Solver {
    */
   public final FeasibilityResult computeFeasibility(final String... courses)
       throws SolverException {
-
-    final String key = "computeFeasibility" + Arrays.toString(courses);
-    if (this.getFromCache(key) != null) {
-      return (FeasibilityResult) this.getFromCache(key);
-    }
 
     final String predicate = getFeasibilityPredicate(courses);
     /* Check returns values in the following order:
@@ -180,10 +182,8 @@ public class ProBSolver implements Solver {
 
     final Map<Integer, Integer> unitChoice = Mappers.mapUnitChoice(modelResult.get(3));
     //
-    final FeasibilityResult result = new FeasibilityResult(moduleChoice, unitChoice,
+    return new FeasibilityResult(moduleChoice, unitChoice,
         semesterChoice, groupChoice);
-    this.putToCache(key, result);
-    return result;
   }
 
   public final FeasibilityResult computePartialFeasibility(final List<String> courses,
@@ -237,7 +237,7 @@ public class ProBSolver implements Solver {
     final String predicate
         = "session=session" + sessionId + " & dow=" + day + " & slot=slot" + slot;
     executeOperation(MOVE, predicate);
-    this.clearCache();
+    solverCache.clear();
   }
 
   /**
@@ -274,60 +274,4 @@ public class ProBSolver implements Solver {
     final BObject result = this.executeOperationWithOneResult("getVersion", BObject.class);
     return Mappers.mapString(result.toString());
   }
-
-  /**
-   * Get an object from the cache and update its last access time.
-   *
-   * @param key The cached object's key.
-   * @return Return the cached object which needs to be casted to the expected result. If the key
-   *         does not exist return null.
-   */
-  private synchronized Object getFromCache(final String key) {
-    final SolverCacheObject cacheObject = solverCache.get(key);
-    if (cacheObject == null) {
-      return null;
-    } else {
-      cacheObject.setLastAccess(System.currentTimeMillis());
-      return cacheObject.getObject();
-    }
-  }
-
-  /**
-   * Put an object to the cache. If the cache size is exhausted the
-   * least recently used object is removed from the cache.
-   *
-   * @param key The cached object's key.
-   * @param obj The object to be cached.
-   */
-  private synchronized void putToCache(final String key, final Object obj) {
-    if (solverCache.size() == cacheSize) {
-      removeLruFromCache();
-    }
-    solverCache.put(key, new SolverCacheObject(obj));
-  }
-
-  /**
-   * Remove the least recently used object from the cache.
-   */
-  private synchronized void removeLruFromCache() {
-    String acc = null;
-    for (final Map.Entry<String, SolverCacheObject> entry : solverCache.entrySet()) {
-      if (acc == null) {
-        acc = entry.getKey();
-      } else {
-        if (solverCache.get(acc).getLastAccess() > entry.getValue().getLastAccess()) {
-          acc = entry.getKey();
-        }
-      }
-    }
-    this.solverCache.remove(acc);
-  }
-
-  /**
-   * Remove all entries from the cache.
-   */
-  private synchronized void clearCache() {
-    this.solverCache.clear();
-  }
-
 }
