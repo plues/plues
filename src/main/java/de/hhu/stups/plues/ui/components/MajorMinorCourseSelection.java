@@ -41,16 +41,15 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
   /**
    * Create the component containing the combo boxes to choose major and minor courses. The combo
    * boxes will fill the parent's width, therefore wrap the component in a grid pane for example.
-   * When using the component we need to initially call
-   * {@link #setMajorCourseList(ObservableList<Course>)},
-   * {@link #setMinorCourseList(ObservableList<Course>)} as well as
+   * When using the component we need to initially call {@link #setMajorCourseList(ObservableList)},
+   * {@link #setMinorCourseList(ObservableList)} and
    * {@link #setInitialMinorCourseList(ObservableList)}. Latter is needed within the major
-   * combo box's change listener.
+   * combo box's change listener to reload the initial minor courses.
    *
    * @param loader The injected FXMLLoader.
    */
   @Inject
-  public MajorMinorCourseSelection(final FXMLLoader loader) {
+  MajorMinorCourseSelection(final FXMLLoader loader) {
     loader.setLocation(getClass().getResource("/fxml/components/MajorMinorCourseSelection.fxml"));
 
     loader.setRoot(this);
@@ -79,6 +78,8 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
 
     cbMinor.disableProperty().bind(majorIsCombinable.not());
 
+    // Filter courses from minor course list with a different short name as soon as a
+    // major course is selected, so don't allow to select the same major and minor courses.
     cbMajor.valueProperty().addListener(((observable, oldValue, newValue) -> {
       final String majorShortName = getSelectedMajorCourse().getShortName();
       if (initialMinorCourseList != null) {
@@ -87,10 +88,6 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
       }
     }));
 
-  }
-
-  public ComboBox<Course> getMajorComboBox() {
-    return this.cbMajor;
   }
 
   /**
@@ -156,6 +153,14 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
       return Optional.of(this.cbMinor.getSelectionModel()
           .getSelectedItem());
     }
+  }
+
+  ComboBox<Course> getMajorComboBox() {
+    return this.cbMajor;
+  }
+
+  ComboBox<Course> getMinorComboBox() {
+    return this.cbMinor;
   }
 
   /**
