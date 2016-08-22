@@ -42,7 +42,8 @@ import javafx.stage.Stage;
 @Singleton
 public class MainController implements Initializable {
 
-  final static Map<Class, FontAwesomeIcon> iconMap = new HashMap<>();
+  private static final Map<Class, FontAwesomeIcon> iconMap = new HashMap<>();
+  private static final FontAwesomeIcon DEFAULT_ICON = FontAwesomeIcon.TASKS;
   private static final String LAST_DIR = "LAST_DIR";
 
   static {
@@ -96,11 +97,8 @@ public class MainController implements Initializable {
     }
   }
 
-  private Node getGraphicForTask(Task<?> task) {
-    FontAwesomeIcon icon = FontAwesomeIcon.TASKS;
-    if (iconMap.containsKey(task.getClass())) {
-      icon = iconMap.get(task.getClass());
-    }
+  private Node getGraphicForTask(final Task<?> task) {
+    final FontAwesomeIcon icon = iconMap.getOrDefault(task.getClass(), DEFAULT_ICON);
     return FontAwesomeIconFactory.get().createIcon(icon, "2em");
   }
 
