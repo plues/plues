@@ -8,7 +8,9 @@ class SolverCache extends LinkedHashMap<String,Object> {
   private int cacheSize;
 
   /**
-   * Cache the results computed by the solver to increase performance.
+   * Cache the results computed by the solver to increase performance. Since the solver gets
+   * injected and is single threaded by default we probably would have no problems without
+   * synchronization but never the less accessing the cache should be done in a synchronized block.
    */
   SolverCache(int cacheSize) {
     super(cacheSize, 0.75f, true);
