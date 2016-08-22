@@ -237,6 +237,7 @@ public class ProBSolver implements Solver {
     final String predicate
         = "session=session" + sessionId + " & dow=" + day + " & slot=slot" + slot;
     executeOperation(MOVE, predicate);
+    this.clearCache();
   }
 
   /**
@@ -321,4 +322,12 @@ public class ProBSolver implements Solver {
     }
     this.solverCache.remove(acc);
   }
+
+  /**
+   * Remove all entries from the cache.
+   */
+  private synchronized void clearCache() {
+    this.solverCache.clear();
+  }
+
 }
