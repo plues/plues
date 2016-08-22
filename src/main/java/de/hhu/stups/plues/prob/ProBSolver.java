@@ -32,7 +32,8 @@ public class ProBSolver implements Solver {
 
   private static final String DEFAULT_PREDICATE = "1=1";
   private final StateSpace stateSpace;
-  private SolverCache solverCache;
+  private final SolverCache solverResultCache;
+  private final SolverCache operationExecutionCache;
   private Trace trace;
 
   @Inject
@@ -41,7 +42,8 @@ public class ProBSolver implements Solver {
     this.stateSpace = api.b_load(modelPath);
     this.stateSpace.getSubscribedFormulas()
       .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
-    this.solverCache = new SolverCache(100);
+    this.solverResultCache = new SolverCache(100);
+    this.operationExecutionCache = new SolverCache(100);
     this.trace = traceFrom(stateSpace);
   }
 
@@ -77,11 +79,28 @@ public class ProBSolver implements Solver {
   }
 
   private Boolean executeOperation(final String op, final String predicate) {
+
+    final String key = op + predicate;
+    synchronized (operationExecutionCache) {
+      final Boolean cacheObject = (Boolean) operationExecutionCache.get(key);
+      if (cacheObject != null) {
+        return cacheObject;
+      }
+    }
+
+    final boolean result;
     if (this.trace.canExecuteEvent(op, predicate)) {
       this.trace = this.trace.execute(op, predicate);
-      return true;
+      result = true;
+    } else {
+      result = false;
     }
-    return false;
+
+    synchronized (operationExecutionCache) {
+      operationExecutionCache.put(key,result);
+    }
+
+    return result;
   }
 
   private <T extends BObject> T executeOperationWithOneResult(final String op,
@@ -104,11 +123,10 @@ public class ProBSolver implements Solver {
       final String predicate, final Class<T> type) throws SolverException {
 
     final String key = op + predicate;
-    synchronized (solverCache) {
-      final Object cacheObject = solverCache.get(key);
+    synchronized (solverResultCache) {
+      final List<T> cacheObject = (List<T>) solverResultCache.get(key);
       if (cacheObject != null) {
-        // the result has already been computed and cached
-        return (List<T>) cacheObject;
+        return cacheObject;
       }
     }
 
@@ -128,8 +146,8 @@ public class ProBSolver implements Solver {
       return null;
     }).collect(Collectors.toList());
 
-    synchronized (solverCache) {
-      solverCache.put(key, result);
+    synchronized (solverResultCache) {
+      solverResultCache.put(key,result);
     }
 
     return result;
@@ -237,7 +255,7 @@ public class ProBSolver implements Solver {
     final String predicate
         = "session=session" + sessionId + " & dow=" + day + " & slot=slot" + slot;
     executeOperation(MOVE, predicate);
-    solverCache.clear();
+    solverResultCache.clear();
   }
 
   /**
