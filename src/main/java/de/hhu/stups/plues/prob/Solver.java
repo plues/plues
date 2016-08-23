@@ -45,9 +45,17 @@ public interface Solver {
   List<Alternative> getLocalAlternatives(final int session, final String... courses)
       throws SolverException;
 
-  /** Get the model's version.
+  /**
+   * Get the model's version.
    *
    * @return String the version string of the model
    */
   String getModelVersion() throws SolverException;
+
+  /**
+   * Get the solver cache for testing.
+   *
+   * @return Return the solver cache containing computed results by the solver.
+   */
+  SolverCache getSolverResultCache();
 }

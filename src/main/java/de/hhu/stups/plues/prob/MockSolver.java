@@ -80,4 +80,10 @@ public class MockSolver implements Solver {
   public String getModelVersion() throws SolverException {
     return "6.0.0-dev";
   }
+
+  @Override
+  public SolverCache getSolverResultCache() {
+    // no cache in the mocked solver
+    return null;
+  }
 }

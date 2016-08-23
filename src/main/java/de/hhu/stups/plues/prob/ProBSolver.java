@@ -292,4 +292,14 @@ public class ProBSolver implements Solver {
     final BObject result = this.executeOperationWithOneResult("getVersion", BObject.class);
     return Mappers.mapString(result.toString());
   }
+
+  /**
+   * Get the solver cache for testing.
+   *
+   * @return Return the solver cache containing computed results by the solver.
+   */
+  public final SolverCache getSolverResultCache() {
+    return this.solverResultCache;
+  }
+
 }
