@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * A wrapper class for ExecutorService instances that is observable.
- * Observers get notified whenever a new work item is submitted.
+ * A wrapper class for ExecutorService instances that is observable. Observers get notified whenever
+ * a new work item is submitted.
  */
 public class ObservableExecutorService extends Observable implements ExecutorService {
   private final ExecutorService executorService;
@@ -42,7 +42,8 @@ public class ObservableExecutorService extends Observable implements ExecutorSer
   }
 
   @Override
-  public boolean awaitTermination(final long timeout, final TimeUnit unit) throws InterruptedException {
+  public boolean awaitTermination(final long timeout,
+                                  final TimeUnit unit) throws InterruptedException {
     return executorService.awaitTermination(timeout, unit);
   }
 
@@ -68,28 +69,34 @@ public class ObservableExecutorService extends Observable implements ExecutorSer
   }
 
   @Override
-  public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks) throws InterruptedException {
+  public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks)
+      throws InterruptedException {
     this.setChanged();
     this.notifyObservers(tasks);
     return executorService.invokeAll(tasks);
   }
 
   @Override
-  public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit) throws InterruptedException {
+  public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks,
+                                       final long timeout, final TimeUnit unit)
+      throws InterruptedException {
     this.setChanged();
     this.notifyObservers(tasks);
     return executorService.invokeAll(tasks, timeout, unit);
   }
 
   @Override
-  public <T> T invokeAny(final Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
+  public <T> T invokeAny(final Collection<? extends Callable<T>> tasks)
+      throws InterruptedException, ExecutionException {
     this.setChanged();
     this.notifyObservers(tasks);
     return executorService.invokeAny(tasks);
   }
 
   @Override
-  public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+  public <T> T invokeAny(final Collection<? extends Callable<T>> tasks,
+                         final long timeout, final TimeUnit unit)
+      throws InterruptedException, ExecutionException, TimeoutException {
     this.setChanged();
     this.notifyObservers(tasks);
     return executorService.invokeAny(tasks, timeout, unit);
