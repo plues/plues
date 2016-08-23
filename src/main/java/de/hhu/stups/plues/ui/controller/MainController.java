@@ -8,6 +8,7 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.ObservableExecutorService;
+import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
@@ -50,6 +51,7 @@ public class MainController implements Initializable {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
     iconMap.put(SolverLoaderTask.class, FontAwesomeIcon.COGS);
     iconMap.put(SolverTask.class, FontAwesomeIcon.CALENDAR);
+    iconMap.put(PdfRenderingTask.class, FontAwesomeIcon.FILE_PDF_ALT);
   }
 
   private final Delayed<Store> delayedStore;
