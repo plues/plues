@@ -3,13 +3,11 @@ package de.hhu.stups.plues.injector;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
-import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.tasks.ObservableExecutorService;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.prob.MockSolver;
 import de.hhu.stups.plues.prob.ProBSolver;
@@ -17,19 +15,16 @@ import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverServiceFactory;
-import de.hhu.stups.plues.ui.components.PdfRenderingService;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
 
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class PluesModule extends AbstractModule {
 
@@ -65,7 +60,7 @@ public class PluesModule extends AbstractModule {
 
     bind(Stage.class).toInstance(primaryStage);
     bind(Router.class).toProvider(RouterProvider.class);
-    bind(PdfRenderingService.class);
+    bind(PdfRenderingTask.class);
     bind(MainController.class);
 
     bind(delayedStoreType).toInstance(new Delayed<>());

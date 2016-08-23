@@ -50,7 +50,7 @@ public class SolverTask<T> extends Task<T> {
   protected T call() throws InterruptedException, ExecutionException {
     final int solverTaskTimeout = 5;    // minutes
 
-    updateTitle("Starting Task");
+    updateTitle("Solver task");
     updateProgress(10, 100);
     future = EXECUTOR.submit(function);
 
@@ -72,7 +72,7 @@ public class SolverTask<T> extends Task<T> {
         updateMessage("ProB exited");
         return null;
       }
-      TimeUnit.MILLISECONDS.sleep(500);
+      TimeUnit.MILLISECONDS.sleep(100);
     }
     updateProgress(100, 100);
     return future.get();

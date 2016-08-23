@@ -31,6 +31,11 @@ public class SolverService {
     this.solver = solver;
   }
 
+  /**
+   * Create SolverTaks for some courses in order to check the feasiblity.
+   * @param courses Courses to be checked
+   * @return SolverTasks to check
+   */
   @SuppressWarnings("unused")
   public final SolverTask<Boolean> checkFeasibilityTask(final Course... courses) {
     assert this.solver != null;
@@ -42,6 +47,11 @@ public class SolverService {
         () -> this.solver.checkFeasibility(names));
   }
 
+  /**
+   * Compute feasibility for given courses.
+   * @param courses Given courses
+   * @return SolverTask to compute if a course is feasible or not
+   */
   @SuppressWarnings("unused")
   public final SolverTask<FeasibilityResult> computeFeasibilityTask(
       final Course... courses) {
@@ -54,6 +64,14 @@ public class SolverService {
         () -> solver.computeFeasibility(names));
   }
 
+  /**
+   * Compute partial feasibility for given courses, a choice for the modules
+   * and a choice for abstract units.
+   * @param courses List of courses to check
+   * @param moduleChoice module choice
+   * @param abstractUnitChoice abstract unit choice
+   * @return Instance of FeasibleResult to represent the result
+   */
   @SuppressWarnings("unused")
   public final SolverTask<FeasibilityResult> computePartialFeasibility(
       final List<Course> courses,
@@ -66,10 +84,10 @@ public class SolverService {
 
     final Map<String, List<Integer>> mc = moduleChoice.entrySet().stream()
         .collect(Collectors.toMap(
-            e -> e.getKey().getName(),
-            e -> e.getValue().stream()
-                .map(Module::getId)
-                .collect(Collectors.toList())));
+          e -> e.getKey().getName(),
+          e -> e.getValue().stream()
+          .map(Module::getId)
+          .collect(Collectors.toList())));
 
     final List<Integer> auc = abstractUnitChoice.stream()
         .map(AbstractUnit::getId)
@@ -78,10 +96,15 @@ public class SolverService {
     final String msg = getMessage(names);
     //
     return new SolverTask<>("Computing Feasibility",
-        msg, solver,
+      msg, solver,
         () -> solver.computePartialFeasibility(names, mc, auc));
   }
 
+  /**
+   * Compute unsat core given some courses.
+   * @param courses Courses to build core
+   * @return SolverTasks containing a list of integers representing the unsat core
+   */
   @SuppressWarnings("unused")
   public final SolverTask<List<Integer>> unsatCore(final Course... courses) {
 
@@ -92,6 +115,12 @@ public class SolverService {
         () -> solver.unsatCore(names));
   }
 
+  /**
+   * Find a list of alternatives so a session and some courses.
+   * @param session Session to find alternatives to
+   * @param courses Courses for the given sessions
+   * @return List of alternatives
+   */
   public SolverTask<List<Alternative>> localAlternativesTask(final Session session,
                                                              final Course... courses) {
     String[] names = getNames(courses);
@@ -102,7 +131,7 @@ public class SolverService {
 
   public SolverTask<Set<String>> impossibleCoursesTask() {
     return new SolverTask<>("Collecting impossible courses", "Impossible",
-        solver, () -> solver.getImpossibleCourses());
+      solver, () -> solver.getImpossibleCourses());
   }
 
   private String getMessage(final String[] names) {

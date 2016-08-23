@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components;
 import static org.testfx.api.FxAssert.verifyThat;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.tasks.PdfRenderingTask;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -19,13 +20,15 @@ import org.testfx.matcher.control.LabeledMatchers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
 public abstract class ResultBoxTest extends ApplicationTest {
   private Course major;
   private Course minor;
-  private PdfRenderingService service;
+  private PdfRenderingTask task;
   private Text icon;
   private HashMap<String, Boolean> enabledButtons;
 
@@ -62,12 +65,12 @@ public abstract class ResultBoxTest extends ApplicationTest {
     this.minor = minor;
   }
 
-  private PdfRenderingService getService() {
-    return service;
+  private PdfRenderingTask getTask() {
+    return task;
   }
 
-  protected void setService(final PdfRenderingService service) {
-    this.service = service;
+  protected void setTask(final PdfRenderingTask task) {
+    this.task = task;
   }
 
   @Before
@@ -104,7 +107,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Override
   public void start(final Stage stage) throws Exception {
-    final ResultBox resultBox = new ResultBox(new FXMLLoader(), service, major, minor);
+    final ResultBox resultBox = new ResultBox(new FXMLLoader(), task, Executors.newSingleThreadExecutor(), major, minor);
 
     final Scene scene = new Scene(resultBox, 200, 200);
     stage.setScene(scene);

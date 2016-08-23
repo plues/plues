@@ -1,26 +1,21 @@
 package de.hhu.stups.plues.ui.components;
 
+import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-import javafx.concurrent.Task;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 
 public class SuccessfulResultBoxTest extends ResultBoxTest {
-
-  private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
   /**
    * Default constructor.
    */
   public SuccessfulResultBoxTest() {
     super();
-    this.setService(new SuccessfulResultBoxTest.TestPdfService());
+    this.setTask(new TestPdfTask());
     this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK, "50"));
     HashMap<String, Boolean> buttons = new HashMap<>();
     buttons.put("show", true);
@@ -29,19 +24,13 @@ public class SuccessfulResultBoxTest extends ResultBoxTest {
     this.setEnabledButtons(buttons);
   }
 
-  private static final class TestPdfService extends PdfRenderingService {
-    TestPdfService() {
-      super(null, null, EXECUTOR);
+  private static final class TestPdfTask extends PdfRenderingTask {
+    TestPdfTask() {
+      super(null, null);
     }
 
-    @Override
-    public Task<Path> createTask() {
-      return new Task<Path>() {
-        @Override
-        protected Path call() throws Exception {
-          return Paths.get(".");
-        }
-      };
+    public Path call() {
+      return Paths.get(".");
     }
   }
 }

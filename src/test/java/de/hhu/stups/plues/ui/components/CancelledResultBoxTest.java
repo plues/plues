@@ -1,16 +1,14 @@
 package de.hhu.stups.plues.ui.components;
 
+import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-import javafx.concurrent.Task;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-
 
 @RunWith(JUnit4.class)
 public class CancelledResultBoxTest extends ResultBoxTest {
@@ -20,7 +18,7 @@ public class CancelledResultBoxTest extends ResultBoxTest {
    */
   public CancelledResultBoxTest() {
     super();
-    this.setService(new TestPdfService());
+    this.setTask(new TestPdfTask());
     this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.QUESTION, "50"));
     HashMap<String, Boolean> buttons = new HashMap<>();
     buttons.put("show", false);
@@ -30,18 +28,14 @@ public class CancelledResultBoxTest extends ResultBoxTest {
   }
 
 
-  static class TestPdfService extends PdfRenderingService {
+  static class TestPdfTask extends PdfRenderingTask {
 
-    TestPdfService() {
-      super(null, null, null);
+    TestPdfTask() {
+      super(null, null);
     }
 
-    public void start() {
+    public Path call() {
       this.cancel();
-    }
-
-    @Override
-    protected Task<Path> createTask() {
       return null;
     }
   }

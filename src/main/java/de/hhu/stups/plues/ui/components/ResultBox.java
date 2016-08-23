@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
@@ -35,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
 
 import javax.annotation.Nullable;
 import javax.swing.SwingUtilities;
@@ -50,7 +52,8 @@ public class ResultBox extends GridPane implements Initializable {
   private final ObjectProperty<Course> majorCourse;
   private final ObjectProperty<Course> minorCourse;
   private final ObjectProperty<Path> pdf;
-  private final PdfRenderingService service;
+  private final PdfRenderingTask task;
+  private final ExecutorService executor;
 
   @FXML
   private StackPane statePane;
@@ -80,20 +83,22 @@ public class ResultBox extends GridPane implements Initializable {
    * Constructor for ResultBox.
    *
    * @param loader TaskLoader to load fxml and to set controller
-   * @param service Rendering service used handling tasks
+   * @param task Rendering task used handling tasks
    * @param major Major course
    * @param minor Minor course if present, else null
    */
   @Inject
   public ResultBox(final FXMLLoader loader,
-                   final PdfRenderingService service,
+                   final PdfRenderingTask task,
+                   ExecutorService executorService,
                    @Assisted("major") final Course major,
                    @Nullable @Assisted("minor") final Course minor) {
     super();
     this.majorCourse = new SimpleObjectProperty<>(major);
     this.minorCourse = new SimpleObjectProperty<>(minor);
     this.pdf = new SimpleObjectProperty<>();
-    this.service = service;
+    this.task = task;
+    this.executor = executorService;
 
     loader.setLocation(this.getClass()
         .getResource("/fxml/components/resultbox.fxml"));
@@ -116,9 +121,9 @@ public class ResultBox extends GridPane implements Initializable {
     this.minor.textProperty()
         .bind(Bindings.selectString(this.minorCourse, "fullName"));
     //
-    service.majorProperty().bind(this.majorCourse);
-    service.minorProperty().bind(this.minorCourse);
-    service.setOnSucceeded(event -> {
+    task.majorProperty().bind(this.majorCourse);
+    task.minorProperty().bind(this.minorCourse);
+    task.setOnSucceeded(event -> {
       Platform.runLater(() ->
           pdf.set((Path) event.getSource().getValue()));
     });
@@ -144,7 +149,7 @@ public class ResultBox extends GridPane implements Initializable {
     //  });
 
 
-    service.setOnFailed(event -> {
+    task.setOnFailed(event -> {
       Notifications message = Notifications.create();
       message.title("Error! Could not generate PDF");
       message.text(event.getSource().getException().getMessage());
@@ -154,7 +159,7 @@ public class ResultBox extends GridPane implements Initializable {
     this.progressIndicator.setStyle(
         " -fx-progress-color: " + WORKING_COLOR);
     this.progressIndicator.visibleProperty()
-        .bind(service.runningProperty());
+        .bind(task.runningProperty());
     //
     // Binding the progress property of the indicator shows a the percentage
     // of completion which in this case is arbitrary since we do not know how
@@ -165,19 +170,19 @@ public class ResultBox extends GridPane implements Initializable {
     //
     this.show.disableProperty().bind(p);
     this.save.disableProperty().bind(p);
-    this.cancel.disableProperty().bind(service.runningProperty().not());
+    this.cancel.disableProperty().bind(task.runningProperty().not());
     //
     this.icon.graphicProperty().bind(this.getIconBinding());
     this.icon.styleProperty().bind(this.getStyleBinding());
     //
-    service.start();
+    executor.submit(task);
   }
 
   private StringBinding getStyleBinding() {
     return Bindings.createStringBinding(() -> {
       String color = null;
 
-      switch (service.getState()) {
+      switch (task.getState()) {
         case READY:
         case SCHEDULED:
         case RUNNING:
@@ -198,14 +203,14 @@ public class ResultBox extends GridPane implements Initializable {
 
       return "-fx-background-color: " + color;
 
-    }, service.stateProperty());
+    }, task.stateProperty());
   }
 
   private ObjectBinding<Text> getIconBinding() {
     return Bindings.createObjectBinding(() -> {
       FontAwesomeIcon symbol = null;
 
-      switch (service.getState()) {
+      switch (task.getState()) {
         case READY:
         case SCHEDULED:
         case RUNNING:
@@ -228,7 +233,7 @@ public class ResultBox extends GridPane implements Initializable {
           = FontAwesomeIconFactory.get();
       return iconFactory.createIcon(symbol, ICON_SIZE);
 
-    }, service.stateProperty());
+    }, task.stateProperty());
   }
 
   /**
@@ -296,6 +301,6 @@ public class ResultBox extends GridPane implements Initializable {
 
   @FXML
   final void interrupt() {
-    this.service.cancel();
+    this.task.cancel();
   }
 }
