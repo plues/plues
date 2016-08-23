@@ -92,7 +92,8 @@ public class ProBSolver implements Solver {
 
     final IEvalElement pred = stateSpace.getModel().parseFormula(predicate);
     final String stateId = trace.getCurrentState().getId();
-    final GetOperationByPredicateCommand cmd = new GetOperationByPredicateCommand(this.stateSpace, stateId, op, pred, 1);
+    final GetOperationByPredicateCommand cmd
+        = new GetOperationByPredicateCommand(this.stateSpace, stateId, op, pred, 1);
 
     stateSpace.execute(cmd);
 
@@ -116,7 +117,7 @@ public class ProBSolver implements Solver {
   }
 
   private <T extends BObject> T executeOperationWithOneResult(final String op,
-                                                              final String predicate, final Class<T> type) throws SolverException {
+      final String predicate, final Class<T> type) throws SolverException {
 
     final List<T> modelResult = executeOperationWithResult(op, predicate, type);
 
@@ -216,6 +217,16 @@ public class ProBSolver implements Solver {
         semesterChoice, groupChoice);
   }
 
+  /**
+   * Compute if and how a list of courses might be feasible based on a partial setup of modules
+   * and abstract units.
+   * @param courses List of course keys as String
+   * @param moduleChoice map of course key to a set of module IDs already completed in that course.
+   * @param abstractUnitChoice List of abstract unit IDs already compleated
+   * @return FeasiblityResult
+   * @throws SolverException if no result could be found or the solver did not exit cleanly
+   *                         (e.g. interrupt)
+   */
   public final FeasibilityResult computePartialFeasibility(final List<String> courses,
       final Map<String, List<Integer>> moduleChoice, final List<Integer> abstractUnitChoice)
       throws SolverException {
@@ -252,6 +263,13 @@ public class ProBSolver implements Solver {
       computedSemesterChoice, computedGroupChoice);
   }
 
+  /**
+   * For a given list of course keys computes the session IDs in one of the unsat-cores
+   * @param courses String[] of course keys
+   * @return a list of sessions IDs
+   * @throws SolverException if no result could be found or the solver did not exit cleanly
+   *                         (e.g. interrupt)
+   */
   public final List<Integer> unsatCore(final String... courses) throws SolverException {
 
     final String predicate = getFeasibilityPredicate(courses);
@@ -262,6 +280,12 @@ public class ProBSolver implements Solver {
   }
 
 
+  /**
+   * Move a session identified by its ID to a new day and time slot.
+   * @param sessionId the ID of the Session
+   * @param day String day, valid values are "1".."7"
+   * @param slot Sting representing the selected time slot, valid values are "1".."8".
+   */
   public final void move(final String sessionId,
                          final String day, final String slot) {
     final String predicate
@@ -283,6 +307,15 @@ public class ProBSolver implements Solver {
     return Mappers.mapCourseSet((Set) result.get("courses"));
   }
 
+  /**
+   * Compute alternative slots for a given session ID, in the context of a specific
+   * course combination.
+   * @param session ID of the session for which alternatives should be computed
+   * @param courses List of courses
+   * @return List of alternatives
+   * @throws SolverException if no result could be found or the solver did not exit cleanly
+   *                         (e.g. interrupt)
+   */
   public final List<Alternative> getLocalAlternatives(final int session, final String... courses)
       throws SolverException {
 
