@@ -61,12 +61,11 @@ public class PdfRenderingTask extends Task<Path> {
     updateTitle("PDF rendering task");
     updateMessage("Init Solver");
     createSolverTask();
-    TimeUnit.MILLISECONDS.sleep(200);
 
     solverTask.setOnFailed(event -> this.failed());
     solverTask.setOnCancelled(event -> this.cancel());
 
-    SolverService solver = delayedSolverService.get();
+    final SolverService solver = delayedSolverService.get();
     assert solver != null;
 
     updateMessage("Submit Solver");
@@ -75,33 +74,28 @@ public class PdfRenderingTask extends Task<Path> {
 
     updateMessage("Waiting for Solver...");
     updateProgress(40, 100);
-    int percentage = 0;
-    while (solverTask.isRunning()) {
-      percentage = ((percentage + 5) % 20) + 40;
-      updateProgress(percentage, 100);
-      if (solverTask.isCancelled()) {
-        updateMessage("Task cancelled");
-        return null;
-      }
-    }
 
+    // we can't poll the solverTask as we are not on the JavaFx thread
     final FeasibilityResult result = solverTask.get();
-    updateMessage("Rendering started");
-    updateProgress(60, 100);
-    TimeUnit.MILLISECONDS.sleep(200);
-    final Course majorCourse = major.get();
 
+    final Course majorCourse = major.get();
     final Store store = delayedStore.get();
+
+    updateMessage("Rendering");
+    updateProgress(60, 100);
+
     final Renderer renderer
           = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
           result.getModuleChoice(), result.getUnitChoice(), majorCourse, "true");
 
-    updateMessage("Rendering finished");
     updateProgress(80, 100);
-    TimeUnit.MILLISECONDS.sleep(200);
 
-    File tmp = File.createTempFile("timetable", ".pdf");
+    final File tmp = File.createTempFile("timetable", ".pdf");
     getTempFile(renderer, tmp);
+
+    updateMessage("Rendering finished");
+    updateProgress(100, 100);
+
     return Paths.get(tmp.getAbsolutePath());
   }
 
