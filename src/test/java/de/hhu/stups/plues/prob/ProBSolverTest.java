@@ -63,12 +63,16 @@ public class ProBSolverTest {
     public void checkFeasibilityFeasibleCourse() throws Exception {
         when(trace.canExecuteEvent("check", "ccss={\"foo\", \"bar\"}")).thenReturn(true);
         assertTrue(solver.checkFeasibility("foo", "bar"));
+        assertTrue(solver.getOperationExecutionCache().containsKey("check" + "ccss={\"foo\", \"bar\"}"));
+        assertEquals(true,solver.getOperationExecutionCache().get("check" + "ccss={\"foo\", \"bar\"}"));
     }
 
     @Test
     public void checkFeasibilityInfeasibleCourse() throws Exception {
         when(trace.canExecuteEvent(eq("check"), anyString())).thenReturn(false);
         assertFalse(solver.checkFeasibility("NoFoo", "NoBar"));
+        assertTrue(solver.getOperationExecutionCache().containsKey("check" + "ccss={\"NoFoo\", \"NoBar\"}"));
+        assertEquals(false,solver.getOperationExecutionCache().get("check" + "ccss={\"NoFoo\", \"NoBar\"}"));
     }
 
     @Test
@@ -192,6 +196,8 @@ public class ProBSolverTest {
         String predicate = "session=session101 & dow=mon & slot=slot8";
 
         solver.move("101", "mon", "8");
+        assertTrue(solver.getSolverResultCache().isEmpty());
+        assertTrue(solver.getOperationExecutionCache().isEmpty());
 
         verify(trace).canExecuteEvent(op, predicate);
     }
