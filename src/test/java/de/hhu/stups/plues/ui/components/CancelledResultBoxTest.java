@@ -17,7 +17,7 @@ public class CancelledResultBoxTest extends ResultBoxTest {
    */
   public CancelledResultBoxTest() {
     super();
-    this.setService(new TestPdfService());
+    this.setTask(new TestPdfTask());
     this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.QUESTION, "50"));
     HashMap<String, Boolean> buttons = new HashMap<>();
     buttons.put("show", false);
@@ -27,19 +27,14 @@ public class CancelledResultBoxTest extends ResultBoxTest {
   }
 
 
-  static class TestPdfService extends PdfRenderingService {
+  static class TestPdfTask extends PdfRenderingTask {
 
-    TestPdfService() {
-      super(null, null, null);
+    TestPdfTask() {
+      super(null, null);
     }
 
     public void start() {
       this.cancel();
-    }
-
-    @Override
-    protected Task<Path> createTask() {
-      return null;
     }
   }
 }

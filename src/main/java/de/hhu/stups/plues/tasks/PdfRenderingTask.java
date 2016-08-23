@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -34,6 +35,7 @@ public class PdfRenderingTask extends Task<Path> {
   /**
    * Create a service for rendering a pdf.
    * @param delayedStore Store containing necessary data
+   * @param delayedSolverService Service to connect with solver
    */
   @Inject
   public PdfRenderingTask(Delayed<Store> delayedStore,
@@ -45,11 +47,10 @@ public class PdfRenderingTask extends Task<Path> {
   private void createSolverTask() {
     SolverService solver = delayedSolverService.get();
     assert solver != null;
-    if(this.minorProperty().get() == null) {
+    if (this.minorProperty().get() == null) {
       // TODO: raise a proper exception
       assert !this.major.get().isCombinable(); // major must be a standalone course
       solverTask = solver.computeFeasibilityTask(major.get());
-
     } else {
       solverTask = solver.computeFeasibilityTask(major.get(), minor.get());
     }
@@ -57,23 +58,49 @@ public class PdfRenderingTask extends Task<Path> {
 
   @Override
   protected Path call() throws Exception {
+    updateTitle("PDF rendering task");
+    updateMessage("Init Solver");
+    createSolverTask();
+    TimeUnit.MILLISECONDS.sleep(200);
+
     solverTask.setOnFailed(event -> this.failed());
     solverTask.setOnCancelled(event -> this.cancel());
 
     SolverService solver = delayedSolverService.get();
     assert solver != null;
+
+    updateMessage("Submit Solver");
+    updateProgress(20, 100);
     solver.submit(solverTask);
 
+    updateMessage("Waiting for Solver...");
+    updateProgress(40, 100);
+    int percentage = 0;
+    while (solverTask.isRunning()) {
+      percentage = ((percentage + 5) % 20) + 40;
+      updateProgress(percentage, 100);
+      if (solverTask.isCancelled()) {
+        updateMessage("Task cancelled");
+        return null;
+      }
+    }
+
     final FeasibilityResult result = solverTask.get();
+    updateMessage("Rendering started");
+    updateProgress(60, 100);
+    TimeUnit.MILLISECONDS.sleep(200);
     final Course majorCourse = major.get();
 
     final Store store = delayedStore.get();
     final Renderer renderer
-      = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-      result.getModuleChoice(), result.getUnitChoice(), majorCourse, "true");
+          = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
+          result.getModuleChoice(), result.getUnitChoice(), majorCourse, "true");
+
+    updateMessage("Rendering finished");
+    updateProgress(80, 100);
+    TimeUnit.MILLISECONDS.sleep(200);
 
     File tmp = File.createTempFile("timetable", ".pdf");
-
     getTempFile(renderer, tmp);
     return Paths.get(tmp.getAbsolutePath());
   }
