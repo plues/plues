@@ -6,14 +6,19 @@ import de.hhu.stups.plues.data.entities.Course;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.matcher.control.LabeledMatchers;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
@@ -22,6 +27,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
   private Course minor;
   private PdfRenderingService service;
   private Text icon;
+  private HashMap<String, Boolean> enabledButtons;
 
   /**
    * Default constructor.
@@ -80,6 +86,14 @@ public abstract class ResultBoxTest extends ApplicationTest {
   }
 
   @Test
+  public void enabledButtons() {
+    for(Map.Entry<String, Boolean> entry : enabledButtons.entrySet()) {
+      Button b = lookup("#"+entry.getKey()).query();
+      Assert.assertNotEquals(b.disableProperty().get(), entry.getValue());
+    }
+  }
+
+  @Test
   public void testIcon() {
     final Text mark = this.icon;
 
@@ -99,5 +113,9 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   protected void setIcon(final Text icon) {
     this.icon = icon;
+  }
+
+  public void setEnabledButtons(HashMap<String, Boolean> enabledButtons) {
+    this.enabledButtons = enabledButtons;
   }
 }

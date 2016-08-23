@@ -6,6 +6,7 @@ import javafx.concurrent.Task;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -19,8 +20,13 @@ public class SuccessfulResultBoxTest extends ResultBoxTest {
    */
   public SuccessfulResultBoxTest() {
     super();
-    this.setService(new TestPdfService());
+    this.setService(new SuccessfulResultBoxTest.TestPdfService());
     this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK, "50"));
+    HashMap<String, Boolean> buttons = new HashMap<>();
+    buttons.put("show", true);
+    buttons.put("save", true);
+    buttons.put("cancel", false);
+    this.setEnabledButtons(buttons);
   }
 
   private static final class TestPdfService extends PdfRenderingService {
