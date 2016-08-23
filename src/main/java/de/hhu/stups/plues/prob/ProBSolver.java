@@ -256,6 +256,7 @@ public class ProBSolver implements Solver {
         = "session=session" + sessionId + " & dow=" + day + " & slot=slot" + slot;
     executeOperation(MOVE, predicate);
     solverResultCache.clear();
+    operationExecutionCache.clear();
   }
 
   /**
@@ -300,6 +301,15 @@ public class ProBSolver implements Solver {
    */
   public final SolverCache getSolverResultCache() {
     return this.solverResultCache;
+  }
+
+  /**
+   * Get the solver's operation execution cache for testing.
+   *
+   * @return Return the solver cache containing boolean values for executed operations.
+   */
+  public final SolverCache getOperationExecutionCache() {
+    return this.operationExecutionCache;
   }
 
 }
