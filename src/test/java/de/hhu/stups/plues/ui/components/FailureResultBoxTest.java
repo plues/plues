@@ -2,29 +2,29 @@ package de.hhu.stups.plues.ui.components;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-import javafx.concurrent.Task;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javafx.concurrent.Task;
 
-public class SuccessfulResultBoxTest extends ResultBoxTest {
+
+public class FailureResultBoxTest extends ResultBoxTest {
 
   private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
   /**
    * Default constructor.
    */
-  public SuccessfulResultBoxTest() {
+  public FailureResultBoxTest() {
     super();
-    this.setService(new SuccessfulResultBoxTest.TestPdfService());
-    this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK, "50"));
+    this.setService(new TestPdfService());
+    this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.REMOVE, "50"));
     HashMap<String, Boolean> buttons = new HashMap<>();
-    buttons.put("show", true);
-    buttons.put("save", true);
+    buttons.put("show", false);
+    buttons.put("save", false);
     buttons.put("cancel", false);
     this.setEnabledButtons(buttons);
   }
@@ -39,7 +39,7 @@ public class SuccessfulResultBoxTest extends ResultBoxTest {
       return new Task<Path>() {
         @Override
         protected Path call() throws Exception {
-          return Paths.get(".");
+          throw new Exception();
         }
       };
     }
