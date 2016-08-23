@@ -55,7 +55,6 @@ public class SolverTask<T> extends Task<T> {
   protected T call() throws InterruptedException, ExecutionException {
     final int solverTaskTimeout = 5;    // minutes
 
-    updateTitle("Solver task");
     updateProgress(10, 100);
     future = EXECUTOR.submit(function);
     timer = TIMER.schedule(this::timeOut, solverTaskTimeout, TimeUnit.MINUTES);
@@ -72,7 +71,7 @@ public class SolverTask<T> extends Task<T> {
         this.cancel();
         return null;
       }
-      
+
       try {
         TimeUnit.MILLISECONDS.sleep(100);
       } catch (final InterruptedException interrupted) {

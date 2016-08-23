@@ -58,8 +58,8 @@ public class PdfRenderingTask extends Task<Path> {
 
   @Override
   protected Path call() throws Exception {
-    updateTitle("PDF rendering task");
-    updateMessage("Init Solver");
+    updateTitle("Rendering PDF");
+    updateMessage("Creating Solver Tas");
     createSolverTask();
 
     solverTask.setOnFailed(event -> this.failed());
