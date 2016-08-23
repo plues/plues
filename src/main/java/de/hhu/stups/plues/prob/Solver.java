@@ -53,9 +53,16 @@ public interface Solver {
   String getModelVersion() throws SolverException;
 
   /**
-   * Get the solver cache for testing.
+   * Get the solver result cache for testing.
    *
    * @return Return the solver cache containing computed results by the solver.
    */
   SolverCache getSolverResultCache();
+
+  /**
+   * Get the solver's operation execution cache for testing.
+   *
+   * @return Return the solver cache containing boolean values for executed operations.
+   */
+  SolverCache getOperationExecutionCache();
 }

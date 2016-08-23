@@ -86,4 +86,10 @@ public class MockSolver implements Solver {
     // no cache in the mocked solver
     return null;
   }
+
+  @Override
+  public SolverCache getOperationExecutionCache() {
+    return null;
+  }
+
 }
