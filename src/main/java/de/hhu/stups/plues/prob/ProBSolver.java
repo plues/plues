@@ -5,7 +5,9 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.be4.classicalb.core.parser.exceptions.BException;
+import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.FormulaExpand;
+import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.scripting.Api;
 import de.prob.statespace.StateSpace;
 import de.prob.statespace.Trace;
@@ -88,23 +90,33 @@ public class ProBSolver implements Solver {
       }
     }
 
-    final boolean result;
-    if (this.trace.canExecuteEvent(op, predicate)) {
-      this.trace = this.trace.execute(op, predicate);
-      result = true;
-    } else {
-      result = false;
+    final IEvalElement pred = stateSpace.getModel().parseFormula(predicate);
+    final String stateId = trace.getCurrentState().getId();
+    final GetOperationByPredicateCommand cmd = new GetOperationByPredicateCommand(this.stateSpace, stateId, op, pred, 1);
+
+    stateSpace.execute(cmd);
+
+    if (cmd.isInterrupted() || !cmd.isCompleted()) {
+      return false;
     }
 
+    final boolean result = !cmd.hasErrors();
+    if (!result) {
+      for (final String error : cmd.getErrors()) {
+        System.err.println(error);
+      }
+    }
+    trace = trace.addTransitions(cmd.getNewTransitions());
+
     synchronized (operationExecutionCache) {
-      operationExecutionCache.put(key,result);
+      operationExecutionCache.put(key, result);
     }
 
     return result;
   }
 
   private <T extends BObject> T executeOperationWithOneResult(final String op,
-      final String predicate, final Class<T> type) throws SolverException {
+                                                              final String predicate, final Class<T> type) throws SolverException {
 
     final List<T> modelResult = executeOperationWithResult(op, predicate, type);
 

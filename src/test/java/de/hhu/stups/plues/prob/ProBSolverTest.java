@@ -1,13 +1,35 @@
 package de.hhu.stups.plues.prob;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import de.prob.animator.command.GetOperationByPredicateCommand;
+import de.prob.animator.domainobjects.ClassicalB;
+import de.prob.animator.domainobjects.EvalElementType;
 import de.prob.animator.domainobjects.FormulaExpand;
+import de.prob.model.classicalb.ClassicalBModel;
 import de.prob.scripting.Api;
+import de.prob.statespace.State;
 import de.prob.statespace.StateSpace;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,221 +39,267 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-
+@RunWith(PowerMockRunner.class)
+@PrepareForTest( {ProBSolver.class, GetOperationByPredicateCommand.class})
 public class ProBSolverTest {
-    private Solver solver;
-    private Trace trace;
-    private StateSpace stateSpace;
+  private Solver solver;
+  private Trace trace;
+  private StateSpace stateSpace;
 
-    @Before
-    public void setUp() throws Exception {
-        Api api = mock(Api.class);
+  /**
+   * Setup state for test.
+   */
+  @Before
+  public void setUp() throws Exception {
+    this.stateSpace = mock(StateSpace.class);
+    this.trace = mock(Trace.class);
 
-        this.stateSpace = mock(StateSpace.class);
-        this.trace = mock(Trace.class);
+    final Api api = mock(Api.class);
+    final ClassicalBModel model = mock(ClassicalBModel.class);
+    final ClassicalB evalElement = mock(ClassicalB.class);
+    final State state = mock(State.class);
 
-        when(api.b_load("model")).thenReturn(stateSpace);
-        when(stateSpace.asType(Trace.class)).thenReturn(trace);
+    when(evalElement.getKind()).thenReturn(String.valueOf(EvalElementType.PREDICATE));
 
-        when(trace.execute("$setup_constants")).thenReturn(trace);
-        when(trace.execute("$initialise_machine")).thenReturn(trace);
 
-        this.solver = new ProBSolver(api, "model");
-    }
+    when(api.b_load("model")).thenReturn(stateSpace);
+    when(stateSpace.asType(Trace.class)).thenReturn(trace);
 
-    @After
-    public void tearDown() throws Exception {
+    when(stateSpace.getModel()).thenReturn(model);
+    when(model.parseFormula(anyString())).thenReturn(evalElement);
 
-    }
+    when(trace.getCurrentState()).thenReturn(state);
+    when(state.getId()).thenReturn("TEST-STATE-ID");
 
-    @Test
-    public void interrupt() throws Exception {
-        this.solver.interrupt();
-        verify(this.stateSpace).sendInterrupt();
-    }
+    when(trace.addTransitions(anyListOf(Transition.class))).thenReturn(trace);
 
-    @Test
-    public void checkFeasibilityFeasibleCourse() throws Exception {
-        when(trace.canExecuteEvent("check", "ccss={\"foo\", \"bar\"}")).thenReturn(true);
+    when(trace.execute("$setup_constants")).thenReturn(trace);
+    when(trace.execute("$initialise_machine")).thenReturn(trace);
+
+    this.solver = new ProBSolver(api, "model");
+  }
+
+  @After
+  public void tearDown() throws Exception {
+
+  }
+
+  @Test
+  public void interrupt() throws Exception {
+    this.solver.interrupt();
+    verify(this.stateSpace).sendInterrupt();
+  }
+
+  @Test
+  public void checkFeasibilityFeasibleCourse() throws Exception {
+    when(trace.canExecuteEvent("check", "ccss={\"foo\", \"bar\"}")).thenReturn(true);
         assertTrue(solver.checkFeasibility("foo", "bar"));
         assertTrue(solver.getOperationExecutionCache().containsKey("check" + "ccss={\"foo\", \"bar\"}"));
-        assertEquals(true,solver.getOperationExecutionCache().get("check" + "ccss={\"foo\", \"bar\"}"));
-    }
+        assertEquals(true,solver.getOperationExecutionCache().get("check" + "ccss={\"foo\", \"bar\"}"));  }
 
-    @Test
-    public void checkFeasibilityInfeasibleCourse() throws Exception {
-        when(trace.canExecuteEvent(eq("check"), anyString())).thenReturn(false);
+  @Test
+  public void checkFeasibilityInfeasibleCourse() throws Exception {
+		setupOperationCannotBeExecuted("check", "ccss={\"NoFoo\", \"NoBar\"}");
         assertFalse(solver.checkFeasibility("NoFoo", "NoBar"));
         assertTrue(solver.getOperationExecutionCache().containsKey("check" + "ccss={\"NoFoo\", \"NoBar\"}"));
         assertEquals(false,solver.getOperationExecutionCache().get("check" + "ccss={\"NoFoo\", \"NoBar\"}"));
-    }
-
-    @Test
-    public void computeFeasiblity() throws Exception {
-        String op = "check";
-        String predicate = "ccss={\"foo\", \"bar\"}";
-        String[] modelReturnValues = new String[]{"{(au1,sem2)}", "{(unit3,group4)}", "{\"foo\" |-> {mod5,mod6}}", "{(au7,unit8)}"};
-
-        setupOperation(modelReturnValues, op, predicate);
-
-        Map<Integer, Integer> gc = new HashMap<>();
-        Map<Integer, Integer> sc = new HashMap<>();
-        Map<Integer, Integer> uc = new HashMap<>();
-        Map<String, Set<Integer>> mc = new HashMap<>();
-        Set<Integer> modules = new HashSet<>();
-
-        gc.put(3, 4);
-        sc.put(1, 2);
-        uc.put(7, 8);
-        modules.add(5);
-        modules.add(6);
-        mc.put("foo", modules);
+  }
 
 
-        FeasibilityResult r = solver.computeFeasibility("foo", "bar");
+  @Test
+  public void computeFeasiblity() throws Exception {
+    final String op = "check";
+    final String predicate = "ccss={\"foo\", \"bar\"}";
+    final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(unit3,group4)}",
+      "{\"foo\" |-> {mod5,mod6}}", "{(au7,unit8)}"};
 
-        assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
-        assertEquals(r.getGroupChoice(), gc);
-        assertEquals(r.getSemesterChoice(), sc);
-        assertEquals(r.getUnitChoice(), uc);
-        assertEquals(r.getModuleChoice(), mc);
-    }
+    setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
-    @Test
-    public void computePartialFeasiblity() throws Exception {
-        String op = "checkPartial";
-        String predicate = "ccss={\"foo\", \"bar\"} & partialModuleChoice={(\"foo\" |-> {mod5})} & partialAbstractUnitChoice={au7}";
-        String[] modelReturnValues = new String[]{"{(au1,sem2)}", "{(unit3,group4)}", "{\"foo\" |-> {mod5,mod6}}", "{(au7,unit8)}"};
+    final Map<Integer, Integer> gc = new HashMap<>();
+    final Map<Integer, Integer> sc = new HashMap<>();
+    final Map<Integer, Integer> uc = new HashMap<>();
+    final Map<String, Set<Integer>> mc = new HashMap<>();
+    final Set<Integer> modules = new HashSet<>();
 
-        setupOperation(modelReturnValues, op, predicate);
-
-        Map<Integer, Integer> gc = new HashMap<>();
-        Map<Integer, Integer> sc = new HashMap<>();
-        Map<Integer, Integer> uc = new HashMap<>();
-        Map<String, Set<Integer>> mc = new HashMap<>();
-        Set<Integer> modules = new HashSet<>();
-
-        gc.put(3, 4);
-        sc.put(1, 2);
-        uc.put(7, 8);
-        modules.add(5);
-        modules.add(6);
-        mc.put("foo", modules);
+    gc.put(3, 4);
+    sc.put(1, 2);
+    uc.put(7, 8);
+    modules.add(5);
+    modules.add(6);
+    mc.put("foo", modules);
 
 
-        List<String> courses = new ArrayList<>();
-        courses.add("foo");
-        courses.add("bar");
+    final FeasibilityResult result = solver.computeFeasibility("foo", "bar");
 
-        Map<String, List<Integer>> partialMC = new HashMap<>();
-        List<Integer> partialModules = new ArrayList<>();
-        partialModules.add(5);
-        partialMC.put("foo", partialModules);
+    assertEquals(result.getGroupChoice(), gc);
+    assertEquals(result.getSemesterChoice(), sc);
+    assertEquals(result.getUnitChoice(), uc);
+    assertEquals(result.getModuleChoice(), mc);
+  }
 
-        List<Integer> partialAUC = new ArrayList<>();
-        partialAUC.add(7);
+  @Test
+  public void computePartialFeasiblity() throws Exception {
+    final String op = "checkPartial";
+    final String predicate = "ccss={\"foo\", \"bar\"} & "
+      + "partialModuleChoice={(\"foo\" |-> {mod5})} & "
+      + "partialAbstractUnitChoice={au7}";
+    final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(unit3,group4)}",
+      "{\"foo\" |-> {mod5,mod6}}", "{(au7,unit8)}"};
+
+    setupOperationCanBeExecuted(modelReturnValues, op, predicate);
+
+    final Map<Integer, Integer> gc = new HashMap<>();
+    final Map<Integer, Integer> sc = new HashMap<>();
+    final Map<Integer, Integer> uc = new HashMap<>();
+    final Map<String, Set<Integer>> mc = new HashMap<>();
+    final Set<Integer> modules = new HashSet<>();
+
+    gc.put(3, 4);
+    sc.put(1, 2);
+    uc.put(7, 8);
+    modules.add(5);
+    modules.add(6);
+    mc.put("foo", modules);
 
 
-        FeasibilityResult r = solver.computePartialFeasibility(courses, partialMC, partialAUC);
+    final List<String> courses = new ArrayList<>();
+    courses.add("foo");
+    courses.add("bar");
 
-        assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
-        assertEquals(r.getGroupChoice(), gc);
-        assertEquals(r.getSemesterChoice(), sc);
-        assertEquals(r.getUnitChoice(), uc);
-        assertEquals(r.getModuleChoice(), mc);
+    final Map<String, List<Integer>> partialMc = new HashMap<>();
+    final List<Integer> partialModules = new ArrayList<>();
+    partialModules.add(5);
+    partialMc.put("foo", partialModules);
 
-    }
+    final List<Integer> partialAuc = new ArrayList<>();
+    partialAuc.add(7);
 
-    // TODO: Proper exception
-    @Test(expected = SolverException.class)
-    public void computeFeasibilityInfeasibleCourse() throws Exception {
-        String op = "check";
-        String predicate = "ccss={\"foo\", \"bar\"}";
-        when(trace.canExecuteEvent(op, predicate)).thenReturn(false);
-        solver.computeFeasibility("foo", "bar");
-        assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
-    }
 
-    @Test
-    public void unsatCore() throws Exception {
-        String[] modelReturnValues = new String[]{"{session1, session77}"};
+    final FeasibilityResult result = solver.computePartialFeasibility(courses,
+      partialMc, partialAuc);
 
-        String op = "unsatCore";
-        String predicate = "ccss={\"foo\", \"bar\"}";
-        setupOperation(modelReturnValues, op, predicate);
+    assertEquals(result.getGroupChoice(), gc);
+    assertEquals(result.getSemesterChoice(), sc);
+    assertEquals(result.getUnitChoice(), uc);
+    assertEquals(result.getModuleChoice(), mc);
 
-        Integer[] uc = new Integer[]{1, 77};
-        assertEquals(solver.unsatCore("foo", "bar"), Arrays.asList(uc));
-        assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
-    }
+    final Integer[] cachedUc = new Integer[] {1, 77};
+    assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
+  }
 
-    @Test
-    public void getImpossibleCourses() throws Exception {
-        String[] modelReturnValues = new String[]{
-                "rec(courses:{\"BK-C1-H-2013\", \"BA-C2-N-2011\"})"};
+  // TODO: Proper exception
+  @Test(expected = SolverException.class)
+  public void computeFeasibilityInfeasibleCourse() throws Exception {
+    final String op = "check";
+    final String predicate = "ccss={\"foo\", \"bar\"}";
+    setupOperationCannotBeExecuted(op, predicate);
+    solver.computeFeasibility("foo", "bar");
+  }
 
-        String op = "getImpossibleCourses";
-        String predicate = "1=1";
+  @Test
+  public void unsatCore() throws Exception {
+    final String[] modelReturnValues = new String[] {"{session1, session77}"};
 
-        setupOperation(modelReturnValues, op, predicate);
+    final String op = "unsatCore";
+    final String predicate = "ccss={\"foo\", \"bar\"}";
+    setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
-        String[] impossible = new String[]{"BK-C1-H-2013", "BA-C2-N-2011"};
-        assertTrue(solver.getImpossibleCourses()
-                .containsAll(Arrays.asList(impossible)));
-        assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
-    }
 
-    @Test
-    public void move() throws Exception {
-        String op = "move";
-        String predicate = "session=session101 & dow=mon & slot=slot8";
+    final Integer[] uc = new Integer[] {1, 77};
+    assertEquals(solver.unsatCore("foo", "bar"), Arrays.asList(uc));
+  }
 
-        solver.move("101", "mon", "8");
+  @Test
+  public void getImpossibleCourses() throws Exception {
+    final String[] modelReturnValues = new String[] {
+      "rec(courses:{\"BK-C1-H-2013\", \"BA-C2-N-2011\"})"};
+
+    final String op = "getImpossibleCourses";
+    final String predicate = "1=1";
+
+    setupOperationCanBeExecuted(modelReturnValues, op, predicate);
+
+    final String[] impossible = new String[] {"BK-C1-H-2013", "BA-C2-N-2011"};
+    assertTrue(solver.getImpossibleCourses().containsAll(Arrays.asList(impossible)));
+    assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
+  }
+
+  @Test
+  public void move() throws Exception {
+    final String op = "move";
+    final String predicate = "session=session101 & dow=mon & slot=slot8";
+
+    final GetOperationByPredicateCommand f
+      = PowerMockito.mock(GetOperationByPredicateCommand.class);
+    PowerMockito.whenNew(GetOperationByPredicateCommand.class).withAnyArguments().thenReturn(f);
+    when(f.isCompleted()).thenReturn(true);
+    when(f.isInterrupted()).thenReturn(false);
+    when(f.hasErrors()).thenReturn(false);
+
+    solver.move("101", "mon", "8");
         assertTrue(solver.getSolverResultCache().isEmpty());
         assertTrue(solver.getOperationExecutionCache().isEmpty());
+    PowerMockito.verifyNew(GetOperationByPredicateCommand.class).withArguments(eq(stateSpace),
+      eq("TEST-STATE-ID"), eq(op), anyObject(), eq(1));
 
-        verify(trace).canExecuteEvent(op, predicate);
-    }
+    verify(stateSpace).execute(any(GetOperationByPredicateCommand.class));
+  }
 
-    @Test
-    public void alternatives() throws Exception {
-        String[] modelReturnValues = new String[]{
-                "{rec(day:\"mon\", slot:slot1), rec(day:\"tue\", slot:slot2)}"};
-        String op = "localAlternatives";
-        String predicate = "ccss={\"foo\", \"bar\"} & session=session1";
+  @Test
+  public void alternatives() throws Exception {
+    final String[] modelReturnValues = new String[] {
+      "{rec(day:\"mon\", slot:slot1), rec(day:\"tue\", slot:slot2)}"};
+    final String op = "localAlternatives";
+    final String predicate = "ccss={\"foo\", \"bar\"} & session=session1";
 
-        setupOperation(modelReturnValues, op, predicate);
+    setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
-        final List<Alternative> r = solver.getLocalAlternatives(1, "foo", "bar");
+    final List<Alternative> r = solver.getLocalAlternatives(1, "foo", "bar");
 
-        List<Alternative> alternatives = new ArrayList<>();
+    final List<Alternative> alternatives = new ArrayList<>();
 
-        alternatives.add(new Alternative("mon", "slot1"));
-        alternatives.add(new Alternative("tue", "slot2"));
+    alternatives.add(new Alternative("mon", "slot1"));
+    alternatives.add(new Alternative("tue", "slot2"));
 
-        assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
-        assertTrue(r.containsAll(alternatives));
-    }
+    assertTrue(r.containsAll(alternatives));
+    assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
+    assertTrue(r.containsAll(alternatives));
+  }
 
-    private void setupOperation(final String[] modelReturnValues, final String op, final String predicate) {
-        final Transition transition = mock(Transition.class);
+  private void setupOperationCannotBeExecuted(final String op, final String pred) throws Exception {
+    final GetOperationByPredicateCommand cmd
+      = PowerMockito.mock(GetOperationByPredicateCommand.class);
 
-        when(trace.canExecuteEvent(op, predicate)).thenReturn(true);
-        when(trace.execute(op, predicate)).thenReturn(trace);
-        when(trace.getCurrentTransition()).thenReturn(transition);
+    PowerMockito.whenNew(GetOperationByPredicateCommand.class)
+      .withArguments(eq(stateSpace), anyString(), eq(op), any(ClassicalB.class), eq(1))
+      .thenReturn(cmd);
 
-        when(transition.evaluate(FormulaExpand.expand))
-                .thenReturn(transition);
-        when(transition.getReturnValues())
-                .thenReturn(Arrays.asList(modelReturnValues));
-    }
+    when(cmd.hasErrors()).thenReturn(true);
+    when(cmd.getErrors()).thenReturn(new ArrayList<>());
+
+    when(cmd.isCompleted()).thenReturn(true);
+    when(cmd.isInterrupted()).thenReturn(false);
+    when(cmd.hasErrors()).thenReturn(true);
+  }
+
+  private void setupOperationCanBeExecuted(final String[] modelReturnValues, final String op,
+                                           final String predicate) throws Exception {
+
+    final Transition transition = mock(Transition.class);
+    when(trace.getCurrentTransition()).thenReturn(transition);
+    when(transition.evaluate(FormulaExpand.expand)).thenReturn(transition);
+    when(transition.getReturnValues()).thenReturn(Arrays.asList(modelReturnValues));
+
+    final GetOperationByPredicateCommand command
+      = PowerMockito.mock(GetOperationByPredicateCommand.class);
+    PowerMockito.whenNew(GetOperationByPredicateCommand.class)
+      .withArguments(eq(stateSpace), anyString(), eq(op), any(ClassicalB.class), eq(1))
+      .thenReturn(command);
+
+    when(command.isCompleted()).thenReturn(true);
+    when(command.isInterrupted()).thenReturn(false);
+    when(command.hasErrors()).thenReturn(false);
+
+
+  }
 }
