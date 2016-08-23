@@ -7,8 +7,6 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.studienplaene.Renderer;
-import de.hhu.stups.plues.tasks.SolverService;
-import de.hhu.stups.plues.tasks.SolverTask;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

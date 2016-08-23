@@ -1,16 +1,13 @@
 package de.hhu.stups.plues.ui.components;
 
+import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-import javafx.concurrent.Task;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-
 
 @RunWith(JUnit4.class)
 public class CancelledResultBoxTest extends ResultBoxTest {

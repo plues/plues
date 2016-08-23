@@ -12,7 +12,6 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.Solver;
-import javafx.concurrent.Task;
 
 import java.util.List;
 import java.util.Map;
