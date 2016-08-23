@@ -12,11 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javafx.collections.FXCollections;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+
+import static javafx.collections.FXCollections.*;
 
 @RunWith(JUnit4.class)
 public class MajorMinorCourseSelectionTest extends ApplicationTest {
@@ -33,8 +34,8 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
     Assert.assertEquals(4, courseSelection.getMajorComboBox().getItems().size());
     Assert.assertEquals(4, courseSelection.getMinorComboBox().getItems().size());
 
-    Assert.assertEquals(FXCollections.observableList(majorCourseList), courseSelection.getMajorComboBox().getItems());
-    Assert.assertEquals(FXCollections.observableList(minorCourseList), courseSelection.getMinorComboBox().getItems());
+    Assert.assertEquals(observableList(majorCourseList), courseSelection.getMajorComboBox().getItems());
+    Assert.assertEquals(observableList(minorCourseList), courseSelection.getMinorComboBox().getItems());
 
   }
 
@@ -81,9 +82,9 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
 
     courseSelection = new MajorMinorCourseSelection(new FXMLLoader());
 
-    courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
-    courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
-    courseSelection.setInitialMinorCourseList(FXCollections.observableList(minorCourseList));
+    courseSelection.setMajorCourseList(observableList(majorCourseList));
+    courseSelection.setMinorCourseList(observableList(minorCourseList));
+    courseSelection.setInitialMinorCourseList(observableList(minorCourseList));
 
     final Scene scene = new Scene(this.courseSelection, 100, 100);
 
