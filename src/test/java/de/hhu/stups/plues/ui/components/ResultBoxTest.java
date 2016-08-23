@@ -64,6 +64,11 @@ public abstract class ResultBoxTest extends ApplicationTest {
     this.service = service;
   }
 
+  @Before
+  public void sleepBeforeTests() {
+    this.sleep(250, TimeUnit.MILLISECONDS); // sleep briefly for Task to finish
+  }
+
   @Test
   public void majorLabel() {
     verifyThat("#major", LabeledMatchers.hasText(major.getFullName()));
@@ -76,7 +81,6 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Test
   public void testIcon() {
-    this.sleep(250, TimeUnit.MILLISECONDS); // sleep briefly for Task to finish
     final Text mark = this.icon;
 
     final Label icon = lookup("#icon").query();
