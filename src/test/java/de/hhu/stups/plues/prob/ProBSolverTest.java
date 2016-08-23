@@ -183,7 +183,6 @@ public class ProBSolverTest {
     assertEquals(result.getUnitChoice(), uc);
     assertEquals(result.getModuleChoice(), mc);
 
-    final Integer[] cachedUc = new Integer[] {1, 77};
     assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
   }
 
