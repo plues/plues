@@ -95,6 +95,7 @@ public class ProBSolverTest {
 
         FeasibilityResult r = solver.computeFeasibility("foo", "bar");
 
+        assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
         assertEquals(r.getGroupChoice(), gc);
         assertEquals(r.getSemesterChoice(), sc);
         assertEquals(r.getUnitChoice(), uc);
@@ -138,6 +139,7 @@ public class ProBSolverTest {
 
         FeasibilityResult r = solver.computePartialFeasibility(courses, partialMC, partialAUC);
 
+        assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
         assertEquals(r.getGroupChoice(), gc);
         assertEquals(r.getSemesterChoice(), sc);
         assertEquals(r.getUnitChoice(), uc);
@@ -152,6 +154,7 @@ public class ProBSolverTest {
         String predicate = "ccss={\"foo\", \"bar\"}";
         when(trace.canExecuteEvent(op, predicate)).thenReturn(false);
         solver.computeFeasibility("foo", "bar");
+        assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
     }
 
     @Test
@@ -164,6 +167,7 @@ public class ProBSolverTest {
 
         Integer[] uc = new Integer[]{1, 77};
         assertEquals(solver.unsatCore("foo", "bar"), Arrays.asList(uc));
+        assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
     }
 
     @Test
@@ -179,6 +183,7 @@ public class ProBSolverTest {
         String[] impossible = new String[]{"BK-C1-H-2013", "BA-C2-N-2011"};
         assertTrue(solver.getImpossibleCourses()
                 .containsAll(Arrays.asList(impossible)));
+        assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
     }
 
     @Test
@@ -207,6 +212,7 @@ public class ProBSolverTest {
         alternatives.add(new Alternative("mon", "slot1"));
         alternatives.add(new Alternative("tue", "slot2"));
 
+        assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
         assertTrue(r.containsAll(alternatives));
     }
 
