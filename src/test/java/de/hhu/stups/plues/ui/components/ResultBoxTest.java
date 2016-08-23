@@ -20,6 +20,8 @@ import org.testfx.matcher.control.LabeledMatchers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
@@ -105,7 +107,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Override
   public void start(final Stage stage) throws Exception {
-    final ResultBox resultBox = new ResultBox(new FXMLLoader(), task, major, minor);
+    final ResultBox resultBox = new ResultBox(new FXMLLoader(), task, Executors.newSingleThreadExecutor(), major, minor);
 
     final Scene scene = new Scene(resultBox, 200, 200);
     stage.setScene(scene);

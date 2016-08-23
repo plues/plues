@@ -7,6 +7,7 @@ import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 
 @RunWith(JUnit4.class)
@@ -33,8 +34,9 @@ public class CancelledResultBoxTest extends ResultBoxTest {
       super(null, null);
     }
 
-    public void start() {
+    public Path call() {
       this.cancel();
+      return null;
     }
   }
 }

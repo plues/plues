@@ -4,6 +4,8 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 public class SuccessfulResultBoxTest extends ResultBoxTest {
@@ -27,5 +29,8 @@ public class SuccessfulResultBoxTest extends ResultBoxTest {
       super(null, null);
     }
 
+    public Path call() {
+      return Paths.get(".");
+    }
   }
 }
