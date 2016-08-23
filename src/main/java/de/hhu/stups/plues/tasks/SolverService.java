@@ -13,6 +13,8 @@ import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.Solver;
 
+import javafx.concurrent.Task;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,7 +60,7 @@ public class SolverService {
     final String msg = getMessage(names);
     //
     return new SolverTask<>("Computing Feasibility",
-      msg, solver,
+        msg, solver,
         () -> solver.computeFeasibility(names));
   }
 
@@ -148,10 +150,10 @@ public class SolverService {
       names[i] = courses[i].getName();
     }
     return names;
-//  return Arrays.asList(courses).stream()
-//  .map(c -> c.getName())
-//  .collect(Collectors.toList())
-//  .toArray(new String[courses.length]);
+    //        return Arrays.asList(courses).stream()
+    //                    .map(c -> c.getName())
+    //                    .collect(Collectors.toList())
+    //                    .toArray(new String[courses.length]);
   }
 
   public final void submit(final SolverTask<?> command) {
