@@ -124,15 +124,15 @@ public class SolverService {
    */
   public SolverTask<List<Alternative>> localAlternativesTask(final Session session,
                                                              final Course... courses) {
-    String[] names = getNames(courses);
-    String msg = getMessage(names);
+    final String[] names = getNames(courses);
+    final String msg = getMessage(names);
     return new SolverTask<>("Computing alternatives", msg, solver,
         () -> solver.getLocalAlternatives(session.getId(), names));
   }
 
   public SolverTask<Set<String>> impossibleCoursesTask() {
     return new SolverTask<>("Collecting impossible courses", "Impossible",
-      solver, () -> solver.getImpossibleCourses());
+      solver, solver::getImpossibleCourses);
   }
 
   private String getMessage(final String[] names) {

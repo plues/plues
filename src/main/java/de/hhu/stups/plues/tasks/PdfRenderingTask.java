@@ -11,7 +11,6 @@ import de.hhu.stups.plues.studienplaene.Renderer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
-
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -20,32 +19,35 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
 import javax.xml.parsers.ParserConfigurationException;
 
 public class PdfRenderingTask extends Task<Path> {
 
-  private SolverTask<FeasibilityResult> solverTask;
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
-  private ObjectProperty<Course> major = new SimpleObjectProperty<>();
-  private ObjectProperty<Course> minor = new SimpleObjectProperty<>();
+  private SolverTask<FeasibilityResult> solverTask;
+  private final ObjectProperty<Course> major = new SimpleObjectProperty<>();
+  private final ObjectProperty<Course> minor = new SimpleObjectProperty<>();
+
+
 
   /**
    * Create a service for rendering a pdf.
-   * @param delayedStore Store containing necessary data
+   *
+   * @param delayedStore         Store containing necessary data
    * @param delayedSolverService Service to connect with solver
    */
   @Inject
-  public PdfRenderingTask(Delayed<Store> delayedStore,
-                          Delayed<SolverService> delayedSolverService) {
+  public PdfRenderingTask(final Delayed<Store> delayedStore,
+                          final Delayed<SolverService> delayedSolverService) {
     this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
   }
 
   private void createSolverTask() {
-    SolverService solver = delayedSolverService.get();
+    final SolverService solver = delayedSolverService.get();
     assert solver != null;
     if (this.minorProperty().get() == null) {
       // TODO: raise a proper exception
@@ -85,8 +87,8 @@ public class PdfRenderingTask extends Task<Path> {
     updateProgress(60, 100);
 
     final Renderer renderer
-          = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-          result.getModuleChoice(), result.getUnitChoice(), majorCourse, "true");
+        = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
+        result.getModuleChoice(), result.getUnitChoice(), majorCourse, "true");
 
     updateProgress(80, 100);
 
@@ -109,10 +111,11 @@ public class PdfRenderingTask extends Task<Path> {
 
   /**
    * Helper method to get temporary file.
+   *
    * @param renderer Renderer object to create file
    * @param temp Temporary file
    */
-  private void getTempFile(Renderer renderer, File temp)
+  private void getTempFile(final Renderer renderer, final File temp)
       throws IOException, ParserConfigurationException, SAXException {
     try (OutputStream out = new FileOutputStream(temp)) {
       renderer.getResult().writeTo(out);
