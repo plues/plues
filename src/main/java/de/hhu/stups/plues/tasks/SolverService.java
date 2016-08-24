@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 public class SolverService {
@@ -156,8 +157,9 @@ public class SolverService {
     //                    .toArray(new String[courses.length]);
   }
 
-  public final void submit(final SolverTask<?> command) {
-    this.executor.submit(command);
+  @SuppressWarnings("unchecked")
+  public final <T> Future<T>  submit(final SolverTask<T> command) {
+    return (Future<T>) this.executor.submit(command);
   }
 
 }
