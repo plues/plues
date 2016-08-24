@@ -72,13 +72,29 @@ public class PdfRenderingTask extends Task<Path> {
 
     updateMessage("Submit Solver");
     updateProgress(20, 100);
-    solver.submit(solverTask);
+    final Future<FeasibilityResult> future = solver.submit(solverTask);
 
     updateMessage("Waiting for Solver...");
     updateProgress(40, 100);
 
-    // we can't poll the solverTask as we are not on the JavaFx thread
-    final FeasibilityResult result = solverTask.get();
+    int percentage = 0;
+    while (!future.isDone()) {
+      percentage = ((percentage + 1) % 20) + 40;
+      updateProgress(percentage, 100);
+      if (future.isCancelled()) {
+        updateMessage("Task cancelled");
+        return null;
+      }
+      try {
+        TimeUnit.MILLISECONDS.sleep(200);
+      } catch (final InterruptedException exception) {
+        if (future.isCancelled()) {
+          break;
+        }
+      }
+    }
+
+    final FeasibilityResult result = future.get();
 
     final Course majorCourse = major.get();
     final Store store = delayedStore.get();
