@@ -75,7 +75,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Before
   public void sleepBeforeTests() {
-    this.sleep(250, TimeUnit.MILLISECONDS); // sleep briefly for Task to finish
+    this.sleep(500, TimeUnit.MILLISECONDS); // sleep briefly for Task to finish
   }
 
   @Test
