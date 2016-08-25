@@ -116,9 +116,7 @@ public class PdfRenderingTask extends Task<Path> {
     updateMessage("Rendering");
     updateProgress(60, 100);
 
-    final Renderer renderer
-        = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-        result.getModuleChoice(), result.getUnitChoice(), this.major, "true");
+    final Renderer renderer = getRenderer(store, result);
 
     updateProgress(80, 100);
 
@@ -129,6 +127,16 @@ public class PdfRenderingTask extends Task<Path> {
     updateProgress(100, 100);
 
     return Paths.get(tmp.getAbsolutePath());
+  }
+
+  private Renderer getRenderer(final Store store, final FeasibilityResult result) {
+    if (this.minor == null) {
+      return new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
+        result.getModuleChoice(), result.getUnitChoice(), this.major, "true");
+    } else {
+      return new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
+        result.getModuleChoice(), result.getUnitChoice(), this.major, this.minor, "true");
+    }
   }
 
   @Override
