@@ -20,7 +20,7 @@ public class CancelledResultBoxTest extends ResultBoxTest {
     super();
     this.setTask(new TestPdfTask());
     this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.QUESTION, "50"));
-    HashMap<String, Boolean> buttons = new HashMap<>();
+    final HashMap<String, Boolean> buttons = new HashMap<>();
     buttons.put("show", false);
     buttons.put("save", false);
     buttons.put("cancel", false);
@@ -31,7 +31,7 @@ public class CancelledResultBoxTest extends ResultBoxTest {
   static class TestPdfTask extends PdfRenderingTask {
 
     TestPdfTask() {
-      super(null, null);
+      super(null, null, null, null);
     }
 
     public Path call() {

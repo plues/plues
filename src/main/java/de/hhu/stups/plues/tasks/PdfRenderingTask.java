@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.tasks;
 
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
@@ -8,9 +9,8 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.studienplaene.Renderer;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
+
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -21,16 +21,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
+
+
 
 public class PdfRenderingTask extends Task<Path> {
 
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
+  private final Course major;
+  private final Course minor;
   private SolverTask<FeasibilityResult> solverTask;
-  private final ObjectProperty<Course> major = new SimpleObjectProperty<>();
-  private final ObjectProperty<Course> minor = new SimpleObjectProperty<>();
-
 
 
   /**
@@ -40,22 +43,28 @@ public class PdfRenderingTask extends Task<Path> {
    * @param delayedSolverService Service to connect with solver
    */
   @Inject
-  public PdfRenderingTask(final Delayed<Store> delayedStore,
-                          final Delayed<SolverService> delayedSolverService) {
+  protected PdfRenderingTask(final Delayed<Store> delayedStore,
+                          final Delayed<SolverService> delayedSolverService,
+                          @Assisted("major") final Course major,
+                          @Assisted("minor") @Nullable final Course minor) {
     this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
+    this.major = major;
+    this.minor = minor;
   }
 
   private void createSolverTask() {
     final SolverService solver = delayedSolverService.get();
     assert solver != null;
-    if (this.minorProperty().get() == null) {
+    if (minor == null) {
       // TODO: raise a proper exception
-      assert !this.major.get().isCombinable(); // major must be a standalone course
-      solverTask = solver.computeFeasibilityTask(major.get());
+      assert !this.major.isCombinable(); // major must be a standalone course
+      solverTask = solver.computeFeasibilityTask(major);
     } else {
-      solverTask = solver.computeFeasibilityTask(major.get(), minor.get());
+      solverTask = solver.computeFeasibilityTask(major, minor);
     }
+    solverTask.setOnFailed(event -> this.failed());
+    solverTask.setOnCancelled(event -> this.cancel());
   }
 
   @Override
@@ -64,8 +73,6 @@ public class PdfRenderingTask extends Task<Path> {
     updateMessage("Creating Solver Tas");
     createSolverTask();
 
-    solverTask.setOnFailed(event -> this.failed());
-    solverTask.setOnCancelled(event -> this.cancel());
 
     final SolverService solver = delayedSolverService.get();
     assert solver != null;
@@ -94,9 +101,12 @@ public class PdfRenderingTask extends Task<Path> {
       }
     }
 
-    final FeasibilityResult result = future.get();
+    if (this.isCancelled() || solverTask.isCancelled()) {
+      future.cancel(true);
+      return null;
+    }
 
-    final Course majorCourse = major.get();
+
     final Store store = delayedStore.get();
 
     updateMessage("Rendering");
@@ -104,7 +114,7 @@ public class PdfRenderingTask extends Task<Path> {
 
     final Renderer renderer
         = new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-        result.getModuleChoice(), result.getUnitChoice(), majorCourse, "true");
+        result.getModuleChoice(), result.getUnitChoice(), this.major, "true");
 
     updateProgress(80, 100);
 
@@ -129,7 +139,7 @@ public class PdfRenderingTask extends Task<Path> {
    * Helper method to get temporary file.
    *
    * @param renderer Renderer object to create file
-   * @param temp Temporary file
+   * @param temp     Temporary file
    */
   private void getTempFile(final Renderer renderer, final File temp)
       throws IOException, ParserConfigurationException, SAXException {
@@ -139,13 +149,5 @@ public class PdfRenderingTask extends Task<Path> {
       exc.printStackTrace();
       throw exc;
     }
-  }
-
-  public ObjectProperty<Course> majorProperty() {
-    return major;
-  }
-
-  public ObjectProperty<Course> minorProperty() {
-    return minor;
   }
 }

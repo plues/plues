@@ -107,7 +107,12 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Override
   public void start(final Stage stage) throws Exception {
-    final ResultBox resultBox = new ResultBox(new FXMLLoader(), task, Executors.newSingleThreadExecutor(), major, minor);
+    final ResultBox resultBox = new ResultBox(new FXMLLoader(), new PdfRenderingTaskFactory() {
+      @Override
+      public PdfRenderingTask create(@Assisted("major") final Course major, @Assisted("minor") final Course minor) {
+        return task;
+      }
+    }, Executors.newSingleThreadExecutor(), major, minor);
 
     final Scene scene = new Scene(resultBox, 200, 200);
     stage.setScene(scene);

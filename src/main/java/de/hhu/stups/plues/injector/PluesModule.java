@@ -16,6 +16,7 @@ import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
+import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverServiceFactory;
@@ -51,6 +52,7 @@ public class PluesModule extends AbstractModule {
 
     install(new FactoryModuleBuilder().build(SolverLoaderTaskFactory.class));
     install(new FactoryModuleBuilder().build(SolverServiceFactory.class));
+    install(new FactoryModuleBuilder().build(PdfRenderingTaskFactory.class));
     install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
 
     install(new FactoryModuleBuilder()
@@ -60,7 +62,6 @@ public class PluesModule extends AbstractModule {
 
     bind(Stage.class).toInstance(primaryStage);
     bind(Router.class).toProvider(RouterProvider.class);
-    bind(PdfRenderingTask.class);
     bind(MainController.class);
 
     bind(delayedStoreType).toInstance(new Delayed<>());

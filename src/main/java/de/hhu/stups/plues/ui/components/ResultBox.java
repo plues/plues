@@ -5,6 +5,7 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
+import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
@@ -83,21 +84,21 @@ public class ResultBox extends GridPane implements Initializable {
    * Constructor for ResultBox.
    *
    * @param loader TaskLoader to load fxml and to set controller
-   * @param task Rendering task used handling tasks
+   * @param taskFactory PDF Rendering task Factory
    * @param major Major course
    * @param minor Minor course if present, else null
    */
   @Inject
   public ResultBox(final FXMLLoader loader,
-                   final PdfRenderingTask task,
-                   ExecutorService executorService,
+                   final PdfRenderingTaskFactory taskFactory,
+                   final ExecutorService executorService,
                    @Assisted("major") final Course major,
                    @Nullable @Assisted("minor") final Course minor) {
     super();
+    this.task = taskFactory.create(major, minor);
     this.majorCourse = new SimpleObjectProperty<>(major);
     this.minorCourse = new SimpleObjectProperty<>(minor);
     this.pdf = new SimpleObjectProperty<>();
-    this.task = task;
     this.executor = executorService;
 
     loader.setLocation(this.getClass()
@@ -121,8 +122,6 @@ public class ResultBox extends GridPane implements Initializable {
     this.minor.textProperty()
         .bind(Bindings.selectString(this.minorCourse, "fullName"));
     //
-    task.majorProperty().bind(this.majorCourse);
-    task.minorProperty().bind(this.minorCourse);
     task.setOnSucceeded(event -> {
       Platform.runLater(() ->
           pdf.set((Path) event.getSource().getValue()));
