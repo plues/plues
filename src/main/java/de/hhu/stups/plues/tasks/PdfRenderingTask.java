@@ -106,6 +106,8 @@ public class PdfRenderingTask extends Task<Path> {
       return null;
     }
 
+    // we have to read from the task here, the future does not provide a result.
+    final FeasibilityResult result = solverTask.get();
 
     final Store store = delayedStore.get();
 
