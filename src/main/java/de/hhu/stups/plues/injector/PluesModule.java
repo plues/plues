@@ -15,7 +15,6 @@ import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.routes.Router;
-import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
@@ -56,9 +55,9 @@ public class PluesModule extends AbstractModule {
     install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
 
     install(new FactoryModuleBuilder()
-      .implement(Solver.class, Names.named("prob"), ProBSolver.class)
-      .implement(Solver.class, Names.named("mock"), MockSolver.class)
-      .build(SolverFactory.class));
+        .implement(Solver.class, Names.named("prob"), ProBSolver.class)
+        .implement(Solver.class, Names.named("mock"), MockSolver.class)
+        .build(SolverFactory.class));
 
     bind(Stage.class).toInstance(primaryStage);
     bind(Router.class).toProvider(RouterProvider.class);
