@@ -52,7 +52,7 @@ public class Delayed<T> implements Provider<T> {
    * @return T the value stored in the instance.
    * @throws NullPointerException if the object has not been set.
    */
-  public final synchronized T get() {
+  public final synchronized T get() throws NullPointerException {
     if (this.instance == null) {
       throw new NullPointerException("Delayed object has not been initialized yet");
     }
