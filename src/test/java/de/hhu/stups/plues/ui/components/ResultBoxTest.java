@@ -20,9 +20,9 @@ import org.testfx.matcher.control.LabeledMatchers;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
 
 
 public abstract class ResultBoxTest extends ApplicationTest {
@@ -69,7 +69,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
     return task;
   }
 
-  protected void setTask(final PdfRenderingTask task) {
+  void setTask(final PdfRenderingTask task) {
     this.task = task;
   }
 
@@ -90,9 +90,9 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Test
   public void enabledButtons() {
-    for(Map.Entry<String, Boolean> entry : enabledButtons.entrySet()) {
-      Button b = lookup("#"+entry.getKey()).query();
-      Assert.assertNotEquals(b.disableProperty().get(), entry.getValue());
+    for (final Map.Entry<String, Boolean> entry : enabledButtons.entrySet()) {
+      final Button button = lookup("#" + entry.getKey()).query();
+      Assert.assertNotEquals(button.disableProperty().get(), entry.getValue());
     }
   }
 
@@ -107,23 +107,19 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Override
   public void start(final Stage stage) throws Exception {
-    final ResultBox resultBox = new ResultBox(new FXMLLoader(), new PdfRenderingTaskFactory() {
-      @Override
-      public PdfRenderingTask create(@Assisted("major") final Course major, @Assisted("minor") final Course minor) {
-        return task;
-      }
-    }, Executors.newSingleThreadExecutor(), major, minor);
+    final ResultBox resultBox = new ResultBox(new FXMLLoader(),
+        (major1, minor1) -> task, Executors.newSingleThreadExecutor(), major, minor);
 
     final Scene scene = new Scene(resultBox, 200, 200);
     stage.setScene(scene);
     stage.show();
   }
 
-  protected void setIcon(final Text icon) {
+  void setIcon(final Text icon) {
     this.icon = icon;
   }
 
-  public void setEnabledButtons(HashMap<String, Boolean> enabledButtons) {
+  void setEnabledButtons(final HashMap<String, Boolean> enabledButtons) {
     this.enabledButtons = enabledButtons;
   }
 }
