@@ -37,10 +37,12 @@ public class PdfRenderingTask extends Task<Path> {
 
 
   /**
-   * Create a service for rendering a pdf.
+   * Create a task for rendering a pdf.
    *
    * @param delayedStore         Store containing necessary data
    * @param delayedSolverService Service to connect with solver
+   * @param major Course major or integrated course
+   * @param minor Course minor course, can be null
    */
   @Inject
   protected PdfRenderingTask(final Delayed<Store> delayedStore,
