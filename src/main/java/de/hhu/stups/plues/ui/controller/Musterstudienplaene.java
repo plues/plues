@@ -26,7 +26,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -117,7 +116,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
       selectedMinorCourse = optinalMinorCourse.get();
     }
 
-    ResultBox rb = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse);
+    final ResultBox rb = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse);
 
     resultBox.getChildren().add(0, rb);
   }

@@ -167,7 +167,7 @@ public class MainController implements Initializable {
     final StoreLoaderTask storeLoader = new StoreLoaderTask(path);
     //
     storeLoader.progressProperty().addListener(
-      (observable, oldValue, newValue) -> logger.log(Level.FINE, "STORE progress " + newValue));
+        (observable, oldValue, newValue) -> logger.log(Level.FINE, "STORE progress " + newValue));
     //
     storeLoader.messageProperty().addListener(
         (observable, oldValue, newValue) -> logger.log(Level.FINE, "STORE message " + newValue));
