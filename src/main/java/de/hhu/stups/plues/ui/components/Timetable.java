@@ -7,7 +7,6 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.controller.MainController;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
@@ -32,7 +31,6 @@ public class Timetable extends BorderPane implements Initializable {
 
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
-  private final MainController mainController;
 
   private final ObjectProperty<Course>
       courseProperty = new SimpleObjectProperty<>();
@@ -58,11 +56,9 @@ public class Timetable extends BorderPane implements Initializable {
    */
   @Inject
   public Timetable(final Inflater inflater, final Delayed<Store> delayedStore,
-                          final Delayed<SolverService> delayedSolverService,
-                          final MainController mainController) {
+                          final Delayed<SolverService> delayedSolverService) {
     this.delayedStore = delayedStore;
     this.delayedSolverService = delayedSolverService;
-    this.mainController = mainController;
 
     // TODO: remove controller param if possible
     // TODO: currently not possible because of dependency circle
