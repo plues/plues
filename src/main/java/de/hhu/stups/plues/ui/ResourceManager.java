@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -25,7 +26,7 @@ public class ResourceManager {
    * @param probExecutor ExecutorService
    */
   @Inject
-  public ResourceManager(final Delayed<Store> store, final ExecutorService executorService,
+  public ResourceManager(final Delayed<Store> store, final ListeningExecutorService executorService,
       @Named("prob") final ExecutorService probExecutor) {
     this.store = store;
     this.executorService = executorService;

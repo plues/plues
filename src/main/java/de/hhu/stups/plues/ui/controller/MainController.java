@@ -7,7 +7,7 @@ import com.google.inject.name.Named;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.prob.Solver;
-import de.hhu.stups.plues.tasks.ObservableExecutorService;
+import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
@@ -81,8 +81,8 @@ public class MainController implements Initializable {
                         final SolverServiceFactory solverServiceFactory,
                         final Properties properties,
                         final Stage stage,
-                        @Named("prob") final ObservableExecutorService probExecutor,
-                        final ObservableExecutorService executorService) {
+                        @Named("prob") final ObservableListeningExecutorService probExecutor,
+                        final ObservableListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
     this.delayedSolverService = delayedSolverService;
     this.solverLoaderTaskFactory = solverLoaderTaskFactory;

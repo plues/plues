@@ -1,8 +1,10 @@
 package de.hhu.stups.plues.tasks;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import de.hhu.stups.plues.prob.Solver;
+import javafx.concurrent.Task;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -15,26 +17,25 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import javafx.concurrent.Task;
-
 
 public class SolverTask<T> extends Task<T> {
-
-  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
 
   private static final ExecutorService EXECUTOR;
   private static final ScheduledExecutorService TIMER;
 
   static {
     final ThreadFactory threadFactoryBuilder
-      = new ThreadFactoryBuilder().setDaemon(true)
-      .setNameFormat("solver-task-runner-%d")
-      .build();
-    EXECUTOR = Executors.newSingleThreadExecutor(threadFactoryBuilder);
-    TIMER = Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder);
+        = new ThreadFactoryBuilder().setDaemon(true)
+        .setNameFormat("solver-task-runner-%d")
+        .build();
+    EXECUTOR = MoreExecutors.listeningDecorator(
+      Executors.newSingleThreadExecutor(threadFactoryBuilder));
+    TIMER = MoreExecutors.listeningDecorator(
+      Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
 
   }
 
+  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
   private final Callable<T> function;
   private final Solver solver;
   private Future<T> future;

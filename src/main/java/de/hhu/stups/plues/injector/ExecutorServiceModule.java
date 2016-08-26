@@ -1,21 +1,26 @@
 package de.hhu.stups.plues.injector;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
-import de.hhu.stups.plues.tasks.ObservableExecutorService;
+import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 class ExecutorServiceModule extends AbstractModule {
 
-  private final ObservableExecutorService probExecutor;
-  private final ObservableExecutorService executorPool;
+  private final ObservableListeningExecutorService probExecutor;
+  private final ObservableListeningExecutorService executorPool;
 
   ExecutorServiceModule() {
-    this.probExecutor = new ObservableExecutorService(Executors.newSingleThreadExecutor());
-    this.executorPool = new ObservableExecutorService(Executors.newWorkStealingPool());
+    this.probExecutor = new ObservableListeningExecutorService(
+        MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor()));
+    this.executorPool = new ObservableListeningExecutorService(
+        MoreExecutors.listeningDecorator(Executors.newWorkStealingPool()));
 
   }
 
@@ -23,11 +28,14 @@ class ExecutorServiceModule extends AbstractModule {
   protected void configure() {
     bind(ExecutorService.class).annotatedWith(Names.named("prob"))
       .toInstance(probExecutor);
-    bind(ObservableExecutorService.class).annotatedWith(Names.named("prob"))
+    bind(ObservableListeningExecutorService.class).annotatedWith(Names.named("prob"))
+      .toInstance(probExecutor);
+    bind(ListeningExecutorService.class).annotatedWith(Names.named("prob"))
       .toInstance(probExecutor);
 
     bind(ExecutorService.class).toInstance(executorPool);
-    bind(ObservableExecutorService.class).toInstance(executorPool);
+    bind(ObservableListeningExecutorService.class).toInstance(executorPool);
+    bind(ListeningExecutorService.class).toInstance(executorPool);
 
   }
 
