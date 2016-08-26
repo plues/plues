@@ -9,10 +9,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class MockSolver implements Solver {
-  public MockSolver() {
+  MockSolver() {
     try {
       TimeUnit.SECONDS.sleep(3);
-    } catch (InterruptedException exception) {
+    } catch (final InterruptedException exception) {
       exception.printStackTrace();
     }
   }
@@ -80,16 +80,4 @@ public class MockSolver implements Solver {
   public String getModelVersion() throws SolverException {
     return "6.0.0-dev";
   }
-
-  @Override
-  public SolverCache getSolverResultCache() {
-    // no cache in the mocked solver
-    return null;
-  }
-
-  @Override
-  public SolverCache getOperationExecutionCache() {
-    return null;
-  }
-
 }

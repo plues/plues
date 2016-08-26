@@ -42,7 +42,7 @@ import java.util.Set;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest( {ProBSolver.class, GetOperationByPredicateCommand.class})
 public class ProBSolverTest {
-  private Solver solver;
+  private ProBSolver solver;
   private Trace trace;
   private StateSpace stateSpace;
 
