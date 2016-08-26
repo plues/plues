@@ -14,7 +14,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -25,10 +24,12 @@ import javafx.scene.layout.GridPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 public class Timetable extends BorderPane implements Initializable {
 
+  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
 
@@ -66,10 +67,9 @@ public class Timetable extends BorderPane implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     this.delayedStore.whenAvailable(s -> {
       Runtime.getRuntime().addShutdownHook(new Thread(s::close));
-      System.out.println("Store Loaded " + s);
       this.courseFilter.setCourses(s.getCourses());
     });
 
@@ -84,7 +84,6 @@ public class Timetable extends BorderPane implements Initializable {
     this.delayedSolverService.whenAvailable(s -> {
       this.solverService = s;
       this.solverProperty.set(true);
-      System.out.println("SolverService loaded");
     });
 
     IntStream.range(1, 20).forEach(x -> this.foo.add(
@@ -105,7 +104,7 @@ public class Timetable extends BorderPane implements Initializable {
     t.setOnSucceeded(event -> {
       final Boolean i = (Boolean) event.getSource().getValue();
       this.result.setText(i.toString());
-      System.out.println(course.getName() + ": " + i.toString());
+      logger.info(course.getName() + ": " + i.toString());
     });
     s.submit(t);
   }

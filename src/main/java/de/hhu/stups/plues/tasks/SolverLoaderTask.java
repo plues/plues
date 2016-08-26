@@ -25,6 +25,9 @@ import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.MissingResourceException;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -40,6 +43,8 @@ public class SolverLoaderTask extends Task<Solver> {
   private Path modelDirectory;
   private Store store;
   private Solver solver;
+
+  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
 
 
   /**
@@ -59,6 +64,11 @@ public class SolverLoaderTask extends Task<Solver> {
     this.properties = pp;
     this.properties.putIfAbsent("solver", "prob");
     this.updateTitle("Loading ProB"); // TODO i18n
+    this.progressProperty().addListener((observable, oldValue, newValue)
+        -> logger.fine(newValue.toString()));
+
+    this.messageProperty().addListener((observable, oldValue, newValue) -> logger.fine(newValue));
+
   }
 
   private void prepareModels() throws Exception {
@@ -69,9 +79,11 @@ public class SolverLoaderTask extends Task<Solver> {
     } else {
       final Path p = Helpers.expandPath(modelBase);
       if (!new File(p.toString()).exists()) {
+        logger.severe("Path does not exist");
         throw new IllegalArgumentException("Path does not exist");
       }
-      System.out.println("Using models from " + p);
+
+      logger.fine("Using models from " + p);
       this.modelDirectory = p;
     }
   }
@@ -83,7 +95,7 @@ public class SolverLoaderTask extends Task<Solver> {
     this.modelDirectory = tmpDirectory.resolve(MODEL_PATH);
 
     Files.createDirectory(this.modelDirectory);
-    System.out.println("Exporting models to " + this.modelDirectory);
+    logger.info("Exporting models to " + this.modelDirectory);
     //
     final ClassLoader classLoader = MainController.class.getClassLoader();
     final InputStream zipStream = classLoader.getResourceAsStream(MODELS_ZIP);
@@ -107,23 +119,22 @@ public class SolverLoaderTask extends Task<Solver> {
       final String name = entry.getName();
 
       if (name.equals("")) {
-        System.out.println("Empty File");
+        logger.fine("Empty File");
         continue;
       }
 
       final InputStream stream = zipFile.getInputStream(entry);
       final Path modelPath = Paths.get(MODEL_PATH).resolve(name);
 
-      System.out.println("Exporting " + modelPath);
+      logger.fine("Exporting " + modelPath);
       Files.copy(stream, tmpDirectory.resolve(modelPath));
     }
     zipFile.close();
-    System.out.println("Done exporting model files.");
+    logger.fine("Done exporting model files.");
   }
 
   @Override
   protected final Solver call() throws Exception {
-
     this.updateMessage("Prepare models"); // TODO i18n
     this.updateProgress(0, MAX_STEPS);
     //
@@ -139,8 +150,13 @@ public class SolverLoaderTask extends Task<Solver> {
     this.updateProgress(3, MAX_STEPS);
     //
     this.updateMessage("Init solver (this can take a while)"); // TODO i18n
+
+    final long start = System.nanoTime();
     this.initSolver();
+    final long end = System.nanoTime();
+
     this.updateProgress(4, MAX_STEPS);
+    logger.info("Loaded solver in " + TimeUnit.NANOSECONDS.toMillis(end - start) + "ms");
     //
     this.updateMessage("Checking model version"); // TODO i18n
     this.solver.checkModelVersion((String) this.properties.get("model_version"));
@@ -153,19 +169,20 @@ public class SolverLoaderTask extends Task<Solver> {
   protected final void succeeded() {
     super.succeeded();
     this.updateMessage("Done!"); // TODO i18n
+    logger.log(Level.FINE, "loading Solver succeeded");
   }
 
   @Override
   protected final void cancelled() {
     this.store.close();
-    System.err.println("Loading solver cancelled");
+    logger.warning("Loading solver cancelled");
   }
 
   @Override
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   protected final void failed() {
     this.store.close();
-    System.err.println("Loading solver failed");
+    logger.severe("Loading solver failed");
     this.getException().printStackTrace();
   }
 
@@ -175,7 +192,7 @@ public class SolverLoaderTask extends Task<Solver> {
 
     final String solverName = (String) this.properties.get("solver");
     //
-    System.out.println("Using " + solverName + " solver");
+    logger.info("Using " + solverName + " solver");
     //
     final String solver = solverName.substring(0, 1).toUpperCase() + solverName.substring(1);
     //
@@ -205,8 +222,8 @@ public class SolverLoaderTask extends Task<Solver> {
     renderer.renderFor(FileType.ModuleCombination, targetXmlFile);
 
 
-    System.out.println("Wrote model data to " + targetFile.getAbsolutePath());
-    System.out.println("Wrote module combination data to " + targetXmlFile.getAbsolutePath());
+    logger.info("Wrote model data to " + targetFile.getAbsolutePath());
+    logger.info("Wrote module combination data to " + targetXmlFile.getAbsolutePath());
 
     this.store.clear();
   }

@@ -11,8 +11,11 @@ import javafx.concurrent.Task;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.logging.Logger;
 
 public class StoreLoaderTask extends Task<Store> {
+  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+
   private static final long MAX_STEPS = 3;
   private static final String PLUES = "plues";
   private static final String EXTENSION = ".sqlite3";
@@ -42,12 +45,12 @@ public class StoreLoaderTask extends Task<Store> {
 
   @Override
   protected final void failed() {
-    System.err.println("Loading store Failed");
+    logger.severe("Loading store Failed");
   }
 
   @Override
   protected final void cancelled() {
-    System.err.println("Loading store Failed");
+    logger.severe("Loading store Failed");
   }
 
   private void checkExportDatabase() throws IOException {

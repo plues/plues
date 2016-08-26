@@ -13,11 +13,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import javafx.concurrent.Task;
 
 
 public class SolverTask<T> extends Task<T> {
+
+  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
 
   private static final ExecutorService EXECUTOR;
   private static final ScheduledExecutorService TIMER;
@@ -87,7 +90,7 @@ public class SolverTask<T> extends Task<T> {
 
   private void timeOut() {
 
-    System.out.println("Task timeout.");
+    logger.info("Task timeout.");
     updateMessage("Task timeout");
 
     this.cancel();
@@ -97,7 +100,7 @@ public class SolverTask<T> extends Task<T> {
   protected void cancelled() {
     super.cancelled();
 
-    System.out.println("Task cancelled.");
+    logger.info("Task cancelled.");
     updateMessage("Task cancelled");
 
     timer.cancel(true);
@@ -114,6 +117,6 @@ public class SolverTask<T> extends Task<T> {
 
     updateMessage("Done!");
     final T i = this.getValue();
-    System.out.println("Result: " + i.toString());
+    logger.info("Result: " + i.toString());
   }
 }

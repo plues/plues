@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 class PropertiesModule extends AbstractModule {
 
@@ -28,6 +29,7 @@ class PropertiesModule extends AbstractModule {
 
   private static Properties loadProperties(final Properties properties,
                                            final String... propertyFiles) {
+    final Logger logger = Logger.getLogger(PropertiesModule.class.getSimpleName());
     for (final String propertyFile : propertyFiles) {
       try {
         final ClassLoader classLoader = currentThread().getContextClassLoader();
@@ -39,9 +41,9 @@ class PropertiesModule extends AbstractModule {
 
         properties.load(p);
       } catch (final FileNotFoundException exception) {
-        System.err.println(propertyFile + ".properties is missing!");
+        logger.info(propertyFile + ".properties is missing!");
       } catch (final IOException exception) {
-        System.err.println(propertyFile + ".properties produced IO Error!");
+        logger.warning(propertyFile + ".properties produced IO Error!");
       }
     }
     return properties;
