@@ -3,18 +3,18 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Module;
-import de.hhu.stups.plues.data.entities.Unit;
-
-import org.controlsfx.control.CheckTreeView;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
-import javafx.beans.property.BooleanProperty;
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -24,7 +24,7 @@ import javafx.scene.layout.VBox;
 public class CheckBoxGroup extends VBox implements Initializable {
 
   private final Module module;
-  private final List<Unit> units;
+  private final List<AbstractUnit> units;
 
   @FXML
   @SuppressWarnings("unused")
@@ -37,7 +37,7 @@ public class CheckBoxGroup extends VBox implements Initializable {
   @Inject
   public CheckBoxGroup(FXMLLoader loader,
                        @Assisted Module module,
-                       @Assisted List<Unit> units) {
+                       @Assisted List<AbstractUnit> units) {
     this.module = module;
     this.units = units;
 
@@ -55,18 +55,24 @@ public class CheckBoxGroup extends VBox implements Initializable {
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    List<BooleanProperty> bindings = new ArrayList<>();
-    for (Unit u : units) {
-      CheckBox cb = new CheckBox(u.getTitle());
-      bindings.add(cb.selectedProperty());
-      cb.selectedProperty().bind(moduleBox.selectedProperty());
+    CheckBox[] list = new CheckBox[units.size()];
+    for (int i=0; i<units.size(); i++) {
+      CheckBox cb = new CheckBox();
+      cb.setText(units.get(i).getTitle());
+      cb.setSelected(moduleBox.isSelected());
       unitsBox.getChildren().add(cb);
+      list[i] = cb;
     }
 
-    CheckTreeView<CheckBox> view = new CheckTreeView<>();
-    view.
-
     moduleBox.setText(module.getTitle());
-    moduleBox.selectedProperty().bind(bindings.forEach(booleanProperty -> booleanProperty.get()));
+    BooleanBinding allSelected = Bindings.createBooleanBinding(() ->
+      Stream.of(list).allMatch(CheckBox::isSelected),
+      Stream.of(list).map(CheckBox::selectedProperty).toArray(Observable[]::new));
+
+    allSelected.addListener((obs, wereAllSelected, areAllNowSelected) ->
+      moduleBox.setSelected(areAllNowSelected));
+
+    moduleBox.setOnAction(e ->
+      Stream.of(list).forEach(box -> box.setSelected(moduleBox.isSelected())));
   }
 }

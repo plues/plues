@@ -13,6 +13,7 @@
 <?import javafx.scene.control.Tab?>
 <?import de.hhu.stups.plues.ui.controller.Musterstudienplaene?>
 <?import de.hhu.stups.plues.ui.components.Timetable?>
+<?import de.hhu.stups.plues.ui.controller.PartialTimeTables?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.hhu.stups.plues.ui.controller.MainController">
     <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -38,6 +39,9 @@
     <BorderPane>
         <center>
             <TabPane>
+                <Tab text="Partial Timetables" closable="false">
+                    <PartialTimeTables fx:id="partialTimetables"/>
+                </Tab>
                 <Tab text="Musterstudienplaene" closable="false">
                     <Musterstudienplaene fx:id="musterstudienplaene"/>
                 </Tab>
