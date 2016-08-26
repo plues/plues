@@ -365,7 +365,7 @@ public class ProBSolver implements Solver {
    *
    * @return Return the solver cache containing computed results by the solver.
    */
-  public final SolverCache getSolverResultCache() {
+  final SolverCache getSolverResultCache() {
     return this.solverResultCache;
   }
 
@@ -374,7 +374,7 @@ public class ProBSolver implements Solver {
    *
    * @return Return the solver cache containing boolean values for executed operations.
    */
-  public final SolverCache getOperationExecutionCache() {
+  final SolverCache getOperationExecutionCache() {
     return this.operationExecutionCache;
   }
 
