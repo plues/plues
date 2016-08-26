@@ -103,9 +103,7 @@ public class ProBSolver implements Solver {
 
     final boolean result = !cmd.hasErrors();
     if (!result) {
-      for (final String error : cmd.getErrors()) {
-        System.err.println(error);
-      }
+      cmd.getErrors().forEach(logger::severe);
     }
     trace = trace.addTransitions(cmd.getNewTransitions());
 
