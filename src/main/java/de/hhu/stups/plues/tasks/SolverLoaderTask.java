@@ -156,7 +156,7 @@ public class SolverLoaderTask extends Task<Solver> {
     final long end = System.nanoTime();
 
     this.updateProgress(4, MAX_STEPS);
-    logger.info("Loaded solver in " + TimeUnit.NANOSECONDS.toMillis(end - start) + "ms");
+    logger.info("Loaded solver in " + TimeUnit.NANOSECONDS.toMillis(end - start) + " ms");
     //
     this.updateMessage("Checking model version"); // TODO i18n
     this.solver.checkModelVersion((String) this.properties.get("model_version"));

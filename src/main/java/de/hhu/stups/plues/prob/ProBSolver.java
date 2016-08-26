@@ -49,7 +49,7 @@ public class ProBSolver implements Solver {
     final long t1 = System.nanoTime();
     this.stateSpace = api.b_load(modelPath);
     final long t2 = System.nanoTime();
-    logger.info("Loaded machine in " + TimeUnit.NANOSECONDS.toMillis(t2 - t1) + "ms");
+    logger.info("Loaded machine in " + TimeUnit.NANOSECONDS.toMillis(t2 - t1) + " ms");
 
     this.stateSpace.getSubscribedFormulas()
       .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
@@ -59,7 +59,7 @@ public class ProBSolver implements Solver {
     final long t3 =  System.nanoTime();
     this.trace = traceFrom(stateSpace);
     final long t4 = System.nanoTime();
-    logger.info("Loaded trace in " + TimeUnit.NANOSECONDS.toMillis(t4 - t3) + "ms");
+    logger.info("Loaded trace in " + TimeUnit.NANOSECONDS.toMillis(t4 - t3) + " ms");
   }
 
   private Trace traceFrom(final StateSpace space) {
@@ -73,8 +73,8 @@ public class ProBSolver implements Solver {
     trace = trace.execute("$initialise_machine");
     final long end = System.nanoTime();
 
-    logger.info("$setup_constants took " + TimeUnit.NANOSECONDS.toMillis(t - start) + "ms");
-    logger.info("$initialise_machine took " + TimeUnit.NANOSECONDS.toMillis(end - t) + "ms");
+    logger.info("$setup_constants took " + TimeUnit.NANOSECONDS.toMillis(t - start) + " ms");
+    logger.info("$initialise_machine took " + TimeUnit.NANOSECONDS.toMillis(end - t) + " ms");
     return trace;
   }
 
