@@ -42,21 +42,26 @@ public class SolverTask<T> extends Task<T> {
   private final Logger logger = Logger.getLogger(getClass().getSimpleName());
   private final Callable<T> function;
   private final Solver solver;
+  private final TimeUnit timeUnit;
+  private final int timeout;
   private ListenableFuture<T> future;
   private ListenableScheduledFuture<?> timer;
+  private String reason = "Task cancelled";
 
   SolverTask(final String title, final String message, final Solver solver,
              final Callable<T> func) {
-    this(title, solver, func);
-
-    updateMessage(message);
+    this(title, message, solver, func, 5, TimeUnit.MINUTES);
   }
 
-  private SolverTask(final String title, final Solver solver, final Callable<T> func) {
+  SolverTask(final String title, final String message, final Solver solver, final Callable<T> func,
+      final int timeout, final TimeUnit timeUnit) {
     this.function = timedCallableWrapper(title, func);
     this.solver = solver;
+    this.timeout = timeout;
+    this.timeUnit = timeUnit;
 
     updateTitle(title);
+    updateMessage(message);
   }
 
   private Callable<T> timedCallableWrapper(final String title, final Callable<T> func) {
@@ -72,10 +77,9 @@ public class SolverTask<T> extends Task<T> {
 
   @Override
   protected T call() throws InterruptedException, ExecutionException {
-    final int solverTaskTimeout = 5;    // minutes
 
     updateProgress(10, 100);
-    timer = TIMER.schedule(this::timeOut, solverTaskTimeout, TimeUnit.MINUTES);
+    timer = TIMER.schedule(this::timeOut, this.timeout, this.timeUnit);
     future = EXECUTOR.submit(function);
 
     Futures.addCallback(future, new FutureCallback<T>() {
@@ -117,10 +121,7 @@ public class SolverTask<T> extends Task<T> {
   }
 
   private void timeOut() {
-
-    logger.info("Task timeout.");
-    updateMessage("Task timeout");
-
+    this.reason = "Task timeout";
     this.cancel();
   }
 
@@ -128,8 +129,8 @@ public class SolverTask<T> extends Task<T> {
   protected void cancelled() {
     super.cancelled();
 
-    logger.info("Task cancelled.");
-    updateMessage("Task cancelled");
+    logger.info(this.reason);
+    updateMessage(this.reason);
 
     timer.cancel(true);
     future.cancel(true);
