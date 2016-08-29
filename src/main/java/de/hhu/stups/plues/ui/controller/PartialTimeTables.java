@@ -187,22 +187,30 @@ public class PartialTimeTables extends GridPane implements Initializable {
     delayedSolverService.whenAvailable(solverService -> {
       SolverTask<FeasibilityResult> solverResult = solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
 
-      String text;
-      try {
-        if (solverResult.get().getModuleChoice() != null) {
-          text = "Feasible";
-        } else {
-          text = "Not feasible";
+      solverResult.setOnSucceeded(event -> {
+        String text;
+        try {
+          if (solverResult.get().getModuleChoice() != null) {
+            text = "Feasible";
+          } else {
+            text = "Not feasible";
+          }
+        } catch (InterruptedException e) {
+          text = "InterruptedException";
+          e.printStackTrace();
+        } catch (ExecutionException e) {
+          text = "ExecutionException";
+          e.printStackTrace();
         }
-      } catch (InterruptedException e) {
-        text = "InterruptedException";
-        e.printStackTrace();
-      } catch (ExecutionException e) {
-        text = "ExecutionException";
-        e.printStackTrace();
-      }
 
-      result.setText(text); // TODO: i18n
+        result.setText(text); // TODO: i18n
+      });
+
+      solverResult.setOnFailed(event -> {
+        result.setText("Task failed");
+      });
+
+      solverService.submit(solverResult);
     });
   }
 
