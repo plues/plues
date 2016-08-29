@@ -117,6 +117,8 @@ public class PartialTimeTables extends GridPane implements Initializable {
   public void btGeneratePressed() {
     generationStarted.set(true);
     checkStarted.set(false);
+    modulesUnits.getChildren().clear();
+
     Map<Course, Map<Module, List<AbstractUnit>>> data = new HashMap<>();
 
     Course major = courseSelection.getSelectedMajorCourse();
