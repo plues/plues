@@ -28,7 +28,7 @@ before_install:
   - sh -e /etc/init.d/xvfb start
 
 script:
-  - ./gradlew -Pheadless=true check
+  - ./gradlew --stacktrace -Pheadless=true check
 after_success:
  - ./gradlew distZip winZip createApp
 

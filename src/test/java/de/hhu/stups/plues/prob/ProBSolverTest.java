@@ -22,7 +22,6 @@ import de.prob.statespace.State;
 import de.prob.statespace.StateSpace;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +41,7 @@ import java.util.Set;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest( {ProBSolver.class, GetOperationByPredicateCommand.class})
 public class ProBSolverTest {
-  private Solver solver;
+  private ProBSolver solver;
   private Trace trace;
   private StateSpace stateSpace;
 
@@ -93,16 +92,21 @@ public class ProBSolverTest {
   @Test
   public void checkFeasibilityFeasibleCourse() throws Exception {
     when(trace.canExecuteEvent("check", "ccss={\"foo\", \"bar\"}")).thenReturn(true);
-        assertTrue(solver.checkFeasibility("foo", "bar"));
-        assertTrue(solver.getOperationExecutionCache().containsKey("check" + "ccss={\"foo\", \"bar\"}"));
-        assertEquals(true,solver.getOperationExecutionCache().get("check" + "ccss={\"foo\", \"bar\"}"));  }
+    assertTrue(solver.checkFeasibility("foo", "bar"));
+    assertTrue(
+        solver.getOperationExecutionCache().containsKey("check" + "ccss={\"foo\", \"bar\"}"));
+    assertEquals(true,
+                 solver.getOperationExecutionCache().get("check" + "ccss={\"foo\", \"bar\"}"));
+  }
 
   @Test
   public void checkFeasibilityInfeasibleCourse() throws Exception {
-		setupOperationCannotBeExecuted("check", "ccss={\"NoFoo\", \"NoBar\"}");
-        assertFalse(solver.checkFeasibility("NoFoo", "NoBar"));
-        assertTrue(solver.getOperationExecutionCache().containsKey("check" + "ccss={\"NoFoo\", \"NoBar\"}"));
-        assertEquals(false,solver.getOperationExecutionCache().get("check" + "ccss={\"NoFoo\", \"NoBar\"}"));
+    setupOperationCannotBeExecuted("check", "ccss={\"NoFoo\", \"NoBar\"}");
+    assertFalse(solver.checkFeasibility("NoFoo", "NoBar"));
+    assertTrue(
+        solver.getOperationExecutionCache().containsKey("check" + "ccss={\"NoFoo\", \"NoBar\"}"));
+    assertEquals(false,
+                 solver.getOperationExecutionCache().get("check" + "ccss={\"NoFoo\", \"NoBar\"}"));
   }
 
 
@@ -141,10 +145,10 @@ public class ProBSolverTest {
   public void computePartialFeasiblity() throws Exception {
     final String op = "checkPartial";
     final String predicate = "ccss={\"foo\", \"bar\"} & "
-      + "partialModuleChoice={(\"foo\" |-> {mod5})} & "
-      + "partialAbstractUnitChoice={au7}";
+        + "partialModuleChoice={(\"foo\" |-> {mod5})} & "
+        + "partialAbstractUnitChoice={au7}";
     final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(unit3,group4)}",
-      "{\"foo\" |-> {mod5,mod6}}", "{(au7,unit8)}"};
+        "{\"foo\" |-> {mod5,mod6}}", "{(au7,unit8)}"};
 
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
@@ -176,7 +180,7 @@ public class ProBSolverTest {
 
 
     final FeasibilityResult result = solver.computePartialFeasibility(courses,
-      partialMc, partialAuc);
+        partialMc, partialAuc);
 
     assertEquals(result.getGroupChoice(), gc);
     assertEquals(result.getSemesterChoice(), sc);
@@ -229,17 +233,17 @@ public class ProBSolverTest {
     final String predicate = "session=session101 & dow=mon & slot=slot8";
 
     final GetOperationByPredicateCommand f
-      = PowerMockito.mock(GetOperationByPredicateCommand.class);
+        = PowerMockito.mock(GetOperationByPredicateCommand.class);
     PowerMockito.whenNew(GetOperationByPredicateCommand.class).withAnyArguments().thenReturn(f);
     when(f.isCompleted()).thenReturn(true);
     when(f.isInterrupted()).thenReturn(false);
     when(f.hasErrors()).thenReturn(false);
 
     solver.move("101", "mon", "8");
-        assertTrue(solver.getSolverResultCache().isEmpty());
-        assertTrue(solver.getOperationExecutionCache().isEmpty());
+    assertTrue(solver.getSolverResultCache().isEmpty());
+    assertTrue(solver.getOperationExecutionCache().isEmpty());
     PowerMockito.verifyNew(GetOperationByPredicateCommand.class).withArguments(eq(stateSpace),
-      eq("TEST-STATE-ID"), eq(op), anyObject(), eq(1));
+        eq("TEST-STATE-ID"), eq(op), anyObject(), eq(1));
 
     verify(stateSpace).execute(any(GetOperationByPredicateCommand.class));
   }
@@ -265,9 +269,10 @@ public class ProBSolverTest {
     assertTrue(r.containsAll(alternatives));
   }
 
+  @SuppressWarnings("UnusedParameters")
   private void setupOperationCannotBeExecuted(final String op, final String pred) throws Exception {
     final GetOperationByPredicateCommand cmd
-      = PowerMockito.mock(GetOperationByPredicateCommand.class);
+        = PowerMockito.mock(GetOperationByPredicateCommand.class);
 
     PowerMockito.whenNew(GetOperationByPredicateCommand.class)
       .withArguments(eq(stateSpace), anyString(), eq(op), any(ClassicalB.class), eq(1))
@@ -281,6 +286,7 @@ public class ProBSolverTest {
     when(cmd.hasErrors()).thenReturn(true);
   }
 
+  @SuppressWarnings("UnusedParameters")
   private void setupOperationCanBeExecuted(final String[] modelReturnValues, final String op,
                                            final String predicate) throws Exception {
 
@@ -290,7 +296,7 @@ public class ProBSolverTest {
     when(transition.getReturnValues()).thenReturn(Arrays.asList(modelReturnValues));
 
     final GetOperationByPredicateCommand command
-      = PowerMockito.mock(GetOperationByPredicateCommand.class);
+        = PowerMockito.mock(GetOperationByPredicateCommand.class);
     PowerMockito.whenNew(GetOperationByPredicateCommand.class)
       .withArguments(eq(stateSpace), anyString(), eq(op), any(ClassicalB.class), eq(1))
       .thenReturn(command);

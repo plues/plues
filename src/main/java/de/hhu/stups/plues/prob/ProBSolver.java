@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class ProBSolver implements Solver {
@@ -38,21 +40,42 @@ public class ProBSolver implements Solver {
   private final SolverCache operationExecutionCache;
   private Trace trace;
 
+  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+
   @Inject
   ProBSolver(final Api api, @Assisted final String modelPath)
       throws IOException, BException {
+
+    final long t1 = System.nanoTime();
     this.stateSpace = api.b_load(modelPath);
+    final long t2 = System.nanoTime();
+    logger.info("Loaded machine in " + TimeUnit.NANOSECONDS.toMillis(t2 - t1) + " ms");
+
     this.stateSpace.getSubscribedFormulas()
       .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
     this.solverResultCache = new SolverCache(100);
     this.operationExecutionCache = new SolverCache(100);
+
+    final long t3 =  System.nanoTime();
     this.trace = traceFrom(stateSpace);
+    final long t4 = System.nanoTime();
+    logger.info("Loaded trace in " + TimeUnit.NANOSECONDS.toMillis(t4 - t3) + " ms");
   }
 
-  private static Trace traceFrom(final StateSpace space) {
-    return ((Trace) space.asType(Trace.class))
-      .execute("$setup_constants")
-      .execute("$initialise_machine");
+  private Trace traceFrom(final StateSpace space) {
+    Trace trace = ((Trace) space.asType(Trace.class));
+
+    final long start = System.nanoTime();
+    trace = trace.execute("$setup_constants");
+
+    final long t = System.nanoTime();
+
+    trace = trace.execute("$initialise_machine");
+    final long end = System.nanoTime();
+
+    logger.info("$setup_constants took " + TimeUnit.NANOSECONDS.toMillis(t - start) + " ms");
+    logger.info("$initialise_machine took " + TimeUnit.NANOSECONDS.toMillis(end - t) + " ms");
+    return trace;
   }
 
   private static String getFeasibilityPredicate(final String[] courses) {
@@ -103,9 +126,7 @@ public class ProBSolver implements Solver {
 
     final boolean result = !cmd.hasErrors();
     if (!result) {
-      for (final String error : cmd.getErrors()) {
-        System.err.println(error);
-      }
+      cmd.getErrors().forEach(logger::severe);
     }
     trace = trace.addTransitions(cmd.getNewTransitions());
 
@@ -150,7 +171,7 @@ public class ProBSolver implements Solver {
     final Transition trans = trace.getCurrentTransition();
     final List<String> returnValues = trans.evaluate(FormulaExpand.expand).getReturnValues();
 
-    List<T> result = returnValues.stream().map(i -> {
+    final List<T> result = returnValues.stream().map(i -> {
       try {
         return type.cast(Translator.translate(i));
       } catch (BException bexception) {
@@ -167,7 +188,7 @@ public class ProBSolver implements Solver {
   }
 
   public final void interrupt() {
-    System.out.println("Sending interrupt to state space");
+    logger.fine("Sending interrupt to state space");
     this.stateSpace.sendInterrupt();
   }
 
@@ -344,7 +365,7 @@ public class ProBSolver implements Solver {
    *
    * @return Return the solver cache containing computed results by the solver.
    */
-  public final SolverCache getSolverResultCache() {
+  final SolverCache getSolverResultCache() {
     return this.solverResultCache;
   }
 
@@ -353,7 +374,7 @@ public class ProBSolver implements Solver {
    *
    * @return Return the solver cache containing boolean values for executed operations.
    */
-  public final SolverCache getOperationExecutionCache() {
+  final SolverCache getOperationExecutionCache() {
     return this.operationExecutionCache;
   }
 

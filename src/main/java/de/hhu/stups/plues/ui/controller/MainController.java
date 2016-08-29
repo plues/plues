@@ -7,7 +7,7 @@ import com.google.inject.name.Named;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.prob.Solver;
-import de.hhu.stups.plues.tasks.ObservableExecutorService;
+import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
@@ -37,6 +37,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 
@@ -46,6 +48,9 @@ public class MainController implements Initializable {
   private static final Map<Class, FontAwesomeIcon> iconMap = new HashMap<>();
   private static final FontAwesomeIcon DEFAULT_ICON = FontAwesomeIcon.TASKS;
   private static final String LAST_DIR = "LAST_DIR";
+
+  private final Logger logger = Logger.getLogger(getClass().getName());
+
 
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
@@ -76,8 +81,8 @@ public class MainController implements Initializable {
                         final SolverServiceFactory solverServiceFactory,
                         final Properties properties,
                         final Stage stage,
-                        @Named("prob") final ObservableExecutorService probExecutor,
-                        final ObservableExecutorService executorService) {
+                        @Named("prob") final ObservableListeningExecutorService probExecutor,
+                        final ObservableListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
     this.delayedSolverService = delayedSolverService;
     this.solverLoaderTaskFactory = solverLoaderTaskFactory;
@@ -88,14 +93,16 @@ public class MainController implements Initializable {
 
     probExecutor.addObserver((observable, arg) -> this.register(arg));
     executorService.addObserver((observable, arg) -> this.register(arg));
+
+    logger.log(Level.INFO, "Starting PlÜS Version: " + properties.get("version"));
   }
 
   private void register(final Object task) {
     if (task instanceof Task<?>) {
-      System.out.println("registering task");
+      logger.log(Level.FINE, "registering task for taskview");
       Platform.runLater(() -> this.taskProgress.getTasks().add((Task<?>) task));
     } else {
-      System.out.println("ignoring task");
+      logger.log(Level.FINE, "ignoring task for taskview");
     }
   }
 
@@ -160,19 +167,20 @@ public class MainController implements Initializable {
     final StoreLoaderTask storeLoader = new StoreLoaderTask(path);
     //
     storeLoader.progressProperty().addListener(
-        (observable, oldValue, newValue) -> System.out.println("STORE " + newValue));
+        (observable, oldValue, newValue) -> logger.log(Level.FINE, "STORE progress " + newValue));
     //
     storeLoader.messageProperty().addListener(
-        (observable, oldValue, newValue) -> System.out.println("STORE " + newValue));
+        (observable, oldValue, newValue) -> logger.log(Level.FINE, "STORE message " + newValue));
     //
     storeLoader.setOnFailed(event -> {
       final Throwable ex = event.getSource().getException();
+      logger.log(Level.SEVERE, "Database could not be loaded");
       showCriticalExceptionDialog(ex, "Database could not be loaded");
       Platform.exit();
     });
     //
     storeLoader.setOnSucceeded(
-        value -> System.out.println("STORE:loading Store succeeded"));
+        value -> logger.log(Level.FINE, "STORE: loading Store succeeded"));
 
     storeLoader.setOnSucceeded(event -> Platform.runLater(() -> {
       final Store s = (Store) event.getSource().getValue();
@@ -187,14 +195,6 @@ public class MainController implements Initializable {
     final SolverLoaderTask solverLoader
         = this.solverLoaderTaskFactory.create(storeLoader);
 
-    solverLoader.progressProperty().addListener(
-        (observable, oldValue, newValue) -> System.out.println(newValue));
-
-    solverLoader.messageProperty().addListener(
-        (observable, oldValue, newValue) -> System.out.println(newValue));
-
-    solverLoader.setOnSucceeded(
-        value -> System.out.println("loading Solver succeeded"));
     solverLoader.setOnSucceeded(event -> {
       final Solver s = (Solver) event.getSource().getValue();
       // TODO: check if this needs to run on UI thread

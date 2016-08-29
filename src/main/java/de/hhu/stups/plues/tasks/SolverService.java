@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.tasks;
 
 import com.google.common.base.Joiner;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
@@ -158,8 +159,8 @@ public class SolverService {
   }
 
   @SuppressWarnings("unchecked")
-  public final <T> Future<T>  submit(final SolverTask<T> command) {
-    return (Future<T>) this.executor.submit(command);
+  public final <T> ListenableFuture<T>  submit(final SolverTask<T> command) {
+    return (ListenableFuture<T>) this.executor.submit(command);
   }
 
 }

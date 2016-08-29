@@ -1,63 +1,98 @@
 package de.hhu.stups.plues.tasks;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListenableScheduledFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import de.hhu.stups.plues.prob.Solver;
+import javafx.concurrent.Task;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
-import javafx.concurrent.Task;
+import javax.annotation.Nullable;
 
 
 public class SolverTask<T> extends Task<T> {
 
-  private static final ExecutorService EXECUTOR;
-  private static final ScheduledExecutorService TIMER;
+  private static final ListeningExecutorService EXECUTOR;
+  private static final ListeningScheduledExecutorService TIMER;
 
   static {
     final ThreadFactory threadFactoryBuilder
-      = new ThreadFactoryBuilder().setDaemon(true)
-      .setNameFormat("solver-task-runner-%d")
-      .build();
-    EXECUTOR = Executors.newSingleThreadExecutor(threadFactoryBuilder);
-    TIMER = Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder);
+        = new ThreadFactoryBuilder().setDaemon(true)
+        .setNameFormat("solver-task-runner-%d").build();
+
+    EXECUTOR = MoreExecutors.listeningDecorator(
+      Executors.newSingleThreadExecutor(threadFactoryBuilder));
+    TIMER = MoreExecutors.listeningDecorator(
+      Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
 
   }
 
+  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
   private final Callable<T> function;
   private final Solver solver;
-  private Future<T> future;
-  private ScheduledFuture<?> timer;
+  private final TimeUnit timeUnit;
+  private final int timeout;
+  private ListenableFuture<T> future;
+  private ListenableScheduledFuture<?> timer;
+  private String reason = "Task cancelled";
 
   SolverTask(final String title, final String message, final Solver solver,
              final Callable<T> func) {
-    this(title, solver, func);
+    this(title, message, solver, func, 5, TimeUnit.MINUTES);
+  }
 
+  SolverTask(final String title, final String message, final Solver solver, final Callable<T> func,
+      final int timeout, final TimeUnit timeUnit) {
+    this.function = timedCallableWrapper(title, func);
+    this.solver = solver;
+    this.timeout = timeout;
+    this.timeUnit = timeUnit;
+
+    updateTitle(title);
     updateMessage(message);
   }
 
-  private SolverTask(final String title, final Solver solver, final Callable<T> func) {
-    this.function = func;
-    this.solver = solver;
-
-    updateTitle(title);
+  private Callable<T> timedCallableWrapper(final String title, final Callable<T> func) {
+    return () -> {
+      final long start = System.nanoTime();
+      final T result = func.call();
+      final long end = System.nanoTime();
+      logger.info("SolverTask " + title + " finished in "
+          + TimeUnit.NANOSECONDS.toMillis(end - start) + " ms.");
+      return result;
+    };
   }
 
   @Override
   protected T call() throws InterruptedException, ExecutionException {
-    final int solverTaskTimeout = 5;    // minutes
 
     updateProgress(10, 100);
+    timer = TIMER.schedule(this::timeOut, this.timeout, this.timeUnit);
     future = EXECUTOR.submit(function);
-    timer = TIMER.schedule(this::timeOut, solverTaskTimeout, TimeUnit.MINUTES);
+
+    Futures.addCallback(future, new FutureCallback<T>() {
+      @Override
+      public void onSuccess(@Nullable final T result) {
+        timer.cancel(true);
+      }
+
+      @Override
+      public void onFailure(final Throwable t) {
+        timer.cancel(true);
+      }
+    });
 
     int percentage = 10;
     while (!future.isDone()) {
@@ -76,7 +111,7 @@ public class SolverTask<T> extends Task<T> {
         TimeUnit.MILLISECONDS.sleep(100);
       } catch (final InterruptedException interrupted) {
         if (isCancelled()) {
-          break;
+          return null;
         }
       }
     }
@@ -86,10 +121,7 @@ public class SolverTask<T> extends Task<T> {
   }
 
   private void timeOut() {
-
-    System.out.println("Task timeout.");
-    updateMessage("Task timeout");
-
+    this.reason = "Task timeout";
     this.cancel();
   }
 
@@ -97,8 +129,8 @@ public class SolverTask<T> extends Task<T> {
   protected void cancelled() {
     super.cancelled();
 
-    System.out.println("Task cancelled.");
-    updateMessage("Task cancelled");
+    logger.info(this.reason);
+    updateMessage(this.reason);
 
     timer.cancel(true);
     future.cancel(true);
@@ -110,10 +142,8 @@ public class SolverTask<T> extends Task<T> {
   protected void succeeded() {
     super.succeeded();
 
-    timer.cancel(true);
-
     updateMessage("Done!");
     final T i = this.getValue();
-    System.out.println("Result: " + i.toString());
+    logger.info("Result: " + i.toString());
   }
 }

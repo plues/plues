@@ -1,23 +1,29 @@
 package de.hhu.stups.plues.tasks;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Observable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * A wrapper class for ExecutorService instances that is observable. Observers get notified whenever
- * a new work item is submitted.
+ * A wrapper class for ListeningExecutorService instances that is observable. Observers get notified
+ * whenever a new work item is submitted.
  */
-public class ObservableExecutorService extends Observable implements ExecutorService {
-  private final ExecutorService executorService;
+public class ObservableListeningExecutorService extends Observable
+    implements ListeningExecutorService {
 
-  public ObservableExecutorService(final ExecutorService service) {
+  private final ListeningExecutorService executorService;
+
+  public ObservableListeningExecutorService(final ListeningExecutorService service) {
     this.executorService = service;
   }
 
@@ -48,21 +54,22 @@ public class ObservableExecutorService extends Observable implements ExecutorSer
   }
 
   @Override
-  public <T> Future<T> submit(final Callable<T> task) {
+  public <T> ListenableFuture<T> submit(final Callable<T> task) {
     this.setChanged();
     this.notifyObservers(task);
     return executorService.submit(task);
   }
 
+  @SuppressFBWarnings("NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE")
   @Override
-  public <T> Future<T> submit(final Runnable task, final T result) {
+  public <T> ListenableFuture<T> submit(final Runnable task, final T result) {
     this.setChanged();
     this.notifyObservers(task);
     return executorService.submit(task, result);
   }
 
   @Override
-  public Future<?> submit(final Runnable task) {
+  public ListenableFuture<?> submit(final Runnable task) {
     this.setChanged();
     this.notifyObservers(task);
     return executorService.submit(task);
@@ -97,8 +104,6 @@ public class ObservableExecutorService extends Observable implements ExecutorSer
   public <T> T invokeAny(final Collection<? extends Callable<T>> tasks,
                          final long timeout, final TimeUnit unit)
       throws InterruptedException, ExecutionException, TimeoutException {
-    this.setChanged();
-    this.notifyObservers(tasks);
     return executorService.invokeAny(tasks, timeout, unit);
   }
 

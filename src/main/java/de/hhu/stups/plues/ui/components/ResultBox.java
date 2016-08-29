@@ -8,7 +8,6 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -26,7 +25,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
-
 import org.controlsfx.control.Notifications;
 
 import java.awt.Desktop;
@@ -83,10 +81,10 @@ public class ResultBox extends GridPane implements Initializable {
   /**
    * Constructor for ResultBox.
    *
-   * @param loader TaskLoader to load fxml and to set controller
+   * @param loader      TaskLoader to load fxml and to set controller
    * @param taskFactory PDF Rendering task Factory
-   * @param major Major course
-   * @param minor Minor course if present, else null
+   * @param major       Major course
+   * @param minor       Minor course if present, else null
    */
   @Inject
   public ResultBox(final FXMLLoader loader,
@@ -114,18 +112,38 @@ public class ResultBox extends GridPane implements Initializable {
     }
   }
 
+  /**
+   * Helper function to find the file name containing major and minor name.
+   *
+   * @param major Course object representing the choosen major course
+   * @param minor Course object representing the choosen minor course
+   * @return String representing the file name
+   */
+  private static String getDocumentName(final Course major, final Course minor) {
+    return "musterstudienplan_" + major.getName() + "_" + minor.getName()
+      + ".pdf";
+  }
+
+  /**
+   * Helper function to find file name containing major name and no minor existing.
+   *
+   * @param course Course object representing the choosen major course
+   * @return String representing the file name
+   */
+  private static String getDocumentName(final Course course) {
+    return "musterstudienplan_" + course.getName() + ".pdf";
+  }
+
   @Override
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
     this.major.textProperty()
-        .bind(Bindings.selectString(this.majorCourse, "fullName"));
+      .bind(Bindings.selectString(this.majorCourse, "fullName"));
     this.minor.textProperty()
-        .bind(Bindings.selectString(this.minorCourse, "fullName"));
+      .bind(Bindings.selectString(this.minorCourse, "fullName"));
     //
-    task.setOnSucceeded(event -> {
-      Platform.runLater(() ->
-          pdf.set((Path) event.getSource().getValue()));
-    });
+    task.setOnSucceeded(event
+        -> Platform.runLater(() -> pdf.set((Path) event.getSource().getValue())));
 
     // TODO: Add status bar later to let the user know whats going on
     //    final Task<FeasibilityResult> task;
@@ -149,16 +167,15 @@ public class ResultBox extends GridPane implements Initializable {
 
 
     task.setOnFailed(event -> {
-      Notifications message = Notifications.create();
+      final Notifications message = Notifications.create();
       message.title("Error! Could not generate PDF");
       message.text(event.getSource().getException().getMessage());
       message.show();
     });
     //
-    this.progressIndicator.setStyle(
-        " -fx-progress-color: " + WORKING_COLOR);
+    this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
     this.progressIndicator.visibleProperty()
-        .bind(task.runningProperty());
+      .bind(task.runningProperty());
     //
     // Binding the progress property of the indicator shows a the percentage
     // of completion which in this case is arbitrary since we do not know how
@@ -228,43 +245,20 @@ public class ResultBox extends GridPane implements Initializable {
           break;
       }
 
-      final FontAwesomeIconFactory iconFactory
-          = FontAwesomeIconFactory.get();
+      final FontAwesomeIconFactory iconFactory = FontAwesomeIconFactory.get();
       return iconFactory.createIcon(symbol, ICON_SIZE);
 
     }, task.stateProperty());
   }
 
-  /**
-   * Helper function to find the file name containing major and minor name.
-   *
-   * @param major Course object representing the choosen major course
-   * @param minor Course object representing the choosen minor course
-   * @return String representing the file name
-   */
-  private static String getDocumentName(final Course major, final Course minor) {
-    return "musterstudienplan_" + major.getName() + "_" + minor.getName()
-        + ".pdf";
-  }
-
-  /**
-   * Helper function to find file name containing major name and no minor existing.
-   *
-   * @param course Course object representing the choosen major course
-   * @return String representing the file name
-   */
-  private static String getDocumentName(final Course course) {
-    return "musterstudienplan_" + course.getName() + ".pdf";
-  }
-
   @FXML
-  private final void showPdf() {
+  private void showPdf() {
     final Path file = pdf.get();
     SwingUtilities.invokeLater(() -> {
       try {
         Desktop.getDesktop().open(file.toFile());
-      } catch (IOException exc) {
-        Notifications message = Notifications.create();
+      } catch (final IOException exc) {
+        final Notifications message = Notifications.create();
         message.text("Error! File could not be opened.");
         message.show();
         exc.printStackTrace();
@@ -273,12 +267,12 @@ public class ResultBox extends GridPane implements Initializable {
   }
 
   @FXML
-  private final void savePdf() {
+  private void savePdf() {
     final DirectoryChooser directoryChooser = new DirectoryChooser();
     directoryChooser.setTitle("Choose the pdf file's location");
     final File selectedDirectory = directoryChooser.showDialog(null);
 
-    String documentName;
+    final String documentName;
     if (minorCourse.get() == null) {
       documentName = getDocumentName(majorCourse.get());
     } else {
@@ -287,10 +281,9 @@ public class ResultBox extends GridPane implements Initializable {
 
     if (selectedDirectory != null) {
       try {
-        Files.copy(pdf.get(),
-            Paths.get(selectedDirectory.getAbsolutePath()).resolve(documentName));
-      } catch (Exception exc) {
-        Notifications message = Notifications.create();
+        Files.copy(pdf.get(), Paths.get(selectedDirectory.getAbsolutePath()).resolve(documentName));
+      } catch (final Exception exc) {
+        final Notifications message = Notifications.create();
         message.text("Error! Copying of temporary file into target file failed.");
         message.show();
         exc.printStackTrace();

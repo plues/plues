@@ -11,15 +11,6 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -34,6 +25,14 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Musterstudienplaene extends GridPane implements Initializable {
 
@@ -117,7 +116,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
       selectedMinorCourse = optinalMinorCourse.get();
     }
 
-    ResultBox rb = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse);
+    final ResultBox rb = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse);
 
     resultBox.getChildren().add(0, rb);
   }
@@ -155,6 +154,5 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
     courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
-    courseSelection.setInitialMinorCourseList(FXCollections.observableList(minorCourseList));
   }
 }
