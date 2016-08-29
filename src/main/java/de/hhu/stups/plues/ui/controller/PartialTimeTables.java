@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui.controller;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
@@ -7,6 +8,8 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
+import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
@@ -16,9 +19,13 @@ import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javafx.beans.property.BooleanProperty;
@@ -28,6 +35,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -109,21 +117,53 @@ public class PartialTimeTables extends GridPane implements Initializable {
   public void btGeneratePressed() {
     generationStarted.set(true);
     checkStarted.set(false);
+    Map<Course, Map<Module, List<AbstractUnit>>> data = new HashMap<>();
 
-    // testing data for now. will be improved soon
-    List<AbstractUnit> units = new ArrayList<>();
-    AbstractUnit u1 = new AbstractUnit();
-    u1.setTitle("Unit 1");
-    AbstractUnit u2 = new AbstractUnit();
-    u2.setTitle("Unit 2");
-    units.add(u1); units.add(u2);
+    Course major = courseSelection.getSelectedMajorCourse();
+    data.put(major, new HashMap<>());
 
-    for (int i=1;i<=3;i++) {
-      Module m = new Module();
-      m.setTitle("Module "+i);
-      CheckBoxGroup cbg = checkBoxGroupFactory.create(m, units);
-      modulesUnits.getChildren().add(cbg);
+    Course minor;
+    if (courseSelection.getSelectedMinorCourse().isPresent()) {
+      minor = courseSelection.getSelectedMinorCourse().get();
+      data.put(minor, new HashMap<>());
     }
+
+    delayedStore.whenAvailable(store -> {
+      List<ModuleAbstractUnitSemester> maus = store.getModuleAbstractUnitSemester();
+
+      for (ModuleAbstractUnitSemester m : maus) {
+        if (m.getModule().getCourses().contains(major)) {
+          if (data.get(major).containsKey(m.getModule())) {
+            data.get(major).get(m.getModule()).add(m.getAbstractUnit());
+          } else {
+            data.get(major).put(m.getModule(), new ArrayList<>(Arrays.asList(m.getAbstractUnit())));
+          }
+        }
+      }
+    });
+
+    for (Map.Entry<Course, Map<Module, List<AbstractUnit>>> entry : data.entrySet()) {
+      Course c = entry.getKey();
+      for (Map.Entry<Module, List<AbstractUnit>> map : entry.getValue().entrySet()) {
+        CheckBoxGroup cbg = checkBoxGroupFactory.create(c, map.getKey(), map.getValue());
+        modulesUnits.getChildren().add(cbg);
+      }
+    }
+
+//    // testing data for now. will be improved soon
+//    List<AbstractUnit> units = new ArrayList<>();
+//    AbstractUnit u1 = new AbstractUnit();
+//    u1.setTitle("Unit 1");
+//    AbstractUnit u2 = new AbstractUnit();
+//    u2.setTitle("Unit 2");
+//    units.add(u1); units.add(u2);
+//
+//    for (int i=1;i<=3;i++) {
+//      Module m = new Module();
+//      m.setTitle("Module "+i);
+//      CheckBoxGroup cbg = checkBoxGroupFactory.create(major, m, units);
+//      modulesUnits.getChildren().add(cbg);
+//    }
   }
 
   /**
@@ -133,7 +173,50 @@ public class PartialTimeTables extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   public void btCheckPressed() {
     checkStarted.set(true);
-    result.setText("Not feasible");
+    Course major = courseSelection.getSelectedMajorCourse();
+
+    Map<Course, List<Module>> moduleChoice = new HashMap<>();
+    List<AbstractUnit> unitChoice = new ArrayList<>();
+    moduleChoice.put(major, new ArrayList<>());
+
+    List<Course> courses = new ArrayList<>();
+    Course minor;
+    if (courseSelection.getSelectedMinorCourse().isPresent()) {
+      minor = courseSelection.getSelectedMinorCourse().get();
+      moduleChoice.put(minor, new ArrayList<>());
+    }
+
+    for (Object o : modulesUnits.getChildren()) {
+      CheckBoxGroup cbg = (CheckBoxGroup) o;
+      Module m = cbg.getModule();
+      if (m != null) {
+        moduleChoice.get(major).add(m);
+      }
+
+      unitChoice.addAll(cbg.getBoxToUnit().entrySet().stream().filter(boxToUnit ->
+        boxToUnit.getKey().isSelected()).map(Map.Entry::getValue).collect(Collectors.toList()));
+    }
+
+    delayedSolverService.whenAvailable(solverService -> {
+      SolverTask<FeasibilityResult> solverResult = solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
+
+      String text;
+      try {
+        if (solverResult.get().getModuleChoice() != null) {
+          text = "Feasible";
+        } else {
+          text = "Not feasible";
+        }
+      } catch (InterruptedException e) {
+        text = "InterruptedException";
+        e.printStackTrace();
+      } catch (ExecutionException e) {
+        text = "ExecutionException";
+        e.printStackTrace();
+      }
+
+      result.setText(text); // TODO: i18n
+    });
   }
 
   @Override

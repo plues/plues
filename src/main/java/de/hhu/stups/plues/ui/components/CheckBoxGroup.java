@@ -4,11 +4,14 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
@@ -23,8 +26,9 @@ import javafx.scene.layout.VBox;
 
 public class CheckBoxGroup extends VBox implements Initializable {
 
+  private final Course course;
   private final Module module;
-  private final List<AbstractUnit> units;
+  private HashMap<CheckBox, AbstractUnit> boxToUnit;
 
   @FXML
   @SuppressWarnings("unused")
@@ -36,10 +40,16 @@ public class CheckBoxGroup extends VBox implements Initializable {
 
   @Inject
   public CheckBoxGroup(FXMLLoader loader,
+                       @Assisted Course course,
                        @Assisted Module module,
                        @Assisted List<AbstractUnit> units) {
+    this.course = course;
     this.module = module;
-    this.units = units;
+    boxToUnit = new HashMap<>();
+
+    for (AbstractUnit abstractUnit : units) {
+      boxToUnit.put(new CheckBox(), abstractUnit);
+    }
 
     loader.setLocation(getClass().getResource("/fxml/components/CheckBoxGroup.fxml"));
 
@@ -55,13 +65,16 @@ public class CheckBoxGroup extends VBox implements Initializable {
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    CheckBox[] list = new CheckBox[units.size()];
-    for (int i=0; i<units.size(); i++) {
-      CheckBox cb = new CheckBox();
-      cb.setText(units.get(i).getTitle());
+    courseField.setText(course.getFullName());
+    CheckBox[] list = new CheckBox[boxToUnit.size()];
+    int i = 0;
+    for (Map.Entry<CheckBox, AbstractUnit> entry : boxToUnit.entrySet()) {
+      CheckBox cb = entry.getKey();
+      cb.setText(entry.getValue().getTitle());
       cb.setSelected(moduleBox.isSelected());
       unitsBox.getChildren().add(cb);
       list[i] = cb;
+      i++;
     }
 
     moduleBox.setText(module.getTitle());
@@ -74,5 +87,15 @@ public class CheckBoxGroup extends VBox implements Initializable {
 
     moduleBox.setOnAction(e ->
       Stream.of(list).forEach(box -> box.setSelected(moduleBox.isSelected())));
+  }
+  public HashMap<CheckBox, AbstractUnit> getBoxToUnit() {
+    return boxToUnit;
+  }
+
+  public Module getModule() {
+    if (moduleBox.isSelected()) {
+      return module;
+    }
+    return null;
   }
 }
