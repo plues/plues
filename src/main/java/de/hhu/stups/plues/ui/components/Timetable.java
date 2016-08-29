@@ -19,6 +19,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
@@ -39,8 +40,6 @@ public class Timetable extends BorderPane implements Initializable {
       solverProperty = new SimpleBooleanProperty(false);
 
   @FXML
-  private GridPane foo;
-  @FXML
   private Label selection;
   @FXML
   private Button checkSelection;
@@ -48,6 +47,9 @@ public class Timetable extends BorderPane implements Initializable {
   private Label result;
   @FXML
   private CourseFilter courseFilter;
+
+  @FXML
+  private GridPane timeTable;
 
   private SolverService solverService;
 
@@ -86,10 +88,16 @@ public class Timetable extends BorderPane implements Initializable {
       this.solverProperty.set(true);
     });
 
-    IntStream.range(1, 20).forEach(x -> this.foo.add(
-        new Label(String.valueOf(x)),
-        x % this.foo.getColumnConstraints().size(),
-        x % this.foo.getRowConstraints().size()));
+    initSessionBoxes();
+  }
+
+  private void initSessionBoxes() {
+    final int offX = 1, offY = 1, widthX = 5;
+
+    IntStream.range(0, 35).forEach(i -> {
+      ListView view = new ListView();
+      timeTable.add(view, i % widthX + offX, (i / widthX) + offY);
+    });
   }
 
   @FXML
