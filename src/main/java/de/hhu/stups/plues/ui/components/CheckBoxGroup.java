@@ -72,20 +72,19 @@ public class CheckBoxGroup extends VBox implements Initializable {
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     courseField.setText(course.getFullName());
-    ObservableList<Node> children = unitsBox.getChildren();
-    BooleanProperty[] properties = new BooleanProperty[boxToUnit.size()];
+    final ObservableList<Node> children = unitsBox.getChildren();
+    BooleanBinding allSelected =   Bindings.createBooleanBinding(() -> true);
 
-    int i = 0;
+
     for (Map.Entry<CheckBox, AbstractUnit> entry : boxToUnit.entrySet()) {
       CheckBox cb = entry.getKey();
       cb.setText(entry.getValue().getTitle());
       children.add(cb);
-      properties[i++] = cb.selectedProperty();
+
+      allSelected = allSelected.and(cb.selectedProperty());
     }
 
     moduleBox.setText(module.getTitle());
-    BooleanBinding allSelected = Bindings.createBooleanBinding(() ->
-      children.stream().allMatch(node -> ((CheckBox) node).isSelected()), properties);
 
     allSelected.addListener((observable, oldValue, newValue) -> moduleBox.setSelected(newValue));
 
