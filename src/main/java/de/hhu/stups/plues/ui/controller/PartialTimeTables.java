@@ -49,6 +49,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
   private final BooleanProperty generationStarted;
   private final BooleanProperty checkStarted;
   private final CheckBoxGroupFactory checkBoxGroupFactory;
+  private final SimpleObjectProperty storeProperty;
 
   @FXML
   @SuppressWarnings("unused")
@@ -90,6 +91,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
     this.delayedSolverService = delayedSolverService;
     this.checkBoxGroupFactory = checkBoxGroupFactory;
 
+    this.storeProperty = new SimpleObjectProperty();
     this.solverProperty = new SimpleBooleanProperty(false);
     this.generationStarted = new SimpleBooleanProperty(false);
     this.checkStarted = new SimpleBooleanProperty(false);
@@ -129,19 +131,18 @@ public class PartialTimeTables extends GridPane implements Initializable {
       data.put(minor, new HashMap<>());
     }
 
-    delayedStore.whenAvailable(store -> {
-      List<ModuleAbstractUnitSemester> maus = store.getModuleAbstractUnitSemester();
+    Store store = (Store) storeProperty.get();
+    List<ModuleAbstractUnitSemester> maus = store.getModuleAbstractUnitSemester();
 
-      for (ModuleAbstractUnitSemester m : maus) {
-        if (m.getModule().getCourses().contains(major)) {
-          if (data.get(major).containsKey(m.getModule())) {
-            data.get(major).get(m.getModule()).add(m.getAbstractUnit());
-          } else {
-            data.get(major).put(m.getModule(), new ArrayList<>(Arrays.asList(m.getAbstractUnit())));
-          }
+    for (ModuleAbstractUnitSemester m : maus) {
+      if (m.getModule().getCourses().contains(major)) {
+        if (data.get(major).containsKey(m.getModule())) {
+          data.get(major).get(m.getModule()).add(m.getAbstractUnit());
+        } else {
+          data.get(major).put(m.getModule(), new ArrayList<>(Arrays.asList(m.getAbstractUnit())));
         }
       }
-    });
+    }
 
     for (Map.Entry<Course, Map<Module, List<AbstractUnit>>> entry : data.entrySet()) {
       Course course = entry.getKey();
@@ -166,10 +167,12 @@ public class PartialTimeTables extends GridPane implements Initializable {
     moduleChoice.put(major, new ArrayList<>());
 
     List<Course> courses = new ArrayList<>();
+    courses.add(major);
     Course minor;
     if (courseSelection.getSelectedMinorCourse().isPresent()) {
       minor = courseSelection.getSelectedMinorCourse().get();
       moduleChoice.put(minor, new ArrayList<>());
+      courses.add(minor);
     }
 
     for (Object o : modulesUnits.getChildren()) {
@@ -217,7 +220,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     btGenerate.setDefaultButton(true);
-    btGenerate.disableProperty().bind(solverProperty.not());
+    btGenerate.disableProperty().bind(storeProperty.isNotNull());
     //
     modulesUnits.visibleProperty().bind(generationStarted);
     scrollPane.visibleProperty().bind(generationStarted);
@@ -225,7 +228,10 @@ public class PartialTimeTables extends GridPane implements Initializable {
     result.visibleProperty().bind(checkStarted);
     result.editableProperty().set(false);
     //
-    delayedStore.whenAvailable(this::initializeCourseSelection);
+    delayedStore.whenAvailable(s -> {
+      initializeCourseSelection(s);
+      this.storeProperty.set(true);
+    });
 
     delayedSolverService.whenAvailable(s -> {
       this.solverProperty.set(true);
@@ -251,6 +257,5 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
     courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
     courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
-    courseSelection.setInitialMinorCourseList(FXCollections.observableList(minorCourseList));
   }
 }
