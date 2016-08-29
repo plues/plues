@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.ui.controller;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
@@ -16,6 +15,19 @@ import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -27,19 +39,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 
 public class PartialTimeTables extends GridPane implements Initializable {
 
@@ -110,7 +109,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
   }
 
   /**
-   * Function to generate checkboxes for modules and units
+   * Function to generate checkboxes for modules and units.
    */
   @FXML
   @SuppressWarnings("unused")
@@ -145,16 +144,16 @@ public class PartialTimeTables extends GridPane implements Initializable {
     });
 
     for (Map.Entry<Course, Map<Module, List<AbstractUnit>>> entry : data.entrySet()) {
-      Course c = entry.getKey();
+      Course course = entry.getKey();
       for (Map.Entry<Module, List<AbstractUnit>> map : entry.getValue().entrySet()) {
-        CheckBoxGroup cbg = checkBoxGroupFactory.create(c, map.getKey(), map.getValue());
+        CheckBoxGroup cbg = checkBoxGroupFactory.create(course, map.getKey(), map.getValue());
         modulesUnits.getChildren().add(cbg);
       }
     }
   }
 
   /**
-   * Function to pass selection to solver and check if feasible
+   * Function to pass selection to solver and check if feasible.
    */
   @FXML
   @SuppressWarnings("unused")
@@ -175,17 +174,18 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
     for (Object o : modulesUnits.getChildren()) {
       CheckBoxGroup cbg = (CheckBoxGroup) o;
-      Module m = cbg.getModule();
-      if (m != null) {
-        moduleChoice.get(major).add(m);
+      Module module = cbg.getModule();
+      if (module != null) {
+        moduleChoice.get(major).add(module);
       }
 
       unitChoice.addAll(cbg.getBoxToUnit().entrySet().stream().filter(boxToUnit ->
-        boxToUnit.getKey().isSelected()).map(Map.Entry::getValue).collect(Collectors.toList()));
+          boxToUnit.getKey().isSelected()).map(Map.Entry::getValue).collect(Collectors.toList()));
     }
 
     delayedSolverService.whenAvailable(solverService -> {
-      SolverTask<FeasibilityResult> solverResult = solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
+      SolverTask<FeasibilityResult> solverResult =
+          solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
 
       solverResult.setOnSucceeded(event -> {
         String text;
@@ -195,12 +195,12 @@ public class PartialTimeTables extends GridPane implements Initializable {
           } else {
             text = "Not feasible";
           }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException exc) {
           text = "InterruptedException";
-          e.printStackTrace();
-        } catch (ExecutionException e) {
+          exc.printStackTrace();
+        } catch (ExecutionException exc) {
           text = "ExecutionException";
-          e.printStackTrace();
+          exc.printStackTrace();
         }
 
         result.setText(text); // TODO: i18n
