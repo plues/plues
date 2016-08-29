@@ -22,6 +22,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 public class CheckBoxGroup extends VBox implements Initializable {
@@ -29,6 +30,10 @@ public class CheckBoxGroup extends VBox implements Initializable {
   private final Course course;
   private final Module module;
   private HashMap<CheckBox, AbstractUnit> boxToUnit;
+
+  @FXML
+  @SuppressWarnings("unused")
+  private TextField courseField;
 
   @FXML
   @SuppressWarnings("unused")
