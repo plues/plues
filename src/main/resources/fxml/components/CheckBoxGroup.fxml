@@ -7,6 +7,6 @@
     <children>
         <TextField fx:id="courseField" alignment="CENTER_LEFT" editable="false"/>
         <CheckBox fx:id="moduleBox"/>
-        <VBox fx:id="unitsBox" alignment="CENTER"/>
+        <VBox fx:id="unitsBox"/>
     </children>
 </fx:root>

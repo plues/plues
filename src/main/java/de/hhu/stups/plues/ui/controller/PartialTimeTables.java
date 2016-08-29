@@ -151,21 +151,6 @@ public class PartialTimeTables extends GridPane implements Initializable {
         modulesUnits.getChildren().add(cbg);
       }
     }
-
-//    // testing data for now. will be improved soon
-//    List<AbstractUnit> units = new ArrayList<>();
-//    AbstractUnit u1 = new AbstractUnit();
-//    u1.setTitle("Unit 1");
-//    AbstractUnit u2 = new AbstractUnit();
-//    u2.setTitle("Unit 2");
-//    units.add(u1); units.add(u2);
-//
-//    for (int i=1;i<=3;i++) {
-//      Module m = new Module();
-//      m.setTitle("Module "+i);
-//      CheckBoxGroup cbg = checkBoxGroupFactory.create(major, m, units);
-//      modulesUnits.getChildren().add(cbg);
-//    }
   }
 
   /**
