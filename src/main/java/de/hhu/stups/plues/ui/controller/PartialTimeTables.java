@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class PartialTimeTables extends GridPane implements Initializable {
@@ -177,7 +178,8 @@ public class PartialTimeTables extends GridPane implements Initializable {
    */
   @FXML
   @SuppressWarnings("unused")
-  public void btCheckPressed() {
+  public void btCheckPressed() throws InterruptedException {
+    TimeUnit.MILLISECONDS.sleep(200);
     checkStarted.set(true);
     Course major = courseSelection.getSelectedMajorCourse();
 
