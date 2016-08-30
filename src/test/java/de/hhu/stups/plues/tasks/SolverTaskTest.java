@@ -137,7 +137,6 @@ public class SolverTaskTest extends ApplicationTest {
   }
 
   @Test
-  @Ignore("Fails on Travis")
   public void testTaskTimeout() throws InterruptedException {
     final Callable<Integer> c = () -> {
       TimeUnit.DAYS.sleep(365);
