@@ -26,6 +26,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.io.IOException;
 import java.net.URL;
@@ -122,11 +123,19 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
     Course major = courseSelection.getSelectedMajorCourse();
     data.put(major, new HashMap<>());
+    Text majorText = new Text();
+    majorText.setText(major.getFullName());
+    majorText.setUnderline(true);
+    modulesUnits.getChildren().add(majorText);
 
     Course minor = null;
     if (courseSelection.getSelectedMinorCourse().isPresent()) {
       minor = courseSelection.getSelectedMinorCourse().get();
       data.put(minor, new HashMap<>());
+      Text minorText = new Text();
+      minorText.setText(minor.getFullName());
+      minorText.setUnderline(true);
+      modulesUnits.getChildren().add(minorText);
     }
 
     Store store = (Store) storeProperty.get();
@@ -154,7 +163,11 @@ public class PartialTimeTables extends GridPane implements Initializable {
       Course course = entry.getKey();
       for (Map.Entry<Module, List<AbstractUnit>> map : entry.getValue().entrySet()) {
         CheckBoxGroup cbg = checkBoxGroupFactory.create(course, map.getKey(), map.getValue());
-        modulesUnits.getChildren().add(cbg);
+        if (course == major) {
+          modulesUnits.getChildren().add(1, cbg);
+        } else {
+          modulesUnits.getChildren().add(cbg);
+        }
       }
     }
   }
@@ -182,7 +195,12 @@ public class PartialTimeTables extends GridPane implements Initializable {
     }
 
     for (Object o : modulesUnits.getChildren()) {
-      CheckBoxGroup cbg = (CheckBoxGroup) o;
+      CheckBoxGroup cbg;
+      try {
+        cbg = (CheckBoxGroup) o;
+      } catch (ClassCastException exc) {
+        continue;
+      }
       Module module = cbg.getModule();
       if (module != null) {
         moduleChoice.get(cbg.getCourse()).add(module);
