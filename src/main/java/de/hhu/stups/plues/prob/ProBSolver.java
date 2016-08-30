@@ -85,24 +85,6 @@ public class ProBSolver implements Solver {
     return "ccss={" + Joiner.on(", ").join(iterator) + "}";
   }
 
-  /**
-   * Checks if the version of the loaded model is compatible with the version
-   * provided as parameter.
-   * Currently strings must be an exact match.
-   */
-  public final void checkModelVersion(final String expectedVersion) /* or read properties here? */
-      throws SolverException {
-    final String modelVersion = this.getModelVersion();
-    if (modelVersion.equals(expectedVersion)) {
-      return;
-    }
-    throw new SolverException(
-      "Incompatible model version numbers, expected "
-        + expectedVersion
-        + " but was " + modelVersion);
-
-  }
-
   private Boolean executeOperation(final String op, final String predicate) {
 
     final String key = op + predicate;
@@ -187,7 +169,25 @@ public class ProBSolver implements Solver {
     return result;
   }
 
-  public final void interrupt() {
+  /**
+   * Checks if the version of the loaded model is compatible with the version
+   * provided as parameter.
+   * Currently strings must be an exact match.
+   */
+  public final synchronized void checkModelVersion(final String expectedVersion)
+      throws SolverException { /* or read properties here? */
+    final String modelVersion = this.getModelVersion();
+    if (modelVersion.equals(expectedVersion)) {
+      return;
+    }
+    throw new SolverException(
+      "Incompatible model version numbers, expected "
+        + expectedVersion
+        + " but was " + modelVersion);
+
+  }
+
+  public final synchronized void interrupt() {
     logger.fine("Sending interrupt to state space");
     this.stateSpace.sendInterrupt();
   }
@@ -200,7 +200,7 @@ public class ProBSolver implements Solver {
    * @param courses The combination of major and minor courses.
    * @return Return true if the combination is feasible otherwise false.
    */
-  public final Boolean checkFeasibility(final String... courses) {
+  public final synchronized Boolean checkFeasibility(final String... courses) {
 
     final String predicate = getFeasibilityPredicate(courses);
     return executeOperation(CHECK, predicate);
@@ -213,7 +213,7 @@ public class ProBSolver implements Solver {
    * @param courses The combination of major and minor courses.
    * @return Return the computed {@link FeasibilityResult FeasibilityResult}.
    */
-  public final FeasibilityResult computeFeasibility(final String... courses)
+  public final synchronized FeasibilityResult computeFeasibility(final String... courses)
       throws SolverException {
 
     final String predicate = getFeasibilityPredicate(courses);
@@ -248,7 +248,7 @@ public class ProBSolver implements Solver {
    * @throws SolverException if no result could be found or the solver did not exit cleanly
    *                         (e.g. interrupt)
    */
-  public final FeasibilityResult computePartialFeasibility(final List<String> courses,
+  public final synchronized FeasibilityResult computePartialFeasibility(final List<String> courses,
       final Map<String, List<Integer>> moduleChoice, final List<Integer> abstractUnitChoice)
       throws SolverException {
 
@@ -291,7 +291,8 @@ public class ProBSolver implements Solver {
    * @throws SolverException if no result could be found or the solver did not exit cleanly
    *                         (e.g. interrupt)
    */
-  public final List<Integer> unsatCore(final String... courses) throws SolverException {
+  public final synchronized List<Integer> unsatCore(final String... courses)
+      throws SolverException {
 
     final String predicate = getFeasibilityPredicate(courses);
     //
@@ -307,7 +308,7 @@ public class ProBSolver implements Solver {
    * @param day String day, valid values are "1".."7"
    * @param slot Sting representing the selected time slot, valid values are "1".."8".
    */
-  public final void move(final String sessionId,
+  public final synchronized void move(final String sessionId,
                          final String day, final String slot) {
     final String predicate
         = "session=session" + sessionId + " & dow=" + day + " & slot=slot" + slot;
@@ -321,7 +322,7 @@ public class ProBSolver implements Solver {
    *
    * @return Return the set of all impossible courses.
    */
-  public final java.util.Set<String> getImpossibleCourses() throws SolverException {
+  public final synchronized java.util.Set<String> getImpossibleCourses() throws SolverException {
 
     final Record result = this.executeOperationWithOneResult(IMPOSSIBLE_COURSES, Record.class);
 
@@ -337,8 +338,8 @@ public class ProBSolver implements Solver {
    * @throws SolverException if no result could be found or the solver did not exit cleanly
    *                         (e.g. interrupt)
    */
-  public final List<Alternative> getLocalAlternatives(final int session, final String... courses)
-      throws SolverException {
+  public final synchronized List<Alternative> getLocalAlternatives(
+      final int session, final String... courses) throws SolverException {
 
     final String coursePredicate = getFeasibilityPredicate(courses);
     final String predicate = coursePredicate + " & session=" + Mappers.mapSession(session);
@@ -355,7 +356,7 @@ public class ProBSolver implements Solver {
    * @return String the version string of the model
    */
   @SuppressWarnings("WeakerAccess")
-  public final String getModelVersion() throws SolverException {
+  public final synchronized String getModelVersion() throws SolverException {
     final BObject result = this.executeOperationWithOneResult("getVersion", BObject.class);
     return Mappers.mapString(result.toString());
   }
