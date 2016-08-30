@@ -21,6 +21,7 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -54,7 +55,7 @@ public class CheckBoxGroup extends VBox implements Initializable {
                        @Assisted List<AbstractUnit> units) {
     this.course = course;
     this.module = module;
-    boxToUnit = new HashMap<>();
+    boxToUnit = new LinkedHashMap<>();
 
     for (AbstractUnit abstractUnit : units) {
       boxToUnit.put(new CheckBox(), abstractUnit);
