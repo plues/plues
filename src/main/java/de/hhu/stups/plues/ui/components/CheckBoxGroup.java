@@ -120,7 +120,7 @@ public class CheckBoxGroup extends VBox implements Initializable {
   }
 
   /**
-   * Get course of this module and units
+   * Get course of this module and units.
    * @return Course object
    */
   public Course getCourse() {
