@@ -20,7 +20,7 @@
                 GridPane.rowIndex="1" GridPane.columnSpan="2"/>
         <ScrollPane fx:id="scrollPane" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2"
                     maxHeight="10000.0" maxWidth="10000.0">
-            <VBox fx:id="modulesUnits" spacing="30"/>
+            <VBox fx:id="modulesUnits" spacing="25"/>
         </ScrollPane>
         <Button fx:id="btCheck" onAction="#btCheckPressed" prefWidth="300" maxHeight="10000.0"
                 text="Check" GridPane.halignment="CENTER" GridPane.columnIndex="0"

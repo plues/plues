@@ -75,7 +75,7 @@ public class CheckBoxGroup extends VBox implements Initializable {
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     final ObservableList<Node> children = unitsBox.getChildren();
-    BooleanBinding allSelected =   Bindings.createBooleanBinding(() -> true);
+    BooleanBinding allSelected = Bindings.createBooleanBinding(() -> true);
 
     for (Map.Entry<CheckBox, AbstractUnit> entry : boxToUnit.entrySet()) {
       CheckBox cb = entry.getKey();
