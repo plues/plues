@@ -89,7 +89,7 @@ public class SolverTask<T> extends Task<T> {
       }
 
       @Override
-      public void onFailure(final Throwable t) {
+      public void onFailure(final Throwable throwable) {
         timer.cancel(true);
       }
     });
