@@ -7,13 +7,6 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.ObservableList;
@@ -25,6 +18,13 @@ import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 public class CheckBoxGroup extends VBox implements Initializable {
 
@@ -44,6 +44,14 @@ public class CheckBoxGroup extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private VBox unitsBox;
 
+  /**
+   * Constructor for a group of checkboxes for a given course, a given module and a list of abstract
+   * units.
+   * @param loader FXML Loader to load fxml
+   * @param course Given course. Should be a major or minor for the choosen course combination
+   * @param module Given module. Should be one inside major or minor course
+   * @param units A list of all abstract units of the given module
+   */
   @Inject
   public CheckBoxGroup(FXMLLoader loader,
                        @Assisted Course course,
@@ -89,16 +97,21 @@ public class CheckBoxGroup extends VBox implements Initializable {
     allSelected.addListener((observable, oldValue, newValue) -> moduleBox.setSelected(newValue));
 
     moduleBox.setOnAction(e ->
-      children.forEach(box -> ((CheckBox) box).setSelected(moduleBox.isSelected())));
+        children.forEach(box -> ((CheckBox) box).setSelected(moduleBox.isSelected())));
 
-    for(Node b : unitsBox.getChildren()) {
+    for (Node b : unitsBox.getChildren()) {
       unitsBox.setMargin(b, new Insets(0,0,0,20));
     }
   }
+
   public HashMap<CheckBox, AbstractUnit> getBoxToUnit() {
     return boxToUnit;
   }
 
+  /**
+   * Return module if selected.
+   * @return Module if selected, else null
+   */
   public Module getModule() {
     if (moduleBox.isSelected()) {
       return module;
