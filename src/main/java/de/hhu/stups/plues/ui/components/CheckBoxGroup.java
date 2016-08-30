@@ -17,7 +17,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
 import java.io.IOException;
 import java.net.URL;
@@ -31,10 +30,6 @@ public class CheckBoxGroup extends VBox implements Initializable {
   private final Course course;
   private final Module module;
   private HashMap<CheckBox, AbstractUnit> boxToUnit;
-
-  @FXML
-  @SuppressWarnings("unused")
-  private Text courseField;
 
   @FXML
   @SuppressWarnings("unused")
@@ -79,8 +74,6 @@ public class CheckBoxGroup extends VBox implements Initializable {
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    courseField.setText(course.getFullName());
-    courseField.setUnderline(true);
     final ObservableList<Node> children = unitsBox.getChildren();
     BooleanBinding allSelected =   Bindings.createBooleanBinding(() -> true);
 
