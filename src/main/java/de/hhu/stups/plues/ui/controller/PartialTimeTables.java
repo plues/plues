@@ -248,7 +248,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     btGenerate.setDefaultButton(true);
-    btGenerate.disableProperty().bind(storeProperty.isNull());
+    btGenerate.disableProperty().bind(solverProperty.not());
     //
     modulesUnits.visibleProperty().bind(generationStarted);
     scrollPane.visibleProperty().bind(generationStarted);
