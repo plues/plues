@@ -225,6 +225,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
     modulesUnits.visibleProperty().bind(generationStarted);
     scrollPane.visibleProperty().bind(generationStarted);
     btCheck.visibleProperty().bind(generationStarted);
+    btCheck.disableProperty().bind(solverProperty.not());
     result.visibleProperty().bind(checkStarted);
     result.editableProperty().set(false);
     //
