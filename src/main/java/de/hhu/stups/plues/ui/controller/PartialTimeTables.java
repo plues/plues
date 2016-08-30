@@ -188,7 +188,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
       CheckBoxGroup cbg = (CheckBoxGroup) o;
       Module module = cbg.getModule();
       if (module != null) {
-        moduleChoice.get(major).add(module);
+        moduleChoice.get(cbg.getCourse()).add(module);
       }
 
       unitChoice.addAll(cbg.getBoxToUnit().entrySet().stream().filter(boxToUnit ->
