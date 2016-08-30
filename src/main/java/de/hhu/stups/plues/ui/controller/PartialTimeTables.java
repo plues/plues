@@ -7,7 +7,6 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
-import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -31,7 +30,6 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,23 +130,22 @@ public class PartialTimeTables extends GridPane implements Initializable {
     }
 
     Store store = (Store) storeProperty.get();
-    List<ModuleAbstractUnitSemester> maus = store.getModuleAbstractUnitSemester();
 
-    for (ModuleAbstractUnitSemester m : maus) {
-      if (m.getModule().getCourses().contains(major)) {
-        if (data.get(major).containsKey(m.getModule())) {
-          data.get(major).get(m.getModule()).add(m.getAbstractUnit());
+    List<Module> modules = store.getModules();
+
+    for (Module m : modules) {
+      if (m.getCourses().contains(major)) {
+        if (data.get(major).containsKey(m)) {
+          data.get(major).get(m).addAll(m.getAbstractUnits());
         } else {
-          data.get(major).put(m.getModule(), new ArrayList<>(Arrays.asList(m.getAbstractUnit())));
+          data.get(major).put(m, new ArrayList<>(m.getAbstractUnits()));
         }
       }
-      if (minor != null) {
-        if (m.getModule().getCourses().contains(minor)) {
-          if (data.get(minor).containsKey(m.getModule())) {
-            data.get(minor).get(m.getModule()).add(m.getAbstractUnit());
-          } else {
-            data.get(minor).put(m.getModule(), new ArrayList<>(Arrays.asList(m.getAbstractUnit())));
-          }
+      if (m.getCourses().contains(minor)) {
+        if (data.get(minor).containsKey(m)) {
+          data.get(minor).get(m).addAll(m.getAbstractUnits());
+        } else {
+          data.get(minor).put(m, new ArrayList<>(m.getAbstractUnits()));
         }
       }
     }
