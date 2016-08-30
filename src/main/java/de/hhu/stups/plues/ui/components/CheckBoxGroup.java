@@ -16,11 +16,11 @@ import java.util.ResourceBundle;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
@@ -90,6 +90,10 @@ public class CheckBoxGroup extends VBox implements Initializable {
 
     moduleBox.setOnAction(e ->
       children.forEach(box -> ((CheckBox) box).setSelected(moduleBox.isSelected())));
+
+    for(Node b : unitsBox.getChildren()) {
+      unitsBox.setMargin(b, new Insets(0,0,0,20));
+    }
   }
   public HashMap<CheckBox, AbstractUnit> getBoxToUnit() {
     return boxToUnit;
