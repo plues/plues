@@ -143,7 +143,7 @@ public class SolverTaskTest extends ApplicationTest {
       return 1;
     };
     final SolverTask<Integer> solverTask
-      = new SolverTask<>("Title", "Message", new TestSolver(), c, 3, TimeUnit.SECONDS);
+        = new SolverTask<>("Title", "Message", new TestSolver(), c, 3, TimeUnit.SECONDS);
     executor.submit(solverTask);
 
     try {
