@@ -125,7 +125,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
     Course major = courseSelection.getSelectedMajorCourse();
     data.put(major, new HashMap<>());
 
-    Course minor;
+    Course minor = null;
     if (courseSelection.getSelectedMinorCourse().isPresent()) {
       minor = courseSelection.getSelectedMinorCourse().get();
       data.put(minor, new HashMap<>());
@@ -140,6 +140,15 @@ public class PartialTimeTables extends GridPane implements Initializable {
           data.get(major).get(m.getModule()).add(m.getAbstractUnit());
         } else {
           data.get(major).put(m.getModule(), new ArrayList<>(Arrays.asList(m.getAbstractUnit())));
+        }
+      }
+      if (minor != null) {
+        if (m.getModule().getCourses().contains(minor)) {
+          if (data.get(minor).containsKey(m.getModule())) {
+            data.get(minor).get(m.getModule()).add(m.getAbstractUnit());
+          } else {
+            data.get(minor).put(m.getModule(), new ArrayList<>(Arrays.asList(m.getAbstractUnit())));
+          }
         }
       }
     }
