@@ -4,7 +4,6 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 
-import org.hibernate.annotations.Check;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
