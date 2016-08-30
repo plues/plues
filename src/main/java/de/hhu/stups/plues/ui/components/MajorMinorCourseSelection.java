@@ -176,7 +176,7 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
 
   private void filterCbMinorCourses() {
     final Course major = getSelectedMajorCourse();
-    if(major == null) {
+    if (major == null) {
       return;
     }
     final String majorShortName = major.getShortName();
