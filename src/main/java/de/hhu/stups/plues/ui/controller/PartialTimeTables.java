@@ -230,7 +230,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
     //
     delayedStore.whenAvailable(s -> {
       initializeCourseSelection(s);
-      this.storeProperty.set(true);
+      this.storeProperty.set(s);
     });
 
     delayedSolverService.whenAvailable(s -> {
