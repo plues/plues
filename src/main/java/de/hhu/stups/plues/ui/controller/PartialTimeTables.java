@@ -196,6 +196,10 @@ public class PartialTimeTables extends GridPane implements Initializable {
       SolverTask<FeasibilityResult> solverResult =
           solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
 
+      solverResult.setOnRunning(event -> {
+        result.setText("Task pending...");
+      });
+
       solverResult.setOnSucceeded(event -> {
         String text;
         try {
