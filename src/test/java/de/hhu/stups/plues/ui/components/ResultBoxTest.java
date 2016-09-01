@@ -1,8 +1,15 @@
 package de.hhu.stups.plues.ui.components;
 
+import static org.testfx.api.FxAssert.verifyThat;
+
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,16 +18,6 @@ import org.testfx.matcher.control.LabeledMatchers;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
-
-import static org.testfx.api.FxAssert.verifyThat;
-
 
 
 public abstract class ResultBoxTest extends ApplicationTest {
