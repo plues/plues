@@ -141,7 +141,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
       final SolverTask<Set<String>> impossibleCoursesTask = s.impossibleCoursesTask();
 
       impossibleCoursesTask.setOnSucceeded(event ->
-          courseSelection.highlightImpossibleCourses((Set<String>) event.getSource().getValue()));
+          courseSelection.highlightImpossibleCourses(impossibleCoursesTask.getValue()));
       s.submit(impossibleCoursesTask);
     });
   }
