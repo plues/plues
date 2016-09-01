@@ -20,6 +20,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
@@ -85,8 +86,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     this.generationStarted = new SimpleBooleanProperty(false);
     this.resultTask = new SimpleObjectProperty<>();
 
-    this.setVgap(10.0);
-
     loader.setLocation(getClass().getResource("/fxml/musterstudienplaene.fxml"));
 
     loader.setRoot(this);
@@ -108,15 +107,15 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     generationStarted.set(true);
     final Course selectedMajorCourse
         = courseSelection.getSelectedMajorCourse();
-    final Optional<Course> optinalMinorCourse
+    final Optional<Course> optionalMinorCourse
         = courseSelection.getSelectedMinorCourse();
 
     Course selectedMinorCourse = null;
-    if (optinalMinorCourse.isPresent()) {
-      selectedMinorCourse = optinalMinorCourse.get();
+    if (optionalMinorCourse.isPresent()) {
+      selectedMinorCourse = optionalMinorCourse.get();
     }
 
-    final ResultBox rb = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse);
+    final ResultBox rb = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse, resultBox);
 
     resultBox.getChildren().add(0, rb);
   }
@@ -125,9 +124,15 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   public final void initialize(final URL location, final ResourceBundle resources) {
     btGenerate.setDefaultButton(true);
     btGenerate.disableProperty().bind(solverProperty.not());
-    //
+
     scrollPane.visibleProperty().bind(generationStarted);
-    //
+
+    // match scroll pane's width but give space for vertical scroll
+    resultBox.maxWidthProperty().bind(scrollPane.widthProperty().subtract(25.0));
+    resultBox.minWidthProperty().bind(scrollPane.widthProperty().subtract(25.0));
+    resultBox.setSpacing(10.0);
+    resultBox.setPadding(new Insets(10.0,0.0,10.0,10.0));
+
     delayedStore.whenAvailable(this::initializeCourseSelection);
 
     delayedSolverService.whenAvailable(s -> {

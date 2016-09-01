@@ -4,6 +4,12 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -15,19 +21,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.Set;
 
-
-public class MajorMinorCourseSelection extends VBox implements Initializable {
+public class MajorMinorCourseSelection extends GridPane implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
