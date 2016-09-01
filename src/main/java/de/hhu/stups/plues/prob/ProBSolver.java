@@ -187,7 +187,7 @@ public class ProBSolver implements Solver {
 
   }
 
-  public final synchronized void interrupt() {
+  public final void interrupt() {
     logger.fine("Sending interrupt to state space");
     this.stateSpace.sendInterrupt();
   }
