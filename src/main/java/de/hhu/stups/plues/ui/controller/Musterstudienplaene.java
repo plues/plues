@@ -5,18 +5,17 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
+
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -41,10 +40,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   private final Delayed<SolverService> delayedSolverService;
 
   private final BooleanProperty solverProperty;
-  private final BooleanProperty generationStarted;
   private final ResultBoxFactory resultBoxFactory;
-
-  private ObjectProperty<Task<FeasibilityResult>> resultTask;
 
   @FXML
   @SuppressWarnings("unused")
@@ -83,8 +79,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     this.resultBoxFactory = resultBoxFactory;
 
     this.solverProperty = new SimpleBooleanProperty(false);
-    this.generationStarted = new SimpleBooleanProperty(false);
-    this.resultTask = new SimpleObjectProperty<>();
 
     loader.setLocation(getClass().getResource("/fxml/musterstudienplaene.fxml"));
 
@@ -104,7 +98,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   public void btGeneratePressed() {
-    generationStarted.set(true);
     final Course selectedMajorCourse
         = courseSelection.getSelectedMajorCourse();
     final Optional<Course> optionalMinorCourse
@@ -126,7 +119,8 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     btGenerate.setDefaultButton(true);
     btGenerate.disableProperty().bind(solverProperty.not());
 
-    scrollPane.visibleProperty().bind(generationStarted);
+    IntegerBinding resultBoxChildren = Bindings.size(resultBox.getChildren());
+    scrollPane.visibleProperty().bind(resultBoxChildren.greaterThan(0));
 
     // match scroll pane's width but give space for vertical scroll
     resultBox.maxWidthProperty().bind(scrollPane.widthProperty().subtract(25.0));
