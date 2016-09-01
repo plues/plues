@@ -115,7 +115,8 @@ public class Musterstudienplaene extends GridPane implements Initializable {
       selectedMinorCourse = optionalMinorCourse.get();
     }
 
-    final ResultBox rb = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse, resultBox);
+    final ResultBox rb
+        = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse, resultBox);
 
     resultBox.getChildren().add(0, rb);
   }
