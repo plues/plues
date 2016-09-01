@@ -9,20 +9,6 @@ import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
-import java.awt.Desktop;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-
-import javax.annotation.Nullable;
-import javax.swing.SwingUtilities;
-
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
@@ -42,6 +28,21 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
+
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+
+import javax.annotation.Nullable;
+import javax.swing.SwingUtilities;
 
 public class ResultBox extends GridPane implements Initializable {
 
@@ -101,7 +102,7 @@ public class ResultBox extends GridPane implements Initializable {
    * @param parent      The parent wrapper (VBox) to remove a single result box.
    */
   @Inject
-  public ResultBox(final FXMLLoader loader,
+  ResultBox(final FXMLLoader loader,
                    final PdfRenderingTaskFactory taskFactory,
                    final ExecutorService executorService,
                    @Assisted("major") final Course major,
@@ -188,7 +189,7 @@ public class ResultBox extends GridPane implements Initializable {
 
 
     task.setOnFailed(event -> {
-      this.cbAction.setItems(FXCollections.observableList(Arrays.asList("Remove")));
+      this.cbAction.setItems(FXCollections.observableList(Collections.singletonList("Remove")));
       this.cbAction.getSelectionModel().selectFirst();
       this.lbErrorMsg.setText("Error! Could not generate PDF");
     });
@@ -203,7 +204,7 @@ public class ResultBox extends GridPane implements Initializable {
     //
     // progressIndicator.progressProperty().bind(this.task.progressProperty());
     //
-    this.cbAction.setItems(FXCollections.observableList(Arrays.asList("Cancel")));
+    this.cbAction.setItems(FXCollections.observableList(Collections.singletonList("Cancel")));
     this.cbAction.getSelectionModel().selectFirst();
     //
     this.icon.graphicProperty().bind(this.getIconBinding());
@@ -284,7 +285,7 @@ public class ResultBox extends GridPane implements Initializable {
         break;
       case "Cancel":
         this.interrupt();
-        this.cbAction.setItems(FXCollections.observableList(Arrays.asList("Remove")));
+        this.cbAction.setItems(FXCollections.observableList(Collections.singletonList("Remove")));
         this.cbAction.getSelectionModel().selectFirst();
         break;
       default:
@@ -327,7 +328,7 @@ public class ResultBox extends GridPane implements Initializable {
   }
 
   @FXML
-  final void interrupt() {
+  private void interrupt() {
     this.task.cancel();
   }
 }
