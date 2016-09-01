@@ -1,16 +1,7 @@
 package de.hhu.stups.plues.ui.components;
 
-import static org.testfx.api.FxAssert.verifyThat;
-
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,10 +9,17 @@ import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.matcher.control.LabeledMatchers;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+
+import static org.testfx.api.FxAssert.verifyThat;
 
 
 
@@ -30,7 +28,6 @@ public abstract class ResultBoxTest extends ApplicationTest {
   private Course minor;
   private PdfRenderingTask task;
   private Text icon;
-  private HashMap<String, Boolean> enabledButtons;
 
   /**
    * Default constructor.
@@ -89,14 +86,6 @@ public abstract class ResultBoxTest extends ApplicationTest {
   }
 
   @Test
-  public void enabledButtons() {
-    for (final Map.Entry<String, Boolean> entry : enabledButtons.entrySet()) {
-      final Button button = lookup("#" + entry.getKey()).query();
-      Assert.assertNotEquals(button.disableProperty().get(), entry.getValue());
-    }
-  }
-
-  @Test
   public void testIcon() {
     final Text mark = this.icon;
 
@@ -108,7 +97,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
   @Override
   public void start(final Stage stage) throws Exception {
     final ResultBox resultBox = new ResultBox(new FXMLLoader(),
-        (major1, minor1) -> task, Executors.newSingleThreadExecutor(), major, minor);
+        (major1, minor1) -> task, Executors.newSingleThreadExecutor(), major, minor, new VBox());
 
     final Scene scene = new Scene(resultBox, 200, 200);
     stage.setScene(scene);
@@ -117,9 +106,5 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   void setIcon(final Text icon) {
     this.icon = icon;
-  }
-
-  void setEnabledButtons(final HashMap<String, Boolean> enabledButtons) {
-    this.enabledButtons = enabledButtons;
   }
 }

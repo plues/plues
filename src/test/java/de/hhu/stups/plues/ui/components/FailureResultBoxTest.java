@@ -15,11 +15,6 @@ public class FailureResultBoxTest extends ResultBoxTest {
     super();
     this.setTask(new TestPdfTask());
     this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.REMOVE, "50"));
-    HashMap<String, Boolean> buttons = new HashMap<>();
-    buttons.put("show", false);
-    buttons.put("save", false);
-    buttons.put("cancel", false);
-    this.setEnabledButtons(buttons);
   }
 
   private static final class TestPdfTask extends PdfRenderingTask {
