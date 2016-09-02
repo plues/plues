@@ -182,7 +182,7 @@ public class MainController implements Initializable {
     String dateTime = dateFormat.format(new Date());
 
     if (selectedDirectory != null) {
-      Thread exportXmlThread = new Thread(() -> {
+      executor.execute(() -> {
         try (ByteArrayOutputStream exportXmlStream = new XmlExporter(delayedStore.get()).export();
              OutputStream outputStream = new FileOutputStream(selectedDirectory
                  + "/plues_xml_database_" + dateTime + ".zip")) {
@@ -191,7 +191,6 @@ public class MainController implements Initializable {
           exception.printStackTrace();
         }
       });
-      exportXmlThread.start();
     }
   }
 
