@@ -132,7 +132,7 @@ public class MainController implements Initializable {
     this.taskProgress.setGraphicFactory(this::getGraphicForTask);
     this.exportStateMenuItem.setDisable(true);
 
-    delayedSolverService.whenAvailable(s -> this.exportStateMenuItem.setDisable(false));
+    delayedStore.whenAvailable(s -> this.exportStateMenuItem.setDisable(false));
 
     if (this.properties.get("dbpath") != null) {
       this.loadData((String) this.properties.get("dbpath"));
@@ -174,20 +174,21 @@ public class MainController implements Initializable {
    */
   @FXML
   public final void exportCurrentDbState() {
-    final DirectoryChooser directoryChooser = new DirectoryChooser();
-    directoryChooser.setTitle("Choose the zip file's location");
-    final File selectedDirectory = directoryChooser.showDialog(null);
+    final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+    final String dateTime = dateFormat.format(new Date());
 
-    DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH:mm:ss");
-    String dateTime = dateFormat.format(new Date());
+    final FileChooser fileChooser = new FileChooser();
+    fileChooser.setInitialFileName("plues_xml_database_" + dateTime + ".zip");
+    fileChooser.setTitle("Choose the zip file's location");
 
-    if (selectedDirectory != null) {
+    final File selectedFile = fileChooser.showSaveDialog(null);
+
+    if (selectedFile != null) {
       executor.execute(() -> {
         try (ByteArrayOutputStream exportXmlStream = new XmlExporter(delayedStore.get()).export();
-             OutputStream outputStream = new FileOutputStream(selectedDirectory
-                 + "/plues_xml_database_" + dateTime + ".zip")) {
+             OutputStream outputStream = new FileOutputStream(selectedFile)) {
           exportXmlStream.writeTo(outputStream);
-        } catch (IOException exception) {
+        } catch (final IOException exception) {
           exception.printStackTrace();
         }
       });
