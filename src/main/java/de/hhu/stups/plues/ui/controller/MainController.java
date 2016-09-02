@@ -19,7 +19,6 @@ import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -27,7 +26,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.controlsfx.control.TaskProgressView;
@@ -58,9 +56,6 @@ public class MainController implements Initializable {
   private static final FontAwesomeIcon DEFAULT_ICON = FontAwesomeIcon.TASKS;
   private static final String LAST_DIR = "LAST_DIR";
 
-  private final Logger logger = Logger.getLogger(getClass().getName());
-
-
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
     iconMap.put(SolverLoaderTask.class, FontAwesomeIcon.COGS);
@@ -68,6 +63,7 @@ public class MainController implements Initializable {
     iconMap.put(PdfRenderingTask.class, FontAwesomeIcon.FILE_PDF_ALT);
   }
 
+  private final Logger logger = Logger.getLogger(getClass().getName());
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
   private final SolverLoaderTaskFactory solverLoaderTaskFactory;
@@ -174,6 +170,10 @@ public class MainController implements Initializable {
    */
   @FXML
   public final void exportCurrentDbState() {
+    // TODO: should we have a modal progress window to avoid confusion, since the export takes
+    // a few instants to finish
+    // TODO: consider generating the file to a temporary location and moving it to the final
+    // location after the generation finished successfully.
     final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
     final String dateTime = dateFormat.format(new Date());
 
@@ -184,12 +184,28 @@ public class MainController implements Initializable {
     final File selectedFile = fileChooser.showSaveDialog(null);
 
     if (selectedFile != null) {
-      executor.execute(() -> {
-        try (ByteArrayOutputStream exportXmlStream = new XmlExporter(delayedStore.get()).export();
-             OutputStream outputStream = new FileOutputStream(selectedFile)) {
-          exportXmlStream.writeTo(outputStream);
-        } catch (final IOException exception) {
-          exception.printStackTrace();
+      executor.execute(new Task<Void>() {
+
+        @Override
+        protected Void call() throws Exception {
+
+          updateTitle("Exporting XML");
+          updateProgress(1, 3);
+          updateMessage("Generating .zip file");
+
+          try (ByteArrayOutputStream exportXmlStream = new XmlExporter(delayedStore.get()).export();
+               OutputStream outputStream = new FileOutputStream(selectedFile)) {
+            updateProgress(2, 3);
+
+            updateMessage("Writing .zip file");
+            exportXmlStream.writeTo(outputStream);
+            updateProgress(3, 3);
+            logger.info("Wrote xml export to " + selectedFile.getAbsolutePath());
+
+          } catch (final IOException exception) {
+            showCriticalExceptionDialog(exception, "XML Export Failed");
+          }
+          return null;
         }
       });
     }
