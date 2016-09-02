@@ -6,6 +6,7 @@ import com.google.inject.name.Named;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.modelgenerator.XmlExporter;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
@@ -26,12 +27,20 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.controlsfx.control.TaskProgressView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -66,8 +75,13 @@ public class MainController implements Initializable {
   private final Properties properties;
   private final Stage stage;
   private final ExecutorService executor;
+
   @FXML
   private MenuItem openFileMenuItem;
+
+  @FXML
+  private MenuItem exportStateMenuItem;
+
   @FXML
   private TaskProgressView<Task<?>> taskProgress;
 
@@ -116,6 +130,9 @@ public class MainController implements Initializable {
                                final ResourceBundle resources) {
 
     this.taskProgress.setGraphicFactory(this::getGraphicForTask);
+    this.exportStateMenuItem.setDisable(true);
+
+    delayedSolverService.whenAvailable(s -> this.exportStateMenuItem.setDisable(false));
 
     if (this.properties.get("dbpath") != null) {
       this.loadData((String) this.properties.get("dbpath"));
@@ -148,6 +165,33 @@ public class MainController implements Initializable {
       }
       //
       this.loadData(file.getAbsolutePath());
+    }
+  }
+
+  /**
+   * The menu item's action to export the current state of the database to a zip file
+   * containing the xml files.
+   */
+  @FXML
+  public final void exportCurrentDbState() {
+    final DirectoryChooser directoryChooser = new DirectoryChooser();
+    directoryChooser.setTitle("Choose the zip file's location");
+    final File selectedDirectory = directoryChooser.showDialog(null);
+
+    DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH:mm:ss");
+    String dateTime = dateFormat.format(new Date());
+
+    if (selectedDirectory != null) {
+      Thread exportXmlThread = new Thread(() -> {
+        try (ByteArrayOutputStream exportXmlStream = new XmlExporter(delayedStore.get()).export();
+             OutputStream outputStream = new FileOutputStream(selectedDirectory
+                 + "/plues_xml_database_" + dateTime + ".zip")) {
+          exportXmlStream.writeTo(outputStream);
+        } catch (IOException exception) {
+          exception.printStackTrace();
+        }
+      });
+      exportXmlThread.start();
     }
   }
 

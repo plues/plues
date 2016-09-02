@@ -20,6 +20,8 @@
                 <items>
                     <MenuItem fx:id="openFileMenuItem" onAction="#openFile"
                               mnemonicParsing="false" text="Open"/>
+                    <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"
+                              mnemonicParsing="false" text="Export Saved State"/>
                     <MenuItem mnemonicParsing="false" text="Close"/>
                 </items>
             </Menu>
