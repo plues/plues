@@ -101,6 +101,10 @@ public class CheckBoxGroup extends VBox implements Initializable {
     }
   }
 
+  /**
+   * Collect an observable list all selected abstract units.
+   * @return Selected abstract units
+   */
   public ObservableList<AbstractUnit> getSelectedAbstractUnits() {
     return FXCollections.observableList(boxToUnit.entrySet().stream()
       .filter(entry -> entry.getKey().isSelected())
