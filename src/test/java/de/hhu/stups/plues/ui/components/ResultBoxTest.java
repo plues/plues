@@ -6,11 +6,14 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Builder;
+import javafx.util.BuilderFactory;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,8 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-
 
 public abstract class ResultBoxTest extends ApplicationTest {
   private Course major;
@@ -47,30 +48,6 @@ public abstract class ResultBoxTest extends ApplicationTest {
     minor.setDegree("MI");
     minor.setKzfa("N");
     minor.setPo(2013);
-  }
-
-  private Course getMajor() {
-    return major;
-  }
-
-  private void setMajor(final Course major) {
-    this.major = major;
-  }
-
-  private Course getMinor() {
-    return minor;
-  }
-
-  private void setMinor(final Course minor) {
-    this.minor = minor;
-  }
-
-  private PdfRenderingTask getTask() {
-    return task;
-  }
-
-  void setTask(final PdfRenderingTask task) {
-    this.task = task;
   }
 
   @Before
@@ -107,12 +84,24 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Override
   public void start(final Stage stage) throws Exception {
-    final ResultBox resultBox = new ResultBox(new FXMLLoader(),
+    FXMLLoader loader = new FXMLLoader();
+    loader.setBuilderFactory(type -> {
+      if (type.equals(PdfButtonBar.class)) {
+        return () -> new PdfButtonBar(new FXMLLoader());
+      }
+      return new JavaFXBuilderFactory().getBuilder(type);
+    });
+
+    final ResultBox resultBox = new ResultBox(loader,
         (major1, minor1) -> task, Executors.newSingleThreadExecutor(), major, minor);
 
     final Scene scene = new Scene(resultBox, 200, 200);
     stage.setScene(scene);
     stage.show();
+  }
+
+  void setTask(final PdfRenderingTask task) {
+    this.task = task;
   }
 
   void setIcon(final Text icon) {
