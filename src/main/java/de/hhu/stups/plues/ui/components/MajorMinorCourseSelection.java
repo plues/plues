@@ -78,11 +78,11 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
 
     // Filter courses from minor course list with a different short name as soon as a
     // major course is selected, so don't allow to select the same major and minor courses.
-    cbMajor.valueProperty().addListener(((observable, oldValue, newValue) -> {
+    cbMajor.valueProperty().addListener((observable, oldValue, newValue) -> {
       if (initialMinorCourseList != null) {
         filterCbMinorCourses();
       }
-    }));
+    });
 
   }
 
@@ -179,8 +179,8 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
       return;
     }
     final String majorShortName = major.getShortName();
-    final FilteredList<Course> minorCourseList = (initialMinorCourseList.filtered(
-        course -> !course.getShortName().equals(majorShortName)));
+    final FilteredList<Course> minorCourseList = initialMinorCourseList.filtered(
+        course -> !course.getShortName().equals(majorShortName));
 
     cbMinor.setItems(minorCourseList);
     cbMinor.getSelectionModel().select(0);

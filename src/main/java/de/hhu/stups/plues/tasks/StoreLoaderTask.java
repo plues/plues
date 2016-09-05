@@ -38,7 +38,7 @@ public class StoreLoaderTask extends Task<Store> {
       exception.printStackTrace();
       updateMessage(exception.getMessage());
       s.close();
-      throw (exception);
+      throw exception;
     }
     return s;
   }
