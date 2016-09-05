@@ -13,21 +13,7 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
-
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
+import de.hhu.stups.plues.ui.components.PdfButtonBar;
 
 import java.io.IOException;
 import java.net.URL;
@@ -40,6 +26,22 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+
 public class PartialTimeTables extends GridPane implements Initializable {
 
   private final Delayed<Store> delayedStore;
@@ -50,6 +52,8 @@ public class PartialTimeTables extends GridPane implements Initializable {
   private final BooleanProperty checkStarted;
   private final CheckBoxGroupFactory checkBoxGroupFactory;
   private final SimpleObjectProperty storeProperty;
+  private final BooleanProperty resultProperty;
+  private final SimpleBooleanProperty storeAvailable;
 
   @FXML
   @SuppressWarnings("unused")
@@ -75,6 +79,10 @@ public class PartialTimeTables extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   private TextField result;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private PdfButtonBar pdfButtonBar;
+
   /**
    * Constructor for musterstudienplaene controller.
    *
@@ -92,9 +100,11 @@ public class PartialTimeTables extends GridPane implements Initializable {
     this.checkBoxGroupFactory = checkBoxGroupFactory;
 
     this.storeProperty = new SimpleObjectProperty();
+    this.storeAvailable = new SimpleBooleanProperty(false);
     this.solverProperty = new SimpleBooleanProperty(false);
     this.generationStarted = new SimpleBooleanProperty(false);
     this.checkStarted = new SimpleBooleanProperty(false);
+    this.resultProperty = new SimpleBooleanProperty(false);
 
     this.setVgap(10.0);
 
@@ -119,6 +129,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
     generationStarted.set(true);
     checkStarted.set(false);
     modulesUnits.getChildren().clear();
+    resultProperty.set(false);
 
     Course major = courseSelection.getSelectedMajorCourse();
     Text majorText = new Text();
@@ -165,7 +176,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
     List<Course> courses = new ArrayList<>();
     courses.add(major);
-    Course minor;
+    Course minor = null;
     if (courseSelection.getSelectedMinorCourse().isPresent()) {
       minor = courseSelection.getSelectedMinorCourse().get();
       moduleChoice.put(minor, new ArrayList<>());
@@ -187,21 +198,19 @@ public class PartialTimeTables extends GridPane implements Initializable {
       unitChoice.addAll(cbg.getSelectedAbstractUnits());
     }
 
+    Course finalMinor = minor;
     delayedSolverService.whenAvailable(solverService -> {
       SolverTask<FeasibilityResult> solverResult =
           solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
 
-      solverResult.setOnRunning(event -> {
-        result.setText("Task pending...");
-      });
+      solverResult.setOnRunning(event -> result.setText("Task pending..."));
 
       solverResult.setOnSucceeded(event -> {
-        String text;
+        String text = "Not feasible";
         try {
           if (solverResult.get().getModuleChoice() != null) {
+            resultProperty.set(true);
             text = "Feasible";
-          } else {
-            text = "Not feasible";
           }
         } catch (InterruptedException exc) {
           text = "InterruptedException";
@@ -219,24 +228,30 @@ public class PartialTimeTables extends GridPane implements Initializable {
       });
 
       solverService.submit(solverResult);
+
+      pdfButtonBar.setMajor(major);
+      pdfButtonBar.setMinor(finalMinor);
+      pdfButtonBar.setTask(solverResult);
     });
   }
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     btChoose.setDefaultButton(true);
-    btChoose.disableProperty().bind(solverProperty.not());
+    btChoose.disableProperty().bind(storeAvailable.not());
     //
     modulesUnits.visibleProperty().bind(generationStarted);
     scrollPane.visibleProperty().bind(generationStarted);
     btCheck.visibleProperty().bind(generationStarted);
     btCheck.disableProperty().bind(solverProperty.not());
+    //
     result.visibleProperty().bind(checkStarted);
     result.editableProperty().set(false);
     //
     delayedStore.whenAvailable(s -> {
       initializeCourseSelection(s);
       this.storeProperty.set(s);
+      this.storeAvailable.set(true);
     });
 
     delayedSolverService.whenAvailable(s -> {
