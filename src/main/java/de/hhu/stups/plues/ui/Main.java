@@ -4,6 +4,7 @@ import static com.google.inject.Stage.DEVELOPMENT;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import de.hhu.stups.plues.injector.PluesModule;
 import de.hhu.stups.plues.routes.Router;
 import javafx.application.Application;
