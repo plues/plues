@@ -9,6 +9,7 @@ import de.hhu.stups.plues.data.entities.Module;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -100,8 +101,11 @@ public class CheckBoxGroup extends VBox implements Initializable {
     }
   }
 
-  public HashMap<CheckBox, AbstractUnit> getBoxToUnit() {
-    return boxToUnit;
+  public ObservableList<AbstractUnit> getSelectedAbstractUnits() {
+    return FXCollections.observableList(boxToUnit.entrySet().stream()
+      .filter(entry -> entry.getKey().isSelected())
+      .map(Map.Entry::getValue)
+      .collect(Collectors.toList()));
   }
 
   /**

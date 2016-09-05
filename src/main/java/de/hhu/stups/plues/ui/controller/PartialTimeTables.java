@@ -21,6 +21,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -141,36 +142,19 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
     Store store = (Store) storeProperty.get();
 
-    List<Module> modules = store.getModules();
-
-    for (Module m : modules) {
-      if (m.getCourses().contains(major)) {
-        if (data.get(major).containsKey(m)) {
-          data.get(major).get(m).addAll(m.getAbstractUnits());
-        } else {
-          data.get(major).put(m, new ArrayList<>(m.getAbstractUnits()));
-        }
-      }
-      if (m.getCourses().contains(minor)) {
-        if (data.get(minor).containsKey(m)) {
-          data.get(minor).get(m).addAll(m.getAbstractUnits());
-        } else {
-          data.get(minor).put(m, new ArrayList<>(m.getAbstractUnits()));
-        }
+    for (Module m : major.getModules()) {
+      modulesUnits.getChildren().add(1, createCheckBoxGroup(m, major));
+    }
+    if (minor != null) {
+      for (Module m : minor.getModules()) {
+        modulesUnits.getChildren().add(createCheckBoxGroup(m, minor));
       }
     }
+  }
 
-    for (Map.Entry<Course, Map<Module, List<AbstractUnit>>> entry : data.entrySet()) {
-      Course course = entry.getKey();
-      for (Map.Entry<Module, List<AbstractUnit>> map : entry.getValue().entrySet()) {
-        CheckBoxGroup cbg = checkBoxGroupFactory.create(course, map.getKey(), map.getValue());
-        if (course == major) {
-          modulesUnits.getChildren().add(1, cbg);
-        } else {
-          modulesUnits.getChildren().add(cbg);
-        }
-      }
-    }
+  private Node createCheckBoxGroup(Module module, Course course) {
+    CheckBoxGroup cbg = checkBoxGroupFactory.create(course, module, module.getAbstractUnits());
+    return cbg;
   }
 
   /**
@@ -208,8 +192,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
         moduleChoice.get(cbg.getCourse()).add(module);
       }
 
-      unitChoice.addAll(cbg.getBoxToUnit().entrySet().stream().filter(boxToUnit ->
-          boxToUnit.getKey().isSelected()).map(Map.Entry::getValue).collect(Collectors.toList()));
+      unitChoice.addAll(cbg.getSelectedAbstractUnits());
     }
 
     delayedSolverService.whenAvailable(solverService -> {
