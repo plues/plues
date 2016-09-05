@@ -17,7 +17,7 @@
                    GridPane.rowIndex="0" GridPane.rowSpan="4">
             <children>
                 <ProgressIndicator fx:id="progressIndicator"/>
-                <Label fx:id="icon" prefHeight="10000.0" prefWidth="10000.0" alignment="CENTER"
+                <Label fx:id="icon" prefHeight="10000.0" prefWidth="70.0" alignment="CENTER"
                        contentDisplay="CENTER"/>
             </children>
         </StackPane>
@@ -35,8 +35,9 @@
                wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
     </children>
     <columnConstraints>
-        <ColumnConstraints percentWidth="20"/>
+        <ColumnConstraints percentWidth="10"/>
         <ColumnConstraints percentWidth="80"/>
+        <ColumnConstraints percentWidth="10"/>
     </columnConstraints>
     <rowConstraints>
         <RowConstraints percentHeight="25"/>
