@@ -25,8 +25,6 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
 
-
-
 public class PdfRenderingTask extends Task<Path> {
 
   private final Delayed<Store> delayedStore;
@@ -46,9 +44,9 @@ public class PdfRenderingTask extends Task<Path> {
    */
   @Inject
   protected PdfRenderingTask(final Delayed<Store> delayedStore,
-                          final Delayed<SolverService> delayedSolverService,
-                          @Assisted("major") final Course major,
-                          @Assisted("minor") @Nullable final Course minor) {
+                             final Delayed<SolverService> delayedSolverService,
+                             @Assisted("major") final Course major,
+                             @Assisted("minor") @Nullable final Course minor) {
     this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
     this.major = major;
@@ -72,7 +70,7 @@ public class PdfRenderingTask extends Task<Path> {
   @Override
   protected Path call() throws Exception {
     updateTitle("Rendering PDF");
-    updateMessage("Creating Solver Tas");
+    updateMessage("Creating Solver Task");
     createSolverTask();
 
 
