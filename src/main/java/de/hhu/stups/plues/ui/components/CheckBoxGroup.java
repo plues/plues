@@ -25,6 +25,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CheckBoxGroup extends VBox implements Initializable {
 
@@ -52,7 +54,7 @@ public class CheckBoxGroup extends VBox implements Initializable {
   public CheckBoxGroup(FXMLLoader loader,
                        @Assisted Course course,
                        @Assisted Module module,
-                       @Assisted List<AbstractUnit> units) {
+                       @Assisted Set<AbstractUnit> units) {
     this.course = course;
     this.module = module;
     boxToUnit = new LinkedHashMap<>();
