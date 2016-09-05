@@ -5,18 +5,15 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -42,8 +39,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   private final BooleanProperty solverProperty;
   private final BooleanProperty generationStarted;
   private final ResultBoxFactory resultBoxFactory;
-
-  private ObjectProperty<Task<FeasibilityResult>> resultTask;
 
   @FXML
   @SuppressWarnings("unused")
@@ -83,7 +78,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     this.solverProperty = new SimpleBooleanProperty(false);
     this.generationStarted = new SimpleBooleanProperty(false);
-    this.resultTask = new SimpleObjectProperty<>();
 
     this.setVgap(10.0);
 
