@@ -57,7 +57,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private Button btGenerate;
+  private Button btChoose;
 
   @FXML
   @SuppressWarnings("unused")
@@ -115,7 +115,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
    */
   @FXML
   @SuppressWarnings("unused")
-  public void btGeneratePressed() {
+  public void btChoosePressed() {
     generationStarted.set(true);
     checkStarted.set(false);
     modulesUnits.getChildren().clear();
@@ -249,8 +249,8 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
-    btGenerate.setDefaultButton(true);
-    btGenerate.disableProperty().bind(solverProperty.not());
+    btChoose.setDefaultButton(true);
+    btChoose.disableProperty().bind(solverProperty.not());
     //
     modulesUnits.visibleProperty().bind(generationStarted);
     scrollPane.visibleProperty().bind(generationStarted);
