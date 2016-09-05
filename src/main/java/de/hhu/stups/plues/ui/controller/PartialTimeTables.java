@@ -120,10 +120,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
     checkStarted.set(false);
     modulesUnits.getChildren().clear();
 
-    Map<Course, Map<Module, List<AbstractUnit>>> data = new HashMap<>();
-
     Course major = courseSelection.getSelectedMajorCourse();
-    data.put(major, new HashMap<>());
     Text majorText = new Text();
     majorText.setText(major.getFullName());
     majorText.setUnderline(true);
@@ -132,14 +129,11 @@ public class PartialTimeTables extends GridPane implements Initializable {
     Course minor = null;
     if (courseSelection.getSelectedMinorCourse().isPresent()) {
       minor = courseSelection.getSelectedMinorCourse().get();
-      data.put(minor, new HashMap<>());
       Text minorText = new Text();
       minorText.setText(minor.getFullName());
       minorText.setUnderline(true);
       modulesUnits.getChildren().add(minorText);
     }
-
-    Store store = (Store) storeProperty.get();
 
     for (Module m : major.getModules()) {
       modulesUnits.getChildren().add(1, createCheckBoxGroup(m, major));
