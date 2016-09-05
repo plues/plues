@@ -11,8 +11,8 @@ import org.junit.runners.JUnit4;
 import org.testfx.api.FxAssert;
 import org.testfx.framework.junit.ApplicationTest;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -62,7 +62,7 @@ public class CheckBoxGroupTest extends ApplicationTest {
     unit.setTitle("Unit");
     AbstractUnit unit2 = new AbstractUnit();
     unit2.setTitle("Unit 2");
-    List<AbstractUnit> majorUnits = new ArrayList<>();
+    Set<AbstractUnit> majorUnits = new HashSet<>();
     majorUnits.add(unit2);
     majorUnits.add(unit);
 
