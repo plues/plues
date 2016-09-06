@@ -8,7 +8,6 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
@@ -27,7 +26,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -103,11 +102,11 @@ public class ResultBox extends GridPane implements Initializable {
    */
   @Inject
   ResultBox(final FXMLLoader loader,
-                   final PdfRenderingTaskFactory taskFactory,
-                   final ExecutorService executorService,
-                   @Assisted("major") final Course major,
-                   @Nullable @Assisted("minor") final Course minor,
-                   @Assisted("parent") final VBox parent) {
+            final PdfRenderingTaskFactory taskFactory,
+            final ExecutorService executorService,
+            @Assisted("major") final Course major,
+            @Nullable @Assisted("minor") final Course minor,
+            @Assisted("parent") final VBox parent) {
     super();
     this.task = taskFactory.create(major, minor);
     this.majorCourse = new SimpleObjectProperty<>(major);
@@ -139,7 +138,7 @@ public class ResultBox extends GridPane implements Initializable {
    */
   private static String getDocumentName(final Course major, final Course minor) {
     return "musterstudienplan_" + major.getName() + "_" + minor.getName()
-        + ".pdf";
+      + ".pdf";
   }
 
   /**
@@ -156,9 +155,9 @@ public class ResultBox extends GridPane implements Initializable {
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
     this.major.textProperty()
-        .bind(Bindings.selectString(this.majorCourse, "fullName"));
+      .bind(Bindings.selectString(this.majorCourse, "fullName"));
     this.minor.textProperty()
-        .bind(Bindings.selectString(this.minorCourse, "fullName"));
+      .bind(Bindings.selectString(this.minorCourse, "fullName"));
     this.lbErrorMsg.visibleProperty().bind(this.pdf.isNull());
 
     task.setOnSucceeded(event -> Platform.runLater(() -> {
@@ -196,7 +195,7 @@ public class ResultBox extends GridPane implements Initializable {
     //
     this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
     this.progressIndicator.visibleProperty()
-        .bind(task.runningProperty());
+      .bind(task.runningProperty());
     //
     // Binding the progress property of the indicator shows a the percentage
     // of completion which in this case is arbitrary since we do not know how
@@ -273,7 +272,8 @@ public class ResultBox extends GridPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void submitAction() {
-    switch (cbAction.getSelectionModel().getSelectedItem()) {
+    final String selectedItem = cbAction.getSelectionModel().getSelectedItem();
+    switch (selectedItem) {
       case "Show":
         showPdf();
         break;
@@ -307,20 +307,26 @@ public class ResultBox extends GridPane implements Initializable {
 
   @FXML
   private void savePdf() {
-    final DirectoryChooser directoryChooser = new DirectoryChooser();
-    directoryChooser.setTitle("Choose the pdf file's location");
-    final File selectedDirectory = directoryChooser.showDialog(null);
-
     final String documentName;
-    if (minorCourse.get() == null) {
-      documentName = getDocumentName(majorCourse.get());
+    final Course minorCourse = this.minorCourse.get();
+    final Course majorCourse = this.majorCourse.get();
+
+    if (minorCourse == null) {
+      documentName = getDocumentName(majorCourse);
     } else {
-      documentName = getDocumentName(majorCourse.get(), minorCourse.get());
+      documentName = getDocumentName(majorCourse, minorCourse);
     }
 
-    if (selectedDirectory != null) {
+    final FileChooser fileChooser = new FileChooser();
+    fileChooser.setTitle("Choose the pdf file's location");
+    fileChooser.setInitialFileName(documentName);
+    fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
+    final File file = fileChooser.showSaveDialog(null);
+
+
+    if (file != null) {
       try {
-        Files.copy(pdf.get(), Paths.get(selectedDirectory.getAbsolutePath()).resolve(documentName));
+        Files.copy(pdf.get(), Paths.get(file.getAbsolutePath()));
       } catch (final Exception exc) {
         this.lbErrorMsg.setText("Error! Copying of temporary file into target file failed.");
       }
