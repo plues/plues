@@ -6,6 +6,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverService;
 
 import javafx.fxml.FXMLLoader;
@@ -33,6 +34,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
   private Course minor;
   private Text icon;
   private HashMap<String, Boolean> enabledButtons;
+  private PdfRenderingTask task;
 
   /**
    * Default constructor.
@@ -93,8 +95,8 @@ public abstract class ResultBoxTest extends ApplicationTest {
       return new JavaFXBuilderFactory().getBuilder(type);
     });
 
-    final ResultBox resultBox = new ResultBox(loader, new Delayed<SolverService>(),
-      (major1, minor1, solverTask) -> null, Executors.newSingleThreadExecutor(), major, minor);
+    final ResultBox resultBox = new ResultBox(loader, new Delayed<>(),
+      (major1, minor1, solverTask) -> task, Executors.newSingleThreadExecutor(), major, minor);
 
     final Scene scene = new Scene(resultBox, 200, 200);
     stage.setScene(scene);
@@ -107,5 +109,9 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   void setEnabledButtons(final HashMap<String, Boolean> enabledButtons) {
     this.enabledButtons = enabledButtons;
+  }
+
+  public void setTask(PdfRenderingTask task) {
+    this.task = task;
   }
 }
