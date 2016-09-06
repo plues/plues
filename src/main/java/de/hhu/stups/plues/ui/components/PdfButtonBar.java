@@ -181,14 +181,4 @@ public class PdfButtonBar extends ButtonBar implements Initializable {
       exception.printStackTrace();
     });
   }
-
-  /**
-   * Set task for this button bar if partial timetables are used.
-   * @param task Given task
-   */
-  public void setTask(SolverTask<FeasibilityResult> task) {
-    this.task = task;
-    cancel.disableProperty().bind(task.runningProperty().not());
-    // TODO: was passiert mit der Task? wie wird das pdf hier erzeugt?
-  }
 }
