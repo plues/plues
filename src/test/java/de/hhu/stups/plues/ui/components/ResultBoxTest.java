@@ -1,9 +1,16 @@
 package de.hhu.stups.plues.ui.components;
 
+import com.google.inject.assistedinject.Assisted;
+
 import static org.testfx.api.FxAssert.verifyThat;
 
+import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
+import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
+import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.tasks.SolverTask;
 
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
@@ -26,10 +33,11 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
+
 public abstract class ResultBoxTest extends ApplicationTest {
   private Course major;
   private Course minor;
-  private PdfRenderingTask task;
   private Text icon;
   private HashMap<String, Boolean> enabledButtons;
 
@@ -92,8 +100,13 @@ public abstract class ResultBoxTest extends ApplicationTest {
       return new JavaFXBuilderFactory().getBuilder(type);
     });
 
-    final ResultBox resultBox = new ResultBox(loader,
-        (major1, minor1) -> task, Executors.newSingleThreadExecutor(), major, minor);
+    final ResultBox resultBox = new ResultBox(loader, new Delayed<SolverService>(),
+      new PdfRenderingTaskFactory() {
+        @Override
+        public PdfRenderingTask create(@Assisted("major") Course major, @Assisted("minor") @Nullable Course minor, @Assisted SolverTask<FeasibilityResult> solverTask) {
+          return null;
+        }
+      }, Executors.newSingleThreadExecutor(), major, minor);
 
     final Scene scene = new Scene(resultBox, 200, 200);
     stage.setScene(scene);
@@ -101,7 +114,6 @@ public abstract class ResultBoxTest extends ApplicationTest {
   }
 
   void setTask(final PdfRenderingTask task) {
-    this.task = task;
   }
 
   void setIcon(final Text icon) {
