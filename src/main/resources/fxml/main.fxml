@@ -1,41 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.hhu.stups.plues.ui.components.Timetable?>
+<?import de.hhu.stups.plues.ui.controller.Musterstudienplaene?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
-
 <?import org.controlsfx.control.TaskProgressView?>
-<?import javafx.scene.control.TabPane?>
-
-<?import javafx.scene.control.Tab?>
-<?import de.hhu.stups.plues.ui.controller.Musterstudienplaene?>
-<?import de.hhu.stups.plues.ui.components.Timetable?>
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.hhu.stups.plues.ui.controller.MainController">
-    <MenuBar BorderPane.alignment="CENTER">
-        <menus>
-            <Menu mnemonicParsing="false" text="File">
-                <items>
-                    <MenuItem fx:id="openFileMenuItem" onAction="#openFile"
-                              mnemonicParsing="false" text="Open"/>
-                    <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"
-                              mnemonicParsing="false" text="Export Saved State"/>
-                    <MenuItem mnemonicParsing="false" text="Close"/>
-                </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Edit">
-                <items>
-                    <MenuItem mnemonicParsing="false" text="Delete" />
-                </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Help">
-                <items>
-                    <MenuItem mnemonicParsing="false" text="About" />
-                </items>
-            </Menu>
-        </menus>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="de.hhu.stups.plues.ui.controller.MainController">
+    <MenuBar useSystemMenuBar="true" BorderPane.alignment="CENTER">
+        <Menu mnemonicParsing="false" text="File">
+            <MenuItem fx:id="openFileMenuItem" onAction="#openFile"
+                      mnemonicParsing="false" text="Open"/>
+            <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"
+                      mnemonicParsing="false" text="Export Saved State"/>
+            <MenuItem mnemonicParsing="false" text="Close"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Edit">
+            <MenuItem mnemonicParsing="false" text="Delete"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+            <MenuItem mnemonicParsing="false" text="About"/>
+        </Menu>
     </MenuBar>
     <BorderPane>
         <center>
@@ -50,9 +42,7 @@
         </center>
         <right>
             <ScrollPane prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
-                <content>
-                    <TaskProgressView fx:id="taskProgress" prefWidth="300"/>
-                </content>
+                <TaskProgressView fx:id="taskProgress" prefWidth="300"/>
             </ScrollPane>
         </right>
     </BorderPane>
