@@ -14,13 +14,10 @@ import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.Solver;
 
-import javafx.concurrent.Task;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 public class SolverService {
@@ -162,5 +159,4 @@ public class SolverService {
   public final <T> ListenableFuture<T>  submit(final SolverTask<T> command) {
     return (ListenableFuture<T>) this.executor.submit(command);
   }
-
 }
