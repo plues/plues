@@ -19,8 +19,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.util.Builder;
-import javafx.util.BuilderFactory;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -101,19 +99,11 @@ public abstract class ResultBoxTest extends ApplicationTest {
     });
 
     final ResultBox resultBox = new ResultBox(loader, new Delayed<SolverService>(),
-      new PdfRenderingTaskFactory() {
-        @Override
-        public PdfRenderingTask create(@Assisted("major") Course major, @Assisted("minor") @Nullable Course minor, @Assisted SolverTask<FeasibilityResult> solverTask) {
-          return null;
-        }
-      }, Executors.newSingleThreadExecutor(), major, minor);
+      (major1, minor1, solverTask) -> null, Executors.newSingleThreadExecutor(), major, minor);
 
     final Scene scene = new Scene(resultBox, 200, 200);
     stage.setScene(scene);
     stage.show();
-  }
-
-  void setTask(final PdfRenderingTask task) {
   }
 
   void setIcon(final Text icon) {
