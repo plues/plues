@@ -6,11 +6,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
-import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
-import de.hhu.stups.plues.tasks.SolverTask;
 
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
@@ -31,7 +27,6 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nullable;
 
 public abstract class ResultBoxTest extends ApplicationTest {
   private Course major;
