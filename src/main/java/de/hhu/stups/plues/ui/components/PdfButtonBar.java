@@ -3,8 +3,6 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
-import de.hhu.stups.plues.tasks.SolverTask;
 
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
@@ -177,8 +175,10 @@ public class PdfButtonBar extends ButtonBar implements Initializable {
     task.setOnFailed(event -> {
       final Notifications message = Notifications.create();
       message.title("Error! Could not generate PDF");
-      message.text(event.getSource().getException().getMessage());
+      Throwable exception = event.getSource().getException();
+      message.text(exception.getMessage());
       message.show();
+      exception.printStackTrace();
     });
   }
 
