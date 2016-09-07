@@ -178,9 +178,8 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     if (major == null) {
       return;
     }
-    final String majorShortName = major.getShortName();
     final FilteredList<Course> minorCourseList = initialMinorCourseList.filtered(
-        course -> !course.getShortName().equals(majorShortName));
+        course -> course.isCombinableWith(major));
 
     cbMinor.setItems(minorCourseList);
     cbMinor.getSelectionModel().select(0);
