@@ -73,7 +73,7 @@ public class MainController implements Initializable {
   private final Stage stage;
   private final ExecutorService executor;
 
-  private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);;
+  private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
 
   @FXML
   private MenuItem openFileMenuItem;
@@ -172,22 +172,9 @@ public class MainController implements Initializable {
     // a few instants to finish
     // TODO: consider generating the file to a temporary location and moving it to the final
     // location after the generation finished successfully.
-    final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-    final String dateTime = dateFormat.format(new Date());
-
-    final String initialDir = preferences.get(LAST_XML_EXPORT_DIR, System.getProperty("user.home"));
-    final FileChooser fileChooser = new FileChooser();
-    fileChooser.setInitialDirectory(new File(initialDir));
-    fileChooser.setInitialFileName("plues_xml_database_" + dateTime + ".zip");
-    fileChooser.setTitle("Choose the zip file's location");
-
-    final File selectedFile = fileChooser.showSaveDialog(null);
+    final File selectedFile = getXmlExportFile();
 
     if (selectedFile != null) {
-
-      final String newInitialDir = selectedFile.getAbsoluteFile().getParent();
-      preferences.put(LAST_XML_EXPORT_DIR, newInitialDir);
-
       executor.execute(new Task<Void>() {
 
         @Override
@@ -213,6 +200,26 @@ public class MainController implements Initializable {
         }
       });
     }
+  }
+
+  private File getXmlExportFile() {
+    final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+    final String dateTime = dateFormat.format(new Date());
+
+    final String initialDir = preferences.get(LAST_XML_EXPORT_DIR, System.getProperty("user.home"));
+    final FileChooser fileChooser = new FileChooser();
+    fileChooser.setInitialDirectory(new File(initialDir));
+    fileChooser.setInitialFileName("plues_xml_database_" + dateTime + ".zip");
+    fileChooser.setTitle("Choose the zip file's location");
+
+    final File selectedFile = fileChooser.showSaveDialog(null);
+
+    if (selectedFile != null) {
+
+      final String newInitialDir = selectedFile.getAbsoluteFile().getParent();
+      preferences.put(LAST_XML_EXPORT_DIR, newInitialDir);
+    }
+    return selectedFile;
   }
 
   private void loadData(final String path) {
