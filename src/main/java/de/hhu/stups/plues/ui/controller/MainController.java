@@ -184,7 +184,7 @@ public class MainController implements Initializable {
     final File selectedFile = fileChooser.showSaveDialog(null);
 
     if (selectedFile != null) {
-      
+
       final String newInitialDir = selectedFile.getAbsoluteFile().getParent();
       preferences.put(LAST_XML_EXPORT_DIR, newInitialDir);
 

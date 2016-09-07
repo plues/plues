@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
+import java.util.prefs.Preferences;
 
 import javax.annotation.Nullable;
 import javax.swing.SwingUtilities;
@@ -50,6 +51,7 @@ public class ResultBox extends GridPane implements Initializable {
   private static final String FAILURE_COLOR = "#FFBABA";
   private static final String SUCCESS_COLOR = "#DFF2BF";
   private static final String WORKING_COLOR = "#BDE5F8";
+  public static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
 
   private final ObjectProperty<Course> majorCourse;
   private final ObjectProperty<Course> minorCourse;
@@ -89,6 +91,7 @@ public class ResultBox extends GridPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Button btSubmit;
+  private final Preferences preferences = Preferences.userNodeForPackage(this.getClass());
 
 
   /**
@@ -307,22 +310,7 @@ public class ResultBox extends GridPane implements Initializable {
 
   @FXML
   private void savePdf() {
-    final String documentName;
-    final Course minorCourse = this.minorCourse.get();
-    final Course majorCourse = this.majorCourse.get();
-
-    if (minorCourse == null) {
-      documentName = getDocumentName(majorCourse);
-    } else {
-      documentName = getDocumentName(majorCourse, minorCourse);
-    }
-
-    final FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle("Choose the pdf file's location");
-    fileChooser.setInitialFileName(documentName);
-    fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
-    final File file = fileChooser.showSaveDialog(null);
-
+    final File file = getTargetFile();
 
     if (file != null) {
       try {
@@ -331,6 +319,33 @@ public class ResultBox extends GridPane implements Initializable {
         this.lbErrorMsg.setText("Error! Copying of temporary file into target file failed.");
       }
     }
+  }
+
+  private File getTargetFile() {
+    final Course minorCourse = this.minorCourse.get();
+    final Course majorCourse = this.majorCourse.get();
+
+    final String documentName;
+    if (minorCourse == null) {
+      documentName = getDocumentName(majorCourse);
+    } else {
+      documentName = getDocumentName(majorCourse, minorCourse);
+    }
+
+    final String initialDirectory = preferences.get(PDF_SAVE_DIR, System.getProperty("user.home"));
+
+    final FileChooser fileChooser = new FileChooser();
+    fileChooser.setTitle("Choose the pdf file's location");
+    fileChooser.setInitialDirectory(new File(initialDirectory));
+    fileChooser.setInitialFileName(documentName);
+    fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
+
+    final File file = fileChooser.showSaveDialog(null);
+    if (file != null) {
+      preferences.put(PDF_SAVE_DIR, file.getAbsoluteFile().getParent());
+    }
+
+    return file;
   }
 
   @FXML
