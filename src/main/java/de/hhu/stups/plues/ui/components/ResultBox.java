@@ -132,8 +132,8 @@ public class ResultBox extends GridPane implements Initializable {
   /**
    * Helper function to find the file name containing major and minor name.
    *
-   * @param major Course object representing the choosen major course
-   * @param minor Course object representing the choosen minor course
+   * @param major Course object representing the chosen major course
+   * @param minor Course object representing the chosen minor course
    * @return String representing the file name
    */
   private static String getDocumentName(final Course major, final Course minor) {
