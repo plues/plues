@@ -54,7 +54,8 @@ public class MainController implements Initializable {
 
   private static final Map<Class, FontAwesomeIcon> iconMap = new HashMap<>();
   private static final FontAwesomeIcon DEFAULT_ICON = FontAwesomeIcon.TASKS;
-  private static final String LAST_DIR = "LAST_DIR";
+  private static final String LAST_DB_OPEN_DIR = "LAST_DB_OPEN_DIR";
+  private static final String LAST_XML_EXPORT_DIR = "LAST_XML_EXPORT_DIR";
 
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
@@ -71,6 +72,8 @@ public class MainController implements Initializable {
   private final Properties properties;
   private final Stage stage;
   private final ExecutorService executor;
+
+  private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);;
 
   @FXML
   private MenuItem openFileMenuItem;
@@ -140,10 +143,7 @@ public class MainController implements Initializable {
    */
   @SuppressWarnings("UnusedParameters")
   public final void openFile(final ActionEvent actionEvent) {
-    final Preferences prefs
-        = Preferences.userNodeForPackage(MainController.class);
-    final String initialDir
-        = prefs.get(LAST_DIR, System.getProperty("user.home"));
+    final String initialDir = preferences.get(LAST_DB_OPEN_DIR, System.getProperty("user.home"));
     //
     final FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle("Open a Database"); // TODO: i18n
@@ -156,9 +156,7 @@ public class MainController implements Initializable {
     //
     if (file != null) {
       final String newInitialDir = file.getAbsoluteFile().getParent();
-      if (!newInitialDir.equals(initialDir)) {
-        prefs.put(LAST_DIR, newInitialDir);
-      }
+      preferences.put(LAST_DB_OPEN_DIR, newInitialDir);
       //
       this.loadData(file.getAbsolutePath());
     }
@@ -177,13 +175,19 @@ public class MainController implements Initializable {
     final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
     final String dateTime = dateFormat.format(new Date());
 
+    final String initialDir = preferences.get(LAST_XML_EXPORT_DIR, System.getProperty("user.home"));
     final FileChooser fileChooser = new FileChooser();
+    fileChooser.setInitialDirectory(new File(initialDir));
     fileChooser.setInitialFileName("plues_xml_database_" + dateTime + ".zip");
     fileChooser.setTitle("Choose the zip file's location");
 
     final File selectedFile = fileChooser.showSaveDialog(null);
 
     if (selectedFile != null) {
+      
+      final String newInitialDir = selectedFile.getAbsoluteFile().getParent();
+      preferences.put(LAST_XML_EXPORT_DIR, newInitialDir);
+
       executor.execute(new Task<Void>() {
 
         @Override
