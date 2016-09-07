@@ -13,6 +13,7 @@
 <?import javafx.scene.control.Tab?>
 <?import de.hhu.stups.plues.ui.controller.Musterstudienplaene?>
 <?import de.hhu.stups.plues.ui.components.Timetable?>
+<?import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.hhu.stups.plues.ui.controller.MainController">
     <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -45,6 +46,9 @@
                 </Tab>
                 <Tab text="Timetable" closable="false">
                     <Timetable fx:id="timetable"/>
+                </Tab>
+                <Tab text="Batch Timetable Generation" closable="false">
+                    <BatchTimetableGeneration fx:id="batchTimetableGeneration"/>
                 </Tab>
             </TabPane>
         </center>

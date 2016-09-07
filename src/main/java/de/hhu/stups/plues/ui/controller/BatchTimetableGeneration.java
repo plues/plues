@@ -1,0 +1,321 @@
+package de.hhu.stups.plues.ui.controller;
+
+import com.google.inject.Inject;
+
+import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.tasks.PdfRenderingTask;
+import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
+
+
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.IntegerBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+
+public class BatchTimetableGeneration extends GridPane implements Initializable {
+
+  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+  private final Delayed<Store> delayedStore;
+  private final Delayed<SolverService> delayedSolverService;
+
+  private final BooleanProperty solverProperty;
+  private final BooleanProperty generationStarted;
+  private final BooleanProperty generationSucceeded;
+  private final BatchResultBoxFactory resultBoxFactory;
+  private Path tempDirectoryPath;
+  private final Set<PdfRenderingTask> taskPool;
+  private final ExecutorService executor;
+  private Task<Void> fillTaskPoolTask;
+  private Task<Void> executeTaskPoolTask;
+
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btGenerateAll;
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btSaveToZip;
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btSaveToFolder;
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btCancel;
+  @FXML
+  @SuppressWarnings("unused")
+  private ScrollPane scrollPane;
+  @FXML
+  @SuppressWarnings("unused")
+  private VBox resultBox;
+
+  // TODO: block other tasks while batch generation is running
+
+  /**
+   * Generate all possible combinations of major and minor courses. While generating the pdf files
+   * save them in a temporary directory. When all tasks are finished the user is able to store the
+   * pdf files persistently in a folder or a zip archive.
+   */
+  @Inject
+  public BatchTimetableGeneration(final FXMLLoader loader, final Delayed<Store> delayedStore,
+                                  final Delayed<SolverService> delayedSolverService,
+                                  final BatchResultBoxFactory resultBoxFactory,
+                                  final ExecutorService executorService) {
+    this.delayedStore = delayedStore;
+    this.delayedSolverService = delayedSolverService;
+    this.resultBoxFactory = resultBoxFactory;
+    this.executor = executorService;
+
+    this.solverProperty = new SimpleBooleanProperty(false);
+    this.generationStarted = new SimpleBooleanProperty(false);
+    this.generationSucceeded = new SimpleBooleanProperty(false);
+    this.taskPool = new HashSet<>();
+
+    try {
+      this.tempDirectoryPath = Files.createTempDirectory("plues_timetables");
+    } catch (final IOException exception) {
+      logger.log(Level.INFO, "Could not create temporary directory.");
+    }
+
+    // delete the temporary directory when the application closes
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      try {
+        FileUtils.deleteDirectory(tempDirectoryPath.toFile());
+      } catch (IOException exception) {
+        logger.log(Level.INFO, "Could not delete the temporary directory.");
+      }
+    }));
+
+    loader.setLocation(getClass().getResource("/fxml/BatchTimetableGeneration.fxml"));
+
+    loader.setRoot(this);
+    loader.setController(this);
+
+    try {
+      loader.load();
+    } catch (final IOException exception) {
+      throw new RuntimeException(exception);
+    }
+  }
+
+  @Override
+  public void initialize(URL location, ResourceBundle resources) {
+    btGenerateAll.setDefaultButton(true);
+    btGenerateAll.disableProperty().bind(solverProperty.not().or(generationStarted));
+    btCancel.disableProperty().bind(solverProperty.not().or(btGenerateAll.disableProperty().not()));
+
+    btSaveToZip.disableProperty().bind(generationSucceeded.not());
+    btSaveToFolder.disableProperty().bind(generationSucceeded.not());
+
+    IntegerBinding resultBoxChildren = Bindings.size(resultBox.getChildren());
+    scrollPane.visibleProperty().bind(resultBoxChildren.greaterThan(0));
+
+    resultBox.maxWidthProperty().bind(scrollPane.widthProperty().subtract(25.0));
+    resultBox.minWidthProperty().bind(scrollPane.widthProperty().subtract(25.0));
+    resultBox.setSpacing(5.0);
+    resultBox.setPadding(new Insets(10.0, 0.0, 10.0, 10.0));
+
+    delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
+  }
+
+  /**
+   * The button action of {@link #btGenerateAll} to generate pdf files for all possible combinations
+   * of major and minor courses.
+   */
+  @FXML
+  @SuppressWarnings("unused")
+  private void generateAll() {
+    resultBox.getChildren().clear();
+    generationStarted.setValue(true);
+    generationSucceeded.setValue(false);
+    final List<Course> courses = delayedStore.get().getCourses();
+
+    final List<Course> majorCourseList = courses.stream()
+        .filter(Course::isMajor)
+        .collect(Collectors.toList());
+
+    final List<Course> minorCourseList = courses.stream()
+        .filter(Course::isMinor)
+        .collect(Collectors.toList());
+
+    fillTaskPoolTask = new Task<Void>() {
+      @Override
+      protected Void call() throws Exception {
+        updateTitle("Preparing generation");
+        majorCourseList.stream().forEach(c -> combineMajorMinor(c, minorCourseList));
+        return null;
+      }
+    };
+
+    executeTaskPoolTask = new Task<Void>() {
+      @Override
+      protected Void call() throws Exception {
+        updateTitle("Generating all timetables");
+        try {
+          // run all tasks from the pool, the tasks need to be
+          // converted to callable to use invokeAll()
+          List<Future<Void>> futurePool = executor.invokeAll(
+              taskPool.stream().map(t -> runnableToCallable(t)).collect(Collectors.toSet()));
+          if (!futurePool.isEmpty()) {
+            generationSucceeded.setValue(true);
+          }
+          generationStarted.setValue(false);
+        } catch (final InterruptedException exception) {
+          logger.log(Level.INFO, "Generation cancelled.");
+        }
+        return null;
+      }
+    };
+
+    // when the task pool is filled we start invoking all tasks
+    fillTaskPoolTask.setOnSucceeded(event -> executor.submit(executeTaskPoolTask));
+
+    executor.submit(fillTaskPoolTask);
+  }
+
+  private Callable<Void> runnableToCallable(final Runnable runnable) {
+    return () -> {
+      runnable.run();
+      return null;
+    };
+  }
+
+  /**
+   * Generate all possible combinations of the given major course and all minor courses (one at a
+   * time). If the major course is not combinable just generate a single pdf for this course.
+   *
+   * @param majorCourse     The currently given major course.
+   * @param minorCourseList The list of all minor courses.
+   */
+  private void combineMajorMinor(Course majorCourse, List<Course> minorCourseList) {
+    final String majorCourseName = majorCourse.getShortName();
+    if (!majorCourse.isCombinable()) {
+      resultBoxFactory.create(majorCourse, null, resultBox, tempDirectoryPath, taskPool);
+    } else {
+      minorCourseList.stream().forEach(c -> {
+        if (!c.getShortName().equals(majorCourseName)) {
+          resultBoxFactory.create(majorCourse, c, resultBox, tempDirectoryPath, taskPool);
+        }
+      });
+    }
+  }
+
+  /**
+   * The button action of {@link #btCancel} to cancel the generation of all timetables.
+   */
+  @FXML
+  @SuppressWarnings("unused")
+  private void cancelGeneration() {
+    fillTaskPoolTask.cancel(true);
+    executeTaskPoolTask.cancel(true);
+    generationStarted.setValue(false);
+  }
+
+  /**
+   * The button action of {@link #btSaveToZip} to save the temporarily stored pdf files to a zip
+   * archive selected by the user.
+   */
+  @FXML
+  @SuppressWarnings("unused")
+  private void savePersistentZip() {
+    final FileChooser fileChooser = new FileChooser();
+    fileChooser.setInitialFileName("plues_all_timetables.zip");
+    fileChooser.setTitle("Choose the zip file's location");
+
+    FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
+        "zip-Archive (*.zip)", "*.zip");
+    fileChooser.getExtensionFilters().add(extFilter);
+
+    final File selectedFile = fileChooser.showSaveDialog(null);
+    if (selectedFile != null) {
+      tempFolderToZip(tempDirectoryPath, selectedFile.toPath());
+    }
+  }
+
+  /**
+   * The button action of {@link #btSaveToFolder} to save the temporarily stored pdf files to a
+   * folder selected by the user.
+   */
+  @FXML
+  @SuppressWarnings("unused")
+  private void savePersistentFolder() {
+    final DirectoryChooser directoryChooser = new DirectoryChooser();
+    directoryChooser.setTitle("Choose the directory");
+
+    final File selectedDirectory = directoryChooser.showDialog(null);
+    if (selectedDirectory != null) {
+      try {
+        Files.walk(tempDirectoryPath)
+            .filter(path -> !path.toFile().isDirectory())
+            .forEach(path -> {
+              try {
+                Files.copy(path, new File(selectedDirectory.toPath().toString() + "/"
+                    + path.getFileName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+              } catch (IOException exception) {
+                exception.printStackTrace();
+              }
+            });
+      } catch (IOException exception) {
+        logger.log(Level.INFO, "Could not save pdf files to the selected folder.");
+      }
+    }
+  }
+
+  /**
+   * Zip all files located in the temporary folder and store the zip archive at the target path
+   * given by the user.
+   *
+   * @param target The path to store the zip archive in.
+   */
+  private void tempFolderToZip(Path destination, Path target) {
+    try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(target))) {
+      Files.walk(destination)
+          .filter(path -> !path.toFile().isDirectory())
+          .forEach(path -> {
+            try {
+              zipOutputStream.putNextEntry(new ZipEntry(path.getFileName().toString()));
+              zipOutputStream.write(Files.readAllBytes(path));
+              zipOutputStream.closeEntry();
+            } catch (IOException exception) {
+              exception.printStackTrace();
+            }
+          });
+    } catch (IOException exception) {
+      logger.log(Level.INFO, "Could not save the zip archive to the selected location.");
+    }
+  }
+}
