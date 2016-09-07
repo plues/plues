@@ -37,30 +37,45 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
         observableList(majorCourseList),
         courseSelection.getMajorComboBox().getItems());
     Assert.assertEquals(
-        observableList(minorCourseList).filtered(course -> course.isCombinableWith(majorCourseList.get(0))),
+        observableList(minorCourseList).filtered(
+          course -> course.isCombinableWith(majorCourseList.get(0))),
         courseSelection.getMinorComboBox().getItems());
   }
 
   @Test
-  public void selectionTest() {
+  public void selectionTestCombinableCourse() {
 
     // select combinable course
-    clickOn(courseSelection.getMajorComboBox()).type(KeyCode.DOWN).type(KeyCode.ENTER);
+    clickOn(courseSelection.getMajorComboBox())
+        .type(KeyCode.DOWN)
+        .type(KeyCode.ENTER);
+
     Assert.assertFalse(courseSelection.getMinorComboBox().isDisabled());
+
     Assert.assertEquals(majorCourseList.get(1), courseSelection.getSelectedMajorCourse());
     Assert.assertEquals(minorCourseList.get(0), courseSelection.getSelectedMinorCourse().get());
+
     Assert.assertEquals(4, courseSelection.getMajorComboBox().getItems().size());
     Assert.assertEquals(2, courseSelection.getMinorComboBox().getItems().size());
 
+  }
+
+  @Test
+  public void selectionTestNonCombinableCourse() {
     // select not combinable course
     clickOn(courseSelection.getMajorComboBox())
-       .type(KeyCode.DOWN).type(KeyCode.DOWN).type(KeyCode.ENTER);
-    Assert.assertTrue(courseSelection.getMinorComboBox().isDisabled());
+        .type(KeyCode.DOWN)
+        .type(KeyCode.DOWN)
+        .type(KeyCode.DOWN)
+        .type(KeyCode.ENTER);
+
     Assert.assertEquals(majorCourseList.get(3), courseSelection.getSelectedMajorCourse());
+
+    Assert.assertTrue(courseSelection.getMinorComboBox().isDisabled());
     Assert.assertEquals(Optional.empty(), courseSelection.getSelectedMinorCourse());
+
     Assert.assertEquals(4, courseSelection.getMajorComboBox().getItems().size());
     Assert.assertEquals(0, courseSelection.getMinorComboBox().getItems().size());
-
   }
 
   // degree: "bk" is combinable, "ba" is not
