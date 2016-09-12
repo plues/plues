@@ -36,7 +36,7 @@ public class PdfRenderingHelper {
   private static final String WARNING_COLOR = "#FEEFB3";
   private static final String FAILURE_COLOR = "#FFBABA";
   private static final String SUCCESS_COLOR = "#DFF2BF";
-  public static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
+  private static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
 
   /**
    * Unified function to show a pdf. Error messages will be printed on label or stack trace if
