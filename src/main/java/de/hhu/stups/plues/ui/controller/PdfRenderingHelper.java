@@ -67,8 +67,8 @@ public class PdfRenderingHelper {
    * @param cl Class to save preferences for
    * @param lbErrorMsg Label to print error messages on. Can be null
    */
-  public static void savePdf(Path pdf, Course major, Course minor,
-                             Class cl, Label lbErrorMsg) {
+  public static void savePdf(final Path pdf, final Course major, final Course minor,
+                             final Label lbErrorMsg) {
     final File file = getTargetFile(major, minor);
 
     if (file != null) {

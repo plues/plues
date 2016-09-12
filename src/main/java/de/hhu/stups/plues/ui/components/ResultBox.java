@@ -279,7 +279,7 @@ public class ResultBox extends GridPane implements Initializable {
 
   @FXML
   private void savePdf() {
-    PdfRenderingHelper.savePdf(pdf.get(), majorCourse.get(), minorCourse.get(), this.getClass(), lbErrorMsg);
+    PdfRenderingHelper.savePdf(pdf.get(), majorCourse.get(), minorCourse.get(), lbErrorMsg);
   }
 
   @FXML

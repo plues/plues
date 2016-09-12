@@ -259,6 +259,6 @@ public class PartialTimeTables extends GridPane implements Initializable {
     final Course minor = (courseSelection.getSelectedMinorCourse().isPresent())
         ? courseSelection.getSelectedMinorCourse().get() : null;
 
-    PdfRenderingHelper.savePdf(pdf.get(), major, minor, this.getClass(), null);
+    PdfRenderingHelper.savePdf(pdf.get(), major, minor, null);
   }
 }
