@@ -87,6 +87,7 @@ public class ResultBox extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   private Label minor;
 
+  @FXML
   @SuppressWarnings("unused")
   private Label lbErrorMsg;
 
@@ -123,6 +124,7 @@ public class ResultBox extends GridPane implements Initializable {
 
     this.majorCourse = new SimpleObjectProperty<>(major);
     this.minorCourse = new SimpleObjectProperty<>(minor);
+    this.pdf = new SimpleObjectProperty<>();
     this.executor = executorService;
     this.parent = parent;
     this.setHgap(10.0);
