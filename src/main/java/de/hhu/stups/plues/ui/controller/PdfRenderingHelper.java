@@ -37,7 +37,6 @@ public class PdfRenderingHelper {
   private static final String FAILURE_COLOR = "#FFBABA";
   private static final String SUCCESS_COLOR = "#DFF2BF";
   public static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
-  private static Preferences preferences;
 
   /**
    * Unified function to show a pdf. Error messages will be printed on label or stack trace if
@@ -70,7 +69,6 @@ public class PdfRenderingHelper {
    */
   public static void savePdf(Path pdf, Course major, Course minor,
                              Class cl, Label lbErrorMsg) {
-    preferences = Preferences.userNodeForPackage(cl);
     final File file = getTargetFile(major, minor);
 
     if (file != null) {
@@ -101,6 +99,7 @@ public class PdfRenderingHelper {
       documentName = getDocumentName(majorCourse, minorCourse);
     }
 
+    final Preferences preferences = Preferences.userNodeForPackage(PdfRenderingHelper.class);
     final String initialDirectory = preferences.get(PDF_SAVE_DIR, System.getProperty("user.home"));
 
     final FileChooser fileChooser = new FileChooser();
