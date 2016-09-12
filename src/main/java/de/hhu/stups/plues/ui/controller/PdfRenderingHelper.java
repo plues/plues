@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui.controller;
 
+import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
@@ -206,13 +207,20 @@ public class PdfRenderingHelper {
   }
 
   // TODO: ggf. wieder woanders hin
+
   /**
    * Initialize course selection object of each class using it.
-   * @param store Store object to collect courses
-   * @param courseSelection Object to save selection
+   *
+   * @param store           Store object to collect courses
+   * @param courseSelection Object to save selection.
+   * @param delayedSolverService solverService to retrieve impossible courses
+   *
    */
-  public static void initializeCourseSelection(final Store store,
-                                               MajorMinorCourseSelection courseSelection) {
+  static void initializeCourseSelection(final Store store,
+                                        // TODO: this should not be parameter
+                                        // but instead be constructed here and returned
+                                        final MajorMinorCourseSelection courseSelection,
+                                        final Delayed<SolverService> delayedSolverService) {
     final List<Course> courses = store.getCourses();
 
     final List<Course> majorCourseList = courses.stream()
@@ -225,14 +233,13 @@ public class PdfRenderingHelper {
 
     courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
     courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
-  }
 
-  public static void impossibleCourses(SolverService solverService,
-                                       MajorMinorCourseSelection courseSelection) {
-     final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
-
+    // register task to highlight impossible courses
+    delayedSolverService.whenAvailable(solverService -> {
+      final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
       impossibleCoursesTask.setOnSucceeded(event ->
         courseSelection.highlightImpossibleCourses(impossibleCoursesTask.getValue()));
       solverService.submit(impossibleCoursesTask);
-    }
+    });
+  }
 }

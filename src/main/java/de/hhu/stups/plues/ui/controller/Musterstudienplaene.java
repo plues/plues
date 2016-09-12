@@ -133,11 +133,11 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     resultBox.setPadding(new Insets(10.0,0.0,10.0,10.0));
 
     delayedStore.whenAvailable(store ->
-      PdfRenderingHelper.initializeCourseSelection(store, courseSelection));
+      PdfRenderingHelper.initializeCourseSelection(store, courseSelection, delayedSolverService));
+
 
     delayedSolverService.whenAvailable(s -> {
       this.solverProperty.set(true);
-      PdfRenderingHelper.impossibleCourses(s, courseSelection);
     });
   }
 }

@@ -237,14 +237,13 @@ public class PartialTimeTables extends GridPane implements Initializable {
     buttons.disableProperty().bind(pdf.isNull().and(checkStarted));
     //
     delayedStore.whenAvailable(s -> {
-      PdfRenderingHelper.initializeCourseSelection(s, courseSelection);
+      PdfRenderingHelper.initializeCourseSelection(s, courseSelection, delayedSolverService);
       this.storeProperty.set(s);
       this.storeAvailable.set(true);
     });
 
     delayedSolverService.whenAvailable(s -> {
       this.solverProperty.set(true);
-      PdfRenderingHelper.impossibleCourses(s, courseSelection);
     });
   }
 
