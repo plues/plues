@@ -9,7 +9,6 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
@@ -42,10 +41,11 @@ public class PdfRenderingHelper {
   /**
    * Unified function to show a pdf. Error messages will be printed on label or stack trace if
    * no label is present.
-   * @param file Temporary file to show pdf
+   *
+   * @param file       Temporary file to show pdf
    * @param lbErrorMsg Label where to print an error message. Null if no label present
    */
-  public static void showPdf(final Path file, Label lbErrorMsg) {
+  public static void showPdf(final Path file, final Label lbErrorMsg) {
     SwingUtilities.invokeLater(() -> {
       try {
         Desktop.getDesktop().open(file.toFile());
@@ -62,10 +62,10 @@ public class PdfRenderingHelper {
   /**
    * Unified function to save a pdf for a given major and minor course. Error messages will
    * be printed on label if present or on stack trace.
-   * @param pdf Path to pdf to save
-   * @param major Major course for pdf
-   * @param minor Minor course for pdf (could be null)
-   * @param cl Class to save preferences for
+   *
+   * @param pdf        Path to pdf to save
+   * @param major      Major course for pdf
+   * @param minor      Minor course for pdf (could be null)
    * @param lbErrorMsg Label to print error messages on. Can be null
    */
   public static void savePdf(final Path pdf, final Course major, final Course minor,
@@ -87,6 +87,7 @@ public class PdfRenderingHelper {
 
   /**
    * Find the target file choosen by the user.
+   *
    * @param majorCourse Major course
    * @param minorCourse Minor course
    * @return File object representing the choosen file by user
@@ -141,10 +142,11 @@ public class PdfRenderingHelper {
 
   /**
    * Collect icon bindung for a given task. Depends on how the task behaves.
+   *
    * @param task Given task
    * @return Object binding depending on the tasks state
    */
-  public static ObjectBinding<Text> getIconBinding(PdfRenderingTask task) {
+  public static ObjectBinding<Text> getIconBinding(final PdfRenderingTask task) {
     return Bindings.createObjectBinding(() -> {
       FontAwesomeIcon symbol = null;
 
@@ -175,10 +177,11 @@ public class PdfRenderingHelper {
 
   /**
    * Collect string binding for given task.
+   *
    * @param task Given task
    * @return String binding depending on the tasks state
    */
-  public static StringBinding getStyleBinding(PdfRenderingTask task) {
+  public static StringBinding getStyleBinding(final PdfRenderingTask task) {
     return Bindings.createStringBinding(() -> {
       String color = null;
 
