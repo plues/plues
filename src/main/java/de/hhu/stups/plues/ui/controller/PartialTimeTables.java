@@ -245,35 +245,15 @@ public class PartialTimeTables extends GridPane implements Initializable {
     buttons.disableProperty().bind(pdf.isNull().and(checkStarted));
     //
     delayedStore.whenAvailable(s -> {
-      initializeCourseSelection(s);
+      PdfRenderingHelper.initializeCourseSelection(s, courseSelection);
       this.storeProperty.set(s);
       this.storeAvailable.set(true);
     });
 
     delayedSolverService.whenAvailable(s -> {
       this.solverProperty.set(true);
-
-      final SolverTask<Set<String>> impossibleCoursesTask = s.impossibleCoursesTask();
-
-      impossibleCoursesTask.setOnSucceeded(event ->
-          courseSelection.highlightImpossibleCourses((Set<String>) event.getSource().getValue()));
-      s.submit(impossibleCoursesTask);
+      PdfRenderingHelper.impossibleCourses(s, courseSelection);
     });
-  }
-
-  private void initializeCourseSelection(final Store store) {
-    final List<Course> courses = store.getCourses();
-
-    final List<Course> majorCourseList = courses.stream()
-        .filter(Course::isMajor)
-        .collect(Collectors.toList());
-
-    final List<Course> minorCourseList = courses.stream()
-        .filter(Course::isMinor)
-        .collect(Collectors.toList());
-
-    courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
-    courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
   }
 
   @FXML

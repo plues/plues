@@ -1,7 +1,12 @@
 package de.hhu.stups.plues.ui.controller;
 
+import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
+import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
@@ -9,6 +14,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -19,7 +25,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Set;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
@@ -199,4 +208,35 @@ public class PdfRenderingHelper {
 
     }, task.stateProperty());
   }
+
+  // TODO: ggf. wieder woanders hin
+  /**
+   * Initialize course selection object of each class using it.
+   * @param store Store object to collect courses
+   * @param courseSelection Object to save selection
+   */
+  public static void initializeCourseSelection(final Store store,
+                                               MajorMinorCourseSelection courseSelection) {
+    final List<Course> courses = store.getCourses();
+
+    final List<Course> majorCourseList = courses.stream()
+      .filter(Course::isMajor)
+      .collect(Collectors.toList());
+
+    final List<Course> minorCourseList = courses.stream()
+      .filter(Course::isMinor)
+      .collect(Collectors.toList());
+
+    courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
+    courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
+  }
+
+  public static void impossibleCourses(SolverService solverService,
+                                       MajorMinorCourseSelection courseSelection) {
+     final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
+
+      impossibleCoursesTask.setOnSucceeded(event ->
+        courseSelection.highlightImpossibleCourses(impossibleCoursesTask.getValue()));
+      solverService.submit(impossibleCoursesTask);
+    }
 }

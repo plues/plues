@@ -132,31 +132,12 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     resultBox.setSpacing(10.0);
     resultBox.setPadding(new Insets(10.0,0.0,10.0,10.0));
 
-    delayedStore.whenAvailable(this::initializeCourseSelection);
+    delayedStore.whenAvailable(store ->
+      PdfRenderingHelper.initializeCourseSelection(store, courseSelection));
 
     delayedSolverService.whenAvailable(s -> {
       this.solverProperty.set(true);
-
-      final SolverTask<Set<String>> impossibleCoursesTask = s.impossibleCoursesTask();
-
-      impossibleCoursesTask.setOnSucceeded(event ->
-          courseSelection.highlightImpossibleCourses(impossibleCoursesTask.getValue()));
-      s.submit(impossibleCoursesTask);
+      PdfRenderingHelper.impossibleCourses(s, courseSelection);
     });
-  }
-
-  private void initializeCourseSelection(final Store store) {
-    final List<Course> courses = store.getCourses();
-
-    final List<Course> majorCourseList = courses.stream()
-        .filter(Course::isMajor)
-        .collect(Collectors.toList());
-
-    final List<Course> minorCourseList = courses.stream()
-        .filter(Course::isMinor)
-        .collect(Collectors.toList());
-
-    courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
-    courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
   }
 }
