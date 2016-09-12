@@ -52,7 +52,6 @@ public class PartialTimeTables extends GridPane implements Initializable {
   private final BooleanProperty checkStarted;
   private final CheckBoxGroupFactory checkBoxGroupFactory;
   private final SimpleObjectProperty storeProperty;
-  private final BooleanProperty resultProperty;
   private final SimpleBooleanProperty storeAvailable;
 
   private final PdfRenderingTaskFactory renderingTaskFactory;
@@ -115,7 +114,6 @@ public class PartialTimeTables extends GridPane implements Initializable {
     this.solverProperty = new SimpleBooleanProperty(false);
     this.generationStarted = new SimpleBooleanProperty(false);
     this.checkStarted = new SimpleBooleanProperty(false);
-    this.resultProperty = new SimpleBooleanProperty(false);
     this.pdf = new SimpleObjectProperty<>();
 
     this.setVgap(10.0);
@@ -141,7 +139,6 @@ public class PartialTimeTables extends GridPane implements Initializable {
     generationStarted.set(true);
     checkStarted.set(false);
     modulesUnits.getChildren().clear();
-    resultProperty.set(false);
 
     Course major = courseSelection.getSelectedMajorCourse();
     Text majorText = new Text();
