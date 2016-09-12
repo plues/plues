@@ -15,8 +15,14 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -25,25 +31,40 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
+import javax.swing.*;
+
 public class PartialTimeTables extends GridPane implements Initializable {
+
+  private static final String ICON_SIZE = "50";
+  private static final String WARNING_COLOR = "#FEEFB3";
+  private static final String FAILURE_COLOR = "#FFBABA";
+  private static final String SUCCESS_COLOR = "#DFF2BF";
+//  private static final String WORKING_COLOR = "#BDE5F8";
+  public static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
 
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
@@ -58,6 +79,12 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
   private final PdfRenderingTaskFactory renderingTaskFactory;
   private final ExecutorService executor;
+  private PdfRenderingTask task;
+  private ObjectProperty<Path> pdf;
+  private Course major;
+  private Course minor;
+
+  private final Preferences preferences = Preferences.userNodeForPackage(this.getClass());
 
   @FXML
   @SuppressWarnings("unused")
@@ -81,7 +108,10 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private TextField result;
+  private Label icon;
+  @FXML
+  @SuppressWarnings("unused")
+  private VBox buttons;
 
   /**
    * Constructor for partial time table controller.
@@ -109,6 +139,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
     this.generationStarted = new SimpleBooleanProperty(false);
     this.checkStarted = new SimpleBooleanProperty(false);
     this.resultProperty = new SimpleBooleanProperty(false);
+    this.pdf = new SimpleObjectProperty<>();
 
     this.setVgap(10.0);
 
@@ -172,7 +203,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   public void btCheckPressed() throws InterruptedException {
     checkStarted.set(true);
-    Course major = courseSelection.getSelectedMajorCourse();
+    this.major = courseSelection.getSelectedMajorCourse();
 
     Map<Course, List<Module>> moduleChoice = new HashMap<>();
     List<AbstractUnit> unitChoice = new ArrayList<>();
@@ -180,7 +211,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
     List<Course> courses = new ArrayList<>();
     courses.add(major);
-    Course minor = null;
+    this.minor = null;
     if (courseSelection.getSelectedMinorCourse().isPresent()) {
       minor = courseSelection.getSelectedMinorCourse().get();
       moduleChoice.put(minor, new ArrayList<>());
@@ -204,37 +235,20 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
     Course finalMinor = minor;
     delayedSolverService.whenAvailable(solverService -> {
-      SolverTask<FeasibilityResult> feasibilityTask =
+      SolverTask<FeasibilityResult> solverTask =
           solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
 
-      final PdfRenderingTask renderingTask =
-          renderingTaskFactory.create(major, finalMinor, feasibilityTask);
+      task = renderingTaskFactory.create(major, finalMinor, solverTask);
 
-      feasibilityTask.setOnRunning(event -> result.setText("Task pending..."));
-
-      feasibilityTask.setOnSucceeded(event -> {
-        FeasibilityResult solverResult = null;
-        try {
-          solverResult = feasibilityTask.get();
-        } catch (InterruptedException exc) {
-          exc.printStackTrace();
-        } catch (ExecutionException exc) {
-          exc.printStackTrace();
-        }
-        String text = "Not feasible";
-        if (solverResult != null) {
-          resultProperty.set(true);
-          text = "Feasible";
-        }
-
-        result.setText(text); // TODO: i18n
+      task.setOnSucceeded(event -> {
+        pdf.set((Path) event.getSource().getValue());
+        buttons.setDisable(false);
       });
 
-      feasibilityTask.setOnFailed(event -> result.setText("Task failed"));
+      icon.styleProperty().bind(this.getStyleBinding());
+      icon.graphicProperty().bind(this.getIconBinding());
 
-      solverService.submit(feasibilityTask);
-
-      executor.submit(renderingTask);
+      executor.submit(task);
     });
   }
 
@@ -248,8 +262,9 @@ public class PartialTimeTables extends GridPane implements Initializable {
     btCheck.visibleProperty().bind(generationStarted);
     btCheck.disableProperty().bind(solverProperty.not());
     //
-    result.visibleProperty().bind(checkStarted);
-    result.editableProperty().set(false);
+    icon.visibleProperty().bind(checkStarted);
+    buttons.visibleProperty().bind(checkStarted);
+    buttons.setDisable(true);
     //
     delayedStore.whenAvailable(s -> {
       initializeCourseSelection(s);
@@ -281,5 +296,136 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
     courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
     courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
+  }
+
+  private StringBinding getStyleBinding() {
+    return Bindings.createStringBinding(() -> {
+      String color = null;
+
+      switch (task.getState()) {
+        case READY:
+        case SCHEDULED:
+        case RUNNING:
+          return "";
+
+        case SUCCEEDED:
+          color = SUCCESS_COLOR;
+          break;
+        case CANCELLED:
+          color = WARNING_COLOR;
+          break;
+        case FAILED:
+          color = FAILURE_COLOR;
+          break;
+        default:
+          break;
+      }
+
+      return "-fx-background-color: " + color;
+
+    }, task.stateProperty());
+  }
+
+  private ObjectBinding<Text> getIconBinding() {
+    return Bindings.createObjectBinding(() -> {
+      FontAwesomeIcon symbol = null;
+
+      switch (task.getState()) {
+        case READY:
+        case SCHEDULED:
+        case RUNNING:
+          return null;
+
+        case SUCCEEDED:
+          symbol = FontAwesomeIcon.CHECK;
+          break;
+        case CANCELLED:
+          symbol = FontAwesomeIcon.QUESTION;
+          break;
+        case FAILED:
+          symbol = FontAwesomeIcon.REMOVE;
+          break;
+        default:
+          break;
+      }
+
+      final FontAwesomeIconFactory iconFactory = FontAwesomeIconFactory.get();
+      return iconFactory.createIcon(symbol, ICON_SIZE);
+
+    }, task.stateProperty());
+  }
+
+  /**
+   * Helper function to find the file name containing major and minor name.
+   *
+   * @param major Course object representing the chosen major course
+   * @param minor Course object representing the chosen minor course
+   * @return String representing the file name
+   */
+  private static String getDocumentName(final Course major, final Course minor) {
+    return "musterstudienplan_" + major.getName() + "_" + minor.getName()
+      + ".pdf";
+  }
+
+  /**
+   * Helper function to find file name containing major name and no minor existing.
+   *
+   * @param course Course object representing the choosen major course
+   * @return String representing the file name
+   */
+  private static String getDocumentName(final Course course) {
+    return "musterstudienplan_" + course.getName() + ".pdf";
+  }
+
+  @FXML
+  private void showPdf() {
+    final Path file = pdf.get();
+    SwingUtilities.invokeLater(() -> {
+      try {
+        Desktop.getDesktop().open(file.toFile());
+      } catch (final IOException exc) {
+        exc.printStackTrace();
+      }
+    });
+  }
+
+  @FXML
+  private void savePdf() {
+    final File file = getTargetFile();
+
+    if (file != null) {
+      try {
+        Files.copy(pdf.get(), Paths.get(file.getAbsolutePath()));
+      } catch (final Exception exc) {
+        exc.printStackTrace();
+      }
+    }
+  }
+
+  private File getTargetFile() {
+    final Course minorCourse = this.minor;
+    final Course majorCourse = this.major;
+
+    final String documentName;
+    if (minorCourse == null) {
+      documentName = getDocumentName(majorCourse);
+    } else {
+      documentName = getDocumentName(majorCourse, minorCourse);
+    }
+
+    final String initialDirectory = preferences.get(PDF_SAVE_DIR, System.getProperty("user.home"));
+
+    final FileChooser fileChooser = new FileChooser();
+    fileChooser.setTitle("Choose the pdf file's location");
+    fileChooser.setInitialDirectory(new File(initialDirectory));
+    fileChooser.setInitialFileName(documentName);
+    fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
+
+    final File file = fileChooser.showSaveDialog(null);
+    if (file != null) {
+      preferences.put(PDF_SAVE_DIR, file.getAbsoluteFile().getParent());
+    }
+
+    return file;
   }
 }
