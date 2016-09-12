@@ -194,6 +194,9 @@ public class ResultBox extends GridPane implements Initializable {
       //
       // progressIndicator.progressProperty().bind(this.task.progressProperty());
       //
+      icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(task));
+      icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
+      //
       executor.submit(task);
     });
     this.lbErrorMsg.visibleProperty().bind(this.pdf.isNull());
