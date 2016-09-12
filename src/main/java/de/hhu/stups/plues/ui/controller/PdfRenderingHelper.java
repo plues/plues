@@ -56,7 +56,7 @@ public class PdfRenderingHelper {
       } catch (final IOException exc) {
         logger.log(Level.INFO, "Error! Copying of temporary file into target file failed.");
         exc.printStackTrace();
-        if(callback != null) {
+        if (callback != null) {
           callback.accept(exc);
         }
       }
@@ -154,7 +154,7 @@ public class PdfRenderingHelper {
   }
 
   /**
-   * Collect icon bindung for a given task. Depends on how the task behaves.
+   * Collect icon binding for a given task. Depends on how the task behaves.
    *
    * @param task Given task
    * @return Object binding depending on the tasks state
@@ -240,12 +240,12 @@ public class PdfRenderingHelper {
     final List<Course> courses = store.getCourses();
 
     final List<Course> majorCourseList = courses.stream()
-      .filter(Course::isMajor)
-      .collect(Collectors.toList());
+        .filter(Course::isMajor)
+        .collect(Collectors.toList());
 
     final List<Course> minorCourseList = courses.stream()
-      .filter(Course::isMinor)
-      .collect(Collectors.toList());
+        .filter(Course::isMinor)
+        .collect(Collectors.toList());
 
     courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
     courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
@@ -254,8 +254,9 @@ public class PdfRenderingHelper {
     delayedSolverService.whenAvailable(solverService -> {
       final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
       impossibleCoursesTask.setOnSucceeded(event ->
-        courseSelection.highlightImpossibleCourses(impossibleCoursesTask.getValue()));
+          courseSelection.highlightImpossibleCourses(impossibleCoursesTask.getValue()));
       solverService.submit(impossibleCoursesTask);
     });
   }
+
 }
