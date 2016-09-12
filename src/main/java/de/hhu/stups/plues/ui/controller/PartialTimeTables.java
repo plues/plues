@@ -51,8 +51,8 @@ public class PartialTimeTables extends GridPane implements Initializable {
   private final BooleanProperty generationStarted;
   private final BooleanProperty checkStarted;
   private final CheckBoxGroupFactory checkBoxGroupFactory;
-  private final SimpleObjectProperty storeProperty;
-  private final SimpleBooleanProperty storeAvailable;
+  private final ObjectProperty<Store> storeProperty;
+  private final BooleanProperty storeAvailable;
 
   private final PdfRenderingTaskFactory renderingTaskFactory;
   private final ExecutorService executor;
@@ -107,7 +107,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
     this.renderingTaskFactory = renderingTaskFactory;
     this.executor = executor;
 
-    this.storeProperty = new SimpleObjectProperty();
+    this.storeProperty = new SimpleObjectProperty<>();
     this.storeAvailable = new SimpleBooleanProperty(false);
     this.solverProperty = new SimpleBooleanProperty(false);
     this.generationStarted = new SimpleBooleanProperty(false);
