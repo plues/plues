@@ -132,8 +132,12 @@ public class SolverTask<T> extends Task<T> {
     logger.info(this.reason);
     updateMessage(this.reason);
 
-    timer.cancel(true);
-    future.cancel(true);
+    if (timer != null) {
+      timer.cancel(true);
+    }
+    if (future != null) {
+      future.cancel(true);
+    }
 
     solver.interrupt();
   }
