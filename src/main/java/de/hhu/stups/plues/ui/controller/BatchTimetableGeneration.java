@@ -7,22 +7,19 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.ui.components.BatchResultBox;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 
-
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
@@ -59,10 +56,12 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   private final BooleanProperty generationSucceeded;
   private final BatchResultBoxFactory resultBoxFactory;
   private Path tempDirectoryPath;
-  private final Set<PdfRenderingTask> taskPool;
+  private Set<PdfRenderingTask> taskPool;
+  private Set<PdfRenderingTask> executableTaskPool;
+  private Set<BatchResultBox> boxPool;
   private final ExecutorService executor;
-  private Task<Void> fillTaskPoolTask;
-  private Task<Void> executeTaskPoolTask;
+  private Task<Void> fillPoolTask;
+  private Task<Void> executePoolTask;
 
   @FXML
   @SuppressWarnings("unused")
@@ -78,12 +77,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   private Button btCancel;
   @FXML
   @SuppressWarnings("unused")
-  private ScrollPane scrollPane;
-  @FXML
-  @SuppressWarnings("unused")
-  private VBox resultBox;
-
-  // TODO: block other tasks while batch generation is running
+  private ListView<BatchResultBox> listView;
 
   /**
    * Generate all possible combinations of major and minor courses. While generating the pdf files
@@ -104,6 +98,8 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     this.generationStarted = new SimpleBooleanProperty(false);
     this.generationSucceeded = new SimpleBooleanProperty(false);
     this.taskPool = new HashSet<>();
+    this.executableTaskPool = new HashSet<>();
+    this.boxPool = new HashSet<>();
 
     try {
       this.tempDirectoryPath = Files.createTempDirectory("plues_timetables");
@@ -141,13 +137,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     btSaveToZip.disableProperty().bind(generationSucceeded.not());
     btSaveToFolder.disableProperty().bind(generationSucceeded.not());
 
-    IntegerBinding resultBoxChildren = Bindings.size(resultBox.getChildren());
-    scrollPane.visibleProperty().bind(resultBoxChildren.greaterThan(0));
-
-    resultBox.maxWidthProperty().bind(scrollPane.widthProperty().subtract(25.0));
-    resultBox.minWidthProperty().bind(scrollPane.widthProperty().subtract(25.0));
-    resultBox.setSpacing(5.0);
-    resultBox.setPadding(new Insets(10.0, 0.0, 10.0, 10.0));
+    listView.visibleProperty().bind(Bindings.size(listView.getItems()).greaterThan(0));
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
   }
@@ -159,7 +149,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   @FXML
   @SuppressWarnings("unused")
   private void generateAll() {
-    resultBox.getChildren().clear();
+    listView.getItems().clear();
     generationStarted.setValue(true);
     generationSucceeded.setValue(false);
     final List<Course> courses = delayedStore.get().getCourses();
@@ -172,7 +162,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
         .filter(Course::isMinor)
         .collect(Collectors.toList());
 
-    fillTaskPoolTask = new Task<Void>() {
+    fillPoolTask = new Task<Void>() {
       @Override
       protected Void call() throws Exception {
         updateTitle("Preparing generation");
@@ -181,15 +171,32 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       }
     };
 
-    executeTaskPoolTask = new Task<Void>() {
+    // when the task pool is filled we start invoking all tasks
+    fillPoolTask.setOnSucceeded(event -> {
+      boxPool.forEach(b -> listView.getItems().add(b));
+      executableTaskPool = new HashSet<>(taskPool);
+      taskPool.clear();
+      executor.submit(executePoolTask);
+    });
+
+    fillPoolTask.setOnCancelled(t -> {
+      logger.log(Level.INFO, "Generation cancelled.");
+      generationStarted.setValue(false);
+      generationSucceeded.setValue(false);
+      taskPool.clear();
+      boxPool.clear();
+    });
+
+    executePoolTask = new Task<Void>() {
       @Override
       protected Void call() throws Exception {
         updateTitle("Generating all timetables");
         try {
-          // run all tasks from the pool, the tasks need to be
-          // converted to callable to use invokeAll()
+          // Run all tasks from the pool. We use invoke all to wait for all tasks to finish,
+          // therefore the tasks need to be converted to callable.
           List<Future<Void>> futurePool = executor.invokeAll(
-              taskPool.stream().map(t -> runnableToCallable(t)).collect(Collectors.toSet()));
+              executableTaskPool.stream()
+                  .map(t -> runnableToCallable(t)).collect(Collectors.toSet()));
           if (!futurePool.isEmpty()) {
             generationSucceeded.setValue(true);
           }
@@ -201,10 +208,15 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       }
     };
 
-    // when the task pool is filled we start invoking all tasks
-    fillTaskPoolTask.setOnSucceeded(event -> executor.submit(executeTaskPoolTask));
+    executePoolTask.setOnCancelled(event -> {
+      executableTaskPool.stream().forEach(PdfRenderingTask::cancel);
+      executableTaskPool.clear();
+      boxPool.clear();
+      generationStarted.setValue(false);
+      generationSucceeded.setValue(false);
+    });
 
-    executor.submit(fillTaskPoolTask);
+    executor.submit(fillPoolTask);
   }
 
   private Callable<Void> runnableToCallable(final Runnable runnable) {
@@ -224,11 +236,11 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   private void combineMajorMinor(Course majorCourse, List<Course> minorCourseList) {
     final String majorCourseName = majorCourse.getShortName();
     if (!majorCourse.isCombinable()) {
-      resultBoxFactory.create(majorCourse, null, resultBox, tempDirectoryPath, taskPool);
+      boxPool.add(resultBoxFactory.create(majorCourse, null, tempDirectoryPath, taskPool));
     } else {
       minorCourseList.stream().forEach(c -> {
         if (!c.getShortName().equals(majorCourseName)) {
-          resultBoxFactory.create(majorCourse, c, resultBox, tempDirectoryPath, taskPool);
+          boxPool.add(resultBoxFactory.create(majorCourse, c, tempDirectoryPath, taskPool));
         }
       });
     }
@@ -240,8 +252,13 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   @FXML
   @SuppressWarnings("unused")
   private void cancelGeneration() {
-    fillTaskPoolTask.cancel(true);
-    executeTaskPoolTask.cancel(true);
+    if (fillPoolTask.isRunning()) {
+      fillPoolTask.cancel(true);
+    }
+    if (executePoolTask.isRunning()) {
+      executePoolTask.cancel(true);
+    }
+    boxPool = new HashSet<>();
     generationStarted.setValue(false);
   }
 

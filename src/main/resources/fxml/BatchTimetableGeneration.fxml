@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ListView?>
+
 <fx:root alignment="center" type="javafx.scene.layout.GridPane" vgap="10.0"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <children>
@@ -21,10 +21,9 @@
         <Button fx:id="btSaveToZip" prefHeight="50.0" prefWidth="200.0"
                 onAction="#savePersistentZip" text="Export zip-File" GridPane.halignment="LEFT"
                 GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        <ScrollPane fx:id="scrollPane" maxWidth="Infinity" maxHeight="Infinity"
-                    GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
-            <VBox fx:id="resultBox"/>
-        </ScrollPane>
+        <ListView fx:id="listView" maxWidth="Infinity" maxHeight="Infinity"
+                  GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
+        </ListView>
     </children>
     <columnConstraints>
         <ColumnConstraints percentWidth="40"/>

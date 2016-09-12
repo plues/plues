@@ -23,7 +23,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.io.IOException;
@@ -48,7 +47,6 @@ public class BatchResultBox extends GridPane implements Initializable {
   private final ObjectProperty<Course> minorCourse;
   private final PdfRenderingTask task;
   private Set<PdfRenderingTask> taskPool;
-  private final VBox parent;
   private final Path tempDirectoryPath;
 
   @FXML
@@ -75,25 +73,26 @@ public class BatchResultBox extends GridPane implements Initializable {
    * task pool which is executed later on within
    * {@link de.hhu.stups.plues.ui.controller.BatchTimetableGeneration}
    *
-   * @param loader      TaskLoader to load fxml and to set controller
-   * @param taskFactory PDF Rendering task Factory
-   * @param major       Major course
-   * @param minor       Minor course if present, else null
-   * @param parent      The parent wrapper (VBox) to remove a single result box.
+   * @param loader            TaskLoader to load fxml and to set controller
+   * @param taskFactory       PDF Rendering task Factory
+   * @param major             Major course
+   * @param minor             Minor course if present, else null
+   * @param tempDirectoryPath The path to the created temporary directory to store the generated pdf
+   *                          files in.
+   * @param taskPool          The pool of tasks that are executed successively when all tasks are
+   *                          available.
    */
   @Inject
   public BatchResultBox(final FXMLLoader loader,
                         final PdfRenderingTaskFactory taskFactory,
                         @Assisted("major") final Course major,
                         @Nullable @Assisted("minor") final Course minor,
-                        @Assisted("parent") final VBox parent,
-                        @Assisted("tempDirectoryPath") final Path tempDirectoryPath,
-                        @Assisted("taskPool") final Set<PdfRenderingTask> taskPool) {
+                        @Assisted final Path tempDirectoryPath,
+                        @Assisted final Set<PdfRenderingTask> taskPool) {
     super();
     this.task = taskFactory.create(major, minor);
     this.majorCourse = new SimpleObjectProperty<>(major);
     this.minorCourse = new SimpleObjectProperty<>(minor);
-    this.parent = parent;
     this.tempDirectoryPath = tempDirectoryPath;
     this.taskPool = taskPool;
     this.setHgap(10.0);
@@ -124,8 +123,6 @@ public class BatchResultBox extends GridPane implements Initializable {
       pdfName = Bindings.selectString(this.majorCourse, "name");
     }
     this.lbMajor.textProperty().bind(Bindings.selectString(this.majorCourse, "fullName"));
-
-    task.setOnRunning(event -> parent.getChildren().add(0, this));
 
     task.setOnSucceeded(event -> Platform.runLater(() -> {
       if (event.getSource().getValue() != null) {

@@ -11,7 +11,6 @@ import java.util.Set;
 
 public interface BatchResultBoxFactory {
   BatchResultBox create(@Assisted("major") Course major, @Assisted("minor") Course minor,
-                        @Assisted("parent") VBox parent,
-                        @Assisted("tempDirectoryPath") Path tempDirectoryPath,
-                        @Assisted("taskPool") Set<PdfRenderingTask> taskPool);
+                        @Assisted Path tempDirectoryPath,
+                        @Assisted Set<PdfRenderingTask> taskPool);
 }
