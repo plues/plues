@@ -8,8 +8,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ComboBox?>
 
+<?import javafx.scene.layout.HBox?>
 <fx:root alignment="center" type="javafx.scene.layout.GridPane"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <children>
@@ -26,13 +26,12 @@
         <Button fx:id="btCheck" onAction="#btCheckPressed" prefWidth="300" maxHeight="10000.0"
                 text="Check" GridPane.halignment="CENTER" GridPane.columnIndex="0"
                 GridPane.rowIndex="3" GridPane.columnSpan="2"/>
-        <Label fx:id="icon" GridPane.rowIndex="4" GridPane.columnIndex="0"
-               prefWidth="300" alignment="CENTER"/>
-        <VBox fx:id="buttons" GridPane.columnIndex="1" GridPane.rowIndex="4"
-                  prefWidth="100">
+        <HBox fx:id="buttons" GridPane.columnIndex="0" GridPane.rowIndex="4"
+              GridPane.columnSpan="2" spacing="10">
+            <Label fx:id="icon" prefWidth="100" alignment="CENTER"/>
             <Button fx:id="show" text="Show" onMouseClicked="#showPdf" prefWidth="100"/>
             <Button fx:id="save" text="Save" onMouseClicked="#savePdf" prefWidth="100"/>
-        </VBox>
+        </HBox>
     </children>
     <columnConstraints>
         <ColumnConstraints percentWidth="30.0"/>

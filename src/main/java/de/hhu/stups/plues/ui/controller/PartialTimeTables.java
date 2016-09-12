@@ -29,6 +29,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
@@ -87,9 +88,10 @@ public class PartialTimeTables extends GridPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Label icon;
+
   @FXML
   @SuppressWarnings("unused")
-  private VBox buttons;
+  private HBox buttons;
 
   /**
    * Constructor for partial time table controller.
