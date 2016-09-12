@@ -58,8 +58,6 @@ public class PartialTimeTables extends GridPane implements Initializable {
   private final ExecutorService executor;
   private PdfRenderingTask task;
   private ObjectProperty<Path> pdf;
-  private Course major;
-  private Course minor;
 
   @FXML
   @SuppressWarnings("unused")
@@ -177,7 +175,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   public void btCheckPressed() throws InterruptedException {
     checkStarted.set(true);
-    this.major = courseSelection.getSelectedMajorCourse();
+    final Course major = courseSelection.getSelectedMajorCourse();
 
     Map<Course, List<Module>> moduleChoice = new HashMap<>();
     List<AbstractUnit> unitChoice = new ArrayList<>();
@@ -185,11 +183,14 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
     List<Course> courses = new ArrayList<>();
     courses.add(major);
-    this.minor = null;
+
+    final Course minor;
     if (courseSelection.getSelectedMinorCourse().isPresent()) {
       minor = courseSelection.getSelectedMinorCourse().get();
       moduleChoice.put(minor, new ArrayList<>());
       courses.add(minor);
+    } else {
+      minor = null;
     }
 
     for (Object o : modulesUnits.getChildren()) {
@@ -257,6 +258,10 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
   @FXML
   private void savePdf() {
+    final Course major = courseSelection.getSelectedMajorCourse();
+    final Course minor = (courseSelection.getSelectedMinorCourse().isPresent())
+        ? courseSelection.getSelectedMinorCourse().get() : null;
+
     PdfRenderingHelper.savePdf(pdf.get(), major, minor, this.getClass(), null);
   }
 }
