@@ -249,7 +249,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
   @FXML
   private void showPdf() {
-    PdfRenderingHelper.showPdf(pdf.get(), null);
+    PdfRenderingHelper.showPdf(pdf.get());
   }
 
   @FXML

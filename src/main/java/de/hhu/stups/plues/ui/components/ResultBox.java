@@ -274,7 +274,8 @@ public class ResultBox extends GridPane implements Initializable {
 
   @FXML
   private void showPdf() {
-    PdfRenderingHelper.showPdf(pdf.get(), lbErrorMsg);
+    PdfRenderingHelper.showPdf(pdf.get(),
+        e -> lbErrorMsg.setText("Error! Copying of temporary file into target file failed."));
   }
 
   @FXML

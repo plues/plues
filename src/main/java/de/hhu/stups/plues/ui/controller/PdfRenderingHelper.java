@@ -25,6 +25,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
@@ -38,25 +41,35 @@ public class PdfRenderingHelper {
   private static final String SUCCESS_COLOR = "#DFF2BF";
   private static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
 
+  private static final Logger logger = Logger.getLogger(PdfRenderingHelper.class.getSimpleName());
+
   /**
-   * Unified function to show a pdf. Error messages will be printed on label or stack trace if
-   * no label is present.
+   * Unified function to show a pdf. On error callback will be invoked
    *
    * @param file       Temporary file to show pdf
-   * @param lbErrorMsg Label where to print an error message. Null if no label present
+   * @param callback Consumer (callback) to be invoked if opening the document fails.
    */
-  public static void showPdf(final Path file, final Label lbErrorMsg) {
+  public static void showPdf(final Path file, final Consumer<Exception> callback) {
     SwingUtilities.invokeLater(() -> {
       try {
         Desktop.getDesktop().open(file.toFile());
       } catch (final IOException exc) {
-        if (lbErrorMsg != null) {
-          lbErrorMsg.setText("Error! Copying of temporary file into target file failed.");
-        } else {
-          exc.printStackTrace();
+        logger.log(Level.INFO, "Error! Copying of temporary file into target file failed.");
+        exc.printStackTrace();
+        if(callback != null) {
+          callback.accept(exc);
         }
       }
     });
+  }
+
+  /**
+   * Function to show a pdf. Errors will be ignored
+   *
+   * @param file       Temporary file to show pdf
+   */
+  static void showPdf(final Path file) {
+    showPdf(file, null);
   }
 
   /**
