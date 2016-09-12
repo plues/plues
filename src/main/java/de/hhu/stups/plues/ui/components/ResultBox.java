@@ -10,13 +10,10 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -30,33 +27,20 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 
-import java.awt.*;
 import java.io.IOException;
-import java.io.File;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
-import java.util.prefs.Preferences;
 
 import javax.annotation.Nullable;
-import javax.swing.*;
 
 public class ResultBox extends GridPane implements Initializable {
 
-  private static final String ICON_SIZE = "50";
-  private static final String WARNING_COLOR = "#FEEFB3";
-  private static final String FAILURE_COLOR = "#FFBABA";
-  private static final String SUCCESS_COLOR = "#DFF2BF";
   private static final String WORKING_COLOR = "#BDE5F8";
-  public static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
 
   private final ObjectProperty<Course> majorCourse;
   private final ObjectProperty<Course> minorCourse;
@@ -98,7 +82,6 @@ public class ResultBox extends GridPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Button btSubmit;
-  private final Preferences preferences = Preferences.userNodeForPackage(this.getClass());
 
   /**
    * Constructor for ResultBox.
@@ -211,9 +194,6 @@ public class ResultBox extends GridPane implements Initializable {
       //
       // progressIndicator.progressProperty().bind(this.task.progressProperty());
       //
-      this.icon.graphicProperty().bind(this.getIconBinding());
-      this.icon.styleProperty().bind(this.getStyleBinding());
-      //
       executor.submit(task);
     });
     this.lbErrorMsg.visibleProperty().bind(this.pdf.isNull());
@@ -264,67 +244,10 @@ public class ResultBox extends GridPane implements Initializable {
     this.cbAction.setItems(FXCollections.observableList(Collections.singletonList("Cancel")));
     this.cbAction.getSelectionModel().selectFirst();
     //
-    this.icon.graphicProperty().bind(this.getIconBinding());
-    this.icon.styleProperty().bind(this.getStyleBinding());
+    this.icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(task));
+    this.icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
     //
     executor.submit(task);
-  }
-
-  private StringBinding getStyleBinding() {
-    return Bindings.createStringBinding(() -> {
-      String color = null;
-
-      switch (task.getState()) {
-        case READY:
-        case SCHEDULED:
-        case RUNNING:
-          return "";
-
-        case SUCCEEDED:
-          color = SUCCESS_COLOR;
-          break;
-        case CANCELLED:
-          color = WARNING_COLOR;
-          break;
-        case FAILED:
-          color = FAILURE_COLOR;
-          break;
-        default:
-          break;
-      }
-
-      return "-fx-background-color: " + color;
-
-    }, task.stateProperty());
-  }
-
-  private ObjectBinding<Text> getIconBinding() {
-    return Bindings.createObjectBinding(() -> {
-      FontAwesomeIcon symbol = null;
-
-      switch (task.getState()) {
-        case READY:
-        case SCHEDULED:
-        case RUNNING:
-          return null;
-
-        case SUCCEEDED:
-          symbol = FontAwesomeIcon.CHECK;
-          break;
-        case CANCELLED:
-          symbol = FontAwesomeIcon.QUESTION;
-          break;
-        case FAILED:
-          symbol = FontAwesomeIcon.REMOVE;
-          break;
-        default:
-          break;
-      }
-
-      final FontAwesomeIconFactory iconFactory = FontAwesomeIconFactory.get();
-      return iconFactory.createIcon(symbol, ICON_SIZE);
-
-    }, task.stateProperty());
   }
 
   @FXML
@@ -353,54 +276,12 @@ public class ResultBox extends GridPane implements Initializable {
 
   @FXML
   private void showPdf() {
-    final Path file = pdf.get();
-    SwingUtilities.invokeLater(() -> {
-      try {
-        Desktop.getDesktop().open(file.toFile());
-      } catch (final IOException exc) {
-        this.lbErrorMsg.setText("Error! File could not be opened.");
-      }
-    });
+    PdfRenderingHelper.showPdf(pdf, lbErrorMsg);
   }
 
   @FXML
   private void savePdf() {
-    final File file = getTargetFile();
-
-    if (file != null) {
-      try {
-        Files.copy(pdf.get(), Paths.get(file.getAbsolutePath()));
-      } catch (final Exception exc) {
-        this.lbErrorMsg.setText("Error! Copying of temporary file into target file failed.");
-      }
-    }
-  }
-
-  private File getTargetFile() {
-    final Course minorCourse = this.minorCourse.get();
-    final Course majorCourse = this.majorCourse.get();
-
-    final String documentName;
-    if (minorCourse == null) {
-      documentName = getDocumentName(majorCourse);
-    } else {
-      documentName = getDocumentName(majorCourse, minorCourse);
-    }
-
-    final String initialDirectory = preferences.get(PDF_SAVE_DIR, System.getProperty("user.home"));
-
-    final FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle("Choose the pdf file's location");
-    fileChooser.setInitialDirectory(new File(initialDirectory));
-    fileChooser.setInitialFileName(documentName);
-    fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
-
-    final File file = fileChooser.showSaveDialog(null);
-    if (file != null) {
-      preferences.put(PDF_SAVE_DIR, file.getAbsoluteFile().getParent());
-    }
-
-    return file;
+    PdfRenderingHelper.savePdf(pdf, majorCourse.get(), minorCourse.get(), this.getClass(), lbErrorMsg);
   }
 
   @FXML
