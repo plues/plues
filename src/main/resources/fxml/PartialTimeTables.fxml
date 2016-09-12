@@ -29,9 +29,9 @@
         <Label fx:id="icon" GridPane.rowIndex="4" GridPane.columnIndex="0"
                prefWidth="300" alignment="CENTER"/>
         <VBox fx:id="buttons" GridPane.columnIndex="1" GridPane.rowIndex="4"
-                  prefWidth="300">
-            <Button fx:id="show" text="Show" onMouseClicked="#showPdf"/>
-            <Button fx:id="save" text="Save" onMouseClicked="#savePdf"/>
+                  prefWidth="100">
+            <Button fx:id="show" text="Show" onMouseClicked="#showPdf" prefWidth="100"/>
+            <Button fx:id="save" text="Save" onMouseClicked="#savePdf" prefWidth="100"/>
         </VBox>
     </children>
     <columnConstraints>
