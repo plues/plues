@@ -5,6 +5,14 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.binding.StringBinding;
+import javafx.beans.property.ObjectProperty;
+import javafx.scene.control.Label;
+import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
+
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -15,25 +23,21 @@ import java.util.prefs.Preferences;
 
 import javax.swing.SwingUtilities;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.binding.StringBinding;
-import javafx.beans.property.ObjectProperty;
-import javafx.scene.control.Label;
-import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
-
 public class PdfRenderingHelper {
 
   private static final String ICON_SIZE = "50";
   private static final String WARNING_COLOR = "#FEEFB3";
   private static final String FAILURE_COLOR = "#FFBABA";
   private static final String SUCCESS_COLOR = "#DFF2BF";
-  //  private static final String WORKING_COLOR = "#BDE5F8";
   public static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
   private static Preferences preferences;
 
-
+  /**
+   * Unified function to show a pdf. Error messages will be printed on label or stack trace if
+   * no label is present.
+   * @param pdf Object property which saves the pdf
+   * @param lbErrorMsg Label where to print an error message. Null if no label present
+   */
   public static void showPdf(ObjectProperty<Path> pdf, Label lbErrorMsg) {
     final Path file = pdf.get();
     SwingUtilities.invokeLater(() -> {
@@ -49,6 +53,15 @@ public class PdfRenderingHelper {
     });
   }
 
+  /**
+   * Unified function to save a pdf for a given major and minor course. Error messages will
+   * be printed on label if present or on stack trace.
+   * @param pdf Object property which holds the pdf
+   * @param major Major course for pdf
+   * @param minor Minor course for pdf (could be null)
+   * @param cl Class to save preferences for
+   * @param lbErrorMsg Label to print error messages on. Can be null
+   */
   public static void savePdf(ObjectProperty<Path> pdf, Course major, Course minor,
                              Class cl, Label lbErrorMsg) {
     preferences = Preferences.userNodeForPackage(cl);
@@ -67,6 +80,12 @@ public class PdfRenderingHelper {
     }
   }
 
+  /**
+   * Find the target file choosen by the user.
+   * @param majorCourse Major course
+   * @param minorCourse Minor course
+   * @return File object representing the choosen file by user
+   */
   private static File getTargetFile(final Course majorCourse, final Course minorCourse) {
 
     final String documentName;
@@ -114,6 +133,11 @@ public class PdfRenderingHelper {
     return "musterstudienplan_" + course.getName() + ".pdf";
   }
 
+  /**
+   * Collect icon bindung for a given task. Depends on how the task behaves.
+   * @param task Given task
+   * @return Object binding depending on the tasks state
+   */
   public static ObjectBinding<Text> getIconBinding(PdfRenderingTask task) {
     return Bindings.createObjectBinding(() -> {
       FontAwesomeIcon symbol = null;
@@ -143,6 +167,11 @@ public class PdfRenderingHelper {
     }, task.stateProperty());
   }
 
+  /**
+   * Collect string binding for given task.
+   * @param task Given task
+   * @return String binding depending on the tasks state
+   */
   public static StringBinding getStyleBinding(PdfRenderingTask task) {
     return Bindings.createStringBinding(() -> {
       String color = null;
