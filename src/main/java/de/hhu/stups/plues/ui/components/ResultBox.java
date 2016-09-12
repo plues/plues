@@ -246,11 +246,6 @@ public class ResultBox extends GridPane implements Initializable {
     //
     this.cbAction.setItems(FXCollections.observableList(Collections.singletonList("Cancel")));
     this.cbAction.getSelectionModel().selectFirst();
-    //
-    this.icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(task));
-    this.icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
-    //
-    executor.submit(task);
   }
 
   @FXML
