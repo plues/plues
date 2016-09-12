@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.ui.controller;
 
-import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
@@ -13,7 +12,6 @@ import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
-import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
@@ -44,11 +42,10 @@ public class PdfRenderingHelper {
   /**
    * Unified function to show a pdf. Error messages will be printed on label or stack trace if
    * no label is present.
-   * @param pdf Object property which saves the pdf
+   * @param file Temporary file to show pdf
    * @param lbErrorMsg Label where to print an error message. Null if no label present
    */
-  public static void showPdf(ObjectProperty<Path> pdf, Label lbErrorMsg) {
-    final Path file = pdf.get();
+  public static void showPdf(final Path file, Label lbErrorMsg) {
     SwingUtilities.invokeLater(() -> {
       try {
         Desktop.getDesktop().open(file.toFile());
@@ -65,20 +62,20 @@ public class PdfRenderingHelper {
   /**
    * Unified function to save a pdf for a given major and minor course. Error messages will
    * be printed on label if present or on stack trace.
-   * @param pdf Object property which holds the pdf
+   * @param pdf Path to pdf to save
    * @param major Major course for pdf
    * @param minor Minor course for pdf (could be null)
    * @param cl Class to save preferences for
    * @param lbErrorMsg Label to print error messages on. Can be null
    */
-  public static void savePdf(ObjectProperty<Path> pdf, Course major, Course minor,
+  public static void savePdf(Path pdf, Course major, Course minor,
                              Class cl, Label lbErrorMsg) {
     preferences = Preferences.userNodeForPackage(cl);
     final File file = getTargetFile(major, minor);
 
     if (file != null) {
       try {
-        Files.copy(pdf.get(), Paths.get(file.getAbsolutePath()));
+        Files.copy(pdf, Paths.get(file.getAbsolutePath()));
       } catch (final Exception exc) {
         if (lbErrorMsg != null) {
           lbErrorMsg.setText("Error! Copying of temporary file into target file failed.");
