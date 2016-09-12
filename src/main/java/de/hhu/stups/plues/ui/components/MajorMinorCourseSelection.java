@@ -9,25 +9,29 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+public class MajorMinorCourseSelection extends GridPane implements Initializable {
 
-public class MajorMinorCourseSelection extends VBox implements Initializable {
+  private final Comparator<Course> courseComparator
+      = (course1, course2) -> course1.getFullName().compareTo(course2.getFullName());
 
   @FXML
   @SuppressWarnings("unused")
@@ -79,11 +83,11 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
 
     // Filter courses from minor course list with a different short name as soon as a
     // major course is selected, so don't allow to select the same major and minor courses.
-    cbMajor.valueProperty().addListener(((observable, oldValue, newValue) -> {
+    cbMajor.valueProperty().addListener((observable, oldValue, newValue) -> {
       if (initialMinorCourseList != null) {
         filterCbMinorCourses();
       }
-    }));
+    });
 
   }
 
@@ -165,12 +169,13 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
    * minor courses according to the currently chosen major course.
    */
   public void setMinorCourseList(final ObservableList<Course> initialMinorCourseList) {
-    this.initialMinorCourseList = initialMinorCourseList;
+    this.initialMinorCourseList = initialMinorCourseList.sorted(courseComparator);
     filterCbMinorCourses();
   }
 
   public void setMajorCourseList(final ObservableList<Course> majorCourseList) {
-    cbMajor.setItems(majorCourseList);
+    final SortedList<Course> items = majorCourseList.sorted(courseComparator);
+    cbMajor.setItems(items);
     cbMajor.getSelectionModel().select(0);
   }
 
@@ -179,9 +184,8 @@ public class MajorMinorCourseSelection extends VBox implements Initializable {
     if (major == null) {
       return;
     }
-    final String majorShortName = major.getShortName();
-    final FilteredList<Course> minorCourseList = (initialMinorCourseList.filtered(
-        course -> !course.getShortName().equals(majorShortName)));
+    final FilteredList<Course> minorCourseList = initialMinorCourseList.filtered(
+        course -> course.isCombinableWith(major));
 
     cbMinor.setItems(minorCourseList);
     cbMinor.getSelectionModel().select(0);

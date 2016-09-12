@@ -34,10 +34,8 @@ final class Mappers {
                                                     final String valuePrefix) {
     return set.stream().collect(
       Collectors.toMap(
-        i -> mapValue((((Tuple) i).getFirst()).toString(),
-          keyPrefix),
-        i -> mapValue((((Tuple) i).getSecond()).toString(),
-          valuePrefix)));
+        i -> mapValue(((Tuple) i).getFirst().toString(), keyPrefix),
+        i -> mapValue(((Tuple) i).getSecond().toString(), valuePrefix)));
   }
 
   private static Integer mapValue(final String val, final String prefix) {

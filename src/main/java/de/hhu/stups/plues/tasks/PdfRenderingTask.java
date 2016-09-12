@@ -72,7 +72,7 @@ public class PdfRenderingTask extends Task<Path> {
 
     int percentage = 0;
     while (!future.isDone()) {
-      percentage = ((percentage + 1) % 20) + 40;
+      percentage = (percentage + 1) % 20 + 40;
       updateProgress(percentage, 100);
       if (future.isCancelled()) {
         updateMessage("Task cancelled");

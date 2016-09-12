@@ -1,32 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
-<?import de.hhu.stups.plues.ui.components.PdfButtonBar?>
 
-<fx:root prefHeight="100.0" type="GridPane" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-      <StackPane fx:id="statePane" prefWidth="50" GridPane.rowSpan="2">
-         <children>
-             <ProgressIndicator fx:id="progressIndicator" />
-             <Label fx:id="icon" alignment="CENTER" contentDisplay="CENTER" maxHeight="50.0" maxWidth="50.0" minHeight="50.0" minWidth="50.0" prefHeight="50.0" prefWidth="50.0" />
-         </children>
-      </StackPane>
-        <Label fx:id="major" text="major" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-        <Label fx:id="minor" text="minor" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-        <PdfButtonBar fx:id="pdfButtonBar" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.rowSpan="2"/>
-    </children>
-   <columnConstraints>
-      <ColumnConstraints />
-      <ColumnConstraints prefWidth="150" minWidth="50" />
-      <ColumnConstraints />
-   </columnConstraints>
-   <rowConstraints>
-      <RowConstraints />
-      <RowConstraints />
-   </rowConstraints>
+<fx:root prefHeight="50.0" type="GridPane" xmlns="http://javafx.com/javafx/8.0.76-ea"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <columnConstraints>
+        <ColumnConstraints percentWidth="10"/>
+        <ColumnConstraints percentWidth="80"/>
+        <ColumnConstraints percentWidth="10"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints percentHeight="25"/>
+        <RowConstraints percentHeight="25"/>
+        <RowConstraints percentHeight="25"/>
+        <RowConstraints percentHeight="25"/>
+    </rowConstraints>
+    <StackPane fx:id="statePane" prefWidth="10000.0" GridPane.columnIndex="0"
+               GridPane.rowIndex="0" GridPane.rowSpan="4">
+        <ProgressIndicator fx:id="progressIndicator"/>
+        <Label fx:id="icon" prefHeight="10000.0" prefWidth="70.0" alignment="CENTER"
+               contentDisplay="CENTER"/>
+    </StackPane>
+    <HBox alignment="BOTTOM_RIGHT" prefWidth="170.0" GridPane.columnIndex="1"
+          GridPane.rowIndex="0">
+        <ComboBox fx:id="cbAction" prefWidth="120.0"/>
+        <Button fx:id="btSubmit" onAction="#submitAction" minWidth="50.0" prefWidth="50.0"
+                text="Go"/>
+    </HBox>
+    <Label fx:id="major" prefWidth="10000.0" prefHeight="10000.0" text="major" wrapText="true"
+           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+    <Label fx:id="minor" prefWidth="10000.0" prefHeight="10000.0" text="minor" wrapText="true"
+           GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+    <Label fx:id="lbErrorMsg" prefWidth="10000.0" prefHeight="10000.0" textFill="#ff3226"
+           wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 </fx:root>

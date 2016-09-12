@@ -10,13 +10,16 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
+
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
@@ -37,8 +40,8 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   private final Delayed<SolverService> delayedSolverService;
 
   private final BooleanProperty solverProperty;
-  private final BooleanProperty generationStarted;
   private final ResultBoxFactory resultBoxFactory;
+  private final SimpleBooleanProperty generationStarted;
 
   @FXML
   @SuppressWarnings("unused")
@@ -99,18 +102,18 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   public void btGeneratePressed() {
-    generationStarted.set(true);
     final Course selectedMajorCourse
         = courseSelection.getSelectedMajorCourse();
-    final Optional<Course> optinalMinorCourse
+    final Optional<Course> optionalMinorCourse
         = courseSelection.getSelectedMinorCourse();
 
     Course selectedMinorCourse = null;
-    if (optinalMinorCourse.isPresent()) {
-      selectedMinorCourse = optinalMinorCourse.get();
+    if (optionalMinorCourse.isPresent()) {
+      selectedMinorCourse = optionalMinorCourse.get();
     }
 
-    final ResultBox rb = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse);
+    final ResultBox rb
+        = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse, resultBox);
 
     resultBox.getChildren().add(0, rb);
   }
@@ -119,9 +122,16 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   public final void initialize(final URL location, final ResourceBundle resources) {
     btGenerate.setDefaultButton(true);
     btGenerate.disableProperty().bind(solverProperty.not());
-    //
-    scrollPane.visibleProperty().bind(generationStarted);
-    //
+
+    IntegerBinding resultBoxChildren = Bindings.size(resultBox.getChildren());
+    scrollPane.visibleProperty().bind(resultBoxChildren.greaterThan(0));
+
+    // match scroll pane's width but give space for vertical scroll
+    resultBox.maxWidthProperty().bind(scrollPane.widthProperty().subtract(25.0));
+    resultBox.minWidthProperty().bind(scrollPane.widthProperty().subtract(25.0));
+    resultBox.setSpacing(10.0);
+    resultBox.setPadding(new Insets(10.0,0.0,10.0,10.0));
+
     delayedStore.whenAvailable(this::initializeCourseSelection);
 
     delayedSolverService.whenAvailable(s -> {
@@ -130,7 +140,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
       final SolverTask<Set<String>> impossibleCoursesTask = s.impossibleCoursesTask();
 
       impossibleCoursesTask.setOnSucceeded(event ->
-          courseSelection.highlightImpossibleCourses((Set<String>) event.getSource().getValue()));
+          courseSelection.highlightImpossibleCourses(impossibleCoursesTask.getValue()));
       s.submit(impossibleCoursesTask);
     });
   }

@@ -20,11 +20,6 @@ public class CancelledResultBoxTest extends ResultBoxTest {
     super();
     this.setTask(new TestPdfTask());
     this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.QUESTION, "50"));
-    final HashMap<String, Boolean> buttons = new HashMap<>();
-    buttons.put("show", false);
-    buttons.put("save", false);
-    buttons.put("cancel", false);
-    this.setEnabledButtons(buttons);
   }
 
 

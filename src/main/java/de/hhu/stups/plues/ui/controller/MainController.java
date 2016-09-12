@@ -6,6 +6,7 @@ import com.google.inject.name.Named;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.modelgenerator.XmlExporter;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
@@ -18,7 +19,6 @@ import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -30,8 +30,15 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.controlsfx.control.TaskProgressView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -47,10 +54,8 @@ public class MainController implements Initializable {
 
   private static final Map<Class, FontAwesomeIcon> iconMap = new HashMap<>();
   private static final FontAwesomeIcon DEFAULT_ICON = FontAwesomeIcon.TASKS;
-  private static final String LAST_DIR = "LAST_DIR";
-
-  private final Logger logger = Logger.getLogger(getClass().getName());
-
+  private static final String LAST_DB_OPEN_DIR = "LAST_DB_OPEN_DIR";
+  private static final String LAST_XML_EXPORT_DIR = "LAST_XML_EXPORT_DIR";
 
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
@@ -59,6 +64,7 @@ public class MainController implements Initializable {
     iconMap.put(PdfRenderingTask.class, FontAwesomeIcon.FILE_PDF_ALT);
   }
 
+  private final Logger logger = Logger.getLogger(getClass().getName());
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
   private final SolverLoaderTaskFactory solverLoaderTaskFactory;
@@ -66,8 +72,15 @@ public class MainController implements Initializable {
   private final Properties properties;
   private final Stage stage;
   private final ExecutorService executor;
+
+  private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
+
   @FXML
   private MenuItem openFileMenuItem;
+
+  @FXML
+  private MenuItem exportStateMenuItem;
+
   @FXML
   private TaskProgressView<Task<?>> taskProgress;
 
@@ -116,6 +129,9 @@ public class MainController implements Initializable {
                                final ResourceBundle resources) {
 
     this.taskProgress.setGraphicFactory(this::getGraphicForTask);
+    this.exportStateMenuItem.setDisable(true);
+
+    delayedStore.whenAvailable(s -> this.exportStateMenuItem.setDisable(false));
 
     if (this.properties.get("dbpath") != null) {
       this.loadData((String) this.properties.get("dbpath"));
@@ -127,10 +143,7 @@ public class MainController implements Initializable {
    */
   @SuppressWarnings("UnusedParameters")
   public final void openFile(final ActionEvent actionEvent) {
-    final Preferences prefs
-        = Preferences.userNodeForPackage(MainController.class);
-    final String initialDir
-        = prefs.get(LAST_DIR, System.getProperty("user.home"));
+    final String initialDir = preferences.get(LAST_DB_OPEN_DIR, System.getProperty("user.home"));
     //
     final FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle("Open a Database"); // TODO: i18n
@@ -143,12 +156,70 @@ public class MainController implements Initializable {
     //
     if (file != null) {
       final String newInitialDir = file.getAbsoluteFile().getParent();
-      if (!newInitialDir.equals(initialDir)) {
-        prefs.put(LAST_DIR, newInitialDir);
-      }
+      preferences.put(LAST_DB_OPEN_DIR, newInitialDir);
       //
       this.loadData(file.getAbsolutePath());
     }
+  }
+
+  /**
+   * The menu item's action to export the current state of the database to a zip file
+   * containing the xml files.
+   */
+  @FXML
+  public final void exportCurrentDbState() {
+    // TODO: should we have a modal progress window to avoid confusion, since the export takes
+    // a few instants to finish
+    // TODO: consider generating the file to a temporary location and moving it to the final
+    // location after the generation finished successfully.
+    final File selectedFile = getXmlExportFile();
+
+    if (selectedFile != null) {
+      executor.execute(new Task<Void>() {
+
+        @Override
+        protected Void call() throws Exception {
+
+          updateTitle("Exporting XML");
+          updateProgress(1, 3);
+          updateMessage("Generating .zip file");
+
+          try (ByteArrayOutputStream exportXmlStream = new XmlExporter(delayedStore.get()).export();
+               OutputStream outputStream = new FileOutputStream(selectedFile)) {
+            updateProgress(2, 3);
+
+            updateMessage("Writing .zip file");
+            exportXmlStream.writeTo(outputStream);
+            updateProgress(3, 3);
+            logger.info("Wrote xml export to " + selectedFile.getAbsolutePath());
+
+          } catch (final IOException exception) {
+            showCriticalExceptionDialog(exception, "XML Export Failed");
+          }
+          return null;
+        }
+      });
+    }
+  }
+
+  private File getXmlExportFile() {
+    final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+    final String dateTime = dateFormat.format(new Date());
+
+    final String initialDir = preferences.get(LAST_XML_EXPORT_DIR, System.getProperty("user.home"));
+    final FileChooser fileChooser = new FileChooser();
+    fileChooser.setInitialDirectory(new File(initialDir));
+    fileChooser.setInitialFileName("plues_xml_database_" + dateTime + ".zip");
+    fileChooser.setTitle("Choose the zip file's location");
+
+    final File selectedFile = fileChooser.showSaveDialog(null);
+
+    if (selectedFile != null) {
+
+      final String newInitialDir = selectedFile.getAbsoluteFile().getParent();
+      preferences.put(LAST_XML_EXPORT_DIR, newInitialDir);
+    }
+    return selectedFile;
   }
 
   private void loadData(final String path) {

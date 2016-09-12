@@ -15,7 +15,6 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
-import de.hhu.stups.plues.ui.components.PdfButtonBar;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -83,10 +82,6 @@ public class PartialTimeTables extends GridPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TextField result;
-
-  @FXML
-  @SuppressWarnings("unused")
-  private PdfButtonBar pdfButtonBar;
 
   /**
    * Constructor for partial time table controller.
@@ -239,10 +234,6 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
       solverService.submit(feasibilityTask);
 
-      pdfButtonBar.setMajor(major);
-      pdfButtonBar.setMinor(finalMinor);
-      pdfButtonBar.setTask(renderingTask);
-
       executor.submit(renderingTask);
     });
   }
@@ -259,8 +250,6 @@ public class PartialTimeTables extends GridPane implements Initializable {
     //
     result.visibleProperty().bind(checkStarted);
     result.editableProperty().set(false);
-    //
-    pdfButtonBar.visibleProperty().bind(checkStarted);
     //
     delayedStore.whenAvailable(s -> {
       initializeCourseSelection(s);

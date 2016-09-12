@@ -29,8 +29,6 @@
                 GridPane.rowIndex="3" GridPane.columnSpan="2"/>
         <TextField fx:id="result" GridPane.columnIndex="0" GridPane.columnSpan="2"
                    GridPane.rowIndex="4" prefWidth="300" alignment="CENTER"/>
-        <PdfButtonBar fx:id="pdfButtonBar" GridPane.columnIndex="0" GridPane.columnSpan="2"
-                      GridPane.rowIndex="5"/>
     </children>
     <columnConstraints>
         <ColumnConstraints percentWidth="30.0"/>
