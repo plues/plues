@@ -218,10 +218,8 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
       task = renderingTaskFactory.create(major, finalMinor, solverTask);
 
-      task.setOnSucceeded(event -> {
-        pdf.set((Path) event.getSource().getValue());
-        buttons.setDisable(false);
-      });
+      task.setOnSucceeded(event -> pdf.set((Path) event.getSource().getValue()));
+      task.setOnFailed(event -> pdf.set(null));
 
       icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
       icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(task));
@@ -242,7 +240,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
     //
     icon.visibleProperty().bind(checkStarted);
     buttons.visibleProperty().bind(checkStarted);
-    buttons.setDisable(true);
+    buttons.disableProperty().bind(pdf.isNull().and(checkStarted));
     //
     delayedStore.whenAvailable(s -> {
       initializeCourseSelection(s);
