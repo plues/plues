@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.StackPane?>
-<fx:root prefHeight="600" prefWidth="250.0" type="javafx.scene.layout.BorderPane"
+<fx:root minHeight="600" prefWidth="250.0" type="javafx.scene.layout.BorderPane"
          xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
         <left>
@@ -33,13 +33,13 @@
 
                         <rowConstraints>
                             <RowConstraints vgrow="NEVER" minHeight="20" prefHeight="20" />
-                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="150" />
-                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="150" />
-                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="150" />
-                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="150" />
-                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="150" />
-                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="150" />
-                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="150" />
+                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450" />
+                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450" />
+                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450" />
+                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450" />
+                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450" />
+                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450" />
+                            <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450" />
                         </rowConstraints>
 
                         <StackPane styleClass="time" GridPane.columnIndex="0" GridPane.rowIndex="1">
