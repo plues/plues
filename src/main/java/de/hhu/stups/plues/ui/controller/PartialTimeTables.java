@@ -15,7 +15,6 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -57,7 +56,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
   private final PdfRenderingTaskFactory renderingTaskFactory;
   private final ExecutorService executor;
   private PdfRenderingTask task;
-  private ObjectProperty<Path> pdf;
+  private final ObjectProperty<Path> pdf;
 
   @FXML
   @SuppressWarnings("unused")
@@ -138,8 +137,8 @@ public class PartialTimeTables extends GridPane implements Initializable {
     checkStarted.set(false);
     modulesUnits.getChildren().clear();
 
-    Course major = courseSelection.getSelectedMajorCourse();
-    Text majorText = new Text();
+    final Course major = courseSelection.getSelectedMajorCourse();
+    final Text majorText = new Text();
     majorText.setText(major.getFullName());
     majorText.setUnderline(true);
     modulesUnits.getChildren().add(majorText);
@@ -147,25 +146,24 @@ public class PartialTimeTables extends GridPane implements Initializable {
     Course minor = null;
     if (courseSelection.getSelectedMinorCourse().isPresent()) {
       minor = courseSelection.getSelectedMinorCourse().get();
-      Text minorText = new Text();
+      final Text minorText = new Text();
       minorText.setText(minor.getFullName());
       minorText.setUnderline(true);
       modulesUnits.getChildren().add(minorText);
     }
 
-    for (Module m : major.getModules()) {
+    for (final Module m : major.getModules()) {
       modulesUnits.getChildren().add(1, createCheckBoxGroup(m, major));
     }
     if (minor != null) {
-      for (Module m : minor.getModules()) {
+      for (final Module m : minor.getModules()) {
         modulesUnits.getChildren().add(createCheckBoxGroup(m, minor));
       }
     }
   }
 
-  private Node createCheckBoxGroup(Module module, Course course) {
-    CheckBoxGroup cbg = checkBoxGroupFactory.create(course, module, module.getAbstractUnits());
-    return cbg;
+  private Node createCheckBoxGroup(final Module module, final Course course) {
+    return checkBoxGroupFactory.create(course, module, module.getAbstractUnits());
   }
 
   /**
@@ -177,11 +175,11 @@ public class PartialTimeTables extends GridPane implements Initializable {
     checkStarted.set(true);
     final Course major = courseSelection.getSelectedMajorCourse();
 
-    Map<Course, List<Module>> moduleChoice = new HashMap<>();
-    List<AbstractUnit> unitChoice = new ArrayList<>();
+    final Map<Course, List<Module>> moduleChoice = new HashMap<>();
+    final List<AbstractUnit> unitChoice = new ArrayList<>();
     moduleChoice.put(major, new ArrayList<>());
 
-    List<Course> courses = new ArrayList<>();
+    final List<Course> courses = new ArrayList<>();
     courses.add(major);
 
     final Course minor;
@@ -193,14 +191,14 @@ public class PartialTimeTables extends GridPane implements Initializable {
       minor = null;
     }
 
-    for (Object o : modulesUnits.getChildren()) {
-      CheckBoxGroup cbg;
+    for (final Object o : modulesUnits.getChildren()) {
+      final CheckBoxGroup cbg;
       try {
         cbg = (CheckBoxGroup) o;
-      } catch (ClassCastException exc) {
+      } catch (final ClassCastException exc) {
         continue;
       }
-      Module module = cbg.getModule();
+      final Module module = cbg.getModule();
       if (module != null) {
         moduleChoice.get(cbg.getCourse()).add(module);
       }
@@ -208,12 +206,11 @@ public class PartialTimeTables extends GridPane implements Initializable {
       unitChoice.addAll(cbg.getSelectedAbstractUnits());
     }
 
-    Course finalMinor = minor;
     delayedSolverService.whenAvailable(solverService -> {
-      SolverTask<FeasibilityResult> solverTask =
+      final SolverTask<FeasibilityResult> solverTask =
           solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
 
-      task = renderingTaskFactory.create(major, finalMinor, solverTask);
+      task = renderingTaskFactory.create(major, minor, solverTask);
 
       task.setOnSucceeded(event -> pdf.set((Path) event.getSource().getValue()));
       task.setOnFailed(event -> pdf.set(null));
