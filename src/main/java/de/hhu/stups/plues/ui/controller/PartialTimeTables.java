@@ -161,7 +161,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
   }
 
   private Node createCheckBoxGroup(final Module module, final Course course) {
-    return checkBoxGroupFactory.create(course, module, module.getAbstractUnits());
+    return checkBoxGroupFactory.create(course, module);
   }
 
   /**

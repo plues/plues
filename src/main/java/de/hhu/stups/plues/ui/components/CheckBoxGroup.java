@@ -48,18 +48,16 @@ public class CheckBoxGroup extends VBox implements Initializable {
    * @param loader FXML Loader to load fxml
    * @param course Given course. Should be a major or minor for the choosen course combination
    * @param module Given module. Should be one inside major or minor course
-   * @param units A list of all abstract units of the given module
    */
   @Inject
   public CheckBoxGroup(FXMLLoader loader,
                        @Assisted Course course,
-                       @Assisted Module module,
-                       @Assisted Set<AbstractUnit> units) {
+                       @Assisted Module module) {
     this.course = course;
     this.module = module;
     boxToUnit = new LinkedHashMap<>();
 
-    for (AbstractUnit abstractUnit : units) {
+    for (AbstractUnit abstractUnit : module.getAbstractUnits()) {
       boxToUnit.put(new CheckBox(), abstractUnit);
     }
 
