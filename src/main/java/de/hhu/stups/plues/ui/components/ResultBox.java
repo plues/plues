@@ -165,34 +165,10 @@ public class ResultBox extends GridPane implements Initializable {
         task = renderingTaskFactory.create(majorCourse.get(), null, solverTask);
       }
 
-//    TODO: Add status bar later to let the user know whats going on
-//        final Task<FeasibilityResult> task;
-//        if (selectedMinorCourse.isPresent()) {
-//          task = solverService.computeFeasibilityTask(
-//              selectedMajorCourse, selectedMinorCourse.get());
-//        } else {
-//            task = solverService.computeFeasibilityTask(selectedMajorCourse);
-//          }
-//            resultTask.set(task);
-
-//          task.setOnFailed(event -> {
-//            final Alert alert = new Alert(Alert.AlertType.ERROR);
-//            alert.setTitle("Generation failed");
-//            alert.setHeaderText("Invalid course combination");
-//            alert.setContentText("The chosen combination of major and minor course is not possible.");
-//            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-//            alert.showAndWait();
-//          });
         //
       this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
       this.progressIndicator.visibleProperty()
         .bind(task.runningProperty());
-      //
-      // Binding the progress property of the indicator shows a the percentage
-      // of completion which in this case is arbitrary since we do not know how
-      // long the process will take.
-      //
-      // progressIndicator.progressProperty().bind(this.task.progressProperty());
       //
       icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(task));
       icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
