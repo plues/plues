@@ -9,6 +9,7 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
@@ -46,7 +47,7 @@ public class PdfRenderingHelper {
   /**
    * Unified function to show a pdf. On error callback will be invoked
    *
-   * @param file       Temporary file to show pdf
+   * @param file     Temporary file to show pdf
    * @param callback Consumer (callback) to be invoked if opening the document fails.
    */
   public static void showPdf(final Path file, final Consumer<Exception> callback) {
@@ -66,15 +67,15 @@ public class PdfRenderingHelper {
   /**
    * Function to show a pdf. Errors will be ignored
    *
-   * @param file       Temporary file to show pdf
+   * @param file Temporary file to show pdf
    */
   static void showPdf(final Path file) {
     showPdf(file, null);
   }
 
   /**
-   * Unified function to save a pdf for a given major and minor course. Error messages will
-   * be printed on label if present or on stack trace.
+   * Unified function to save a pdf for a given major and minor course. Error messages will be
+   * printed on label if present or on stack trace.
    *
    * @param pdf        Path to pdf to save
    * @param major      Major course for pdf
@@ -140,7 +141,7 @@ public class PdfRenderingHelper {
    */
   private static String getDocumentName(final Course major, final Course minor) {
     return "musterstudienplan_" + major.getName() + "_" + minor.getName()
-      + ".pdf";
+        + ".pdf";
   }
 
   /**
@@ -154,12 +155,24 @@ public class PdfRenderingHelper {
   }
 
   /**
-   * Collect icon binding for a given task. Depends on how the task behaves.
+   * Wrapper for collecting the icon binding for a given task that uses the default icon size.
    *
    * @param task Given task
    * @return Object binding depending on the tasks state
    */
   public static ObjectBinding<Text> getIconBinding(final PdfRenderingTask task) {
+    return getIconBinding(ICON_SIZE, task);
+  }
+
+  /**
+   * Collect icon binding for a given task and given icon size. Depends on how the task behaves.
+   *
+   * @param task      Given task
+   * @param iconSize The given icon size.
+   * @return Object binding depending on the tasks state
+   */
+  public static ObjectBinding<Text> getIconBinding(final String iconSize,
+                                                   final PdfRenderingTask task) {
     return Bindings.createObjectBinding(() -> {
       FontAwesomeIcon symbol = null;
 
@@ -183,7 +196,7 @@ public class PdfRenderingHelper {
       }
 
       final FontAwesomeIconFactory iconFactory = FontAwesomeIconFactory.get();
-      return iconFactory.createIcon(symbol, ICON_SIZE);
+      return iconFactory.createIcon(symbol, iconSize);
 
     }, task.stateProperty());
   }
@@ -227,10 +240,9 @@ public class PdfRenderingHelper {
   /**
    * Initialize course selection object of each class using it.
    *
-   * @param store           Store object to collect courses
-   * @param courseSelection Object to save selection.
+   * @param store                Store object to collect courses
+   * @param courseSelection      Object to save selection.
    * @param delayedSolverService solverService to retrieve impossible courses
-   *
    */
   static void initializeCourseSelection(final Store store,
                                         // TODO: this should not be parameter
