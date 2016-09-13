@@ -65,9 +65,10 @@ public class CheckBoxGroupTest extends ApplicationTest {
     Set<AbstractUnit> majorUnits = new HashSet<>();
     majorUnits.add(unit2);
     majorUnits.add(unit);
+    majorModule.setAbstractUnits(majorUnits);
 
     final CheckBoxGroup checkBoxGroup = new CheckBoxGroup(new FXMLLoader(),
-      major, majorModule, majorUnits);
+      major, majorModule);
 
     final Scene scene = new Scene(checkBoxGroup, 200, 200);
     stage.setScene(scene);
