@@ -21,11 +21,8 @@ import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverServiceFactory;
-<<<<<<< HEAD
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
-=======
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
->>>>>>> develop
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
