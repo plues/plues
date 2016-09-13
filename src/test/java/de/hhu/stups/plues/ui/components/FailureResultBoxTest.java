@@ -19,7 +19,7 @@ public class FailureResultBoxTest extends ResultBoxTest {
 
   private static final class TestPdfTask extends PdfRenderingTask {
     TestPdfTask() {
-      super(null, null, null, null);
+      super(null, null, null, null, null);
     }
   }
 }

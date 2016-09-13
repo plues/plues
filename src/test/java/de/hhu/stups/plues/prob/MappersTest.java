@@ -8,7 +8,10 @@ import de.prob.translator.types.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 public class MappersTest {
@@ -82,5 +85,17 @@ public class MappersTest {
 
     assertTrue(mapped.containsKey("foo"));
     assertEquals(mapped.get("foo"), t);
+  }
+
+  @Test
+  public void mapToModuleChoice() throws Exception {
+    final Map<String, List<Integer>> inp = new HashMap<>();
+    inp.put("a", Arrays.asList(1, 2, 3));
+    inp.put("b", Arrays.asList(11, 12, 13));
+
+    final String result = Mappers.mapToModuleChoice(inp);
+
+    assertEquals("{(\"a\" |-> {mod1,mod2,mod3}),(\"b\" |-> {mod11,mod12,mod13})}", result);
+
   }
 }

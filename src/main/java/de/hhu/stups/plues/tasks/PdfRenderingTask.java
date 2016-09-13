@@ -25,14 +25,12 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
 
-
-
 public class PdfRenderingTask extends Task<Path> {
 
   private final Delayed<Store> delayedStore;
-  private final Delayed<SolverService> delayedSolverService;
   private final Course major;
   private final Course minor;
+  private final Delayed<SolverService> delayedSolverService;
   private SolverTask<FeasibilityResult> solverTask;
 
 
@@ -40,42 +38,28 @@ public class PdfRenderingTask extends Task<Path> {
    * Create a task for rendering a pdf.
    *
    * @param delayedStore         Store containing necessary data
-   * @param delayedSolverService Service to connect with solver
    * @param major Course major or integrated course
    * @param minor Course minor course, can be null
    */
   @Inject
   protected PdfRenderingTask(final Delayed<Store> delayedStore,
-                          final Delayed<SolverService> delayedSolverService,
-                          @Assisted("major") final Course major,
-                          @Assisted("minor") @Nullable final Course minor) {
-    this.delayedSolverService = delayedSolverService;
+                             final Delayed<SolverService> delayedSolverService,
+                             @Assisted("major") final Course major,
+                             @Assisted("minor") @Nullable final Course minor,
+                             @Assisted final SolverTask<FeasibilityResult> solverTask) {
     this.delayedStore = delayedStore;
+    this.delayedSolverService = delayedSolverService;
     this.major = major;
     this.minor = minor;
-  }
-
-  private void createSolverTask() {
-    final SolverService solver = delayedSolverService.get();
-    assert solver != null;
-    if (minor == null) {
-      // TODO: raise a proper exception
-      assert !this.major.isCombinable(); // major must be a standalone course
-      solverTask = solver.computeFeasibilityTask(major);
-    } else {
-      solverTask = solver.computeFeasibilityTask(major, minor);
-    }
-    solverTask.setOnFailed(event -> this.failed());
-    solverTask.setOnCancelled(event -> this.cancel());
+    this.solverTask = solverTask;
   }
 
   @Override
   protected Path call() throws Exception {
     updateTitle("Rendering PDF");
-    updateMessage("Creating Solver Tas");
-    createSolverTask();
+    updateMessage("Creating Solver Task");
 
-
+    // we have to read from the task here, the future does not provide a result.
     final SolverService solver = delayedSolverService.get();
     assert solver != null;
 
@@ -104,6 +88,7 @@ public class PdfRenderingTask extends Task<Path> {
     }
 
     if (this.isCancelled() || solverTask.isCancelled()) {
+      this.cancel();
       future.cancel(true);
       return null;
     }

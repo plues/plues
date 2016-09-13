@@ -11,6 +11,8 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.TaskProgressView?>
+
+<?import de.hhu.stups.plues.ui.controller.PartialTimeTables?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="de.hhu.stups.plues.ui.controller.MainController">
@@ -32,6 +34,9 @@
     <BorderPane>
         <center>
             <TabPane>
+                <Tab text="Partial Timetables" closable="false">
+                    <PartialTimeTables fx:id="partialTimetables"/>
+                </Tab>
                 <Tab text="Musterstudienplaene" closable="false">
                     <Musterstudienplaene fx:id="musterstudienplaene"/>
                 </Tab>

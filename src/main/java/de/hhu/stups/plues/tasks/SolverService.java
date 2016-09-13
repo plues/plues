@@ -14,13 +14,10 @@ import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.Solver;
 
-import javafx.concurrent.Task;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 public class SolverService {
@@ -39,7 +36,7 @@ public class SolverService {
    * @return SolverTasks to check
    */
   @SuppressWarnings("unused")
-  public final SolverTask<Boolean> checkFeasibilityTask(final Course... courses) {
+  public SolverTask<Boolean> checkFeasibilityTask(final Course... courses) {
     assert this.solver != null;
 
     final String[] names = getNames(courses);
@@ -55,7 +52,7 @@ public class SolverService {
    * @return SolverTask to compute if a course is feasible or not
    */
   @SuppressWarnings("unused")
-  public final SolverTask<FeasibilityResult> computeFeasibilityTask(
+  public SolverTask<FeasibilityResult> computeFeasibilityTask(
       final Course... courses) {
 
     final String[] names = getNames(courses);
@@ -75,7 +72,7 @@ public class SolverService {
    * @return Instance of FeasibleResult to represent the result
    */
   @SuppressWarnings("unused")
-  public final SolverTask<FeasibilityResult> computePartialFeasibility(
+  public SolverTask<FeasibilityResult> computePartialFeasibility(
       final List<Course> courses,
       final Map<Course, List<Module>> moduleChoice,
       final List<AbstractUnit> abstractUnitChoice) {
@@ -108,7 +105,7 @@ public class SolverService {
    * @return SolverTasks containing a list of integers representing the unsat core
    */
   @SuppressWarnings("unused")
-  public final SolverTask<List<Integer>> unsatCore(final Course... courses) {
+  public SolverTask<List<Integer>> unsatCore(final Course... courses) {
 
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
@@ -159,8 +156,7 @@ public class SolverService {
   }
 
   @SuppressWarnings("unchecked")
-  public final <T> ListenableFuture<T>  submit(final SolverTask<T> command) {
+  public <T> ListenableFuture<T>  submit(final SolverTask<T> command) {
     return (ListenableFuture<T>) this.executor.submit(command);
   }
-
 }

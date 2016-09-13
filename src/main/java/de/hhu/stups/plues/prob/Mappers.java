@@ -78,23 +78,14 @@ final class Mappers {
 
   static String mapToModuleChoice(final Map<String, List<Integer>> moduleChoice) {
 
-    final StringBuilder sb = new StringBuilder();
 
-    sb.append("{");
-    moduleChoice.entrySet().forEach(e -> {
-      sb.append("(\"");
-      sb.append(e.getKey());
-      sb.append("\" |-> {");
+    final String result = Joiner.on(',').join(moduleChoice.entrySet().stream().map(e -> "(\""
+        + e.getKey()
+        + "\" |-> {"
+        + Joiner.on(',').join(e.getValue().stream().map(i -> "mod" + i).iterator())
+        + "})").iterator());
 
-      sb.append(Joiner.on(',')
-          .join(e.getValue().stream()
-            .map(i -> "mod" + i).iterator()));
-
-      sb.append("})");
-    });
-    sb.append("}");
-
-    return sb.toString();
+    return "{" + result + "}";
   }
 
   static List<Alternative> mapAlternatives(final Set modelResult) {
