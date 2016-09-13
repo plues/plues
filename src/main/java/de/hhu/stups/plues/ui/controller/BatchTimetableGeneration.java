@@ -214,7 +214,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     };
 
     executePoolTask.setOnCancelled(event -> {
-      executableTaskPool.stream().forEach(PdfRenderingTask::cancel);
+      executableTaskPool.forEach(PdfRenderingTask::cancel);
       executableTaskPool.clear();
       boxPool.clear();
       generationStarted.setValue(false);
