@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.Course;
 
 import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -33,7 +34,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class MajorMinorCourseSelection extends GridPane implements Initializable, ObservableValue {
+public class MajorMinorCourseSelection extends GridPane implements Initializable, Observable {
 
   private final Comparator<Course> courseComparator
       = (course1, course2) -> course1.getFullName().compareTo(course2.getFullName());
@@ -47,7 +48,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private ComboBox<Course> cbMinor;
 
   private ObservableList<Course> initialMinorCourseList;
-  private List<ChangeListener> listeners = new ArrayList<>();
+  private List<InvalidationListener> listeners = new ArrayList<>();
 
   /**
    * Create the component containing the combo boxes to choose major and minor courses. The combo
@@ -202,31 +203,20 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   }
 
   private void fireListenerEvents() {
-    for (ChangeListener listener : listeners) {
-      listener.changed(this, null, null);
+    for (InvalidationListener listener : listeners) {
+      listener.invalidated(this);
     }
   }
 
   @Override
-  public void addListener(ChangeListener listener) {
+  public void addListener(InvalidationListener listener) {
     listeners.add(listener);
   }
 
   @Override
-  public void removeListener(ChangeListener listener) {
+  public void removeListener(InvalidationListener listener) {
     listeners.remove(listener);
   }
-
-  @Override
-  public Object getValue() {
-    return null;
-  }
-
-  @Override
-  public void addListener(InvalidationListener listener) {}
-
-  @Override
-  public void removeListener(InvalidationListener listener) {}
 
   /**
    * Convert from String to Course and vice versa to be able to use the Course objects directly
