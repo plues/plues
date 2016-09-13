@@ -3,9 +3,13 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
+import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.tasks.SolverTask;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
@@ -43,9 +47,11 @@ public class BatchResultBox extends GridPane implements Initializable {
 
   private final Course majorCourse;
   private final Course minorCourse;
-  private final PdfRenderingTask task;
+  private PdfRenderingTask task;
+  private final PdfRenderingTaskFactory taskFactory;
   private Set<PdfRenderingTask> taskPool;
   private final Path tempDirectoryPath;
+  private Delayed<SolverService> delayedSolverService;
 
   @FXML
   @SuppressWarnings("unused")
@@ -83,12 +89,14 @@ public class BatchResultBox extends GridPane implements Initializable {
   @Inject
   public BatchResultBox(final FXMLLoader loader,
                         final PdfRenderingTaskFactory taskFactory,
+                        final Delayed<SolverService> delayedSolverService,
                         @Assisted("major") final Course major,
                         @Nullable @Assisted("minor") final Course minor,
                         @Assisted final Path tempDirectoryPath,
                         @Assisted final Set<PdfRenderingTask> taskPool) {
     super();
-    this.task = taskFactory.create(major, minor);
+    this.delayedSolverService = delayedSolverService;
+    this.taskFactory = taskFactory;
     this.majorCourse = major;
     this.minorCourse = minor;
     this.tempDirectoryPath = tempDirectoryPath;
@@ -112,6 +120,11 @@ public class BatchResultBox extends GridPane implements Initializable {
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
     StringExpression pdfName;
+
+    delayedSolverService.whenAvailable(solverService -> {
+      SolverTask solverTask = solverService.computeFeasibilityTask(majorCourse, minorCourse);
+      this.task = taskFactory.create(majorCourse, minorCourse, solverTask);
+    });
 
     if (minorCourse != null) {
       pdfName = Bindings.concat(Bindings.selectString(this.majorCourse, "name"),
