@@ -51,7 +51,6 @@ public class PartialTimeTables extends GridPane implements Initializable {
   private final BooleanProperty checkStarted;
   private final CheckBoxGroupFactory checkBoxGroupFactory;
   private final ObjectProperty<Store> storeProperty;
-  private final BooleanProperty storeAvailable;
 
   private final PdfRenderingTaskFactory renderingTaskFactory;
   private final ExecutorService executor;
@@ -107,7 +106,6 @@ public class PartialTimeTables extends GridPane implements Initializable {
     this.executor = executor;
 
     this.storeProperty = new SimpleObjectProperty<>();
-    this.storeAvailable = new SimpleBooleanProperty(false);
     this.solverProperty = new SimpleBooleanProperty(false);
     this.generationStarted = new SimpleBooleanProperty(false);
     this.checkStarted = new SimpleBooleanProperty(false);
@@ -225,7 +223,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     btChoose.setDefaultButton(true);
-    btChoose.disableProperty().bind(storeAvailable.not());
+    btChoose.disableProperty().bind(storeProperty.isNull());
     //
     courseSelection.addListener((observable, oldValue, newValue) -> {
       scrollPane.setVisible(false);
@@ -239,7 +237,6 @@ public class PartialTimeTables extends GridPane implements Initializable {
     delayedStore.whenAvailable(s -> {
       PdfRenderingHelper.initializeCourseSelection(s, courseSelection, delayedSolverService);
       this.storeProperty.set(s);
-      this.storeAvailable.set(true);
     });
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
