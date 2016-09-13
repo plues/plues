@@ -65,23 +65,23 @@ public class PdfRenderingTask extends Task<Path> {
 
     updateMessage("Submit Solver");
     updateProgress(20, 100);
-    final Future<FeasibilityResult> future = solver.submit(solverTask);
+    solver.submit(solverTask);
 
     updateMessage("Waiting for Solver...");
     updateProgress(40, 100);
 
     int percentage = 0;
-    while (!future.isDone()) {
+    while (!solverTask.isDone()) {
       percentage = (percentage + 1) % 20 + 40;
       updateProgress(percentage, 100);
-      if (future.isCancelled()) {
+      if (solverTask.isCancelled() || this.isCancelled()) {
         updateMessage("Task cancelled");
-        return null;
+        break;
       }
       try {
         TimeUnit.MILLISECONDS.sleep(200);
       } catch (final InterruptedException exception) {
-        if (future.isCancelled()) {
+        if (solverTask.isCancelled() || this.isCancelled()) {
           break;
         }
       }
@@ -89,7 +89,6 @@ public class PdfRenderingTask extends Task<Path> {
 
     if (this.isCancelled() || solverTask.isCancelled()) {
       this.cancel();
-      future.cancel(true);
       return null;
     }
 
@@ -128,7 +127,7 @@ public class PdfRenderingTask extends Task<Path> {
   protected void cancelled() {
     super.cancelled();
     if (solverTask != null) {
-      solverTask.cancel();
+      solverTask.cancel(true);
     }
   }
 

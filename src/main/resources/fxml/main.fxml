@@ -13,6 +13,8 @@
 <?import org.controlsfx.control.TaskProgressView?>
 
 <?import de.hhu.stups.plues.ui.controller.PartialTimeTables?>
+<?import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration?>
+
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="de.hhu.stups.plues.ui.controller.MainController">
@@ -42,6 +44,9 @@
                 </Tab>
                 <Tab text="Timetable" closable="false">
                     <Timetable fx:id="timetable"/>
+                </Tab>
+                <Tab text="Batch Timetable Generation" closable="false">
+                    <BatchTimetableGeneration fx:id="batchTimetableGeneration"/>
                 </Tab>
             </TabPane>
         </center>

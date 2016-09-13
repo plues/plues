@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.control.ListView?>
+
+<fx:root alignment="center" type="javafx.scene.layout.GridPane" vgap="10.0"
+         xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <Button fx:id="btGenerateAll" prefHeight="50.0" prefWidth="200.0" onAction="#generateAll"
+                text="Generate all PDFs" GridPane.halignment="RIGHT" GridPane.columnIndex="0"
+                GridPane.rowIndex="1"/>
+        <Button fx:id="btCancel" prefHeight="50.0" prefWidth="200.0" onAction="#cancelGeneration"
+                text="Cancel" GridPane.halignment="LEFT" GridPane.columnIndex="1"
+                GridPane.rowIndex="1"/>
+        <Button fx:id="btSaveToFolder" prefHeight="50.0" prefWidth="200.0" onAction="#savePersistentFolder"
+                text="Export to folder" GridPane.halignment="RIGHT" GridPane.columnIndex="0"
+                GridPane.rowIndex="2"/>
+        <Button fx:id="btSaveToZip" prefHeight="50.0" prefWidth="200.0"
+                onAction="#savePersistentZip" text="Export zip-File" GridPane.halignment="LEFT"
+                GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <ListView fx:id="listView" maxWidth="Infinity" maxHeight="Infinity"
+                  GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
+        </ListView>
+    </children>
+    <columnConstraints>
+        <ColumnConstraints percentWidth="40"/>
+        <ColumnConstraints percentWidth="40"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints percentHeight="2"/>
+        <RowConstraints percentHeight="5"/>
+        <RowConstraints percentHeight="5"/>
+        <RowConstraints percentHeight="60"/>
+    </rowConstraints>
+</fx:root>
