@@ -10,13 +10,10 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.binding.StringExpression;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -25,7 +22,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Text;
 
 import java.io.IOException;
 import java.net.URL;
@@ -40,9 +36,6 @@ import javax.annotation.Nullable;
 public class BatchResultBox extends GridPane implements Initializable {
 
   private static final String ICON_SIZE = "15";
-  private static final String WARNING_COLOR = "#FEEFB3";
-  private static final String FAILURE_COLOR = "#FFBABA";
-  private static final String SUCCESS_COLOR = "#DFF2BF";
   private static final String WORKING_COLOR = "#BDE5F8";
 
   private final Course majorCourse;
@@ -155,64 +148,9 @@ public class BatchResultBox extends GridPane implements Initializable {
     this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
     this.progressIndicator.visibleProperty()
         .bind(task.runningProperty());
-    this.icon.graphicProperty().bind(this.getIconBinding());
-    this.icon.styleProperty().bind(this.getStyleBinding());
+    this.icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(ICON_SIZE, this.task));
+    this.icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(this.task));
 
     this.taskPool.add(task);
-  }
-
-  private StringBinding getStyleBinding() {
-    return Bindings.createStringBinding(() -> {
-      String color = null;
-
-      switch (task.getState()) {
-        case READY:
-        case SCHEDULED:
-        case RUNNING:
-          return "";
-        case SUCCEEDED:
-          color = SUCCESS_COLOR;
-          break;
-        case CANCELLED:
-          color = WARNING_COLOR;
-          break;
-        case FAILED:
-          color = FAILURE_COLOR;
-          break;
-        default:
-          break;
-      }
-
-      return "-fx-background-color: " + color;
-
-    }, task.stateProperty());
-  }
-
-  private ObjectBinding<Text> getIconBinding() {
-    return Bindings.createObjectBinding(() -> {
-      FontAwesomeIcon symbol = null;
-
-      switch (task.getState()) {
-        case READY:
-        case SCHEDULED:
-        case RUNNING:
-          return null;
-        case SUCCEEDED:
-          symbol = FontAwesomeIcon.CHECK;
-          break;
-        case CANCELLED:
-          symbol = FontAwesomeIcon.QUESTION;
-          break;
-        case FAILED:
-          symbol = FontAwesomeIcon.REMOVE;
-          break;
-        default:
-          break;
-      }
-
-      final FontAwesomeIconFactory iconFactory = FontAwesomeIconFactory.get();
-      return iconFactory.createIcon(symbol, ICON_SIZE);
-
-    }, task.stateProperty());
   }
 }
