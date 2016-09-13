@@ -9,8 +9,6 @@ import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -78,9 +76,9 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     cbMinor.setConverter(new CourseConverter());
 
     cbMajor.valueProperty().addListener((observable, oldValue, newValue) ->
-      fireListenerEvents());
+        fireListenerEvents());
     cbMinor.valueProperty().addListener((observable, oldValue, newValue) ->
-      fireListenerEvents());
+        fireListenerEvents());
 
     final ReadOnlyObjectProperty<Course> selectedMajor
         = this.cbMajor.getSelectionModel().selectedItemProperty();
