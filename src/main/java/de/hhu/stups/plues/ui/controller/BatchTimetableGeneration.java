@@ -191,19 +191,14 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       @Override
       protected Void call() throws Exception {
         updateTitle("Generating all timetables");
-        try {
-          // Run all tasks from the pool. We use invoke all to wait for all tasks to finish,
-          // therefore the tasks need to be converted to callable.
-          List<Future<Void>> futurePool = executor.invokeAll(
-              executableTaskPool.stream()
-                  .map(t -> runnableToCallable(t)).collect(Collectors.toSet()));
-          if (!futurePool.isEmpty()) {
-            generationSucceeded.setValue(true);
-          }
-          generationStarted.setValue(false);
-        } catch (final InterruptedException exception) {
-          logger.log(Level.INFO, "Generation cancelled.");
+        // Run all tasks from the pool. We use invoke all to wait for all tasks to finish,
+        // therefore the tasks need to be converted to callable.
+        final List<Future<?>> futurePool = executableTaskPool.stream()
+            .map(executor::submit).collect(Collectors.toList());
+        if (!futurePool.isEmpty()) {
+          generationSucceeded.setValue(true);
         }
+        generationStarted.setValue(false);
         return null;
       }
     };
@@ -217,13 +212,6 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     });
 
     executor.submit(fillPoolTask);
-  }
-
-  private Callable<Void> runnableToCallable(final Runnable runnable) {
-    return () -> {
-      runnable.run();
-      return null;
-    };
   }
 
   /**
