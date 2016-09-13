@@ -107,15 +107,6 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       logger.log(Level.INFO, "Could not create temporary directory.");
     }
 
-    // delete the temporary directory when the application closes
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      try {
-        FileUtils.deleteDirectory(tempDirectoryPath.toFile());
-      } catch (IOException exception) {
-        logger.log(Level.INFO, "Could not delete the temporary directory.");
-      }
-    }));
-
     loader.setLocation(getClass().getResource("/fxml/BatchTimetableGeneration.fxml"));
 
     loader.setRoot(this);
@@ -191,8 +182,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       @Override
       protected Void call() throws Exception {
         updateTitle("Generating all timetables");
-        // Run all tasks from the pool. We use invoke all to wait for all tasks to finish,
-        // therefore the tasks need to be converted to callable.
+        // Run all tasks from the pool
         final List<Future<?>> futurePool = executableTaskPool.stream()
             .map(executor::submit).collect(Collectors.toList());
         if (!futurePool.isEmpty()) {
