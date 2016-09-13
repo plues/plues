@@ -16,13 +16,14 @@ import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
+import de.hhu.stups.plues.tasks.SolverLoader;
+import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverServiceFactory;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
-
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 
@@ -63,6 +64,8 @@ public class PluesModule extends AbstractModule {
     bind(Router.class).toProvider(RouterProvider.class);
     bind(MainController.class);
 
+    bind(SolverLoader.class).to(SolverLoaderImpl.class);
+
     bind(delayedStoreType).toInstance(new Delayed<>());
     bind(delayedSolverServiceType).toInstance(new Delayed<>());
   }
@@ -79,5 +82,4 @@ public class PluesModule extends AbstractModule {
 
     return fxmlLoader;
   }
-
 }
