@@ -72,7 +72,7 @@ public class PdfRenderingTask extends Task<Path> {
   @Override
   protected Path call() throws Exception {
     updateTitle("Rendering PDF");
-    updateMessage("Creating Solver Tas");
+    updateMessage("Creating Solver Task");
     createSolverTask();
 
 
