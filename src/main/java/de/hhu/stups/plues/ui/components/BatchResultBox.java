@@ -122,8 +122,14 @@ public class BatchResultBox extends GridPane implements Initializable {
     StringExpression pdfName;
 
     delayedSolverService.whenAvailable(solverService -> {
-      SolverTask solverTask = solverService.computeFeasibilityTask(majorCourse, minorCourse);
-      this.task = taskFactory.create(majorCourse, minorCourse, solverTask);
+      SolverTask<FeasibilityResult> solverTask;
+      if (minorCourse != null) {
+        solverTask = solverService.computeFeasibilityTask(majorCourse, minorCourse);
+        task = taskFactory.create(majorCourse, minorCourse, solverTask);
+      } else {
+        solverTask = solverService.computeFeasibilityTask(majorCourse);
+        task = taskFactory.create(majorCourse, null, solverTask);
+      }
     });
 
     if (minorCourse != null) {
