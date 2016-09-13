@@ -12,6 +12,7 @@ public class IndexRoute implements Route {
 
   private final Parent root;
   private final Stage stage;
+  private Scene scene;
 
   @Inject
   public IndexRoute(Inflater inflater, Stage stage) {
@@ -21,6 +22,9 @@ public class IndexRoute implements Route {
 
   @Override
   public void transition() {
-    stage.setScene(new Scene(root, 800, 600));
+    scene = new Scene(root, 800, 600);
+
+    scene.getStylesheets().add("/styles/index.css");
+    stage.setScene(scene);
   }
 }

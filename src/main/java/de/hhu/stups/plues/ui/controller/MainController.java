@@ -7,13 +7,10 @@ import com.google.inject.name.Named;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.modelgenerator.XmlExporter;
-import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
+import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
-import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
-import de.hhu.stups.plues.tasks.SolverService;
-import de.hhu.stups.plues.tasks.SolverServiceFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
@@ -66,14 +63,12 @@ public class MainController implements Initializable {
 
   private final Logger logger = Logger.getLogger(getClass().getName());
   private final Delayed<Store> delayedStore;
-  private final Delayed<SolverService> delayedSolverService;
-  private final SolverLoaderTaskFactory solverLoaderTaskFactory;
-  private final SolverServiceFactory solverServiceFactory;
   private final Properties properties;
   private final Stage stage;
   private final ExecutorService executor;
 
   private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
+  private final SolverLoaderImpl solverLoader;
 
   @FXML
   private MenuItem openFileMenuItem;
@@ -89,17 +84,12 @@ public class MainController implements Initializable {
    */
   @Inject
   public MainController(final Delayed<Store> delayedStore,
-                        final Delayed<SolverService> delayedSolverService,
-                        final SolverLoaderTaskFactory solverLoaderTaskFactory,
-                        final SolverServiceFactory solverServiceFactory,
-                        final Properties properties,
+                        final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
                         @Named("prob") final ObservableListeningExecutorService probExecutor,
                         final ObservableListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
-    this.delayedSolverService = delayedSolverService;
-    this.solverLoaderTaskFactory = solverLoaderTaskFactory;
-    this.solverServiceFactory = solverServiceFactory;
+    this.solverLoader = solverLoader;
     this.properties = properties;
     this.stage = stage;
     this.executor = executorService;
@@ -225,12 +215,11 @@ public class MainController implements Initializable {
   private void loadData(final String path) {
 
     final StoreLoaderTask storeLoader = this.getStoreLoaderTask(path);
-    final SolverLoaderTask solverLoader = this.getSolverLoaderTask(storeLoader);
+    delayedStore.whenAvailable(solverLoader::load);
 
     this.openFileMenuItem.setDisable(true);
     this.submitTask(storeLoader);
 
-    this.submitTask(solverLoader);
   }
 
   private StoreLoaderTask getStoreLoaderTask(final String path) {
@@ -258,27 +247,6 @@ public class MainController implements Initializable {
       this.delayedStore.set(s);
     }));
     return storeLoader;
-  }
-
-  private SolverLoaderTask getSolverLoaderTask(
-      final StoreLoaderTask storeLoader) {
-
-    final SolverLoaderTask solverLoader
-        = this.solverLoaderTaskFactory.create(storeLoader);
-
-    solverLoader.setOnSucceeded(event -> {
-      final Solver s = (Solver) event.getSource().getValue();
-      // TODO: check if this needs to run on UI thread
-      this.delayedSolverService.set(solverServiceFactory.create(s));
-    });
-    //
-    solverLoader.setOnFailed(event -> {
-      final Throwable ex = event.getSource().getException();
-      showCriticalExceptionDialog(ex, "Solver could not be loaded");
-      Platform.exit();
-    });
-
-    return solverLoader;
   }
 
   private void showCriticalExceptionDialog(final Throwable ex, final String message) {

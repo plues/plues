@@ -6,6 +6,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
 import java.io.IOException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Inflates a layout from a filename.
@@ -44,6 +46,9 @@ public class Inflater {
     if (controller != null) {
       loader.setController(controller);
     }
+
+    ResourceBundle bundle = ResourceBundle.getBundle("lang.plues", new Locale("de"));
+    loader.setResources(bundle);
 
     try {
       return loader.load();

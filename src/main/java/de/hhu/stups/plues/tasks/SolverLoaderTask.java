@@ -8,17 +8,15 @@ import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.modelgenerator.FileType;
 import de.hhu.stups.plues.modelgenerator.Renderer;
+import de.hhu.stups.plues.prob.ProBSolver;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
-
 import javafx.concurrent.Task;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,34 +31,31 @@ import java.util.zip.ZipFile;
 
 
 public class SolverLoaderTask extends Task<Solver> {
-  private static final int MAX_STEPS = 5;
+  private static final int MAX_STEPS = 4;
   private static final String MODEL_FILE = "Solver.mch";
   private static final String MODEL_PATH = "models";
   private static final String MODELS_ZIP = "models.zip";
-  private final StoreLoaderTask storeLoader;
   private final Properties properties;
   private final SolverFactory solverFactory;
-  private Path modelDirectory;
-  private Store store;
-  private Solver solver;
-
+  private final Store store;
   private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+  private Path modelDirectory;
 
 
   /**
    * Create a new solver loader instance to setup and instantiate the requested solver type.
-   * @param sf SolverFactory factory to create solver instances
-   * @param pp Properties
-   * @param storeLoaderTask tore loader task, task that setups and loads a data store to be used
-   *                        for the solver instance
+   *
+   * @param sf    SolverFactory factory to create solver instances
+   * @param pp    Properties
+   * @param store tore loader task, task that setups and loads a data store to be used for the
+   *              solver instance
    */
   @Inject
-  public SolverLoaderTask(
-      final SolverFactory sf, final Properties pp,
-      @Assisted final StoreLoaderTask storeLoaderTask) {
+  public SolverLoaderTask(final SolverFactory sf,
+      final Properties pp, @Assisted final Store store) {
 
     this.solverFactory = sf;
-    this.storeLoader = storeLoaderTask;
+    this.store = store;
     this.properties = pp;
     this.properties.putIfAbsent("solver", "prob");
     this.updateTitle("Loading ProB"); // TODO i18n
@@ -135,34 +130,50 @@ public class SolverLoaderTask extends Task<Solver> {
 
   @Override
   protected final Solver call() throws Exception {
+    final String solverName = (String) this.properties.get("solver");
+    //
+    logger.info("Using " + solverName + " solver");
+    //
+    if (solverName.equals("mock")) {
+      return this.startMockSolver();
+    }
+    return this.startProbSolver();
+  }
+
+  @SuppressWarnings("unused")
+  private Solver startMockSolver() throws Exception {
+    this.updateProgress(1, 1);
+    this.updateMessage("Starting mock solver");
+    return solverFactory.createMockSolver();
+  }
+
+  @SuppressWarnings("unused")
+  private Solver startProbSolver() throws Exception {
+    ///
     this.updateMessage("Prepare models"); // TODO i18n
     this.updateProgress(0, MAX_STEPS);
     //
     this.prepareModels();
     this.updateProgress(1, MAX_STEPS);
     //
-    this.updateMessage("Waiting for Store"); // TODO i18n
-    this.store = this.storeLoader.get();
-    this.updateProgress(2, MAX_STEPS);
-    //
     this.updateMessage("Export data model (this can take a while)"); // TODO i18n
     this.exportDataModel();
-    this.updateProgress(3, MAX_STEPS);
+    this.updateProgress(2, MAX_STEPS);
     //
     this.updateMessage("Init solver (this can take a while)"); // TODO i18n
 
     final long start = System.nanoTime();
-    this.initSolver();
+    final Solver solver = this.initSolver();
     final long end = System.nanoTime();
 
-    this.updateProgress(4, MAX_STEPS);
+    this.updateProgress(3, MAX_STEPS);
     logger.info("Loaded solver in " + TimeUnit.NANOSECONDS.toMillis(end - start) + " ms");
     //
     this.updateMessage("Checking model version"); // TODO i18n
-    this.solver.checkModelVersion((String) this.properties.get("model_version"));
-    this.updateProgress(5, MAX_STEPS);
+    solver.checkModelVersion((String) this.properties.get("model_version"));
+    this.updateProgress(4, MAX_STEPS);
     //
-    return this.solver;
+    return solver;
   }
 
   @Override
@@ -186,26 +197,9 @@ public class SolverLoaderTask extends Task<Solver> {
     this.getException().printStackTrace();
   }
 
-  private void initSolver() throws IOException, BException,
-      NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+  private ProBSolver initSolver() throws IOException, BException {
     final String modelPath = this.modelDirectory.resolve(MODEL_FILE).toString();
-
-    final String solverName = (String) this.properties.get("solver");
-    //
-    logger.info("Using " + solverName + " solver");
-    //
-    final String solver = solverName.substring(0, 1).toUpperCase() + solverName.substring(1);
-    //
-    try {
-      final Method method = this.solverFactory.getClass()
-          .getMethod("create" + solver + "Solver", String.class);
-
-      this.solver = (Solver) method.invoke(this.solverFactory, modelPath);
-
-    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
-      exception.printStackTrace();
-      throw exception;
-    }
+    return this.solverFactory.createProbSolver(modelPath);
   }
 
   private void exportDataModel() throws IOException {
@@ -227,5 +221,4 @@ public class SolverLoaderTask extends Task<Solver> {
 
     this.store.clear();
   }
-
 }

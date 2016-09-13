@@ -7,5 +7,5 @@ public interface SolverFactory {
   ProBSolver createProbSolver(String modelPath);
 
   @Named("mock")
-  MockSolver createMockSolver(String modelPath);
+  MockSolver createMockSolver();
 }
