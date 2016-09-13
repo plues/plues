@@ -104,10 +104,18 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     });
   }
 
+  /**
+   * Get selectionHasChanged property to be bind.
+   * @return BooleanProperty
+   */
   public BooleanProperty getSelectionHasChanged() {
     return selectionHasChanged;
   }
 
+  /**
+   * Set value for selectionHasChanged property. This is only used to reset it to default false.
+   * @param value Value to set
+   */
   public void setSelectionHasChanged(boolean value) {
     selectionHasChanged.set(value);
   }
