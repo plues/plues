@@ -9,6 +9,7 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.components.BatchResultBox;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -21,7 +22,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -121,12 +121,14 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   public void initialize(URL location, ResourceBundle resources) {
     btGenerateAll.setDefaultButton(true);
     btGenerateAll.disableProperty().bind(solverProperty.not().or(generationStarted));
+
     btCancel.disableProperty().bind(solverProperty.not().or(btGenerateAll.disableProperty().not()));
 
     btSaveToZip.disableProperty().bind(generationSucceeded.not());
     btSaveToFolder.disableProperty().bind(generationSucceeded.not());
 
     listView.visibleProperty().bind(Bindings.size(listView.getItems()).greaterThan(0));
+    listView.setId("batchListView");
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
   }

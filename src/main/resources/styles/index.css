@@ -21,3 +21,7 @@
     -fx-background-color: black, white;
     -fx-background-insets: 0, 0 1 1 0;
 }
+
+#batchListView .list-cell:odd {
+    -fx-control-inner-background: #F2F2F2;
+}
