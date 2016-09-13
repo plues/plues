@@ -87,24 +87,25 @@ public class PdfRenderingTask extends Task<Path> {
     updateProgress(40, 100);
 
     int percentage = 0;
-    while (!future.isDone()) {
+    while (!solverTask.isDone()) {
       percentage = (percentage + 1) % 20 + 40;
       updateProgress(percentage, 100);
-      if (future.isCancelled()) {
+      if (solverTask.isCancelled() || this.isCancelled()) {
         updateMessage("Task cancelled");
-        return null;
+        break;
       }
       try {
         TimeUnit.MILLISECONDS.sleep(200);
       } catch (final InterruptedException exception) {
-        if (future.isCancelled()) {
+        if (solverTask.isCancelled() || this.isCancelled()) {
           break;
         }
       }
     }
 
-    if (this.isCancelled() || solverTask.isCancelled()) {
+    if (solverTask.isCancelled() || this.isCancelled()) {
       future.cancel(true);
+      solverTask.cancel(true);
       return null;
     }
 
