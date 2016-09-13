@@ -126,15 +126,11 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     IntegerBinding resultBoxChildren = Bindings.size(resultBox.getChildren());
     scrollPane.visibleProperty().bind(resultBoxChildren.greaterThan(0));
 
-    // match scroll pane's width but give space for vertical scroll
-    resultBox.maxWidthProperty().bind(scrollPane.widthProperty().subtract(25.0));
-    resultBox.minWidthProperty().bind(scrollPane.widthProperty().subtract(25.0));
     resultBox.setSpacing(10.0);
-    resultBox.setPadding(new Insets(10.0,0.0,10.0,10.0));
+    resultBox.setPadding(new Insets(10.0,10.0,10.0,10.0));
 
     delayedStore.whenAvailable(store ->
       PdfRenderingHelper.initializeCourseSelection(store, courseSelection, delayedSolverService));
-
 
     delayedSolverService.whenAvailable(s -> {
       this.solverProperty.set(true);
