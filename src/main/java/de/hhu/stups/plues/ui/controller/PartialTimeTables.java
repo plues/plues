@@ -245,9 +245,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
       this.storeAvailable.set(true);
     });
 
-    delayedSolverService.whenAvailable(s -> {
-      this.solverProperty.set(true);
-    });
+    delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
   }
 
   @FXML
