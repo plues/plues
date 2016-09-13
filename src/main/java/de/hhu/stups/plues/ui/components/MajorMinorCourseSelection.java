@@ -4,11 +4,12 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -25,12 +26,14 @@ import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class MajorMinorCourseSelection extends GridPane implements Initializable {
+public class MajorMinorCourseSelection extends GridPane implements Initializable, ObservableValue {
 
   private final Comparator<Course> courseComparator
       = (course1, course2) -> course1.getFullName().compareTo(course2.getFullName());
@@ -44,7 +47,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private ComboBox<Course> cbMinor;
 
   private ObservableList<Course> initialMinorCourseList;
-  private BooleanProperty selectionHasChanged = new SimpleBooleanProperty(false);
+  private List<ChangeListener> listeners = new ArrayList<>();
 
   /**
    * Create the component containing the combo boxes to choose major and minor courses. The combo
@@ -73,16 +76,10 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     cbMajor.setConverter(new CourseConverter());
     cbMinor.setConverter(new CourseConverter());
 
-    cbMajor.valueProperty().addListener((observable, oldValue, newValue) -> {
-      if (oldValue != newValue) {
-        selectionHasChanged.set(true);
-      }
-    });
-    cbMinor.valueProperty().addListener((observable, oldValue, newValue) -> {
-      if (oldValue != newValue) {
-        selectionHasChanged.set(true);
-      }
-    });
+    cbMajor.valueProperty().addListener((observable, oldValue, newValue) ->
+      fireListenerEvents());
+    cbMinor.valueProperty().addListener((observable, oldValue, newValue) ->
+      fireListenerEvents());
 
     final ReadOnlyObjectProperty<Course> selectedMajor
         = this.cbMajor.getSelectionModel().selectedItemProperty();
@@ -102,22 +99,6 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
         filterCbMinorCourses();
       }
     });
-  }
-
-  /**
-   * Get selectionHasChanged property to be bind.
-   * @return BooleanProperty
-   */
-  public BooleanProperty getSelectionHasChanged() {
-    return selectionHasChanged;
-  }
-
-  /**
-   * Set value for selectionHasChanged property. This is only used to reset it to default false.
-   * @param value Value to set
-   */
-  public void setSelectionHasChanged(boolean value) {
-    selectionHasChanged.set(value);
   }
 
   /**
@@ -219,6 +200,33 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     cbMinor.setItems(minorCourseList);
     cbMinor.getSelectionModel().select(0);
   }
+
+  private void fireListenerEvents() {
+    for (ChangeListener listener : listeners) {
+      listener.changed(this, null, null);
+    }
+  }
+
+  @Override
+  public void addListener(ChangeListener listener) {
+    listeners.add(listener);
+  }
+
+  @Override
+  public void removeListener(ChangeListener listener) {
+    listeners.remove(listener);
+  }
+
+  @Override
+  public Object getValue() {
+    return null;
+  }
+
+  @Override
+  public void addListener(InvalidationListener listener) {}
+
+  @Override
+  public void removeListener(InvalidationListener listener) {}
 
   /**
    * Convert from String to Course and vice versa to be able to use the Course objects directly
