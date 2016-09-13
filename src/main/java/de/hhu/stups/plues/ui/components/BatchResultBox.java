@@ -14,8 +14,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.binding.StringExpression;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -43,8 +41,8 @@ public class BatchResultBox extends GridPane implements Initializable {
   private static final String SUCCESS_COLOR = "#DFF2BF";
   private static final String WORKING_COLOR = "#BDE5F8";
 
-  private final ObjectProperty<Course> majorCourse;
-  private final ObjectProperty<Course> minorCourse;
+  private final Course majorCourse;
+  private final Course minorCourse;
   private final PdfRenderingTask task;
   private Set<PdfRenderingTask> taskPool;
   private final Path tempDirectoryPath;
@@ -91,8 +89,8 @@ public class BatchResultBox extends GridPane implements Initializable {
                         @Assisted final Set<PdfRenderingTask> taskPool) {
     super();
     this.task = taskFactory.create(major, minor);
-    this.majorCourse = new SimpleObjectProperty<>(major);
-    this.minorCourse = new SimpleObjectProperty<>(minor);
+    this.majorCourse = major;
+    this.minorCourse = minor;
     this.tempDirectoryPath = tempDirectoryPath;
     this.taskPool = taskPool;
     this.setHgap(10.0);
@@ -115,7 +113,7 @@ public class BatchResultBox extends GridPane implements Initializable {
                                final ResourceBundle resources) {
     StringExpression pdfName;
 
-    if (minorCourse.isNotNull().getValue()) {
+    if (minorCourse != null) {
       pdfName = Bindings.concat(Bindings.selectString(this.majorCourse, "name"),
           "_", Bindings.selectString(this.minorCourse, "name"));
       this.lbMinor.textProperty().bind(Bindings.selectString(this.minorCourse, "fullName"));
