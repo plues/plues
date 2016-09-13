@@ -136,6 +136,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
     generationStarted.set(true);
     checkStarted.set(false);
     modulesUnits.getChildren().clear();
+    courseSelection.setSelectionHasChanged(false);
 
     final Course major = courseSelection.getSelectedMajorCourse();
     final Text majorText = new Text();
@@ -228,12 +229,14 @@ public class PartialTimeTables extends GridPane implements Initializable {
     btChoose.disableProperty().bind(storeAvailable.not());
     //
     modulesUnits.visibleProperty().bind(generationStarted);
-    scrollPane.visibleProperty().bind(generationStarted);
-    btCheck.visibleProperty().bind(generationStarted);
+    scrollPane.visibleProperty().bind(generationStarted
+      .and(courseSelection.getSelectionHasChanged().not()));
+    btCheck.visibleProperty().bind(generationStarted
+      .and(courseSelection.getSelectionHasChanged().not()));
     btCheck.disableProperty().bind(solverProperty.not());
     //
-    icon.visibleProperty().bind(checkStarted);
-    buttons.visibleProperty().bind(checkStarted);
+    buttons.visibleProperty().bind(checkStarted
+      .and(courseSelection.getSelectionHasChanged().not()));
     buttons.disableProperty().bind(pdf.isNull().and(checkStarted));
     //
     delayedStore.whenAvailable(s -> {

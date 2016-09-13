@@ -6,7 +6,9 @@ import de.hhu.stups.plues.data.entities.Course;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -42,6 +44,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private ComboBox<Course> cbMinor;
 
   private ObservableList<Course> initialMinorCourseList;
+  private BooleanProperty selectionHasChanged = new SimpleBooleanProperty(false);
 
   /**
    * Create the component containing the combo boxes to choose major and minor courses. The combo
@@ -70,6 +73,17 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     cbMajor.setConverter(new CourseConverter());
     cbMinor.setConverter(new CourseConverter());
 
+    cbMajor.valueProperty().addListener((observable, oldValue, newValue) -> {
+      if (oldValue != newValue) {
+        selectionHasChanged.set(true);
+      }
+    });
+    cbMinor.valueProperty().addListener((observable, oldValue, newValue) -> {
+      if (oldValue != newValue) {
+        selectionHasChanged.set(true);
+      }
+    });
+
     final ReadOnlyObjectProperty<Course> selectedMajor
         = this.cbMajor.getSelectionModel().selectedItemProperty();
 
@@ -88,7 +102,14 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
         filterCbMinorCourses();
       }
     });
+  }
 
+  public BooleanProperty getSelectionHasChanged() {
+    return selectionHasChanged;
+  }
+
+  public void setSelectionHasChanged(boolean value) {
+    selectionHasChanged.set(value);
   }
 
   /**
