@@ -16,14 +16,19 @@ import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
+import de.hhu.stups.plues.tasks.SolverLoader;
+import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverServiceFactory;
+<<<<<<< HEAD
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
+=======
+import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
+>>>>>>> develop
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
-
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 
@@ -55,6 +60,7 @@ public class PluesModule extends AbstractModule {
     install(new FactoryModuleBuilder().build(PdfRenderingTaskFactory.class));
     install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
     install(new FactoryModuleBuilder().build(BatchResultBoxFactory.class));
+    install(new FactoryModuleBuilder().build(CheckBoxGroupFactory.class));
 
     install(new FactoryModuleBuilder()
         .implement(Solver.class, Names.named("prob"), ProBSolver.class)
@@ -64,6 +70,8 @@ public class PluesModule extends AbstractModule {
     bind(Stage.class).toInstance(primaryStage);
     bind(Router.class).toProvider(RouterProvider.class);
     bind(MainController.class);
+
+    bind(SolverLoader.class).to(SolverLoaderImpl.class);
 
     bind(delayedStoreType).toInstance(new Delayed<>());
     bind(delayedSolverServiceType).toInstance(new Delayed<>());
@@ -81,5 +89,4 @@ public class PluesModule extends AbstractModule {
 
     return fxmlLoader;
   }
-
 }

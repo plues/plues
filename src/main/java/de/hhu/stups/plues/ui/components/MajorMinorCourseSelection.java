@@ -4,11 +4,14 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -22,11 +25,17 @@ import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class MajorMinorCourseSelection extends GridPane implements Initializable {
+public class MajorMinorCourseSelection extends GridPane implements Initializable, Observable {
+
+  private final Comparator<Course> courseComparator
+      = (course1, course2) -> course1.getFullName().compareTo(course2.getFullName());
 
   @FXML
   @SuppressWarnings("unused")
@@ -37,6 +46,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private ComboBox<Course> cbMinor;
 
   private ObservableList<Course> initialMinorCourseList;
+  private List<InvalidationListener> listeners = new ArrayList<>();
 
   /**
    * Create the component containing the combo boxes to choose major and minor courses. The combo
@@ -65,6 +75,11 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     cbMajor.setConverter(new CourseConverter());
     cbMinor.setConverter(new CourseConverter());
 
+    cbMajor.valueProperty().addListener((observable, oldValue, newValue) ->
+        fireListenerEvents());
+    cbMinor.valueProperty().addListener((observable, oldValue, newValue) ->
+        fireListenerEvents());
+
     final ReadOnlyObjectProperty<Course> selectedMajor
         = this.cbMajor.getSelectionModel().selectedItemProperty();
 
@@ -83,7 +98,6 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
         filterCbMinorCourses();
       }
     });
-
   }
 
   /**
@@ -164,12 +178,13 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
    * minor courses according to the currently chosen major course.
    */
   public void setMinorCourseList(final ObservableList<Course> initialMinorCourseList) {
-    this.initialMinorCourseList = initialMinorCourseList;
+    this.initialMinorCourseList = initialMinorCourseList.sorted(courseComparator);
     filterCbMinorCourses();
   }
 
   public void setMajorCourseList(final ObservableList<Course> majorCourseList) {
-    cbMajor.setItems(majorCourseList);
+    final SortedList<Course> items = majorCourseList.sorted(courseComparator);
+    cbMajor.setItems(items);
     cbMajor.getSelectionModel().select(0);
   }
 
@@ -178,12 +193,27 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     if (major == null) {
       return;
     }
-    final String majorShortName = major.getShortName();
     final FilteredList<Course> minorCourseList = initialMinorCourseList.filtered(
-        course -> !course.getShortName().equals(majorShortName));
+        course -> course.isCombinableWith(major));
 
     cbMinor.setItems(minorCourseList);
     cbMinor.getSelectionModel().select(0);
+  }
+
+  private void fireListenerEvents() {
+    for (InvalidationListener listener : listeners) {
+      listener.invalidated(this);
+    }
+  }
+
+  @Override
+  public void addListener(InvalidationListener listener) {
+    listeners.add(listener);
+  }
+
+  @Override
+  public void removeListener(InvalidationListener listener) {
+    listeners.remove(listener);
   }
 
   /**

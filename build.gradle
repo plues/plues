@@ -75,6 +75,7 @@ launch4j {
     outfile = appName + ".exe"
     version = project.version
     textVersion = project.version
+
     messagesStartupError = "Startup Error"
     messagesBundledJreError = "Bundled JRE Error"
     messagesLauncherError = "Launch Error"
@@ -100,8 +101,13 @@ task winZip(dependsOn: "launch4j", type: Zip) {
     destinationDir file(zipdir)
 }
 
-macAppBundle.appName = appName
-macAppBundle.mainClassName = project.mainClassName
+macAppBundle{
+    appName = appName
+    mainClassName = project.mainClassName
+    icon = "icon.icns"
+    javaProperties.put("apple.laf.useScreenMenuBar", "true")
+
+}
 /*
  * Allows you to run the UI tests in headless mode by calling gradle with the -Pheadless=true argument
  */

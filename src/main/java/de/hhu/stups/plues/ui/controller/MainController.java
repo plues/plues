@@ -7,13 +7,10 @@ import com.google.inject.name.Named;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.modelgenerator.XmlExporter;
-import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
+import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
-import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
-import de.hhu.stups.plues.tasks.SolverService;
-import de.hhu.stups.plues.tasks.SolverServiceFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
@@ -54,7 +51,8 @@ public class MainController implements Initializable {
 
   private static final Map<Class, FontAwesomeIcon> iconMap = new HashMap<>();
   private static final FontAwesomeIcon DEFAULT_ICON = FontAwesomeIcon.TASKS;
-  private static final String LAST_DIR = "LAST_DIR";
+  private static final String LAST_DB_OPEN_DIR = "LAST_DB_OPEN_DIR";
+  private static final String LAST_XML_EXPORT_DIR = "LAST_XML_EXPORT_DIR";
 
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
@@ -65,12 +63,12 @@ public class MainController implements Initializable {
 
   private final Logger logger = Logger.getLogger(getClass().getName());
   private final Delayed<Store> delayedStore;
-  private final Delayed<SolverService> delayedSolverService;
-  private final SolverLoaderTaskFactory solverLoaderTaskFactory;
-  private final SolverServiceFactory solverServiceFactory;
   private final Properties properties;
   private final Stage stage;
   private final ExecutorService executor;
+
+  private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
+  private final SolverLoaderImpl solverLoader;
 
   @FXML
   private MenuItem openFileMenuItem;
@@ -86,17 +84,12 @@ public class MainController implements Initializable {
    */
   @Inject
   public MainController(final Delayed<Store> delayedStore,
-                        final Delayed<SolverService> delayedSolverService,
-                        final SolverLoaderTaskFactory solverLoaderTaskFactory,
-                        final SolverServiceFactory solverServiceFactory,
-                        final Properties properties,
+                        final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
                         @Named("prob") final ObservableListeningExecutorService probExecutor,
                         final ObservableListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
-    this.delayedSolverService = delayedSolverService;
-    this.solverLoaderTaskFactory = solverLoaderTaskFactory;
-    this.solverServiceFactory = solverServiceFactory;
+    this.solverLoader = solverLoader;
     this.properties = properties;
     this.stage = stage;
     this.executor = executorService;
@@ -140,10 +133,7 @@ public class MainController implements Initializable {
    */
   @SuppressWarnings("UnusedParameters")
   public final void openFile(final ActionEvent actionEvent) {
-    final Preferences prefs
-        = Preferences.userNodeForPackage(MainController.class);
-    final String initialDir
-        = prefs.get(LAST_DIR, System.getProperty("user.home"));
+    final String initialDir = preferences.get(LAST_DB_OPEN_DIR, System.getProperty("user.home"));
     //
     final FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle("Open a Database"); // TODO: i18n
@@ -156,9 +146,7 @@ public class MainController implements Initializable {
     //
     if (file != null) {
       final String newInitialDir = file.getAbsoluteFile().getParent();
-      if (!newInitialDir.equals(initialDir)) {
-        prefs.put(LAST_DIR, newInitialDir);
-      }
+      preferences.put(LAST_DB_OPEN_DIR, newInitialDir);
       //
       this.loadData(file.getAbsolutePath());
     }
@@ -174,14 +162,7 @@ public class MainController implements Initializable {
     // a few instants to finish
     // TODO: consider generating the file to a temporary location and moving it to the final
     // location after the generation finished successfully.
-    final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-    final String dateTime = dateFormat.format(new Date());
-
-    final FileChooser fileChooser = new FileChooser();
-    fileChooser.setInitialFileName("plues_xml_database_" + dateTime + ".zip");
-    fileChooser.setTitle("Choose the zip file's location");
-
-    final File selectedFile = fileChooser.showSaveDialog(null);
+    final File selectedFile = getXmlExportFile();
 
     if (selectedFile != null) {
       executor.execute(new Task<Void>() {
@@ -211,15 +192,34 @@ public class MainController implements Initializable {
     }
   }
 
+  private File getXmlExportFile() {
+    final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+    final String dateTime = dateFormat.format(new Date());
+
+    final String initialDir = preferences.get(LAST_XML_EXPORT_DIR, System.getProperty("user.home"));
+    final FileChooser fileChooser = new FileChooser();
+    fileChooser.setInitialDirectory(new File(initialDir));
+    fileChooser.setInitialFileName("plues_xml_database_" + dateTime + ".zip");
+    fileChooser.setTitle("Choose the zip file's location");
+
+    final File selectedFile = fileChooser.showSaveDialog(null);
+
+    if (selectedFile != null) {
+
+      final String newInitialDir = selectedFile.getAbsoluteFile().getParent();
+      preferences.put(LAST_XML_EXPORT_DIR, newInitialDir);
+    }
+    return selectedFile;
+  }
+
   private void loadData(final String path) {
 
     final StoreLoaderTask storeLoader = this.getStoreLoaderTask(path);
-    final SolverLoaderTask solverLoader = this.getSolverLoaderTask(storeLoader);
+    delayedStore.whenAvailable(solverLoader::load);
 
     this.openFileMenuItem.setDisable(true);
     this.submitTask(storeLoader);
 
-    this.submitTask(solverLoader);
   }
 
   private StoreLoaderTask getStoreLoaderTask(final String path) {
@@ -247,27 +247,6 @@ public class MainController implements Initializable {
       this.delayedStore.set(s);
     }));
     return storeLoader;
-  }
-
-  private SolverLoaderTask getSolverLoaderTask(
-      final StoreLoaderTask storeLoader) {
-
-    final SolverLoaderTask solverLoader
-        = this.solverLoaderTaskFactory.create(storeLoader);
-
-    solverLoader.setOnSucceeded(event -> {
-      final Solver s = (Solver) event.getSource().getValue();
-      // TODO: check if this needs to run on UI thread
-      this.delayedSolverService.set(solverServiceFactory.create(s));
-    });
-    //
-    solverLoader.setOnFailed(event -> {
-      final Throwable ex = event.getSource().getException();
-      showCriticalExceptionDialog(ex, "Solver could not be loaded");
-      Platform.exit();
-    });
-
-    return solverLoader;
   }
 
   private void showCriticalExceptionDialog(final Throwable ex, final String message) {

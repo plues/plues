@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+
+<fx:root prefHeight="100.0" prefWidth="300" type="ButtonBar" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <buttons>
+        <Button fx:id="show" disable="true" mnemonicParsing="false" onAction="#showPdf" text="Show" textAlignment="CENTER" />
+        <Button fx:id="save" disable="true" mnemonicParsing="false" onAction="#savePdf" text="Save" textAlignment="CENTER"/>
+        <Button fx:id="cancel" disable="true" mnemonicParsing="false" onAction="#interrupt" text="Cancel" textAlignment="CENTER" />
+    </buttons>
+</fx:root>

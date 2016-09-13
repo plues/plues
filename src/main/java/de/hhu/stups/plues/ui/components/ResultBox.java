@@ -3,16 +3,17 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -26,38 +27,29 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.stage.DirectoryChooser;
 
-import java.awt.Desktop;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
 import javax.annotation.Nullable;
-import javax.swing.SwingUtilities;
 
 public class ResultBox extends GridPane implements Initializable {
 
-  private static final String ICON_SIZE = "50";
-  private static final String WARNING_COLOR = "#FEEFB3";
-  private static final String FAILURE_COLOR = "#FFBABA";
-  private static final String SUCCESS_COLOR = "#DFF2BF";
   private static final String WORKING_COLOR = "#BDE5F8";
 
   private final ObjectProperty<Course> majorCourse;
   private final ObjectProperty<Course> minorCourse;
-  private final ObjectProperty<Path> pdf;
-  private final PdfRenderingTask task;
+  private PdfRenderingTask task;
   private final ExecutorService executor;
+  private final Delayed<SolverService> solverService;
+  private final PdfRenderingTaskFactory renderingTaskFactory;
   private final VBox parent;
+  private ObjectProperty<Path> pdf;
 
   @FXML
   @SuppressWarnings("unused")
@@ -91,25 +83,28 @@ public class ResultBox extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   private Button btSubmit;
 
-
   /**
    * Constructor for ResultBox.
    *
    * @param loader      TaskLoader to load fxml and to set controller
-   * @param taskFactory PDF Rendering task Factory
+   * @param renderingTaskFactory PDF Rendering task Factory
    * @param major       Major course
    * @param minor       Minor course if present, else null
    * @param parent      The parent wrapper (VBox) to remove a single result box.
    */
   @Inject
-  ResultBox(final FXMLLoader loader,
-                   final PdfRenderingTaskFactory taskFactory,
+  public ResultBox(final FXMLLoader loader,
+                   final Delayed<SolverService> delayedSolverService,
+                   final PdfRenderingTaskFactory renderingTaskFactory,
                    final ExecutorService executorService,
                    @Assisted("major") final Course major,
                    @Nullable @Assisted("minor") final Course minor,
                    @Assisted("parent") final VBox parent) {
     super();
-    this.task = taskFactory.create(major, minor);
+
+    this.solverService = delayedSolverService;
+    this.renderingTaskFactory = renderingTaskFactory;
+
     this.majorCourse = new SimpleObjectProperty<>(major);
     this.minorCourse = new SimpleObjectProperty<>(minor);
     this.pdf = new SimpleObjectProperty<>();
@@ -133,13 +128,13 @@ public class ResultBox extends GridPane implements Initializable {
   /**
    * Helper function to find the file name containing major and minor name.
    *
-   * @param major Course object representing the choosen major course
-   * @param minor Course object representing the choosen minor course
+   * @param major Course object representing the chosen major course
+   * @param minor Course object representing the chosen minor course
    * @return String representing the file name
    */
   private static String getDocumentName(final Course major, final Course minor) {
     return "musterstudienplan_" + major.getName() + "_" + minor.getName()
-        + ".pdf";
+      + ".pdf";
   }
 
   /**
@@ -156,9 +151,30 @@ public class ResultBox extends GridPane implements Initializable {
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
     this.major.textProperty()
-        .bind(Bindings.selectString(this.majorCourse, "fullName"));
+      .bind(Bindings.selectString(this.majorCourse, "fullName"));
     this.minor.textProperty()
-        .bind(Bindings.selectString(this.minorCourse, "fullName"));
+      .bind(Bindings.selectString(this.minorCourse, "fullName"));
+    //
+    solverService.whenAvailable(solverService -> {
+      SolverTask<FeasibilityResult> solverTask;
+      if (minorCourse.isNotNull().get()) {
+        solverTask = solverService.computeFeasibilityTask(majorCourse.get(), minorCourse.get());
+        task = renderingTaskFactory.create(majorCourse.get(), minorCourse.get(), solverTask);
+      } else {
+        solverTask = solverService.computeFeasibilityTask(majorCourse.get());
+        task = renderingTaskFactory.create(majorCourse.get(), null, solverTask);
+      }
+
+        //
+      this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
+      this.progressIndicator.visibleProperty()
+        .bind(task.runningProperty());
+      //
+      icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(task));
+      icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
+      //
+      executor.submit(task);
+    });
     this.lbErrorMsg.visibleProperty().bind(this.pdf.isNull());
 
     task.setOnSucceeded(event -> Platform.runLater(() -> {
@@ -196,7 +212,7 @@ public class ResultBox extends GridPane implements Initializable {
     //
     this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
     this.progressIndicator.visibleProperty()
-        .bind(task.runningProperty());
+      .bind(task.runningProperty());
     //
     // Binding the progress property of the indicator shows a the percentage
     // of completion which in this case is arbitrary since we do not know how
@@ -206,74 +222,13 @@ public class ResultBox extends GridPane implements Initializable {
     //
     this.cbAction.setItems(FXCollections.observableList(Collections.singletonList("Cancel")));
     this.cbAction.getSelectionModel().selectFirst();
-    //
-    this.icon.graphicProperty().bind(this.getIconBinding());
-    this.icon.styleProperty().bind(this.getStyleBinding());
-    //
-    executor.submit(task);
-  }
-
-  private StringBinding getStyleBinding() {
-    return Bindings.createStringBinding(() -> {
-      String color = null;
-
-      switch (task.getState()) {
-        case READY:
-        case SCHEDULED:
-        case RUNNING:
-          return "";
-
-        case SUCCEEDED:
-          color = SUCCESS_COLOR;
-          break;
-        case CANCELLED:
-          color = WARNING_COLOR;
-          break;
-        case FAILED:
-          color = FAILURE_COLOR;
-          break;
-        default:
-          break;
-      }
-
-      return "-fx-background-color: " + color;
-
-    }, task.stateProperty());
-  }
-
-  private ObjectBinding<Text> getIconBinding() {
-    return Bindings.createObjectBinding(() -> {
-      FontAwesomeIcon symbol = null;
-
-      switch (task.getState()) {
-        case READY:
-        case SCHEDULED:
-        case RUNNING:
-          return null;
-
-        case SUCCEEDED:
-          symbol = FontAwesomeIcon.CHECK;
-          break;
-        case CANCELLED:
-          symbol = FontAwesomeIcon.QUESTION;
-          break;
-        case FAILED:
-          symbol = FontAwesomeIcon.REMOVE;
-          break;
-        default:
-          break;
-      }
-
-      final FontAwesomeIconFactory iconFactory = FontAwesomeIconFactory.get();
-      return iconFactory.createIcon(symbol, ICON_SIZE);
-
-    }, task.stateProperty());
   }
 
   @FXML
   @SuppressWarnings("unused")
   private void submitAction() {
-    switch (cbAction.getSelectionModel().getSelectedItem()) {
+    final String selectedItem = cbAction.getSelectionModel().getSelectedItem();
+    switch (selectedItem) {
       case "Show":
         showPdf();
         break;
@@ -295,36 +250,13 @@ public class ResultBox extends GridPane implements Initializable {
 
   @FXML
   private void showPdf() {
-    final Path file = pdf.get();
-    SwingUtilities.invokeLater(() -> {
-      try {
-        Desktop.getDesktop().open(file.toFile());
-      } catch (final IOException exc) {
-        this.lbErrorMsg.setText("Error! File could not be opened.");
-      }
-    });
+    PdfRenderingHelper.showPdf(pdf.get(),
+        e -> lbErrorMsg.setText("Error! Copying of temporary file into target file failed."));
   }
 
   @FXML
   private void savePdf() {
-    final DirectoryChooser directoryChooser = new DirectoryChooser();
-    directoryChooser.setTitle("Choose the pdf file's location");
-    final File selectedDirectory = directoryChooser.showDialog(null);
-
-    final String documentName;
-    if (minorCourse.get() == null) {
-      documentName = getDocumentName(majorCourse.get());
-    } else {
-      documentName = getDocumentName(majorCourse.get(), minorCourse.get());
-    }
-
-    if (selectedDirectory != null) {
-      try {
-        Files.copy(pdf.get(), Paths.get(selectedDirectory.getAbsolutePath()).resolve(documentName));
-      } catch (final Exception exc) {
-        this.lbErrorMsg.setText("Error! Copying of temporary file into target file failed.");
-      }
-    }
+    PdfRenderingHelper.savePdf(pdf.get(), majorCourse.get(), minorCourse.get(), lbErrorMsg);
   }
 
   @FXML
