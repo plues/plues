@@ -9,7 +9,6 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.components.BatchResultBox;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -22,7 +21,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -35,9 +33,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -55,11 +53,11 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   private final BooleanProperty generationStarted;
   private final BooleanProperty generationSucceeded;
   private final BatchResultBoxFactory resultBoxFactory;
+  private final ExecutorService executor;
   private Path tempDirectoryPath;
   private Set<PdfRenderingTask> taskPool;
   private Set<PdfRenderingTask> executableTaskPool;
   private Set<BatchResultBox> boxPool;
-  private final ExecutorService executor;
   private Task<Void> fillPoolTask;
   private Task<Void> executePoolTask;
 
@@ -182,12 +180,34 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       @Override
       protected Void call() throws Exception {
         updateTitle("Generating all timetables");
-        // Run all tasks from the pool
-        final List<Future<?>> futurePool = executableTaskPool.stream()
-            .map(executor::submit).collect(Collectors.toList());
-        if (!futurePool.isEmpty()) {
-          generationSucceeded.setValue(true);
+        final List<Future<?>> futurePool
+            = executableTaskPool.stream().map(executor::submit).collect(Collectors.toList());
+
+        boolean workLeft;
+        final int totalTasks = futurePool.size();
+
+        do {
+          final long finishedTasks = futurePool.stream().filter(Future::isDone).count();
+          updateProgress(finishedTasks, totalTasks);
+
+          if (isCancelled()) {
+            updateMessage("Cancelled");
+            break;
+          }
+          // to check the interrupted exception for cancellation!
+          try {
+            TimeUnit.MILLISECONDS.sleep(100);
+          } catch (final InterruptedException interrupted) {
+            if (isCancelled()) {
+              updateMessage("Cancelled");
+              break;
+            }
+          }
+          workLeft = !(totalTasks == finishedTasks);
         }
+        while (workLeft);
+
+        generationSucceeded.setValue(true);
         generationStarted.setValue(false);
         return null;
       }
