@@ -81,7 +81,7 @@ public class PdfRenderingTask extends Task<Path> {
 
     updateMessage("Submit Solver");
     updateProgress(20, 100);
-    final Future<FeasibilityResult> future = solver.submit(solverTask);
+    solver.submit(solverTask);
 
     updateMessage("Waiting for Solver...");
     updateProgress(40, 100);
@@ -104,8 +104,7 @@ public class PdfRenderingTask extends Task<Path> {
     }
 
     if (solverTask.isCancelled() || this.isCancelled()) {
-      future.cancel(true);
-      solverTask.cancel(true);
+      this.cancel();
       return null;
     }
 
@@ -144,7 +143,7 @@ public class PdfRenderingTask extends Task<Path> {
   protected void cancelled() {
     super.cancelled();
     if (solverTask != null) {
-      solverTask.cancel();
+      solverTask.cancel(true);
     }
   }
 
