@@ -42,9 +42,9 @@ public class BatchResultBox extends GridPane implements Initializable {
   private final Course minorCourse;
   private PdfRenderingTask task;
   private final PdfRenderingTaskFactory taskFactory;
-  private Set<PdfRenderingTask> taskPool;
+  private final Set<PdfRenderingTask> taskPool;
   private final Path tempDirectoryPath;
-  private Delayed<SolverService> delayedSolverService;
+  private final Delayed<SolverService> delayedSolverService;
 
   @FXML
   @SuppressWarnings("unused")
@@ -112,10 +112,10 @@ public class BatchResultBox extends GridPane implements Initializable {
   @Override
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
-    StringExpression pdfName;
+    final StringExpression pdfName;
 
     delayedSolverService.whenAvailable(solverService -> {
-      SolverTask<FeasibilityResult> solverTask;
+      final SolverTask<FeasibilityResult> solverTask;
       if (minorCourse != null) {
         solverTask = solverService.computeFeasibilityTask(majorCourse, minorCourse);
         task = taskFactory.create(majorCourse, minorCourse, solverTask);
