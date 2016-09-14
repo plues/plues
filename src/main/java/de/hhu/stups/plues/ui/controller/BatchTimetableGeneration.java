@@ -54,8 +54,9 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   private final BooleanProperty generationSucceeded;
   private final BatchResultBoxFactory resultBoxFactory;
   private final ExecutorService executor;
+  private final Set<PdfRenderingTask> taskPool;
+
   private Path tempDirectoryPath;
-  private Set<PdfRenderingTask> taskPool;
   private Set<PdfRenderingTask> executableTaskPool;
   private Set<BatchResultBox> boxPool;
   private Task<Void> fillPoolTask;
@@ -118,7 +119,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     btGenerateAll.setDefaultButton(true);
     btGenerateAll.disableProperty().bind(solverProperty.not().or(generationStarted));
 
@@ -157,7 +158,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       @Override
       protected Void call() throws Exception {
         updateTitle("Preparing generation");
-        majorCourseList.stream().forEach(c -> combineMajorMinor(c, minorCourseList));
+        majorCourseList.forEach(c -> combineMajorMinor(c, minorCourseList));
         return null;
       }
     };
@@ -233,12 +234,12 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
    * @param majorCourse     The currently given major course.
    * @param minorCourseList The list of all minor courses.
    */
-  private void combineMajorMinor(Course majorCourse, List<Course> minorCourseList) {
+  private void combineMajorMinor(final Course majorCourse, final List<Course> minorCourseList) {
     final String majorCourseName = majorCourse.getShortName();
     if (!majorCourse.isCombinable()) {
       boxPool.add(resultBoxFactory.create(majorCourse, null, tempDirectoryPath, taskPool));
     } else {
-      minorCourseList.stream().forEach(c -> {
+      minorCourseList.forEach(c -> {
         if (!c.getShortName().equals(majorCourseName)) {
           boxPool.add(resultBoxFactory.create(majorCourse, c, tempDirectoryPath, taskPool));
         }
@@ -273,7 +274,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     fileChooser.setInitialFileName("plues_all_timetables.zip");
     fileChooser.setTitle("Choose the zip file's location");
 
-    FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
+    final FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
         "zip-Archive (*.zip)", "*.zip");
     fileChooser.getExtensionFilters().add(extFilter);
 
@@ -302,11 +303,11 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
               try {
                 Files.copy(path, new File(selectedDirectory.toPath().toString() + "/"
                     + path.getFileName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
-              } catch (IOException exception) {
+              } catch (final IOException exception) {
                 exception.printStackTrace();
               }
             });
-      } catch (IOException exception) {
+      } catch (final IOException exception) {
         logger.log(Level.INFO, "Could not save pdf files to the selected folder.");
       }
     }
@@ -318,7 +319,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
    *
    * @param target The path to store the zip archive in.
    */
-  private void tempFolderToZip(Path destination, Path target) {
+  private void tempFolderToZip(final Path destination, final Path target) {
     try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(target))) {
       Files.walk(destination)
           .filter(path -> !path.toFile().isDirectory())
@@ -327,11 +328,11 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
               zipOutputStream.putNextEntry(new ZipEntry(path.getFileName().toString()));
               zipOutputStream.write(Files.readAllBytes(path));
               zipOutputStream.closeEntry();
-            } catch (IOException exception) {
+            } catch (final IOException exception) {
               exception.printStackTrace();
             }
           });
-    } catch (IOException exception) {
+    } catch (final IOException exception) {
       logger.log(Level.INFO, "Could not save the zip archive to the selected location.");
     }
   }
