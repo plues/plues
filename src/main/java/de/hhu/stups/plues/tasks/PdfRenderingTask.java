@@ -57,8 +57,6 @@ public class PdfRenderingTask extends Task<Path> {
   @Override
   protected Path call() throws Exception {
     updateTitle("Rendering PDF");
-    updateMessage("Creating Solver Task");
-
     // we have to read from the task here, the future does not provide a result.
     final SolverService solver = delayedSolverService.get();
     assert solver != null;
