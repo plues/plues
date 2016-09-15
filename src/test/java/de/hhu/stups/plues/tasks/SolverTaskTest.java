@@ -97,7 +97,7 @@ public class SolverTaskTest extends ApplicationTest {
 
     // wait until the code above ran on the JavaFX thread
 
-    assertEquals("Message", taskProperties.getMessage());
+    assertEquals("failed", taskProperties.getMessage());
     assertEquals("Title", taskProperties.getTitle());
 
     assertTrue(taskProperties.isDone());
