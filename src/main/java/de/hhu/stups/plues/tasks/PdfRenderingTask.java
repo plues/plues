@@ -131,6 +131,14 @@ public class PdfRenderingTask extends Task<Path> {
     }
   }
 
+  @Override
+  protected void failed() {
+    super.failed();
+    if (solverTask != null && solverTask.isRunning()) {
+      solverTask.cancel(true);
+    }
+  }
+
   /**
    * Helper method to get temporary file.
    *
