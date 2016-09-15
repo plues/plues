@@ -3,7 +3,11 @@ package de.hhu.stups.plues.ui.components;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
-
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,16 +18,14 @@ import org.testfx.framework.junit.ApplicationTest;
 import java.util.HashSet;
 import java.util.Set;
 
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.control.CheckBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-
 @RunWith(JUnit4.class)
 public class CheckBoxGroupTest extends ApplicationTest {
   private Course major;
 
+
+  /**
+   * Default constructor.
+   */
   public CheckBoxGroupTest() {
     major = new Course();
     major.setLongName("Major Course");
@@ -67,8 +69,7 @@ public class CheckBoxGroupTest extends ApplicationTest {
     majorUnits.add(unit);
     majorModule.setAbstractUnits(majorUnits);
 
-    final CheckBoxGroup checkBoxGroup = new CheckBoxGroup(new FXMLLoader(),
-      major, majorModule);
+    final CheckBoxGroup checkBoxGroup = new CheckBoxGroup(new FXMLLoader(), major, majorModule);
 
     final Scene scene = new Scene(checkBoxGroup, 200, 200);
     stage.setScene(scene);

@@ -156,7 +156,7 @@ public class ResultBox extends GridPane implements Initializable {
       .bind(Bindings.selectString(this.minorCourse, "fullName"));
     //
     solverService.whenAvailable(solverService -> {
-      SolverTask<FeasibilityResult> solverTask;
+      final SolverTask<FeasibilityResult> solverTask;
       if (minorCourse.isNotNull().get()) {
         solverTask = solverService.computeFeasibilityTask(majorCourse.get(), minorCourse.get());
         task = renderingTaskFactory.create(majorCourse.get(), minorCourse.get(), solverTask);
@@ -165,7 +165,7 @@ public class ResultBox extends GridPane implements Initializable {
         task = renderingTaskFactory.create(majorCourse.get(), null, solverTask);
       }
 
-        //
+      //
       this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
       this.progressIndicator.visibleProperty()
         .bind(task.runningProperty());

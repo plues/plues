@@ -7,6 +7,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -76,14 +77,16 @@ public abstract class ResultBoxTest extends ApplicationTest {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public void start(final Stage stage) throws Exception {
-    SolverService solverService = mock(SolverService.class);
+    final SolverService solverService = mock(SolverService.class);
     when(solverService.computeFeasibilityTask(anyVararg())).thenReturn(mock(SolverTask.class));
 
     Delayed<SolverService> solver = new Delayed<>();
     solver.set(solverService);
-    final ResultBox resultBox = new ResultBox(new FXMLLoader(), solver,
-      (major1, minor1, solverTask) -> task, Executors.newSingleThreadExecutor(), major, minor, new VBox());
+    final ResultBox resultBox = new ResultBox(
+        new FXMLLoader(), solver, (major1, minor1, solverTask) -> task,
+        Executors.newSingleThreadExecutor(), major, minor, new VBox());
 
     final Scene scene = new Scene(resultBox, 200, 200);
     stage.setScene(scene);

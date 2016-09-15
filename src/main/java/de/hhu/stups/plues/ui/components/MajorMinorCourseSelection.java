@@ -182,6 +182,12 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     filterCbMinorCourses();
   }
 
+  /**
+   * Set the initial major course list. We need to store this list to be able to filter the possible
+   * minor courses according to the currently chosen major course.
+   *
+   * @param majorCourseList ObservableList of majors
+   */
   public void setMajorCourseList(final ObservableList<Course> majorCourseList) {
     final SortedList<Course> items = majorCourseList.sorted(courseComparator);
     cbMajor.setItems(items);
