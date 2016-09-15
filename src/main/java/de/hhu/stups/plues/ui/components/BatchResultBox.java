@@ -5,16 +5,11 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
-import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.StringExpression;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -25,26 +20,15 @@ import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ResourceBundle;
-import java.util.Set;
-
-import javax.annotation.Nullable;
 
 public class BatchResultBox extends GridPane implements Initializable {
 
   private static final String ICON_SIZE = "15";
   private static final String WORKING_COLOR = "#BDE5F8";
 
-  private final Course majorCourse;
-  private final Course minorCourse;
-  private PdfRenderingTask task;
-  private final PdfRenderingTaskFactory taskFactory;
-  private final Set<PdfRenderingTask> taskPool;
-  private final Path tempDirectoryPath;
-  private final Delayed<SolverService> delayedSolverService;
+  private final PdfRenderingTask task;
 
   @FXML
   @SuppressWarnings("unused")
@@ -71,33 +55,15 @@ public class BatchResultBox extends GridPane implements Initializable {
    * {@link de.hhu.stups.plues.ui.controller.BatchTimetableGeneration}
    *
    * @param loader            TaskLoader to load fxml and to set controller
-   * @param taskFactory       PDF Rendering task Factory
-   * @param major             Major course
-   * @param minor             Minor course if present, else null
-   * @param tempDirectoryPath The path to the created temporary directory to store the generated pdf
-   *                          files in.
-   * @param taskPool          The pool of tasks that are executed successively when all tasks are
-   *                          available.
    */
   @Inject
-  public BatchResultBox(final FXMLLoader loader,
-                        final PdfRenderingTaskFactory taskFactory,
-                        final Delayed<SolverService> delayedSolverService,
-                        @Assisted("major") final Course major,
-                        @Nullable @Assisted("minor") final Course minor,
-                        @Assisted final Path tempDirectoryPath,
-                        @Assisted final Set<PdfRenderingTask> taskPool) {
+  public BatchResultBox(final FXMLLoader loader, @Assisted final PdfRenderingTask task) {
     super();
-    this.delayedSolverService = delayedSolverService;
-    this.taskFactory = taskFactory;
-    this.majorCourse = major;
-    this.minorCourse = minor;
-    this.tempDirectoryPath = tempDirectoryPath;
-    this.taskPool = taskPool;
+    assert task != null;
+    this.task = task;
     this.setHgap(10.0);
 
-    loader.setLocation(this.getClass()
-        .getResource("/fxml/components/BatchResultBox.fxml"));
+    loader.setLocation(this.getClass().getResource("/fxml/components/BatchResultBox.fxml"));
 
     loader.setRoot(this);
     loader.setController(this);
@@ -110,47 +76,17 @@ public class BatchResultBox extends GridPane implements Initializable {
   }
 
   @Override
-  public final void initialize(final URL location,
-                               final ResourceBundle resources) {
-    final StringExpression pdfName;
-
-    delayedSolverService.whenAvailable(solverService -> {
-      final SolverTask<FeasibilityResult> solverTask;
-      if (minorCourse != null) {
-        solverTask = solverService.computeFeasibilityTask(majorCourse, minorCourse);
-        task = taskFactory.create(majorCourse, minorCourse, solverTask);
-      } else {
-        solverTask = solverService.computeFeasibilityTask(majorCourse);
-        task = taskFactory.create(majorCourse, null, solverTask);
-      }
-    });
-
-    if (minorCourse != null) {
-      pdfName = Bindings.concat(Bindings.selectString(this.majorCourse, "name"),
-          "_", Bindings.selectString(this.minorCourse, "name"));
-      this.lbMinor.textProperty().bind(Bindings.selectString(this.minorCourse, "fullName"));
-    } else {
-      pdfName = Bindings.selectString(this.majorCourse, "name");
+  public final void initialize(final URL location, final ResourceBundle resources) {
+    this.lbMajor.textProperty().bind(Bindings.selectString(task.getMajor(), "fullName"));
+    //
+    final Course minor = task.getMinor();
+    if (minor != null) {
+      this.lbMinor.textProperty().bind(Bindings.selectString(minor, "fullName"));
     }
-    this.lbMajor.textProperty().bind(Bindings.selectString(this.majorCourse, "fullName"));
-
-    task.setOnSucceeded(event -> Platform.runLater(() -> {
-      if (event.getSource().getValue() != null) {
-        try {
-          Files.copy((Path) event.getSource().getValue(),
-              Paths.get(tempDirectoryPath.toString() + "/" + pdfName.getValue() + ".pdf"));
-        } catch (final Exception exception) {
-          exception.printStackTrace();
-        }
-      }
-    }));
 
     this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
-    this.progressIndicator.visibleProperty()
-        .bind(task.runningProperty());
+    this.progressIndicator.visibleProperty().bind(task.runningProperty());
     this.icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(ICON_SIZE, this.task));
     this.icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(this.task));
-
-    this.taskPool.add(task);
   }
 }

@@ -156,4 +156,12 @@ public class PdfRenderingTask extends Task<Path> {
       throw exc;
     }
   }
+
+  public Course getMinor() {
+    return minor;
+  }
+
+  public Course getMajor() {
+    return major;
+  }
 }
