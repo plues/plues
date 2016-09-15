@@ -150,4 +150,20 @@ public class SolverTask<T> extends Task<T> {
     final T i = this.getValue();
     logger.info("Result: " + i.toString());
   }
+
+  @Override
+  protected void failed() {
+    logger.info("failed handler");
+    updateMessage("failed");
+
+    if (timer != null) {
+      timer.cancel(true);
+    }
+    if (future != null) {
+      future.cancel(true);
+    }
+
+    solver.interrupt();
+
+  }
 }
