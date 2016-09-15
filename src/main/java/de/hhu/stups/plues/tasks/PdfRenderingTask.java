@@ -63,6 +63,10 @@ public class PdfRenderingTask extends Task<Path> {
 
     updateMessage("Submit Solver");
     updateProgress(20, 100);
+
+    if (this.isCancelled()) {
+      return null;
+    }
     solver.submit(solverTask);
 
     updateMessage("Waiting for Solver...");
