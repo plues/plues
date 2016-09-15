@@ -99,9 +99,11 @@ public class SolverTask<T> extends Task<T> {
       percentage = (percentage + 2) % 95;
       updateProgress(percentage, 100);
       if (this.isCancelled()) {
+        logger.info("cancelled");
         return null;
       }
       if (future.isCancelled()) {
+        logger.info("future cancelled");
         updateMessage("ProB exited");
         this.cancel();
         return null;
@@ -111,6 +113,7 @@ public class SolverTask<T> extends Task<T> {
         TimeUnit.MILLISECONDS.sleep(100);
       } catch (final InterruptedException interrupted) {
         if (isCancelled()) {
+          logger.info("Task cancelled while sleeping " + this.toString());
           return null;
         }
       }
@@ -121,12 +124,14 @@ public class SolverTask<T> extends Task<T> {
   }
 
   private void timeOut() {
+    logger.info("Timeout");
     this.reason = "Task timeout";
     this.cancel();
   }
 
   @Override
   protected void cancelled() {
+    logger.info("Cancelled handler");
     super.cancelled();
 
     logger.info(this.reason);
@@ -144,6 +149,7 @@ public class SolverTask<T> extends Task<T> {
 
   @Override
   protected void succeeded() {
+    logger.info("succeeded handler");
     super.succeeded();
 
     updateMessage("Done!");
