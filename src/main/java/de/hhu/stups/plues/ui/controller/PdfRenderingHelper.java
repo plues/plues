@@ -109,11 +109,7 @@ public class PdfRenderingHelper {
   private static File getTargetFile(final Course majorCourse, final Course minorCourse) {
 
     final String documentName;
-    if (minorCourse == null) {
-      documentName = getDocumentName(majorCourse);
-    } else {
-      documentName = getDocumentName(majorCourse, minorCourse);
-    }
+    documentName = getDocumentName(majorCourse, minorCourse);
 
     final Preferences preferences = Preferences.userNodeForPackage(PdfRenderingHelper.class);
     final String initialDirectory = preferences.get(PDF_SAVE_DIR, System.getProperty("user.home"));
@@ -139,7 +135,10 @@ public class PdfRenderingHelper {
    * @param minor Course object representing the chosen minor course
    * @return String representing the file name
    */
-  private static String getDocumentName(final Course major, final Course minor) {
+  public static String getDocumentName(final Course major, final Course minor) {
+    if (minor == null) {
+      return getDocumentName(major);
+    }
     return "musterstudienplan_" + major.getName() + "_" + minor.getName()
         + ".pdf";
   }
