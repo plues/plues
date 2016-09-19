@@ -11,6 +11,7 @@ import javafx.concurrent.Task;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class StoreLoaderTask extends Task<Store> {
@@ -31,16 +32,13 @@ public class StoreLoaderTask extends Task<Store> {
   @Override
   protected final Store call() throws Exception {
     checkExportDatabase();
-    final SqliteStore s = new SqliteStore();
     try {
-      s.init(dbWorkingPath.toString());
+      return new SqliteStore(dbWorkingPath.toString());
     } catch (IncompatibleSchemaError | StoreException exception) {
-      exception.printStackTrace();
+      logger.log(Level.SEVERE, "An exception was thrown opening the store", exception);
       updateMessage(exception.getMessage());
-      s.close();
       throw exception;
     }
-    return s;
   }
 
   @Override
@@ -71,7 +69,7 @@ public class StoreLoaderTask extends Task<Store> {
           java.nio.file.StandardCopyOption.REPLACE_EXISTING);
     } catch (final IOException exception) {
       updateMessage(exception.getMessage());
-      exception.printStackTrace();
+      logger.log(Level.SEVERE, "An exception was thrown copying files", exception);
       throw exception;
     }
     updateProgress(3, MAX_STEPS);
