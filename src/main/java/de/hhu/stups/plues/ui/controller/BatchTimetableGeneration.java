@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -259,8 +260,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       try {
         Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
       } catch (final IOException exception) {
-        exception.printStackTrace();
-        logger.info("Could not save pdf file to the selected folder.");
+        logger.log(Level.SEVERE, "Could not save pdf file to the selected folder.", exception);
       }
     });
   }
@@ -273,25 +273,25 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
    */
   private void tempFilesToZip(final Path target) {
     try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(target))) {
-      this.generationSucceeded.forEach(task -> {
-
-        final String fileName = PdfRenderingHelper.getDocumentName(
-            task.getMajor(), task.getMinor());
-
-        final Path source = task.getValue();
-
-        try {
-          zipOutputStream.putNextEntry(new ZipEntry(fileName));
-          zipOutputStream.write(Files.readAllBytes(source));
-          zipOutputStream.closeEntry();
-        } catch (final IOException exception) {
-          logger.info("Could not add file to zip archive");
-          exception.printStackTrace();
-        }
-      });
+      this.generationSucceeded.forEach(task -> addEntryToZip(zipOutputStream, task));
     } catch (final IOException exception) {
-      exception.printStackTrace();
-      logger.info("Could not save the zip archive to the selected location.");
+      logger.log(Level.SEVERE, "Could not save the zip archive to the selected location.",
+          exception);
+    }
+  }
+
+  private void addEntryToZip(final ZipOutputStream zipOutputStream, final PdfRenderingTask task) {
+    final String fileName = PdfRenderingHelper.getDocumentName(
+        task.getMajor(), task.getMinor());
+
+    final Path source = task.getValue();
+
+    try {
+      zipOutputStream.putNextEntry(new ZipEntry(fileName));
+      zipOutputStream.write(Files.readAllBytes(source));
+      zipOutputStream.closeEntry();
+    } catch (final IOException exception) {
+      logger.log(Level.SEVERE, "Could not add file to zip archive", exception);
     }
   }
 }
