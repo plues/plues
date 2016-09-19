@@ -11,9 +11,10 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
@@ -25,6 +26,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -40,6 +42,7 @@ import java.time.DayOfWeek;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Timetable extends BorderPane implements Initializable {
@@ -67,14 +70,14 @@ public class Timetable extends BorderPane implements Initializable {
 
   private SolverService solverService;
 
-  private ListProperty<Session> sessions = new SimpleListProperty<>();
+  private ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
 
   /**
    * Timetable component.
    */
   @Inject
   public Timetable(final Inflater inflater, final Delayed<Store> delayedStore,
-                          final Delayed<SolverService> delayedSolverService) {
+                   final Delayed<SolverService> delayedSolverService) {
     this.delayedStore = delayedStore;
     this.delayedSolverService = delayedSolverService;
 
@@ -88,7 +91,11 @@ public class Timetable extends BorderPane implements Initializable {
     this.delayedStore.whenAvailable(store -> {
       Runtime.getRuntime().addShutdownHook(new Thread(store::close));
       setOfCourseSelection.setCourses(store.getCourses());
-      setSessions(store.getSessions());
+
+      setSessions(store.getSessions()
+        .parallelStream()
+        .map(SessionFacade::new)
+        .collect(Collectors.toList()));
     });
 
     this.selection.textProperty().bind(
@@ -112,18 +119,34 @@ public class Timetable extends BorderPane implements Initializable {
     final int widthX = 5;
 
     IntStream.range(0, 35).forEach(i -> {
+      SessionFacade.Slot slot = getSlot(i, widthX);
 
-      ListView<Session> view = new ListView<>();
-      view.itemsProperty().bind(new ListBinding<Session>() {
+      ListView<SessionFacade> view = new SessionListView(slot, delayedStore,
+        delayedSolverService);
+
+      ((SessionListView) view).setSessions(sessions);
+      view.itemsProperty().bind(new ListBinding<SessionFacade>() {
         {
-          // TODO: bind to all slot properties and to new slot properties
-          // TODO: http://stackoverflow.com/questions/32536096/javafx-bindings-not-working-as-expected
           bind(sessions);
+
+          // http://stackoverflow.com/questions/32536096/javafx-bindings-not-working-as-expected
+          sessions.addListener((Change<? extends SessionFacade> change) -> {
+            while (change.next()) {
+              if (change.wasAdded()) {
+                change.getAddedSubList()
+                  .forEach(sessionFacade -> bind(sessionFacade.slotProperty()));
+              }
+
+              if (change.wasRemoved()) {
+                change.getRemoved().forEach(sessionFacade -> unbind(sessionFacade.slotProperty()));
+              }
+            }
+          });
         }
 
         @Override
-        protected ObservableList<Session> computeValue() {
-          return sessions.filtered(session -> session.getSlot().equals(getSlot(i, widthX)));
+        protected ObservableList<SessionFacade> computeValue() {
+          return sessions.filtered(session -> session.getSlot().equals(slot));
         }
       });
 
@@ -131,11 +154,11 @@ public class Timetable extends BorderPane implements Initializable {
     });
   }
 
-  private Session.Slot getSlot(int index, int widthX) {
+  private SessionFacade.Slot getSlot(int index, int widthX) {
     DayOfWeek[] days = { MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY };
     Integer[] times = { 1, 2, 3, 4, 5, 6, 7 };
 
-    return new Session.Slot(days[index % widthX], times[index / widthX]);
+    return new SessionFacade.Slot(days[index % widthX], times[index / widthX]);
   }
 
   @FXML
@@ -155,8 +178,8 @@ public class Timetable extends BorderPane implements Initializable {
     s.submit(t);
   }
 
-  private void setSessions(List<Session> sessions) {
-    sessions.forEach(Session::initSlotProperty);
+  private void setSessions(List<SessionFacade> sessions) {
+    sessions.forEach(SessionFacade::initSlotProperty);
     this.sessions.set(FXCollections.observableArrayList(sessions));
   }
 }
