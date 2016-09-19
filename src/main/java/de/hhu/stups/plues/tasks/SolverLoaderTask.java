@@ -207,13 +207,13 @@ public class SolverLoaderTask extends Task<Solver> {
 
     final File targetFile = this.modelDirectory.resolve("data.mch").toFile();
 
-    renderer.renderFor(FileType.BMachine, targetFile);
+    renderer.renderFor(FileType.B_MACHINE, targetFile);
     //
     final String flavor = this.store.getInfoByKey("short-name");
 
     final File targetXmlFile = this.modelDirectory.resolve(flavor + "-data.xml").toFile();
 
-    renderer.renderFor(FileType.ModuleCombination, targetXmlFile);
+    renderer.renderFor(FileType.MODULE_COMBINATION, targetXmlFile);
 
 
     logger.info("Wrote model data to " + targetFile.getAbsolutePath());
