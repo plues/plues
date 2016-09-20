@@ -2,7 +2,7 @@ package de.hhu.stups.plues.studienplaene;
 
 import java.awt.Color;
 
-class Grayscale extends ColorPalette {
+class Grayscale implements ColorPalette {
 
   private Color[] colors = new Color[8];
   private int pointer;
@@ -20,7 +20,8 @@ class Grayscale extends ColorPalette {
     colors[7] = new Color(221, 160, 221); // Plum
   }
 
-  Color nextColor() {
+  @Override
+  public Color nextColor() {
     Color color;
     color = colors[pointer];
     pointer++;

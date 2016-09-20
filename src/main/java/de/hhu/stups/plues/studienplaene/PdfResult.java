@@ -1,4 +1,4 @@
-package de.hhu.stups.studienplaene;
+package de.hhu.stups.plues.studienplaene;
 
 import java.util.Map;
 import java.util.Set;

@@ -139,7 +139,7 @@
                                 </fo:table-cell>
                                 {%- for day in ["mon","tue","wed","thu","fri"] -%}
                                     {%- set key = concat(day, time) %}{% set c = semester[key] -%}
-                                    {%- include '/templates/cell.twig'  with { semester: c, fonts:fonts, modules:modules } only -%}
+                                    {%- include '/studienplaene/templates/cell.twig'  with { semester: c, fonts:fonts, modules:modules } only -%}
                                 {% endfor %}
                             </fo:table-row>
                         {% endfor %}

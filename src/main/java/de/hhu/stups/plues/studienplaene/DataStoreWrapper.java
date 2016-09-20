@@ -50,17 +50,28 @@ class DataStoreWrapper {
         final String key = "" + s.getDay() + s.getTime();
 
         final StringBuilder title = new StringBuilder(abstractUnit.getTitle());
-        boolean isSpecial = false;
+        boolean isSpecial;
 
         // check for additional info (rhythm / half_semester)
         final Integer i = s.getRhythm();
         switch (i) {
+          case 0:
+            isSpecial = false;
+            break;
           case 1:
-            title.append(" (A)"); isSpecial = true; break;
+            title.append(" (A)");
+            isSpecial = true;
+            break;
           case 2:
-            title.append(" (B)"); isSpecial = true; break;
+            title.append(" (B)");
+            isSpecial = true;
+            break;
           case 3:
-            title.append(" (b)"); isSpecial = true; break;
+            title.append(" (b)");
+            isSpecial = true;
+            break;
+          default:
+            throw new RuntimeException("Unsopported rhythm");
         }
 
         final int i1 = group.getHalfSemester();

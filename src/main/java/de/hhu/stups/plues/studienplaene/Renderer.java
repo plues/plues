@@ -113,7 +113,7 @@ public class Renderer {
 
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     final JtwigTemplate template = JtwigTemplate
-        .classpathTemplate("/templates/XslTemplate.twig", config);
+        .classpathTemplate("/studienplaene/templates/XslTemplate.twig", config);
     template.render(model, out);
 
     return toPdf(out);
