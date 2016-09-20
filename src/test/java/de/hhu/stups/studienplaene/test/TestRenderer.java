@@ -1,9 +1,8 @@
-package de.hhu.stups.studienplaene;
+package de.hhu.stups.plues.studienplaene;
 
 import static org.junit.Assert.assertNotNull;
 
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +23,10 @@ import javax.xml.parsers.ParserConfigurationException;
 public class TestRenderer {
 
   private MockStore store;
-  private FeasibilityResult feasibilityResult;
+  private HashMap<Integer, Integer> groupChoice;
+  private HashMap<Integer, Integer> semesterChoice;
+  private HashMap<Integer, Integer> unitChoice;
+  private Map<String, Set<Integer>> moduleChoice;
   private Course course;
 
   /**
@@ -36,10 +38,6 @@ public class TestRenderer {
     store = new MockStore();
     course = store.getCourseByKey("foo");
 
-    HashMap<Integer, Integer> groupChoice;
-    HashMap<Integer, Integer> semesterChoice;
-    HashMap<Integer, Integer> unitChoice;
-    Map<String, Set<Integer>> moduleChoice;
 
     groupChoice = new HashMap<>();
     groupChoice.put(1, 1);
@@ -63,14 +61,12 @@ public class TestRenderer {
     integerSet.add(1);
     integerSet.add(3);
     moduleChoice.put("foo", integerSet);
-
-    feasibilityResult =
-      new FeasibilityResult(moduleChoice, unitChoice, semesterChoice, groupChoice);
   }
 
   @Test
   public void testItWorksForColor() throws IOException, ParserConfigurationException, SAXException {
-    final Renderer pdf = new Renderer(store, feasibilityResult, course, "true");
+    final Renderer pdf = new Renderer(store, groupChoice, semesterChoice,
+        moduleChoice, unitChoice, course, "true");
     final ByteArrayOutputStream result = pdf.getResult();
     try (FileOutputStream outputStream = new FileOutputStream("/tmp/foo.pdf")) {
       result.writeTo(outputStream);
@@ -81,7 +77,8 @@ public class TestRenderer {
   @Test
   public void testItWorksForGrayscale()
       throws IOException, ParserConfigurationException, SAXException {
-    final Renderer pdf = new Renderer(store, feasibilityResult, course, "false");
+    final Renderer pdf = new Renderer(store, groupChoice, semesterChoice,
+        moduleChoice, unitChoice, course, "false");
     final ByteArrayOutputStream result = pdf.getResult();
     try (FileOutputStream stream = new FileOutputStream("/tmp/gray.pdf")) { //TODO
       result.writeTo(stream);

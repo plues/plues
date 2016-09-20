@@ -2,9 +2,9 @@ package de.hhu.stups.plues.studienplaene;
 
 import java.awt.Color;
 
-class Colored implements ColorPalette {
+class Colored extends ColorPalette {
 
-  private static final int[] colorKeys = {
+  private final int[] colorKeys = {
     0xff0000, 0xb20000, 0xff4040, 0xb22d2d, 0x661a1a, 0xff8080, 0xb25959,
     0xffbfbf, 0xb38686, 0x664d4d, 0x661800, 0xff6c40, 0xb24c2d, 0xff9d80, 0xb26e59, 0x663f33,
     0xb39086, 0xff7700, 0x663000, 0xb26b2d, 0xffbb80, 0x664b33, 0x66584d, 0xffb300, 0x664700,
@@ -27,7 +27,6 @@ class Colored implements ColorPalette {
     }
   }
 
-  @Override
   public Color nextColor() {
     final Color c;
     c = colors[pointer];

@@ -1,10 +1,9 @@
-package de.hhu.stups.studienplaene;
+package de.hhu.stups.plues.studienplaene;
 
 import static org.junit.Assert.assertEquals;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Session;
-import de.hhu.stups.plues.prob.FeasibilityResult;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,18 +19,16 @@ import java.util.stream.IntStream;
 
 public class TestHalfSemester {
 
+  private Map<Integer, Integer> groupChoice;
+  private Map<Integer, Integer> semesterChoice;
+  private Map<Integer, Integer> unitChoice;
   private Map<String, String>[] semesters;
-  private FeasibilityResult feasibilityResult;
 
   /**
    * Test setup.
    */
   @Before
   public void setUp() throws URISyntaxException {
-
-    Map<Integer, Integer> groupChoice;
-    Map<Integer, Integer> semesterChoice;
-    Map<Integer, Integer> unitChoice;
 
     groupChoice = new HashMap<>();
     IntStream.rangeClosed(1, 9).forEach(i -> groupChoice.put(i, i));
@@ -51,10 +48,8 @@ public class TestHalfSemester {
     final MockStore store = new MockStore();
     final Course course = store.getCourseByKey("foo");
 
-    feasibilityResult =
-        new FeasibilityResult(moduleChoice, unitChoice, semesterChoice, groupChoice);
-
-    final DataPreparatory data = new DataPreparatory(store, feasibilityResult, course, null);
+    final DataPreparatory data = new DataPreparatory(store, groupChoice, semesterChoice,
+        moduleChoice, unitChoice, course, null);
 
     store.getGroups().get(0).setHalfSemester(1);
     store.getGroups().get(1).setHalfSemester(2);

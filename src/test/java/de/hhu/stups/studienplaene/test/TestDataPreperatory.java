@@ -1,11 +1,13 @@
-package de.hhu.stups.studienplaene;
+package de.hhu.stups.plues.studienplaene;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
+import de.hhu.stups.plues.data.entities.Group;
+import de.hhu.stups.plues.data.entities.Module;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,13 +16,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TestDataPreperatory {
 
   private MockStore store;
+  private Map<Integer, Integer> groupChoice;
+  private Map<Integer, Integer> semesterChoice;
+  private HashMap<Integer, Integer> unitChoice;
+  private HashMap<String, Set<Integer>> moduleChoice;
   private Course course;
-  private FeasibilityResult feasibilityResult;
 
   /**
    * Test setup.
@@ -29,12 +35,6 @@ public class TestDataPreperatory {
   public void setUp() {
     store = new MockStore();
     course = store.getCourseByKey("foo");
-
-    Map<Integer, Integer> groupChoice;
-    Map<Integer, Integer> semesterChoice;
-    HashMap<Integer, Integer> unitChoice;
-    HashMap<String, Set<Integer>> moduleChoice;
-
 
     groupChoice = new HashMap<>();
     groupChoice.put(1, 1);
@@ -58,28 +58,29 @@ public class TestDataPreperatory {
     integerSet.add(1);
     integerSet.add(3);
     moduleChoice.put("foo", integerSet);
-
-    feasibilityResult =
-        new FeasibilityResult(moduleChoice, unitChoice, semesterChoice, groupChoice);
   }
 
 
   @Test
   public void testGetUnitGroup() {
-    final DataPreparatory data = new DataPreparatory(store, feasibilityResult, course, null);
+    final DataPreparatory data = new DataPreparatory(store, groupChoice,
+        semesterChoice, moduleChoice, unitChoice, course, null);
 
-    final Map<Integer, Integer> groups = data.getPdfResult().getGroupChoice();
+    final Map<AbstractUnit, Group> groups = data.getUnitGroup();
 
     // Test not null and size
     assertNotNull(groups);
-    assertEquals(groups.size(), feasibilityResult.getGroupChoice().size());
-;
+    assertEquals(groups.size(), groupChoice.size());
 
-    for (final Map.Entry<Integer, Integer> gc : feasibilityResult.getGroupChoice().entrySet()) {
+    final Map<Integer, Integer> ids = groups.entrySet().stream().collect(Collectors.toMap(
+        e -> e.getKey().getId(),
+        e -> e.getValue().getId()));
+
+    for (final Map.Entry<Integer, Integer> gc : groupChoice.entrySet()) {
       final Integer key = gc.getKey();
       final Integer value = gc.getValue();
-      assertTrue(groups.containsKey(key));
-      assertEquals(groups.get(key), value);
+      assertTrue(ids.containsKey(key));
+      assertEquals(ids.get(key), value);
     }
   }
 
@@ -87,13 +88,17 @@ public class TestDataPreperatory {
   public void testUnitModuleMapping() {
     final Course course = store.getCourseByKey("foo");
 
-    final DataPreparatory dp = new DataPreparatory(store, feasibilityResult, course, null);
-    final Map<String, Set<Integer>> moduleChoice = dp.getPdfResult().getModuleChoice();
+    final DataPreparatory dp = new DataPreparatory(store, groupChoice,
+        semesterChoice, moduleChoice, unitChoice, course, null);
 
-    assertTrue(moduleChoice.get(2).contains(1));
-    assertTrue(moduleChoice.get(3).contains(1));
-    assertTrue(moduleChoice.get(6).contains(3));
-    assertTrue(moduleChoice.get(7).contains(3));
+    final Map<AbstractUnit, Module> um = dp.getUnitModule();
+    final Map<Integer, Integer> ids = um.entrySet().stream().collect(Collectors.toMap(
+        e -> e.getKey().getId(),
+        e -> e.getValue().getId()));
+    assertEquals(ids.get(2).intValue(), 1);
+    assertEquals(ids.get(3).intValue(), 1);
+    assertEquals(ids.get(6).intValue(), 3);
+    assertEquals(ids.get(7).intValue(), 3);
   }
 
 

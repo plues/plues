@@ -1,4 +1,4 @@
-package de.hhu.stups.studienplaene;
+package de.hhu.stups.plues.studienplaene;
 
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-class MockStore extends Store {
+class MockStore implements Store {
 
   private List<AbstractUnit> aus;
   private List<Unit> units;

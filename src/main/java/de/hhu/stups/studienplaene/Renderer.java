@@ -2,7 +2,6 @@ package de.hhu.stups.plues.studienplaene;
 
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
 
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
@@ -25,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
@@ -55,13 +56,33 @@ public class Renderer {
   private Map<String, String> fonts;
   private String minor;
 
-  public Renderer(final Store store, final FeasibilityResult result, final Course major,
-                  @Nullable final Course minor, final String colorChoice) {
-    setup(store, result, major, minor, colorChoice);
+  // TODO: Use a FeasibilityResult as argument
+  public Renderer(final Store store, final Map<Integer, Integer> gc,
+                  final Map<Integer, Integer> sc,
+                  final Map<String, Set<Integer>> moduleChoice,
+                  final Map<Integer, Integer> uc,
+                  final Course major, final Course minor,
+                  final String colorChoice) {
+    setup(store, gc, sc, moduleChoice, uc, major, minor, colorChoice);
   }
 
-  private void setup(Store store, FeasibilityResult result, Course major, Course minor, String colorChoice) {
-    final DataPreparatory prep = new DataPreparatory(store, result, major, minor);
+  // TODO: Use a FeasibilityResult as argument
+  public Renderer(final Store store, final Map<Integer, Integer> gc,
+                  final Map<Integer, Integer> sc,
+                  final Map<String, Set<Integer>> moduleChoice,
+                  final Map<Integer, Integer> uc,
+                  final Course major, final String colorChoice) {
+    setup(store, gc, sc, moduleChoice, uc, major, null, colorChoice);
+  }
+
+  private void setup(final Store store, final Map<Integer, Integer> gc,
+                     final Map<Integer, Integer> sc,
+                     final Map<String, Set<Integer>> moduleChoice,
+                     final Map<Integer, Integer> uc,
+                     final Course major, @Nullable Course minor,
+                     final String colorChoice) {
+
+    final DataPreparatory prep = new DataPreparatory(store, gc, sc, moduleChoice, uc, major, minor);
     final boolean cc = Boolean.parseBoolean(colorChoice);
     final DataStoreWrapper wrap = new DataStoreWrapper(cc, prep);
 
