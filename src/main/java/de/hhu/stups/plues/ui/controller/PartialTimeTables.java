@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
@@ -182,8 +183,10 @@ public class PartialTimeTables extends GridPane implements Initializable {
     courses.add(major);
 
     final Course minor;
-    if (courseSelection.getSelectedMinorCourse().isPresent()) {
-      minor = courseSelection.getSelectedMinorCourse().get();
+    final Optional<Course> selectedMinorCourse = courseSelection.getSelectedMinorCourse();
+
+    if (selectedMinorCourse.isPresent()) {
+      minor = selectedMinorCourse.get();
       moduleChoice.put(minor, new ArrayList<>());
       courses.add(minor);
     } else {
@@ -191,12 +194,11 @@ public class PartialTimeTables extends GridPane implements Initializable {
     }
 
     for (final Object o : modulesUnits.getChildren()) {
-      final CheckBoxGroup cbg;
-      try {
-        cbg = (CheckBoxGroup) o;
-      } catch (final ClassCastException exc) {
+      if (!(o instanceof CheckBoxGroup)) {
         continue;
       }
+      final CheckBoxGroup cbg = (CheckBoxGroup) o;
+
       final Module module = cbg.getModule();
       if (module != null) {
         moduleChoice.get(cbg.getCourse()).add(module);
@@ -229,7 +231,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
     scrollPane.setVisible(false);
     btCheck.setVisible(false);
     //
-    courseSelection.addListener((observable) -> {
+    courseSelection.addListener(observable -> {
       scrollPane.setVisible(false);
       btCheck.setVisible(false);
       buttons.setVisible(false);
@@ -256,8 +258,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
   @FXML
   private void savePdf() {
     final Course major = courseSelection.getSelectedMajorCourse();
-    final Course minor = (courseSelection.getSelectedMinorCourse().isPresent())
-        ? courseSelection.getSelectedMinorCourse().get() : null;
+    final Course minor = courseSelection.getSelectedMinorCourse().orElse(null);
 
     PdfRenderingHelper.savePdf(pdf.get(), major, minor, null);
   }
