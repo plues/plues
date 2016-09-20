@@ -19,7 +19,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -29,7 +28,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -51,6 +49,8 @@ public class ResultBox extends GridPane implements Initializable {
   private final PdfRenderingTaskFactory renderingTaskFactory;
   private final VBox parent;
   private ObjectProperty<Path> pdf;
+
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -141,6 +141,8 @@ public class ResultBox extends GridPane implements Initializable {
   @Override
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
+    this.resources = resources;
+    //
     this.major.textProperty()
       .bind(Bindings.selectString(this.majorCourse, "fullName"));
     this.minor.textProperty()
@@ -170,7 +172,10 @@ public class ResultBox extends GridPane implements Initializable {
 
     task.setOnSucceeded(event -> Platform.runLater(() -> {
       pdf.set((Path) event.getSource().getValue());
-      cbAction.setItems(FXCollections.observableList(Arrays.asList("Show", "Save", "Remove")));
+      cbAction.setItems(FXCollections.observableList(Arrays.asList(
+        resources.getString("show"),
+        resources.getString("save"),
+        resources.getString("remove"))));
       cbAction.getSelectionModel().selectFirst();
     }));
 
@@ -196,9 +201,10 @@ public class ResultBox extends GridPane implements Initializable {
 
 
     task.setOnFailed(event -> {
-      this.cbAction.setItems(FXCollections.observableList(Collections.singletonList("Remove")));
+      this.cbAction.setItems(FXCollections.observableList(
+        Collections.singletonList(resources.getString("remove"))));
       this.cbAction.getSelectionModel().selectFirst();
-      this.lbErrorMsg.setText("Error! Could not generate PDF");
+      this.lbErrorMsg.setText(resources.getString("error_gen"));
     });
     //
     this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
@@ -211,7 +217,8 @@ public class ResultBox extends GridPane implements Initializable {
     //
     // progressIndicator.progressProperty().bind(this.task.progressProperty());
     //
-    this.cbAction.setItems(FXCollections.observableList(Collections.singletonList("Cancel")));
+    this.cbAction.setItems(FXCollections.observableList(
+      Collections.singletonList(resources.getString("cancel"))));
     this.cbAction.getSelectionModel().selectFirst();
   }
 
@@ -221,15 +228,19 @@ public class ResultBox extends GridPane implements Initializable {
     final String selectedItem = cbAction.getSelectionModel().getSelectedItem();
     switch (selectedItem) {
       case "Show":
+      case "Anzeigen":
         showPdf();
         break;
       case "Save":
+      case "Speichern":
         savePdf();
         break;
       case "Remove":
+      case "Entfernen":
         this.parent.getChildren().remove(this);
         break;
       case "Cancel":
+      case "Abbrechen":
         this.interrupt();
         this.cbAction.setItems(FXCollections.observableList(Collections.singletonList("Remove")));
         this.cbAction.getSelectionModel().selectFirst();
@@ -242,7 +253,7 @@ public class ResultBox extends GridPane implements Initializable {
   @FXML
   private void showPdf() {
     PdfRenderingHelper.showPdf(pdf.get(),
-        e -> lbErrorMsg.setText("Error! Copying of temporary file into target file failed."));
+        e -> lbErrorMsg.setText(resources.getString("error_temp")));
   }
 
   @FXML
