@@ -46,7 +46,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private ComboBox<Course> cbMinor;
 
   private ObservableList<Course> initialMinorCourseList;
-  private List<InvalidationListener> listeners = new ArrayList<>();
+  private final List<InvalidationListener> listeners = new ArrayList<>();
 
   /**
    * Create the component containing the combo boxes to choose major and minor courses. The combo
@@ -207,18 +207,18 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   }
 
   private void fireListenerEvents() {
-    for (InvalidationListener listener : listeners) {
+    for (final InvalidationListener listener : listeners) {
       listener.invalidated(this);
     }
   }
 
   @Override
-  public void addListener(InvalidationListener listener) {
+  public void addListener(final InvalidationListener listener) {
     listeners.add(listener);
   }
 
   @Override
-  public void removeListener(InvalidationListener listener) {
+  public void removeListener(final InvalidationListener listener) {
     listeners.remove(listener);
   }
 
