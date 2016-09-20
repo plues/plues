@@ -123,29 +123,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
    */
   private Callback<ListView<Course>, ListCell<Course>> getCallbackForImpossibleCourses(
       final Set<String> impossibleCourses) {
-    return new Callback<ListView<Course>, ListCell<Course>>() {
-      @Override
-      public ListCell<Course> call(final ListView<Course> listView) {
-        return new ListCell<Course>() {
-          @Override
-          protected void updateItem(final Course item, final boolean empty) {
-            super.updateItem(item, empty);
-
-            if (item != null) {
-              setText(item.getFullName());
-
-              if (impossibleCourses.contains(item.getName())) {
-                setTextFill(Color.RED);
-              } else {
-                setTextFill(Color.BLACK);
-              }
-
-            }
-
-          }
-        };
-      }
-    };
+    return new ListViewListCellCallback(impossibleCourses);
   }
 
   public Course getSelectedMajorCourse() {
@@ -235,6 +213,38 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     @Override
     public Course fromString(final String string) {
       throw new UnsupportedOperationException();
+    }
+  }
+
+  private static class ListViewListCellCallback
+      implements Callback<ListView<Course>, ListCell<Course>> {
+
+    private final Set<String> impossibleCourses;
+
+    ListViewListCellCallback(final Set<String> impossibleCourses) {
+      this.impossibleCourses = impossibleCourses;
+    }
+
+    @Override
+    public ListCell<Course> call(final ListView<Course> listView) {
+      return new ListCell<Course>() {
+        @Override
+        protected void updateItem(final Course item, final boolean empty) {
+          super.updateItem(item, empty);
+
+          if (item != null) {
+            setText(item.getFullName());
+
+            if (impossibleCourses.contains(item.getName())) {
+              setTextFill(Color.RED);
+            } else {
+              setTextFill(Color.BLACK);
+            }
+
+          }
+
+        }
+      };
     }
   }
 }
