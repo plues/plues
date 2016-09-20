@@ -39,8 +39,8 @@ public class MappersTest {
 
   @Test
   public void mapGroupChoice() throws Exception {
-    final String gc = "{(unit1|->group1),(unit2|->group12),(unit3|->group3),(unit4|->group4),"
-        + "(unit5|->group11),(unit6|->group6),(unit7|->group7),(unit8|->group10),(unit9|->group9)}";
+    final String gc = "{(au1|->group1),(au2|->group12),(au3|->group3),(au4|->group4),"
+        + "(au5|->group11),(au6|->group6),(au7|->group7),(au8|->group10),(au9|->group9)}";
     final Set groupChoice = (Set) Translator.translate(gc);
     final Map<Integer, Integer> mapped = Mappers.mapGroupChoice(groupChoice);
     assertEquals((long) mapped.get(1), 1);
@@ -53,23 +53,6 @@ public class MappersTest {
     assertEquals((long) mapped.get(8), 10);
     assertEquals((long) mapped.get(9), 9);
 
-  }
-
-  @Test
-  public void mapUnitChoice() throws Exception {
-    final String uc = "{(au1|->unit1),(au2|->unit2),(au3|->unit99),(au4|->unit4),(au5|->unit5),"
-        + "(au6|->unit6),(au7|->unit7),(au8|->unit8),(au9|->unit9)}";
-    final Set unitChoice = (Set) Translator.translate(uc);
-    final Map<Integer, Integer> mapped = Mappers.mapUnitChoice(unitChoice);
-    assertEquals((long) mapped.get(1), 1);
-    assertEquals((long) mapped.get(2), 2);
-    assertEquals((long) mapped.get(3), 99);
-    assertEquals((long) mapped.get(4), 4);
-    assertEquals((long) mapped.get(5), 5);
-    assertEquals((long) mapped.get(6), 6);
-    assertEquals((long) mapped.get(7), 7);
-    assertEquals((long) mapped.get(8), 8);
-    assertEquals((long) mapped.get(9), 9);
   }
 
   @Test

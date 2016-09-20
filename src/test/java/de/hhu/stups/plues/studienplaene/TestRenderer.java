@@ -25,7 +25,6 @@ public class TestRenderer {
   private MockStore store;
   private HashMap<Integer, Integer> groupChoice;
   private HashMap<Integer, Integer> semesterChoice;
-  private HashMap<Integer, Integer> unitChoice;
   private Map<String, Set<Integer>> moduleChoice;
   private Course course;
 
@@ -53,9 +52,6 @@ public class TestRenderer {
     semesterChoice = new HashMap<>();
     IntStream.rangeClosed(1, 9).forEach(i -> semesterChoice.put(i, 1));
 
-    unitChoice = new HashMap<>();
-    IntStream.rangeClosed(1, 9).forEach(i -> unitChoice.put(i, i));
-
     moduleChoice = new HashMap<>();
     final Set<Integer> integerSet = new HashSet<Integer>();
     integerSet.add(1);
@@ -66,7 +62,7 @@ public class TestRenderer {
   @Test
   public void testItWorksForColor() throws IOException, ParserConfigurationException, SAXException {
     final Renderer pdf = new Renderer(store, groupChoice, semesterChoice,
-        moduleChoice, unitChoice, course, "true");
+        moduleChoice, course, "true");
     final ByteArrayOutputStream result = pdf.getResult();
     try (FileOutputStream outputStream = new FileOutputStream("/tmp/foo.pdf")) {
       result.writeTo(outputStream);
@@ -78,7 +74,7 @@ public class TestRenderer {
   public void testItWorksForGrayscale()
       throws IOException, ParserConfigurationException, SAXException {
     final Renderer pdf = new Renderer(store, groupChoice, semesterChoice,
-        moduleChoice, unitChoice, course, "false");
+        moduleChoice, course, "false");
     final ByteArrayOutputStream result = pdf.getResult();
     try (FileOutputStream stream = new FileOutputStream("/tmp/gray.pdf")) { //TODO
       result.writeTo(stream);

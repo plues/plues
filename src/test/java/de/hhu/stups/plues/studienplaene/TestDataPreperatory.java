@@ -24,7 +24,6 @@ public class TestDataPreperatory {
   private MockStore store;
   private Map<Integer, Integer> groupChoice;
   private Map<Integer, Integer> semesterChoice;
-  private HashMap<Integer, Integer> unitChoice;
   private HashMap<String, Set<Integer>> moduleChoice;
   private Course course;
 
@@ -50,9 +49,6 @@ public class TestDataPreperatory {
     semesterChoice = new HashMap<>();
     IntStream.rangeClosed(1, 9).forEach(i -> semesterChoice.put(i, 1));
 
-    unitChoice = new HashMap<>();
-    IntStream.rangeClosed(1, 9).forEach(i -> unitChoice.put(i, i));
-
     moduleChoice = new HashMap<>();
     Set<Integer> integerSet = new HashSet<Integer>();
     integerSet.add(1);
@@ -64,7 +60,7 @@ public class TestDataPreperatory {
   @Test
   public void testGetUnitGroup() {
     final DataPreparatory data = new DataPreparatory(store, groupChoice,
-        semesterChoice, moduleChoice, unitChoice, course, null);
+        semesterChoice, moduleChoice, course, null);
 
     final Map<AbstractUnit, Group> groups = data.getUnitGroup();
 
@@ -89,7 +85,7 @@ public class TestDataPreperatory {
     final Course course = store.getCourseByKey("foo");
 
     final DataPreparatory dp = new DataPreparatory(store, groupChoice,
-        semesterChoice, moduleChoice, unitChoice, course, null);
+        semesterChoice, moduleChoice, course, null);
 
     final Map<AbstractUnit, Module> um = dp.getUnitModule();
     final Map<Integer, Integer> ids = um.entrySet().stream().collect(Collectors.toMap(

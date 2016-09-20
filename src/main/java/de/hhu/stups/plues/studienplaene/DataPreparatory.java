@@ -25,9 +25,8 @@ class DataPreparatory {
   DataPreparatory(final Store store, final Map<Integer, Integer> groupChoice,
                   final Map<Integer, Integer> semesterChoice,
                   final Map<String, Set<Integer>> moduleChoice,
-                  final Map<Integer, Integer> unitChoice, final Course major,
-                  @Nullable final Course minor) {
-    readData(store, groupChoice, semesterChoice, moduleChoice, unitChoice, major, minor);
+                  final Course major, @Nullable final Course minor) {
+    readData(store, groupChoice, semesterChoice, moduleChoice, major, minor);
   }
 
   private static Map<AbstractUnit, Integer> filterSemester(final Store store,
@@ -40,16 +39,13 @@ class DataPreparatory {
 
   /**
    * @param store Store
-   * @param gc    Map of unit.id to group.id
-   * @param uc    Map of abstractUnit.id to unit.id
-   * @return map of unit.id to chosen group object
+   * @param gc    Map of abstract unit.id to group.id
+   * @return map of abstract unit.id to chosen group object
    */
   private static Map<AbstractUnit, Group> filterUnitGroup(final Store store,
-                                                          final Map<Integer, Integer> uc,
                                                           final Map<Integer, Integer> gc) {
-    return uc.entrySet().stream().collect(Collectors.toMap(
-      e -> store.getAbstractUnitById(e.getKey()),
-      e -> store.getGroupById(gc.get(e.getValue()))));
+    return gc.entrySet().stream().collect(Collectors.toMap(
+      e -> store.getAbstractUnitById(e.getKey()), e -> store.getGroupById(e.getValue())));
   }
 
   /**
@@ -113,10 +109,9 @@ class DataPreparatory {
   private void readData(final Store store, final Map<Integer, Integer> gc,
                         final Map<Integer, Integer> sc,
                         final Map<String, Set<Integer>> mc,
-                        final Map<Integer, Integer> uc,
                         final Course major, @Nullable final Course minor) {
     unitModule = filterModules(store, sc, mc, major, minor);
-    unitGroup = filterUnitGroup(store, uc, gc);
+    unitGroup = filterUnitGroup(store, gc);
     unitSemester = filterSemester(store, sc);
 
     assert unitModule.size() == unitGroup.size()

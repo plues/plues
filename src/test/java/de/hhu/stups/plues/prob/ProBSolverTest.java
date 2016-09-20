@@ -114,20 +114,17 @@ public class ProBSolverTest {
   public void computeFeasiblity() throws Exception {
     final String op = "check";
     final String predicate = "ccss={\"foo\", \"bar\"}";
-    final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(unit3,group4)}",
-      "{\"foo\" |-> {mod5,mod6}}", "{(au7,unit8)}"};
+    final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(au3,group4)}", "{\"foo\" |-> {mod5,mod6}}"};
 
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
     final Map<Integer, Integer> gc = new HashMap<>();
     final Map<Integer, Integer> sc = new HashMap<>();
-    final Map<Integer, Integer> uc = new HashMap<>();
     final Map<String, Set<Integer>> mc = new HashMap<>();
     final Set<Integer> modules = new HashSet<>();
 
     gc.put(3, 4);
     sc.put(1, 2);
-    uc.put(7, 8);
     modules.add(5);
     modules.add(6);
     mc.put("foo", modules);
@@ -137,7 +134,6 @@ public class ProBSolverTest {
 
     assertEquals(result.getGroupChoice(), gc);
     assertEquals(result.getSemesterChoice(), sc);
-    assertEquals(result.getUnitChoice(), uc);
     assertEquals(result.getModuleChoice(), mc);
   }
 
@@ -147,20 +143,18 @@ public class ProBSolverTest {
     final String predicate = "ccss={\"foo\", \"bar\"} & "
         + "partialModuleChoice={(\"foo\" |-> {mod5})} & "
         + "partialAbstractUnitChoice={au7}";
-    final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(unit3,group4)}",
-        "{\"foo\" |-> {mod5,mod6}}", "{(au7,unit8)}"};
+    final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(au3,group4)}",
+        "{\"foo\" |-> {mod5,mod6}}"};
 
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
     final Map<Integer, Integer> gc = new HashMap<>();
     final Map<Integer, Integer> sc = new HashMap<>();
-    final Map<Integer, Integer> uc = new HashMap<>();
     final Map<String, Set<Integer>> mc = new HashMap<>();
     final Set<Integer> modules = new HashSet<>();
 
     gc.put(3, 4);
     sc.put(1, 2);
-    uc.put(7, 8);
     modules.add(5);
     modules.add(6);
     mc.put("foo", modules);
@@ -179,12 +173,10 @@ public class ProBSolverTest {
     partialAuc.add(7);
 
 
-    final FeasibilityResult result = solver.computePartialFeasibility(courses,
-        partialMc, partialAuc);
+    final FeasibilityResult result = solver.computePartialFeasibility(courses, partialMc, partialAuc);
 
     assertEquals(result.getGroupChoice(), gc);
     assertEquals(result.getSemesterChoice(), sc);
-    assertEquals(result.getUnitChoice(), uc);
     assertEquals(result.getModuleChoice(), mc);
 
     assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
@@ -208,8 +200,8 @@ public class ProBSolverTest {
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
 
-    final Integer[] uc = new Integer[] {1, 77};
-    assertEquals(solver.unsatCore("foo", "bar"), Arrays.asList(uc));
+    final Integer[] unsatCore = new Integer[] {1, 77};
+    assertEquals(solver.unsatCore("foo", "bar"), Arrays.asList(unsatCore));
   }
 
   @Test

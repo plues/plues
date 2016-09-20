@@ -238,11 +238,8 @@ public class ProBSolver implements Solver {
 
     final Map<String, java.util.Set<Integer>> moduleChoice
         = Mappers.mapModuleChoice(modelResult.get(2));
-
-    final Map<Integer, Integer> unitChoice = Mappers.mapUnitChoice(modelResult.get(3));
     //
-    return new FeasibilityResult(moduleChoice, unitChoice,
-        semesterChoice, groupChoice);
+    return new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
   }
 
   /**
@@ -284,12 +281,8 @@ public class ProBSolver implements Solver {
 
     final Map<String, java.util.Set<Integer>> computedModuleChoice
         = Mappers.mapModuleChoice(modelResult.get(2));
-
-    final Map<Integer, Integer> computedUnitChoice
-        = Mappers.mapUnitChoice(modelResult.get(3));
     //
-    return new FeasibilityResult(computedModuleChoice, computedUnitChoice,
-      computedSemesterChoice, computedGroupChoice);
+    return new FeasibilityResult(computedModuleChoice, computedSemesterChoice, computedGroupChoice);
   }
 
   /**

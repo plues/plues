@@ -118,10 +118,10 @@ public class PdfRenderingTask extends Task<Path> {
   private Renderer getRenderer(final Store store, final FeasibilityResult result) {
     if (this.minor == null) {
       return new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-        result.getModuleChoice(), result.getUnitChoice(), this.major, "true");
+        result.getModuleChoice(), this.major, "true");
     } else {
       return new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-        result.getModuleChoice(), result.getUnitChoice(), this.major, this.minor, "true");
+        result.getModuleChoice(), this.major, this.minor, "true");
     }
   }
 

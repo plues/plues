@@ -33,11 +33,9 @@ public class MockSolver implements Solver {
   @Override
   public FeasibilityResult computeFeasibility(final String... courses) throws SolverException {
     final Map<String, Set<Integer>> moduleChoice = new HashMap<>();
-    final Map<Integer, Integer> unitChoice = new HashMap<>();
     final Map<Integer, Integer> semesterChoice = new HashMap<>();
     final Map<Integer, Integer> groupChoice = new HashMap<>();
-    return new FeasibilityResult(moduleChoice, unitChoice,
-      semesterChoice, groupChoice);
+    return new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
   }
 
   @Override
@@ -47,12 +45,10 @@ public class MockSolver implements Solver {
       final List<Integer> abstractUnitChoice) throws SolverException {
 
     final Map<String, Set<Integer>> mc = new HashMap<>();
-    final Map<Integer, Integer> unitChoice = new HashMap<>();
     final Map<Integer, Integer> semesterChoice = new HashMap<>();
     final Map<Integer, Integer> groupChoice = new HashMap<>();
 
-    return new FeasibilityResult(mc, unitChoice,
-      semesterChoice, groupChoice);
+    return new FeasibilityResult(mc, semesterChoice, groupChoice);
   }
 
   @Override

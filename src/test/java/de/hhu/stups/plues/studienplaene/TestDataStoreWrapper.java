@@ -41,9 +41,6 @@ public class TestDataStoreWrapper {
     final HashMap<Integer, Integer> semesterChoice = new HashMap<>();
     IntStream.rangeClosed(1, 9).forEach(i -> semesterChoice.put(i, 1));
 
-    final HashMap<Integer, Integer> unitChoice = new HashMap<>();
-    IntStream.rangeClosed(1, 9).forEach(i -> unitChoice.put(i, i));
-
     final Map<String, Set<Integer>> moduleChoice = new HashMap<>();
     final Set<Integer> integerSet = new HashSet<>();
     integerSet.add(1);
@@ -51,7 +48,7 @@ public class TestDataStoreWrapper {
     moduleChoice.put("foo", integerSet);
 
     final DataPreparatory data = new DataPreparatory(store, groupChoice, semesterChoice,
-        moduleChoice, unitChoice, course, null);
+        moduleChoice, course, null);
     final DataStoreWrapper wrap = new DataStoreWrapper(true, data);
     semesters = wrap.getSemesters();
   }

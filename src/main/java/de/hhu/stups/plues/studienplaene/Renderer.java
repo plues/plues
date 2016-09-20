@@ -60,29 +60,26 @@ public class Renderer {
   public Renderer(final Store store, final Map<Integer, Integer> gc,
                   final Map<Integer, Integer> sc,
                   final Map<String, Set<Integer>> moduleChoice,
-                  final Map<Integer, Integer> uc,
                   final Course major, final Course minor,
                   final String colorChoice) {
-    setup(store, gc, sc, moduleChoice, uc, major, minor, colorChoice);
+    setup(store, gc, sc, moduleChoice, major, minor, colorChoice);
   }
 
   // TODO: Use a FeasibilityResult as argument
   public Renderer(final Store store, final Map<Integer, Integer> gc,
                   final Map<Integer, Integer> sc,
                   final Map<String, Set<Integer>> moduleChoice,
-                  final Map<Integer, Integer> uc,
                   final Course major, final String colorChoice) {
-    setup(store, gc, sc, moduleChoice, uc, major, null, colorChoice);
+    setup(store, gc, sc, moduleChoice, major, null, colorChoice);
   }
 
   private void setup(final Store store, final Map<Integer, Integer> gc,
                      final Map<Integer, Integer> sc,
                      final Map<String, Set<Integer>> moduleChoice,
-                     final Map<Integer, Integer> uc,
                      final Course major, @Nullable Course minor,
                      final String colorChoice) {
 
-    final DataPreparatory prep = new DataPreparatory(store, gc, sc, moduleChoice, uc, major, minor);
+    final DataPreparatory prep = new DataPreparatory(store, gc, sc, moduleChoice, major, minor);
     final boolean cc = Boolean.parseBoolean(colorChoice);
     final DataStoreWrapper wrap = new DataStoreWrapper(cc, prep);
 

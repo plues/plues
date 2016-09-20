@@ -24,11 +24,7 @@ final class Mappers {
 
   static Map<Integer, Integer> mapGroupChoice(final Set set) {
 
-    return Collections.unmodifiableMap(convertToMap(set, "unit", "group"));
-  }
-
-  static Map<Integer, Integer> mapUnitChoice(final Set set) {
-    return Collections.unmodifiableMap(convertToMap(set, "au", "unit"));
+    return Collections.unmodifiableMap(convertToMap(set, "au", "group"));
   }
 
   private static Map<Integer, Integer> convertToMap(final Set set,
