@@ -24,7 +24,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -61,7 +60,7 @@ public class Renderer {
                   final Map<Integer, Integer> sc,
                   final Map<String, Set<Integer>> moduleChoice,
                   final Course major, final Course minor,
-                  final String colorChoice) {
+                  final ColorChoice colorChoice) {
     setup(store, gc, sc, moduleChoice, major, minor, colorChoice);
   }
 
@@ -69,19 +68,34 @@ public class Renderer {
   public Renderer(final Store store, final Map<Integer, Integer> gc,
                   final Map<Integer, Integer> sc,
                   final Map<String, Set<Integer>> moduleChoice,
-                  final Course major, final String colorChoice) {
+                  final Course major, final ColorChoice colorChoice) {
     setup(store, gc, sc, moduleChoice, major, null, colorChoice);
+  }
+
+  // TODO: Use a FeasibilityResult as argument
+  public Renderer(final Store store, final Map<Integer, Integer> gc,
+                  final Map<Integer, Integer> sc,
+                  final Map<String, Set<Integer>> moduleChoice,
+                  final Course major) {
+    setup(store, gc, sc, moduleChoice, major, null, ColorChoice.COLOR);
+  }
+
+  // TODO: Use a FeasibilityResult as argument
+  public Renderer(final Store store, final Map<Integer, Integer> gc,
+                  final Map<Integer, Integer> sc,
+                  final Map<String, Set<Integer>> moduleChoice,
+                  final Course major, final Course minor) {
+    setup(store, gc, sc, moduleChoice, major, minor, ColorChoice.COLOR);
   }
 
   private void setup(final Store store, final Map<Integer, Integer> gc,
                      final Map<Integer, Integer> sc,
                      final Map<String, Set<Integer>> moduleChoice,
-                     final Course major, @Nullable Course minor,
-                     final String colorChoice) {
+                     final Course major, @Nullable final Course minor,
+                     final ColorChoice colorChoice) {
 
     final DataPreparatory prep = new DataPreparatory(store, gc, sc, moduleChoice, major, minor);
-    final boolean cc = Boolean.parseBoolean(colorChoice);
-    final DataStoreWrapper wrap = new DataStoreWrapper(cc, prep);
+    final DataStoreWrapper wrap = new DataStoreWrapper(colorChoice, prep);
 
     this.major = major.getLongName();
     if (minor != null) {

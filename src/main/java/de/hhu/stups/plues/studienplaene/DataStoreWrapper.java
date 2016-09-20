@@ -18,14 +18,20 @@ class DataStoreWrapper {
   private final Map<String, String> fonts;
   private final ColorPalette colors;
 
-  DataStoreWrapper(final boolean cc, final DataPreparatory data) {
+  DataStoreWrapper(final ColorChoice cc, final DataPreparatory data) {
     for (int k = 0; k < semesters.length; k++) {
       semesters[k] = new HashMap<>();
     }
-    if (cc) {
-      colors = new Colored();
-    } else {
-      colors = new Grayscale();
+
+    switch (cc) {
+      case COLOR:
+        colors = new Colored();
+        break;
+      case GRAYSCALE:
+        colors = new Grayscale();
+        break;
+      default:
+        throw new AssertionError("Unsupported ColorChoice " + cc);
     }
 
     colorMap = new HashMap<>();

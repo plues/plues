@@ -62,7 +62,7 @@ public class TestRenderer {
   @Test
   public void testItWorksForColor() throws IOException, ParserConfigurationException, SAXException {
     final Renderer pdf = new Renderer(store, groupChoice, semesterChoice,
-        moduleChoice, course, "true");
+        moduleChoice, course, ColorChoice.COLOR);
     final ByteArrayOutputStream result = pdf.getResult();
     try (FileOutputStream outputStream = new FileOutputStream("/tmp/foo.pdf")) {
       result.writeTo(outputStream);
@@ -74,7 +74,7 @@ public class TestRenderer {
   public void testItWorksForGrayscale()
       throws IOException, ParserConfigurationException, SAXException {
     final Renderer pdf = new Renderer(store, groupChoice, semesterChoice,
-        moduleChoice, course, "false");
+        moduleChoice, course, ColorChoice.GRAYSCALE);
     final ByteArrayOutputStream result = pdf.getResult();
     try (FileOutputStream stream = new FileOutputStream("/tmp/gray.pdf")) { //TODO
       result.writeTo(stream);

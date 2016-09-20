@@ -49,7 +49,7 @@ public class TestDataStoreWrapper {
 
     final DataPreparatory data = new DataPreparatory(store, groupChoice, semesterChoice,
         moduleChoice, course, null);
-    final DataStoreWrapper wrap = new DataStoreWrapper(true, data);
+    final DataStoreWrapper wrap = new DataStoreWrapper(ColorChoice.COLOR, data);
     semesters = wrap.getSemesters();
   }
 

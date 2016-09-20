@@ -57,7 +57,7 @@ public class TestHalfSemester {
     sessions = new ArrayList<>(store.getGroups().get(4).getSessions());
     sessions.get(0).setRhythm(3);
 
-    final DataStoreWrapper wrap = new DataStoreWrapper(true, data);
+    final DataStoreWrapper wrap = new DataStoreWrapper(ColorChoice.COLOR, data);
 
     semesters = wrap.getSemesters();
   }
