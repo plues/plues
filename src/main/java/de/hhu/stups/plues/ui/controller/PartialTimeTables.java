@@ -225,6 +225,9 @@ public class PartialTimeTables extends GridPane implements Initializable {
   public final void initialize(final URL location, final ResourceBundle resources) {
     btChoose.setDefaultButton(true);
     btChoose.disableProperty().bind(storeProperty.isNull());
+
+    scrollPane.setVisible(false);
+    btCheck.setVisible(false);
     //
     courseSelection.addListener((observable) -> {
       scrollPane.setVisible(false);
@@ -243,11 +246,13 @@ public class PartialTimeTables extends GridPane implements Initializable {
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
   }
 
+  @SuppressWarnings("unused")
   @FXML
   private void showPdf() {
     PdfRenderingHelper.showPdf(pdf.get());
   }
 
+  @SuppressWarnings("unused")
   @FXML
   private void savePdf() {
     final Course major = courseSelection.getSelectedMajorCourse();

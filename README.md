@@ -1,6 +1,7 @@
 # PlüS
 
 [![Build Status](https://travis-ci.org/plues/plues.svg?style=flat-square)](https://travis-ci.org/plues/plues)
+[![SonarQube Tech Debt](https://img.shields.io/sonar/http/sonarqube.com/plues/tech_debt.svg?maxAge=2592000&style=flat-square)](https://sonarqube.com/overview?id=plues)
 [![Dependency Status](https://www.versioneye.com/user/projects/57a33b001dadcb004d680562/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/57a33b001dadcb004d680562)
 
 **Current Version:** 2.0.0-SNAPSHOT
@@ -67,3 +68,4 @@ The application can be started either by running `./gradlew run` or using your I
 ## License
 
 This project is distributed under the terms of the [ISC License](LICENSE).
+

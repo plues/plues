@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -63,24 +64,24 @@ public class ProBSolver implements Solver {
   }
 
   private Trace traceFrom(final StateSpace space) {
-    Trace trace = ((Trace) space.asType(Trace.class));
+    Trace tracefromSpace = (Trace) space.asType(Trace.class);
 
     final long start = System.nanoTime();
-    trace = trace.execute("$setup_constants");
+    tracefromSpace = tracefromSpace.execute("$setup_constants");
 
     final long t = System.nanoTime();
 
-    trace = trace.execute("$initialise_machine");
+    tracefromSpace = tracefromSpace.execute("$initialise_machine");
     final long end = System.nanoTime();
 
     logger.info("$setup_constants took " + TimeUnit.NANOSECONDS.toMillis(t - start) + " ms");
     logger.info("$initialise_machine took " + TimeUnit.NANOSECONDS.toMillis(end - t) + " ms");
-    return trace;
+    return tracefromSpace;
   }
 
   private static String getFeasibilityPredicate(final String[] courses) {
     final Iterator<String> iterator = Arrays.stream(courses)
-        .filter(it -> it != null && !it.equals(""))
+        .filter(it -> it != null && !"".equals(it))
         .map(it -> "\"" + it + "\"").iterator();
     return "ccss={" + Joiner.on(", ").join(iterator) + "}";
   }
@@ -124,7 +125,9 @@ public class ProBSolver implements Solver {
 
     final List<T> modelResult = executeOperationWithResult(op, predicate, type);
 
-    assert modelResult.size() == 1;
+    if (modelResult.size() != 1) {
+      throw new SolverException("Expected one result got: " + modelResult.size());
+    }
     return modelResult.get(0);
   }
 
@@ -157,7 +160,7 @@ public class ProBSolver implements Solver {
       try {
         return type.cast(Translator.translate(i));
       } catch (BException bexception) {
-        bexception.printStackTrace();
+        logger.log(Level.SEVERE, "Translator Exception", bexception);
       }
       return null;
     }).collect(Collectors.toList());
@@ -174,6 +177,7 @@ public class ProBSolver implements Solver {
    * provided as parameter.
    * Currently strings must be an exact match.
    */
+  @Override
   public final synchronized void checkModelVersion(final String expectedVersion)
       throws SolverException { /* or read properties here? */
     final String modelVersion = this.getModelVersion();
@@ -187,6 +191,7 @@ public class ProBSolver implements Solver {
 
   }
 
+  @Override
   public final void interrupt() {
     logger.fine("Sending interrupt to state space");
     this.stateSpace.sendInterrupt();
@@ -200,6 +205,7 @@ public class ProBSolver implements Solver {
    * @param courses The combination of major and minor courses.
    * @return Return true if the combination is feasible otherwise false.
    */
+  @Override
   public final synchronized Boolean checkFeasibility(final String... courses) {
 
     final String predicate = getFeasibilityPredicate(courses);
@@ -213,6 +219,7 @@ public class ProBSolver implements Solver {
    * @param courses The combination of major and minor courses.
    * @return Return the computed {@link FeasibilityResult FeasibilityResult}.
    */
+  @Override
   public final synchronized FeasibilityResult computeFeasibility(final String... courses)
       throws SolverException {
 
@@ -248,6 +255,7 @@ public class ProBSolver implements Solver {
    * @throws SolverException if no result could be found or the solver did not exit cleanly
    *                         (e.g. interrupt)
    */
+  @Override
   public final synchronized FeasibilityResult computePartialFeasibility(final List<String> courses,
       final Map<String, List<Integer>> moduleChoice, final List<Integer> abstractUnitChoice)
       throws SolverException {
@@ -291,6 +299,7 @@ public class ProBSolver implements Solver {
    * @throws SolverException if no result could be found or the solver did not exit cleanly
    *                         (e.g. interrupt)
    */
+  @Override
   public final synchronized List<Integer> unsatCore(final String... courses)
       throws SolverException {
 
@@ -308,6 +317,7 @@ public class ProBSolver implements Solver {
    * @param day String day, valid values are "1".."7"
    * @param slot Sting representing the selected time slot, valid values are "1".."8".
    */
+  @Override
   public final synchronized void move(final String sessionId,
                          final String day, final String slot) {
     final String predicate
@@ -322,6 +332,7 @@ public class ProBSolver implements Solver {
    *
    * @return Return the set of all impossible courses.
    */
+  @Override
   public final synchronized java.util.Set<String> getImpossibleCourses() throws SolverException {
 
     final Record result = this.executeOperationWithOneResult(IMPOSSIBLE_COURSES, Record.class);
@@ -338,6 +349,7 @@ public class ProBSolver implements Solver {
    * @throws SolverException if no result could be found or the solver did not exit cleanly
    *                         (e.g. interrupt)
    */
+  @Override
   public final synchronized List<Alternative> getLocalAlternatives(
       final int session, final String... courses) throws SolverException {
 
@@ -356,6 +368,7 @@ public class ProBSolver implements Solver {
    * @return String the version string of the model
    */
   @SuppressWarnings("WeakerAccess")
+  @Override
   public final synchronized String getModelVersion() throws SolverException {
     final BObject result = this.executeOperationWithOneResult("getVersion", BObject.class);
     return Mappers.mapString(result.toString());

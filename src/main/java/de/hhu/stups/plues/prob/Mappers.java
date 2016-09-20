@@ -7,6 +7,7 @@ import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
 import de.prob.translator.types.Tuple;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,15 +19,16 @@ final class Mappers {
   }
 
   static Map<Integer, Integer> mapSemesterChoice(final Set set) {
-    return convertToMap(set, "au", "sem");
+    return Collections.unmodifiableMap(convertToMap(set, "au", "sem"));
   }
 
   static Map<Integer, Integer> mapGroupChoice(final Set set) {
-    return convertToMap(set, "unit", "group");
+
+    return Collections.unmodifiableMap(convertToMap(set, "unit", "group"));
   }
 
   static Map<Integer, Integer> mapUnitChoice(final Set set) {
-    return convertToMap(set, "au", "unit");
+    return Collections.unmodifiableMap(convertToMap(set, "au", "unit"));
   }
 
   private static Map<Integer, Integer> convertToMap(final Set set,
@@ -58,18 +60,17 @@ final class Mappers {
           .map(m -> mapValue(m.toString(), "mod"))
           .collect(Collectors.toSet()));
     }
-    return collectedModules;
+    return Collections.unmodifiableMap(collectedModules);
   }
 
   static java.util.Set<String> mapCourseSet(final Set value) {
-    return value.stream().map(Object::toString)
-      .map(c -> mapString(c)).collect(Collectors.toSet());
+    return Collections.unmodifiableSet( value.stream().map(Object::toString)
+        .map(Mappers::mapString).collect(Collectors.toSet()));
   }
 
   static List<Integer> mapSessions(final Set modelResult) {
-    return modelResult.stream().map(
-      v -> mapValue(v.toString(), "session"))
-      .collect(Collectors.toList());
+    return Collections.unmodifiableList(modelResult.stream().map(
+        v -> mapValue(v.toString(), "session")).collect(Collectors.toList()));
   }
 
   static String mapSession(final Integer session) {
@@ -77,7 +78,6 @@ final class Mappers {
   }
 
   static String mapToModuleChoice(final Map<String, List<Integer>> moduleChoice) {
-
 
     final String result = Joiner.on(',').join(moduleChoice.entrySet().stream().map(e -> "(\""
         + e.getKey()
@@ -89,13 +89,13 @@ final class Mappers {
   }
 
   static List<Alternative> mapAlternatives(final Set modelResult) {
-    return modelResult.stream().map(
+    return Collections.unmodifiableList(modelResult.stream().map(
       o -> {
         Record record = (Record) o;
         String day = record.get("day").toString();
         return new Alternative(mapString(day),
           record.get("slot").toString());
-      }).collect(Collectors.toList());
+      }).collect(Collectors.toList()));
   }
 
   static String mapString(final String str) {
