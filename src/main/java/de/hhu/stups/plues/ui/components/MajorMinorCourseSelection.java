@@ -234,7 +234,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
 
     @Override
     public Course fromString(final String string) {
-      throw new RuntimeException();
+      throw new UnsupportedOperationException();
     }
   }
 }
