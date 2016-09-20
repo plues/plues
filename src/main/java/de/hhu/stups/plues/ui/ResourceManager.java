@@ -21,13 +21,15 @@ class ResourceManager {
   /**
    * ResourceManager class used to manage resources that need to be closed when shutting down the
    * application.
-   * @param delayedStore Store
+   *
+   * @param delayedStore    Delayed store
    * @param executorService ExecutorService
-   * @param probExecutor ExecutorService
+   * @param probExecutor    ExecutorService
    */
   @Inject
-  public ResourceManager(final Delayed<Store> delayedStore, final ListeningExecutorService executorService,
-      @Named("prob") final ExecutorService probExecutor) {
+  public ResourceManager(final Delayed<Store> delayedStore,
+                         final ListeningExecutorService executorService,
+                         @Named("prob") final ExecutorService probExecutor) {
     this.delayedStore = delayedStore;
     this.executorService = executorService;
     this.probExecutor = probExecutor;
@@ -35,6 +37,7 @@ class ResourceManager {
 
   /**
    * Close all managed resources.
+   *
    * @throws InterruptedException thrown if any of the executors throws it.
    */
   void close() throws InterruptedException {
