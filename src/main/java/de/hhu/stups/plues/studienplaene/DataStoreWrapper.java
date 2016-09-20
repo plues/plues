@@ -46,50 +46,22 @@ class DataStoreWrapper {
       semester = choice.getValue();
       group = data.getUnitGroup().get(abstractUnit);
 
-      for (final Session s : group.getSessions()) {
-        final String key = "" + s.getDay() + s.getTime();
+      for (final Session session : group.getSessions()) {
+        final String key = "" + session.getDay() + session.getTime();
+
+
+        final boolean isSpecial = isSpecial(session) || isSpecial(group);
 
         final StringBuilder title = new StringBuilder(abstractUnit.getTitle());
-        boolean isSpecial;
-
-        // check for additional info (rhythm / half_semester)
-        final Integer i = s.getRhythm();
-        switch (i) {
-          case 0:
-            isSpecial = false;
-            break;
-          case 1:
-            title.append(" (A)");
-            isSpecial = true;
-            break;
-          case 2:
-            title.append(" (B)");
-            isSpecial = true;
-            break;
-          case 3:
-            title.append(" (b)");
-            isSpecial = true;
-            break;
-          default:
-            throw new RuntimeException("Unsopported rhythm");
-        }
-
-        final int i1 = group.getHalfSemester();
-        if (i1 == 1) {
-          title.append(" (f)");
-          isSpecial = true;
-        } else if (i1 == 2) {
-          title.append(" (s)");
-          isSpecial = true;
-        }
+        title.append(getTitlePart(session));
+        title.append(getTitlePart(group));
 
         // check for content
         final String content = semesters[semester - 1].get(key);
         if (content != null && isSpecial) {
           semesters[semester - 1].remove(key);
           final String[] values = content.split(";");
-          final String newContent = values[0] + " / "
-              + title.toString() + ";" + values[1];
+          final String newContent = values[0] + " / " + title.toString() + ";" + values[1];
           semesters[semester - 1].put(key, newContent);
           setColorToBlack(values[1]);
         } else {
@@ -98,9 +70,45 @@ class DataStoreWrapper {
           semesters[semester - 1].put(key, title.toString());
           colorMap.put(moduleName, getColorString(moduleName));
         }
-
       }
     }
+  }
+
+  private String getTitlePart(final Group group) {
+    final int halfSemester = group.getHalfSemester();
+    switch (halfSemester) {
+      case 1:
+        return " (f)";
+      case 2:
+        return " (s)";
+      default:
+        return "";
+    }
+  }
+
+  private String getTitlePart(final Session session) {
+    final Integer rhythm = session.getRhythm();
+    switch (rhythm) {
+      case 0:
+        return "";
+      case 1:
+        return " (A)";
+      case 2:
+        return " (B)";
+      case 3:
+        return " (b)";
+      default:
+        throw new AssertionError("Unsupported rhythm");
+    }
+  }
+
+  private boolean isSpecial(final Group group) {
+    return group.getHalfSemester() > 0;
+  }
+
+  private boolean isSpecial(final Session session) {
+    final Integer rhythm = session.getRhythm();
+    return rhythm != 0;
   }
 
   private void setColorToBlack(final String module) {
