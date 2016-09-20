@@ -80,7 +80,7 @@ public class Timetable extends BorderPane implements Initializable {
 
     // TODO: remove controller param if possible
     // TODO: currently not possible because of dependency circle
-    inflater.inflate("components/Timetable", this, this);
+    inflater.inflate("components/Timetable", this, this, "timetable");
   }
 
   @Override
