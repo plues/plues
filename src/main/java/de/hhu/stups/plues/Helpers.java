@@ -14,11 +14,14 @@ public final class Helpers {
    * @param base String
    * @return Path absulute path representation of the argument
    */
-  public static Path expandPath(String base) {
+  public static Path expandPath(final String base) {
     // handle ~ in paths
+    final String basePath;
     if (base.startsWith("~" + File.separator)) {
-      base = System.getProperty("user.home") + base.substring(1);
+      basePath = System.getProperty("user.home") + base.substring(1);
+    } else {
+      basePath = base;
     }
-    return FileSystems.getDefault().getPath(base).toAbsolutePath();
+    return FileSystems.getDefault().getPath(basePath).toAbsolutePath();
   }
 }
