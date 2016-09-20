@@ -3,6 +3,8 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -38,20 +40,11 @@ public class CourseFilter extends VBox implements Initializable {
 
   /**
    * Default constructor.
-   * @param loader FXMLLoader
+   * @param inflater Inflater
    */
   @Inject
-  public CourseFilter(final FXMLLoader loader) {
-    loader.setLocation(getClass().getResource("/fxml/CourseFilter.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (final IOException exception) {
-      throw new RuntimeException(exception);
-    }
+  public CourseFilter(final Inflater inflater) {
+    inflater.inflate("CourseFilter", null, null, "courseFilter");
   }
 
   @Override
