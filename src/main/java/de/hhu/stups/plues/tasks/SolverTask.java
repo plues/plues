@@ -82,17 +82,7 @@ public class SolverTask<T> extends Task<T> {
     timer = TIMER.schedule(this::timeOut, this.timeout, this.timeUnit);
     future = EXECUTOR.submit(function);
 
-    Futures.addCallback(future, new FutureCallback<T>() {
-      @Override
-      public void onSuccess(@Nullable final T result) {
-        timer.cancel(true);
-      }
-
-      @Override
-      public void onFailure(final Throwable throwable) {
-        timer.cancel(true);
-      }
-    });
+    Futures.addCallback(future, new TaskCallback<>());
 
     int percentage = 10;
     while (!future.isDone()) {
@@ -171,5 +161,17 @@ public class SolverTask<T> extends Task<T> {
 
     solver.interrupt();
 
+  }
+
+  private class TaskCallback<J> implements FutureCallback<J> {
+    @Override
+    public void onSuccess(@Nullable final J result) {
+      timer.cancel(true);
+    }
+
+    @Override
+    public void onFailure(final Throwable throwable) {
+      timer.cancel(true);
+    }
   }
 }
