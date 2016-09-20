@@ -13,7 +13,7 @@
         <MajorMinorCourseSelection fx:id="courseSelection" GridPane.columnIndex="0"
                                    GridPane.halignment="CENTER" GridPane.rowIndex="0"/>
         <Button fx:id="btGenerate" onAction="#btGeneratePressed" prefWidth="300" maxHeight="10000.0"
-                text="Generate" GridPane.halignment="CENTER" GridPane.columnIndex="0"
+                text="%generate" GridPane.halignment="CENTER" GridPane.columnIndex="0"
                 GridPane.rowIndex="1"/>
         <ScrollPane fx:id="scrollPane" GridPane.columnIndex="0" maxWidth="10000.0"
                     maxHeight="10000.0" GridPane.rowIndex="2">

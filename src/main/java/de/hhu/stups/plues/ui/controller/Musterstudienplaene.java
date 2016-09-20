@@ -10,6 +10,7 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
+import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerBinding;
@@ -66,13 +67,14 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   /**
    * Constructor for musterstudienplaene controller.
    *
-   * @param loader               TaskLoader to load fxml file and to set controller
+   * @param inflater             Inflater to handle fxml loading
    * @param delayedStore         Store containing relevant data
    * @param delayedSolverService SolverService for usage of ProB solver
    * @param resultBoxFactory     Factory to create ResultBox entities
    */
   @Inject
-  public Musterstudienplaene(final FXMLLoader loader, final Delayed<Store> delayedStore,
+  public Musterstudienplaene(final Inflater inflater,
+                             final Delayed<Store> delayedStore,
                              final Delayed<SolverService> delayedSolverService,
                              final ResultBoxFactory resultBoxFactory) {
     this.delayedStore = delayedStore;
@@ -84,16 +86,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     this.setVgap(10.0);
 
-    loader.setLocation(getClass().getResource("/fxml/musterstudienplaene.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (final IOException exception) {
-      throw new RuntimeException(exception);
-    }
+    inflater.inflate("musterstudienplaene", this, this, "musterstudienplaene");
   }
 
   /**

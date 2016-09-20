@@ -15,13 +15,13 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
+import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -32,7 +32,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -89,13 +88,14 @@ public class PartialTimeTables extends GridPane implements Initializable {
   /**
    * Constructor for partial time table controller.
    *
-   * @param loader               TaskLoader to load fxml file and to set controller
+   * @param inflater             TaskLoader to load fxml file and to set controller
    * @param delayedStore         Store containing relevant data
    * @param delayedSolverService SolverService for usage of ProB solver
    * @param checkBoxGroupFactory Factory to create check box groups
    */
   @Inject
-  public PartialTimeTables(final FXMLLoader loader, final Delayed<Store> delayedStore,
+  public PartialTimeTables(final Inflater inflater,
+                           final Delayed<Store> delayedStore,
                            final Delayed<SolverService> delayedSolverService,
                            final PdfRenderingTaskFactory renderingTaskFactory,
                            final ExecutorService executor,
@@ -114,16 +114,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
     this.setVgap(10.0);
 
-    loader.setLocation(getClass().getResource("/fxml/PartialTimeTables.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (final IOException exception) {
-      throw new RuntimeException(exception);
-    }
+    inflater.inflate("PartialTimeTables", this, this, "musterstudienplaene");
   }
 
   /**
