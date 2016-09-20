@@ -11,6 +11,7 @@ import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
+import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -86,14 +87,14 @@ public class ResultBox extends GridPane implements Initializable {
   /**
    * Constructor for ResultBox.
    *
-   * @param loader      TaskLoader to load fxml and to set controller
+   * @param inflater    Inflater to handle fxml loader tasks
    * @param renderingTaskFactory PDF Rendering task Factory
    * @param major       Major course
    * @param minor       Minor course if present, else null
    * @param parent      The parent wrapper (VBox) to remove a single result box.
    */
   @Inject
-  public ResultBox(final FXMLLoader loader,
+  public ResultBox(final Inflater inflater,
                    final Delayed<SolverService> delayedSolverService,
                    final PdfRenderingTaskFactory renderingTaskFactory,
                    final ExecutorService executorService,
@@ -112,17 +113,7 @@ public class ResultBox extends GridPane implements Initializable {
     this.parent = parent;
     this.setHgap(10.0);
 
-    loader.setLocation(this.getClass()
-        .getResource("/fxml/components/resultbox.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (final IOException exception) {
-      throw new RuntimeException(exception);
-    }
+    inflater.inflate("components/resultbox", null, null, "resultbox");
   }
 
   /**
