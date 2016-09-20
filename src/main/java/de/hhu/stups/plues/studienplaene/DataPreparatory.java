@@ -9,7 +9,6 @@ import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -85,20 +84,23 @@ class DataPreparatory {
     final HashMap<AbstractUnit, Module> modules = new HashMap<>();
 
     final java.util.Set<Integer> courseModules = mc.get(course.getKey());
-    assert courseModules.size() > 0;
+    if (courseModules.isEmpty()) {
+      throw new AssertionError("courseModules is empty");
+    }
     for (final Integer mid : courseModules) {
       final Module m = store.getModuleById(mid);
-      assert course.getModules().contains(m);
-      // find if the pair of abstract unit and semester
-      // exists for this module
+      if (!course.getModules().contains(m)) {
+        throw new AssertionError("Expected course to contain module " + m.getName());
+      }
+      // find if the pair of abstract unit and semester exists for this module
       for (final ModuleAbstractUnitSemester maus : m.getModuleAbstractUnitSemesters()) {
         final AbstractUnit au = maus.getAbstractUnit();
         final Integer s = maus.getSemester();
-        if (!sc.containsKey(au.getId())) {
-          continue; // this abstract unit was not chosen at all;
-        }
-        if (!sc.get(au.getId()).equals(s)) {
-          continue; // this abstract unit was not chosen in semester s
+
+        // this abstract unit was not chosen at all
+        // or this abstract unit was not chosen in semester s
+        if (!sc.containsKey(au.getId()) || !sc.get(au.getId()).equals(s)) {
+          continue;
         }
         modules.put(au, m);
       }
@@ -114,8 +116,9 @@ class DataPreparatory {
     unitGroup = filterUnitGroup(store, gc);
     unitSemester = filterSemester(store, sc);
 
-    assert unitModule.size() == unitGroup.size()
-      && unitGroup.size() == unitSemester.size();
+    if (unitModule.size() != unitGroup.size() || unitGroup.size() != unitSemester.size()) {
+      throw new AssertionError("Collection sizes differ");
+    }
   }
 
   final Map<AbstractUnit, Integer> getUnitSemester() {
