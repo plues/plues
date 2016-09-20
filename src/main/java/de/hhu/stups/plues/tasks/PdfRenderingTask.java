@@ -19,8 +19,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
@@ -31,7 +32,9 @@ public class PdfRenderingTask extends Task<Path> {
   private final Course major;
   private final Course minor;
   private final Delayed<SolverService> delayedSolverService;
-  private SolverTask<FeasibilityResult> solverTask;
+  private final SolverTask<FeasibilityResult> solverTask;
+
+  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
 
 
   /**
@@ -72,22 +75,7 @@ public class PdfRenderingTask extends Task<Path> {
     updateMessage("Waiting for Solver...");
     updateProgress(40, 100);
 
-    int percentage = 0;
-    while (!solverTask.isDone()) {
-      percentage = (percentage + 1) % 20 + 40;
-      updateProgress(percentage, 100);
-      if (solverTask.isCancelled() || this.isCancelled()) {
-        updateMessage("Task cancelled");
-        break;
-      }
-      try {
-        TimeUnit.MILLISECONDS.sleep(200);
-      } catch (final InterruptedException exception) {
-        if (solverTask.isCancelled() || this.isCancelled()) {
-          break;
-        }
-      }
-    }
+    runTask();
 
     if (this.isCancelled() || solverTask.isCancelled()) {
       this.cancel();
@@ -97,6 +85,35 @@ public class PdfRenderingTask extends Task<Path> {
     // we have to read from the task here, the future does not provide a result.
     final FeasibilityResult result = solverTask.get();
 
+    return renderPdf(result);
+  }
+
+  private void runTask() throws InterruptedException {
+    int percentage = 0;
+    while (!solverTask.isDone()) {
+      percentage = (percentage + 1) % 20 + 40;
+      updateProgress(percentage, 100);
+
+      if (solverTask.isCancelled() || this.isCancelled()) {
+        updateMessage("Task cancelled");
+        break;
+      }
+
+      try {
+        TimeUnit.MILLISECONDS.sleep(200);
+      } catch (final InterruptedException exception) {
+
+        logger.log(Level.INFO, "Task interrupted during sleep", exception);
+
+        if (solverTask.isCancelled() || this.isCancelled()) {
+          throw exception;
+        }
+      }
+    }
+  }
+
+  private Path renderPdf(final FeasibilityResult result)
+      throws IOException, ParserConfigurationException, SAXException {
     final Store store = delayedStore.get();
 
     updateMessage("Rendering");
@@ -106,8 +123,7 @@ public class PdfRenderingTask extends Task<Path> {
 
     updateProgress(80, 100);
 
-    final File tmp = File.createTempFile("timetable", ".pdf");
-    getTempFile(renderer, tmp);
+    final File tmp = getTempFile(renderer);
 
     updateMessage("Rendering finished");
     updateProgress(100, 100);
@@ -145,16 +161,18 @@ public class PdfRenderingTask extends Task<Path> {
    * Helper method to get temporary file.
    *
    * @param renderer Renderer object to create file
-   * @param temp     Temporary file
    */
-  private void getTempFile(final Renderer renderer, final File temp)
+  private File getTempFile(final Renderer renderer)
       throws IOException, ParserConfigurationException, SAXException {
+
+    final File temp = File.createTempFile("timetable", ".pdf");
     try (OutputStream out = new FileOutputStream(temp)) {
       renderer.getResult().writeTo(out);
     } catch (final IOException | ParserConfigurationException | SAXException exc) {
-      exc.printStackTrace();
+      logger.log(Level.SEVERE, "Exception rendering PDF", exc);
       throw exc;
     }
+    return temp;
   }
 
   public Course getMinor() {
