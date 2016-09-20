@@ -41,8 +41,11 @@ public class PdfRenderingHelper {
   private static final String FAILURE_COLOR = "#FFBABA";
   private static final String SUCCESS_COLOR = "#DFF2BF";
   private static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
+  private static final String MSG = "Error! Copying of temporary file into target file failed.";
 
   private static final Logger logger = Logger.getLogger(PdfRenderingHelper.class.getSimpleName());
+
+  private PdfRenderingHelper() {}
 
   /**
    * Unified function to show a pdf. On error callback will be invoked
@@ -55,8 +58,7 @@ public class PdfRenderingHelper {
       try {
         Desktop.getDesktop().open(file.toFile());
       } catch (final IOException exc) {
-        logger.log(Level.INFO, "Error! Copying of temporary file into target file failed.");
-        exc.printStackTrace();
+        logger.log(Level.INFO, MSG, exc);
         if (callback != null) {
           callback.accept(exc);
         }
@@ -89,11 +91,11 @@ public class PdfRenderingHelper {
     if (file != null) {
       try {
         Files.copy(pdf, Paths.get(file.getAbsolutePath()));
-      } catch (final Exception exc) {
+      } catch (final IOException exc) {
+        logger.log(Level.SEVERE, MSG, exc);
+
         if (lbErrorMsg != null) {
-          lbErrorMsg.setText("Error! Copying of temporary file into target file failed.");
-        } else {
-          exc.printStackTrace();
+          lbErrorMsg.setText(MSG);
         }
       }
     }
@@ -173,31 +175,37 @@ public class PdfRenderingHelper {
   public static ObjectBinding<Text> getIconBinding(final String iconSize,
                                                    final PdfRenderingTask task) {
     return Bindings.createObjectBinding(() -> {
-      FontAwesomeIcon symbol = null;
-
-      switch (task.getState()) {
-        case READY:
-        case SCHEDULED:
-        case RUNNING:
-          return null;
-
-        case SUCCEEDED:
-          symbol = FontAwesomeIcon.CHECK;
-          break;
-        case CANCELLED:
-          symbol = FontAwesomeIcon.QUESTION;
-          break;
-        case FAILED:
-          symbol = FontAwesomeIcon.REMOVE;
-          break;
-        default:
-          break;
+      final FontAwesomeIcon symbol = getIcon(task);
+      if (symbol == null) {
+        return null;
       }
 
       final FontAwesomeIconFactory iconFactory = FontAwesomeIconFactory.get();
       return iconFactory.createIcon(symbol, iconSize);
 
     }, task.stateProperty());
+  }
+
+  private static FontAwesomeIcon getIcon(final PdfRenderingTask task) {
+    FontAwesomeIcon symbol = null;
+
+    switch (task.getState()) {
+      case SUCCEEDED:
+        symbol = FontAwesomeIcon.CHECK;
+        break;
+      case CANCELLED:
+        symbol = FontAwesomeIcon.QUESTION;
+        break;
+      case FAILED:
+        symbol = FontAwesomeIcon.REMOVE;
+        break;
+      case READY:
+      case SCHEDULED:
+      case RUNNING:
+      default:
+        break;
+    }
+    return symbol;
   }
 
   /**
@@ -208,30 +216,35 @@ public class PdfRenderingHelper {
    */
   public static StringBinding getStyleBinding(final PdfRenderingTask task) {
     return Bindings.createStringBinding(() -> {
-      String color = null;
+      final String color = getColor(task);
 
-      switch (task.getState()) {
-        case READY:
-        case SCHEDULED:
-        case RUNNING:
-          return "";
-
-        case SUCCEEDED:
-          color = SUCCESS_COLOR;
-          break;
-        case CANCELLED:
-          color = WARNING_COLOR;
-          break;
-        case FAILED:
-          color = FAILURE_COLOR;
-          break;
-        default:
-          break;
+      if (color == null) {
+        return "";
       }
-
       return "-fx-background-color: " + color;
-
     }, task.stateProperty());
+  }
+
+  private static String getColor(final PdfRenderingTask task) {
+    String color = null;
+
+    switch (task.getState()) {
+      case SUCCEEDED:
+        color = SUCCESS_COLOR;
+        break;
+      case CANCELLED:
+        color = WARNING_COLOR;
+        break;
+      case FAILED:
+        color = FAILURE_COLOR;
+        break;
+      case READY:
+      case SCHEDULED:
+      case RUNNING:
+      default:
+        break;
+    }
+    return color;
   }
 
   // TODO: ggf. wieder woanders hin
