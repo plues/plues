@@ -99,18 +99,22 @@ public class SolverTask<T> extends Task<T> {
         return null;
       }
 
-      try {
-        TimeUnit.MILLISECONDS.sleep(100);
-      } catch (final InterruptedException interrupted) {
-        if (isCancelled()) {
-          logger.info("Task cancelled while sleeping " + this.toString());
-          return null;
-        }
-      }
+      sleep();
     }
     updateProgress(100, 100);
 
     return future.get();
+  }
+
+  private void sleep() throws InterruptedException {
+    try {
+      TimeUnit.MILLISECONDS.sleep(100);
+    } catch (final InterruptedException interrupted) {
+      if (isCancelled()) {
+        logger.info("Task cancelled while sleeping " + this.toString());
+        throw interrupted;
+      }
+    }
   }
 
   private void timeOut() {
