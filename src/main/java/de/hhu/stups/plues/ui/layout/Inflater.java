@@ -24,10 +24,11 @@ public class Inflater {
   /**
    * Inflate a fxml resource as a layout from <tt>/fxml/</tt>.
    * @param name The name of the xml file without the <tt>.xml</tt> extension.
+   * @param bundleName The name of the used bundle
    * @return {@link Parent}
    */
-  public Parent inflate(String name) {
-    return inflate(name, null, null, "plues");
+  public Parent inflate(final String name, final String bundleName) {
+    return inflate(name, null, null, bundleName);
   }
 
   /**
