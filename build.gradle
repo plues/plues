@@ -45,16 +45,18 @@ repositories {
 }
 
 dependencies {
-    compile group:'de.hhu.stups', name:'de.prob2.kernel', version:'2.0.3-SNAPSHOT'
-    compile group: 'org.fxmisc.easybind', name: 'easybind', version: '1.0.3'
-    compile 'org.controlsfx:controlsfx:8.40.12'
     compile 'com.google.code.findbugs:annotations:3.0.1'
     compile 'de.jensd:fontawesomefx-fontawesome:4.6.3'
+    compile 'org.apache.xmlgraphics:fop:2.1'
+    compile 'org.controlsfx:controlsfx:8.40.12'
+    compile 'org.jtwig:jtwig-core:5.58'
+
+    compile group: 'org.fxmisc.easybind', name: 'easybind', version: '1.0.3'
+    compile group:'de.hhu.stups', name:'de.prob2.kernel', version:'2.0.3-SNAPSHOT'
 
     compile 'com.google.inject.extensions:guice-assistedinject:4.1.0'
 
     compile project(':model-generator')
-    compile project(':musterstudienplaene')
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile "org.mockito:mockito-core:1.+"

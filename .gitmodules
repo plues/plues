@@ -1,6 +1,3 @@
 [submodule "model-generator"]
 	path = model-generator
 	url = ../model-generator.git
-[submodule "musterstudienplaene"]
-	path = musterstudienplaene
-	url = ../musterstudienplaene.git
