@@ -47,7 +47,7 @@ class MockStore implements Store {
 
   @Override
   public List<Info> getInfo() {
-    throw new RuntimeException();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -65,7 +65,7 @@ class MockStore implements Store {
 
   @Override
   public List<Course> getCourses() {
-    throw new RuntimeException();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -118,7 +118,7 @@ class MockStore implements Store {
 
   @Override
   public List<Level> getLevels() {
-    throw new RuntimeException();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -159,12 +159,12 @@ class MockStore implements Store {
 
   @Override
   public List<ModuleAbstractUnitType> getModuleAbstractUnitType() {
-    throw new RuntimeException();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public List<Session> getSessions() {
-    throw new RuntimeException();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -183,23 +183,24 @@ class MockStore implements Store {
   @Override
   @SuppressWarnings("OptionalGetWithoutIsPresent")
   public AbstractUnit getAbstractUnitById(final Integer key) {
-    return this.getAbstractUnits().stream().filter(e -> e.getId().equals(key)).findFirst().get();
+    return this.getAbstractUnits().stream()
+        .filter(e -> e.getId().equals(key)).findFirst().orElse(null);
   }
 
   @Override
   @SuppressWarnings("OptionalGetWithoutIsPresent")
   public Group getGroupById(final Integer key) {
-    return this.getGroups().stream().filter(e -> e.getId() == key).findFirst().get();
+    return this.getGroups().stream().filter(e -> e.getId() == key).findFirst().orElse(null);
   }
 
   @Override
   public String getInfoByKey(final String key) {
-    throw new RuntimeException();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   @SuppressWarnings("OptionalGetWithoutIsPresent")
   public Module getModuleById(final Integer key) {
-    return this.getModules().stream().filter(e -> e.getId() == key).findFirst().get();
+    return this.getModules().stream().filter(e -> e.getId() == key).findFirst().orElse(null);
   }
 }
