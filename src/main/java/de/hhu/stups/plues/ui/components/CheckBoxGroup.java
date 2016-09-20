@@ -25,14 +25,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CheckBoxGroup extends VBox implements Initializable {
 
   private final Course course;
   private final Module module;
-  private HashMap<CheckBox, AbstractUnit> boxToUnit;
+  private final HashMap<CheckBox, AbstractUnit> boxToUnit;
 
   @FXML
   @SuppressWarnings("unused")
@@ -50,14 +49,14 @@ public class CheckBoxGroup extends VBox implements Initializable {
    * @param module Given module. Should be one inside major or minor course
    */
   @Inject
-  public CheckBoxGroup(FXMLLoader loader,
-                       @Assisted Course course,
-                       @Assisted Module module) {
+  public CheckBoxGroup(final FXMLLoader loader,
+                       @Assisted final Course course,
+                       @Assisted final Module module) {
     this.course = course;
     this.module = module;
     boxToUnit = new LinkedHashMap<>();
 
-    for (AbstractUnit abstractUnit : module.getAbstractUnits()) {
+    for (final AbstractUnit abstractUnit : module.getAbstractUnits()) {
       boxToUnit.put(new CheckBox(), abstractUnit);
     }
 
@@ -68,18 +67,18 @@ public class CheckBoxGroup extends VBox implements Initializable {
 
     try {
       loader.load();
-    } catch (IOException exception) {
+    } catch (final IOException exception) {
       throw new RuntimeException(exception);
     }
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     final ObservableList<Node> children = unitsBox.getChildren();
     BooleanBinding allSelected = Bindings.createBooleanBinding(() -> true);
 
-    for (Map.Entry<CheckBox, AbstractUnit> entry : boxToUnit.entrySet()) {
-      CheckBox cb = entry.getKey();
+    for (final Map.Entry<CheckBox, AbstractUnit> entry : boxToUnit.entrySet()) {
+      final CheckBox cb = entry.getKey();
       cb.setText(entry.getValue().getTitle());
       children.add(cb);
 
@@ -93,8 +92,8 @@ public class CheckBoxGroup extends VBox implements Initializable {
     moduleBox.setOnAction(e ->
         children.forEach(box -> ((CheckBox) box).setSelected(moduleBox.isSelected())));
 
-    for (Node b : unitsBox.getChildren()) {
-      unitsBox.setMargin(b, new Insets(0,0,0,20));
+    for (final Node b : unitsBox.getChildren()) {
+      setMargin(b, new Insets(0,0,0,20));
     }
   }
 
