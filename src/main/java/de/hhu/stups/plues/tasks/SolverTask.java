@@ -24,17 +24,17 @@ import javax.annotation.Nullable;
 
 public class SolverTask<T> extends Task<T> {
 
-  private static final ListeningExecutorService EXECUTOR;
-  private static final ListeningScheduledExecutorService TIMER;
+  private static final ListeningExecutorService EXECUTOR_SERVICE;
+  private static final ListeningScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE;
 
   static {
     final ThreadFactory threadFactoryBuilder
         = new ThreadFactoryBuilder().setDaemon(true)
         .setNameFormat("solver-task-runner-%d").build();
 
-    EXECUTOR = MoreExecutors.listeningDecorator(
+    EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
       Executors.newSingleThreadExecutor(threadFactoryBuilder));
-    TIMER = MoreExecutors.listeningDecorator(
+    SCHEDULED_EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
       Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
 
   }
@@ -79,8 +79,8 @@ public class SolverTask<T> extends Task<T> {
   protected T call() throws InterruptedException, ExecutionException {
 
     updateProgress(10, 100);
-    timer = TIMER.schedule(this::timeOut, this.timeout, this.timeUnit);
-    future = EXECUTOR.submit(function);
+    timer = SCHEDULED_EXECUTOR_SERVICE.schedule(this::timeOut, this.timeout, this.timeUnit);
+    future = EXECUTOR_SERVICE.submit(function);
 
     Futures.addCallback(future, new TaskCallback<>());
 
