@@ -27,15 +27,16 @@ public class Inflater {
    * @return {@link Parent}
    */
   public Parent inflate(String name) {
-    return inflate(name, null, null);
+    return inflate(name, null, null, "plues");
   }
 
   /**
    * Inflate a fxml resource as a layout from <tt>/fxml/</tt>.
    * @param name The name of the xml file without the <tt>.xml</tt> extension.
    * @param root optional root node to inflate this layout into
+   * @param bundleName Name of the i18n resource to bind
    */
-  public Parent inflate(String name, Parent root, Object controller) {
+  public Parent inflate(String name, Parent root, Object controller, String bundleName) {
     // set location explicitly to ensure using the injected fxml loader
     loader.setLocation(getClass().getResource("/fxml/" + name + ".fxml"));
 
@@ -47,7 +48,7 @@ public class Inflater {
       loader.setController(controller);
     }
 
-    ResourceBundle bundle = ResourceBundle.getBundle("lang.plues", new Locale("de"));
+    ResourceBundle bundle = ResourceBundle.getBundle("lang."+bundleName, new Locale("de"));
     loader.setResources(bundle);
 
     try {
