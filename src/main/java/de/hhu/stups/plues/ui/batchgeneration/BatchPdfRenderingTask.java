@@ -37,20 +37,25 @@ public class BatchPdfRenderingTask extends Task<Collection<PdfRenderingTask>> {
         updateMessage("Cancelled");
         break;
       }
-      // to check the interrupted exception for cancellation!
-      try {
-        TimeUnit.MILLISECONDS.sleep(250);
-      } catch (final InterruptedException interrupted) {
-        if (isCancelled()) {
-          updateMessage("Cancelled");
-          break;
-        }
-      }
       workLeft = !(totalTasks == finishedTasks);
+
+      sleep();
     }
     while (workLeft);
 
     return tasks;
+  }
+
+  private void sleep() throws InterruptedException {
+    // to check the interrupted exception for cancellation!
+    try {
+      TimeUnit.MILLISECONDS.sleep(250);
+    } catch (final InterruptedException interrupted) {
+      if (isCancelled()) {
+        updateMessage("Cancelled");
+        throw interrupted;
+      }
+    }
   }
 
   @Override
