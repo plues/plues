@@ -96,7 +96,7 @@ public class Renderer {
 
   private ByteArrayOutputStream render()
       throws SAXException, ParserConfigurationException, IOException {
-    final URL logo = this.getClass().getResource("/HHU_Logo.jpeg");
+    final URL logo = this.getClass().getResource("/studienplaene/HHU_Logo.jpeg");
 
     final JtwigModel model = JtwigModel.newModel()
         .with("major", major)
