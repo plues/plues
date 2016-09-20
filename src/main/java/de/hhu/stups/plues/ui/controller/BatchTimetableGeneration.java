@@ -10,6 +10,7 @@ import de.hhu.stups.plues.ui.batchgeneration.BatchPdfRenderingTask;
 import de.hhu.stups.plues.ui.batchgeneration.CollectPdfRenderingTasksTask;
 import de.hhu.stups.plues.ui.components.BatchResultBox;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
+import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -88,7 +89,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
    * pdf files persistently in a folder or a zip archive.
    */
   @Inject
-  public BatchTimetableGeneration(final FXMLLoader loader,
+  public BatchTimetableGeneration(final Inflater inflater,
                                   final Delayed<SolverService> delayedSolverService,
                                   final BatchResultBoxFactory batchResultBoxFactory,
                                   final Provider<CollectPdfRenderingTasksTask> provider,
@@ -106,16 +107,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     this.generationStarted = new SimpleBooleanProperty(false);
     this.generationSucceeded = new SimpleListProperty<>();
 
-    loader.setLocation(getClass().getResource("/fxml/BatchTimetableGeneration.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (final IOException exception) {
-      throw new RuntimeException(exception);
-    }
+    inflater.inflate("BatchTimetableGeneration", null, null, "batchTimetable");
   }
 
   @Override
