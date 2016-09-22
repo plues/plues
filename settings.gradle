@@ -15,4 +15,3 @@ include 'services:webservice'
 
 rootProject.name = 'plues'
 include ':model-generator'
-include ':musterstudienplaene'
