@@ -15,6 +15,7 @@
 <?import de.hhu.stups.plues.ui.controller.PartialTimeTables?>
 <?import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration?>
 
+<?import de.hhu.stups.plues.ui.controller.ConflictMatrix?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="de.hhu.stups.plues.ui.controller.MainController">
@@ -47,6 +48,9 @@
                 </Tab>
                 <Tab text="Batch Timetable Generation" closable="false">
                     <BatchTimetableGeneration fx:id="batchTimetableGeneration"/>
+                </Tab>
+                <Tab text="Conflict Matrix" closable="false">
+                    <ConflictMatrix fx:id="conflictMatrix"/>
                 </Tab>
             </TabPane>
         </center>

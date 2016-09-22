@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.GridPane?>
+<fx:root alignment="center" type="javafx.scene.layout.VBox"
+         xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <GridPane fx:id="gridPaneCombinable" hgap="10.0"/>
+        <GridPane fx:id="gridPaneStandalone" hgap="10.0"/>
+    </children>
+</fx:root>
