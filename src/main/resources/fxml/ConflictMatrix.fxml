@@ -1,10 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.GridPane?>
-<fx:root alignment="center" type="javafx.scene.layout.VBox"
+
+<?import javafx.scene.control.ScrollPane?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+<fx:root prefWidth="800.0" prefHeight="500.0" alignment="center" type="javafx.scene.layout.GridPane"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <GridPane fx:id="gridPaneCombinable" hgap="10.0"/>
-        <GridPane fx:id="gridPaneStandalone" hgap="10.0"/>
+        <Label fx:id="lbCombinableCourses" text="Combinable courses" GridPane.columnIndex="0"
+               GridPane.halignment="CENTER" GridPane.rowIndex="1"/>
+        <ScrollPane fx:id="scrollPaneCombinable" prefWidth="Infinity" prefHeight="Infinity"
+                    GridPane.columnIndex="0" GridPane.rowIndex="2">
+            <GridPane fx:id="gridPaneCombinable"/>
+        </ScrollPane>
+        <Label fx:id="lbStandaloneCourses" text="Standalone courses" GridPane.columnIndex="0"
+               GridPane.halignment="CENTER" GridPane.rowIndex="3"/>
+        <ScrollPane fx:id="scrollPaneStandalone" prefWidth="Infinity" GridPane.columnIndex="0"
+                    GridPane.rowIndex="4">
+            <GridPane fx:id="gridPaneStandalone"/>
+        </ScrollPane>
     </children>
+    <columnConstraints>
+        <ColumnConstraints percentWidth="80.0"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints percentHeight="10.0"/>
+        <RowConstraints percentHeight="5"/>
+        <RowConstraints percentHeight="60"/>
+        <RowConstraints percentHeight="5"/>
+        <RowConstraints percentHeight="10.0"/>
+        <RowConstraints percentHeight="10.0"/>
+    </rowConstraints>
 </fx:root>

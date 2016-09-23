@@ -25,3 +25,23 @@
 #batchListView .list-cell:odd {
     -fx-control-inner-background: #F2F2F2;
 }
+
+#conflictMatrixCellDefault {
+    -fx-background-color: black, white ;
+    -fx-background-insets: 0, 0 1 1 0 ;
+}
+
+#conflictMatrixCellImpossible {
+    -fx-background-color: black, #EBC400 ;
+    -fx-background-insets: 0, 0 1 1 0 ;
+}
+
+#conflictMatrixCellSuccess {
+    -fx-background-color: black, #09BC00 ;
+    -fx-background-insets: 0, 0 1 1 0 ;
+}
+
+#conflictMatrixCellFailed {
+    -fx-background-color: black, #D82000 ;
+    -fx-background-insets: 0, 0 1 1 0 ;
+}
