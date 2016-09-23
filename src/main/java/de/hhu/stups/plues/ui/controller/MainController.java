@@ -165,30 +165,7 @@ public class MainController implements Initializable {
     final File selectedFile = getXmlExportFile();
 
     if (selectedFile != null) {
-      executor.execute(new Task<Void>() {
-
-        @Override
-        protected Void call() throws Exception {
-
-          updateTitle("Exporting XML");
-          updateProgress(1, 3);
-          updateMessage("Generating .zip file");
-
-          try (ByteArrayOutputStream exportXmlStream = new XmlExporter(delayedStore.get()).export();
-               OutputStream outputStream = new FileOutputStream(selectedFile)) {
-            updateProgress(2, 3);
-
-            updateMessage("Writing .zip file");
-            exportXmlStream.writeTo(outputStream);
-            updateProgress(3, 3);
-            logger.info("Wrote xml export to " + selectedFile.getAbsolutePath());
-
-          } catch (final IOException exception) {
-            showCriticalExceptionDialog(exception, "XML Export Failed");
-          }
-          return null;
-        }
-      });
+      executor.execute(new ExportXmlTask(selectedFile));
     }
   }
 
@@ -263,7 +240,42 @@ public class MainController implements Initializable {
     exec.submit(task);
   }
 
-  public void submitTask(final Task<?> task) {
+  private void submitTask(final Task<?> task) {
     this.submitTask(task, this.executor);
+  }
+
+  private class ExportXmlTask extends Task<Void> {
+
+    private final File selectedFile;
+
+    ExportXmlTask(final File selectedFile) {
+      this.selectedFile = selectedFile;
+    }
+
+    @Override
+    protected Void call() throws Exception {
+
+      updateTitle("Exporting XML");
+      updateProgress(1, 3);
+      updateMessage("Generating .zip file");
+
+      writeZipFile();
+      return null;
+    }
+
+    private void writeZipFile() {
+      try (ByteArrayOutputStream exportXmlStream = new XmlExporter(delayedStore.get()).export();
+           OutputStream outputStream = new FileOutputStream(selectedFile)) {
+        updateProgress(2, 3);
+
+        updateMessage("Writing .zip file");
+        exportXmlStream.writeTo(outputStream);
+        updateProgress(3, 3);
+        logger.info("Wrote xml export to " + selectedFile.getAbsolutePath());
+
+      } catch (final IOException exception) {
+        showCriticalExceptionDialog(exception, "XML Export Failed");
+      }
+    }
   }
 }
