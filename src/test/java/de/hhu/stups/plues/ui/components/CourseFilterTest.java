@@ -21,6 +21,9 @@ import java.util.ArrayList;
 @RunWith(JUnit4.class)
 public class CourseFilterTest extends ApplicationTest {
 
+  private static final String COURSE_LIST_VIEW = "#courseListView";
+  private static final String SOME_SHORT_NAME = "some short name";
+  private static final String LETTER = "LETTER";
   private CourseFilter courseFilter;
   private Course course;
 
@@ -40,14 +43,14 @@ public class CourseFilterTest extends ApplicationTest {
   @Test
   public void courseListDisplaysCourses() {
 
-    FxAssert.verifyThat("#courseListView", TableViewMatchers.hasItems(1));
+    FxAssert.verifyThat(COURSE_LIST_VIEW, TableViewMatchers.hasItems(1));
 
-    FxAssert.verifyThat("#courseListView",
-        TableViewMatchers.containsRow(0, "some short name", 2016, "LETTER"));
+    FxAssert.verifyThat(COURSE_LIST_VIEW,
+        TableViewMatchers.containsRow(0, SOME_SHORT_NAME, 2016, LETTER));
 
-    FxAssert.verifyThat("#courseListView", TableViewMatchers.hasTableCell(2016));
-    FxAssert.verifyThat("#courseListView", TableViewMatchers.hasTableCell("some short name"));
-    FxAssert.verifyThat("#courseListView", TableViewMatchers.hasTableCell("LETTER"));
+    FxAssert.verifyThat(COURSE_LIST_VIEW, TableViewMatchers.hasTableCell(2016));
+    FxAssert.verifyThat(COURSE_LIST_VIEW, TableViewMatchers.hasTableCell(SOME_SHORT_NAME));
+    FxAssert.verifyThat(COURSE_LIST_VIEW, TableViewMatchers.hasTableCell(LETTER));
   }
 
   @Test
@@ -59,9 +62,9 @@ public class CourseFilterTest extends ApplicationTest {
   public void start(final Stage stage) throws Exception {
     this.course = new Course();
 
-    this.course.setShortName("some short name");
+    this.course.setShortName(SOME_SHORT_NAME);
     this.course.setPo(2016);
-    this.course.setKzfa("LETTER");
+    this.course.setKzfa(LETTER);
 
     final ArrayList<Course> courses = new ArrayList<>();
     courses.add(this.course);

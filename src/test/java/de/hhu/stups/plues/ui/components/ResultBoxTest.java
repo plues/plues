@@ -30,14 +30,15 @@ import java.util.concurrent.TimeUnit;
 
 
 public abstract class ResultBoxTest extends ApplicationTest {
-  private Course major;
-  private Course minor;
+  private final Course major;
+  private final Course minor;
   private Text icon;
   private PdfRenderingTask task;
 
   /**
    * Default constructor.
    */
+  @SuppressWarnings("WeakerAccess")
   public ResultBoxTest() {
     this.major = new Course();
     major.setLongName("Major Course");
@@ -82,7 +83,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
     final SolverService solverService = mock(SolverService.class);
     when(solverService.computeFeasibilityTask(anyVararg())).thenReturn(mock(SolverTask.class));
 
-    Delayed<SolverService> solver = new Delayed<>();
+    final Delayed<SolverService> solver = new Delayed<>();
     solver.set(solverService);
     final ResultBox resultBox = new ResultBox(
         new FXMLLoader(), solver, (major1, minor1, solverTask) -> task,
@@ -97,7 +98,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
     this.icon = icon;
   }
 
-  public void setTask(PdfRenderingTask task) {
+  void setTask(final PdfRenderingTask task) {
     this.task = task;
   }
 }
