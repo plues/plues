@@ -1,8 +1,6 @@
 package de.hhu.stups.plues.prob;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,9 +37,9 @@ public class MockSolver implements Solver {
 
   @Override
   public FeasibilityResult computeFeasibility(final String... courses) throws SolverException {
-    final Map<String, Set<Integer>> moduleChoice = new HashMap<>();
-    final Map<Integer, Integer> semesterChoice = new HashMap<>();
-    final Map<Integer, Integer> groupChoice = new HashMap<>();
+    final Map<String, Set<Integer>> moduleChoice = Collections.emptyMap();
+    final Map<Integer, Integer> semesterChoice = Collections.emptyMap();
+    final Map<Integer, Integer> groupChoice = Collections.emptyMap();
     return new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
   }
 
@@ -51,16 +49,16 @@ public class MockSolver implements Solver {
       final Map<String, List<Integer>> moduleChoice,
       final List<Integer> abstractUnitChoice) throws SolverException {
 
-    final Map<String, Set<Integer>> mc = new HashMap<>();
-    final Map<Integer, Integer> semesterChoice = new HashMap<>();
-    final Map<Integer, Integer> groupChoice = new HashMap<>();
+    final Map<String, Set<Integer>> mc = Collections.emptyMap();
+    final Map<Integer, Integer> semesterChoice = Collections.emptyMap();
+    final Map<Integer, Integer> groupChoice = Collections.emptyMap();
 
     return new FeasibilityResult(mc, semesterChoice, groupChoice);
   }
 
   @Override
   public List<Integer> unsatCore(final String... courses) throws SolverException {
-    return new ArrayList<>();
+    return Collections.emptyList();
   }
 
   @Override
@@ -70,17 +68,17 @@ public class MockSolver implements Solver {
 
   @Override
   public Set<String> getImpossibleCourses() throws SolverException {
-    return new HashSet<>();
+    return Collections.emptySet();
   }
 
   @Override
   public List<Alternative> getLocalAlternatives(final int session, final String... courses)
       throws SolverException {
-    return new ArrayList<>();
+    return Collections.emptyList();
   }
 
   @Override
   public String getModelVersion() throws SolverException {
-    return "6.0.0-dev";
+    return "";
   }
 }
