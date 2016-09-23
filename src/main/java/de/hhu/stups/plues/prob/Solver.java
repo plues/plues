@@ -1,7 +1,10 @@
 package de.hhu.stups.plues.prob;
 
+import javafx.collections.ObservableMap;
+
 import java.util.List;
 import java.util.Map;
+
 
 public interface Solver {
 
@@ -88,4 +91,6 @@ public interface Solver {
    * @return String the version string of the model
    */
   String getModelVersion() throws SolverException;
+
+  ObservableMap<String, Boolean> getCourseCombinationResults();
 }
