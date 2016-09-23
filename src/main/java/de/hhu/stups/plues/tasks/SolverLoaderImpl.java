@@ -54,6 +54,7 @@ public class SolverLoaderImpl implements SolverLoader {
     return solverLoader;
   }
 
+  @Override
   public void load(final Store store) {
     this.executor.submit(this.getSolverLoaderTask(store));
   }
