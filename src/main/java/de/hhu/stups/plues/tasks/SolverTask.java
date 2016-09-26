@@ -50,7 +50,7 @@ public class SolverTask<T> extends Task<T> {
 
   SolverTask(final String title, final String message, final Solver solver,
              final Callable<T> func) {
-    this(title, message, solver, func, 30, TimeUnit.SECONDS);
+    this(title, message, solver, func, 1, TimeUnit.MINUTES);
   }
 
   SolverTask(final String title, final String message, final Solver solver, final Callable<T> func,
