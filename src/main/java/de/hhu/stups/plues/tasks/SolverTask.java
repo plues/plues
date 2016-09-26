@@ -135,10 +135,11 @@ public class SolverTask<T> extends Task<T> {
       timer.cancel(true);
     }
     if (future != null) {
+      if (!future.isDone()) {
+        solver.interrupt();
+      }
       future.cancel(true);
     }
-
-    solver.interrupt();
   }
 
   @Override
@@ -160,11 +161,11 @@ public class SolverTask<T> extends Task<T> {
       timer.cancel(true);
     }
     if (future != null) {
+      if (!future.isDone()) {
+        solver.interrupt();
+      }
       future.cancel(true);
     }
-
-    solver.interrupt();
-
   }
 
   private class TaskCallback<J> implements FutureCallback<J> {
