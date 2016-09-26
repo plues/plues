@@ -109,9 +109,13 @@ public class ProBSolver implements Solver {
     stateSpace.execute(cmd);
 
     if (cmd.isInterrupted() || !cmd.isCompleted()) {
+      logger.fine(String.format("%s %s interrupted %s completed %s", op, predicate,
+          cmd.isInterrupted(), cmd.isCompleted()));
+
       synchronized (operationExecutionCache) {
         operationExecutionCache.put(key, false);
       }
+      logger.fine(String.format("RESULT %s %s = TIMEOUT/CANCEL", op, predicate));
       return false;
     }
 
@@ -125,6 +129,7 @@ public class ProBSolver implements Solver {
       operationExecutionCache.put(key, result);
     }
 
+    logger.fine(String.format("RESULT %s %s = %s", op, predicate, result));
     return result;
   }
 
@@ -201,7 +206,7 @@ public class ProBSolver implements Solver {
 
   @Override
   public final void interrupt() {
-    logger.fine("Sending interrupt to state space");
+    logger.info("Sending interrupt to state space");
     this.stateSpace.sendInterrupt();
   }
 
@@ -217,7 +222,7 @@ public class ProBSolver implements Solver {
   public final synchronized Boolean checkFeasibility(final String... courses) {
 
     final String predicate = getFeasibilityPredicate(courses);
-    Boolean result =  executeOperation(CHECK, predicate);
+    final Boolean result =  executeOperation(CHECK, predicate);
     addCourseCombinationResult(Arrays.asList(courses), result);
     return result;
   }
