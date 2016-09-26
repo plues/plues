@@ -50,7 +50,7 @@ public class SolverTask<T> extends Task<T> {
 
   SolverTask(final String title, final String message, final Solver solver,
              final Callable<T> func) {
-    this(title, message, solver, func, 30, TimeUnit.SECONDS);
+    this(title, message, solver, func, 1, TimeUnit.MINUTES);
   }
 
   SolverTask(final String title, final String message, final Solver solver, final Callable<T> func,
@@ -135,10 +135,11 @@ public class SolverTask<T> extends Task<T> {
       timer.cancel(true);
     }
     if (future != null) {
+      if (!future.isDone()) {
+        solver.interrupt();
+      }
       future.cancel(true);
     }
-
-    solver.interrupt();
   }
 
   @Override
@@ -160,11 +161,11 @@ public class SolverTask<T> extends Task<T> {
       timer.cancel(true);
     }
     if (future != null) {
+      if (!future.isDone()) {
+        solver.interrupt();
+      }
       future.cancel(true);
     }
-
-    solver.interrupt();
-
   }
 
   private class TaskCallback<J> implements FutureCallback<J> {
