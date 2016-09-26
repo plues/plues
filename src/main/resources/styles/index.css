@@ -27,21 +27,46 @@
 }
 
 #conflictMatrixCellDefault {
-    -fx-background-color: black, white ;
-    -fx-background-insets: 0, 0 1 1 0 ;
+    -fx-background-color: black, white;
+    -fx-background-insets: 0, 0 1 1 0;
 }
 
 #conflictMatrixCellImpossible {
-    -fx-background-color: black, #EBC400 ;
-    -fx-background-insets: 0, 0 1 1 0 ;
+    -fx-background-color: black, #BDBDBD;
+    -fx-background-insets: 0, 0 1 1 0;
 }
 
 #conflictMatrixCellSuccess {
-    -fx-background-color: black, #09BC00 ;
-    -fx-background-insets: 0, 0 1 1 0 ;
+    -fx-background-color: black, #DFF2BF;
+    -fx-background-insets: 0, 0 1 1 0;
 }
 
 #conflictMatrixCellFailed {
-    -fx-background-color: black, #D82000 ;
-    -fx-background-insets: 0, 0 1 1 0 ;
+    -fx-background-color: black, #FFBABA;
+    -fx-background-insets: 0, 0 1 1 0;
+}
+
+#conflictMatrixCellInfeasible {
+    -fx-background-color: black, #000000;
+    -fx-background-insets: 0, 0 1 1 0;
+}
+
+#conflictMatrixLegendImpossible {
+    -fx-background-color: black, #BDBDBD;
+    -fx-background-insets: 0, 1 1 1 1;
+}
+
+#conflictMatrixLegendSuccess {
+    -fx-background-color: black, #DFF2BF;
+    -fx-background-insets: 0, 1 1 1 1;
+}
+
+#conflictMatrixLegendFailed {
+    -fx-background-color: black, #FFBABA;
+    -fx-background-insets: 0, 1 1 1 1;
+}
+
+#conflictMatrixLegendInfeasible {
+    -fx-background-color: black, #000000;
+    -fx-background-insets: 0, 1 1 1 1;
 }
