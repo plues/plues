@@ -42,10 +42,10 @@ public class ResultBox extends GridPane implements Initializable {
   private static final String WORKING_COLOR = "#BDE5F8";
 
   private ResourceBundle resources;
-  private String REMOVE;
-  private String SHOW;
-  private String SAVE;
-  private String CANCEL;
+  private String remove;
+  private String show;
+  private String save;
+  private String cancel;
 
   private final ObjectProperty<Course> majorCourse;
   private final ObjectProperty<Course> minorCourse;
@@ -125,10 +125,10 @@ public class ResultBox extends GridPane implements Initializable {
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
     this.resources = resources;
-    REMOVE = resources.getString("remove");
-    SHOW = resources.getString("show");
-    SAVE = resources.getString("save");
-    CANCEL = resources.getString("cancel");
+    remove = resources.getString("remove");
+    show = resources.getString("show");
+    save = resources.getString("save");
+    cancel = resources.getString("cancel");
     //
     this.major.textProperty()
       .bind(Bindings.selectString(this.majorCourse, "fullName"));
@@ -159,12 +159,12 @@ public class ResultBox extends GridPane implements Initializable {
 
     task.setOnSucceeded(event -> Platform.runLater(() -> {
       pdf.set((Path) event.getSource().getValue());
-      cbAction.setItems(FXCollections.observableList(Arrays.asList(SHOW, SAVE, REMOVE)));
+      cbAction.setItems(FXCollections.observableList(Arrays.asList(show, save, remove)));
       cbAction.getSelectionModel().selectFirst();
     }));
 
     task.setOnFailed(event -> {
-      this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(REMOVE)));
+      this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(remove)));
       this.cbAction.getSelectionModel().selectFirst();
       this.lbErrorMsg.setText(resources.getString("error_gen"));
     });
@@ -173,7 +173,7 @@ public class ResultBox extends GridPane implements Initializable {
     this.progressIndicator.visibleProperty()
       .bind(task.runningProperty());
 
-    this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(CANCEL)));
+    this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancel)));
     this.cbAction.getSelectionModel().selectFirst();
   }
 
@@ -182,18 +182,18 @@ public class ResultBox extends GridPane implements Initializable {
   private void submitAction() {
     final String selectedItem = cbAction.getSelectionModel().getSelectedItem();
 
-    if (selectedItem.equals(SHOW)) {
+    if (selectedItem.equals(show)) {
       showPdf();
     }
-    if (selectedItem.equals(SAVE)) {
+    if (selectedItem.equals(save)) {
       savePdf();
     }
-    if (selectedItem.equals(REMOVE)) {
+    if (selectedItem.equals(remove)) {
       this.parent.getChildren().remove(this);
     }
-    if (selectedItem.equals(CANCEL)) {
+    if (selectedItem.equals(cancel)) {
       this.interrupt();
-      this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(REMOVE)));
+      this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(remove)));
       this.cbAction.getSelectionModel().selectFirst();
     }
   }
