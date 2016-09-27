@@ -83,6 +83,9 @@ public class MainController implements Initializable {
   private MenuItem exportStateMenuItem;
 
   @FXML
+  private MenuItem openChangeLog;
+
+  @FXML
   private TaskProgressView<Task<?>> taskProgress;
   private ResourceBundle resources;
 
@@ -128,8 +131,12 @@ public class MainController implements Initializable {
 
     this.taskProgress.setGraphicFactory(this::getGraphicForTask);
     this.exportStateMenuItem.setDisable(true);
+    this.openChangeLog.setDisable(true);
 
-    delayedStore.whenAvailable(s -> this.exportStateMenuItem.setDisable(false));
+    delayedStore.whenAvailable(s -> {
+      this.exportStateMenuItem.setDisable(false);
+      this.openChangeLog.setDisable(false);
+    });
 
     if (this.properties.get("dbpath") != null) {
       this.loadData((String) this.properties.get("dbpath"));
@@ -252,12 +259,13 @@ public class MainController implements Initializable {
     this.submitTask(task, this.executor);
   }
 
+  @FXML
   public void openChangeLog(ActionEvent event) {
     Inflater inflater = new Inflater(new FXMLLoader());
-    inflater.inflate("components/ChangeLog", null, ChangeLog.class, "ChangeLog");
+    ChangeLog log = new ChangeLog(inflater, delayedStore);
     Stage stage = new Stage();
     stage.setTitle(resources.getString("logTitle"));
-    stage.setScene(new Scene(ChangeLog.class, 600, 600));
+    stage.setScene(new Scene(log, 600, 600));
     stage.show();
   }
 
