@@ -262,6 +262,7 @@ public class MainController implements Initializable {
       writeZipFile();
       return null;
     }
+
     private void writeZipFile() {
       try (ByteArrayOutputStream exportXmlStream = new XmlExporter(delayedStore.get()).export();
            OutputStream outputStream = new FileOutputStream(selectedFile)) {
