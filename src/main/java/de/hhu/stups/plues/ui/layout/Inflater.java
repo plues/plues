@@ -2,6 +2,8 @@ package de.hhu.stups.plues.ui.layout;
 
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.ui.exceptions.InflaterException;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
@@ -84,8 +86,7 @@ public class Inflater {
     } catch (final IOException ignored) {
       final Logger logger = Logger.getLogger(getClass().getSimpleName());
       logger.log(Level.SEVERE, "Exception in FXML Loader", ignored);
-      // TODO: kill app!
-      throw new RuntimeException(ignored);
+      throw new InflaterException();
     }
   }
 }
