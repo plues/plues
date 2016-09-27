@@ -3,6 +3,8 @@ package de.hhu.stups.plues.ui.components;
 import static javafx.collections.FXCollections.observableList;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -98,7 +100,8 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
 
     minorCourseList = majorCourseList;
 
-    courseSelection = new MajorMinorCourseSelection(new FXMLLoader());
+    Inflater inflater = new Inflater(new FXMLLoader());
+    courseSelection = new MajorMinorCourseSelection(inflater);
 
     courseSelection.setMinorCourseList(observableList(minorCourseList));
     courseSelection.setMajorCourseList(observableList(majorCourseList));

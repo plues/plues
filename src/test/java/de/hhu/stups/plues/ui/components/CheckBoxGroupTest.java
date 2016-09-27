@@ -3,6 +3,8 @@ package de.hhu.stups.plues.ui.components;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
@@ -72,7 +74,8 @@ public class CheckBoxGroupTest extends ApplicationTest {
     majorUnits.add(unit);
     majorModule.setAbstractUnits(majorUnits);
 
-    final CheckBoxGroup checkBoxGroup = new CheckBoxGroup(new FXMLLoader(), major, majorModule);
+    Inflater inflater = new Inflater(new FXMLLoader());
+    final CheckBoxGroup checkBoxGroup = new CheckBoxGroup(inflater, major, majorModule);
 
     final Scene scene = new Scene(checkBoxGroup, 200, 200);
     stage.setScene(scene);
