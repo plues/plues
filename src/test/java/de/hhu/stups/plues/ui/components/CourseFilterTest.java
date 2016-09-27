@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components;
 import static org.testfx.matcher.base.NodeMatchers.hasText;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -66,7 +67,7 @@ public class CourseFilterTest extends ApplicationTest {
     final ArrayList<Course> courses = new ArrayList<>();
     courses.add(this.course);
 
-    this.courseFilter = new CourseFilter(new FXMLLoader());
+    this.courseFilter = new CourseFilter(new Inflater(new FXMLLoader()));
     this.courseFilter.setCourses(courses);
     final Scene scene = new Scene(this.courseFilter, 100, 100);
     stage.setScene(scene);

@@ -107,7 +107,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     this.generationStarted = new SimpleBooleanProperty(false);
     this.generationSucceeded = new SimpleListProperty<>();
 
-    inflater.inflate("BatchTimetableGeneration", null, null, "batchTimetable");
+    inflater.inflate("BatchTimetableGeneration", this, this, "batchTimetable");
   }
 
   @Override

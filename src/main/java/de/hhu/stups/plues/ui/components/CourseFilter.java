@@ -44,7 +44,7 @@ public class CourseFilter extends VBox implements Initializable {
    */
   @Inject
   public CourseFilter(final Inflater inflater) {
-    inflater.inflate("CourseFilter", null, null, "courseFilter");
+    inflater.inflate("CourseFilter", this, this, "courseFilter");
   }
 
   @Override
