@@ -24,17 +24,17 @@ import javax.annotation.Nullable;
 
 public class SolverTask<T> extends Task<T> {
 
-  private static final ListeningExecutorService EXECUTOR;
-  private static final ListeningScheduledExecutorService TIMER;
+  private static final ListeningExecutorService EXECUTOR_SERVICE;
+  private static final ListeningScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE;
 
   static {
     final ThreadFactory threadFactoryBuilder
         = new ThreadFactoryBuilder().setDaemon(true)
         .setNameFormat("solver-task-runner-%d").build();
 
-    EXECUTOR = MoreExecutors.listeningDecorator(
+    EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
       Executors.newSingleThreadExecutor(threadFactoryBuilder));
-    TIMER = MoreExecutors.listeningDecorator(
+    SCHEDULED_EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
       Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
 
   }
@@ -79,20 +79,10 @@ public class SolverTask<T> extends Task<T> {
   protected T call() throws InterruptedException, ExecutionException {
 
     updateProgress(10, 100);
-    timer = TIMER.schedule(this::timeOut, this.timeout, this.timeUnit);
-    future = EXECUTOR.submit(function);
+    timer = SCHEDULED_EXECUTOR_SERVICE.schedule(this::timeOut, this.timeout, this.timeUnit);
+    future = EXECUTOR_SERVICE.submit(function);
 
-    Futures.addCallback(future, new FutureCallback<T>() {
-      @Override
-      public void onSuccess(@Nullable final T result) {
-        timer.cancel(true);
-      }
-
-      @Override
-      public void onFailure(final Throwable throwable) {
-        timer.cancel(true);
-      }
-    });
+    Futures.addCallback(future, new TaskCallback<>());
 
     int percentage = 10;
     while (!future.isDone()) {
@@ -109,18 +99,22 @@ public class SolverTask<T> extends Task<T> {
         return null;
       }
 
-      try {
-        TimeUnit.MILLISECONDS.sleep(100);
-      } catch (final InterruptedException interrupted) {
-        if (isCancelled()) {
-          logger.info("Task cancelled while sleeping " + this.toString());
-          return null;
-        }
-      }
+      sleep();
     }
     updateProgress(100, 100);
 
     return future.get();
+  }
+
+  private void sleep() throws InterruptedException {
+    try {
+      TimeUnit.MILLISECONDS.sleep(100);
+    } catch (final InterruptedException interrupted) {
+      if (isCancelled()) {
+        logger.info("Task cancelled while sleeping " + this.toString());
+        throw interrupted;
+      }
+    }
   }
 
   private void timeOut() {
@@ -171,5 +165,17 @@ public class SolverTask<T> extends Task<T> {
 
     solver.interrupt();
 
+  }
+
+  private class TaskCallback<J> implements FutureCallback<J> {
+    @Override
+    public void onSuccess(@Nullable final J result) {
+      timer.cancel(true);
+    }
+
+    @Override
+    public void onFailure(final Throwable throwable) {
+      timer.cancel(true);
+    }
   }
 }

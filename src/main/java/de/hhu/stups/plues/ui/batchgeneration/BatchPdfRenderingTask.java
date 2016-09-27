@@ -26,31 +26,35 @@ public class BatchPdfRenderingTask extends Task<Collection<PdfRenderingTask>> {
     final List<Future<?>> futurePool
         = tasks.stream().map(executor::submit).collect(Collectors.toList());
 
-    boolean workLeft;
-    final int totalTasks = futurePool.size();
+    final long totalTasks = futurePool.size();
 
+    long finishedTasks;
     do {
-      final long finishedTasks = futurePool.stream().filter(Future::isDone).count();
+      finishedTasks = futurePool.stream().filter(Future::isDone).count();
       updateProgress(finishedTasks, totalTasks);
 
       if (isCancelled()) {
         updateMessage("Cancelled");
         break;
       }
-      // to check the interrupted exception for cancellation!
-      try {
-        TimeUnit.MILLISECONDS.sleep(250);
-      } catch (final InterruptedException interrupted) {
-        if (isCancelled()) {
-          updateMessage("Cancelled");
-          break;
-        }
-      }
-      workLeft = !(totalTasks == finishedTasks);
+
+      sleep();
     }
-    while (workLeft);
+    while (totalTasks != finishedTasks);
 
     return tasks;
+  }
+
+  private void sleep() throws InterruptedException {
+    // to check the interrupted exception for cancellation!
+    try {
+      TimeUnit.MILLISECONDS.sleep(250);
+    } catch (final InterruptedException interrupted) {
+      if (isCancelled()) {
+        updateMessage("Cancelled");
+        throw interrupted;
+      }
+    }
   }
 
   @Override

@@ -8,6 +8,8 @@ import javafx.scene.Parent;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Inflates a layout from a filename.
@@ -17,12 +19,13 @@ public class Inflater {
   private final FXMLLoader loader;
 
   @Inject
-  public Inflater(FXMLLoader loader) {
+  public Inflater(final FXMLLoader loader) {
     this.loader = loader;
   }
 
   /**
    * Inflate a fxml resource as a layout from <tt>/fxml/</tt>.
+   *
    * @param name The name of the xml file without the <tt>.xml</tt> extension.
    * @param bundleName The name of the used bundle
    * @return {@link Parent}
@@ -33,11 +36,13 @@ public class Inflater {
 
   /**
    * Inflate a fxml resource as a layout from <tt>/fxml/</tt>.
+   *
    * @param name The name of the xml file without the <tt>.xml</tt> extension.
    * @param root optional root node to inflate this layout into
    * @param bundleName Name of the i18n resource to bind
    */
-  public Parent inflate(String name, Parent root, Object controller, String bundleName) {
+  public Parent inflate(final String name, final Parent root,
+                        final Object controller, final String bundleName) {
     // set location explicitly to ensure using the injected fxml loader
     loader.setLocation(getClass().getResource("/fxml/" + name + ".fxml"));
 
@@ -54,11 +59,11 @@ public class Inflater {
 
     try {
       return loader.load();
-    } catch (IOException ignored) {
-      ignored.printStackTrace();
+    } catch (final IOException ignored) {
+      final Logger logger = Logger.getLogger(getClass().getSimpleName());
+      logger.log(Level.SEVERE, "Exception in FXML Loader", ignored);
+      // TODO: kill app!
+      throw new RuntimeException(ignored);
     }
-
-    // TODO: kill app!
-    return null;
   }
 }

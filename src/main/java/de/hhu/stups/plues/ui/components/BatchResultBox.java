@@ -3,12 +3,9 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
-
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,7 +17,6 @@ import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 public class BatchResultBox extends GridPane implements Initializable {
@@ -54,7 +50,7 @@ public class BatchResultBox extends GridPane implements Initializable {
    * task pool which is executed later on within
    * {@link de.hhu.stups.plues.ui.controller.BatchTimetableGeneration}
    *
-   * @param loader            TaskLoader to load fxml and to set controller
+   * @param loader TaskLoader to load fxml and to set controller
    */
   @Inject
   public BatchResultBox(final FXMLLoader loader, @Assisted final PdfRenderingTask task) {

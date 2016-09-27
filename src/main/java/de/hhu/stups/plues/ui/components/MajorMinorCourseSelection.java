@@ -46,7 +46,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private ComboBox<Course> cbMinor;
 
   private ObservableList<Course> initialMinorCourseList;
-  private List<InvalidationListener> listeners = new ArrayList<>();
+  private final List<InvalidationListener> listeners = new ArrayList<>();
 
   /**
    * Create the component containing the combo boxes to choose major and minor courses. The combo
@@ -123,29 +123,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
    */
   private Callback<ListView<Course>, ListCell<Course>> getCallbackForImpossibleCourses(
       final Set<String> impossibleCourses) {
-    return new Callback<ListView<Course>, ListCell<Course>>() {
-      @Override
-      public ListCell<Course> call(final ListView<Course> listView) {
-        return new ListCell<Course>() {
-          @Override
-          protected void updateItem(final Course item, final boolean empty) {
-            super.updateItem(item, empty);
-
-            if (item != null) {
-              setText(item.getFullName());
-
-              if (impossibleCourses.contains(item.getName())) {
-                setTextFill(Color.RED);
-              } else {
-                setTextFill(Color.BLACK);
-              }
-
-            }
-
-          }
-        };
-      }
-    };
+    return new ListViewListCellCallback(impossibleCourses);
   }
 
   public Course getSelectedMajorCourse() {
@@ -207,18 +185,18 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   }
 
   private void fireListenerEvents() {
-    for (InvalidationListener listener : listeners) {
+    for (final InvalidationListener listener : listeners) {
       listener.invalidated(this);
     }
   }
 
   @Override
-  public void addListener(InvalidationListener listener) {
+  public void addListener(final InvalidationListener listener) {
     listeners.add(listener);
   }
 
   @Override
-  public void removeListener(InvalidationListener listener) {
+  public void removeListener(final InvalidationListener listener) {
     listeners.remove(listener);
   }
 
@@ -234,7 +212,39 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
 
     @Override
     public Course fromString(final String string) {
-      throw new RuntimeException();
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  private static class ListViewListCellCallback
+      implements Callback<ListView<Course>, ListCell<Course>> {
+
+    private final Set<String> impossibleCourses;
+
+    ListViewListCellCallback(final Set<String> impossibleCourses) {
+      this.impossibleCourses = impossibleCourses;
+    }
+
+    @Override
+    public ListCell<Course> call(final ListView<Course> listView) {
+      return new ListCell<Course>() {
+        @Override
+        protected void updateItem(final Course item, final boolean empty) {
+          super.updateItem(item, empty);
+
+          if (item != null) {
+            setText(item.getFullName());
+
+            if (impossibleCourses.contains(item.getName())) {
+              setTextFill(Color.RED);
+            } else {
+              setTextFill(Color.BLACK);
+            }
+
+          }
+
+        }
+      };
     }
   }
 }

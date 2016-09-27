@@ -7,22 +7,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MockSolver implements Solver {
+
+
   MockSolver() {
     try {
       TimeUnit.SECONDS.sleep(3);
     } catch (final InterruptedException exception) {
-      exception.printStackTrace();
+      final Logger logger = Logger.getLogger(getClass().getSimpleName());
+      logger.log(Level.INFO, "sleep interrupted", exception);
     }
   }
 
   @Override
   public void checkModelVersion(final String expectedVersion) throws SolverException {
+    // not needed for mock solver
   }
 
   @Override
   public void interrupt() {
+    // not needed for mock solver
   }
 
   @Override
@@ -58,7 +65,7 @@ public class MockSolver implements Solver {
 
   @Override
   public void move(final String sessionId, final String day, final String slot) {
-
+    // not needed for mock solver
   }
 
   @Override

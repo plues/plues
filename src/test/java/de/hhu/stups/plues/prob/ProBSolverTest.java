@@ -12,6 +12,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import de.be4.classicalb.core.parser.exceptions.BException;
 import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.ClassicalB;
 import de.prob.animator.domainobjects.EvalElementType;
@@ -30,6 +31,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,7 +51,7 @@ public class ProBSolverTest {
    * Setup state for test.
    */
   @Before
-  public void setUp() throws Exception {
+  public void setUp() throws IOException, BException {
     this.stateSpace = mock(StateSpace.class);
     this.trace = mock(Trace.class);
 
@@ -78,19 +80,14 @@ public class ProBSolverTest {
     this.solver = new ProBSolver(api, "model");
   }
 
-  @After
-  public void tearDown() throws Exception {
-
-  }
-
   @Test
-  public void interrupt() throws Exception {
+  public void interrupt() {
     this.solver.interrupt();
     verify(this.stateSpace).sendInterrupt();
   }
 
   @Test
-  public void checkFeasibilityFeasibleCourse() throws Exception {
+  public void checkFeasibilityFeasibleCourse() {
     when(trace.canExecuteEvent("check", "ccss={\"foo\", \"bar\"}")).thenReturn(true);
     assertTrue(solver.checkFeasibility("foo", "bar"));
     assertTrue(
@@ -114,7 +111,8 @@ public class ProBSolverTest {
   public void computeFeasiblity() throws Exception {
     final String op = "check";
     final String predicate = "ccss={\"foo\", \"bar\"}";
-    final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(au3,group4)}", "{\"foo\" |-> {mod5,mod6}}"};
+    final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(au3,group4)}",
+        "{\"foo\" |-> {mod5,mod6}}"};
 
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
@@ -173,7 +171,8 @@ public class ProBSolverTest {
     partialAuc.add(7);
 
 
-    final FeasibilityResult result = solver.computePartialFeasibility(courses, partialMc, partialAuc);
+    final FeasibilityResult result
+        = solver.computePartialFeasibility(courses, partialMc, partialAuc);
 
     assertEquals(result.getGroupChoice(), gc);
     assertEquals(result.getSemesterChoice(), sc);
@@ -182,7 +181,6 @@ public class ProBSolverTest {
     assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
   }
 
-  // TODO: Proper exception
   @Test(expected = SolverException.class)
   public void computeFeasibilityInfeasibleCourse() throws Exception {
     final String op = "check";

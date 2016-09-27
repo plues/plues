@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class PropertiesModule extends AbstractModule {
@@ -40,15 +41,12 @@ class PropertiesModule extends AbstractModule {
         }
 
         properties.load(p);
-      } catch (final FileNotFoundException exception) {
-        logger.info(propertyFile + ".properties is missing!");
       } catch (final IOException exception) {
-        logger.warning(propertyFile + ".properties produced IO Error!");
+        logger.log(Level.SEVERE, propertyFile + ".properties produced IO Error!", exception);
       }
     }
     return properties;
   }
-
 
   @Override
   public void configure() {

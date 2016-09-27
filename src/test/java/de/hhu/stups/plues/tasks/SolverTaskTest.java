@@ -10,6 +10,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.Solver;
+import de.hhu.stups.plues.prob.SolverException;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.stage.Stage;
@@ -74,7 +75,7 @@ public class SolverTaskTest extends ApplicationTest {
   @Test
   public void testCallableFails() throws ExecutionException, InterruptedException {
     final Callable<Integer> c = () -> {
-      throw new RuntimeException("NO");
+      throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
         = new SolverTask<>("Title", "Message", new TestSolver(), c);
@@ -89,7 +90,7 @@ public class SolverTaskTest extends ApplicationTest {
       assertSame(ExecutionException.class, cause.getClass());
 
       final Throwable realCause = cause.getCause();
-      assertSame(RuntimeException.class, realCause.getClass());
+      assertSame(TestException.class, realCause.getClass());
       assertEquals("NO", realCause.getMessage());
     }
 
@@ -110,7 +111,7 @@ public class SolverTaskTest extends ApplicationTest {
   public void testTaskIsCancelled() throws InterruptedException {
     final Callable<Integer> c = () -> {
       TimeUnit.DAYS.sleep(365);
-      throw new RuntimeException("NO");
+      throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
         = new SolverTask<>("Title", "Message", new TestSolver(), c);
@@ -293,6 +294,12 @@ public class SolverTaskTest extends ApplicationTest {
 
     private void setState(final Worker.State state) {
       this.state = state;
+    }
+  }
+
+  private class TestException extends RuntimeException {
+    public TestException(final String message) {
+      super(message);
     }
   }
 }

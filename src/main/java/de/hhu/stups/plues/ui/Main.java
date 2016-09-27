@@ -11,6 +11,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 public class Main extends Application {
 
@@ -39,7 +42,8 @@ public class Main extends Application {
       try {
         rm.close();
       } catch (final InterruptedException exception) {
-        exception.printStackTrace();
+        final Logger logger = Logger.getAnonymousLogger();
+        logger.log(Level.SEVERE, "Closing resources", exception);
       }
       Platform.exit();
     });

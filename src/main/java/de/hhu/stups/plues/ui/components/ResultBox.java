@@ -41,6 +41,12 @@ public class ResultBox extends GridPane implements Initializable {
 
   private static final String WORKING_COLOR = "#BDE5F8";
 
+  private ResourceBundle resources;
+  private static String REMOVE;
+  private static String SHOW;
+  private static String SAVE;
+  private static String CANCEL;
+
   private final ObjectProperty<Course> majorCourse;
   private final ObjectProperty<Course> minorCourse;
   private PdfRenderingTask task;
@@ -48,9 +54,8 @@ public class ResultBox extends GridPane implements Initializable {
   private final Delayed<SolverService> solverService;
   private final PdfRenderingTaskFactory renderingTaskFactory;
   private final VBox parent;
-  private ObjectProperty<Path> pdf;
 
-  private ResourceBundle resources;
+  private final ObjectProperty<Path> pdf;
 
   @FXML
   @SuppressWarnings("unused")
@@ -116,48 +121,30 @@ public class ResultBox extends GridPane implements Initializable {
     inflater.inflate("components/resultbox", this, this, "resultbox");
   }
 
-  /**
-   * Helper function to find the file name containing major and minor name.
-   *
-   * @param major Course object representing the chosen major course
-   * @param minor Course object representing the chosen minor course
-   * @return String representing the file name
-   */
-  private static String getDocumentName(final Course major, final Course minor) {
-    return "musterstudienplan_" + major.getName() + "_" + minor.getName()
-      + ".pdf";
-  }
-
-  /**
-   * Helper function to find file name containing major name and no minor existing.
-   *
-   * @param course Course object representing the choosen major course
-   * @return String representing the file name
-   */
-  private static String getDocumentName(final Course course) {
-    return "musterstudienplan_" + course.getName() + ".pdf";
-  }
-
   @Override
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
     this.resources = resources;
+    REMOVE = resources.getString("remove");
+    SHOW = resources.getString("show");
+    SAVE = resources.getString("save");
+    CANCEL = resources.getString("cancel");
     //
     this.major.textProperty()
       .bind(Bindings.selectString(this.majorCourse, "fullName"));
     this.minor.textProperty()
       .bind(Bindings.selectString(this.minorCourse, "fullName"));
     //
-    solverService.whenAvailable(solverService -> {
+    solverService.whenAvailable(solver -> {
       final SolverTask<FeasibilityResult> solverTask;
-      if (minorCourse.isNotNull().get()) {
-        solverTask = solverService.computeFeasibilityTask(majorCourse.get(), minorCourse.get());
-        task = renderingTaskFactory.create(majorCourse.get(), minorCourse.get(), solverTask);
+      final Course cMajor = majorCourse.get();
+      final Course cMinor = minorCourse.get();
+      if (cMinor != null) {
+        solverTask = solver.computeFeasibilityTask(cMajor, cMinor);
       } else {
-        solverTask = solverService.computeFeasibilityTask(majorCourse.get());
-        task = renderingTaskFactory.create(majorCourse.get(), null, solverTask);
+        solverTask = solver.computeFeasibilityTask(cMajor);
       }
-
+      task = renderingTaskFactory.create(cMajor, cMinor, solverTask);
       //
       this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
       this.progressIndicator.visibleProperty()
@@ -172,37 +159,12 @@ public class ResultBox extends GridPane implements Initializable {
 
     task.setOnSucceeded(event -> Platform.runLater(() -> {
       pdf.set((Path) event.getSource().getValue());
-      cbAction.setItems(FXCollections.observableList(Arrays.asList(
-        resources.getString("show"),
-        resources.getString("save"),
-        resources.getString("remove"))));
+      cbAction.setItems(FXCollections.observableList(Arrays.asList(SHOW, SAVE, REMOVE)));
       cbAction.getSelectionModel().selectFirst();
     }));
 
-    // TODO: Add status bar later to let the user know whats going on
-    //    final Task<FeasibilityResult> task;
-    //    if (selectedMinorCourse.isPresent()) {
-    //      task = solverService.computeFeasibilityTask(
-    //          selectedMajorCourse, selectedMinorCourse.get());
-    //    } else {
-    //      task = solverService.computeFeasibilityTask(selectedMajorCourse);
-    //    }
-    //    resultTask.set(task);
-
-
-    //  task.setOnFailed(event -> {
-    //    final Alert alert = new Alert(Alert.AlertType.ERROR);
-    //    alert.setTitle("Generation failed");
-    //    alert.setHeaderText("Invalid course combination");
-    //    alert.setContentText("The chosen combination of major and minor course is not possible.");
-    //    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-    //    alert.showAndWait();
-    //  });
-
-
     task.setOnFailed(event -> {
-      this.cbAction.setItems(FXCollections.observableList(
-        Collections.singletonList(resources.getString("remove"))));
+      this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(REMOVE)));
       this.cbAction.getSelectionModel().selectFirst();
       this.lbErrorMsg.setText(resources.getString("error_gen"));
     });
@@ -210,15 +172,8 @@ public class ResultBox extends GridPane implements Initializable {
     this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
     this.progressIndicator.visibleProperty()
       .bind(task.runningProperty());
-    //
-    // Binding the progress property of the indicator shows a the percentage
-    // of completion which in this case is arbitrary since we do not know how
-    // long the process will take.
-    //
-    // progressIndicator.progressProperty().bind(this.task.progressProperty());
-    //
-    this.cbAction.setItems(FXCollections.observableList(
-      Collections.singletonList(resources.getString("cancel"))));
+
+    this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(CANCEL)));
     this.cbAction.getSelectionModel().selectFirst();
   }
 
@@ -226,27 +181,20 @@ public class ResultBox extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   private void submitAction() {
     final String selectedItem = cbAction.getSelectionModel().getSelectedItem();
-    switch (selectedItem) {
-      case "Show":
-      case "Anzeigen":
-        showPdf();
-        break;
-      case "Save":
-      case "Speichern":
-        savePdf();
-        break;
-      case "Remove":
-      case "Entfernen":
-        this.parent.getChildren().remove(this);
-        break;
-      case "Cancel":
-      case "Abbrechen":
-        this.interrupt();
-        this.cbAction.setItems(FXCollections.observableList(Collections.singletonList("Remove")));
-        this.cbAction.getSelectionModel().selectFirst();
-        break;
-      default:
-        break;
+
+    if (selectedItem.equals(SHOW)) {
+      showPdf();
+    }
+    if (selectedItem.equals(SAVE)) {
+      savePdf();
+    }
+    if (selectedItem.equals(REMOVE)) {
+      this.parent.getChildren().remove(this);
+    }
+    if (selectedItem.equals(CANCEL)) {
+      this.interrupt();
+      this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(REMOVE)));
+      this.cbAction.getSelectionModel().selectFirst();
     }
   }
 

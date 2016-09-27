@@ -11,8 +11,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-public class ResourceManager {
-  private final Delayed<Store> store;
+class ResourceManager {
+  private final Delayed<Store> delayedStore;
   private final ExecutorService executorService;
   private final ExecutorService probExecutor;
 
@@ -21,26 +21,29 @@ public class ResourceManager {
   /**
    * ResourceManager class used to manage resources that need to be closed when shutting down the
    * application.
-   * @param store Store
+   *
+   * @param delayedStore    Delayed store
    * @param executorService ExecutorService
-   * @param probExecutor ExecutorService
+   * @param probExecutor    ExecutorService
    */
   @Inject
-  public ResourceManager(final Delayed<Store> store, final ListeningExecutorService executorService,
-      @Named("prob") final ExecutorService probExecutor) {
-    this.store = store;
+  public ResourceManager(final Delayed<Store> delayedStore,
+                         final ListeningExecutorService executorService,
+                         @Named("prob") final ExecutorService probExecutor) {
+    this.delayedStore = delayedStore;
     this.executorService = executorService;
     this.probExecutor = probExecutor;
   }
 
   /**
    * Close all managed resources.
+   *
    * @throws InterruptedException thrown if any of the executors throws it.
    */
-  public void close() throws InterruptedException {
-    final Store store = this.store.get();
+  void close() throws InterruptedException {
+    final Store store = this.delayedStore.get();
     if (store != null) {
-      this.store.get().close();
+      this.delayedStore.get().close();
     }
     logger.info("Store closed");
 

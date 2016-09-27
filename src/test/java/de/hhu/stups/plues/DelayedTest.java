@@ -8,13 +8,13 @@ import org.junit.Test;
 
 public class DelayedTest {
   @Test
-  public void whenAvailableIsNotCalledWhenObjectIsNotSet() throws Exception {
+  public void whenAvailableIsNotCalledWhenObjectIsNotSet() {
     final Delayed<Integer> delayed = new Delayed<>();
     delayed.whenAvailable(t -> fail("Handler was called, although object was never set"));
   }
 
   @Test
-  public void set() throws Exception {
+  public void set() {
     final boolean[] cond = {false};
     final Delayed<Integer> delayed = new Delayed<>();
 

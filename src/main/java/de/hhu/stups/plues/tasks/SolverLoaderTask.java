@@ -10,6 +10,7 @@ import de.hhu.stups.plues.modelgenerator.FileType;
 import de.hhu.stups.plues.modelgenerator.Renderer;
 import de.hhu.stups.plues.prob.ProBSolver;
 import de.hhu.stups.plues.prob.Solver;
+import de.hhu.stups.plues.prob.SolverException;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import javafx.concurrent.Task;
@@ -66,7 +67,7 @@ public class SolverLoaderTask extends Task<Solver> {
 
   }
 
-  private void prepareModels() throws Exception {
+  private void prepareModels() throws IOException {
     final String modelBase = (String) this.properties.get("modelpath");
     if (modelBase == null) {
       // use bundled files
@@ -84,7 +85,7 @@ public class SolverLoaderTask extends Task<Solver> {
   }
 
 
-  private void copyModelsToTemp() throws Exception {
+  private void copyModelsToTemp() throws IOException {
 
     final Path tmpDirectory = Files.createTempDirectory("slottool");
     this.modelDirectory = tmpDirectory.resolve(MODEL_PATH);
@@ -113,7 +114,7 @@ public class SolverLoaderTask extends Task<Solver> {
       final ZipEntry entry = entries.nextElement();
       final String name = entry.getName();
 
-      if (name.equals("")) {
+      if ("".equals(name)) {
         logger.fine("Empty File");
         continue;
       }
@@ -134,21 +135,21 @@ public class SolverLoaderTask extends Task<Solver> {
     //
     logger.info("Using " + solverName + " solver");
     //
-    if (solverName.equals("mock")) {
+    if ("mock".equals(solverName)) {
       return this.startMockSolver();
     }
     return this.startProbSolver();
   }
 
   @SuppressWarnings("unused")
-  private Solver startMockSolver() throws Exception {
+  private Solver startMockSolver() {
     this.updateProgress(1, 1);
     this.updateMessage("Starting mock solver");
     return solverFactory.createMockSolver();
   }
 
   @SuppressWarnings("unused")
-  private Solver startProbSolver() throws Exception {
+  private Solver startProbSolver() throws IOException, BException, SolverException {
     ///
     this.updateMessage("Prepare models"); // TODO i18n
     this.updateProgress(0, MAX_STEPS);
