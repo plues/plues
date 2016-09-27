@@ -13,19 +13,19 @@
         <Label text="%persistent" />
         <TableView fx:id="persistentTable">
         <columns>
-            <TableColumn fx:id="session_p" text="%session"/>
-            <TableColumn fx:id="source_p" text="%source"/>
-            <TableColumn fx:id="target_p" text="%target"/>
-            <TableColumn fx:id="date_p" text="%date"/>
+            <TableColumn fx:id="sessionP" text="%session"/>
+            <TableColumn fx:id="sourceP" text="%source"/>
+            <TableColumn fx:id="targetP" text="%target"/>
+            <TableColumn fx:id="dateP" text="%date"/>
         </columns>
         </TableView>
         <Label text="%temporary"/>
         <TableView fx:id="tempTable">
             <columns>
-                <TableColumn fx:id="session_t" text="%session"/>
-                <TableColumn fx:id="source_t" text="%source"/>
-                <TableColumn fx:id="target_t" text="%target"/>
-                <TableColumn fx:id="date_t" text="%date"/>
+                <TableColumn fx:id="sessionT" text="%session"/>
+                <TableColumn fx:id="sourceT" text="%source"/>
+                <TableColumn fx:id="targetT" text="%target"/>
+                <TableColumn fx:id="dateT" text="%date"/>
             </columns>
         </TableView>
     </children>

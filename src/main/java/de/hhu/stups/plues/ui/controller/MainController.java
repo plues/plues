@@ -259,6 +259,10 @@ public class MainController implements Initializable {
     this.submitTask(task, this.executor);
   }
 
+  /**
+   * Method to open ChangeLog by clicking on menu item.
+   * @param event event
+   */
   @FXML
   public void openChangeLog(ActionEvent event) {
     Inflater inflater = new Inflater(new FXMLLoader());
@@ -287,6 +291,7 @@ public class MainController implements Initializable {
       writeZipFile();
       return null;
     }
+
     private void writeZipFile() {
       try (ByteArrayOutputStream exportXmlStream = new XmlExporter(delayedStore.get()).export();
            OutputStream outputStream = new FileOutputStream(selectedFile)) {
