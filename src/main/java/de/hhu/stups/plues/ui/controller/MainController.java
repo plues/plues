@@ -13,15 +13,21 @@ import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
+import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
+import de.hhu.stups.plues.ui.exceptions.InflaterException;
+import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -78,6 +84,7 @@ public class MainController implements Initializable {
 
   @FXML
   private TaskProgressView<Task<?>> taskProgress;
+  private ResourceBundle resources;
 
   /**
    * MainController component.
@@ -117,6 +124,7 @@ public class MainController implements Initializable {
   @Override
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
+    this.resources = resources;
 
     this.taskProgress.setGraphicFactory(this::getGraphicForTask);
     this.exportStateMenuItem.setDisable(true);
@@ -242,6 +250,15 @@ public class MainController implements Initializable {
 
   private void submitTask(final Task<?> task) {
     this.submitTask(task, this.executor);
+  }
+
+  public void openChangeLog(ActionEvent event) {
+    Inflater inflater = new Inflater(new FXMLLoader());
+    inflater.inflate("components/ChangeLog", null, ChangeLog.class, "ChangeLog");
+    Stage stage = new Stage();
+    stage.setTitle(resources.getString("logTitle"));
+    stage.setScene(new Scene(ChangeLog.class, 600, 600));
+    stage.show();
   }
 
   private class ExportXmlTask extends Task<Void> {
