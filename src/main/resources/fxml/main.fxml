@@ -28,12 +28,6 @@
         </Menu>
         <Menu mnemonicParsing="false" text="%edit">
             <MenuItem mnemonicParsing="false" text="%delete"/>
-            <Menu mnemonicParsing="false" text="%lang">
-                <MenuItem fx:id="de" onAction="#switchLanguage"
-                          text="%de" mnemonicParsing="false"/>
-                <MenuItem fx:id="en" onAction="#switchLanguage"
-                          text="%en" mnemonicParsing="false"/>
-            </Menu>
         </Menu>
         <Menu mnemonicParsing="false" text="%help">
             <MenuItem mnemonicParsing="false" text="%about"/>

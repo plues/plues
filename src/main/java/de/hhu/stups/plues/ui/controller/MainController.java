@@ -79,12 +79,6 @@ public class MainController implements Initializable {
   @FXML
   private TaskProgressView<Task<?>> taskProgress;
 
-  @FXML
-  private MenuItem de;
-
-  @FXML
-  private MenuItem en;
-
   /**
    * MainController component.
    */
@@ -248,13 +242,6 @@ public class MainController implements Initializable {
 
   private void submitTask(final Task<?> task) {
     this.submitTask(task, this.executor);
-  }
-
-  @FXML
-  public void switchLanguage() {
-    // TODO switch langugage somehow
-    de.setDisable(true);
-    en.setDisable(false);
   }
 
   private class ExportXmlTask extends Task<Void> {
