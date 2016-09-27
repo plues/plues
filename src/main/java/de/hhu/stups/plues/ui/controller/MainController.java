@@ -79,6 +79,12 @@ public class MainController implements Initializable {
   @FXML
   private TaskProgressView<Task<?>> taskProgress;
 
+  @FXML
+  private MenuItem de;
+
+  @FXML
+  private MenuItem en;
+
   /**
    * MainController component.
    */
@@ -244,6 +250,13 @@ public class MainController implements Initializable {
     this.submitTask(task, this.executor);
   }
 
+  @FXML
+  public void switchLanguage() {
+    // TODO switch langugage somehow
+    de.setDisable(true);
+    en.setDisable(false);
+  }
+
   private class ExportXmlTask extends Task<Void> {
 
     private final File selectedFile;
@@ -262,7 +275,6 @@ public class MainController implements Initializable {
       writeZipFile();
       return null;
     }
-
     private void writeZipFile() {
       try (ByteArrayOutputStream exportXmlStream = new XmlExporter(delayedStore.get()).export();
            OutputStream outputStream = new FileOutputStream(selectedFile)) {

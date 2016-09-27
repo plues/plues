@@ -10,9 +10,9 @@
         <Label prefHeight="-Infinity" prefWidth="250.0" text="Courses"/>
         <TableView fx:id="courseListView" prefHeight="600" prefWidth="250.0">
             <columns>
-                <TableColumn fx:id="nameColumn" editable="false" prefWidth="100" text="Course"/>
-                <TableColumn fx:id="poColumn" editable="false" prefWidth="75" text="PO"/>
-                <TableColumn fx:id="kzfaColumn" editable="false" prefWidth="75.0" text="KZFA"/>
+                <TableColumn fx:id="nameColumn" editable="false" prefWidth="100" text="%course"/>
+                <TableColumn fx:id="poColumn" editable="false" prefWidth="75" text="%po"/>
+                <TableColumn fx:id="kzfaColumn" editable="false" prefWidth="75.0" text="%kzfa"/>
             </columns>
         </TableView>
     </children>

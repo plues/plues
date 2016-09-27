@@ -11,6 +11,7 @@ import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
+import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -18,7 +19,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -28,7 +28,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -42,10 +41,11 @@ public class ResultBox extends GridPane implements Initializable {
 
   private static final String WORKING_COLOR = "#BDE5F8";
 
-  private static final String REMOVE = "Remove";
-  private static final String SHOW = "Show";
-  private static final String SAVE = "Save";
-  private static final String CANCEL = "Cancel";
+  private ResourceBundle resources;
+  private String REMOVE;
+  private String SHOW;
+  private String SAVE;
+  private String CANCEL;
 
   private final ObjectProperty<Course> majorCourse;
   private final ObjectProperty<Course> minorCourse;
@@ -54,6 +54,7 @@ public class ResultBox extends GridPane implements Initializable {
   private final Delayed<SolverService> solverService;
   private final PdfRenderingTaskFactory renderingTaskFactory;
   private final VBox parent;
+
   private final ObjectProperty<Path> pdf;
 
   @FXML
@@ -91,14 +92,14 @@ public class ResultBox extends GridPane implements Initializable {
   /**
    * Constructor for ResultBox.
    *
-   * @param loader      TaskLoader to load fxml and to set controller
+   * @param inflater    Inflater to handle fxml loader tasks
    * @param renderingTaskFactory PDF Rendering task Factory
    * @param major       Major course
    * @param minor       Minor course if present, else null
    * @param parent      The parent wrapper (VBox) to remove a single result box.
    */
   @Inject
-  public ResultBox(final FXMLLoader loader,
+  public ResultBox(final Inflater inflater,
                    final Delayed<SolverService> delayedSolverService,
                    final PdfRenderingTaskFactory renderingTaskFactory,
                    final ExecutorService executorService,
@@ -117,22 +118,18 @@ public class ResultBox extends GridPane implements Initializable {
     this.parent = parent;
     this.setHgap(10.0);
 
-    loader.setLocation(this.getClass()
-        .getResource("/fxml/components/resultbox.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (final IOException exception) {
-      throw new RuntimeException(exception);
-    }
+    inflater.inflate("components/resultbox", this, this, "resultbox");
   }
 
   @Override
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
+    this.resources = resources;
+    REMOVE = resources.getString("remove");
+    SHOW = resources.getString("show");
+    SAVE = resources.getString("save");
+    CANCEL = resources.getString("cancel");
+    //
     this.major.textProperty()
       .bind(Bindings.selectString(this.majorCourse, "fullName"));
     this.minor.textProperty()
@@ -169,7 +166,7 @@ public class ResultBox extends GridPane implements Initializable {
     task.setOnFailed(event -> {
       this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(REMOVE)));
       this.cbAction.getSelectionModel().selectFirst();
-      this.lbErrorMsg.setText("Error! Could not generate PDF");
+      this.lbErrorMsg.setText(resources.getString("error_gen"));
     });
     //
     this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
@@ -184,30 +181,27 @@ public class ResultBox extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   private void submitAction() {
     final String selectedItem = cbAction.getSelectionModel().getSelectedItem();
-    switch (selectedItem) {
-      case SHOW:
-        showPdf();
-        break;
-      case SAVE:
-        savePdf();
-        break;
-      case REMOVE:
-        this.parent.getChildren().remove(this);
-        break;
-      case CANCEL:
-        this.interrupt();
-        this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(REMOVE)));
-        this.cbAction.getSelectionModel().selectFirst();
-        break;
-      default:
-        break;
+
+    if (selectedItem.equals(SHOW)) {
+      showPdf();
+    }
+    if (selectedItem.equals(SAVE)) {
+      savePdf();
+    }
+    if (selectedItem.equals(REMOVE)) {
+      this.parent.getChildren().remove(this);
+    }
+    if (selectedItem.equals(CANCEL)) {
+      this.interrupt();
+      this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(REMOVE)));
+      this.cbAction.getSelectionModel().selectFirst();
     }
   }
 
   @FXML
   private void showPdf() {
     PdfRenderingHelper.showPdf(pdf.get(),
-        e -> lbErrorMsg.setText("Error! Copying of temporary file into target file failed."));
+        e -> lbErrorMsg.setText(resources.getString("error_temp")));
   }
 
   @FXML
