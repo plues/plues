@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -54,20 +55,11 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
    * When using the component we need to initially call {@link #setMajorCourseList(ObservableList)},
    * {@link #setMinorCourseList(ObservableList)}.
    *
-   * @param loader The injected FXMLLoader.
+   * @param inflater Inflater to handle fxml.
    */
   @Inject
-  MajorMinorCourseSelection(final FXMLLoader loader) {
-    loader.setLocation(getClass().getResource("/fxml/components/MajorMinorCourseSelection.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (final IOException exception) {
-      throw new RuntimeException(exception);
-    }
+  MajorMinorCourseSelection(final Inflater inflater) {
+    inflater.inflate("components/MajorMinorCourseSelection", this, this);
   }
 
   @Override
