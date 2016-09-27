@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class Inflater {
 
   private final FXMLLoader loader;
-  private final String DEFAULT_BUNDLE = "plues";
+  private static final String DEFAULT_BUNDLE = "plues";
 
   @Inject
   public Inflater(final FXMLLoader loader) {
@@ -78,7 +78,7 @@ public class Inflater {
       loader.setController(controller);
     }
 
-    ResourceBundle bundle = ResourceBundle.getBundle("lang."+bundleName, new Locale("de"));
+    ResourceBundle bundle = ResourceBundle.getBundle("lang." + bundleName, new Locale("de"));
     loader.setResources(bundle);
 
     try {
