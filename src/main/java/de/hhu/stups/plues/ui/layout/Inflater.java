@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 public class Inflater {
 
   private final FXMLLoader loader;
+  private final String DEFAULT_BUNDLE = "plues";
 
   @Inject
   public Inflater(final FXMLLoader loader) {
@@ -26,7 +27,7 @@ public class Inflater {
   /**
    * Inflate a fxml resource as a layout from <tt>/fxml/</tt>.
    *
-   * @param name The name of the xml file without the <tt>.xml</tt> extension.
+   * @param name The name of the xml file without the <tt>.fxml</tt> extension.
    * @param bundleName The name of the used bundle
    * @return {@link Parent}
    */
@@ -35,10 +36,31 @@ public class Inflater {
   }
 
   /**
+   * Inflate without root and controller and resource bundle name.
+   * @param name The name of the fxml file without the <tt>.fxml</tt> extension.
+   * @return {@link Parent}
+   */
+  public Parent inflate(final String name) {
+    return inflate(name, null, null, DEFAULT_BUNDLE);
+  }
+
+  /**
+   * Inflate wiht default bundle name.
+   * @param name The name of the fxml file without the <tt>.fxml</tt> extension.
+   * @param root optional root node to inflate this layout into
+   * @param controller controller for the fxml file
+   * @return {@link Parent}
+   */
+  public Parent inflate(final String name, final Parent root, final Object controller) {
+    return inflate(name, root, controller, DEFAULT_BUNDLE);
+  }
+
+  /**
    * Inflate a fxml resource as a layout from <tt>/fxml/</tt>.
    *
-   * @param name The name of the xml file without the <tt>.xml</tt> extension.
+   * @param name The name of the fxml file without the <tt>.fxml</tt> extension.
    * @param root optional root node to inflate this layout into
+   * @param controller controller for the fxml file
    * @param bundleName Name of the i18n resource to bind
    */
   public Parent inflate(final String name, final Parent root,
