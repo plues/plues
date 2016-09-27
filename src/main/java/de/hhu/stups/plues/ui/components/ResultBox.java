@@ -42,10 +42,10 @@ public class ResultBox extends GridPane implements Initializable {
   private static final String WORKING_COLOR = "#BDE5F8";
 
   private ResourceBundle resources;
-  private static String REMOVE;
-  private static String SHOW;
-  private static String SAVE;
-  private static String CANCEL;
+  private String REMOVE;
+  private String SHOW;
+  private String SAVE;
+  private String CANCEL;
 
   private final ObjectProperty<Course> majorCourse;
   private final ObjectProperty<Course> minorCourse;
