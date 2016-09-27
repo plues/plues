@@ -6,12 +6,14 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Info;
 import de.hhu.stups.plues.data.entities.Level;
+import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -202,5 +204,10 @@ class MockStore implements Store {
   @SuppressWarnings("OptionalGetWithoutIsPresent")
   public Module getModuleById(final Integer key) {
     return this.getModules().stream().filter(e -> e.getId() == key).findFirst().orElse(null);
+  }
+
+  @Override
+  public List<Log> getLog() {
+    return Collections.emptyList();
   }
 }
