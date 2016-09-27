@@ -113,7 +113,7 @@ public class ResultBox extends GridPane implements Initializable {
     this.parent = parent;
     this.setHgap(10.0);
 
-    inflater.inflate("components/resultbox", null, null, "resultbox");
+    inflater.inflate("components/resultbox", this, this, "resultbox");
   }
 
   /**

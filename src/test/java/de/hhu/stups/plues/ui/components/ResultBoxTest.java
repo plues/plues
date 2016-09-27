@@ -7,14 +7,12 @@ import static org.testfx.api.FxAssert.verifyThat;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -83,10 +81,12 @@ public abstract class ResultBoxTest extends ApplicationTest {
     final SolverService solverService = mock(SolverService.class);
     when(solverService.computeFeasibilityTask(anyVararg())).thenReturn(mock(SolverTask.class));
 
+    final Inflater inflater = new Inflater(new FXMLLoader());
+
     Delayed<SolverService> solver = new Delayed<>();
     solver.set(solverService);
     final ResultBox resultBox = new ResultBox(
-        new Inflater(new FXMLLoader()), solver, (major1, minor1, solverTask) -> task,
+        inflater, solver, (major1, minor1, solverTask) -> task,
         Executors.newSingleThreadExecutor(), major, minor, new VBox());
 
     final Scene scene = new Scene(resultBox, 200, 200);
