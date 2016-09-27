@@ -6,6 +6,8 @@ import com.google.inject.assistedinject.Assisted;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
+import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -50,25 +52,16 @@ public class BatchResultBox extends GridPane implements Initializable {
    * task pool which is executed later on within
    * {@link de.hhu.stups.plues.ui.controller.BatchTimetableGeneration}
    *
-   * @param loader TaskLoader to load fxml and to set controller
+   * @param inflater Inflater to handle TaskLoader for fxml and to set controller
    */
   @Inject
-  public BatchResultBox(final FXMLLoader loader, @Assisted final PdfRenderingTask task) {
+  public BatchResultBox(final Inflater inflater, @Assisted final PdfRenderingTask task) {
     super();
     assert task != null;
     this.task = task;
     this.setHgap(10.0);
 
-    loader.setLocation(this.getClass().getResource("/fxml/components/BatchResultBox.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (final IOException exception) {
-      throw new RuntimeException(exception);
-    }
+    inflater.inflate("components/BatchResultBox", this, this, "batchTimetable");
   }
 
   @Override
