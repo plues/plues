@@ -42,6 +42,7 @@ public class ProBSolver implements Solver {
   private final StateSpace stateSpace;
   private final SolverCache solverResultCache;
   private final SolverCache operationExecutionCache;
+  // Todo: use ReadOnlyMapProperty
   private final ObservableMap<String, Boolean> courseCombinationResults;
   private Trace trace;
 
@@ -422,7 +423,7 @@ public class ProBSolver implements Solver {
 
   private void addCourseCombinationResult(final List<String> courses, boolean result) {
     String key = String.join(";",courses);
-    if (!courseCombinationResults.containsKey(key)) {
+    if (!courseCombinationResults.containsKey(key) || !courseCombinationResults.get(key)) {
       courseCombinationResults.put(key, result);
     }
   }

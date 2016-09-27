@@ -78,6 +78,18 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private Label lbHeader;
   @FXML
   @SuppressWarnings("unused")
+  private Label lbLegendSuccess;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbLegendFailure;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbLegendInfeasible;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbLegendImpossible;
+  @FXML
+  @SuppressWarnings("unused")
   private Button btCheckAll;
   @FXML
   @SuppressWarnings("unused")
@@ -91,10 +103,14 @@ public class ConflictMatrix extends GridPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Pane paneLegendImpossible;
+  @FXML
+  @SuppressWarnings("unused")
+  private Pane paneLegendInfeasible;
+
   private Task<Void> prepareFeasibilityCheck;
   private Task<Void> executeFeasibilityCheck;
+  private Set<String> impossibleCourses;
 
-  // Todo: mark courses that are statically known to be unfeasible
 
   /**
    * This view presents a matrix of all possible combinations of combinable major and minor courses
@@ -127,10 +143,12 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
     delayedSolverService.whenAvailable(solverService -> {
 
-      /*final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
-      impossibleCoursesTask.setOnSucceeded(event ->
-          impossibleCourses = impossibleCoursesTask.getValue());
-      executor.submit(impossibleCoursesTask);*/
+      final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
+      impossibleCoursesTask.setOnSucceeded(event -> {
+        impossibleCourses = impossibleCoursesTask.getValue();
+        highlightImpossibleCourses();
+      });
+      executor.submit(impossibleCoursesTask);
 
       courseCombinationResults = solverService.getCourseCombinationResults();
       courseCombinationResults.addListener(new MapChangeListener<String, Boolean>() {
@@ -163,37 +181,47 @@ public class ConflictMatrix extends GridPane implements Initializable {
     }
   }
 
+  private void highlightImpossibleCourses() {
+    List<String> majorCourseStrings = majorCourses.stream()
+        .map(Course::getName).collect(Collectors.toList());
+    List<String> minorCourseStrings = minorCourses.stream()
+        .map(Course::getName).collect(Collectors.toList());
+    impossibleCourses.forEach(course -> {
+      if (majorCourseStrings.contains(course)) {
+        int col = majorCourseStrings.indexOf(course) + 1;
+        IntStream.range(0, minorCourses.size())
+            .forEach(row -> gridPaneCombinable.add(
+                getInfeasibleGridCellPane(majorCourseStrings.get(col - 1)), col, row + 1));
+      }
+      if (minorCourseStrings.contains(course)) {
+        int row = minorCourseStrings.indexOf(course) + 1;
+        IntStream.range(0, majorCourses.size())
+            .forEach(col -> gridPaneCombinable.add(
+                getInfeasibleGridCellPane(minorCourseStrings.get(row - 1)), col + 1, row));
+      }
+    });
+  }
+
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     final List<Node> components = Arrays.asList(
         gridPaneCombinable, scrollPaneCombinable, scrollPaneStandalone, gridPaneStandalone,
-        boxLegend, lbCombinableCourses, lbStandaloneCourses, lbHeader, btCheckAll, btCancelCheckAll);
+        boxLegend, lbCombinableCourses, lbStandaloneCourses, lbHeader, btCheckAll,
+        btCancelCheckAll);
     components.forEach(c -> c.visibleProperty().bind(solverProperty));
 
     btCheckAll.disableProperty().bind(feasibilityCheckRunning);
     btCancelCheckAll.disableProperty().bind(feasibilityCheckRunning.not());
 
     paneLegendSuccess.setId("conflictMatrixLegendSuccess");
-    Label lbLegendSuccess = new Label();
-    lbLegendSuccess.setTooltip(new Tooltip("The course or combination is feasible."));
-    lbLegendSuccess.prefWidthProperty().bind(paneLegendSuccess.widthProperty());
-    lbLegendSuccess.prefHeightProperty().bind(paneLegendSuccess.heightProperty());
-    paneLegendSuccess.getChildren().add(lbLegendSuccess);
-
     paneLegendFailure.setId("conflictMatrixLegendFailed");
-    Label lbLegendFailure = new Label();
-    lbLegendFailure.setTooltip(new Tooltip("The course or combination is not feasible."));
-    lbLegendFailure.prefWidthProperty().bind(paneLegendFailure.widthProperty());
-    lbLegendFailure.prefHeightProperty().bind(paneLegendFailure.heightProperty());
-    paneLegendFailure.getChildren().add(lbLegendFailure);
-
     paneLegendImpossible.setId("conflictMatrixLegendImpossible");
-    Label lbLegendImpossible = new Label();
-    lbLegendImpossible.setTooltip(
-        new Tooltip("The combination is impossible due\nto same major and minor course."));
-    lbLegendImpossible.prefWidthProperty().bind(paneLegendImpossible.widthProperty());
-    lbLegendImpossible.prefHeightProperty().bind(paneLegendImpossible.heightProperty());
-    paneLegendImpossible.getChildren().add(lbLegendImpossible);
+    paneLegendInfeasible.setId("conflictMatrixLegendInfeasible");
+
+    lbLegendSuccess.setTooltip(new Tooltip(lbLegendSuccess.getText()));
+    lbLegendFailure.setTooltip(new Tooltip(lbLegendFailure.getText()));
+    lbLegendInfeasible.setTooltip(new Tooltip(lbLegendInfeasible.getText()));
+    lbLegendImpossible.setTooltip(new Tooltip(lbLegendImpossible.getText()));
   }
 
   /**
@@ -367,6 +395,26 @@ public class ConflictMatrix extends GridPane implements Initializable {
   }
 
   /**
+   * Create a grid pane cell for statically known impossible combinations of courses.
+   *
+   * @return Return a pane.
+   */
+  private Pane getInfeasibleGridCellPane(String courseName) {
+    Pane pane = new Pane();
+    pane.setId("conflictMatrixCellInfeasible");
+    pane.setPrefHeight(25.0);
+
+    Label label = new Label();
+    label.prefWidthProperty().bind(pane.widthProperty());
+    label.prefHeightProperty().bind(pane.heightProperty());
+    Tooltip tooltip = new Tooltip("The course " + courseName + " is statically\nknown to be infeasible.");
+    label.setTooltip(tooltip);
+    pane.getChildren().add(label);
+
+    return pane;
+  }
+
+  /**
    * Create an active grid pane cell, i.e. the feasibility is known and the pane's background color
    * is set according to the result. Furthermore a tooltip with major and minor course name is
    * added.
@@ -408,8 +456,10 @@ public class ConflictMatrix extends GridPane implements Initializable {
     final int col = majorCourses.stream().map(Course::getName)
         .collect(Collectors.toList()).indexOf(majorName) + 1;
 
-    Platform.runLater(() -> gridPaneCombinable.add(
-        getActiveGridCellPane(result, majorName, minorName), col, row));
+    if (!impossibleCourses.contains(majorName) && !impossibleCourses.contains(minorName)) {
+      Platform.runLater(() -> gridPaneCombinable.add(
+          getActiveGridCellPane(result, majorName, minorName), col, row));
+    }
   }
 
   /**
