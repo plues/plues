@@ -70,7 +70,7 @@ public class ChangeLog extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     sessionP.setCellValueFactory(new PropertyValueFactory<>("session"));
     sourceP.setCellValueFactory(new PropertyValueFactory<>("src"));
     targetP.setCellValueFactory(new PropertyValueFactory<>("target"));
@@ -82,8 +82,8 @@ public class ChangeLog extends VBox implements Initializable {
     dateT.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
     delayedStore.whenAvailable(store -> {
-      List<Log> logs = store.getLogEntries();
-      Date compare = new Date(ManagementFactory.getRuntimeMXBean().getStartTime());
+      final List<Log> logs = store.getLogEntries();
+      final Date compare = new Date(ManagementFactory.getRuntimeMXBean().getStartTime());
       persistentTable.getItems().addAll(logs.stream()
           .filter(log -> log.getCreatedAt().compareTo(compare) < 0)
           .collect(Collectors.toList()));
