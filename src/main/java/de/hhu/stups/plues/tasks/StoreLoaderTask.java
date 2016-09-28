@@ -26,6 +26,10 @@ public class StoreLoaderTask extends Task<Store> {
   private Path dbWorkingPath;
   private final String path;
 
+  /**
+   * Constuctor to create store loader task
+   * @param storePath Path where to find store
+   */
   public StoreLoaderTask(final String storePath) {
     this.path = storePath;
     this.resources = ResourceBundle.getBundle("lang.tasks");
