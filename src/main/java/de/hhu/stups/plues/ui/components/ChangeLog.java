@@ -90,6 +90,9 @@ public class ChangeLog extends VBox implements Initializable {
       tempTable.getItems().addAll(logs.stream()
           .filter(log -> log.getCreatedAt().compareTo(compare) >= 0)
           .collect(Collectors.toList()));
+      // sort entries by date they were created at
+      persistentTable.getItems().sorted((o1, o2) -> o1.getCreatedAt().compareTo(o2.getCreatedAt()));
+      tempTable.getItems().sorted((o1, o2) -> o1.getCreatedAt().compareTo(o2.getCreatedAt()));
     });
   }
 }
