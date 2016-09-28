@@ -27,7 +27,7 @@ public class StoreLoaderTask extends Task<Store> {
   private final String path;
 
   /**
-   * Constuctor to create store loader task
+   * Constuctor to create store loader task.
    * @param storePath Path where to find store
    */
   public StoreLoaderTask(final String storePath) {

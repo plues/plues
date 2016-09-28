@@ -7,9 +7,6 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 
-import javafx.fxml.FXMLLoader;
-import javafx.stage.Stage;
-
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.prob.MockSolver;
@@ -29,6 +26,9 @@ import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
+
+import javafx.fxml.FXMLLoader;
+import javafx.stage.Stage;
 
 public class PluesModule extends AbstractModule {
 
