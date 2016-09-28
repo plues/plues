@@ -4,7 +4,6 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Button?>
 
 <fx:root prefHeight="30.0" prefWidth="500.0" type="VBox"
          xmlns="http://javafx.com/javafx/8.0.76-ea"
@@ -12,12 +11,12 @@
     <children>
         <Label text="%persistent" />
         <TableView fx:id="persistentTable">
-        <columns>
-            <TableColumn fx:id="sessionP" text="%session"/>
-            <TableColumn fx:id="sourceP" text="%source"/>
-            <TableColumn fx:id="targetP" text="%target"/>
-            <TableColumn fx:id="dateP" text="%date"/>
-        </columns>
+            <columns>
+                <TableColumn fx:id="sessionP" text="%session"/>
+                <TableColumn fx:id="sourceP" text="%source"/>
+                <TableColumn fx:id="targetP" text="%target"/>
+                <TableColumn fx:id="dateP" text="%date"/>
+            </columns>
         </TableView>
         <Label text="%temporary"/>
         <TableView fx:id="tempTable">
