@@ -86,7 +86,7 @@ public class Inflater {
     } catch (final IOException ignored) {
       final Logger logger = Logger.getLogger(getClass().getSimpleName());
       logger.log(Level.SEVERE, "Exception in FXML Loader", ignored);
-      throw new InflaterException();
+      throw new InflaterException(ignored);
     }
   }
 }
