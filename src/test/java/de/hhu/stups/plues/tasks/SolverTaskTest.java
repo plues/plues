@@ -21,6 +21,7 @@ import org.testfx.framework.junit.ApplicationTest;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -36,6 +37,7 @@ public class SolverTaskTest extends ApplicationTest {
   private static final ExecutorService executor;
   private static final String TITLE = "Title";
   private static final String MESSAGE = "Message";
+  private static final ResourceBundle resources = ResourceBundle.getBundle("lang.tasks");
 
   static {
     final ThreadFactory threadFactory
@@ -101,7 +103,7 @@ public class SolverTaskTest extends ApplicationTest {
 
     // wait until the code above ran on the JavaFX thread
 
-    assertEquals("failed", taskProperties.getMessage());
+    assertEquals(resources.getString("failed"), taskProperties.getMessage());
     assertEquals(TITLE, taskProperties.getTitle());
 
     assertTrue(taskProperties.isDone());
@@ -129,7 +131,7 @@ public class SolverTaskTest extends ApplicationTest {
     } catch (final CancellationException cancellationException) {
       final TaskProperties taskProperties = getTaskProperties(solverTask);
 
-      assertEquals("Task cancelled", taskProperties.getMessage());
+      assertEquals(resources.getString("cancelled"), taskProperties.getMessage());
       assertEquals(TITLE, taskProperties.getTitle());
 
       assertTrue(taskProperties.isDone());
@@ -158,7 +160,7 @@ public class SolverTaskTest extends ApplicationTest {
       fail();
     } catch (final CancellationException cancellationException) {
       final TaskProperties taskProperties = getTaskProperties(solverTask);
-      assertEquals("Task timeout", taskProperties.getMessage());
+      assertEquals(resources.getString("timeout"), taskProperties.getMessage());
       assertEquals(TITLE, taskProperties.getTitle());
 
       assertTrue(taskProperties.isDone());
