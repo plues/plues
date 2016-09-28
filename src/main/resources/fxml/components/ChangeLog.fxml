@@ -9,18 +9,6 @@
          xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <Label text="%persistent" />
-        <TableView fx:id="persistentTable">
-            <columns>
-                <TableColumn fx:id="sessionP" text="%session" sortable="false"
-                             prefWidth="100" resizable="false"/>
-                <TableColumn fx:id="sourceP" text="%source" sortable="false"
-                             prefWidth="150" resizable="false"/>
-                <TableColumn fx:id="targetP" text="%target" sortable="false"
-                             prefWidth="150" resizable="false"/>
-                <TableColumn fx:id="dateP" text="%date" prefWidth="200" resizable="false"/>
-            </columns>
-        </TableView>
         <Label text="%temporary"/>
         <TableView fx:id="tempTable">
             <columns>
@@ -31,6 +19,18 @@
                 <TableColumn fx:id="targetT" text="%target" sortable="false"
                              prefWidth="150" resizable="false"/>
                 <TableColumn fx:id="dateT" text="%date" prefWidth="200" resizable="false"/>
+            </columns>
+        </TableView>
+        <Label text="%persistent" />
+        <TableView fx:id="persistentTable">
+            <columns>
+                <TableColumn fx:id="sessionP" text="%session" sortable="false"
+                prefWidth="100" resizable="false"/>
+                <TableColumn fx:id="sourceP" text="%source" sortable="false"
+                prefWidth="150" resizable="false"/>
+                <TableColumn fx:id="targetP" text="%target" sortable="false"
+                prefWidth="150" resizable="false"/>
+                <TableColumn fx:id="dateP" text="%date" prefWidth="200" resizable="false"/>
             </columns>
         </TableView>
     </children>
