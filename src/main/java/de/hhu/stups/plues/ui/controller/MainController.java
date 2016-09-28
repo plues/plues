@@ -148,12 +148,16 @@ public class MainController implements Initializable {
    */
   @SuppressWarnings("UnusedParameters")
   public final void openFile(final ActionEvent actionEvent) {
-    final String initialDir = preferences.get(LAST_DB_OPEN_DIR, System.getProperty("user.home"));
-    //
     final FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle(resources.getString("openDB"));
-
-    fileChooser.setInitialDirectory(new File(initialDir));
+    //
+    final String initialDirName = preferences.get(LAST_DB_OPEN_DIR,
+        System.getProperty("user.home"));
+    final File initialDir = new File(initialDirName);
+    if (initialDir.isDirectory()) {
+      fileChooser.setInitialDirectory(initialDir);
+    }
+    //
     fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter(
         "SQLite3 Database", "*.sqlite", "*.sqlite3"));
     //
@@ -188,9 +192,14 @@ public class MainController implements Initializable {
     final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
     final String dateTime = dateFormat.format(new Date());
 
-    final String initialDir = preferences.get(LAST_XML_EXPORT_DIR, System.getProperty("user.home"));
     final FileChooser fileChooser = new FileChooser();
-    fileChooser.setInitialDirectory(new File(initialDir));
+    //
+    final File initialDir =
+        new File(preferences.get(LAST_XML_EXPORT_DIR, System.getProperty("user.home")));
+    if (initialDir.isDirectory()) {
+      fileChooser.setInitialDirectory(initialDir);
+    }
+    //
     fileChooser.setInitialFileName("plues_xml_database_" + dateTime + ".zip");
     fileChooser.setTitle(resources.getString("chooser"));
 
