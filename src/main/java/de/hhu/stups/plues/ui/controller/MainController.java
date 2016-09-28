@@ -273,6 +273,7 @@ public class MainController implements Initializable {
     Stage stage = new Stage();
     stage.setTitle(resources.getString("logTitle"));
     stage.setScene(new Scene(log, 600, 600));
+    stage.setResizable(false);
     stage.show();
   }
 
