@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +37,7 @@ public class PdfRenderingTask extends Task<Path> {
   private final SolverTask<FeasibilityResult> solverTask;
 
   private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+  private final ResourceBundle resources;
 
 
   /**
@@ -52,6 +55,7 @@ public class PdfRenderingTask extends Task<Path> {
                              @Assisted final SolverTask<FeasibilityResult> solverTask) {
     this.delayedStore = delayedStore;
     this.delayedSolverService = delayedSolverService;
+    this.resources = ResourceBundle.getBundle("lang.tasks");
     this.major = major;
     this.minor = minor;
     this.solverTask = solverTask;
@@ -59,12 +63,12 @@ public class PdfRenderingTask extends Task<Path> {
 
   @Override
   protected Path call() throws Exception {
-    updateTitle("Rendering PDF");
+    updateTitle(resources.getString("rendering"));
     // we have to read from the task here, the future does not provide a result.
     final SolverService solver = delayedSolverService.get();
     assert solver != null;
 
-    updateMessage("Submit Solver");
+    updateMessage(resources.getString("submit"));
     updateProgress(20, 100);
 
     if (this.isCancelled()) {
@@ -72,7 +76,7 @@ public class PdfRenderingTask extends Task<Path> {
     }
     solver.submit(solverTask);
 
-    updateMessage("Waiting for Solver...");
+    updateMessage(resources.getString("waiting"));
     updateProgress(40, 100);
 
     runTask();
@@ -95,7 +99,7 @@ public class PdfRenderingTask extends Task<Path> {
       updateProgress(percentage, 100);
 
       if (solverTask.isCancelled() || this.isCancelled()) {
-        updateMessage("Task cancelled");
+        updateMessage(resources.getString("cancelled"));
         break;
       }
 
@@ -116,7 +120,7 @@ public class PdfRenderingTask extends Task<Path> {
       throws IOException, ParserConfigurationException, SAXException {
     final Store store = delayedStore.get();
 
-    updateMessage("Rendering");
+    updateMessage(resources.getString("render"));
     updateProgress(60, 100);
 
     final Renderer renderer = getRenderer(store, result);
@@ -125,7 +129,7 @@ public class PdfRenderingTask extends Task<Path> {
 
     final File tmp = getTempFile(renderer);
 
-    updateMessage("Rendering finished");
+    updateMessage(resources.getString("finished"));
     updateProgress(100, 100);
 
     return Paths.get(tmp.getAbsolutePath());

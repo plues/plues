@@ -11,6 +11,7 @@ import javafx.concurrent.Task;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,13 +21,15 @@ public class StoreLoaderTask extends Task<Store> {
   private static final long MAX_STEPS = 3;
   private static final String PLUES = "plues";
   private static final String EXTENSION = ".sqlite3";
+  private final ResourceBundle resources;
 
   private Path dbWorkingPath;
   private final String path;
 
   public StoreLoaderTask(final String storePath) {
     this.path = storePath;
-    updateTitle("Opening Database"); // TODO i18n
+    this.resources = ResourceBundle.getBundle("lang.tasks");
+    updateTitle(resources.getString("dbTitle"));
   }
 
   @Override
@@ -56,12 +59,12 @@ public class StoreLoaderTask extends Task<Store> {
     final Path dbPath = Helpers.expandPath(this.path);
     updateProgress(1, MAX_STEPS);
 
-    updateMessage("Creating a work location"); //TODO: i18n
+    updateMessage(resources.getString("workLocation"));
     dbWorkingPath = Files.createTempFile(PLUES, EXTENSION);
     updateProgress(2, MAX_STEPS);
 
 
-    updateMessage("Copying files to work location"); // TODO: i18n
+    updateMessage(resources.getString("copy"));
     // create a copy of the database to work on
     try {
       Files.copy(dbPath,

@@ -8,6 +8,7 @@ import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import javafx.application.Platform;
 
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
 public class SolverLoaderImpl implements SolverLoader {
@@ -43,8 +44,10 @@ public class SolverLoaderImpl implements SolverLoader {
       final Throwable ex = event.getSource().getException();
       final ExceptionDialog ed = new ExceptionDialog();
 
-      ed.setTitle("Critical Exception");
-      ed.setHeaderText("Solver could not be loaded.");
+      final ResourceBundle resources = ResourceBundle.getBundle("lang.tasks");
+
+      ed.setTitle(resources.getString("edTitle"));
+      ed.setHeaderText(resources.getString("edHeader"));
       ed.setException(ex);
 
       ed.showAndWait();
