@@ -28,31 +28,31 @@ public class ChangeLog extends VBox implements Initializable {
   TableView<Log> persistentTable;
 
   @FXML
-  TableColumn<Log, Session> sessionP;
+  private TableColumn<Log, Session> sessionP;
 
   @FXML
-  TableColumn<Log, String> sourceP;
+  private TableColumn<Log, String> sourceP;
 
   @FXML
-  TableColumn<Log, String> targetP;
+  private TableColumn<Log, String> targetP;
 
   @FXML
-  TableColumn<Log, Date> dateP;
+  private TableColumn<Log, Date> dateP;
 
   @FXML
   TableView<Log> tempTable;
 
   @FXML
-  TableColumn<Log, Session> sessionT;
+  private TableColumn<Log, Session> sessionT;
 
   @FXML
-  TableColumn<Log, String> sourceT;
+  private TableColumn<Log, String> sourceT;
 
   @FXML
-  TableColumn<Log, String> targetT;
+  private TableColumn<Log, String> targetT;
 
   @FXML
-  TableColumn<Log, Date> dateT;
+  private TableColumn<Log, Date> dateT;
 
   private final Delayed<Store> delayedStore;
 
