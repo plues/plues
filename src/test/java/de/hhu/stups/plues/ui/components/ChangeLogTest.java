@@ -32,9 +32,9 @@ public class ChangeLogTest extends ApplicationTest {
   @Test
   public void orderInList() {
     Assert.assertTrue(changeLog.persistentTable.getItems().get(0).getCreatedAt()
-      .compareTo(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() - 1)) == 0);
+        .compareTo(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() - 1)) == 0);
     Assert.assertTrue(changeLog.persistentTable.getItems().get(1).getCreatedAt()
-      .compareTo(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() - 10)) == 0);
+        .compareTo(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() - 10)) == 0);
   }
 
   @Override
