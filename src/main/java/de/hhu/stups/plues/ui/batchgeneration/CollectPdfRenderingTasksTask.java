@@ -14,6 +14,7 @@ import javafx.concurrent.Task;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,7 +38,7 @@ public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
 
   @Override
   protected Set<PdfRenderingTask> call() throws Exception {
-    updateTitle("Preparing generation");
+    updateTitle(ResourceBundle.getBundle("lang.tasks").getString("preparing"));
     final List<Course> majorCourseList = courses.stream()
         .filter(Course::isMajor)
         .collect(Collectors.toList());

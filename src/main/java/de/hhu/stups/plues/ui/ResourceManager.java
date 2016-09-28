@@ -41,10 +41,7 @@ class ResourceManager {
    * @throws InterruptedException thrown if any of the executors throws it.
    */
   void close() throws InterruptedException {
-    final Store store = this.delayedStore.get();
-    if (store != null) {
-      this.delayedStore.get().close();
-    }
+    delayedStore.whenAvailable(Store::close);
     logger.info("Store closed");
 
     this.executorService.shutdown();

@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.MissingResourceException;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,6 +41,7 @@ public class SolverLoaderTask extends Task<Solver> {
   private final SolverFactory solverFactory;
   private final Store store;
   private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+  private final ResourceBundle resources;
   private Path modelDirectory;
 
 
@@ -55,11 +57,12 @@ public class SolverLoaderTask extends Task<Solver> {
   public SolverLoaderTask(final SolverFactory sf,
       final Properties pp, @Assisted final Store store) {
 
+    this.resources = ResourceBundle.getBundle("lang.tasks");
     this.solverFactory = sf;
     this.store = store;
     this.properties = pp;
     this.properties.putIfAbsent("solver", "prob");
-    this.updateTitle("Loading ProB"); // TODO i18n
+    this.updateTitle(resources.getString("solverTitle"));
     this.progressProperty().addListener((observable, oldValue, newValue)
         -> logger.fine(newValue.toString()));
 
@@ -144,24 +147,24 @@ public class SolverLoaderTask extends Task<Solver> {
   @SuppressWarnings("unused")
   private Solver startMockSolver() {
     this.updateProgress(1, 1);
-    this.updateMessage("Starting mock solver");
+    this.updateMessage(resources.getString("startMockSolver"));
     return solverFactory.createMockSolver();
   }
 
   @SuppressWarnings("unused")
   private Solver startProbSolver() throws IOException, BException, SolverException {
     ///
-    this.updateMessage("Prepare models"); // TODO i18n
+    this.updateMessage(resources.getString("prepareModels"));
     this.updateProgress(0, MAX_STEPS);
     //
     this.prepareModels();
     this.updateProgress(1, MAX_STEPS);
     //
-    this.updateMessage("Export data model (this can take a while)"); // TODO i18n
+    this.updateMessage(resources.getString("exportData"));
     this.exportDataModel();
     this.updateProgress(2, MAX_STEPS);
     //
-    this.updateMessage("Init solver (this can take a while)"); // TODO i18n
+    this.updateMessage(resources.getString("initSolver"));
 
     final long start = System.nanoTime();
     final Solver solver = this.initSolver();
@@ -170,7 +173,7 @@ public class SolverLoaderTask extends Task<Solver> {
     this.updateProgress(3, MAX_STEPS);
     logger.info("Loaded solver in " + TimeUnit.NANOSECONDS.toMillis(end - start) + " ms");
     //
-    this.updateMessage("Checking model version"); // TODO i18n
+    this.updateMessage(resources.getString("modelVersion"));
     solver.checkModelVersion((String) this.properties.get("model_version"));
     this.updateProgress(4, MAX_STEPS);
     //
@@ -180,7 +183,7 @@ public class SolverLoaderTask extends Task<Solver> {
   @Override
   protected final void succeeded() {
     super.succeeded();
-    this.updateMessage("Done!"); // TODO i18n
+    this.updateMessage(resources.getString("finished"));
     logger.log(Level.FINE, "loading Solver succeeded");
   }
 

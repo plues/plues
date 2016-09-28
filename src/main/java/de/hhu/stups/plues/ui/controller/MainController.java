@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
@@ -13,6 +14,7 @@ import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
+import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
@@ -22,6 +24,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -69,6 +72,7 @@ public class MainController implements Initializable {
 
   private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
   private final SolverLoaderImpl solverLoader;
+  private final Provider<ChangeLog> changeLogProvider;
 
   @FXML
   private MenuItem openFileMenuItem;
@@ -77,7 +81,11 @@ public class MainController implements Initializable {
   private MenuItem exportStateMenuItem;
 
   @FXML
+  private MenuItem openChangeLog;
+
+  @FXML
   private TaskProgressView<Task<?>> taskProgress;
+  private ResourceBundle resources;
 
   /**
    * MainController component.
@@ -86,12 +94,14 @@ public class MainController implements Initializable {
   public MainController(final Delayed<Store> delayedStore,
                         final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
+                        final Provider<ChangeLog> changeLogProvider,
                         @Named("prob") final ObservableListeningExecutorService probExecutor,
                         final ObservableListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
     this.solverLoader = solverLoader;
     this.properties = properties;
     this.stage = stage;
+    this.changeLogProvider = changeLogProvider;
     this.executor = executorService;
 
     probExecutor.addObserver((observable, arg) -> this.register(arg));
@@ -117,11 +127,16 @@ public class MainController implements Initializable {
   @Override
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
+    this.resources = resources;
 
     this.taskProgress.setGraphicFactory(this::getGraphicForTask);
     this.exportStateMenuItem.setDisable(true);
+    this.openChangeLog.setDisable(true);
 
-    delayedStore.whenAvailable(s -> this.exportStateMenuItem.setDisable(false));
+    delayedStore.whenAvailable(s -> {
+      this.exportStateMenuItem.setDisable(false);
+      this.openChangeLog.setDisable(false);
+    });
 
     if (this.properties.get("dbpath") != null) {
       this.loadData((String) this.properties.get("dbpath"));
@@ -133,12 +148,16 @@ public class MainController implements Initializable {
    */
   @SuppressWarnings("UnusedParameters")
   public final void openFile(final ActionEvent actionEvent) {
-    final String initialDir = preferences.get(LAST_DB_OPEN_DIR, System.getProperty("user.home"));
-    //
     final FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle("Open a Database"); // TODO: i18n
-
-    fileChooser.setInitialDirectory(new File(initialDir));
+    fileChooser.setTitle(resources.getString("openDB"));
+    //
+    final String initialDirName = preferences.get(LAST_DB_OPEN_DIR,
+        System.getProperty("user.home"));
+    final File initialDir = new File(initialDirName);
+    if (initialDir.isDirectory()) {
+      fileChooser.setInitialDirectory(initialDir);
+    }
+    //
     fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter(
         "SQLite3 Database", "*.sqlite", "*.sqlite3"));
     //
@@ -165,30 +184,7 @@ public class MainController implements Initializable {
     final File selectedFile = getXmlExportFile();
 
     if (selectedFile != null) {
-      executor.execute(new Task<Void>() {
-
-        @Override
-        protected Void call() throws Exception {
-
-          updateTitle("Exporting XML");
-          updateProgress(1, 3);
-          updateMessage("Generating .zip file");
-
-          try (ByteArrayOutputStream exportXmlStream = new XmlExporter(delayedStore.get()).export();
-               OutputStream outputStream = new FileOutputStream(selectedFile)) {
-            updateProgress(2, 3);
-
-            updateMessage("Writing .zip file");
-            exportXmlStream.writeTo(outputStream);
-            updateProgress(3, 3);
-            logger.info("Wrote xml export to " + selectedFile.getAbsolutePath());
-
-          } catch (final IOException exception) {
-            showCriticalExceptionDialog(exception, "XML Export Failed");
-          }
-          return null;
-        }
-      });
+      executor.execute(new ExportXmlTask(selectedFile));
     }
   }
 
@@ -196,11 +192,16 @@ public class MainController implements Initializable {
     final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
     final String dateTime = dateFormat.format(new Date());
 
-    final String initialDir = preferences.get(LAST_XML_EXPORT_DIR, System.getProperty("user.home"));
     final FileChooser fileChooser = new FileChooser();
-    fileChooser.setInitialDirectory(new File(initialDir));
+    //
+    final File initialDir =
+        new File(preferences.get(LAST_XML_EXPORT_DIR, System.getProperty("user.home")));
+    if (initialDir.isDirectory()) {
+      fileChooser.setInitialDirectory(initialDir);
+    }
+    //
     fileChooser.setInitialFileName("plues_xml_database_" + dateTime + ".zip");
-    fileChooser.setTitle("Choose the zip file's location");
+    fileChooser.setTitle(resources.getString("chooser"));
 
     final File selectedFile = fileChooser.showSaveDialog(null);
 
@@ -252,7 +253,7 @@ public class MainController implements Initializable {
   private void showCriticalExceptionDialog(final Throwable ex, final String message) {
     final ExceptionDialog ed = new ExceptionDialog();
 
-    ed.setTitle("Critical Exception");
+    ed.setTitle(resources.getString("edTitle"));
     ed.setHeaderText(message);
     ed.setException(ex);
 
@@ -263,7 +264,56 @@ public class MainController implements Initializable {
     exec.submit(task);
   }
 
-  public void submitTask(final Task<?> task) {
+  private void submitTask(final Task<?> task) {
     this.submitTask(task, this.executor);
+  }
+
+  /**
+   * Method to open ChangeLog by clicking on menu item.
+   * @param event event
+   */
+  @FXML
+  public void openChangeLog(ActionEvent event) {
+    ChangeLog log = changeLogProvider.get();
+    Stage stage = new Stage();
+    stage.setTitle(resources.getString("logTitle"));
+    stage.setScene(new Scene(log, 600, 600));
+    stage.setResizable(false);
+    stage.show();
+  }
+
+  private class ExportXmlTask extends Task<Void> {
+
+    private final File selectedFile;
+
+    ExportXmlTask(final File selectedFile) {
+      this.selectedFile = selectedFile;
+    }
+
+    @Override
+    protected Void call() throws Exception {
+
+      updateTitle(resources.getString("export.title"));
+      updateProgress(1, 3);
+      updateMessage(resources.getString("export.gen"));
+
+      writeZipFile();
+      return null;
+    }
+
+    private void writeZipFile() {
+      try (ByteArrayOutputStream exportXmlStream = new XmlExporter(delayedStore.get()).export();
+           OutputStream outputStream = new FileOutputStream(selectedFile)) {
+        updateProgress(2, 3);
+
+        updateMessage(resources.getString("export.write"));
+        exportXmlStream.writeTo(outputStream);
+        updateProgress(3, 3);
+        logger.info("Wrote xml export to " + selectedFile.getAbsolutePath());
+
+      } catch (final IOException exception) {
+        showCriticalExceptionDialog(exception, "XML Export Failed");
+      }
+    }
   }
 }

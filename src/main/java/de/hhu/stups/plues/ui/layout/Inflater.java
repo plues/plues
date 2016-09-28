@@ -2,6 +2,8 @@ package de.hhu.stups.plues.ui.layout;
 
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.ui.exceptions.InflaterException;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
@@ -17,6 +19,7 @@ import java.util.logging.Logger;
 public class Inflater {
 
   private final FXMLLoader loader;
+  private static final String DEFAULT_BUNDLE = "main";
 
   @Inject
   public Inflater(final FXMLLoader loader) {
@@ -26,20 +29,44 @@ public class Inflater {
   /**
    * Inflate a fxml resource as a layout from <tt>/fxml/</tt>.
    *
-   * @param name The name of the xml file without the <tt>.xml</tt> extension.
+   * @param name The name of the xml file without the <tt>.fxml</tt> extension.
+   * @param bundleName The name of the used bundle
+   * @return {@link Parent}
+   */
+  public Parent inflate(final String name, final String bundleName) {
+    return inflate(name, null, null, bundleName);
+  }
+
+  /**
+   * Inflate without root and controller and resource bundle name.
+   * @param name The name of the fxml file without the <tt>.fxml</tt> extension.
    * @return {@link Parent}
    */
   public Parent inflate(final String name) {
-    return inflate(name, null, null);
+    return inflate(name, null, null, DEFAULT_BUNDLE);
+  }
+
+  /**
+   * Inflate wiht default bundle name.
+   * @param name The name of the fxml file without the <tt>.fxml</tt> extension.
+   * @param root optional root node to inflate this layout into
+   * @param controller controller for the fxml file
+   * @return {@link Parent}
+   */
+  public Parent inflate(final String name, final Parent root, final Object controller) {
+    return inflate(name, root, controller, DEFAULT_BUNDLE);
   }
 
   /**
    * Inflate a fxml resource as a layout from <tt>/fxml/</tt>.
    *
-   * @param name The name of the xml file without the <tt>.xml</tt> extension.
+   * @param name The name of the fxml file without the <tt>.fxml</tt> extension.
    * @param root optional root node to inflate this layout into
+   * @param controller controller for the fxml file
+   * @param bundleName Name of the i18n resource to bind
    */
-  public Parent inflate(final String name, final Parent root, final Object controller) {
+  public Parent inflate(final String name, final Parent root,
+                        final Object controller, final String bundleName) {
     // set location explicitly to ensure using the injected fxml loader
     loader.setLocation(getClass().getResource("/fxml/" + name + ".fxml"));
 
@@ -51,7 +78,7 @@ public class Inflater {
       loader.setController(controller);
     }
 
-    final ResourceBundle bundle = ResourceBundle.getBundle("lang.plues", new Locale("de"));
+    ResourceBundle bundle = ResourceBundle.getBundle("lang." + bundleName, new Locale("de"));
     loader.setResources(bundle);
 
     try {
@@ -59,8 +86,7 @@ public class Inflater {
     } catch (final IOException ignored) {
       final Logger logger = Logger.getLogger(getClass().getSimpleName());
       logger.log(Level.SEVERE, "Exception in FXML Loader", ignored);
-      // TODO: kill app!
-      throw new RuntimeException(ignored);
+      throw new InflaterException(ignored);
     }
   }
 }

@@ -6,6 +6,7 @@ import com.google.inject.assistedinject.Assisted;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -44,12 +45,12 @@ public class CheckBoxGroup extends VBox implements Initializable {
   /**
    * Constructor for a group of checkboxes for a given course, a given module and a list of abstract
    * units.
-   * @param loader FXML Loader to load fxml
+   * @param inflater inflater to handle fxml
    * @param course Given course. Should be a major or minor for the choosen course combination
    * @param module Given module. Should be one inside major or minor course
    */
   @Inject
-  public CheckBoxGroup(final FXMLLoader loader,
+  public CheckBoxGroup(final Inflater inflater,
                        @Assisted final Course course,
                        @Assisted final Module module) {
     this.course = course;
@@ -60,16 +61,7 @@ public class CheckBoxGroup extends VBox implements Initializable {
       boxToUnit.put(new CheckBox(), abstractUnit);
     }
 
-    loader.setLocation(getClass().getResource("/fxml/components/CheckBoxGroup.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (final IOException exception) {
-      throw new RuntimeException(exception);
-    }
+    inflater.inflate("components/CheckBoxGroup", this, this);
   }
 
   @Override

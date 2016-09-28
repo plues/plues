@@ -19,8 +19,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -34,6 +36,9 @@ import java.util.concurrent.TimeUnit;
 public class SolverTaskTest extends ApplicationTest {
 
   private static final ExecutorService executor;
+  private static final String TITLE = "Title";
+  private static final String MESSAGE = "Message";
+  private static final ResourceBundle resources = ResourceBundle.getBundle("lang.tasks");
 
   static {
     final ThreadFactory threadFactory
@@ -45,7 +50,7 @@ public class SolverTaskTest extends ApplicationTest {
   public void testCallableIsSuccessful() throws ExecutionException, InterruptedException {
     final CountDownLatch latch = new CountDownLatch(1);
     final SolverTask<Integer> solverTask
-        = new SolverTask<>("Title", "Message", new TestSolver(), () -> 1);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), () -> 1);
     final TaskProperties taskProperties = new TaskProperties();
 
     Platform.runLater(() -> {
@@ -64,8 +69,8 @@ public class SolverTaskTest extends ApplicationTest {
     // wait until the onSucceeded event handler finishes
     latch.await();
 
-    assertEquals("Message", taskProperties.getMessage());
-    assertEquals("Title", taskProperties.getTitle());
+    assertEquals(MESSAGE, taskProperties.getMessage());
+    assertEquals(TITLE, taskProperties.getTitle());
 
     assertTrue(taskProperties.isDone());
 
@@ -79,7 +84,7 @@ public class SolverTaskTest extends ApplicationTest {
       throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>("Title", "Message", new TestSolver(), c);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c);
 
     executor.submit(solverTask);
 
@@ -99,8 +104,8 @@ public class SolverTaskTest extends ApplicationTest {
 
     // wait until the code above ran on the JavaFX thread
 
-    assertEquals("failed", taskProperties.getMessage());
-    assertEquals("Title", taskProperties.getTitle());
+    assertEquals(resources.getString("failed"), taskProperties.getMessage());
+    assertEquals(TITLE, taskProperties.getTitle());
 
     assertTrue(taskProperties.isDone());
     assertEquals(taskProperties.getState(), Worker.State.FAILED);
@@ -115,7 +120,7 @@ public class SolverTaskTest extends ApplicationTest {
       throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>("Title", "Message", new TestSolver(), c);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c);
 
     Platform.runLater(() -> {
       executor.submit(solverTask);
@@ -127,8 +132,8 @@ public class SolverTaskTest extends ApplicationTest {
     } catch (final CancellationException cancellationException) {
       final TaskProperties taskProperties = getTaskProperties(solverTask);
 
-      assertEquals("Task cancelled", taskProperties.getMessage());
-      assertEquals("Title", taskProperties.getTitle());
+      assertEquals(resources.getString("cancelled"), taskProperties.getMessage());
+      assertEquals(TITLE, taskProperties.getTitle());
 
       assertTrue(taskProperties.isDone());
       assertEquals(taskProperties.getState(), Worker.State.CANCELLED);
@@ -145,7 +150,7 @@ public class SolverTaskTest extends ApplicationTest {
       return 1;
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>("Title", "Message", new TestSolver(), c, 3, TimeUnit.SECONDS);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c, 3, TimeUnit.SECONDS);
     executor.submit(solverTask);
 
     try {
@@ -156,8 +161,8 @@ public class SolverTaskTest extends ApplicationTest {
       fail();
     } catch (final CancellationException cancellationException) {
       final TaskProperties taskProperties = getTaskProperties(solverTask);
-      assertEquals("Task timeout", taskProperties.getMessage());
-      assertEquals("Title", taskProperties.getTitle());
+      assertEquals(resources.getString("timeout"), taskProperties.getMessage());
+      assertEquals(TITLE, taskProperties.getTitle());
 
       assertTrue(taskProperties.isDone());
       assertEquals(taskProperties.getState(), Worker.State.CANCELLED);
@@ -185,18 +190,21 @@ public class SolverTaskTest extends ApplicationTest {
 
   @Override
   public void start(final Stage stage) throws Exception {
+    // required by base class
+    // only needed to initialize JavaFX
   }
-
 
   private static class TestSolver implements Solver {
 
     @Override
     public void checkModelVersion(final String expectedVersion) {
-
+      // required by interface
     }
 
     @Override
-    public void interrupt() {}
+    public void interrupt() {
+      // required by interface
+    }
 
     @Override
     public Boolean checkFeasibility(final String... courses) {
@@ -226,12 +234,12 @@ public class SolverTaskTest extends ApplicationTest {
 
     @Override
     public Set<String> getImpossibleCourses() {
-      return null;
+      return Collections.emptySet();
     }
 
     @Override
       public List<Alternative> getLocalAlternatives(final int session, final String... courses) {
-      return null;
+      return Collections.emptyList();
     }
 
     @Override
@@ -304,7 +312,7 @@ public class SolverTaskTest extends ApplicationTest {
   }
 
   private class TestException extends RuntimeException {
-    public TestException(final String message) {
+    TestException(final String message) {
       super(message);
     }
   }
