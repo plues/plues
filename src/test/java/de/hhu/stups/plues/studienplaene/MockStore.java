@@ -234,6 +234,12 @@ public class MockStore implements Store {
     l2.setSession(s);
     l2.setCreatedAt(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() + 1));
 
-    return new ArrayList<>(Arrays.asList(l, l2));
+    final Log l3 = new Log();
+    l3.setSrc("wed1");
+    l3.setTarget("wed2");
+    l3.setSession(s);
+    l3.setCreatedAt(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() - 10));
+
+    return new ArrayList<>(Arrays.asList(l, l2, l3));
   }
 }

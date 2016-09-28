@@ -15,6 +15,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.testfx.framework.junit.ApplicationTest;
 
+import java.lang.management.ManagementFactory;
+import java.util.Date;
+
 @RunWith(JUnit4.class)
 public class ChangeLogTest extends ApplicationTest {
 
@@ -22,8 +25,16 @@ public class ChangeLogTest extends ApplicationTest {
 
   @Test
   public void sizeOfLists() {
+    Assert.assertTrue(changeLog.persistentTable.getItems().size() == 2);
     Assert.assertTrue(changeLog.tempTable.getItems().size() == 1);
-    Assert.assertTrue(changeLog.persistentTable.getItems().size() == 1);
+  }
+
+  @Test
+  public void orderInList() {
+    Assert.assertTrue(changeLog.persistentTable.getItems().get(0).getCreatedAt()
+      .compareTo(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() - 1)) == 0);
+    Assert.assertTrue(changeLog.persistentTable.getItems().get(1).getCreatedAt()
+      .compareTo(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() - 10)) == 0);
   }
 
   @Override
@@ -34,7 +45,7 @@ public class ChangeLogTest extends ApplicationTest {
     delayed.set(store);
     changeLog = new ChangeLog(inflater, delayed);
 
-    final Scene scene = new Scene(changeLog, 200, 200);
+    final Scene scene = new Scene(changeLog, 600, 600);
     stage.setScene(scene);
     stage.show();
   }
