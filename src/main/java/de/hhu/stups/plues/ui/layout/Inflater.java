@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class Inflater {
 
   private final FXMLLoader loader;
-  private static final String DEFAULT_BUNDLE = "plues";
+  private static final String DEFAULT_BUNDLE = "main";
 
   @Inject
   public Inflater(final FXMLLoader loader) {

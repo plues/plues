@@ -151,7 +151,7 @@ public class MainController implements Initializable {
     final String initialDir = preferences.get(LAST_DB_OPEN_DIR, System.getProperty("user.home"));
     //
     final FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle("Open a Database"); // TODO: i18n
+    fileChooser.setTitle(resources.getString("openDB"));
 
     fileChooser.setInitialDirectory(new File(initialDir));
     fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter(
@@ -192,7 +192,7 @@ public class MainController implements Initializable {
     final FileChooser fileChooser = new FileChooser();
     fileChooser.setInitialDirectory(new File(initialDir));
     fileChooser.setInitialFileName("plues_xml_database_" + dateTime + ".zip");
-    fileChooser.setTitle("Choose the zip file's location");
+    fileChooser.setTitle(resources.getString("chooser"));
 
     final File selectedFile = fileChooser.showSaveDialog(null);
 
@@ -244,7 +244,7 @@ public class MainController implements Initializable {
   private void showCriticalExceptionDialog(final Throwable ex, final String message) {
     final ExceptionDialog ed = new ExceptionDialog();
 
-    ed.setTitle("Critical Exception");
+    ed.setTitle(resources.getString("edTitle"));
     ed.setHeaderText(message);
     ed.setException(ex);
 
