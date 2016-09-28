@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
@@ -75,6 +76,7 @@ public class MainController implements Initializable {
 
   private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
   private final SolverLoaderImpl solverLoader;
+  private final Provider<ChangeLog> provider;
 
   @FXML
   private MenuItem openFileMenuItem;
@@ -96,12 +98,14 @@ public class MainController implements Initializable {
   public MainController(final Delayed<Store> delayedStore,
                         final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
+                        final Provider<ChangeLog> provider,
                         @Named("prob") final ObservableListeningExecutorService probExecutor,
                         final ObservableListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
     this.solverLoader = solverLoader;
     this.properties = properties;
     this.stage = stage;
+    this.provider = provider;
     this.executor = executorService;
 
     probExecutor.addObserver((observable, arg) -> this.register(arg));
@@ -265,8 +269,7 @@ public class MainController implements Initializable {
    */
   @FXML
   public void openChangeLog(ActionEvent event) {
-    Inflater inflater = new Inflater(new FXMLLoader());
-    ChangeLog log = new ChangeLog(inflater, delayedStore);
+    ChangeLog log = provider.get();
     Stage stage = new Stage();
     stage.setTitle(resources.getString("logTitle"));
     stage.setScene(new Scene(log, 600, 600));
