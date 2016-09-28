@@ -16,18 +16,14 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
-import de.hhu.stups.plues.ui.exceptions.InflaterException;
-import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
@@ -76,7 +72,7 @@ public class MainController implements Initializable {
 
   private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
   private final SolverLoaderImpl solverLoader;
-  private final Provider<ChangeLog> provider;
+  private final Provider<ChangeLog> changeLogProvider;
 
   @FXML
   private MenuItem openFileMenuItem;
@@ -98,14 +94,14 @@ public class MainController implements Initializable {
   public MainController(final Delayed<Store> delayedStore,
                         final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
-                        final Provider<ChangeLog> provider,
+                        final Provider<ChangeLog> changeLogProvider,
                         @Named("prob") final ObservableListeningExecutorService probExecutor,
                         final ObservableListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
     this.solverLoader = solverLoader;
     this.properties = properties;
     this.stage = stage;
-    this.provider = provider;
+    this.changeLogProvider = changeLogProvider;
     this.executor = executorService;
 
     probExecutor.addObserver((observable, arg) -> this.register(arg));
@@ -269,7 +265,7 @@ public class MainController implements Initializable {
    */
   @FXML
   public void openChangeLog(ActionEvent event) {
-    ChangeLog log = provider.get();
+    ChangeLog log = changeLogProvider.get();
     Stage stage = new Stage();
     stage.setTitle(resources.getString("logTitle"));
     stage.setScene(new Scene(log, 600, 600));
