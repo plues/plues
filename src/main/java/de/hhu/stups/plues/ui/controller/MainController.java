@@ -284,9 +284,9 @@ public class MainController implements Initializable {
     @Override
     protected Void call() throws Exception {
 
-      updateTitle("Exporting XML");
+      updateTitle(resources.getString("export.title"));
       updateProgress(1, 3);
-      updateMessage("Generating .zip file");
+      updateMessage(resources.getString("export.gen"));
 
       writeZipFile();
       return null;
@@ -297,7 +297,7 @@ public class MainController implements Initializable {
            OutputStream outputStream = new FileOutputStream(selectedFile)) {
         updateProgress(2, 3);
 
-        updateMessage("Writing .zip file");
+        updateMessage(resources.getString("export.write"));
         exportXmlStream.writeTo(outputStream);
         updateProgress(3, 3);
         logger.info("Wrote xml export to " + selectedFile.getAbsolutePath());
