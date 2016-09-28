@@ -210,7 +210,7 @@ public class MockStore implements Store {
   }
 
   @Override
-  public List<Log> getLog() {
+  public List<Log> getLogEntries() {
     final Unit u = new Unit();
     u.setTitle("Test");
     u.setId(10);

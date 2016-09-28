@@ -82,7 +82,7 @@ public class ChangeLog extends VBox implements Initializable {
     dateT.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
     delayedStore.whenAvailable(store -> {
-      List<Log> logs = store.getLog();
+      List<Log> logs = store.getLogEntries();
       Date compare = new Date(ManagementFactory.getRuntimeMXBean().getStartTime());
       persistentTable.getItems().addAll(logs.stream()
           .filter(log -> log.getCreatedAt().compareTo(compare) < 0)
