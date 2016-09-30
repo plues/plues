@@ -17,6 +17,8 @@ import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
 
+import javafx.beans.property.ReadOnlyMapProperty;
+import javafx.beans.property.ReadOnlyMapWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
@@ -42,8 +44,7 @@ public class ProBSolver implements Solver {
   private final StateSpace stateSpace;
   private final SolverCache solverResultCache;
   private final SolverCache operationExecutionCache;
-  // Todo: use ReadOnlyMapProperty
-  private final ObservableMap<String, Boolean> courseCombinationResults;
+  private final ReadOnlyMapProperty<String, Boolean> courseCombinationResults;
   private Trace trace;
 
   private final Logger logger = Logger.getLogger(getClass().getSimpleName());
@@ -61,7 +62,7 @@ public class ProBSolver implements Solver {
       .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
     this.solverResultCache = new SolverCache(100);
     this.operationExecutionCache = new SolverCache(100);
-    this.courseCombinationResults = FXCollections.observableHashMap();
+    this.courseCombinationResults = new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
 
     final long t3 =  System.nanoTime();
     this.trace = traceFrom(stateSpace);
