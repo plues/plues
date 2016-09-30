@@ -7,6 +7,8 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.batchgeneration.BatchFeasibilityTask;
+import de.hhu.stups.plues.ui.batchgeneration.CollectFeasibilityTasksTasks;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -34,7 +36,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -107,8 +108,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   private Pane paneLegendInfeasible;
 
-  private Task<Void> prepareFeasibilityCheck;
-  private Task<Void> executeFeasibilityCheck;
+  private Task<Set<SolverTask<Boolean>>> prepareFeasibilityCheck;
+  private BatchFeasibilityTask executeFeasibilityCheck;
   private Set<String> impossibleCourses;
 
 
@@ -151,21 +152,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
       executor.submit(impossibleCoursesTask);
 
       courseCombinationResults = solverService.getCourseCombinationResults();
-      courseCombinationResults.addListener(new MapChangeListener<String, Boolean>() {
-        @Override
-        public void onChanged(Change<? extends String, ? extends Boolean> change) {
-          if (change.wasAdded()) {
-            if (change.getKey().split(";").length == 2) {
-              gridPaneCombinableAddElm(change.getKey(), change.getValueAdded());
-            } else {
-              gridPaneStandaloneAddElm(change.getKey(), change.getValueAdded());
-            }
-          } else {
-            // discard all if a session has been moved
-            gridPaneCombinable.getChildren().clear();
-          }
-        }
-      });
+      courseCombinationResults.addListener(getMapChangeListener());
       solverProperty.set(true);
     });
 
@@ -260,44 +247,17 @@ public class ConflictMatrix extends GridPane implements Initializable {
             getDefaultGridCellPane(""), index, 1));
   }
 
+  /**
+   * Action of button {@link ConflictMatrix#btCheckAll} to check the feasibility of all
+   * combinations.
+   */
   @FXML
   @SuppressWarnings("unused")
   public void checkAllCombinations() {
     feasibilityCheckRunning.setValue(true);
-    prepareFeasibilityCheck = new Task<Void>() {
-      @Override
-      protected Void call() throws Exception {
-        updateTitle("Preparing feasibility check");
-        checkFeasibilityTasks = getAllFeasibilityTasks();
-        return null;
-      }
-    };
+    prepareFeasibilityCheck = new CollectFeasibilityTasksTasks(
+        delayedSolverService.get(), majorCourses, minorCourses, standaloneCourses);
 
-    // Todo: refactor the following code
-    executeFeasibilityCheck = new Task<Void>() {
-      @Override
-      protected Void call() throws Exception {
-        updateTitle("Checking feasibility");
-        final List<Future<?>> futurePool
-            = checkFeasibilityTasks.stream().map(executor::submit).collect(Collectors.toList());
-
-        final long totalTasks = futurePool.size();
-
-        long finishedTasks;
-        do {
-          finishedTasks = futurePool.stream().filter(Future::isDone).count();
-          updateProgress(finishedTasks, totalTasks);
-
-          if (isCancelled()) {
-            updateMessage("Cancelled");
-            break;
-          }
-        }
-        while (totalTasks != finishedTasks);
-
-        return null;
-      }
-    };
 
     prepareFeasibilityCheck.setOnCancelled(event -> {
       feasibilityCheckRunning.setValue(false);
@@ -309,7 +269,13 @@ public class ConflictMatrix extends GridPane implements Initializable {
       checkFeasibilityTasks.clear();
     });
 
-    prepareFeasibilityCheck.setOnSucceeded(event -> executor.submit(executeFeasibilityCheck));
+    prepareFeasibilityCheck.setOnSucceeded(event -> {
+      checkFeasibilityTasks.addAll(prepareFeasibilityCheck.getValue());
+      executeFeasibilityCheck.setTasks(checkFeasibilityTasks);
+      executor.submit(executeFeasibilityCheck);
+    });
+
+    executeFeasibilityCheck = new BatchFeasibilityTask(executor, checkFeasibilityTasks);
 
     executeFeasibilityCheck.setOnCancelled(event -> {
       checkFeasibilityTasks.forEach(task -> {
@@ -334,6 +300,10 @@ public class ConflictMatrix extends GridPane implements Initializable {
     executor.submit(prepareFeasibilityCheck);
   }
 
+  /**
+   * Action of button {@link ConflictMatrix#btCancelCheckAll} to cancel the batch feasibility
+   * check.
+   */
   @FXML
   @SuppressWarnings("unused")
   public void cancelCheckAll() {
@@ -407,7 +377,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
     Label label = new Label();
     label.prefWidthProperty().bind(pane.widthProperty());
     label.prefHeightProperty().bind(pane.heightProperty());
-    Tooltip tooltip = new Tooltip("The course " + courseName + " is statically\nknown to be infeasible.");
+    Tooltip tooltip = new Tooltip("The course " + courseName + " is"
+        + "\nstatically known to be infeasible.");
     label.setTooltip(tooltip);
     pane.getChildren().add(label);
 
@@ -476,29 +447,18 @@ public class ConflictMatrix extends GridPane implements Initializable {
     Platform.runLater(() -> gridPaneStandalone.add(getActiveGridCellPane(result), col, 1));
   }
 
-  /**
-   * Create tasks for each combination of major and minor course as well as for each standalone
-   * course to check their feasibility.
-   *
-   * @return Return a set of check feasibility solver tasks.
-   */
-  private Set<SolverTask<Boolean>> getAllFeasibilityTasks() {
-    // Todo: source out to own class within batchgeneration
-    SolverService solverService = delayedSolverService.get();
-    Set<SolverTask<Boolean>> feasibilityTasks = new HashSet<>();
-    for (Course majorCourse : majorCourses) {
-      if (!majorCourse.isCombinable()) {
-        feasibilityTasks.add(solverService.checkFeasibilityTask(majorCourse));
+  private MapChangeListener<String, Boolean> getMapChangeListener() {
+    return change -> {
+      if (change.wasAdded()) {
+        if (change.getKey().split(";").length == 2) {
+          gridPaneCombinableAddElm(change.getKey(), change.getValueAdded());
+        } else {
+          gridPaneStandaloneAddElm(change.getKey(), change.getValueAdded());
+        }
       } else {
-        minorCourses.forEach(minorCourse -> {
-          if (!majorCourse.getShortName().equals(minorCourse.getShortName())) {
-            feasibilityTasks.add(solverService.checkFeasibilityTask(majorCourse, minorCourse));
-          }
-        });
+        // discard all if a session has been moved
+        gridPaneCombinable.getChildren().clear();
       }
-    }
-    standaloneCourses.forEach(
-        course -> feasibilityTasks.add(solverService.checkFeasibilityTask(course)));
-    return feasibilityTasks;
+    };
   }
 }
