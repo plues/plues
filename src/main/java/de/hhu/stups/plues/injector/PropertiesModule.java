@@ -4,7 +4,6 @@ import static java.lang.Thread.currentThread;
 
 import com.google.inject.AbstractModule;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -17,7 +16,7 @@ class PropertiesModule extends AbstractModule {
     final Properties defaults = new Properties();
     final Properties properties = loadProperties(defaults, "main", "local");
 
-    // settings that can be overriden in env vars
+    // settings that can be overridden in env vars
     final String[] env = new String[] {"MODELPATH", "DBPATH"};
 
     for (final String it : env) {

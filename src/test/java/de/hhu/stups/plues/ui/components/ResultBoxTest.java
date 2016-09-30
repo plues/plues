@@ -7,13 +7,12 @@ import static org.testfx.api.FxAssert.verifyThat;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 
+import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -30,14 +29,15 @@ import java.util.concurrent.TimeUnit;
 
 
 public abstract class ResultBoxTest extends ApplicationTest {
-  private Course major;
-  private Course minor;
+  private final Course major;
+  private final Course minor;
   private Text icon;
   private PdfRenderingTask task;
 
   /**
    * Default constructor.
    */
+  @SuppressWarnings("WeakerAccess")
   public ResultBoxTest() {
     this.major = new Course();
     major.setLongName("Major Course");
@@ -82,10 +82,12 @@ public abstract class ResultBoxTest extends ApplicationTest {
     final SolverService solverService = mock(SolverService.class);
     when(solverService.computeFeasibilityTask(anyVararg())).thenReturn(mock(SolverTask.class));
 
-    Delayed<SolverService> solver = new Delayed<>();
+    final Delayed<SolverService> solver = new Delayed<>();
+    final Inflater inflater = new Inflater(new FXMLLoader());
+
     solver.set(solverService);
     final ResultBox resultBox = new ResultBox(
-        new FXMLLoader(), solver, (major1, minor1, solverTask) -> task,
+        inflater, solver, (major1, minor1, solverTask) -> task,
         Executors.newSingleThreadExecutor(), major, minor, new VBox());
 
     final Scene scene = new Scene(resultBox, 200, 200);
@@ -97,7 +99,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
     this.icon = icon;
   }
 
-  public void setTask(PdfRenderingTask task) {
+  void setTask(final PdfRenderingTask task) {
     this.task = task;
   }
 }

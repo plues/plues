@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -61,10 +62,12 @@ public class TestRenderer {
 
   @Test
   public void testItWorksForColor() throws IOException, ParserConfigurationException, SAXException {
-    final Renderer pdf = new Renderer(store, groupChoice, semesterChoice,
+    final Renderer renderer = new Renderer(store, groupChoice, semesterChoice,
         moduleChoice, course, ColorChoice.COLOR);
-    final ByteArrayOutputStream result = pdf.getResult();
-    try (FileOutputStream outputStream = new FileOutputStream("/tmp/foo.pdf")) {
+    final ByteArrayOutputStream result = renderer.getResult();
+
+    File pdf = File.createTempFile("color", ".pdf");
+    try (FileOutputStream outputStream = new FileOutputStream(pdf.getAbsoluteFile())) {
       result.writeTo(outputStream);
     }
     assertNotNull(result);
@@ -73,10 +76,12 @@ public class TestRenderer {
   @Test
   public void testItWorksForGrayscale()
       throws IOException, ParserConfigurationException, SAXException {
-    final Renderer pdf = new Renderer(store, groupChoice, semesterChoice,
+    final Renderer renderer = new Renderer(store, groupChoice, semesterChoice,
         moduleChoice, course, ColorChoice.GRAYSCALE);
-    final ByteArrayOutputStream result = pdf.getResult();
-    try (FileOutputStream stream = new FileOutputStream("/tmp/gray.pdf")) { //TODO
+    final ByteArrayOutputStream result = renderer.getResult();
+
+    File pdf = File.createTempFile("gray", ".pdf");
+    try (FileOutputStream stream = new FileOutputStream(pdf.getAbsoluteFile())) {
       result.writeTo(stream);
     }
     assertNotNull(result);

@@ -18,6 +18,7 @@ import javafx.collections.ObservableMap;
 
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -131,8 +132,13 @@ public class SolverService {
         () -> solver.getLocalAlternatives(session.getId(), names));
   }
 
+  /**
+   * Create solver task to handle impossible singleton courses.
+   * @return SolverTask
+   */
   public SolverTask<Set<String>> impossibleCoursesTask() {
-    return new SolverTask<>("Collecting impossible courses", "Impossible",
+    final ResourceBundle resources = ResourceBundle.getBundle("lang.tasks");
+    return new SolverTask<>("Collecting impossible courses", resources.getString("impossible"),
       solver, solver::getImpossibleCourses);
   }
 

@@ -19,6 +19,7 @@ public class Alternative {
     return day;
   }
 
+  @Override
   public String toString() {
     return "Alternative(" + this.day + ", " + this.slot + ")";
   }

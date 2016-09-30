@@ -113,12 +113,17 @@ public class PdfRenderingHelper {
     final String documentName;
     documentName = getDocumentName(majorCourse, minorCourse);
 
-    final Preferences preferences = Preferences.userNodeForPackage(PdfRenderingHelper.class);
-    final String initialDirectory = preferences.get(PDF_SAVE_DIR, System.getProperty("user.home"));
-
     final FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle("Choose the pdf file's location");
-    fileChooser.setInitialDirectory(new File(initialDirectory));
+    //
+    final Preferences preferences = Preferences.userNodeForPackage(PdfRenderingHelper.class);
+    final File initialDirectory = new File(
+        preferences.get(PDF_SAVE_DIR, System.getProperty("user.home")));
+
+    if (initialDirectory.isDirectory()) {
+      fileChooser.setInitialDirectory(initialDirectory);
+    }
+    //
     fileChooser.setInitialFileName(documentName);
     fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
 

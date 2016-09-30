@@ -25,6 +25,7 @@ public class Delayed<T> implements Provider<T> {
   /**
    * Register a consumer executed once the deleyaed object has been set, or immediately if it was
    * aleready set.
+   *
    * @param consumer Consumer
    */
   public final synchronized void whenAvailable(final Consumer<T> consumer) {
@@ -37,6 +38,7 @@ public class Delayed<T> implements Provider<T> {
 
   /**
    * Set the delayed object to the passed value and trigger registered.
+   *
    * @param instance of type T
    */
   public final synchronized void set(final T instance) {
@@ -49,10 +51,12 @@ public class Delayed<T> implements Provider<T> {
 
   /**
    * Read the delayed values, assuming it has been set.
+   *
    * @return T the value stored in the instance.
    * @throws NullPointerException if the object has not been set.
    */
-  public final synchronized T get() throws NullPointerException {
+  @Override
+  public final synchronized T get() {
     if (this.instance == null) {
       throw new NullPointerException("Delayed object has not been initialized yet");
     }

@@ -26,6 +26,7 @@ import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
+
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 

@@ -2,6 +2,7 @@ package de.hhu.stups.plues.injector;
 
 import com.google.inject.AbstractModule;
 
+import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.CourseFilter;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
@@ -19,6 +20,7 @@ class ComponentsModule extends AbstractModule {
     bind(PartialTimeTables.class);
     bind(MajorMinorCourseSelection.class);
     bind(Timetable.class);
+    bind(ChangeLog.class);
     bind(ConflictMatrix.class);
   }
 }

@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.hhu.stups.plues.prob.Solver;
 import javafx.concurrent.Task;
 
+import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -44,9 +45,10 @@ public class SolverTask<T> extends Task<T> {
   private final Solver solver;
   private final TimeUnit timeUnit;
   private final int timeout;
+  private final ResourceBundle resources;
   private ListenableFuture<T> future;
   private ListenableScheduledFuture<?> timer;
-  private String reason = "Task cancelled";
+  private String reason;
 
   SolverTask(final String title, final String message, final Solver solver,
              final Callable<T> func) {
@@ -59,6 +61,9 @@ public class SolverTask<T> extends Task<T> {
     this.solver = solver;
     this.timeout = timeout;
     this.timeUnit = timeUnit;
+
+    this.resources = ResourceBundle.getBundle("lang.tasks");
+    this.reason = resources.getString("cancelled");
 
     updateTitle(title);
     updateMessage(message);
@@ -94,7 +99,7 @@ public class SolverTask<T> extends Task<T> {
       }
       if (future.isCancelled()) {
         logger.info("future cancelled");
-        updateMessage("ProB exited");
+        updateMessage(resources.getString("probExit"));
         this.cancel();
         return null;
       }
@@ -119,7 +124,7 @@ public class SolverTask<T> extends Task<T> {
 
   private void timeOut() {
     logger.info("Timeout");
-    this.reason = "Task timeout";
+    this.reason = resources.getString("timeout");
     this.cancel();
   }
 
@@ -147,7 +152,7 @@ public class SolverTask<T> extends Task<T> {
     logger.info("succeeded handler");
     super.succeeded();
 
-    updateMessage("Done!");
+    updateMessage(resources.getString("finished"));
     final T i = this.getValue();
     logger.info("Result: " + i.toString());
   }
@@ -155,7 +160,7 @@ public class SolverTask<T> extends Task<T> {
   @Override
   protected void failed() {
     logger.info("failed handler");
-    updateMessage("failed");
+    updateMessage(resources.getString("failed"));
 
     if (timer != null) {
       timer.cancel(true);

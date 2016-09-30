@@ -20,33 +20,35 @@
       prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="de.hhu.stups.plues.ui.controller.MainController">
     <MenuBar useSystemMenuBar="true" BorderPane.alignment="CENTER">
-        <Menu mnemonicParsing="false" text="File">
+        <Menu mnemonicParsing="false" text="%file">
             <MenuItem fx:id="openFileMenuItem" onAction="#openFile"
-                      mnemonicParsing="false" text="Open"/>
+                      mnemonicParsing="false" text="%open"/>
             <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"
-                      mnemonicParsing="false" text="Export Saved State"/>
-            <MenuItem mnemonicParsing="false" text="Close"/>
+                      mnemonicParsing="false" text="%export"/>
+            <MenuItem fx:id="openChangeLog" onAction="#openChangeLog"
+                      mnemonicParsing="false" text="%log"/>
+            <MenuItem mnemonicParsing="false" text="%close"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="Edit">
-            <MenuItem mnemonicParsing="false" text="Delete"/>
+        <Menu mnemonicParsing="false" text="%edit">
+            <MenuItem mnemonicParsing="false" text="%delete"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="Help">
-            <MenuItem mnemonicParsing="false" text="About"/>
+        <Menu mnemonicParsing="false" text="%help">
+            <MenuItem mnemonicParsing="false" text="%about"/>
         </Menu>
     </MenuBar>
     <BorderPane>
         <center>
             <TabPane>
-                <Tab text="Partial Timetables" closable="false">
+                <Tab text="%partial" closable="false">
                     <PartialTimeTables fx:id="partialTimetables"/>
                 </Tab>
-                <Tab text="Musterstudienplaene" closable="false">
+                <Tab text="%musterstudienplaene" closable="false">
                     <Musterstudienplaene fx:id="musterstudienplaene"/>
                 </Tab>
-                <Tab text="Timetable" closable="false">
+                <Tab text="%timetable" closable="false">
                     <Timetable fx:id="timetable"/>
                 </Tab>
-                <Tab text="Batch Timetable Generation" closable="false">
+                <Tab text="%batch" closable="false">
                     <BatchTimetableGeneration fx:id="batchTimetableGeneration"/>
                 </Tab>
                 <Tab text="Conflict Matrix" closable="false">
