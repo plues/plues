@@ -4,8 +4,6 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 
-import sun.security.tools.keytool.Resources;
-
 import javafx.concurrent.Task;
 
 import java.util.HashSet;
@@ -32,7 +30,7 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
     this.majorCourses = majorCourses;
     this.minorCourses = minorCourses;
     this.standaloneCourses = standaloneCourses;
-    this.resources = Resources.getBundle("lang.conflictMatrix");
+    this.resources = ResourceBundle.getBundle("lang.conflictMatrix");
   }
 
 
