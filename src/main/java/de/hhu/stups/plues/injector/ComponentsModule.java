@@ -7,6 +7,7 @@ import de.hhu.stups.plues.ui.components.CourseFilter;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
 import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration;
+import de.hhu.stups.plues.ui.controller.ConflictMatrix;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
 import de.hhu.stups.plues.ui.controller.PartialTimeTables;
 
@@ -20,5 +21,6 @@ class ComponentsModule extends AbstractModule {
     bind(MajorMinorCourseSelection.class);
     bind(Timetable.class);
     bind(ChangeLog.class);
+    bind(ConflictMatrix.class);
   }
 }

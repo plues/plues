@@ -1,5 +1,8 @@
 package de.hhu.stups.plues.prob;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 public class MockSolver implements Solver {
 
@@ -81,4 +85,10 @@ public class MockSolver implements Solver {
   public String getModelVersion() throws SolverException {
     return "";
   }
+
+  @Override
+  public final ObservableMap<String, Boolean> getCourseCombinationResults() {
+    return FXCollections.observableHashMap();
+  }
+
 }

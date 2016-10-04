@@ -14,12 +14,15 @@ import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.Solver;
 
+import javafx.collections.ObservableMap;
+
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
+
 
 public class SolverService {
   private final ExecutorService executor;
@@ -164,5 +167,9 @@ public class SolverService {
   @SuppressWarnings("unchecked")
   public <T> ListenableFuture<T>  submit(final SolverTask<T> command) {
     return (ListenableFuture<T>) this.executor.submit(command);
+  }
+
+  public final ObservableMap<String, Boolean> getCourseCombinationResults() {
+    return this.solver.getCourseCombinationResults();
   }
 }

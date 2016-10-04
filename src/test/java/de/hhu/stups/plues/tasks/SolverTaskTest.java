@@ -12,6 +12,7 @@ import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverException;
 import javafx.application.Platform;
+import javafx.collections.ObservableMap;
 import javafx.concurrent.Worker;
 import javafx.stage.Stage;
 import org.junit.Ignore;
@@ -243,6 +244,11 @@ public class SolverTaskTest extends ApplicationTest {
 
     @Override
     public String getModelVersion() {
+      return null;
+    }
+
+    @Override
+    public final ObservableMap<String, Boolean> getCourseCombinationResults() {
       return null;
     }
   }
