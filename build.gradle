@@ -52,7 +52,7 @@ dependencies {
     compile 'org.jtwig:jtwig-core:5.58'
 
     compile group: 'org.fxmisc.easybind', name: 'easybind', version: '1.0.3'
-    compile group:'de.hhu.stups', name:'de.prob2.kernel', version:'2.0.3-SNAPSHOT'
+    compile group:'de.hhu.stups', name:'de.prob2.kernel', version:'2.0.3'
 
     compile 'com.google.inject.extensions:guice-assistedinject:4.1.0'
 

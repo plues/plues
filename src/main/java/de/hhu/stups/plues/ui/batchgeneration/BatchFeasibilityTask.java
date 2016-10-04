@@ -5,23 +5,27 @@ import javafx.concurrent.Task;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> {
   private final ExecutorService executor;
+  private final ResourceBundle resources;
   private Collection<SolverTask<Boolean>> tasks;
 
   public BatchFeasibilityTask(final ExecutorService executor,
                               final Collection<SolverTask<Boolean>> tasks) {
     this.executor = executor;
     this.tasks = tasks;
+    this.resources = ResourceBundle.getBundle("lang.conflictMatrix");
+
   }
 
   @Override
   protected Collection<SolverTask<Boolean>> call() throws Exception {
-    updateTitle("Checking all feasibilities");
+    updateTitle(resources.getString("checkAllMsg"));
     final List<Future<?>> futurePool
         = tasks.stream().map(executor::submit).collect(Collectors.toList());
 
@@ -33,7 +37,7 @@ public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> 
       updateProgress(finishedTasks, totalTasks);
 
       if (isCancelled()) {
-        updateMessage("Cancelled");
+        updateMessage(resources.getString("cancelAllMsg"));
         break;
       }
 
