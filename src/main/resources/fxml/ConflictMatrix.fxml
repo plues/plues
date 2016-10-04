@@ -12,16 +12,16 @@
 <fx:root prefWidth="800.0" prefHeight="500.0" alignment="center" type="javafx.scene.layout.GridPane"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <Label fx:id="lbHeader" text="Visualisation of all currently known results"
+        <Label fx:id="lbHeader" text="%header"
                GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.halignment="CENTER"
                GridPane.valignment="CENTER"/>
-        <Label fx:id="lbCombinableCourses" text="Combinable courses" GridPane.columnIndex="0"
+        <Label fx:id="lbCombinableCourses" text="%headCombinable" GridPane.columnIndex="0"
                GridPane.halignment="CENTER" GridPane.rowIndex="1"/>
         <ScrollPane fx:id="scrollPaneCombinable" prefWidth="Infinity" prefHeight="Infinity"
                     GridPane.columnIndex="0" GridPane.rowIndex="2">
             <GridPane fx:id="gridPaneCombinable"/>
         </ScrollPane>
-        <Label fx:id="lbStandaloneCourses" text="Standalone courses" GridPane.columnIndex="0"
+        <Label fx:id="lbStandaloneCourses" text="%headStandalone" GridPane.columnIndex="0"
                GridPane.halignment="CENTER" GridPane.rowIndex="3"/>
         <ScrollPane fx:id="scrollPaneStandalone" prefWidth="Infinity" prefHeight="Infinity"
                     GridPane.columnIndex="0"
@@ -31,24 +31,22 @@
         <HBox fx:id="boxLegend" GridPane.columnIndex="0" GridPane.rowIndex="6" spacing="10.0">
             <Pane fx:id="paneLegendSuccess" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
                   minHeight="25.0"/>
-            <Label fx:id="lbLegendSuccess" text="The course is feasible." wrapText="true"/>
+            <Label fx:id="lbLegendSuccess" text="%legendSuccess" wrapText="true"/>
             <Pane fx:id="paneLegendFailure" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
                   minHeight="25.0"/>
-            <Label fx:id="lbLegendFailure" text="The course is infeasible." wrapText="true"/>
+            <Label fx:id="lbLegendFailure" text="%legendFailure" wrapText="true"/>
             <Pane fx:id="paneLegendInfeasible" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
                   minHeight="25.0"/>
-            <Label fx:id="lbLegendInfeasible"
-                   text="The course is statically known to be infeasible." wrapText="true"/>
+            <Label fx:id="lbLegendInfeasible" text="%legendInfeasible" wrapText="true"/>
             <Pane fx:id="paneLegendImpossible" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
                   minHeight="25.0"/>
-            <Label fx:id="lbLegendImpossible"
-                   text="Impossible due to the same major and minor course." wrapText="true"/>
+            <Label fx:id="lbLegendImpossible" text="%legendImpossible" wrapText="true"/>
         </HBox>
         <HBox prefHeight="Infinity" prefWidth="Infinity" alignment="CENTER"
               GridPane.columnIndex="0" GridPane.rowIndex="7">
             <Button fx:id="btCheckAll" onAction="#checkAllCombinations"
-                    text="Check all combinations"/>
-            <Button fx:id="btCancelCheckAll" onAction="#cancelCheckAll" text="Cancel"/>
+                    text="%checkAll"/>
+            <Button fx:id="btCancelCheckAll" onAction="#cancelCheckAll" text="%cancelCheckAll"/>
         </HBox>
     </children>
     <columnConstraints>

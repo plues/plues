@@ -9,6 +9,7 @@ import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.batchgeneration.BatchFeasibilityTask;
 import de.hhu.stups.plues.ui.batchgeneration.CollectFeasibilityTasksTasks;
+import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -111,6 +112,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private Task<Set<SolverTask<Boolean>>> prepareFeasibilityCheck;
   private BatchFeasibilityTask executeFeasibilityCheck;
   private Set<String> impossibleCourses;
+  private ResourceBundle resources;
 
 
   /**
@@ -122,7 +124,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
    * @param delayedSolverService SolverService for usage of ProB solver
    */
   @Inject
-  public ConflictMatrix(final FXMLLoader loader, final Delayed<Store> delayedStore,
+  public ConflictMatrix(final Inflater inflater, final FXMLLoader loader,
+                        final Delayed<Store> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final ExecutorService executorService) {
     this.delayedSolverService = delayedSolverService;
@@ -156,16 +159,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
       solverProperty.set(true);
     });
 
-    loader.setLocation(getClass().getResource("/fxml/ConflictMatrix.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (final IOException exception) {
-      throw new RuntimeException(exception);
-    }
+    inflater.inflate("ConflictMatrix", this, this, "conflictMatrix");
   }
 
   private void highlightImpossibleCourses() {
@@ -191,6 +185,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
+    this.resources = resources;
     final List<Node> components = Arrays.asList(
         gridPaneCombinable, scrollPaneCombinable, scrollPaneStandalone, gridPaneStandalone,
         boxLegend, lbCombinableCourses, lbStandaloneCourses, lbHeader, btCheckAll,
@@ -357,7 +352,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
     Label label = new Label();
     label.prefWidthProperty().bind(pane.widthProperty());
     label.prefHeightProperty().bind(pane.heightProperty());
-    Tooltip tooltip = new Tooltip("Impossible combination: Same major and minor course.");
+    Tooltip tooltip = new Tooltip(resources.getString("impossibleCombination"));
     label.setTooltip(tooltip);
     pane.getChildren().add(label);
 
@@ -377,8 +372,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
     Label label = new Label();
     label.prefWidthProperty().bind(pane.widthProperty());
     label.prefHeightProperty().bind(pane.heightProperty());
-    Tooltip tooltip = new Tooltip("The course " + courseName + " is"
-        + "\nstatically known to be infeasible.");
+    Tooltip tooltip = new Tooltip(resources.getString("staticallyInfeasible1") + " "
+        + courseName + " " + resources.getString("staticallyInfeasible2"));
     label.setTooltip(tooltip);
     pane.getChildren().add(label);
 
@@ -401,7 +396,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
       Label label = new Label();
       label.prefWidthProperty().bind(pane.widthProperty());
       label.prefHeightProperty().bind(pane.heightProperty());
-      Tooltip tooltip = new Tooltip("Major: " + courseNames[0] + "\nMinor: " + courseNames[1]);
+      Tooltip tooltip = new Tooltip(resources.getString("major") + " " + courseNames[0] + "\n"
+          + resources.getString("minor") + " " + courseNames[1]);
       label.setTooltip(tooltip);
       pane.getChildren().add(label);
     }

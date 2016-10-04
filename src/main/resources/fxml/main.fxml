@@ -51,7 +51,7 @@
                 <Tab text="%batch" closable="false">
                     <BatchTimetableGeneration fx:id="batchTimetableGeneration"/>
                 </Tab>
-                <Tab text="Conflict Matrix" closable="false">
+                <Tab text="%conflictMatrix" closable="false">
                     <ConflictMatrix fx:id="conflictMatrix"/>
                 </Tab>
             </TabPane>
