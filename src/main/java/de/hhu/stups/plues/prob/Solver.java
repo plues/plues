@@ -1,5 +1,7 @@
 package de.hhu.stups.plues.prob;
 
+import de.hhu.stups.plues.keys.MajorMinorKey;
+
 import javafx.collections.ObservableMap;
 
 import java.util.List;
@@ -92,5 +94,5 @@ public interface Solver {
    */
   String getModelVersion() throws SolverException;
 
-  ObservableMap<String, Boolean> getCourseCombinationResults();
+  ObservableMap<MajorMinorKey, Boolean> getCourseCombinationResults();
 }

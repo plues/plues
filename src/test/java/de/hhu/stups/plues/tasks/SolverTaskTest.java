@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.Solver;
@@ -248,7 +249,7 @@ public class SolverTaskTest extends ApplicationTest {
     }
 
     @Override
-    public final ObservableMap<String, Boolean> getCourseCombinationResults() {
+    public final ObservableMap<MajorMinorKey, Boolean> getCourseCombinationResults() {
       return null;
     }
   }

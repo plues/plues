@@ -1,10 +1,12 @@
 package de.hhu.stups.plues.prob;
 
+import de.hhu.stups.plues.keys.OperationPredicateKey;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-class SolverCache extends LinkedHashMap<String,Object> {
+class SolverCache extends LinkedHashMap<OperationPredicateKey,Object> {
 
   private final int cacheSize;
 
@@ -25,7 +27,7 @@ class SolverCache extends LinkedHashMap<String,Object> {
    * @return Return true if the cache size is exhausted otherwise false.
    */
   @Override
-  protected boolean removeEldestEntry(final Map.Entry<String, Object> eldestEntry) {
+  protected boolean removeEldestEntry(final Map.Entry<OperationPredicateKey, Object> eldestEntry) {
     return this.size() > cacheSize;
   }
 

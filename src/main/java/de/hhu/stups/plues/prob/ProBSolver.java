@@ -5,6 +5,8 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.be4.classicalb.core.parser.exceptions.BException;
+import de.hhu.stups.plues.keys.MajorMinorKey;
+import de.hhu.stups.plues.keys.OperationPredicateKey;
 import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
@@ -44,7 +46,7 @@ public class ProBSolver implements Solver {
   private final StateSpace stateSpace;
   private final SolverCache solverResultCache;
   private final SolverCache operationExecutionCache;
-  private final ReadOnlyMapProperty<String, Boolean> courseCombinationResults;
+  private final ReadOnlyMapProperty<MajorMinorKey, Boolean> courseCombinationResults;
   private Trace trace;
 
   private final Logger logger = Logger.getLogger(getClass().getSimpleName());
@@ -95,7 +97,7 @@ public class ProBSolver implements Solver {
 
   private Boolean executeOperation(final String op, final String predicate) {
 
-    final String key = op + predicate;
+    final OperationPredicateKey key = new OperationPredicateKey(op, predicate);
     synchronized (operationExecutionCache) {
       final Boolean cacheObject = (Boolean) operationExecutionCache.get(key);
       if (cacheObject != null) {
@@ -156,7 +158,7 @@ public class ProBSolver implements Solver {
   private <T extends BObject> List<T> executeOperationWithResult(final String op,
       final String predicate, final Class<T> type) throws SolverException {
 
-    final String key = op + predicate;
+    final OperationPredicateKey key = new OperationPredicateKey(op, predicate);
     synchronized (solverResultCache) {
       final List<T> cacheObject = (List<T>) solverResultCache.get(key);
       if (cacheObject != null) {
@@ -418,12 +420,24 @@ public class ProBSolver implements Solver {
   }
 
   @Override
-  public final ObservableMap<String, Boolean> getCourseCombinationResults() {
+  public final ObservableMap<MajorMinorKey, Boolean> getCourseCombinationResults() {
     return courseCombinationResults;
   }
 
+  /**
+   * Add a boolean valued result to the cache {@link ProBSolver#courseCombinationResults}.
+   *
+   * @param courses The list of courses or a single standalone course.
+   * @param result  The boolean valued feasibility result.
+   */
   private void addCourseCombinationResult(final List<String> courses, boolean result) {
-    String key = String.join(";",courses);
+    final MajorMinorKey key;
+    if (courses.size() == 1) {
+      key = new MajorMinorKey(courses.get(0), null);
+    } else {
+      key = new MajorMinorKey(courses.get(0), courses.get(1));
+    }
+    // only replace if cache not contains key or the existing result is false
     if (!courseCombinationResults.containsKey(key) || !courseCombinationResults.get(key)) {
       courseCombinationResults.put(key, result);
     }

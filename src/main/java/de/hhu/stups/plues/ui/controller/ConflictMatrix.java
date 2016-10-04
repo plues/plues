@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.batchgeneration.BatchFeasibilityTask;
@@ -43,7 +44,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
   private final Delayed<SolverService> delayedSolverService;
   private final ExecutorService executor;
-  private ObservableMap<String, Boolean> courseCombinationResults;
+  private ObservableMap<MajorMinorKey, Boolean> courseCombinationResults;
 
   private final BooleanProperty solverProperty;
   private final BooleanProperty feasibilityCheckRunning;
@@ -444,12 +445,11 @@ public class ConflictMatrix extends GridPane implements Initializable {
    * column and row according to the major and minor name by searching their position in the
    * specific list of courses.
    *
-   * @param key    The string of major and minor course name split by a semicolon.
-   * @param result True if the combination is feasible otherwise false.
+   * @param majorName The major course name.
+   * @param minorName The minor course name.
+   * @param result    True if the combination is feasible otherwise false.
    */
-  private void gridPaneCombinableAddElm(String key, Boolean result) {
-    final String majorName = key.split(";")[0];
-    final String minorName = key.split(";")[1];
+  private void gridPaneCombinableAddElm(String majorName, String minorName, Boolean result) {
 
     final int row = minorCourses.stream().map(Course::getName)
         .collect(Collectors.toList()).indexOf(minorName) + 1;
@@ -465,24 +465,24 @@ public class ConflictMatrix extends GridPane implements Initializable {
   /**
    * Add a result to the list of standalone courses for given key and result.
    *
-   * @param key    The major course's name.
-   * @param result True if the course is feasible otherwise false.
+   * @param majorName The major course's name.
+   * @param result    True if the course is feasible otherwise false.
    */
-  private void gridPaneStandaloneAddElm(String key, Boolean result) {
-    final String majorName = key.split(";")[0];
+  private void gridPaneStandaloneAddElm(String majorName, Boolean result) {
     final int col = standaloneCourses.stream().map(Course::getName)
         .collect(Collectors.toList()).indexOf(majorName);
 
     Platform.runLater(() -> gridPaneStandalone.add(getActiveGridCellPane(result), col, 1));
   }
 
-  private MapChangeListener<String, Boolean> getMapChangeListener() {
+  private MapChangeListener<MajorMinorKey, Boolean> getMapChangeListener() {
     return change -> {
       if (change.wasAdded()) {
-        if (change.getKey().split(";").length == 2) {
-          gridPaneCombinableAddElm(change.getKey(), change.getValueAdded());
+        MajorMinorKey key = change.getKey();
+        if (key.hasMinor()) {
+          gridPaneCombinableAddElm(key.getMajor(), key.getMinor(), change.getValueAdded());
         } else {
-          gridPaneStandaloneAddElm(change.getKey(), change.getValueAdded());
+          gridPaneStandaloneAddElm(key.getMajor(), change.getValueAdded());
         }
       } else {
         // discard all if a session has been moved

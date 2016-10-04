@@ -10,6 +10,7 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
+import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.Solver;
@@ -169,7 +170,7 @@ public class SolverService {
     return (ListenableFuture<T>) this.executor.submit(command);
   }
 
-  public final ObservableMap<String, Boolean> getCourseCombinationResults() {
+  public final ObservableMap<MajorMinorKey, Boolean> getCourseCombinationResults() {
     return this.solver.getCourseCombinationResults();
   }
 }

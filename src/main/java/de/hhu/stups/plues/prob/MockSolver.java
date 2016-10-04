@@ -1,5 +1,7 @@
 package de.hhu.stups.plues.prob;
 
+import de.hhu.stups.plues.keys.MajorMinorKey;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
@@ -87,7 +89,7 @@ public class MockSolver implements Solver {
   }
 
   @Override
-  public final ObservableMap<String, Boolean> getCourseCombinationResults() {
+  public final ObservableMap<MajorMinorKey, Boolean> getCourseCombinationResults() {
     return FXCollections.observableHashMap();
   }
 
