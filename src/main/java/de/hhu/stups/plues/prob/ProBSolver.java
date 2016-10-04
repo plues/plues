@@ -137,8 +137,8 @@ public class ProBSolver implements Solver {
     return result;
   }
 
-  private <T extends BObject> T executeOperationWithOneResult(final String op,
-                                                              final String predicate, final Class<T> type) throws SolverException {
+  private <T extends BObject> T executeOperationWithOneResult(
+      final String op, final String predicate, final Class<T> type) throws SolverException {
 
     final List<T> modelResult = executeOperationWithResult(op, predicate, type);
 
@@ -155,8 +155,8 @@ public class ProBSolver implements Solver {
   }
 
   @SuppressWarnings("unchecked")
-  private <T extends BObject> List<T> executeOperationWithResult(final String op,
-                                                                 final String predicate, final Class<T> type) throws SolverException {
+  private <T extends BObject> List<T> executeOperationWithResult(
+      final String op, final String predicate, final Class<T> type) throws SolverException {
 
     final OperationPredicateKey key = new OperationPredicateKey(op, predicate);
     synchronized (solverResultCache) {
@@ -280,8 +280,9 @@ public class ProBSolver implements Solver {
    *                         interrupt)
    */
   @Override
-  public final synchronized FeasibilityResult computePartialFeasibility(final List<String> courses,
-                                                                        final Map<String, List<Integer>> moduleChoice, final List<Integer> abstractUnitChoice)
+  public final synchronized FeasibilityResult computePartialFeasibility(
+      final List<String> courses, final Map<String, List<Integer>> moduleChoice,
+      final List<Integer> abstractUnitChoice)
       throws SolverException {
 
     final String mc = Mappers.mapToModuleChoice(moduleChoice);
