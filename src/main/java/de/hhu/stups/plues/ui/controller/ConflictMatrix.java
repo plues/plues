@@ -51,7 +51,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private List<Course> majorCourses;
   private List<Course> minorCourses;
   private List<Course> standaloneCourses;
-  private Set<SolverTask<Boolean>> checkFeasibilityTasks = new HashSet<>();
+  private final Set<SolverTask<Boolean>> checkFeasibilityTasks = new HashSet<>();
 
   private Task<Set<SolverTask<Boolean>>> prepareFeasibilityCheck;
   private BatchFeasibilityTask executeFeasibilityCheck;
@@ -162,19 +162,19 @@ public class ConflictMatrix extends GridPane implements Initializable {
   }
 
   private void highlightImpossibleCourses() {
-    List<String> majorCourseStrings = majorCourses.stream()
+    final List<String> majorCourseStrings = majorCourses.stream()
         .map(Course::getName).collect(Collectors.toList());
-    List<String> minorCourseStrings = minorCourses.stream()
+    final List<String> minorCourseStrings = minorCourses.stream()
         .map(Course::getName).collect(Collectors.toList());
     impossibleCourses.forEach(course -> {
       if (majorCourseStrings.contains(course)) {
-        int col = majorCourseStrings.indexOf(course) + 1;
+        final int col = majorCourseStrings.indexOf(course) + 1;
         IntStream.range(0, minorCourses.size())
             .forEach(row -> gridPaneCombinable.add(
                 getInfeasibleGridCellPane(majorCourseStrings.get(col - 1)), col, row + 1));
       }
       if (minorCourseStrings.contains(course)) {
-        int row = minorCourseStrings.indexOf(course) + 1;
+        final int row = minorCourseStrings.indexOf(course) + 1;
         IntStream.range(0, majorCourses.size())
             .forEach(col -> gridPaneCombinable.add(
                 getInfeasibleGridCellPane(minorCourseStrings.get(row - 1)), col + 1, row));
@@ -183,7 +183,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
     final List<Node> components = Arrays.asList(
         gridPaneCombinable, scrollPaneCombinable, scrollPaneStandalone, gridPaneStandalone,
@@ -332,18 +332,18 @@ public class ConflictMatrix extends GridPane implements Initializable {
    * @param courseName The course's name to display or empty for default empty cells.
    * @return Return a pane.
    */
-  private Pane getDefaultGridCellPane(String courseName) {
-    Pane pane = new Pane();
+  private Pane getDefaultGridCellPane(final String courseName) {
+    final Pane pane = new Pane();
     pane.setId("conflictMatrixCellDefault");
     pane.setPrefHeight(25.0);
 
-    Label label;
+    final Label label;
     if (!courseName.isEmpty()) {
       label = new Label("  " + courseName + "  ");
-      String fullName = courses.stream()
+      final String fullName = courses.stream()
           .filter(c -> c.getName().equals(courseName))
           .collect(Collectors.toList()).get(0).getFullName();
-      Tooltip tooltip = new Tooltip(fullName);
+      final Tooltip tooltip = new Tooltip(fullName);
       label.setTooltip(tooltip);
     } else {
       label = new Label();
@@ -359,7 +359,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
    * @return Return a pane.
    */
   private Pane getImpossibleGridCellPane() {
-    Pane pane = new Pane();
+    final Pane pane = new Pane();
 
     pane.getChildren().add(new Circle(5, 5, 2));
     pane.getChildren().add(new Circle(10, 5, 2));
@@ -369,10 +369,10 @@ public class ConflictMatrix extends GridPane implements Initializable {
     pane.setId("conflictMatrixCellImpossible");
     pane.setPrefHeight(25.0);
 
-    Label label = new Label();
+    final Label label = new Label();
     label.prefWidthProperty().bind(pane.widthProperty());
     label.prefHeightProperty().bind(pane.heightProperty());
-    Tooltip tooltip = new Tooltip(resources.getString("impossibleCombination"));
+    final Tooltip tooltip = new Tooltip(resources.getString("impossibleCombination"));
     label.setTooltip(tooltip);
     pane.getChildren().add(label);
 
@@ -384,8 +384,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
    *
    * @return Return a pane.
    */
-  private Pane getInfeasibleGridCellPane(String courseName) {
-    Pane pane = new Pane();
+  private Pane getInfeasibleGridCellPane(final String courseName) {
+    final Pane pane = new Pane();
 
     pane.getChildren().add(new Circle(5, 5, 2));
     pane.getChildren().add(new Circle(10, 5, 2));
@@ -394,10 +394,10 @@ public class ConflictMatrix extends GridPane implements Initializable {
     pane.setId("conflictMatrixCellInfeasible");
     pane.setPrefHeight(25.0);
 
-    Label label = new Label();
+    final Label label = new Label();
     label.prefWidthProperty().bind(pane.widthProperty());
     label.prefHeightProperty().bind(pane.heightProperty());
-    Tooltip tooltip = new Tooltip(resources.getString("staticallyInfeasible1") + " "
+    final Tooltip tooltip = new Tooltip(resources.getString("staticallyInfeasible1") + " "
         + courseName + " " + resources.getString("staticallyInfeasible2"));
     label.setTooltip(tooltip);
     pane.getChildren().add(label);
@@ -413,8 +413,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
    * @param result      True if the combination of major and minor course is feasible.
    * @param courseNames An optional array of the major and minor course names.
    */
-  private Pane getActiveGridCellPane(Boolean result, String... courseNames) {
-    Pane pane = new Pane();
+  private Pane getActiveGridCellPane(final Boolean result, final String... courseNames) {
+    final Pane pane = new Pane();
 
     final String paneId;
     pane.getChildren().add(new Circle(5, 5, 2));
@@ -426,10 +426,10 @@ public class ConflictMatrix extends GridPane implements Initializable {
     }
     pane.setId(paneId);
     if (courseNames.length != 0) {
-      Label label = new Label();
+      final Label label = new Label();
       label.prefWidthProperty().bind(pane.widthProperty());
       label.prefHeightProperty().bind(pane.heightProperty());
-      Tooltip tooltip = new Tooltip(resources.getString("major") + " " + courseNames[0] + "\n"
+      final Tooltip tooltip = new Tooltip(resources.getString("major") + " " + courseNames[0] + "\n"
           + resources.getString("minor") + " " + courseNames[1]);
       label.setTooltip(tooltip);
       pane.getChildren().add(label);
@@ -447,7 +447,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
    * @param key    The string of major and minor course name split by a semicolon.
    * @param result True if the combination is feasible otherwise false.
    */
-  private void gridPaneCombinableAddElm(String key, Boolean result) {
+  private void gridPaneCombinableAddElm(final String key, final Boolean result) {
     final String majorName = key.split(";")[0];
     final String minorName = key.split(";")[1];
 
@@ -468,7 +468,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
    * @param key    The major course's name.
    * @param result True if the course is feasible otherwise false.
    */
-  private void gridPaneStandaloneAddElm(String key, Boolean result) {
+  private void gridPaneStandaloneAddElm(final String key, final Boolean result) {
     final String majorName = key.split(";")[0];
     final int col = standaloneCourses.stream().map(Course::getName)
         .collect(Collectors.toList()).indexOf(majorName);
