@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.be4.classicalb.core.parser.exceptions.BException;
+import de.hhu.stups.plues.keys.OperationPredicateKey;
 import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.ClassicalB;
 import de.prob.animator.domainobjects.EvalElementType;
@@ -90,20 +91,16 @@ public class ProBSolverTest {
   public void checkFeasibilityFeasibleCourse() {
     when(trace.canExecuteEvent("check", "ccss={\"foo\", \"bar\"}")).thenReturn(true);
     assertTrue(solver.checkFeasibility("foo", "bar"));
-    assertTrue(
-        solver.getOperationExecutionCache().containsKey("check" + "ccss={\"foo\", \"bar\"}"));
-    assertEquals(true,
-                 solver.getOperationExecutionCache().get("check" + "ccss={\"foo\", \"bar\"}"));
+    OperationPredicateKey key = new OperationPredicateKey("check", "ccss={\"foo\", \"bar\"}");
+    assertTrue(solver.getOperationExecutionCache().containsKey(key));
   }
 
   @Test
   public void checkFeasibilityInfeasibleCourse() throws Exception {
     setupOperationCannotBeExecuted("check", "ccss={\"NoFoo\", \"NoBar\"}");
     assertFalse(solver.checkFeasibility("NoFoo", "NoBar"));
-    assertTrue(
-        solver.getOperationExecutionCache().containsKey("check" + "ccss={\"NoFoo\", \"NoBar\"}"));
-    assertEquals(false,
-                 solver.getOperationExecutionCache().get("check" + "ccss={\"NoFoo\", \"NoBar\"}"));
+    OperationPredicateKey key = new OperationPredicateKey("check", "ccss={\"NoFoo\", \"NoBar\"}");
+    assertTrue(solver.getOperationExecutionCache().containsKey(key));
   }
 
 
@@ -178,7 +175,7 @@ public class ProBSolverTest {
     assertEquals(result.getSemesterChoice(), sc);
     assertEquals(result.getModuleChoice(), mc);
 
-    assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
+    assertTrue(solver.getSolverResultCache().containsKey(new OperationPredicateKey(op, predicate)));
   }
 
   @Test(expected = SolverException.class)
@@ -214,7 +211,7 @@ public class ProBSolverTest {
 
     final String[] impossible = new String[] {"BK-C1-H-2013", "BA-C2-N-2011"};
     assertTrue(solver.getImpossibleCourses().containsAll(Arrays.asList(impossible)));
-    assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
+    assertTrue(solver.getSolverResultCache().containsKey(new OperationPredicateKey(op, predicate)));
   }
 
   @Test
@@ -255,7 +252,7 @@ public class ProBSolverTest {
     alternatives.add(new Alternative("tue", "slot2"));
 
     assertTrue(r.containsAll(alternatives));
-    assertTrue(solver.getSolverResultCache().containsKey(op + predicate));
+    assertTrue(solver.getSolverResultCache().containsKey(new OperationPredicateKey(op, predicate)));
     assertTrue(r.containsAll(alternatives));
   }
 
