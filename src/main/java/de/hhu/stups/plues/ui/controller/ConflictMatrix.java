@@ -8,7 +8,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.batchgeneration.BatchFeasibilityTask;
-import de.hhu.stups.plues.ui.batchgeneration.CollectFeasibilityTasksTasks;
+import de.hhu.stups.plues.ui.batchgeneration.CollectFeasibilityTasksTask;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
@@ -28,8 +28,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Circle;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -53,6 +53,11 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private List<Course> minorCourses;
   private List<Course> standaloneCourses;
   private Set<SolverTask<Boolean>> checkFeasibilityTasks = new HashSet<>();
+
+  private Task<Set<SolverTask<Boolean>>> prepareFeasibilityCheck;
+  private BatchFeasibilityTask executeFeasibilityCheck;
+  private Set<String> impossibleCourses;
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -109,23 +114,18 @@ public class ConflictMatrix extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   private Pane paneLegendInfeasible;
 
-  private Task<Set<SolverTask<Boolean>>> prepareFeasibilityCheck;
-  private BatchFeasibilityTask executeFeasibilityCheck;
-  private Set<String> impossibleCourses;
-  private ResourceBundle resources;
-
-
   /**
    * This view presents a matrix of all possible combinations of combinable major and minor courses
    * and if known their feasibility. Furthermore a list of all standalone courses and if known their
    * feasibility is displayed.
    *
-   * @param loader               TaskLoader to load fxml file and to set controller
+   * @param inflater             The layout inflater.
+   * @param delayedStore         The Solver's store.
    * @param delayedSolverService SolverService for usage of ProB solver
+   * @param executorService      The executor service to execute tasks.
    */
   @Inject
-  public ConflictMatrix(final Inflater inflater, final FXMLLoader loader,
-                        final Delayed<Store> delayedStore,
+  public ConflictMatrix(final Inflater inflater, final Delayed<Store> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final ExecutorService executorService) {
     this.delayedSolverService = delayedSolverService;
@@ -195,6 +195,21 @@ public class ConflictMatrix extends GridPane implements Initializable {
     btCheckAll.disableProperty().bind(feasibilityCheckRunning);
     btCancelCheckAll.disableProperty().bind(feasibilityCheckRunning.not());
 
+    // draw small circles for color blind users
+    paneLegendSuccess.getChildren().add(new Circle(5, 5, 2));
+
+    paneLegendFailure.getChildren().add(new Circle(5, 5, 2));
+    paneLegendFailure.getChildren().add(new Circle(10, 5, 2));
+
+    paneLegendInfeasible.getChildren().add(new Circle(5, 5, 2));
+    paneLegendInfeasible.getChildren().add(new Circle(10, 5, 2));
+    paneLegendInfeasible.getChildren().add(new Circle(5, 10, 2));
+
+    paneLegendImpossible.getChildren().add(new Circle(5, 5, 2));
+    paneLegendImpossible.getChildren().add(new Circle(10, 5, 2));
+    paneLegendImpossible.getChildren().add(new Circle(5, 10, 2));
+    paneLegendImpossible.getChildren().add(new Circle(10, 10, 2));
+
     paneLegendSuccess.setId("conflictMatrixLegendSuccess");
     paneLegendFailure.setId("conflictMatrixLegendFailed");
     paneLegendImpossible.setId("conflictMatrixLegendImpossible");
@@ -250,7 +265,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   public void checkAllCombinations() {
     feasibilityCheckRunning.setValue(true);
-    prepareFeasibilityCheck = new CollectFeasibilityTasksTasks(
+    prepareFeasibilityCheck = new CollectFeasibilityTasksTask(
         delayedSolverService.get(), majorCourses, minorCourses, standaloneCourses);
 
 
@@ -346,6 +361,12 @@ public class ConflictMatrix extends GridPane implements Initializable {
    */
   private Pane getImpossibleGridCellPane() {
     Pane pane = new Pane();
+
+    pane.getChildren().add(new Circle(5, 5, 2));
+    pane.getChildren().add(new Circle(10, 5, 2));
+    pane.getChildren().add(new Circle(5, 10, 2));
+    pane.getChildren().add(new Circle(10, 10, 2));
+
     pane.setId("conflictMatrixCellImpossible");
     pane.setPrefHeight(25.0);
 
@@ -366,6 +387,11 @@ public class ConflictMatrix extends GridPane implements Initializable {
    */
   private Pane getInfeasibleGridCellPane(String courseName) {
     Pane pane = new Pane();
+
+    pane.getChildren().add(new Circle(5, 5, 2));
+    pane.getChildren().add(new Circle(10, 5, 2));
+    pane.getChildren().add(new Circle(5, 10, 2));
+
     pane.setId("conflictMatrixCellInfeasible");
     pane.setPrefHeight(25.0);
 
@@ -390,7 +416,15 @@ public class ConflictMatrix extends GridPane implements Initializable {
    */
   private Pane getActiveGridCellPane(Boolean result, String... courseNames) {
     Pane pane = new Pane();
-    final String paneId = result ? "conflictMatrixCellSuccess" : "conflictMatrixCellFailed";
+
+    final String paneId;
+    pane.getChildren().add(new Circle(5, 5, 2));
+    if (!result) {
+      pane.getChildren().add(new Circle(10, 5, 2));
+      paneId = "conflictMatrixCellFailed";
+    } else {
+      paneId = "conflictMatrixCellSuccess";
+    }
     pane.setId(paneId);
     if (courseNames.length != 0) {
       Label label = new Label();
