@@ -61,12 +61,12 @@ public class ProBSolver implements Solver {
     logger.info("Loaded machine in " + TimeUnit.NANOSECONDS.toMillis(t2 - t1) + " ms");
 
     this.stateSpace.getSubscribedFormulas()
-      .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
+        .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
     this.solverResultCache = new SolverCache(100);
     this.operationExecutionCache = new SolverCache(100);
     this.courseCombinationResults = new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
 
-    final long t3 =  System.nanoTime();
+    final long t3 = System.nanoTime();
     this.trace = traceFrom(stateSpace);
     final long t4 = System.nanoTime();
     logger.info("Loaded trace in " + TimeUnit.NANOSECONDS.toMillis(t4 - t3) + " ms");
@@ -138,7 +138,7 @@ public class ProBSolver implements Solver {
   }
 
   private <T extends BObject> T executeOperationWithOneResult(final String op,
-      final String predicate, final Class<T> type) throws SolverException {
+                                                              final String predicate, final Class<T> type) throws SolverException {
 
     final List<T> modelResult = executeOperationWithResult(op, predicate, type);
 
@@ -156,7 +156,7 @@ public class ProBSolver implements Solver {
 
   @SuppressWarnings("unchecked")
   private <T extends BObject> List<T> executeOperationWithResult(final String op,
-      final String predicate, final Class<T> type) throws SolverException {
+                                                                 final String predicate, final Class<T> type) throws SolverException {
 
     final OperationPredicateKey key = new OperationPredicateKey(op, predicate);
     synchronized (solverResultCache) {
@@ -183,15 +183,14 @@ public class ProBSolver implements Solver {
     }).collect(Collectors.toList());
 
     synchronized (solverResultCache) {
-      solverResultCache.put(key,result);
+      solverResultCache.put(key, result);
     }
 
     return result;
   }
 
   /**
-   * Checks if the version of the loaded model is compatible with the version
-   * provided as parameter.
+   * Checks if the version of the loaded model is compatible with the version provided as parameter.
    * Currently strings must be an exact match.
    */
   @Override
@@ -202,9 +201,9 @@ public class ProBSolver implements Solver {
       return;
     }
     throw new SolverException(
-      "Incompatible model version numbers, expected "
-        + expectedVersion
-        + " but was " + modelVersion);
+        "Incompatible model version numbers, expected "
+            + expectedVersion
+            + " but was " + modelVersion);
 
   }
 
@@ -226,7 +225,7 @@ public class ProBSolver implements Solver {
   public final synchronized Boolean checkFeasibility(final String... courses) {
 
     final String predicate = getFeasibilityPredicate(courses);
-    final Boolean result =  executeOperation(CHECK, predicate);
+    final Boolean result = executeOperation(CHECK, predicate);
     addCourseCombinationResult(Arrays.asList(courses), result);
     return result;
   }
@@ -269,18 +268,20 @@ public class ProBSolver implements Solver {
   }
 
   /**
-   * Compute if and how a list of courses might be feasible based on a partial setup of modules
-   * and abstract units.
-   * @param courses List of course keys as String
-   * @param moduleChoice map of course key to a set of module IDs already completed in that course.
+   * Compute if and how a list of courses might be feasible based on a partial setup of modules and
+   * abstract units.
+   *
+   * @param courses            List of course keys as String
+   * @param moduleChoice       map of course key to a set of module IDs already completed in that
+   *                           course.
    * @param abstractUnitChoice List of abstract unit IDs already compleated
    * @return FeasibilityResult
-   * @throws SolverException if no result could be found or the solver did not exit cleanly
-   *                         (e.g. interrupt)
+   * @throws SolverException if no result could be found or the solver did not exit cleanly (e.g.
+   *                         interrupt)
    */
   @Override
   public final synchronized FeasibilityResult computePartialFeasibility(final List<String> courses,
-      final Map<String, List<Integer>> moduleChoice, final List<Integer> abstractUnitChoice)
+                                                                        final Map<String, List<Integer>> moduleChoice, final List<Integer> abstractUnitChoice)
       throws SolverException {
 
     final String mc = Mappers.mapToModuleChoice(moduleChoice);
@@ -320,10 +321,11 @@ public class ProBSolver implements Solver {
 
   /**
    * For a given list of course keys computes the session IDs in one of the unsat-cores
+   *
    * @param courses String[] of course keys
    * @return a list of sessions IDs
-   * @throws SolverException if no result could be found or the solver did not exit cleanly
-   *                         (e.g. interrupt)
+   * @throws SolverException if no result could be found or the solver did not exit cleanly (e.g.
+   *                         interrupt)
    */
   @Override
   public final synchronized List<Integer> unsatCore(final String... courses)
@@ -339,13 +341,14 @@ public class ProBSolver implements Solver {
 
   /**
    * Move a session identified by its ID to a new day and time slot.
+   *
    * @param sessionId the ID of the Session
-   * @param day String day, valid values are "1".."7"
-   * @param slot Sting representing the selected time slot, valid values are "1".."8".
+   * @param day       String day, valid values are "1".."7"
+   * @param slot      Sting representing the selected time slot, valid values are "1".."8".
    */
   @Override
   public final synchronized void move(final String sessionId,
-                         final String day, final String slot) {
+                                      final String day, final String slot) {
     final String predicate
         = "session=session" + sessionId + " & dow=" + day + " & slot=slot" + slot;
     executeOperation(MOVE, predicate);
@@ -368,13 +371,14 @@ public class ProBSolver implements Solver {
   }
 
   /**
-   * Compute alternative slots for a given session ID, in the context of a specific
-   * course combination.
+   * Compute alternative slots for a given session ID, in the context of a specific course
+   * combination.
+   *
    * @param session ID of the session for which alternatives should be computed
    * @param courses List of courses
    * @return List of alternatives
-   * @throws SolverException if no result could be found or the solver did not exit cleanly
-   *                         (e.g. interrupt)
+   * @throws SolverException if no result could be found or the solver did not exit cleanly (e.g.
+   *                         interrupt)
    */
   @Override
   public final synchronized List<Alternative> getLocalAlternatives(
