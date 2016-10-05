@@ -27,6 +27,8 @@
                       mnemonicParsing="false" text="%export"/>
             <MenuItem fx:id="openChangeLog" onAction="#openChangeLog"
                       mnemonicParsing="false" text="%log"/>
+            <MenuItem fx:id="openReports" onAction="#openReports"
+                      mnemonicParsing="false" text="%reports"/>
             <MenuItem mnemonicParsing="false" text="%close"/>
         </Menu>
         <Menu mnemonicParsing="false" text="%edit">
