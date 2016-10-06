@@ -12,6 +12,7 @@ import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
+import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.ChangeLog;
@@ -96,6 +97,7 @@ public class MainController implements Initializable {
    */
   @Inject
   public MainController(final Delayed<Store> delayedStore,
+                        final Delayed<SolverService> delayedSolverService,
                         final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
                         final Provider<ChangeLog> changeLogProvider,
@@ -109,6 +111,8 @@ public class MainController implements Initializable {
     this.changeLogProvider = changeLogProvider;
     this.reportsProvider = reportsProvider;
     this.executor = executorService;
+
+    delayedSolverService.whenAvailable(solverService -> openReports.setDisable(false));
 
     probExecutor.addObserver((observable, arg) -> this.register(arg));
     executorService.addObserver((observable, arg) -> this.register(arg));
@@ -143,7 +147,6 @@ public class MainController implements Initializable {
     delayedStore.whenAvailable(s -> {
       this.exportStateMenuItem.setDisable(false);
       this.openChangeLog.setDisable(false);
-      this.openReports.setDisable(false);
     });
 
     if (this.properties.get("dbpath") != null) {
@@ -297,7 +300,7 @@ public class MainController implements Initializable {
     Reports reports = reportsProvider.get();
     Stage reportStage = new Stage();
     reportStage.setTitle(resources.getString("reportsTitle"));
-    reportStage.setScene(new Scene(reports, 700, 700));
+    reportStage.setScene(new Scene(reports, 700, 620));
     reportStage.setResizable(false);
     reportStage.show();
   }
