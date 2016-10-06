@@ -6,6 +6,7 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -15,7 +16,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TitledPane;
@@ -23,9 +23,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -34,15 +33,13 @@ import java.util.stream.Collectors;
 
 public class Reports extends VBox implements Initializable {
 
-  private final Delayed<Store> delayedStore;
   private final BooleanProperty solverProperty = new SimpleBooleanProperty(false);
-  private final Delayed<SolverService> delayedSolverService;
-  private final ExecutorService executor;
   private final List<String> abstractUnitsWithoutUnits;
   private final List<Unit> units;
   private final List<AbstractUnit> abstractUnits;
   private final List<Course> courses;
   private final Set<String> impossibleCourses;
+  private final List<Module> mandatoryModules;
 
   @FXML
   @SuppressWarnings("unused")
@@ -76,6 +73,9 @@ public class Reports extends VBox implements Initializable {
   private ListView<String> listViewAbstractUnits;
   @FXML
   @SuppressWarnings("unused")
+  private ListView<String> listViewCourses;
+  @FXML
+  @SuppressWarnings("unused")
   private ListView<String> listViewMandatoryModules;
 
   /**
@@ -86,25 +86,24 @@ public class Reports extends VBox implements Initializable {
   public Reports(final Inflater inflater, final Delayed<Store> delayedStore,
                  final Delayed<SolverService> delayedSolverService,
                  final ExecutorService executor) {
-    this.delayedStore = delayedStore;
-    this.delayedSolverService = delayedSolverService;
-    this.executor = executor;
-
-    this.impossibleCourses = new HashSet<>();
-    this.courses = new LinkedList<>();
-    this.units = new LinkedList<>();
-    this.abstractUnits = new LinkedList<>();
-    this.abstractUnitsWithoutUnits = new LinkedList<>();
+    impossibleCourses = new HashSet<>();
+    courses = new ArrayList<>();
+    units = new ArrayList<>();
+    abstractUnits = new ArrayList<>();
+    abstractUnitsWithoutUnits = new ArrayList<>();
+    mandatoryModules = new ArrayList<>();
 
     delayedStore.whenAvailable(store -> {
       store.getCourses().forEach(courses::add);
       store.getUnits().forEach(units::add);
+      store.getModules().forEach(mandatoryModules::add);
+      // get the titles of the units
       final List<String> unitTitles = units.stream()
           .map(Unit::getTitle).collect(Collectors.toList());
       store.getAbstractUnits().forEach(abstractUnits::add);
+      // remove the units from the abstract ones
       abstractUnits.stream()
-          .filter(abstractUnit ->
-              !unitTitles.contains(abstractUnit.getTitle()))
+          .filter(abstractUnit -> !unitTitles.contains(abstractUnit.getTitle()))
           .map(AbstractUnit::getTitle).collect(Collectors.toList())
           .forEach(abstractUnitsWithoutUnits::add);
     });
@@ -125,17 +124,49 @@ public class Reports extends VBox implements Initializable {
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    final List<Node> components = Arrays.asList(paneAbstractUnits, paneHeader,
-        paneImpossibleCourses, paneMandatoryModules);
-    components.forEach(c -> c.visibleProperty().bind(solverProperty));
+    paneHeader.visibleProperty().bind(solverProperty);
+    paneImpossibleCourses.visibleProperty().bind(solverProperty);
+    paneAbstractUnits.visibleProperty().bind(solverProperty);
+    paneAbstractUnits.setExpanded(false);
+    paneMandatoryModules.visibleProperty().bind(solverProperty);
+    paneMandatoryModules.setExpanded(false);
 
-    listViewImpossibleCourses.setId("batchListView");
-    listViewAbstractUnits.setId("batchListView");
+    final String listStyle = "batchListView";
+    listViewImpossibleCourses.setId(listStyle);
+    listViewAbstractUnits.setId(listStyle);
+    listViewCourses.setId(listStyle);
+    listViewMandatoryModules.setId(listStyle);
 
-    abstractUnitsWithoutUnits.stream().forEach(listViewAbstractUnits.getItems()::add);
+    listViewCourses.getSelectionModel().selectedItemProperty()
+        .addListener((observable, oldValue, newValue) -> {
+          listViewMandatoryModules.getItems().clear();
+          showMandatoryModulesOfCourse(listViewCourses.getSelectionModel().getSelectedItem());
+        });
+
+    abstractUnitsWithoutUnits.forEach(listViewAbstractUnits.getItems()::add);
+    courses.stream().map(Course::getName).forEach(listViewCourses.getItems()::add);
+
+    listViewCourses.getSelectionModel().select(0);
 
     lbCourseAmount.setText(String.valueOf(courses.size()));
     lbUnitAmount.setText(String.valueOf(units.size()));
     lbAbstractUnitAmount.setText(String.valueOf(abstractUnits.size()));
+  }
+
+  /**
+   * Update {@link Reports#listViewMandatoryModules} to show the mandatory modules of the currently
+   * selected course in {@link Reports#listViewCourses}.
+   *
+   * @param selectedCourse The currently selected course within {@link Reports#listViewCourses}.
+   */
+  @SuppressWarnings("unused")
+  private void showMandatoryModulesOfCourse(String selectedCourse) {
+    mandatoryModules.forEach(module -> {
+      if (module.getCourses().stream()
+          .map(Course::getName).collect(Collectors.toList())
+          .contains(selectedCourse)) {
+        listViewMandatoryModules.getItems().add(module.getTitle());
+      }
+    });
   }
 }

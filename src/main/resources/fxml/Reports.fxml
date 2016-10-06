@@ -3,36 +3,34 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import javafx.scene.control.TitledPane?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.geometry.Insets?>
 
-<fx:root prefHeight="700.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
+<fx:root prefHeight="600.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <Pane fx:id="paneHeader" prefHeight="100.0">
-            <GridPane fx:id="gridPaneHeader" hgap="5.0" vgap="5.0">
-                <padding>
-                    <Insets bottom="10.0" top="10.0" left="10.0" right="10.0"/>
-                </padding>
-                <Label text="%stats" style="-fx-font-weight: bold" GridPane.columnIndex="0"
-                       GridPane.rowIndex="0"/>
-                <Label text="%courseAmount" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                <Label fx:id="lbCourseAmount" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                <Label text="%unitAmount" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-                <Label fx:id="lbUnitAmount" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <VBox fx:id="paneHeader" prefHeight="100.0">
+            <padding>
+                <Insets bottom="10.0" top="10.0" left="10.0" right="10.0"/>
+            </padding>
+            <Label text="%stats" style="-fx-font-weight: bold"/>
+            <GridPane fx:id="gridPaneHeader" hgap="5.0" vgap="5.0" alignment="CENTER">
+                <Label text="%courseAmount" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Label fx:id="lbCourseAmount" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Label text="%unitAmount" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Label fx:id="lbUnitAmount" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
                 <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
-                <Label text="%abstractUnitAmount" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
-                <Label fx:id="lbAbstractUnitAmount" GridPane.columnIndex="4" GridPane.rowIndex="1"/>
+                <Label text="%abstractUnitAmount" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+                <Label fx:id="lbAbstractUnitAmount" GridPane.columnIndex="4" GridPane.rowIndex="0"/>
                 <Label text="%impossibleCoursesAmount" GridPane.columnIndex="3"
-                       GridPane.rowIndex="2"/>
+                       GridPane.rowIndex="1"/>
                 <Label fx:id="lbImpossibleCoursesAmount" GridPane.columnIndex="4"
-                       GridPane.rowIndex="2"/>
+                       GridPane.rowIndex="1"/>
             </GridPane>
-        </Pane>
+        </VBox>
         <TitledPane fx:id="paneImpossibleCourses" collapsible="true" text="%titleImpossibleCourses"
                     maxHeight="150.0">
             <ListView fx:id="listViewImpossibleCourses"/>
@@ -42,8 +40,11 @@
             <ListView fx:id="listViewAbstractUnits"/>
         </TitledPane>
         <TitledPane fx:id="paneMandatoryModules" collapsible="true" text="%titleMandatoryModules"
-                    maxHeight="150.0">
-            <ListView fx:id="listViewMandatoryModules"/>
+                    maxHeight="200.0">
+            <VBox spacing="5.0">
+                <ListView fx:id="listViewCourses" maxHeight="100.0"/>
+                <ListView fx:id="listViewMandatoryModules" maxHeight="100.0"/>
+            </VBox>
         </TitledPane>
     </children>
 </fx:root>
