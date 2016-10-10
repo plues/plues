@@ -8,13 +8,13 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Unit;
+import de.hhu.stups.plues.prob.report.Pair;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Accordion;
@@ -89,25 +89,25 @@ class Reports extends VBox implements Initializable {
   private Label lbSessionAmount;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<TableViewTuple> tableViewImpossibleCourses;
+  private TableView<Pair<String>> tableViewImpossibleCourses;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<TableViewTuple> tableViewAbstractUnits;
+  private TableView<Pair<String>> tableViewAbstractUnits;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<TableViewTuple> tableViewAbstractUnitsWithUnits;
+  private TableView<Pair<String>> tableViewAbstractUnitsWithUnits;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableViewTuple, String> tableColumnCourseName;
+  private TableColumn<Pair<String>, String> tableColumnCourseName;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableViewTuple, String> tableColumnCourseFullName;
+  private TableColumn<Pair<String>, String> tableColumnCourseFullName;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableViewTuple, String> tableColumnAbstractKey;
+  private TableColumn<Pair<String>, String> tableColumnAbstractKey;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableViewTuple, String> tableColumnAbstractTitle;
+  private TableColumn<Pair<String>, String> tableColumnAbstractTitle;
   @FXML
   @SuppressWarnings("unused")
   private ListView<String> listViewCourses;
@@ -153,7 +153,7 @@ class Reports extends VBox implements Initializable {
         impossibleCourses.addAll(impossibleCoursesTask.getValue());
         tableViewImpossibleCourses.getItems().addAll(
             impossibleCourses.stream()
-                .map(course -> new TableViewTuple(course, getFullName(course)))
+                .map(course -> new Pair<>(course, getFullName(course)))
                 .collect(Collectors.toList()));
         solverProperty.set(true);
         lbImpossibleCoursesAmount.setText(String.valueOf(impossibleCourses.size()));
@@ -194,11 +194,11 @@ class Reports extends VBox implements Initializable {
     listViewQuasiCourses.setId(listStyle);
     listViewQuasiMandatoryModules.setId(listStyle);
 
-    tableColumnCourseName.setCellValueFactory(new PropertyValueFactory<>("firstCol"));
-    tableColumnCourseFullName.setCellValueFactory(new PropertyValueFactory<>("secondCol"));
+    tableColumnCourseName.setCellValueFactory(new PropertyValueFactory<>("first"));
+    tableColumnCourseFullName.setCellValueFactory(new PropertyValueFactory<>("second"));
 
-    tableColumnAbstractKey.setCellValueFactory(new PropertyValueFactory<>("firstCol"));
-    tableColumnAbstractTitle.setCellValueFactory(new PropertyValueFactory<>("secondCol"));
+    tableColumnAbstractKey.setCellValueFactory(new PropertyValueFactory<>("first"));
+    tableColumnAbstractTitle.setCellValueFactory(new PropertyValueFactory<>("second"));
 
     listViewCourses.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) -> {
@@ -212,7 +212,7 @@ class Reports extends VBox implements Initializable {
 
     tableViewAbstractUnits.getItems()
         .addAll(abstractUnitsWithoutUnits.stream()
-            .map(unit -> new TableViewTuple(unit.getKey(), unit.getTitle()))
+            .map(unit -> new Pair<>(unit.getKey(), unit.getTitle()))
             .collect(Collectors.toList()));
     listViewCourses.getItems()
         .addAll(courses.stream().map(Course::getName).collect(Collectors.toList()));
@@ -246,28 +246,5 @@ class Reports extends VBox implements Initializable {
         listViewMandatoryModules.getItems().add(module.getTitle());
       }
     });
-  }
-
-  /**
-   * Wrap two strings to a tuple to use within the table views.
-   */
-  public static class TableViewTuple {
-    private SimpleStringProperty firstCol;
-    private SimpleStringProperty secondCol;
-
-    TableViewTuple(String first, String second) {
-      this.firstCol = new SimpleStringProperty(first);
-      this.secondCol = new SimpleStringProperty(second);
-    }
-
-    @SuppressWarnings("unused")
-    public String getFirstCol() {
-      return this.firstCol.get();
-    }
-
-    @SuppressWarnings("unused")
-    public String getSecondCol() {
-      return this.secondCol.get();
-    }
   }
 }
