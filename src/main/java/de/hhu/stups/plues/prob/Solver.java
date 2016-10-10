@@ -88,6 +88,14 @@ public interface Solver {
       throws SolverException;
 
   /**
+   * Extract all computed data that is useful for generating reports from the model.
+   *
+   * @return ReportData
+   * @throws SolverException if there is an error fetching the report data.
+   */
+  ReportData getReportingData() throws SolverException;
+
+  /**
    * Get the model's version.
    *
    * @return String the version string of the model

@@ -2,6 +2,7 @@ package de.hhu.stups.plues.prob;
 
 import com.google.common.base.Joiner;
 
+import de.hhu.stups.plues.prob.report.Pair;
 import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
@@ -9,22 +10,29 @@ import de.prob.translator.types.Tuple;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 final class Mappers {
 
+  private static final String MODULE_PREFIX = "mod";
+  private static final String ABSTRACT_UNIT_PREFIX = "au";
+  private static final String GROUP_PREFIX = "group";
+  private static final String UNIT_PREFIX = "unit";
+  private static final String SEMESTER_PREFIX = "sem";
+
   private Mappers() {
   }
 
   static Map<Integer, Integer> mapSemesterChoice(final Set set) {
-    return Collections.unmodifiableMap(convertToMap(set, "au", "sem"));
+    return Collections.unmodifiableMap(convertToMap(set, ABSTRACT_UNIT_PREFIX, SEMESTER_PREFIX));
   }
 
   static Map<Integer, Integer> mapGroupChoice(final Set set) {
 
-    return Collections.unmodifiableMap(convertToMap(set, "au", "group"));
+    return Collections.unmodifiableMap(convertToMap(set, ABSTRACT_UNIT_PREFIX, GROUP_PREFIX));
   }
 
   private static Map<Integer, Integer> convertToMap(final Set set,
@@ -53,7 +61,7 @@ final class Mappers {
       final String key = ((de.prob.translator.types.String) mc.getFirst()).getValue();
 
       collectedModules.put(key, modules.stream()
-          .map(m -> mapValue(m.toString(), "mod"))
+          .map(m -> mapValue(m.toString(), MODULE_PREFIX))
           .collect(Collectors.toSet()));
     }
     return Collections.unmodifiableMap(collectedModules);
@@ -78,7 +86,7 @@ final class Mappers {
     final String result = Joiner.on(',').join(moduleChoice.entrySet().stream().map(e -> "(\""
         + e.getKey()
         + "\" |-> {"
-        + Joiner.on(',').join(e.getValue().stream().map(i -> "mod" + i).iterator())
+        + Joiner.on(',').join(e.getValue().stream().map(i -> MODULE_PREFIX + i).iterator())
         + "})").iterator());
 
     return "{" + result + "}";
@@ -96,5 +104,136 @@ final class Mappers {
 
   static String mapString(final String str) {
     return str.substring(1, str.length() - 1);
+  }
+
+  static Map<String, Map<Integer, java.util.Set<Integer>>> mapCourseModuleAbstractUnits(
+      final Set courseModuleAbstractUnits) {
+
+    final Map<String, Map<Integer, java.util.Set<Integer>>> result = new HashMap<>();
+    courseModuleAbstractUnits.forEach(bObject -> {
+      final Tuple tuple = (Tuple) bObject;
+      final Tuple courseModule = (Tuple) tuple.getFirst();
+      final String course = mapString(courseModule.getFirst().toString());
+      final Integer module = mapValue(courseModule.getSecond().toString(), MODULE_PREFIX);
+      final Integer abstractUnit = mapValue(tuple.getSecond().toString(), ABSTRACT_UNIT_PREFIX);
+      if (!result.containsKey(course)) {
+        result.put(course, new HashMap<>());
+      }
+
+      final Map<Integer, java.util.Set<Integer>> modules = result.get(course);
+      if (!modules.containsKey(module)) {
+        modules.put(module, new HashSet<>());
+      }
+      modules.get(module).add(abstractUnit);
+    });
+
+    return Collections.unmodifiableMap(
+      result.entrySet().stream().collect(Collectors.toMap(
+        Map.Entry::getKey,
+        e -> Collections.unmodifiableMap(
+          e.getValue().entrySet().stream().collect(Collectors.toMap(
+            Map.Entry::getKey,
+            i -> Collections.unmodifiableSet(i.getValue())))))));
+  }
+
+  static Map<String, Map<Integer, java.util.Set<Pair<Integer>>>> mapCourseModuleAbstractUnitPairs(
+      final Set courseModuleAbstractUnitPairs) {
+    final Map<String, Map<Integer, java.util.Set<Pair<Integer>>>> result = new HashMap<>();
+
+    courseModuleAbstractUnitPairs.forEach(bObject -> {
+      final Tuple tuple = (Tuple) bObject;
+      final Tuple cmau = (Tuple) tuple.getFirst();
+      final Tuple cm = (Tuple) cmau.getFirst();
+      final String course = mapString(cm.getFirst().toString());
+      final Integer module = mapValue(cm.getSecond().toString(), MODULE_PREFIX);
+
+      final Integer au1 = mapValue(cmau.getSecond().toString(), ABSTRACT_UNIT_PREFIX);
+      final Integer au2 = mapValue(tuple.getSecond().toString(), ABSTRACT_UNIT_PREFIX);
+
+      if (!result.containsKey(course)) {
+        result.put(course, new HashMap<>());
+      }
+
+      final Map<Integer, java.util.Set<Pair<Integer>>> modules = result.get(course);
+      if (!modules.containsKey(module)) {
+        modules.put(module, new HashSet<>());
+      }
+      modules.get(module).add(new Pair<>(au1, au2));
+    });
+
+    return Collections.unmodifiableMap(
+      result.entrySet().stream().collect(Collectors.toMap(
+        Map.Entry::getKey,
+        e -> Collections.unmodifiableMap(
+          e.getValue().entrySet().stream().collect(Collectors.toMap(
+            Map.Entry::getKey,
+            i -> Collections.unmodifiableSet(i.getValue())))))));
+  }
+
+  static Map<Integer, java.util.Set<Integer>> mapModuleAbstractUnitPairs(
+      final Set moduleAbstractUnits) {
+    final Map<Integer, java.util.Set<Integer>> result = new HashMap<>();
+
+    moduleAbstractUnits.forEach(bObject -> {
+      final Tuple moduleAbstractUnit = (Tuple) ((Tuple) bObject).getFirst();
+      final Integer module = mapValue(moduleAbstractUnit.getFirst().toString(), MODULE_PREFIX);
+      final Integer abstractUnit
+          = mapValue(moduleAbstractUnit.getSecond().toString(), ABSTRACT_UNIT_PREFIX);
+      //
+      if (!result.containsKey(module)) {
+        result.put(module, new HashSet<>());
+      }
+      result.get(module).add(abstractUnit);
+
+    });
+    return Collections.unmodifiableMap(result.entrySet().stream().collect(Collectors.toMap(
+      Map.Entry::getKey,
+      e -> Collections.unmodifiableSet(e.getValue()))));
+  }
+
+  static java.util.Set<Integer> mapModules(final Set incompleteModules) {
+    return Collections.unmodifiableSet(
+      incompleteModules.stream().map(bObject -> {
+        final Tuple module = (Tuple) bObject;
+        return mapValue(module.getFirst().toString(), MODULE_PREFIX);
+      }).collect(Collectors.toSet()));
+  }
+
+  static Map<Integer, java.util.Set<Integer>> mapQuasiMandatoryModuleAbstractUnits(
+      final Set quasiMandatoryModuleAbstractUnits) {
+
+    final Map<Integer, java.util.Set<Integer>> moduleAbstractUnits = new HashMap<>();
+    quasiMandatoryModuleAbstractUnits.forEach(bObject -> {
+      final Tuple tuple = (Tuple) bObject;
+      final Integer module = mapValue(tuple.getFirst().toString(), MODULE_PREFIX);
+      final Integer abstractUnit = mapValue(tuple.getSecond().toString(), ABSTRACT_UNIT_PREFIX);
+      if (!moduleAbstractUnits.containsKey(module)) {
+        moduleAbstractUnits.put(module, new HashSet<>());
+      }
+      moduleAbstractUnits.get(module).add(abstractUnit);
+    });
+    return Collections.unmodifiableMap(
+      moduleAbstractUnits.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
+        e -> Collections.unmodifiableSet(e.getValue()))));
+  }
+
+  static Map<Integer, java.util.Set<Pair<Integer>>> mapUnitGroups(final Set redundantUnitGroups) {
+    final Map<Integer, java.util.Set<Pair<Integer>>> result = new HashMap<>();
+    redundantUnitGroups.forEach(bObject -> {
+      final Tuple tuple = (Tuple) bObject;
+      final Tuple unitGroup = (Tuple) tuple.getFirst();
+
+      final Integer unit = mapValue(unitGroup.getFirst().toString(), UNIT_PREFIX);
+      final Integer g1 = mapValue(unitGroup.getSecond().toString(), GROUP_PREFIX);
+      final Integer g2 = mapValue(tuple.getSecond().toString(), GROUP_PREFIX);
+
+      if (!result.containsKey(unit)) {
+        result.put(unit, new HashSet<>());
+      }
+      result.get(unit).add(new Pair<>(g1, g2));
+    });
+    return Collections.unmodifiableMap(result.entrySet().stream().collect(Collectors.toMap(
+      Map.Entry::getKey,
+      e -> Collections.unmodifiableSet(e.getValue()))));
   }
 }
