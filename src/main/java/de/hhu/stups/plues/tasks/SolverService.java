@@ -13,6 +13,7 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
+import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.Solver;
 
 import javafx.collections.ObservableMap;
@@ -28,9 +29,11 @@ import java.util.stream.Collectors;
 public class SolverService {
   private final ExecutorService executor;
   private final Solver solver;
+  private final ResourceBundle resources = ResourceBundle.getBundle("lang.tasks");
 
   @Inject
-  public SolverService(@Named("prob") ExecutorService executorService, @Assisted Solver solver) {
+  public SolverService(@Named("prob") final ExecutorService executorService,
+      @Assisted final Solver solver) {
     this.executor = executorService;
     this.solver = solver;
   }
@@ -133,14 +136,20 @@ public class SolverService {
         () -> solver.getLocalAlternatives(session.getId(), names));
   }
 
+
   /**
    * Create solver task to handle impossible singleton courses.
    * @return SolverTask
    */
   public SolverTask<Set<String>> impossibleCoursesTask() {
-    final ResourceBundle resources = ResourceBundle.getBundle("lang.tasks");
     return new SolverTask<>("Collecting impossible courses", resources.getString("impossible"),
       solver, solver::getImpossibleCourses);
+  }
+
+
+  public SolverTask<ReportData> collectReportDataTask() {
+    return new SolverTask<>("Report Data", "Collecting report data from ProB",
+      solver, solver::getReportingData);
   }
 
   private String getMessage(final String[] names) {
@@ -159,10 +168,6 @@ public class SolverService {
       names[i] = courses[i].getName();
     }
     return names;
-    //        return Arrays.asList(courses).stream()
-    //                    .map(c -> c.getName())
-    //                    .collect(Collectors.toList())
-    //                    .toArray(new String[courses.length]);
   }
 
   @SuppressWarnings("unchecked")

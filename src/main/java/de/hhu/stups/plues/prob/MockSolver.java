@@ -84,6 +84,11 @@ public class MockSolver implements Solver {
   }
 
   @Override
+  public ReportData getReportingData() throws SolverException {
+    return new ReportData();
+  }
+
+  @Override
   public String getModelVersion() throws SolverException {
     return "";
   }

@@ -10,6 +10,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
+import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverException;
 import javafx.application.Platform;
@@ -18,6 +19,7 @@ import javafx.concurrent.Worker;
 import javafx.stage.Stage;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.testfx.framework.junit.ApplicationTest;
 
 import java.util.Collections;
@@ -241,6 +243,11 @@ public class SolverTaskTest extends ApplicationTest {
     @Override
       public List<Alternative> getLocalAlternatives(final int session, final String... courses) {
       return Collections.emptyList();
+    }
+
+    @Override
+    public ReportData getReportingData() throws SolverException {
+      return Mockito.mock(ReportData.class);
     }
 
     @Override
