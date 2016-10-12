@@ -92,9 +92,11 @@
                             text="%titleRedundantUnitGroups" maxHeight="125.0">
                     <TableView fx:id="tableViewRedundantUnitGroups" maxHeight="125.0">
                         <columns>
+                            <TableColumn fx:id="tableColumnRedundantGroup1" text="%columnGroupId"
+                                         minWidth="100.0" prefWidth="100.0"/>
+                            <TableColumn fx:id="tableColumnRedundantGroup2" text="%columnGroupId"
+                                         minWidth="100.0" prefWidth="100.0"/>
                             <TableColumn fx:id="tableColumnRedundantUnit" text="%columnExplicitUnit"
-                                         minWidth="100.0" prefWidth="250.0"/>
-                            <TableColumn fx:id="tableColumnRedundantGroupPair" text="%columnGroupPair"
                                          minWidth="100.0" prefWidth="400.0"/>
                         </columns>
                     </TableView>

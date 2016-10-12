@@ -11,6 +11,7 @@ import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.report.Pair;
+import de.hhu.stups.plues.prob.report.Triple;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -102,7 +103,7 @@ class Reports extends VBox implements Initializable {
   private TableView<Pair<String>> tableViewAbstractUnitsWithUnits;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<Pair<String>> tableViewRedundantUnitGroups;
+  private TableView<Triple<String>> tableViewRedundantUnitGroups;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Pair<String>, String> tableColumnCourseName;
@@ -123,10 +124,13 @@ class Reports extends VBox implements Initializable {
   private TableColumn<Pair<String>, String> tableColumnUnit;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Pair<String>, String> tableColumnRedundantUnit;
+  private TableColumn<Pair<String>, String> tableColumnRedundantGroup1;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Pair<String>, String> tableColumnRedundantGroupPair;
+  private TableColumn<Pair<String>, String> tableColumnRedundantGroup2;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Pair<String>, String> tableColumnRedundantUnit;
   @FXML
   @SuppressWarnings("unused")
   private ListView<String> listViewCourses;
@@ -178,7 +182,7 @@ class Reports extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     final String listStyle = "batchListView";
     tableViewImpossibleCourses.setId(listStyle);
     tableViewAbstractUnits.setId(listStyle);
@@ -199,8 +203,9 @@ class Reports extends VBox implements Initializable {
     tableColumnAbstractUnit.setCellValueFactory(new PropertyValueFactory<>(first));
     tableColumnUnit.setCellValueFactory(new PropertyValueFactory<>(second));
 
-    tableColumnRedundantUnit.setCellValueFactory(new PropertyValueFactory<>(first));
-    tableColumnRedundantGroupPair.setCellValueFactory(new PropertyValueFactory<>(second));
+    tableColumnRedundantGroup1.setCellValueFactory(new PropertyValueFactory<>(first));
+    tableColumnRedundantGroup2.setCellValueFactory(new PropertyValueFactory<>(second));
+    tableColumnRedundantUnit.setCellValueFactory(new PropertyValueFactory<>("third"));
 
     // add listener to update the (quasi-) mandatory list views according to the selected course
     listViewCourses.getSelectionModel().selectedItemProperty()
@@ -231,10 +236,11 @@ class Reports extends VBox implements Initializable {
    * @param reportData The {@link ReportData report data} object.
    */
   @SuppressWarnings("unused")
-  private void displayReportData(ReportData reportData) {
+  private void displayReportData(final ReportData reportData) {
     tableViewImpossibleCourses.getItems().addAll(reportData.getImpossibleCourses()
         .stream().map(courseName ->
-            new Pair<>(courseName, getFullName(courseName))).collect(Collectors.toList()));
+            new Pair<>(courseName, getFullNameFromCourseName(courseName)))
+        .collect(Collectors.toList()));
     lbImpossibleCoursesAmount.setText(String.valueOf(reportData.getImpossibleCourses().size()));
 
     tableViewAbstractUnits.getItems()
@@ -263,9 +269,10 @@ class Reports extends VBox implements Initializable {
     listViewCourses.getSelectionModel().select(0);
     listViewQuasiCourses.getSelectionModel().select(0);
 
-    Map<Integer, Set<Pair<Integer>>> redundantUnitGroups = reportData.getRedundantUnitGroups();
+    final Map<Integer, Set<Pair<Integer>>> redundantUnitGroups =
+        reportData.getRedundantUnitGroups();
 
-    Set<Unit> redundantUnits = units.stream()
+    final Set<Unit> redundantUnits = units.stream()
         .filter(unit -> redundantUnitGroups.containsKey(unit.getId()))
         .collect(Collectors.toSet());
 
@@ -273,33 +280,22 @@ class Reports extends VBox implements Initializable {
         redundantUnitGroups.get(redundantUnit.getId())
             .forEach(groupPair ->
                 tableViewRedundantUnitGroups.getItems().add(
-                    new Pair<>(redundantUnit.getTitle(), getStringFromPair(groupPair)))));
+                    new Triple<>(groupPair.getFirst().toString(), groupPair.getSecond().toString(),
+                        getUnitTitleFromGroupId(groupPair.getFirst())))));
   }
 
-  /**
-   * Combine the unit titles of both groups in the given pair to one string.
-   *
-   * @param groupPairIds The pair of group ids.
-   * @return Return a string of the two group unit names.
-   */
-  private String getStringFromPair(Pair<Integer> groupPairIds) {
-    List<Group> groupPair = groups.stream()
-        .filter(group ->
-            group.getId() == groupPairIds.getFirst() || group.getId() == groupPairIds.getSecond())
-        .collect(Collectors.toList());
-    return groupPair.get(0).getUnit().getTitle() + " - " + groupPair.get(1).getUnit().getTitle();
+  private String getUnitTitleFromGroupId(final Integer groupId) {
+    final Group groupFromId = groups.stream()
+        .filter(group -> group.getId() == groupId)
+        .findFirst().orElse(null);
+    return (groupFromId != null) ? groupFromId.getUnit().getTitle() : "";
   }
 
-  /**
-   * Get the full name for a given course name.
-   *
-   * @param courseName The course's name.
-   * @return Return the course's full name.
-   */
-  private String getFullName(String courseName) {
-    return courses.stream()
+  private String getFullNameFromCourseName(final String courseName) {
+    final Course courseFromName = courses.stream()
         .filter(course -> course.getName().equals(courseName))
-        .collect(Collectors.toList()).get(0).getFullName();
+        .findFirst().orElse(null);
+    return (courseFromName != null) ? courseFromName.getFullName() : "";
   }
 
   /**
@@ -309,11 +305,13 @@ class Reports extends VBox implements Initializable {
    * @param selectedCourseName The currently selected course name.
    */
   @SuppressWarnings("unused")
-  private void showQuasiMandatoryModulesOfCourse(String selectedCourseName) {
-    Course selectedCourse = courses.stream()
+  private void showQuasiMandatoryModulesOfCourse(final String selectedCourseName) {
+    final Course selectedCourse = courses.stream()
         .filter(course -> course.getName().equals(selectedCourseName))
-        .collect(Collectors.toList()).get(0);
-    Set<Integer> quasiMandatoryModuleIds = quasiMandatoryModules.get(selectedCourse.getId());
+        .findFirst().orElse(null);
+    final Set<Integer> quasiMandatoryModuleIds =
+        (selectedCourse != null) ? quasiMandatoryModules.get(selectedCourse.getId()) : null;
+
     if (quasiMandatoryModuleIds != null && !quasiMandatoryModuleIds.isEmpty()) {
       abstractUnits.forEach(abstractUnit -> {
         if (quasiMandatoryModuleIds.contains(abstractUnit.getId())) {
@@ -332,7 +330,7 @@ class Reports extends VBox implements Initializable {
    * @param selectedCourseName The currently selected course within {@link Reports#listViewCourses}.
    */
   @SuppressWarnings("unused")
-  private void showMandatoryModulesOfCourse(String selectedCourseName) {
+  private void showMandatoryModulesOfCourse(final String selectedCourseName) {
     mandatoryModules.forEach(module -> {
       if (module.getCourses().stream()
           .map(Course::getName).collect(Collectors.toList())
