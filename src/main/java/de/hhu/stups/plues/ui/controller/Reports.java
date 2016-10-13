@@ -239,7 +239,7 @@ class Reports extends VBox implements Initializable {
   private void displayReportData(final ReportData reportData) {
     tableViewImpossibleCourses.getItems().addAll(reportData.getImpossibleCourses()
         .stream().map(courseName ->
-            new Pair<>(courseName, getFullNameFromCourseName(courseName)))
+            new Pair<>(courseName, store.getCourseByKey(courseName).getFullName()))
         .collect(Collectors.toList()));
     lbImpossibleCoursesAmount.setText(String.valueOf(reportData.getImpossibleCourses().size()));
 
@@ -280,19 +280,7 @@ class Reports extends VBox implements Initializable {
             .forEach(groupPair ->
                 tableViewRedundantUnitGroups.getItems().add(
                     new Triple<>(groupPair.getFirst().toString(), groupPair.getSecond().toString(),
-                        getUnitTitleFromGroupId(groupPair.getFirst())))));
-  }
-
-  private String getUnitTitleFromGroupId(final Integer groupId) {
-    final Group groupFromId = store.getGroupById(groupId);
-    return (groupFromId != null) ? groupFromId.getUnit().getTitle() : "";
-  }
-
-  private String getFullNameFromCourseName(final String courseName) {
-    final Course courseFromName = courses.stream()
-        .filter(course -> course.getName().equals(courseName))
-        .findFirst().orElse(null);
-    return (courseFromName != null) ? courseFromName.getFullName() : "";
+                        store.getGroupById(groupPair.getFirst()).getUnit().getTitle()))));
   }
 
   /**
