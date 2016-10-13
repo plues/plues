@@ -11,7 +11,6 @@ import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.report.Pair;
-import de.hhu.stups.plues.prob.report.Triple;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -33,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -95,43 +95,43 @@ class Reports extends VBox implements Initializable {
   private Label lbSessionAmount;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<Pair<String>> tableViewImpossibleCourses;
+  private TableView<TableRowPair<String>> tableViewImpossibleCourses;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<Pair<String>> tableViewAbstractUnits;
+  private TableView<TableRowPair<String>> tableViewAbstractUnits;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<Pair<String>> tableViewAbstractUnitsWithUnits;
+  private TableView<TableRowPair<String>> tableViewAbstractUnitsWithUnits;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<Triple<String>> tableViewRedundantUnitGroups;
+  private TableView<TableRowTriple<String>> tableViewRedundantUnitGroups;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Pair<String>, String> tableColumnCourseName;
+  private TableColumn<TableRowPair<String>, String> tableColumnCourseName;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Pair<String>, String> tableColumnCourseFullName;
+  private TableColumn<TableRowPair<String>, String> tableColumnCourseFullName;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Pair<String>, String> tableColumnAbstractKey;
+  private TableColumn<TableRowPair<String>, String> tableColumnAbstractKey;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Pair<String>, String> tableColumnAbstractTitle;
+  private TableColumn<TableRowPair<String>, String> tableColumnAbstractTitle;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Pair<String>, String> tableColumnAbstractUnit;
+  private TableColumn<TableRowPair<String>, String> tableColumnAbstractUnit;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Pair<String>, String> tableColumnUnit;
+  private TableColumn<TableRowPair<String>, String> tableColumnUnit;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Pair<String>, String> tableColumnRedundantGroup1;
+  private TableColumn<TableRowPair<String>, String> tableColumnRedundantGroup1;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Pair<String>, String> tableColumnRedundantGroup2;
+  private TableColumn<TableRowPair<String>, String> tableColumnRedundantGroup2;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Pair<String>, String> tableColumnRedundantUnit;
+  private TableColumn<TableRowPair<String>, String> tableColumnRedundantUnit;
   @FXML
   @SuppressWarnings("unused")
   private ListView<String> listViewCourses;
@@ -239,13 +239,13 @@ class Reports extends VBox implements Initializable {
   private void displayReportData(final ReportData reportData) {
     tableViewImpossibleCourses.getItems().addAll(reportData.getImpossibleCourses()
         .stream().map(courseName ->
-            new Pair<>(courseName, store.getCourseByKey(courseName).getFullName()))
+            new TableRowPair<>(courseName, store.getCourseByKey(courseName).getFullName()))
         .collect(Collectors.toList()));
     lbImpossibleCoursesAmount.setText(String.valueOf(reportData.getImpossibleCourses().size()));
 
     tableViewAbstractUnits.getItems()
         .addAll(abstractUnitsWithoutUnits.stream()
-            .map(unit -> new Pair<>(unit.getKey(), unit.getTitle()))
+            .map(unit -> new TableRowPair<>(unit.getKey(), unit.getTitle()))
             .collect(Collectors.toList()));
 
     // get abstract units with units that have no semesters in common
@@ -258,7 +258,7 @@ class Reports extends VBox implements Initializable {
               .collect(Collectors.toList()).isEmpty())
           .forEach(unit ->
               tableViewAbstractUnitsWithUnits.getItems()
-                  .add(new Pair<>(abstractUnit.getTitle(), unit.getTitle())));
+                  .add(new TableRowPair<>(abstractUnit.getTitle(), unit.getTitle())));
     }
 
     quasiMandatoryModules.putAll(reportData.getQuasiMandatoryModuleAbstractUnits());
@@ -279,7 +279,9 @@ class Reports extends VBox implements Initializable {
         redundantUnitGroups.get(redundantUnit.getId())
             .forEach(groupPair ->
                 tableViewRedundantUnitGroups.getItems().add(
-                    new Triple<>(groupPair.getFirst().toString(), groupPair.getSecond().toString(),
+                    new TableRowTriple<>(
+                        groupPair.getFirst().toString(),
+                        groupPair.getSecond().toString(),
                         store.getGroupById(groupPair.getFirst()).getUnit().getTitle()))));
   }
 
@@ -324,4 +326,96 @@ class Reports extends VBox implements Initializable {
       }
     });
   }
+
+  public static final class TableRowPair<T> {
+    private final T second;
+    private final T first;
+
+    /**
+     * An object to obtain two values of the same type to use within a table view.
+     */
+    TableRowPair(final T first, final T second) {
+      this.first = first;
+      this.second = second;
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+      if (this == other) {
+        return true;
+      }
+      if (other == null || getClass() != other.getClass()) {
+        return false;
+      }
+      final TableRowPair<?> pair = (TableRowPair<?>) other;
+      return Objects.equals(second, pair.second)
+          && Objects.equals(first, pair.first);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(second, first);
+    }
+
+    @SuppressWarnings("unused")
+    public T getFirst() {
+      return first;
+    }
+
+    @SuppressWarnings("unused")
+    public T getSecond() {
+      return second;
+    }
+  }
+
+  public static final class TableRowTriple<T> {
+    private final T first;
+    private final T second;
+    private final T third;
+
+    /**
+     * An object to obtain three values of the same type to use within a table view.
+     */
+    TableRowTriple(final T first, final T second, final T third) {
+      this.first = first;
+      this.second = second;
+      this.third = third;
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+      if (this == other) {
+        return true;
+      }
+      if (other == null || getClass() != other.getClass()) {
+        return false;
+      }
+      TableRowTriple<?> triple = (TableRowTriple<?>) other;
+      return Objects.equals(first, triple.first)
+          && Objects.equals(second, triple.second)
+          && Objects.equals(third, triple.third);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(first, second, third);
+    }
+
+    @SuppressWarnings("unused")
+    public T getFirst() {
+      return this.first;
+    }
+
+    @SuppressWarnings("unused")
+    public T getSecond() {
+      return this.second;
+    }
+
+    @SuppressWarnings("unused")
+    public T getThird() {
+      return this.third;
+    }
+
+  }
+
 }
