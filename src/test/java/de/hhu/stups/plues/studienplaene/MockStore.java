@@ -69,6 +69,13 @@ public class MockStore implements Store {
   }
 
   @Override
+  public List<AbstractUnit> getAbstractUnitsWithoutUnits() {
+    return this.getAbstractUnits().stream()
+        .filter(abstractUnit -> abstractUnit.getUnits().isEmpty())
+        .collect(Collectors.toList());
+  }
+
+  @Override
   public List<Course> getCourses() {
     throw new UnsupportedOperationException();
   }
@@ -183,6 +190,11 @@ public class MockStore implements Store {
       }).collect(Collectors.toList());
     }
     return this.units;
+  }
+
+  @Override
+  public Unit getUnitById(Integer uid) {
+    return this.getUnits().stream().filter(u -> u.getId() == uid).findFirst().orElse(null);
   }
 
   @Override
