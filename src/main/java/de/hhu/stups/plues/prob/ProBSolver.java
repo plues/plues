@@ -261,7 +261,7 @@ public class ProBSolver implements Solver {
       //
       addCourseCombinationResult(Arrays.asList(courses), true);
       return new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
-    } catch (SolverException exception) {
+    } catch (final SolverException exception) {
       addCourseCombinationResult(Arrays.asList(courses), false);
       throw exception;
     }
@@ -314,7 +314,7 @@ public class ProBSolver implements Solver {
       addCourseCombinationResult(courses, true);
       return new FeasibilityResult(
           computedModuleChoice, computedSemesterChoice, computedGroupChoice);
-    } catch (SolverException exception) {
+    } catch (final SolverException exception) {
       addCourseCombinationResult(courses, false);
       throw exception;
     }
@@ -395,6 +395,48 @@ public class ProBSolver implements Solver {
 
 
   /**
+   * Extract all computed data that is useful for generating reports from the model.
+   *
+   * @return ReportData
+   * @throws SolverException if there is an error fetching the report data.
+   */
+  @Override
+  public final synchronized ReportData getReportingData() throws SolverException {
+    final Record data = this.executeOperationWithOneResult("getReportingData", Record.class);
+
+    final ReportData report = new ReportData();
+
+    report.setImpossibleCourseModuleAbstractUnits(
+        Mappers.mapCourseModuleAbstractUnits((Set) data.get("impossible_course_abstract_units")));
+
+    report.setImpossibleCourses(Mappers.mapCourseSet((Set) data.get("impossible_courses")));
+    report.setImpossibleCoursesBecauseofImpossibleModules(Mappers.mapCourseSet(
+        (Set) data.get("impossible_courses_because_of_impossible_modules")));
+
+    report.setImpossibleCourseModuleAbstractUnitPairs(
+        Mappers.mapCourseModuleAbstractUnitPairs(
+          (Set) data.get("impossible_courses_module_combinations")));
+
+    report.setImpossibleAbstractUnitsInModule(
+        Mappers.mapModuleAbstractUnitPairs((Set) data.get("impossible_module_abstract_unit")));
+
+    report.setIncompleteModules(
+        Mappers.mapModules((Set) data.get("incomplete_modules")));
+
+    report.setMandatoryModules(Mappers.mapModuleChoice((Set) data.get("mandatory_modules")));
+
+    report.setQuasiMandatoryModuleAbstractUnits(
+        Mappers.mapQuasiMandatoryModuleAbstractUnits(
+          (Set) data.get("quasi_mandatory_module_abstract_units"))
+    );
+
+    report.setRedundantUnitGroups(Mappers.mapUnitGroups((Set) data.get("redundant_unit_groups")));
+
+    return report;
+  }
+
+
+  /**
    * Get the model's version.
    *
    * @return String the version string of the model
@@ -435,7 +477,7 @@ public class ProBSolver implements Solver {
    * @param courses The list of courses or a single standalone course.
    * @param result  The boolean valued feasibility result.
    */
-  private void addCourseCombinationResult(final List<String> courses, boolean result) {
+  private void addCourseCombinationResult(final List<String> courses, final boolean result) {
     final MajorMinorKey key;
     if (courses.size() == 1) {
       key = new MajorMinorKey(courses.get(0), null);

@@ -12,6 +12,7 @@ import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
+import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.ChangeLog;
@@ -73,6 +74,7 @@ public class MainController implements Initializable {
   private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
   private final SolverLoaderImpl solverLoader;
   private final Provider<ChangeLog> changeLogProvider;
+  private final Provider<Reports> reportsProvider;
 
   @FXML
   private MenuItem openFileMenuItem;
@@ -84,6 +86,9 @@ public class MainController implements Initializable {
   private MenuItem openChangeLog;
 
   @FXML
+  private MenuItem openReports;
+
+  @FXML
   private TaskProgressView<Task<?>> taskProgress;
   private ResourceBundle resources;
 
@@ -92,9 +97,11 @@ public class MainController implements Initializable {
    */
   @Inject
   public MainController(final Delayed<Store> delayedStore,
+                        final Delayed<SolverService> delayedSolverService,
                         final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
                         final Provider<ChangeLog> changeLogProvider,
+                        final Provider<Reports> reportsProvider,
                         @Named("prob") final ObservableListeningExecutorService probExecutor,
                         final ObservableListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
@@ -102,7 +109,10 @@ public class MainController implements Initializable {
     this.properties = properties;
     this.stage = stage;
     this.changeLogProvider = changeLogProvider;
+    this.reportsProvider = reportsProvider;
     this.executor = executorService;
+
+    delayedSolverService.whenAvailable(solverService -> openReports.setDisable(false));
 
     probExecutor.addObserver((observable, arg) -> this.register(arg));
     executorService.addObserver((observable, arg) -> this.register(arg));
@@ -132,6 +142,7 @@ public class MainController implements Initializable {
     this.taskProgress.setGraphicFactory(this::getGraphicForTask);
     this.exportStateMenuItem.setDisable(true);
     this.openChangeLog.setDisable(true);
+    this.openReports.setDisable(true);
 
     delayedStore.whenAvailable(s -> {
       this.exportStateMenuItem.setDisable(false);
@@ -270,16 +281,28 @@ public class MainController implements Initializable {
 
   /**
    * Method to open ChangeLog by clicking on menu item.
-   * @param event event
    */
   @FXML
-  public void openChangeLog(ActionEvent event) {
+  public void openChangeLog() {
     ChangeLog log = changeLogProvider.get();
-    Stage stage = new Stage();
-    stage.setTitle(resources.getString("logTitle"));
-    stage.setScene(new Scene(log, 600, 600));
-    stage.setResizable(false);
-    stage.show();
+    Stage logStage = new Stage();
+    logStage.setTitle(resources.getString("logTitle"));
+    logStage.setScene(new Scene(log, 600, 600));
+    logStage.setResizable(false);
+    logStage.show();
+  }
+
+  /**
+   * Open the reports view in a new stage.
+   */
+  @FXML
+  public void openReports() {
+    Reports reports = reportsProvider.get();
+    Stage reportStage = new Stage();
+    reportStage.setTitle(resources.getString("reportsTitle"));
+    reportStage.setScene(new Scene(reports, 700, 620));
+    reportStage.setResizable(false);
+    reportStage.show();
   }
 
   private class ExportXmlTask extends Task<Void> {

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+
+<fx:root prefHeight="600.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <VBox fx:id="paneHeader" prefHeight="100.0">
+            <padding>
+                <Insets bottom="10.0" top="10.0" left="10.0" right="10.0"/>
+            </padding>
+            <Label text="%stats" style="-fx-font-weight: bold"/>
+            <GridPane fx:id="gridPaneHeader" hgap="5.0" vgap="5.0" alignment="CENTER">
+                <Label text="%courseAmount" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Label fx:id="lbCourseAmount" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Label text="%unitAmount" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Label fx:id="lbUnitAmount" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Label text="%groupAmount" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <Label fx:id="lbGroupAmount" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                <Label text="%abstractUnitAmount" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+                <Label fx:id="lbAbstractUnitAmount" GridPane.columnIndex="4" GridPane.rowIndex="0"/>
+                <Label text="%impossibleCoursesAmount" GridPane.columnIndex="3"
+                       GridPane.rowIndex="1"/>
+                <Label fx:id="lbImpossibleCoursesAmount" GridPane.columnIndex="4"
+                       GridPane.rowIndex="1"/>
+                <Label text="%sessionAmount" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+                <Label fx:id="lbSessionAmount" GridPane.columnIndex="4" GridPane.rowIndex="2"/>
+            </GridPane>
+        </VBox>
+        <Accordion fx:id="paneAccordion">
+            <panes>
+                <TitledPane fx:id="paneImpossibleCourses" collapsible="true"
+                            text="%titleImpossibleCourses" maxHeight="250.0">
+                    <TableView fx:id="tableViewImpossibleCourses" maxHeight="250.0">
+                        <columns>
+                            <TableColumn fx:id="tableColumnCourseName" text="%columnCourseName"
+                                         minWidth="100.0" prefWidth="150.0"/>
+                            <TableColumn fx:id="tableColumnCourseFullName"
+                                         text="%columnCourseFullName" minWidth="100.0"
+                                         prefWidth="500.0"/>
+                        </columns>
+                    </TableView>
+                </TitledPane>
+                <TitledPane fx:id="paneAbstractUnits" collapsible="true" text="%titleAbstractUnits"
+                            maxHeight="250.0">
+                    <TableView fx:id="tableViewAbstractUnits" maxHeight="250.0">
+                        <columns>
+                            <TableColumn fx:id="tableColumnAbstractKey" text="%columnUnitKey"
+                                         minWidth="100.0" prefWidth="150.0"/>
+                            <TableColumn fx:id="tableColumnAbstractTitle" text="%columnUnitTitle"
+                                         minWidth="100.0" prefWidth="500.0"/>
+                        </columns>
+                    </TableView>
+                </TitledPane>
+                <TitledPane fx:id="paneAbstractUnitsWithUnits" collapsible="true"
+                            text="%titleAbstractUnitsWithUnits" maxHeight="250.0">
+                    <TableView fx:id="tableViewAbstractUnitsWithUnits" maxHeight="250.0">
+                        <columns>
+                            <TableColumn fx:id="tableColumnAbstractUnit" text="%columnAbstractUnit"
+                                         minWidth="100.0" prefWidth="350.0"/>
+                            <TableColumn fx:id="tableColumnUnit" text="%columnExplicitUnit"
+                                         minWidth="100.0" prefWidth="350.0"/>
+                        </columns>
+                    </TableView>
+                </TitledPane>
+                <TitledPane fx:id="paneMandatoryModules" collapsible="true"
+                            text="%titleMandatoryModules" maxHeight="300.0">
+                    <VBox spacing="5.0">
+                        <ListView fx:id="listViewCourses" maxHeight="145.0"/>
+                        <ListView fx:id="listViewMandatoryModules" maxHeight="145.0"/>
+                    </VBox>
+                </TitledPane>
+                <TitledPane fx:id="paneQuasiMandatoryModules" collapsible="true"
+                            text="%titleQuasiMandatoryModules" maxHeight="300.0">
+                    <VBox spacing="5.0">
+                        <ListView fx:id="listViewQuasiCourses" maxHeight="145.0"/>
+                        <ListView fx:id="listViewQuasiMandatoryModules" maxHeight="100.0"/>
+                    </VBox>
+                </TitledPane>
+                <TitledPane fx:id="paneRedundantUnitGroups" collapsible="true"
+                            text="%titleRedundantUnitGroups" maxHeight="125.0">
+                    <TableView fx:id="tableViewRedundantUnitGroups" maxHeight="125.0">
+                        <columns>
+                            <TableColumn fx:id="tableColumnRedundantGroup1" text="%columnGroupId"
+                                         minWidth="100.0" prefWidth="100.0"/>
+                            <TableColumn fx:id="tableColumnRedundantGroup2" text="%columnGroupId"
+                                         minWidth="100.0" prefWidth="100.0"/>
+                            <TableColumn fx:id="tableColumnRedundantUnit" text="%columnExplicitUnit"
+                                         minWidth="100.0" prefWidth="400.0"/>
+                        </columns>
+                    </TableView>
+                </TitledPane>
+            </panes>
+        </Accordion>
+    </children>
+</fx:root>
