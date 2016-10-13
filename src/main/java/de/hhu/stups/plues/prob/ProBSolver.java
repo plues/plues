@@ -8,13 +8,11 @@ import de.be4.classicalb.core.parser.exceptions.BException;
 import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.keys.OperationPredicateKey;
 import de.prob.animator.command.GetOperationByPredicateCommand;
-import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.scripting.Api;
 import de.prob.statespace.StateSpace;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
-import de.prob.translator.Translator;
 import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
@@ -26,13 +24,13 @@ import javafx.collections.ObservableMap;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class ProBSolver implements Solver {
   private static final String CHECK = "check";
@@ -44,8 +42,7 @@ public class ProBSolver implements Solver {
 
   private static final String DEFAULT_PREDICATE = "1=1";
   private final StateSpace stateSpace;
-  private final SolverCache solverResultCache;
-  private final SolverCache operationExecutionCache;
+  private final SolverCache<SolverResult> operationExecutionCache;
   private final ReadOnlyMapProperty<MajorMinorKey, Boolean> courseCombinationResults;
   private Trace trace;
 
@@ -59,11 +56,11 @@ public class ProBSolver implements Solver {
     this.stateSpace = api.b_load(modelPath);
     final long t2 = System.nanoTime();
     logger.info("Loaded machine in " + TimeUnit.NANOSECONDS.toMillis(t2 - t1) + " ms");
-
+    //
     this.stateSpace.getSubscribedFormulas()
         .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
-    this.solverResultCache = new SolverCache(100);
-    this.operationExecutionCache = new SolverCache(100);
+
+    this.operationExecutionCache = new SolverCache<>(100);
     this.courseCombinationResults = new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
 
     final long t3 = System.nanoTime();
@@ -88,105 +85,87 @@ public class ProBSolver implements Solver {
     return tracefromSpace;
   }
 
-  private static String getFeasibilityPredicate(final String[] courses) {
-    final Iterator<String> iterator = Arrays.stream(courses)
-        .filter(it -> it != null && !"".equals(it))
-        .map(it -> "\"" + it + "\"").iterator();
-    return "ccss={" + Joiner.on(", ").join(iterator) + "}";
-  }
-
-  private Boolean executeOperation(final String op, final String predicate) {
+  private SolverResult executeOperation(final String op, final String predicate) {
 
     final OperationPredicateKey key = new OperationPredicateKey(op, predicate);
     synchronized (operationExecutionCache) {
-      final Boolean cacheObject = (Boolean) operationExecutionCache.get(key);
+      final SolverResult cacheObject = operationExecutionCache.get(key);
       if (cacheObject != null) {
+        logger.info(String.format("Solver cache hit for key %s", key));
         return cacheObject;
       }
     }
 
-    final IEvalElement pred = stateSpace.getModel().parseFormula(predicate);
+    final IEvalElement evalElement = stateSpace.getModel().parseFormula(predicate);
     final String stateId = trace.getCurrentState().getId();
     final GetOperationByPredicateCommand cmd
-        = new GetOperationByPredicateCommand(this.stateSpace, stateId, op, pred, 1);
+        = new GetOperationByPredicateCommand(this.stateSpace, stateId, op, evalElement, 1);
+    //
+    final SolverResult solverResult = new SolverResult();
 
     stateSpace.execute(cmd);
 
     if (cmd.isInterrupted() || !cmd.isCompleted()) {
-      logger.fine(String.format("%s %s interrupted %s completed %s", op, predicate,
-          cmd.isInterrupted(), cmd.isCompleted()));
+      solverResult.setState(ResultState.INTERRUPTED);
 
-      synchronized (operationExecutionCache) {
-        operationExecutionCache.put(key, false);
-      }
-      logger.fine(String.format("RESULT %s %s = TIMEOUT/CANCEL", op, predicate));
-      return false;
-    }
-
-    final boolean result = !cmd.hasErrors();
-    if (!result) {
+      logger.fine(String.format("RESULT %s %s = TIMEOUT/CANCEL // interrupted %s completed %s",
+          op, predicate, cmd.isInterrupted(), cmd.isCompleted()));
+    } else if (cmd.hasErrors()) {
+      solverResult.setState(ResultState.FAILED);
       cmd.getErrors().forEach(logger::severe);
+    } else {
+      solverResult.setState(ResultState.SUCCEEDED);
+
+      trace = trace.addTransitions(cmd.getNewTransitions());
+
+      final List<BObject> res = getOperationReturnValue();
+      solverResult.setValue(res);
     }
-    trace = trace.addTransitions(cmd.getNewTransitions());
 
     synchronized (operationExecutionCache) {
-      operationExecutionCache.put(key, result);
+      operationExecutionCache.put(key, solverResult);
     }
 
-    logger.fine(String.format("RESULT %s %s = %s", op, predicate, result));
-    return result;
+    logger.fine(String.format("RESULT %s %s = %s", op, predicate, solverResult));
+
+    return solverResult;
   }
 
-  private <T extends BObject> T executeOperationWithOneResult(
-      final String op, final String predicate, final Class<T> type) throws SolverException {
+  private List<BObject> getOperationReturnValue() {
+    final Transition trans = trace.getCurrentTransition();
+    try {
+      return trans.getTranslatedReturnValues();
+    } catch (BException bexception) {
+      logger.log(Level.SEVERE, "Translator Exception", bexception);
+      return Collections.emptyList();
+    }
+  }
 
-    final List<T> modelResult = executeOperationWithResult(op, predicate, type);
+  private BObject executeOperationWithOneResult(final String op, final String predicate)
+      throws SolverException {
+
+    final List<BObject> modelResult = executeOperationWithResult(op, predicate);
 
     if (modelResult.size() != 1) {
-      throw new SolverException("Expected one result got: " + modelResult.size());
+      throw new SolverException("Expected one result got " + modelResult.size());
     }
     return modelResult.get(0);
   }
 
-  private <T extends BObject> T executeOperationWithOneResult(final String op, final Class<T> type)
-      throws SolverException {
-
-    return executeOperationWithOneResult(op, DEFAULT_PREDICATE, type);
+  private BObject executeOperationWithOneResult(final String op) throws SolverException {
+    return executeOperationWithOneResult(op, DEFAULT_PREDICATE);
   }
 
   @SuppressWarnings("unchecked")
-  private <T extends BObject> List<T> executeOperationWithResult(
-      final String op, final String predicate, final Class<T> type) throws SolverException {
+  private List<BObject> executeOperationWithResult(
+      final String op, final String predicate) throws SolverException {
+    final SolverResult result = executeOperation(op, predicate);
 
-    final OperationPredicateKey key = new OperationPredicateKey(op, predicate);
-    synchronized (solverResultCache) {
-      final List<T> cacheObject = (List<T>) solverResultCache.get(key);
-      if (cacheObject != null) {
-        return cacheObject;
-      }
-    }
-
-    if (!executeOperation(op, predicate)) {
+    if (!result.succeeded()) {
       throw new SolverException("Could not execute operation " + op + " - " + predicate);
     }
 
-    final Transition trans = trace.getCurrentTransition();
-    final List<String> returnValues = trans.evaluate(FormulaExpand.expand).getReturnValues();
-
-    final List<T> result = returnValues.stream().map(i -> {
-      try {
-        return type.cast(Translator.translate(i));
-      } catch (BException bexception) {
-        logger.log(Level.SEVERE, "Translator Exception", bexception);
-      }
-      return null;
-    }).collect(Collectors.toList());
-
-    synchronized (solverResultCache) {
-      solverResultCache.put(key, result);
-    }
-
-    return result;
+    return result.getValue();
   }
 
   /**
@@ -213,6 +192,14 @@ public class ProBSolver implements Solver {
     this.stateSpace.sendInterrupt();
   }
 
+  private static String getFeasibilityPredicate(final String[] courses) {
+    final Iterator<String> iterator = Arrays.stream(courses)
+        .filter(it -> it != null && !"".equals(it))
+        .map(it -> "\"" + it + "\"").iterator();
+    return "ccss={" + Joiner.on(", ").join(iterator) + "}";
+  }
+
+
   // OPERATIONS
 
   /**
@@ -225,9 +212,9 @@ public class ProBSolver implements Solver {
   public final synchronized Boolean checkFeasibility(final String... courses) {
 
     final String predicate = getFeasibilityPredicate(courses);
-    final Boolean result = executeOperation(CHECK, predicate);
-    addCourseCombinationResult(Arrays.asList(courses), result);
-    return result;
+    final SolverResult result = executeOperation(CHECK, predicate);
+    addCourseCombinationResult(Arrays.asList(courses), result.succeeded());
+    return result.succeeded();
   }
 
   /**
@@ -249,15 +236,17 @@ public class ProBSolver implements Solver {
      *  3: Unit choice - map from abstract units to units
      */
     try {
-      final List<Set> modelResult = executeOperationWithResult(CHECK, predicate, Set.class);
+      final List<BObject> modelResult = executeOperationWithResult(CHECK, predicate);
 
       //
-      final Map<Integer, Integer> semesterChoice = Mappers.mapSemesterChoice(modelResult.get(0));
+      final Map<Integer, Integer> semesterChoice = Mappers.mapSemesterChoice(
+          (Set) modelResult.get(0));
 
-      final Map<Integer, Integer> groupChoice = Mappers.mapGroupChoice(modelResult.get(1));
+      final Map<Integer, Integer> groupChoice = Mappers.mapGroupChoice(
+          (Set) modelResult.get(1));
 
       final Map<String, java.util.Set<Integer>> moduleChoice
-          = Mappers.mapModuleChoice(modelResult.get(2));
+          = Mappers.mapModuleChoice((Set) modelResult.get(2));
       //
       addCourseCombinationResult(Arrays.asList(courses), true);
       return new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
@@ -300,16 +289,16 @@ public class ProBSolver implements Solver {
      *  3: Unit choice - map from abstract units to units
      */
     try {
-      final List<Set> modelResult = executeOperationWithResult(CHECK_PARTIAL, predicate, Set.class);
+      final List<BObject> modelResult = executeOperationWithResult(CHECK_PARTIAL, predicate);
       //
       final Map<Integer, Integer> computedSemesterChoice
-          = Mappers.mapSemesterChoice(modelResult.get(0));
+          = Mappers.mapSemesterChoice((Set) modelResult.get(0));
 
       final Map<Integer, Integer> computedGroupChoice
-          = Mappers.mapGroupChoice(modelResult.get(1));
+          = Mappers.mapGroupChoice((Set) modelResult.get(1));
 
       final Map<String, java.util.Set<Integer>> computedModuleChoice
-          = Mappers.mapModuleChoice(modelResult.get(2));
+          = Mappers.mapModuleChoice((Set) modelResult.get(2));
       //
       addCourseCombinationResult(courses, true);
       return new FeasibilityResult(
@@ -334,7 +323,7 @@ public class ProBSolver implements Solver {
 
     final String predicate = getFeasibilityPredicate(courses);
     //
-    final Set uc = executeOperationWithOneResult(UNSAT_CORE, predicate, Set.class);
+    final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE, predicate);
     //
     return Mappers.mapSessions(uc);
   }
@@ -353,7 +342,6 @@ public class ProBSolver implements Solver {
     final String predicate
         = "session=session" + sessionId + " & dow=" + day + " & slot=slot" + slot;
     executeOperation(MOVE, predicate);
-    solverResultCache.clear();
     operationExecutionCache.clear();
     courseCombinationResults.clear();
   }
@@ -366,7 +354,7 @@ public class ProBSolver implements Solver {
   @Override
   public final synchronized java.util.Set<String> getImpossibleCourses() throws SolverException {
 
-    final Record result = this.executeOperationWithOneResult(IMPOSSIBLE_COURSES, Record.class);
+    final Record result = (Record) this.executeOperationWithOneResult(IMPOSSIBLE_COURSES);
 
     return Mappers.mapCourseSet((Set) result.get("courses"));
   }
@@ -387,8 +375,7 @@ public class ProBSolver implements Solver {
 
     final String coursePredicate = getFeasibilityPredicate(courses);
     final String predicate = coursePredicate + " & session=" + Mappers.mapSession(session);
-    final Set modelResult = this.executeOperationWithOneResult(
-        LOCAL_ALTERNATIVES, predicate, Set.class);
+    final Set modelResult = (Set) this.executeOperationWithOneResult(LOCAL_ALTERNATIVES, predicate);
 
     return Mappers.mapAlternatives(modelResult);
   }
@@ -444,17 +431,8 @@ public class ProBSolver implements Solver {
   @SuppressWarnings("WeakerAccess")
   @Override
   public final synchronized String getModelVersion() throws SolverException {
-    final BObject result = this.executeOperationWithOneResult("getVersion", BObject.class);
+    final BObject result = this.executeOperationWithOneResult("getVersion");
     return Mappers.mapString(result.toString());
-  }
-
-  /**
-   * Get the solver cache for testing.
-   *
-   * @return Return the solver cache containing computed results by the solver.
-   */
-  final SolverCache getSolverResultCache() {
-    return this.solverResultCache;
   }
 
   /**

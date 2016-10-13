@@ -24,6 +24,7 @@ import de.prob.statespace.State;
 import de.prob.statespace.StateSpace;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
+import de.prob.translator.Translator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest( {ProBSolver.class, GetOperationByPredicateCommand.class})
@@ -88,8 +90,9 @@ public class ProBSolverTest {
   }
 
   @Test
-  public void checkFeasibilityFeasibleCourse() {
-    when(trace.canExecuteEvent("check", "ccss={\"foo\", \"bar\"}")).thenReturn(true);
+  public void checkFeasibilityFeasibleCourse() throws Exception {
+    final String[] t = new String[]{};
+    setupOperationCanBeExecuted(t, "check", "ccss={\"NoFoo\", \"NoBar\"}");
     assertTrue(solver.checkFeasibility("foo", "bar"));
     OperationPredicateKey key = new OperationPredicateKey("check", "ccss={\"foo\", \"bar\"}");
     assertTrue(solver.getOperationExecutionCache().containsKey(key));
@@ -175,7 +178,8 @@ public class ProBSolverTest {
     assertEquals(result.getSemesterChoice(), sc);
     assertEquals(result.getModuleChoice(), mc);
 
-    assertTrue(solver.getSolverResultCache().containsKey(new OperationPredicateKey(op, predicate)));
+    assertTrue(solver.getOperationExecutionCache().containsKey(
+        new OperationPredicateKey(op, predicate)));
   }
 
   @Test(expected = SolverException.class)
@@ -211,7 +215,8 @@ public class ProBSolverTest {
 
     final String[] impossible = new String[] {"BK-C1-H-2013", "BA-C2-N-2011"};
     assertTrue(solver.getImpossibleCourses().containsAll(Arrays.asList(impossible)));
-    assertTrue(solver.getSolverResultCache().containsKey(new OperationPredicateKey(op, predicate)));
+    assertTrue(solver.getOperationExecutionCache().containsKey(
+        new OperationPredicateKey(op, predicate)));
   }
 
   @Test
@@ -219,15 +224,10 @@ public class ProBSolverTest {
     final String op = "move";
     final String predicate = "session=session101 & dow=mon & slot=slot8";
 
-    final GetOperationByPredicateCommand f
-        = PowerMockito.mock(GetOperationByPredicateCommand.class);
-    PowerMockito.whenNew(GetOperationByPredicateCommand.class).withAnyArguments().thenReturn(f);
-    when(f.isCompleted()).thenReturn(true);
-    when(f.isInterrupted()).thenReturn(false);
-    when(f.hasErrors()).thenReturn(false);
+    final String[] t = new String[]{};
+    setupOperationCanBeExecuted(t, op, predicate);
 
     solver.move("101", "mon", "8");
-    assertTrue(solver.getSolverResultCache().isEmpty());
     assertTrue(solver.getOperationExecutionCache().isEmpty());
     PowerMockito.verifyNew(GetOperationByPredicateCommand.class).withArguments(eq(stateSpace),
         eq("TEST-STATE-ID"), eq(op), anyObject(), eq(1));
@@ -252,7 +252,8 @@ public class ProBSolverTest {
     alternatives.add(new Alternative("tue", "slot2"));
 
     assertTrue(r.containsAll(alternatives));
-    assertTrue(solver.getSolverResultCache().containsKey(new OperationPredicateKey(op, predicate)));
+    assertTrue(solver.getOperationExecutionCache().containsKey(
+        new OperationPredicateKey(op, predicate)));
     assertTrue(r.containsAll(alternatives));
   }
 
@@ -280,7 +281,14 @@ public class ProBSolverTest {
     final Transition transition = mock(Transition.class);
     when(trace.getCurrentTransition()).thenReturn(transition);
     when(transition.evaluate(FormulaExpand.expand)).thenReturn(transition);
-    when(transition.getReturnValues()).thenReturn(Arrays.asList(modelReturnValues));
+    when(transition.getTranslatedReturnValues()).thenReturn(
+        Arrays.stream(modelReturnValues).map(s -> {
+          try {
+            return Translator.translate(s);
+          } catch (BException exception) {
+            return null;
+          }
+        }).collect(Collectors.toList()));
 
     final GetOperationByPredicateCommand command
         = PowerMockito.mock(GetOperationByPredicateCommand.class);
