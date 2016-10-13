@@ -389,7 +389,7 @@ public class ProBSolver implements Solver {
    */
   @Override
   public final synchronized ReportData getReportingData() throws SolverException {
-    final Record data = this.executeOperationWithOneResult("getReportingData", Record.class);
+    final Record data = (Record) this.executeOperationWithOneResult("getReportingData");
 
     final ReportData report = new ReportData();
 
