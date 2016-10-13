@@ -47,6 +47,7 @@ class Reports extends VBox implements Initializable {
   private final List<Module> mandatoryModules;
   private final Map<Integer, Set<Integer>> quasiMandatoryModules;
   private final List<Group> groups;
+  private Store store;
   private int groupAmount;
   private int sessionAmount;
 
@@ -160,16 +161,16 @@ class Reports extends VBox implements Initializable {
     groups = new ArrayList<>();
     quasiMandatoryModules = new HashMap<>();
 
-    delayedStore.whenAvailable(store -> {
+    delayedStore.whenAvailable(localStore -> {
+      this.store = localStore;
       groups.addAll(store.getGroups());
       courses.addAll(store.getCourses());
       units.addAll(store.getUnits());
       mandatoryModules.addAll(store.getModules());
       abstractUnits.addAll(store.getAbstractUnits());
+      abstractUnitsWithoutUnits.addAll(store.getAbstractUnitsWithoutUnits());
       groupAmount = groups.size();
       sessionAmount = store.getSessions().size();
-      abstractUnitsWithoutUnits.addAll(abstractUnits.stream()
-          .filter(abstractUnit -> abstractUnit.getUnits().isEmpty()).collect(Collectors.toList()));
     });
 
     delayedSolverService.whenAvailable(solverService -> {
@@ -213,7 +214,6 @@ class Reports extends VBox implements Initializable {
           listViewMandatoryModules.getItems().clear();
           showMandatoryModulesOfCourse(listViewCourses.getSelectionModel().getSelectedItem());
         });
-
     listViewQuasiCourses.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) -> {
           listViewQuasiMandatoryModules.getItems().clear();
@@ -272,9 +272,8 @@ class Reports extends VBox implements Initializable {
     final Map<Integer, Set<Pair<Integer>>> redundantUnitGroups =
         reportData.getRedundantUnitGroups();
 
-    final Set<Unit> redundantUnits = units.stream()
-        .filter(unit -> redundantUnitGroups.containsKey(unit.getId()))
-        .collect(Collectors.toSet());
+    final Set<Unit> redundantUnits = redundantUnitGroups.keySet().stream()
+        .map(store::getUnitById).collect(Collectors.toSet());
 
     redundantUnits.forEach(redundantUnit ->
         redundantUnitGroups.get(redundantUnit.getId())
@@ -285,9 +284,7 @@ class Reports extends VBox implements Initializable {
   }
 
   private String getUnitTitleFromGroupId(final Integer groupId) {
-    final Group groupFromId = groups.stream()
-        .filter(group -> group.getId() == groupId)
-        .findFirst().orElse(null);
+    final Group groupFromId = store.getGroupById(groupId);
     return (groupFromId != null) ? groupFromId.getUnit().getTitle() : "";
   }
 
