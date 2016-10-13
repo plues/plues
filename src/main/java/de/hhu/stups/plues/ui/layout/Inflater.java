@@ -78,7 +78,7 @@ public class Inflater {
       loader.setController(controller);
     }
 
-    ResourceBundle bundle = ResourceBundle.getBundle("lang." + bundleName, new Locale("de"));
+    final ResourceBundle bundle = ResourceBundle.getBundle("lang." + bundleName, new Locale("de"));
     loader.setResources(bundle);
 
     try {
