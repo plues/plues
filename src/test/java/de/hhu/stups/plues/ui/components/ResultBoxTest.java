@@ -2,7 +2,7 @@ package de.hhu.stups.plues.ui.components;
 
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 import static org.testfx.api.FxAssert.verifyThat;
 
 import de.hhu.stups.plues.Delayed;

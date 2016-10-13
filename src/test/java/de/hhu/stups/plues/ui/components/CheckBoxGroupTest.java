@@ -74,7 +74,7 @@ public class CheckBoxGroupTest extends ApplicationTest {
     majorUnits.add(unit);
     majorModule.setAbstractUnits(majorUnits);
 
-    Inflater inflater = new Inflater(new FXMLLoader());
+    final Inflater inflater = new Inflater(new FXMLLoader());
     final CheckBoxGroup checkBoxGroup = new CheckBoxGroup(inflater, major, majorModule);
 
     final Scene scene = new Scene(checkBoxGroup, 200, 200);

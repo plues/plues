@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.prob.translator.Translator;
 import de.prob.translator.types.Set;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;

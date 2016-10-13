@@ -6,7 +6,6 @@ import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 
 public class SuccessfulResultBoxTest extends ResultBoxTest {
 
