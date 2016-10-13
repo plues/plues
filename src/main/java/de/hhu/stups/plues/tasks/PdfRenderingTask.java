@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -136,8 +135,13 @@ public class PdfRenderingTask extends Task<Path> {
   }
 
   private Renderer getRenderer(final Store store, final FeasibilityResult result) {
-    return new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-      result.getModuleChoice(), this.major, this.minor);
+    try {
+      return new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
+        result.getModuleChoice(), this.major, this.minor);
+    } catch (final NullPointerException exc) {
+      logger.log(Level.SEVERE, "Exception rendering PDF", exc);
+      throw exc;
+    }
   }
 
   @Override
