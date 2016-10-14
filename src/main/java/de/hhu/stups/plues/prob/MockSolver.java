@@ -1,10 +1,5 @@
 package de.hhu.stups.plues.prob;
 
-import de.hhu.stups.plues.keys.MajorMinorKey;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableMap;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
