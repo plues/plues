@@ -16,6 +16,10 @@ import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.Solver;
 
+import de.hhu.stups.plues.prob.SolverException;
+import javafx.beans.property.ReadOnlyMapProperty;
+import javafx.beans.property.ReadOnlyMapWrapper;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
 import java.util.List;
@@ -30,12 +34,19 @@ public class SolverService {
   private final ExecutorService executor;
   private final Solver solver;
   private final ResourceBundle resources = ResourceBundle.getBundle("lang.tasks");
+  private final ReadOnlyMapProperty<MajorMinorKey, Boolean> courseCombinationResults;
 
+  /**
+   * Create an ew SolverService instance. Using executorService to run tasks executed by solver.
+   * @param executorService ExecutorService to run tasks
+   * @param solver Solver object to execute operations on ProB instance.
+   */
   @Inject
   public SolverService(@Named("prob") final ExecutorService executorService,
       @Assisted final Solver solver) {
     this.executor = executorService;
     this.solver = solver;
+    this.courseCombinationResults = new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
   }
 
   /**
@@ -51,7 +62,11 @@ public class SolverService {
     final String msg = getMessage(names);
     //
     return new SolverTask<>("Checking Feasibility", msg, this.solver,
-        () -> this.solver.checkFeasibility(names));
+        () -> {
+          final Boolean result = this.solver.checkFeasibility(names);
+          this.addCourseCombinationResult(names, result);
+          return result;
+        });
   }
 
   /**
@@ -68,7 +83,16 @@ public class SolverService {
     //
     return new SolverTask<>("Computing Feasibility",
         msg, solver,
-        () -> solver.computeFeasibility(names));
+        () -> {
+          try {
+            final FeasibilityResult result = solver.computeFeasibility(names);
+            this.addCourseCombinationResult(names, true);
+            return result;
+          } catch (final SolverException exception) {
+            this.addCourseCombinationResult(names, false);
+            throw exception;
+          }
+        });
   }
 
   /**
@@ -88,6 +112,7 @@ public class SolverService {
     final List<String> names = courses.stream()
         .map(Course::getName)
         .collect(Collectors.toList());
+    final String[] combination = names.toArray(new String[]{});
 
     final Map<String, List<Integer>> mc = moduleChoice.entrySet().stream()
         .collect(Collectors.toMap(
@@ -104,7 +129,16 @@ public class SolverService {
     //
     return new SolverTask<>("Computing Feasibility",
       msg, solver,
-        () -> solver.computePartialFeasibility(names, mc, auc));
+        () -> {
+          try {
+            final FeasibilityResult result = solver.computePartialFeasibility(names, mc, auc);
+            this.addCourseCombinationResult(combination, true);
+            return result;
+          } catch (final SolverException exception) {
+            this.addCourseCombinationResult(combination, false);
+            throw exception;
+          }
+        });
   }
 
   /**
@@ -128,6 +162,7 @@ public class SolverService {
    * @param courses Courses for the given sessions
    * @return List of alternatives
    */
+  @SuppressWarnings("unused")
   public SolverTask<List<Alternative>> localAlternativesTask(final Session session,
                                                              final Course... courses) {
     final String[] names = getNames(courses);
@@ -150,6 +185,25 @@ public class SolverService {
   public SolverTask<ReportData> collectReportDataTask() {
     return new SolverTask<>("Report Data", "Collecting report data from ProB",
       solver, solver::getReportingData);
+  }
+
+  /**
+   * Create a solver task to move a session to a new day/time and thus modifying the model's state.
+   * Clears all caches as a side-effect.
+   * TODO: Adapt signature to requirements of consumers (once merged)
+   * @param session Session to be moved
+   * @param day String target day
+   * @param time String target time slot
+   * @return SolverTask
+   */
+  @SuppressWarnings("unused")
+  public SolverTask<Void> moveTask(final Session session, final String day, final String time) {
+    final String sessionId = String.valueOf(session.getId());
+    return new SolverTask<>("Moving", "Moving session", solver, () -> {
+      solver.move(sessionId, day, time);
+      courseCombinationResults.clear();
+      return null;
+    });
   }
 
   private String getMessage(final String[] names) {
@@ -175,7 +229,27 @@ public class SolverService {
     return (ListenableFuture<T>) this.executor.submit(command);
   }
 
+  /**
+   * Add a boolean valued result to the cache {@link SolverService#courseCombinationResults}.
+   *  @param courses The list of courses or a single standalone course.
+   * @param result  The boolean valued feasibility result.
+   */
+  private synchronized void addCourseCombinationResult(final String[] courses,
+      final boolean result) {
+
+    final MajorMinorKey key;
+    if (courses.length == 1) {
+      key = new MajorMinorKey(courses[0], null);
+    } else {
+      key = new MajorMinorKey(courses[0], courses[1]);
+    }
+    // only replace if cache not contains key or the existing result is false
+    if (!courseCombinationResults.containsKey(key) || !courseCombinationResults.get(key)) {
+      courseCombinationResults.put(key, result);
+    }
+  }
+
   public final ObservableMap<MajorMinorKey, Boolean> getCourseCombinationResults() {
-    return this.solver.getCourseCombinationResults();
+    return this.courseCombinationResults;
   }
 }

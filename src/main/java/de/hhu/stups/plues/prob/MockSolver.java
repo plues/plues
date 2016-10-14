@@ -92,10 +92,4 @@ public class MockSolver implements Solver {
   public String getModelVersion() throws SolverException {
     return "";
   }
-
-  @Override
-  public final ObservableMap<MajorMinorKey, Boolean> getCourseCombinationResults() {
-    return FXCollections.observableHashMap();
-  }
-
 }

@@ -254,11 +254,6 @@ public class SolverTaskTest extends ApplicationTest {
     public String getModelVersion() {
       return null;
     }
-
-    @Override
-    public final ObservableMap<MajorMinorKey, Boolean> getCourseCombinationResults() {
-      return null;
-    }
   }
 
   private static class TaskProperties {
