@@ -20,6 +20,7 @@ import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -43,22 +44,25 @@ import java.util.stream.IntStream;
 
 public class ConflictMatrix extends GridPane implements Initializable {
 
+  private static final String VERTICAL = "vertical";
+
   private final Delayed<SolverService> delayedSolverService;
   private final ExecutorService executor;
-  private ObservableMap<MajorMinorKey, Boolean> courseCombinationResults;
 
+  private ObservableMap<MajorMinorKey, Boolean> courseCombinationResults;
   private final BooleanProperty solverProperty;
   private final BooleanProperty feasibilityCheckRunning;
   private final List<Course> courses;
   private final List<Course> majorCourses;
   private final List<Course> minorCourses;
   private final List<Course> standaloneCourses;
-  private final Set<SolverTask<Boolean>> checkFeasibilityTasks = new HashSet<>();
 
+  private final Set<SolverTask<Boolean>> checkFeasibilityTasks = new HashSet<>();
   private Task<Set<SolverTask<Boolean>>> prepareFeasibilityCheck;
   private BatchFeasibilityTask executeFeasibilityCheck;
   private Set<String> impossibleCourses;
   private ResourceBundle resources;
+  private Store store;
 
   @FXML
   @SuppressWarnings("unused")
@@ -138,7 +142,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
     minorCourses = new ArrayList<>();
     standaloneCourses = new ArrayList<>();
 
-    delayedStore.whenAvailable(store -> {
+    delayedStore.whenAvailable(localStore -> {
+      store = localStore;
       courses.addAll(store.getCourses());
       majorCourses.addAll(courses.stream()
           .filter(c -> c.isMajor() && c.isCombinable()).collect(Collectors.toList()));
@@ -240,7 +245,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private void initializeGridPaneCombinable() {
     IntStream.range(0, majorCourses.size())
         .forEach(index -> gridPaneCombinable.add(
-            getDefaultGridCellPane(majorCourses.get(index).getName()), index + 1, 0));
+            getDefaultGridCellPane(majorCourses.get(index).getName(), VERTICAL), index + 1, 0));
     IntStream.range(0, minorCourses.size())
         .forEach(index -> gridPaneCombinable.add(
             getDefaultGridCellPane(minorCourses.get(index).getName()), 0, index + 1));
@@ -263,7 +268,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private void initializeGridPaneStandalone() {
     IntStream.range(0, standaloneCourses.size())
         .forEach(index -> gridPaneStandalone.add(
-            getDefaultGridCellPane(standaloneCourses.get(index).getName()), index, 0));
+            getDefaultGridCellPane(standaloneCourses.get(index).getName(), VERTICAL), index, 0));
     IntStream.range(0, standaloneCourses.size())
         .forEach(index -> gridPaneStandalone.add(
             getDefaultGridCellPane(""), index, 1));
@@ -340,28 +345,42 @@ public class ConflictMatrix extends GridPane implements Initializable {
   }
 
   /**
-   * Create a default grid pane cell.
-   *
-   * @param courseName The course's name to display or empty for default empty cells.
-   * @return Return a pane.
+   * Call {@link ConflictMatrix#getDefaultGridCellPane(String, String) getDefaultGridCellPane} with
+   * the default horizontal orientation.
    */
   private Pane getDefaultGridCellPane(final String courseName) {
+    return getDefaultGridCellPane(courseName, "");
+  }
+
+  /**
+   * Create a default grid pane cell.
+   *
+   * @param courseName  The course's name to display or empty for default empty cells.
+   * @param orientation The label's orientation, i.e. "vertical" or anything else for horizontal.
+   * @return Return a pane.
+   */
+  private Pane getDefaultGridCellPane(final String courseName, final String orientation) {
     final Pane pane = new Pane();
     pane.setId("conflictMatrixCellDefault");
-    pane.setPrefHeight(25.0);
 
     final Label label;
     if (!courseName.isEmpty()) {
       label = new Label("  " + courseName + "  ");
-      final String fullName = courses.stream()
-          .filter(c -> c.getName().equals(courseName))
-          .collect(Collectors.toList()).get(0).getFullName();
-      final Tooltip tooltip = new Tooltip(fullName);
+      if (VERTICAL.equals(orientation)) {
+        label.setRotate(270.0);
+        label.setTranslateY(100.0);
+        label.setTranslateX(-70.0);
+        label.setPrefWidth(200.0);
+      } else {
+        pane.setPrefHeight(25.0);
+      }
+      final Tooltip tooltip = new Tooltip(store.getCourseByKey(courseName).getFullName());
       label.setTooltip(tooltip);
     } else {
       label = new Label();
+      pane.setPrefHeight(25.0);
     }
-    pane.getChildren().add(label);
+    pane.getChildren().add(new Group(label));
 
     return pane;
   }

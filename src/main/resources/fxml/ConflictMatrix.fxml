@@ -10,25 +10,26 @@
 <?import javafx.scene.layout.HBox?>
 
 <fx:root prefWidth="800.0" prefHeight="500.0" alignment="center" type="javafx.scene.layout.GridPane"
-         xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
+         hgap="10.0" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <Label fx:id="lbHeader" text="%header"
                GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.halignment="CENTER"
-               GridPane.valignment="CENTER"/>
+               GridPane.columnSpan="2" GridPane.valignment="CENTER"/>
         <Label fx:id="lbCombinableCourses" text="%headCombinable" GridPane.columnIndex="0"
+               GridPane.halignment="CENTER" GridPane.rowIndex="1"/>
+        <Label fx:id="lbStandaloneCourses" text="%headStandalone" GridPane.columnIndex="1"
                GridPane.halignment="CENTER" GridPane.rowIndex="1"/>
         <ScrollPane fx:id="scrollPaneCombinable" prefWidth="Infinity" prefHeight="Infinity"
                     GridPane.columnIndex="0" GridPane.rowIndex="2">
             <GridPane fx:id="gridPaneCombinable"/>
         </ScrollPane>
-        <Label fx:id="lbStandaloneCourses" text="%headStandalone" GridPane.columnIndex="0"
-               GridPane.halignment="CENTER" GridPane.rowIndex="3"/>
         <ScrollPane fx:id="scrollPaneStandalone" prefWidth="Infinity" prefHeight="Infinity"
-                    GridPane.columnIndex="0"
-                    GridPane.rowIndex="4">
+                    GridPane.columnIndex="1"
+                    GridPane.rowIndex="2">
             <GridPane fx:id="gridPaneStandalone"/>
         </ScrollPane>
-        <HBox fx:id="boxLegend" GridPane.columnIndex="0" GridPane.rowIndex="6" spacing="10.0">
+        <HBox fx:id="boxLegend" GridPane.columnIndex="0" GridPane.rowIndex="4"
+              GridPane.columnSpan="2" spacing="10.0">
             <Pane fx:id="paneLegendSuccess" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
                   minHeight="25.0"/>
             <Label fx:id="lbLegendSuccess" text="%legendSuccess" wrapText="true"/>
@@ -43,24 +44,23 @@
             <Label fx:id="lbLegendImpossible" text="%legendImpossible" wrapText="true"/>
         </HBox>
         <HBox prefHeight="Infinity" prefWidth="Infinity" alignment="CENTER"
-              GridPane.columnIndex="0" GridPane.rowIndex="7">
+              GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2">
             <Button fx:id="btCheckAll" onAction="#checkAllCombinations"
                     text="%checkAll"/>
             <Button fx:id="btCancelCheckAll" onAction="#cancelCheckAll" text="%cancelCheckAll"/>
         </HBox>
     </children>
     <columnConstraints>
-        <ColumnConstraints percentWidth="80.0"/>
+        <ColumnConstraints percentWidth="40.0"/>
+        <ColumnConstraints percentWidth="40.0"/>
     </columnConstraints>
     <rowConstraints>
         <RowConstraints percentHeight="5.0"/>
         <RowConstraints percentHeight="5.0"/>
-        <RowConstraints percentHeight="60.0"/>
-        <RowConstraints percentHeight="5.0"/>
-        <RowConstraints percentHeight="10.0"/>
-        <RowConstraints percentHeight="2.0"/>
+        <RowConstraints percentHeight="70.0"/>
         <RowConstraints percentHeight="5.0"/>
         <RowConstraints percentHeight="5.0"/>
-        <RowConstraints percentHeight="3.0"/>
+        <RowConstraints percentHeight="5.0"/>
+        <RowConstraints percentHeight="5.0"/>
     </rowConstraints>
 </fx:root>
