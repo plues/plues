@@ -15,6 +15,11 @@ public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> 
   private final ResourceBundle resources;
   private Collection<SolverTask<Boolean>> tasks;
 
+  /**
+   * Constructor, create a new Task to manage batch execution of SolverTasks on a given executor.
+   * @param executor ExecutorService
+   * @param tasks Collection of SolverTask objects.
+   */
   public BatchFeasibilityTask(final ExecutorService executor,
                               final Collection<SolverTask<Boolean>> tasks) {
     this.executor = executor;
@@ -47,7 +52,7 @@ public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> 
     return tasks;
   }
 
-  public void setTasks(Collection<SolverTask<Boolean>> tasks) {
+  public void setTasks(final Collection<SolverTask<Boolean>> tasks) {
     this.tasks = tasks;
   }
 

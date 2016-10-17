@@ -512,7 +512,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private MapChangeListener<MajorMinorKey, Boolean> getMapChangeListener() {
     return change -> {
       if (change.wasAdded()) {
-        MajorMinorKey key = change.getKey();
+        final MajorMinorKey key = change.getKey();
         if (key.hasMinor()) {
           gridPaneCombinableAddElm(key.getMajor(), key.getMinor(), change.getValueAdded());
         } else {

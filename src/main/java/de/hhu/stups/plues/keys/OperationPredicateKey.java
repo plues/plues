@@ -6,20 +6,20 @@ public final class OperationPredicateKey {
   private final String operation;
   private final String predicate;
 
-  public OperationPredicateKey(String operation, String predicate) {
+  public OperationPredicateKey(final String operation, final String predicate) {
     this.operation = operation;
     this.predicate = predicate;
   }
 
   @Override
-  public final boolean equals(Object obj) {
+  public final boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    OperationPredicateKey that = (OperationPredicateKey) obj;
+    final OperationPredicateKey that = (OperationPredicateKey) obj;
     return Objects.equals(operation, that.operation)
         && Objects.equals(predicate, that.predicate);
   }
@@ -29,11 +29,8 @@ public final class OperationPredicateKey {
     return Objects.hash(operation, predicate);
   }
 
-  public final String getOperation() {
-    return this.operation;
-  }
-
-  public final String getPredicate() {
-    return this.predicate;
+  @Override
+  public final String toString() {
+    return String.format("Key: operation='%s' predicate='%s'", operation, predicate);
   }
 }

@@ -6,7 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-class SolverCache extends LinkedHashMap<OperationPredicateKey,Object> {
+class SolverCache<T> extends LinkedHashMap<OperationPredicateKey,T> {
 
   private final int cacheSize;
 
@@ -27,7 +27,7 @@ class SolverCache extends LinkedHashMap<OperationPredicateKey,Object> {
    * @return Return true if the cache size is exhausted otherwise false.
    */
   @Override
-  protected boolean removeEldestEntry(final Map.Entry<OperationPredicateKey, Object> eldestEntry) {
+  protected boolean removeEldestEntry(final Map.Entry<OperationPredicateKey, T> eldestEntry) {
     return this.size() > cacheSize;
   }
 
@@ -42,7 +42,7 @@ class SolverCache extends LinkedHashMap<OperationPredicateKey,Object> {
     if (!super.equals(other)) {
       return false;
     }
-    final SolverCache that = (SolverCache) other;
+    final SolverCache<?> that = (SolverCache<?>) other;
     return cacheSize == that.cacheSize;
   }
 
