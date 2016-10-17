@@ -58,9 +58,9 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private final List<Course> standaloneCourses;
 
   private final Set<SolverTask<Boolean>> checkFeasibilityTasks = new HashSet<>();
+  private final Set<String> impossibleCourses;
   private Task<Set<SolverTask<Boolean>>> prepareFeasibilityCheck;
   private BatchFeasibilityTask executeFeasibilityCheck;
-  private Set<String> impossibleCourses;
   private ResourceBundle resources;
   private Store store;
 
@@ -141,6 +141,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
     combinableMajorCourses = new ArrayList<>();
     combinableMinorCourses = new ArrayList<>();
     standaloneCourses = new ArrayList<>();
+    impossibleCourses = new HashSet<>();
 
     delayedStore.whenAvailable(localStore -> {
       store = localStore;
@@ -158,7 +159,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
       final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
       impossibleCoursesTask.setOnSucceeded(event -> {
-        impossibleCourses = impossibleCoursesTask.getValue();
+        impossibleCourses.addAll(impossibleCoursesTask.getValue());
         highlightImpossibleCourses();
       });
       executor.submit(impossibleCoursesTask);
@@ -180,7 +181,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
         btCancelCheckAll);
     components.forEach(c -> c.visibleProperty().bind(solverProperty));
 
-    btCheckAll.disableProperty().bind(feasibilityCheckRunning);
+    btCheckAll.disableProperty().bind(feasibilityCheckRunning.or(solverProperty.not()));
     btCancelCheckAll.disableProperty().bind(feasibilityCheckRunning.not());
 
     // draw small circles for color blind users
@@ -311,7 +312,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
     feasibilityCheckRunning.setValue(true);
     prepareFeasibilityCheck = new CollectFeasibilityTasksTask(
         delayedSolverService.get(), combinableMajorCourses,
-        combinableMinorCourses, standaloneCourses);
+        combinableMinorCourses, standaloneCourses, courseCombinationResults, impossibleCourses);
 
     prepareFeasibilityCheck.setOnCancelled(event -> {
       feasibilityCheckRunning.setValue(false);
@@ -509,7 +510,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
    */
   private void gridPaneCombinableAddElm(final String majorName, final String minorName,
                                         final Boolean result) {
-
     final int row = combinableMinorCourses.stream().map(Course::getName)
         .collect(Collectors.toList()).indexOf(minorName) + 1;
     final int col = combinableMajorCourses.stream().map(Course::getName)
@@ -548,6 +548,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
       } else {
         // discard all if a session has been moved
         gridPaneCombinable.getChildren().clear();
+        gridPaneStandalone.getChildren().clear();
+        // Todo: initialize grid panes?
       }
     };
   }
