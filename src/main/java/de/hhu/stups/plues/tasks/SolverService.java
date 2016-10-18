@@ -61,7 +61,7 @@ public class SolverService {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     //
-    return new SolverTask<>("Checking Feasibility", msg, this.solver,
+    return new SolverTask<>("check", msg, this.solver,
         () -> {
           final Boolean result = this.solver.checkFeasibility(names);
           this.addCourseCombinationResult(names, result);
@@ -81,7 +81,7 @@ public class SolverService {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     //
-    return new SolverTask<>("Computing Feasibility",
+    return new SolverTask<>("compute",
         msg, solver,
         () -> {
           try {
@@ -127,7 +127,7 @@ public class SolverService {
 
     final String msg = getMessage(names);
     //
-    return new SolverTask<>("Computing Feasibility",
+    return new SolverTask<>("compute",
       msg, solver,
         () -> {
           try {
@@ -152,7 +152,7 @@ public class SolverService {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     //
-    return new SolverTask<>("Computing UNSAT Core", msg, solver,
+    return new SolverTask<>("unsat", msg, solver,
         () -> solver.unsatCore(names));
   }
 
@@ -167,7 +167,7 @@ public class SolverService {
                                                              final Course... courses) {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
-    return new SolverTask<>("Computing alternatives", msg, solver,
+    return new SolverTask<>("alternatives", msg, solver,
         () -> solver.getLocalAlternatives(session.getId(), names));
   }
 
@@ -177,13 +177,13 @@ public class SolverService {
    * @return SolverTask
    */
   public SolverTask<Set<String>> impossibleCoursesTask() {
-    return new SolverTask<>("Collecting impossible courses", resources.getString("impossible"),
+    return new SolverTask<>("impossible", "impossibleMessage",
       solver, solver::getImpossibleCourses);
   }
 
 
   public SolverTask<ReportData> collectReportDataTask() {
-    return new SolverTask<>("Report Data", "Collecting report data from ProB",
+    return new SolverTask<>("report", "reportMessage",
       solver, solver::getReportingData);
   }
 
@@ -199,7 +199,7 @@ public class SolverService {
   @SuppressWarnings("unused")
   public SolverTask<Void> moveTask(final Session session, final String day, final String time) {
     final String sessionId = String.valueOf(session.getId());
-    return new SolverTask<>("Moving", "Moving session", solver, () -> {
+    return new SolverTask<>("moving", "movingMessage", solver, () -> {
       solver.move(sessionId, day, time);
       courseCombinationResults.clear();
       return null;
