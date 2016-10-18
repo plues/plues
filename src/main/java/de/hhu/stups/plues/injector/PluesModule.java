@@ -27,6 +27,8 @@ import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
 
+import java.util.ResourceBundle;
+
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 
@@ -39,6 +41,9 @@ public class PluesModule extends AbstractModule {
       = new TypeLiteral<Delayed<SolverService>>() {};
 
   private final Stage primaryStage;
+
+  // bundle with default language
+  private final ResourceBundle bundle = ResourceBundle.getBundle("lang.main");
 
   public PluesModule(final Stage primaryStage) {
     this.primaryStage = primaryStage;
@@ -68,6 +73,7 @@ public class PluesModule extends AbstractModule {
     bind(Stage.class).toInstance(primaryStage);
     bind(Router.class).toProvider(RouterProvider.class);
     bind(MainController.class);
+    bind(ResourceBundle.class).toInstance(bundle);
 
     bind(SolverLoader.class).to(SolverLoaderImpl.class);
 
@@ -77,13 +83,14 @@ public class PluesModule extends AbstractModule {
 
   @Provides
   final FXMLLoader provideLoader(final Injector injector,
-                                 final GuiceBuilderFactory
-                                   builderFactory) {
+                                 final GuiceBuilderFactory builderFactory,
+                                 final ResourceBundle bundle) {
 
     final FXMLLoader fxmlLoader = new FXMLLoader();
 
     fxmlLoader.setBuilderFactory(builderFactory);
     fxmlLoader.setControllerFactory(injector::getInstance);
+    fxmlLoader.setResources(bundle);
 
     return fxmlLoader;
   }
