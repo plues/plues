@@ -16,6 +16,7 @@
 <?import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration?>
 
 <?import de.hhu.stups.plues.ui.controller.ConflictMatrix?>
+<?import de.hhu.stups.plues.ui.components.AbstractUnitFilter?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="de.hhu.stups.plues.ui.controller.MainController">
@@ -41,6 +42,9 @@
     <BorderPane>
         <center>
             <TabPane>
+                <Tab text="AbstractUnitFilter" closable="false">
+                    <AbstractUnitFilter fx:id="unitFilter"/>
+                </Tab>
                 <Tab text="%partial" closable="false">
                     <PartialTimeTables fx:id="partialTimetables"/>
                 </Tab>
