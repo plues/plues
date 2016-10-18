@@ -80,7 +80,7 @@ public class Inflater {
 
 
     final ResourceBundle bundle = ResourceBundle.getBundle("lang." + bundleName,
-        loader.getResources().getLocale());
+        Locale.getDefault());
     loader.setResources(bundle);
 
     try {

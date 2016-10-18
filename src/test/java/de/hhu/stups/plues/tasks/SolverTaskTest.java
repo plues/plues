@@ -39,9 +39,13 @@ import java.util.concurrent.TimeUnit;
 public class SolverTaskTest extends ApplicationTest {
 
   private static final ExecutorService executor;
-  private static final String TITLE = "testTitle";
-  private static final String MESSAGE = "testMessage";
   private static final ResourceBundle resources = ResourceBundle.getBundle("lang.tasks");
+  private static final String TITLE =
+      ResourceBundle.getBundle("lang.solverTask").getString("testTitle");
+  private static final String MESSAGE =
+      ResourceBundle.getBundle("lang.solverTask").getString("testMessage");
+  private static final String TITLE_KEY = "testTitle";
+  public static final String MESSAGE_KEY = "testMessage";
 
   static {
     final ThreadFactory threadFactory
@@ -53,7 +57,7 @@ public class SolverTaskTest extends ApplicationTest {
   public void testCallableIsSuccessful() throws ExecutionException, InterruptedException {
     final CountDownLatch latch = new CountDownLatch(1);
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), () -> 1);
+        = new SolverTask<>(TITLE_KEY, MESSAGE_KEY, new TestSolver(), () -> 1);
     final TaskProperties taskProperties = new TaskProperties();
 
     Platform.runLater(() -> {
@@ -87,7 +91,7 @@ public class SolverTaskTest extends ApplicationTest {
       throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c);
+        = new SolverTask<>(TITLE_KEY, MESSAGE_KEY, new TestSolver(), c);
 
     executor.submit(solverTask);
 
@@ -123,7 +127,7 @@ public class SolverTaskTest extends ApplicationTest {
       throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c);
+        = new SolverTask<>(TITLE_KEY, MESSAGE_KEY, new TestSolver(), c);
 
     Platform.runLater(() -> {
       executor.submit(solverTask);
@@ -153,7 +157,7 @@ public class SolverTaskTest extends ApplicationTest {
       return 1;
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c, 3, TimeUnit.SECONDS);
+        = new SolverTask<>(TITLE_KEY, MESSAGE_KEY, new TestSolver(), c, 3, TimeUnit.SECONDS);
     executor.submit(solverTask);
 
     try {

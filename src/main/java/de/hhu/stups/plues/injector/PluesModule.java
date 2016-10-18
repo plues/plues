@@ -27,10 +27,10 @@ import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
 
-import java.util.ResourceBundle;
-
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
+
+import java.util.ResourceBundle;
 
 public class PluesModule extends AbstractModule {
 
