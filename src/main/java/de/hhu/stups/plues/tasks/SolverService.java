@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class SolverService {
   private final ExecutorService executor;
   private final Solver solver;
-  private final ResourceBundle resources = ResourceBundle.getBundle("lang.tasks");
+  private final ResourceBundle resources = ResourceBundle.getBundle("lang.solverTask");
   private final ReadOnlyMapProperty<MajorMinorKey, Boolean> courseCombinationResults;
 
   /**
@@ -61,7 +61,7 @@ public class SolverService {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     //
-    return new SolverTask<>("check", msg, this.solver,
+    return new SolverTask<>(resources.getString("check"), msg, this.solver,
         () -> {
           final Boolean result = this.solver.checkFeasibility(names);
           this.addCourseCombinationResult(names, result);
@@ -81,7 +81,7 @@ public class SolverService {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     //
-    return new SolverTask<>("compute",
+    return new SolverTask<>(resources.getString("compute"),
         msg, solver,
         () -> {
           try {
@@ -127,7 +127,7 @@ public class SolverService {
 
     final String msg = getMessage(names);
     //
-    return new SolverTask<>("compute",
+    return new SolverTask<>(resources.getString("compute"),
       msg, solver,
         () -> {
           try {
@@ -152,7 +152,7 @@ public class SolverService {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     //
-    return new SolverTask<>("unsat", msg, solver,
+    return new SolverTask<>(resources.getString("unsat"), msg, solver,
         () -> solver.unsatCore(names));
   }
 
@@ -167,7 +167,7 @@ public class SolverService {
                                                              final Course... courses) {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
-    return new SolverTask<>("alternatives", msg, solver,
+    return new SolverTask<>(resources.getString("alternatives"), msg, solver,
         () -> solver.getLocalAlternatives(session.getId(), names));
   }
 
@@ -177,13 +177,13 @@ public class SolverService {
    * @return SolverTask
    */
   public SolverTask<Set<String>> impossibleCoursesTask() {
-    return new SolverTask<>("impossible", "impossibleMessage",
-      solver, solver::getImpossibleCourses);
+    return new SolverTask<>(resources.getString("impossible"),
+      resources.getString("impossibleMessage"), solver, solver::getImpossibleCourses);
   }
 
 
   public SolverTask<ReportData> collectReportDataTask() {
-    return new SolverTask<>("report", "reportMessage",
+    return new SolverTask<>(resources.getString("report"), resources.getString("reportMessage"),
       solver, solver::getReportingData);
   }
 
@@ -199,7 +199,8 @@ public class SolverService {
   @SuppressWarnings("unused")
   public SolverTask<Void> moveTask(final Session session, final String day, final String time) {
     final String sessionId = String.valueOf(session.getId());
-    return new SolverTask<>("moving", "movingMessage", solver, () -> {
+    return new SolverTask<>(resources.getString("moving"), resources.getString("movingMessage"),
+      solver, () -> {
       solver.move(sessionId, day, time);
       courseCombinationResults.clear();
       return null;

@@ -44,8 +44,6 @@ public class SolverTaskTest extends ApplicationTest {
       ResourceBundle.getBundle("lang.solverTask").getString("testTitle");
   private static final String MESSAGE =
       ResourceBundle.getBundle("lang.solverTask").getString("testMessage");
-  private static final String TITLE_KEY = "testTitle";
-  public static final String MESSAGE_KEY = "testMessage";
 
   static {
     final ThreadFactory threadFactory
@@ -57,7 +55,7 @@ public class SolverTaskTest extends ApplicationTest {
   public void testCallableIsSuccessful() throws ExecutionException, InterruptedException {
     final CountDownLatch latch = new CountDownLatch(1);
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE_KEY, MESSAGE_KEY, new TestSolver(), () -> 1);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), () -> 1);
     final TaskProperties taskProperties = new TaskProperties();
 
     Platform.runLater(() -> {
@@ -91,7 +89,7 @@ public class SolverTaskTest extends ApplicationTest {
       throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE_KEY, MESSAGE_KEY, new TestSolver(), c);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c);
 
     executor.submit(solverTask);
 
@@ -127,7 +125,7 @@ public class SolverTaskTest extends ApplicationTest {
       throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE_KEY, MESSAGE_KEY, new TestSolver(), c);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c);
 
     Platform.runLater(() -> {
       executor.submit(solverTask);
@@ -157,7 +155,7 @@ public class SolverTaskTest extends ApplicationTest {
       return 1;
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE_KEY, MESSAGE_KEY, new TestSolver(), c, 3, TimeUnit.SECONDS);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c, 3, TimeUnit.SECONDS);
     executor.submit(solverTask);
 
     try {

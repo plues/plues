@@ -52,29 +52,13 @@ public class SolverTask<T> extends Task<T> {
   private ListenableScheduledFuture<?> timer;
   private String reason;
 
-  SolverTask(final String titleKey, final String messageKey, final Solver solver,
+  SolverTask(final String title, final String message, final Solver solver,
              final Callable<T> func) {
-    this(titleKey, messageKey, solver, func, 1, TimeUnit.MINUTES);
+    this(title, message, solver, func, 1, TimeUnit.MINUTES);
   }
 
-  SolverTask(final String titleKey, final String messageKey, final Solver solver,
+  SolverTask(final String title, final String message, final Solver solver,
              final Callable<T> func, final int timeout, final TimeUnit timeUnit) {
-    ResourceBundle bundle = ResourceBundle.getBundle("lang.solverTask");
-
-    String title = bundle.getString(titleKey);
-
-    /*
-    If messageKey is a key for i18n: Get text from resource.
-    If not: messageKey is a message containing course keys and does not need
-      to translated
-     */
-    ArrayList<String> messageKeys =
-        new ArrayList<>(Arrays.asList("reportMessage", "impossibleMessage",
-            "movingMessage", "testMessage"));
-    String message = messageKey;
-    if (messageKeys.contains(messageKey)) {
-      message = bundle.getString(messageKey);
-    }
 
     this.function = timedCallableWrapper(title, func);
     this.solver = solver;
