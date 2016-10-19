@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+
+<fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/8"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <TitledPane fx:id="titledPaneMasterCourse" text="Master" maxHeight="300.0">
+            <TableView fx:id="tableViewMasterCourse" prefWidth="500.0" maxHeight="300.0">
+                <columns>
+                    <TableColumn fx:id="tableColumnMasterCheckBox" prefWidth="30.0"/>
+                    <TableColumn fx:id="tableColumnMasterCourse" prefWidth="470.0"
+                                 minWidth="470.0" text="Studiengang"/>
+                </columns>
+            </TableView>
+        </TitledPane>
+        <TitledPane fx:id="titledPaneBachelorCourse" text="Bachelor" prefWidth="400.0"
+                    maxHeight="300.0">
+            <TableView fx:id="tableViewBachelorCourse" prefWidth="500.0" maxHeight="300.0">
+                <columns>
+                    <TableColumn fx:id="tableColumnBachelorCheckBox" prefWidth="30.0"/>
+                    <TableColumn fx:id="tableColumnBachelorCourse" prefWidth="470.0"
+                                 minWidth="470.0" text="Studiengang"/>
+                </columns>
+            </TableView>
+        </TitledPane>
+    </children>
+</fx:root>
