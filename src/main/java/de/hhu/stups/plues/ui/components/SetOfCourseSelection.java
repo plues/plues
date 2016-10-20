@@ -2,12 +2,9 @@ package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
 
-import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -29,7 +26,6 @@ import java.util.stream.Collectors;
 
 public class SetOfCourseSelection extends VBox implements Initializable {
 
-  private final SimpleBooleanProperty storeProperty;
   private final List<Course> masterCourses;
   private final List<Course> bachelorCourses;
   private final ObservableList<Course> selectedCourses;
@@ -65,21 +61,10 @@ public class SetOfCourseSelection extends VBox implements Initializable {
    * observable list {@link this#selectedCourses}.
    */
   @Inject
-  public SetOfCourseSelection(final Inflater inflater,
-                              final Delayed<Store> delayedStore) {
-    storeProperty = new SimpleBooleanProperty(false);
+  public SetOfCourseSelection(final Inflater inflater) {
     bachelorCourses = new ArrayList<>();
     masterCourses = new ArrayList<>();
     selectedCourses = FXCollections.observableArrayList();
-
-    delayedStore.whenAvailable(store -> {
-      bachelorCourses.addAll(store.getCourses().stream()
-          .filter(Course::isBachelor).collect(Collectors.toList()));
-      masterCourses.addAll(store.getCourses().stream()
-          .filter(Course::isMaster).collect(Collectors.toList()));
-      storeProperty.set(true);
-      initializeTableViews();
-    });
 
     inflater.inflate("components/SetOfCourseSelection", this, this);
   }
@@ -101,6 +86,13 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
     tableViewMasterCourse.setId("batchListView");
     tableViewBachelorCourse.setId("batchListView");
+  }
+
+  public void setCourses(List<Course> courses) {
+    masterCourses.addAll(courses.stream().filter(Course::isMaster).collect(Collectors.toList()));
+    bachelorCourses.addAll(courses.stream()
+        .filter(Course::isBachelor).collect(Collectors.toList()));
+    initializeTableViews();
   }
 
   private void initializeTableViews() {
@@ -127,6 +119,15 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   public ObservableList<Course> getSelectedCourses() {
     return selectedCourses;
   }
+
+  TableView<TableRowPair<Node, String>> getTableViewMasterCourse() {
+    return tableViewMasterCourse;
+  }
+
+  TableView<TableRowPair<Node, String>> getTableViewBachelorCourse() {
+    return tableViewBachelorCourse;
+  }
+
 
   public static final class TableRowPair<T1, T2> {
     private final T1 first;
