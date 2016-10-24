@@ -30,8 +30,8 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
   private final ToggleGroup filterGroup = new ToggleGroup();
   private ObservableList<RowEntry> allItems = FXCollections.observableArrayList();
-  private ObservableList<RowEntry> displayedItems = FXCollections.observableArrayList();
   private ObservableList<RowEntry> selectedItems = FXCollections.observableArrayList();
+  private ListBinding<RowEntry> binding;
   private SimpleListProperty<RowEntry> listProperty;
 
   @FXML
@@ -49,7 +49,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private RadioButton all;
-
   @FXML
   @SuppressWarnings("unused")
   private TableView<RowEntry> units;
@@ -60,33 +59,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   }
 
   /**
-   * OnClick method to select all units again.
-   */
-  @FXML
-  public void allItems() {
-    displayedItems.clear();
-    displayedItems.addAll(allItems);
-  }
-
-  /**
-   * OnClick method to filter only selected units.
-   */
-  @FXML
-  public void filterBySelected() {
-    displayedItems.clear();
-    displayedItems.addAll(selectedItems);
-  }
-
-  /**
-   * OnClick method to filter only not-selected units.
-   */
-  @FXML
-  public void filterByUnselected() {
-    displayedItems.clear();
-    displayedItems.addAll(allItems.filtered(rowEntry -> !selectedItems.contains(rowEntry)));
-  }
-
-  /**
    * OnClick method to remove selection and return to all units view.
    */
   @FXML
@@ -94,11 +66,11 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     allItems.forEach(rowEntry -> ((CheckBox) rowEntry.getCheckbox()).setSelected(false));
     selectedItems.clear();
     query.clear();
+    binding.invalidate();
 
     selected.setSelected(false);
     notSelected.setSelected(false);
     all.setSelected(true);
-    allItems();
   }
 
   @Override
@@ -108,7 +80,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     all.setToggleGroup(filterGroup);
 
     units.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-    listProperty = new SimpleListProperty<>(displayedItems);
+    listProperty = new SimpleListProperty<>(allItems);
 
     final TableColumn<RowEntry, CheckBox> checkBoxTableColumn = new TableColumn<>("Check");
     final TableColumn<RowEntry, String> nameTableColumn = new TableColumn<>("Abstract Unit Title");
@@ -125,7 +97,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     units.getColumns().addAll(checkBoxTableColumn, nameTableColumn);
 
-    ListBinding<RowEntry> binding = new ListBinding<RowEntry>() {
+    binding = new ListBinding<RowEntry>() {
       {
         bind(query.textProperty());
         bind(all.selectedProperty());
@@ -136,19 +108,21 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
       @Override
       protected ObservableList<RowEntry> computeValue() {
-        return displayedItems.filtered(rowEntry -> {
+        return listProperty.get().filtered(rowEntry -> {
           String text = query.getText().toLowerCase();
           String title = ((AbstractUnit) rowEntry.getUnit()).getTitle().toLowerCase();
           CheckBox cb = (CheckBox) rowEntry.getCheckbox();
 
-          if (title.contains(text) || text.isEmpty()) {
-            if (listProperty.get().contains(rowEntry)) {
-              if (cb.isSelected() && (all.isSelected() || selected.isSelected())) {
-                return true;
-              }
-              if (!cb.isSelected() && (all.isSelected() || notSelected.isSelected())) {
-                return true;
-              }
+          if (text.isEmpty() && all.isSelected()) {
+            return true;
+          }
+
+          if (title.contains(text)) {
+            if (cb.isSelected() && selected.isSelected()) {
+              return true;
+            }
+            if (!cb.isSelected() && notSelected.isSelected()) {
+              return true;
             }
           }
 
@@ -169,8 +143,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       Tooltip tooltip = new Tooltip(abstractUnit.getTitle());
       CheckBox cb = new CheckBox();
       cb.setTooltip(tooltip);
-      allItems.add(new RowEntry(cb, abstractUnit));
-      allItems();
+      allItems.add(new RowEntry<>(cb, abstractUnit));
     });
   }
 

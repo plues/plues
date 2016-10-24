@@ -15,9 +15,9 @@
         <TextField fx:id="query"/>
         <Label text="Filter Options"/>
         <HBox>
-            <RadioButton fx:id="selected" text="Only selected items" onAction="#filterBySelected"/>
-            <RadioButton fx:id="notSelected" text="Only not selected items" onAction="#filterByUnselected"/>
-            <RadioButton fx:id="all" text="All items" onAction="#allItems" selected="true"/>
+            <RadioButton fx:id="selected" text="Only selected items"/>
+            <RadioButton fx:id="notSelected" text="Only not selected items"/>
+            <RadioButton fx:id="all" text="All items" selected="true"/>
         </HBox>
         <Button fx:id="clearSelection" text="Clear selection" onAction="#resetSelection"/>
         <TableView fx:id="units"/>
