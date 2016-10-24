@@ -34,6 +34,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
@@ -41,6 +43,7 @@ import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -67,6 +70,8 @@ public class Timetable extends BorderPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private SetOfCourseSelection setOfCourseSelection;
+  @FXML
+  private ToggleGroup semesterToggle;
 
   private SolverService solverService;
 
@@ -127,7 +132,7 @@ public class Timetable extends BorderPane implements Initializable {
       ((SessionListView) view).setSessions(sessions);
       view.itemsProperty().bind(new ListBinding<SessionFacade>() {
         {
-          bind(sessions);
+          bind(sessions, semesterToggle.selectedToggleProperty());
 
           // http://stackoverflow.com/questions/32536096/javafx-bindings-not-working-as-expected
           sessions.addListener((Change<? extends SessionFacade> change) -> {
@@ -146,7 +151,19 @@ public class Timetable extends BorderPane implements Initializable {
 
         @Override
         protected ObservableList<SessionFacade> computeValue() {
-          return sessions.filtered(session -> session.getSlot().equals(slot));
+          ToggleButton semesterButton = (ToggleButton) semesterToggle.getSelectedToggle();
+
+          return sessions.filtered(session -> {
+            Set<Integer> semesters = session.getSemesters();
+
+            Integer semester = null;
+            if (null != semesterButton) {
+              semester = Integer.valueOf(semesterButton.getText());
+            }
+
+            return session.getSlot().equals(slot)
+              && (semester == null || semesters.contains(semester));
+          });
         }
       });
 
