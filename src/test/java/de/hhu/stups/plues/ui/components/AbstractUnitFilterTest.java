@@ -3,6 +3,16 @@ package de.hhu.stups.plues.ui.components;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
@@ -11,19 +21,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TableView;
-import javafx.stage.Stage;
-
 public class AbstractUnitFilterTest extends ApplicationTest {
 
   private final List<AbstractUnit> abstractUnits;
 
-  // default constructor
+  /**
+   * Default constructor.
+   */
   public AbstractUnitFilterTest() {
     abstractUnits = new ArrayList<>();
 
@@ -62,6 +66,15 @@ public class AbstractUnitFilterTest extends ApplicationTest {
     units = lookup("#units").query();
     Assert.assertEquals(1, units.getItems().size());
     Assert.assertEquals(abstractUnits.get(1), units.getItems().get(0).getUnit());
+  }
+
+  @Test
+  public void testSearch() {
+    TextField field = lookup("#query").query();
+    field.setText("1");
+
+    TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
+    Assert.assertEquals(1, units.getItems().size());
   }
 
   @Test
