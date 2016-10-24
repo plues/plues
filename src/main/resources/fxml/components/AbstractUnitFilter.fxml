@@ -12,10 +12,7 @@
          xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <Label text="Search..."/>
-        <HBox>
-            <TextField fx:id="query"/>
-            <Button fx:id="startSearch" text="Search" onAction="#search"/>
-        </HBox>
+        <TextField fx:id="query"/>
         <Label text="Filter Options"/>
         <HBox>
             <RadioButton fx:id="selected" text="Only selected items" onAction="#filterBySelected"/>
