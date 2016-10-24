@@ -60,10 +60,10 @@ public class Timetable extends BorderPane implements Initializable {
   @FXML
   private Label result;
   @FXML
-  private CourseFilter courseFilter;
-
-  @FXML
   private GridPane timeTable;
+  @FXML
+  @SuppressWarnings("unused")
+  private SetOfCourseSelection setOfCourseSelection;
 
   private SolverService solverService;
 
@@ -85,14 +85,12 @@ public class Timetable extends BorderPane implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    this.delayedStore.whenAvailable(s -> {
-      Runtime.getRuntime().addShutdownHook(new Thread(s::close));
-      this.courseFilter.setCourses(s.getCourses());
-
-      setSessions(s.getSessions());
+    this.delayedStore.whenAvailable(store -> {
+      Runtime.getRuntime().addShutdownHook(new Thread(store::close));
+      setOfCourseSelection.setCourses(store.getCourses());
+      setSessions(store.getSessions());
     });
 
-    this.courseProperty.bind(this.courseFilter.selectedItemProperty());
     this.selection.textProperty().bind(
         Bindings.selectString(this.courseProperty, "name"));
 
