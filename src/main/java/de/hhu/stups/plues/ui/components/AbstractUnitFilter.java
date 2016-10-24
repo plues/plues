@@ -5,10 +5,7 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -136,6 +133,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
         bind(notSelected.selectedProperty());
         bind(listProperty);
       }
+
       @Override
       protected ObservableList<RowEntry> computeValue() {
         return displayedItems.filtered(rowEntry -> {
