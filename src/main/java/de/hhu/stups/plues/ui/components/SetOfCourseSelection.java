@@ -5,8 +5,9 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.property.ReadOnlyListProperty;
+import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -28,7 +29,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
   private final List<Course> masterCourses;
   private final List<Course> bachelorCourses;
-  private final ObservableList<Course> selectedCourses;
+  private final ReadOnlyListProperty<Course> selectedCourses;
 
   @FXML
   @SuppressWarnings("unused")
@@ -56,15 +57,17 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   private TableColumn<TableRowPair<Node, String>, String> tableColumnBachelorCheckBox;
 
   /**
-   * Component that allows the user to select one or more courses. Those are used to highlight all
-   * events in the timetable view associated with the courses. Selected courses are stored in the
-   * observable list {@link this#selectedCourses}.
+   * Component that allows the user to select one or more courses. The courses need to be
+   * instantiated by calling {@link this#setCourses(List)}. Those are used to highlight all events
+   * in the timetable view associated with the courses. Selected courses are stored in the readonly
+   * list property {@link this#selectedCourses} and can be accessed via {@link
+   * this#getSelectedCourses()}.
    */
   @Inject
   public SetOfCourseSelection(final Inflater inflater) {
     bachelorCourses = new ArrayList<>();
     masterCourses = new ArrayList<>();
-    selectedCourses = FXCollections.observableArrayList();
+    selectedCourses = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
 
     inflater.inflate("components/SetOfCourseSelection", this, this);
   }
@@ -74,10 +77,16 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     final String first = "first";
     final String second = "second";
     tableColumnMasterCheckBox.setResizable(false);
+    tableColumnMasterCheckBox.setSortable(false);
+    tableColumnMasterCourse.setSortable(false);
+
     tableColumnMasterCheckBox.setCellValueFactory(new PropertyValueFactory<>(first));
     tableColumnMasterCourse.setCellValueFactory(new PropertyValueFactory<>(second));
 
     tableColumnBachelorCheckBox.setResizable(false);
+    tableColumnBachelorCheckBox.setSortable(false);
+    tableColumnBachelorCourse.setSortable(false);
+
     tableColumnBachelorCheckBox.setCellValueFactory(new PropertyValueFactory<>(first));
     tableColumnBachelorCourse.setCellValueFactory(new PropertyValueFactory<>(second));
 
@@ -88,7 +97,12 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     tableViewBachelorCourse.setId("batchListView");
   }
 
-  public void setCourses(List<Course> courses) {
+  /**
+   * Initialize the lists of bachelor and master courses and the table views.
+   *
+   * @param courses The list of courses.
+   */
+  public void setCourses(final List<Course> courses) {
     masterCourses.addAll(courses.stream().filter(Course::isMaster).collect(Collectors.toList()));
     bachelorCourses.addAll(courses.stream()
         .filter(Course::isBachelor).collect(Collectors.toList()));
@@ -100,11 +114,15 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         .add(getTableViewItem(course)));
     bachelorCourses.forEach(course -> tableViewBachelorCourse.getItems()
         .add(getTableViewItem(course)));
+
     tableViewMasterCourse.setPrefHeight(masterCourses.isEmpty() ? 50 : 300);
     tableViewBachelorCourse.setPrefHeight(bachelorCourses.isEmpty() ? 50 : 300);
+
+    titledPaneMasterCourse.setExpanded(!masterCourses.isEmpty());
+    titledPaneBachelorCourse.setExpanded(!bachelorCourses.isEmpty());
   }
 
-  private TableRowPair<Node, String> getTableViewItem(Course course) {
+  private TableRowPair<Node, String> getTableViewItem(final Course course) {
     CheckBox checkBox = new CheckBox();
     checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
       if (newValue) {
@@ -116,7 +134,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     return new TableRowPair<>(checkBox, course.getFullName());
   }
 
-  public ObservableList<Course> getSelectedCourses() {
+  public ReadOnlyListProperty<Course> getSelectedCourses() {
     return selectedCourses;
   }
 
