@@ -26,7 +26,6 @@ import java.util.ResourceBundle;
 
 public class AbstractUnitFilter extends VBox implements Initializable {
 
-  private final Delayed<Store> delayedStore;
   private final ToggleGroup filterGroup = new ToggleGroup();
   private ObservableList<RowEntry> allItems = FXCollections.observableArrayList();
   private ObservableList<RowEntry> displayedItems = FXCollections.observableArrayList();
@@ -53,10 +52,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   private TableView<RowEntry> units;
 
   @Inject
-  public AbstractUnitFilter(final Inflater inflater,
-                            final Delayed<Store> delayedStore) {
-    this.delayedStore = delayedStore;
-
+  public AbstractUnitFilter(final Inflater inflater) {
     inflater.inflate("components/AbstractUnitFilter", this, this, "main");
   }
 
@@ -131,26 +127,35 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     units.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-    TableColumn<RowEntry, CheckBox> checkBoxTableColumn = new TableColumn<>("Check");
-    TableColumn<RowEntry, String> nameTableColumn = new TableColumn<>("Abstract Unit Title");
+    final TableColumn<RowEntry, CheckBox> checkBoxTableColumn = new TableColumn<>("Check");
+    final TableColumn<RowEntry, String> nameTableColumn = new TableColumn<>("Abstract Unit Title");
 
     checkBoxTableColumn.setCellValueFactory(new PropertyValueFactory<>("checkbox"));
     checkBoxTableColumn.setSortable(false);
     checkBoxTableColumn.setResizable(false);
     checkBoxTableColumn.setPrefWidth(50);
+    checkBoxTableColumn.setStyle("-fx-alignment: CENTER");
     nameTableColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
     nameTableColumn.setSortable(false);
-    nameTableColumn.setPrefWidth(1000);
+    nameTableColumn.setPrefWidth(300);
     nameTableColumn.setResizable(false);
 
     units.getColumns().addAll(checkBoxTableColumn, nameTableColumn);
+  }
 
-    delayedStore.whenAvailable(store ->
-        store.getAbstractUnits().forEach(abstractUnit -> {
-          allItems.add(new RowEntry<>(new CheckBox(), abstractUnit));
-          allItems();
-          sortUnitsByName();
-        }));
+  /**
+   * Setter for abstract units. Required to display content.
+   * @param abstractUnits List of abstract units to be displayed in TableView
+   */
+  public void setAbstractUnits(List<AbstractUnit> abstractUnits) {
+    abstractUnits.forEach(abstractUnit -> {
+      Tooltip tooltip = new Tooltip(abstractUnit.getTitle());
+      CheckBox cb = new CheckBox();
+      cb.setTooltip(tooltip);
+      allItems.add(new RowEntry(cb, abstractUnit));
+      allItems();
+      sortUnitsByName();
+    });
     units.setItems(displayedItems);
   }
 
