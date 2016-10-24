@@ -5,6 +5,11 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ListBinding;
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -30,6 +35,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   private ObservableList<RowEntry> allItems = FXCollections.observableArrayList();
   private ObservableList<RowEntry> displayedItems = FXCollections.observableArrayList();
   private ObservableList<RowEntry> selectedItems = FXCollections.observableArrayList();
+  private SimpleListProperty<RowEntry> listProperty;
 
   @FXML
   @SuppressWarnings("unused")
@@ -56,41 +62,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     inflater.inflate("components/AbstractUnitFilter", this, this, "main");
   }
 
-  private void sortUnitsByName() {
-    units.getItems().sort((o1, o2) -> ((AbstractUnit) o1.getUnit()).getTitle()
-        .compareTo(((AbstractUnit) o2.getUnit()).getTitle()));
-    units.refresh();
-  }
-
-  /**
-   * OnClick method for searching units by name.
-   */
-  @FXML
-  public void search() {
-    ObservableList<RowEntry> filtered = FXCollections.observableArrayList(displayedItems);
-    query.textProperty().addListener((observable, oldValue, newValue) ->
-        filtered.filtered(rowEntry -> {
-          if (newValue == null || newValue.isEmpty()) {
-            return true;
-          }
-
-          if (((AbstractUnit) rowEntry.getUnit()).getTitle().toLowerCase()
-              .contains(newValue.toLowerCase())) {
-            return true;
-          }
-
-          return false;
-        }));
-
-    displayedItems.clear();
-    displayedItems.addAll(filtered);
-    sortUnitsByName();
-
-    all.setSelected(false);
-    selected.setSelected(false);
-    notSelected.setSelected(false);
-  }
-
   /**
    * OnClick method to select all units again.
    */
@@ -98,7 +69,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   public void allItems() {
     displayedItems.clear();
     displayedItems.addAll(allItems);
-    sortUnitsByName();
   }
 
   /**
@@ -108,7 +78,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   public void filterBySelected() {
     displayedItems.clear();
     displayedItems.addAll(selectedItems);
-    sortUnitsByName();
   }
 
   /**
@@ -118,7 +87,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   public void filterByUnselected() {
     displayedItems.clear();
     displayedItems.addAll(allItems.filtered(rowEntry -> !selectedItems.contains(rowEntry)));
-    sortUnitsByName();
   }
 
   /**
@@ -128,6 +96,8 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   public void resetSelection() {
     allItems.forEach(rowEntry -> ((CheckBox) rowEntry.getCheckbox()).setSelected(false));
     selectedItems.clear();
+    query.clear();
+
     selected.setSelected(false);
     notSelected.setSelected(false);
     all.setSelected(true);
@@ -141,6 +111,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     all.setToggleGroup(filterGroup);
 
     units.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+    listProperty = new SimpleListProperty<>(displayedItems);
 
     final TableColumn<RowEntry, CheckBox> checkBoxTableColumn = new TableColumn<>("Check");
     final TableColumn<RowEntry, String> nameTableColumn = new TableColumn<>("Abstract Unit Title");
@@ -156,6 +127,39 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     nameTableColumn.setResizable(false);
 
     units.getColumns().addAll(checkBoxTableColumn, nameTableColumn);
+
+    ListBinding<RowEntry> binding = new ListBinding<RowEntry>() {
+      {
+        bind(query.textProperty());
+        bind(all.selectedProperty());
+        bind(selected.selectedProperty());
+        bind(notSelected.selectedProperty());
+        bind(listProperty);
+      }
+      @Override
+      protected ObservableList<RowEntry> computeValue() {
+        return displayedItems.filtered(rowEntry -> {
+          String text = query.getText().toLowerCase();
+          String title = ((AbstractUnit) rowEntry.getUnit()).getTitle().toLowerCase();
+          CheckBox cb = (CheckBox) rowEntry.getCheckbox();
+
+          if (title.contains(text) || text.isEmpty()) {
+            if (listProperty.get().contains(rowEntry)) {
+              if (cb.isSelected() && (all.isSelected() || selected.isSelected())) {
+                return true;
+              }
+              if (!cb.isSelected() && (all.isSelected() || notSelected.isSelected())) {
+                return true;
+              }
+            }
+          }
+
+          return false;
+        });
+      }
+    };
+
+    units.itemsProperty().bind(binding);
   }
 
   /**
@@ -169,9 +173,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       cb.setTooltip(tooltip);
       allItems.add(new RowEntry(cb, abstractUnit));
       allItems();
-      sortUnitsByName();
     });
-    units.setItems(displayedItems);
   }
 
   public final class RowEntry<T1, T2> {
