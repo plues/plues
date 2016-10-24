@@ -2,13 +2,8 @@ package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
 
-import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
-import java.net.URL;
-import java.util.ResourceBundle;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,8 +16,13 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+
+import java.net.URL;
+import java.util.List;
+import java.util.ResourceBundle;
 
 public class AbstractUnitFilter extends VBox implements Initializable {
 
