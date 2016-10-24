@@ -58,26 +58,29 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
   private void sortUnitsByName() {
     units.getItems().sort((o1, o2) -> ((AbstractUnit) o1.getUnit()).getTitle()
-      .compareTo(((AbstractUnit) o2.getUnit()).getTitle()));
+        .compareTo(((AbstractUnit) o2.getUnit()).getTitle()));
     units.refresh();
   }
 
+  /**
+   * OnClick method for searching units by name.
+   */
   @FXML
   public void search() {
     ObservableList<RowEntry> filtered = FXCollections.observableArrayList(displayedItems);
     query.textProperty().addListener((observable, oldValue, newValue) ->
-      filtered.filtered(rowEntry -> {
-        if (newValue == null || newValue.isEmpty()) {
-          return true;
-        }
+        filtered.filtered(rowEntry -> {
+          if (newValue == null || newValue.isEmpty()) {
+            return true;
+          }
 
-        if (((AbstractUnit) rowEntry.getUnit()).getTitle().toLowerCase()
-          .contains(newValue.toLowerCase())) {
-          return true;
-        }
+          if (((AbstractUnit) rowEntry.getUnit()).getTitle().toLowerCase()
+              .contains(newValue.toLowerCase())) {
+            return true;
+          }
 
-        return false;
-      }));
+          return false;
+        }));
 
     displayedItems.clear();
     displayedItems.addAll(filtered);
@@ -88,6 +91,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     notSelected.setSelected(false);
   }
 
+  /**
+   * OnClick method to select all units again.
+   */
   @FXML
   public void allItems() {
     displayedItems.clear();
@@ -95,6 +101,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     sortUnitsByName();
   }
 
+  /**
+   * OnClick method to filter only selected units.
+   */
   @FXML
   public void filterBySelected() {
     displayedItems.clear();
@@ -102,6 +111,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     sortUnitsByName();
   }
 
+  /**
+   * OnClick method to filter only not-selected units.
+   */
   @FXML
   public void filterByUnselected() {
     displayedItems.clear();
@@ -109,6 +121,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     sortUnitsByName();
   }
 
+  /**
+   * OnClick method to remove selection and return to all units view.
+   */
   @FXML
   public void resetSelection() {
     allItems.forEach(rowEntry -> ((CheckBox) rowEntry.getCheckbox()).setSelected(false));
