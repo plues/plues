@@ -5,6 +5,7 @@ import com.google.inject.AbstractModule;
 import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.CourseFilter;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
+import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
 import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration;
 import de.hhu.stups.plues.ui.controller.ConflictMatrix;
@@ -22,5 +23,6 @@ class ComponentsModule extends AbstractModule {
     bind(Timetable.class);
     bind(ChangeLog.class);
     bind(ConflictMatrix.class);
+    bind(SetOfCourseSelection.class);
   }
 }

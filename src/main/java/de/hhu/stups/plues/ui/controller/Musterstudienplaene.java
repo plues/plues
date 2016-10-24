@@ -6,7 +6,6 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverService;
-import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
@@ -16,9 +15,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -27,13 +24,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
-import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Musterstudienplaene extends GridPane implements Initializable {
 
@@ -42,24 +35,19 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
   private final BooleanProperty solverProperty;
   private final ResultBoxFactory resultBoxFactory;
-  private final SimpleBooleanProperty generationStarted;
 
   @FXML
   @SuppressWarnings("unused")
   private MajorMinorCourseSelection courseSelection;
-
   @FXML
   @SuppressWarnings("unused")
   private Button btGenerate;
-
   @FXML
   @SuppressWarnings("unused")
   private ProgressBar progressGenerate;
-
   @FXML
   @SuppressWarnings("unused")
   private VBox resultBox;
-
   @FXML
   @SuppressWarnings("unused")
   private ScrollPane scrollPane;
@@ -82,7 +70,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     this.resultBoxFactory = resultBoxFactory;
 
     this.solverProperty = new SimpleBooleanProperty(false);
-    this.generationStarted = new SimpleBooleanProperty(false);
 
     this.setVgap(10.0);
 
@@ -125,8 +112,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     delayedStore.whenAvailable(store ->
         PdfRenderingHelper.initializeCourseSelection(store, courseSelection, delayedSolverService));
 
-    delayedSolverService.whenAvailable(s -> {
-      this.solverProperty.set(true);
-    });
+    delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
   }
 }
