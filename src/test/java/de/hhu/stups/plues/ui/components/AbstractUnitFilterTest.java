@@ -43,29 +43,36 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   @Test
   public void testContent() {
     final TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
-    for (final AbstractUnitFilter.RowEntry entry : units.getItems()) {
-      final AbstractUnit unit = entry.getUnit();
-      Assert.assertTrue(abstractUnits.contains(unit));
+    boolean containsTitle = false;
+    for (AbstractUnitFilter.RowEntry entry : units.getItems()) {
+      for (AbstractUnit unit : abstractUnits) {
+        if (unit.getTitle().equals(entry.getTitle())) {
+          containsTitle = true;
+          break;
+        }
+      }
     }
+
+    Assert.assertTrue(containsTitle);
   }
 
   @Test
   public void testSelection() {
     TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
-    final CheckBox cb = (CheckBox) units.getItems().get(0).getCheckbox();
+    final CheckBox cb = units.getItems().get(0).getCheckbox();
     clickOn(cb);
 
     // only selected units
     clickOn((RadioButton) lookup("#selected").query());
     units = lookup("#units").query();
     Assert.assertEquals(1, units.getItems().size());
-    Assert.assertEquals(abstractUnits.get(0), units.getItems().get(0).getUnit());
+    Assert.assertEquals(abstractUnits.get(0), units.getItems().get(0));
 
     // only not-selected units
     clickOn((RadioButton) lookup("#notSelected").query());
     units = lookup("#units").query();
     Assert.assertEquals(1, units.getItems().size());
-    Assert.assertEquals(abstractUnits.get(1), units.getItems().get(0).getUnit());
+    Assert.assertEquals(abstractUnits.get(1), units.getItems().get(0));
   }
 
   @Test
