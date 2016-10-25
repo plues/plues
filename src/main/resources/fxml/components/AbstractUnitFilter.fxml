@@ -17,7 +17,7 @@
         <Label text="%filter"/>
         <HBox>
             <RadioButton fx:id="selected" text="%selected"/>
-            <RadioButton fx:id="notSelected" text="$notSelected"/>
+            <RadioButton fx:id="notSelected" text="%notSelected"/>
             <RadioButton fx:id="all" text="%all" selected="true"/>
         </HBox>
         <Button fx:id="clearSelection" text="%clear" onAction="#resetSelection"/>
