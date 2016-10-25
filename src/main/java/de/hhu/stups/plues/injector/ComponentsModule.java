@@ -4,7 +4,6 @@ import com.google.inject.AbstractModule;
 
 import de.hhu.stups.plues.ui.components.AbstractUnitFilter;
 import de.hhu.stups.plues.ui.components.ChangeLog;
-import de.hhu.stups.plues.ui.components.CourseFilter;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
@@ -16,7 +15,6 @@ import de.hhu.stups.plues.ui.controller.PartialTimeTables;
 class ComponentsModule extends AbstractModule {
   @Override
   public void configure() {
-    bind(CourseFilter.class);
     bind(Musterstudienplaene.class);
     bind(BatchTimetableGeneration.class);
     bind(PartialTimeTables.class);

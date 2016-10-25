@@ -60,8 +60,6 @@ public class Timetable extends BorderPane implements Initializable {
   @FXML
   private Label result;
   @FXML
-  private CourseFilter courseFilter;
-  @FXML
   private AbstractUnitFilter abstractUnitFilter;
   @FXML
   private GridPane timeTable;
@@ -91,7 +89,6 @@ public class Timetable extends BorderPane implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     this.delayedStore.whenAvailable(s -> {
       Runtime.getRuntime().addShutdownHook(new Thread(s::close));
-      this.courseFilter.setCourses(s.getCourses());
       this.abstractUnitFilter.setAbstractUnits(s.getAbstractUnits());
       setOfCourseSelection.setCourses(s.getCourses());
 
