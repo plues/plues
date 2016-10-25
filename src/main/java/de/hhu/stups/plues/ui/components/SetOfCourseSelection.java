@@ -69,7 +69,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     masterCourses = new ArrayList<>();
     selectedCourses = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
 
-    inflater.inflate("components/SetOfCourseSelection", this, this);
+    inflater.inflate("components/SetOfCourseSelection", this, this, "filter");
   }
 
   @Override

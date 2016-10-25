@@ -11,15 +11,15 @@
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <Label text="Search..."/>
+        <Label text="%search"/>
         <TextField fx:id="query"/>
-        <Label text="Filter Options"/>
+        <Label text="%filter"/>
         <HBox>
-            <RadioButton fx:id="selected" text="Only selected items"/>
-            <RadioButton fx:id="notSelected" text="Only not selected items"/>
-            <RadioButton fx:id="all" text="All items" selected="true"/>
+            <RadioButton fx:id="selected" text="%selected"/>
+            <RadioButton fx:id="notSelected" text="$notSelected"/>
+            <RadioButton fx:id="all" text="%all" selected="true"/>
         </HBox>
-        <Button fx:id="clearSelection" text="Clear selection" onAction="#resetSelection"/>
+        <Button fx:id="clearSelection" text="%clear" onAction="#resetSelection"/>
         <TableView fx:id="units"/>
     </children>
 </fx:root>

@@ -56,7 +56,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
   @Inject
   public AbstractUnitFilter(final Inflater inflater) {
-    inflater.inflate("components/AbstractUnitFilter", this, this, "main");
+    inflater.inflate("components/AbstractUnitFilter", this, this, "filter");
   }
 
   /**
@@ -84,8 +84,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     units.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     listProperty = new SimpleListProperty<>(allItems);
 
-    final TableColumn<RowEntry, CheckBox> checkBoxTableColumn = new TableColumn<>("Check");
-    final TableColumn<RowEntry, String> nameTableColumn = new TableColumn<>("Abstract Unit Title");
+    final TableColumn<RowEntry, CheckBox> checkBoxTableColumn = new TableColumn<>();
+    final TableColumn<RowEntry, String> nameTableColumn =
+        new TableColumn<>(resources.getString("title"));
 
     checkBoxTableColumn.setCellValueFactory(new PropertyValueFactory<>("checkbox"));
     checkBoxTableColumn.setSortable(false);
