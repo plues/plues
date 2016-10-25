@@ -141,7 +141,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   }
 
   @SuppressWarnings("WeakerAccess")
-  public final class RowEntry {
+  public final static class RowEntry {
     private final CheckBox checkbox;
     private final String title;
 
