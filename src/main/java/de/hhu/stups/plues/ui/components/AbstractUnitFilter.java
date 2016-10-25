@@ -61,7 +61,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<RowEntry, String> courseColumn;
+  private TableColumn<RowEntry, String> abstractUnitColumn;
 
   @Inject
   public AbstractUnitFilter(final Inflater inflater) {
@@ -93,13 +93,13 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     units.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     listProperty = new SimpleListProperty<>(allItems);
 
-    courseColumn.setCellValueFactory(new PropertyValueFactory<>("checkbox"));
-    courseColumn.setSortable(false);
-    courseColumn.setResizable(false);
+    checkboxColumn.setCellValueFactory(new PropertyValueFactory<>("checkbox"));
+    checkboxColumn.setSortable(false);
+    checkboxColumn.setResizable(false);
 
-    courseColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
-    courseColumn.setSortable(false);
-    courseColumn.setResizable(false);
+    abstractUnitColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+    abstractUnitColumn.setSortable(false);
+    abstractUnitColumn.setResizable(false);
 
     binding = new ListBinding<RowEntry>() {
       {
