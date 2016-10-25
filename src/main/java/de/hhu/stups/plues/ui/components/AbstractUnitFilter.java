@@ -93,7 +93,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     checkBoxTableColumn.setStyle("-fx-alignment: CENTER");
     nameTableColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
     nameTableColumn.setSortable(false);
-    nameTableColumn.setPrefWidth(300);
+    nameTableColumn.setPrefWidth(400);
     nameTableColumn.setResizable(false);
 
     units.getColumns().addAll(checkBoxTableColumn, nameTableColumn);
