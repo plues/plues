@@ -31,7 +31,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
   private final ToggleGroup filterGroup = new ToggleGroup();
   private final ObservableList<RowEntry> allItems = FXCollections.observableArrayList();
-  private final ObservableList<RowEntry> selectedItems = FXCollections.observableArrayList();
+  private final ObservableList<AbstractUnit> selectedItems = FXCollections.observableArrayList();
   private ListBinding<RowEntry> binding;
   private SimpleListProperty<RowEntry> listProperty;
 
@@ -122,38 +122,38 @@ public class AbstractUnitFilter extends VBox implements Initializable {
    * @param abstractUnits List of abstract units to be displayed in TableView
    */
   void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
-    abstractUnits.forEach(abstractUnit -> {
-      final Tooltip tooltip = new Tooltip(abstractUnit.getTitle());
-      final CheckBox cb = new CheckBox();
-      cb.setTooltip(tooltip);
-      allItems.add(new RowEntry(cb, abstractUnit));
+    abstractUnits.forEach(abstractUnit -> allItems.add(getTableViewItem(abstractUnit)));
+  }
+
+  private RowEntry getTableViewItem(final AbstractUnit unit) {
+    final CheckBox checkBox = new CheckBox();
+    final Tooltip tooltip = new Tooltip(unit.getTitle());
+    checkBox.setTooltip(tooltip);
+    checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue) {
+        selectedItems.add(unit);
+      } else {
+        selectedItems.remove(unit);
+      }
     });
+
+    return new RowEntry(checkBox, unit.getTitle());
   }
 
   @SuppressWarnings("WeakerAccess")
   public final class RowEntry {
     private final CheckBox checkbox;
     private final String title;
-    private final AbstractUnit unit;
 
-    RowEntry(final CheckBox checkbox, final AbstractUnit unit) {
+    RowEntry(final CheckBox checkbox, final String title) {
       this.checkbox = checkbox;
-      title = unit.getTitle();
-      this.unit = unit;
-      checkbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-        if (newValue) {
-          selectedItems.add(this);
-        } else {
-          selectedItems.remove(this);
-        }
-      });
+      this.title = title;
     }
 
     public CheckBox getCheckbox() {
       return checkbox;
     }
 
-    @SuppressWarnings("unused")
     public String getTitle() {
       return this.title;
     }
@@ -176,11 +176,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       final String lowerCaseTitle = title.toLowerCase();
       final String text = query.getText().toLowerCase();
       return text.isEmpty() || lowerCaseTitle.contains(text);
-    }
-
-    @SuppressWarnings("unused")
-    AbstractUnit getUnit() {
-      return unit;
     }
   }
 }
