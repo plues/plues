@@ -43,17 +43,16 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   @Test
   public void testContent() {
     final TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
-    boolean containsTitle = false;
     for (AbstractUnitFilter.RowEntry entry : units.getItems()) {
+      boolean containsTitle = false;
       for (AbstractUnit unit : abstractUnits) {
         if (unit.getTitle().equals(entry.getTitle())) {
           containsTitle = true;
           break;
         }
       }
+      Assert.assertTrue(containsTitle);
     }
-
-    Assert.assertTrue(containsTitle);
   }
 
   @Test
@@ -66,13 +65,13 @@ public class AbstractUnitFilterTest extends ApplicationTest {
     clickOn((RadioButton) lookup("#selected").query());
     units = lookup("#units").query();
     Assert.assertEquals(1, units.getItems().size());
-    Assert.assertEquals(abstractUnits.get(0), units.getItems().get(0));
+    Assert.assertEquals(abstractUnits.get(0).getTitle(), units.getItems().get(0).getTitle());
 
     // only not-selected units
     clickOn((RadioButton) lookup("#notSelected").query());
     units = lookup("#units").query();
     Assert.assertEquals(1, units.getItems().size());
-    Assert.assertEquals(abstractUnits.get(1), units.getItems().get(0));
+    Assert.assertEquals(abstractUnits.get(1).getTitle(), units.getItems().get(0).getTitle());
   }
 
   @Test
