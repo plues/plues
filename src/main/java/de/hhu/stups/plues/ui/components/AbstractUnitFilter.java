@@ -96,7 +96,8 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     nameTableColumn.setPrefWidth(400);
     nameTableColumn.setResizable(false);
 
-    units.getColumns().addAll(checkBoxTableColumn, nameTableColumn);
+    units.getColumns().add(checkBoxTableColumn);
+    units.getColumns().add(nameTableColumn);
 
     binding = new ListBinding<RowEntry>() {
       {
@@ -139,6 +140,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     });
   }
 
+  @SuppressWarnings("WeakerAccess")
   public final class RowEntry<T1, T2> {
     private final T1 checkbox;
     private final T2 unit;
