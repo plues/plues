@@ -8,6 +8,12 @@ public class FeasibilityResult {
   private final Map<String, Set<Integer>> moduleChoice;
   private final Map<Integer, Integer> semesterChoice;
 
+  /**
+   * Construtor for feasibility result.
+   * @param moduleChoice Maps course id to set of module ids
+   * @param semesterChoice Maps abstract unit id to semester
+   * @param groupChoice Maps unit id to  group id
+   */
   public FeasibilityResult(final Map<String, Set<Integer>> moduleChoice,
                     final Map<Integer, Integer> semesterChoice,
                     final Map<Integer, Integer> groupChoice) {

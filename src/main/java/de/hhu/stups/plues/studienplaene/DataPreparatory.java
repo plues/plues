@@ -27,7 +27,7 @@ class DataPreparatory {
                   final Course major,
                   @Nullable final Course minor) {
     readData(store, feasibilityResult.getGroupChoice(), feasibilityResult.getSemesterChoice(),
-      feasibilityResult.getModuleChoice(), major, minor);
+        feasibilityResult.getModuleChoice(), major, minor);
   }
 
   private static Map<AbstractUnit, Integer> filterSemester(final Store store,
