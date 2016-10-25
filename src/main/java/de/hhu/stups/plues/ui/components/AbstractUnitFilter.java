@@ -62,6 +62,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
    * OnClick method to remove selection and return to all units view.
    */
   @FXML
+  @SuppressWarnings("unused")
   public void resetSelection() {
     allItems.forEach(rowEntry -> ((CheckBox) rowEntry.getCheckbox()).setSelected(false));
     selectedItems.clear();
