@@ -15,7 +15,7 @@
         <Label text="%search"/>
         <TextField fx:id="query"/>
         <Label text="%filter"/>
-        <HBox>
+        <HBox spacing="10">
             <RadioButton fx:id="selected" text="%selected"/>
             <RadioButton fx:id="notSelected" text="%notSelected"/>
             <RadioButton fx:id="all" text="%all" selected="true"/>
