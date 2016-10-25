@@ -63,9 +63,11 @@ public class Timetable extends BorderPane implements Initializable {
   private CourseFilter courseFilter;
   @FXML
   private AbstractUnitFilter abstractUnitFilter;
-
   @FXML
   private GridPane timeTable;
+  @FXML
+  @SuppressWarnings("unused")
+  private SetOfCourseSelection setOfCourseSelection;
 
   private SolverService solverService;
 
@@ -91,11 +93,11 @@ public class Timetable extends BorderPane implements Initializable {
       Runtime.getRuntime().addShutdownHook(new Thread(s::close));
       this.courseFilter.setCourses(s.getCourses());
       this.abstractUnitFilter.setAbstractUnits(s.getAbstractUnits());
+      setOfCourseSelection.setCourses(s.getCourses());
 
       setSessions(s.getSessions());
     });
 
-    this.courseProperty.bind(this.courseFilter.selectedItemProperty());
     this.selection.textProperty().bind(
         Bindings.selectString(this.courseProperty, "name"));
 
