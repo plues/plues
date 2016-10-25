@@ -26,11 +26,12 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+@SuppressWarnings("WeakerAccess")
 public class AbstractUnitFilter extends VBox implements Initializable {
 
   private final ToggleGroup filterGroup = new ToggleGroup();
-  private ObservableList<RowEntry> allItems = FXCollections.observableArrayList();
-  private ObservableList<RowEntry> selectedItems = FXCollections.observableArrayList();
+  private final ObservableList<RowEntry> allItems = FXCollections.observableArrayList();
+  private final ObservableList<RowEntry> selectedItems = FXCollections.observableArrayList();
   private ListBinding<RowEntry> binding;
   private SimpleListProperty<RowEntry> listProperty;
 
@@ -64,7 +65,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   public void resetSelection() {
-    allItems.forEach(rowEntry -> ((CheckBox) rowEntry.getCheckbox()).setSelected(false));
+    allItems.forEach(rowEntry -> rowEntry.getCheckbox().setSelected(false));
     selectedItems.clear();
     query.clear();
     binding.invalidate();
@@ -75,7 +76,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     selected.setToggleGroup(filterGroup);
     notSelected.setToggleGroup(filterGroup);
     all.setToggleGroup(filterGroup);
@@ -101,26 +102,14 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     binding = new ListBinding<RowEntry>() {
       {
-        bind(query.textProperty());
-        bind(all.selectedProperty());
-        bind(selected.selectedProperty());
-        bind(notSelected.selectedProperty());
-        bind(listProperty);
+        bind(query.textProperty(), all.selectedProperty(), selected.selectedProperty(),
+            notSelected.selectedProperty(), listProperty);
       }
 
       @Override
       protected ObservableList<RowEntry> computeValue() {
-        return listProperty.get().filtered(rowEntry -> {
-          String text = query.getText().toLowerCase();
-          String title = ((AbstractUnit) rowEntry.getUnit()).getTitle().toLowerCase();
-          CheckBox cb = (CheckBox) rowEntry.getCheckbox();
-
-          return !(!text.isEmpty() && !title.contains(text))
-              && (all.isSelected()
-                || cb.isSelected() && selected.isSelected()
-                || !cb.isSelected() && notSelected.isSelected());
-
-        });
+        return listProperty.get().filtered(rowEntry -> rowEntry.matches(query, all.isSelected(),
+          selected.isSelected(), notSelected.isSelected()));
       }
     };
 
@@ -131,26 +120,26 @@ public class AbstractUnitFilter extends VBox implements Initializable {
    * Setter for abstract units. Required to display content.
    * @param abstractUnits List of abstract units to be displayed in TableView
    */
-  void setAbstractUnits(List<AbstractUnit> abstractUnits) {
+  void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
     abstractUnits.forEach(abstractUnit -> {
-      Tooltip tooltip = new Tooltip(abstractUnit.getTitle());
-      CheckBox cb = new CheckBox();
+      final Tooltip tooltip = new Tooltip(abstractUnit.getTitle());
+      final CheckBox cb = new CheckBox();
       cb.setTooltip(tooltip);
-      allItems.add(new RowEntry<>(cb, abstractUnit));
+      allItems.add(new RowEntry(cb, abstractUnit));
     });
   }
 
   @SuppressWarnings("WeakerAccess")
-  public final class RowEntry<T1, T2> {
-    private final T1 checkbox;
-    private final T2 unit;
+  public final class RowEntry {
+    private final CheckBox checkbox;
     private final String title;
+    private final AbstractUnit unit;
 
-    RowEntry(final T1 checkbox, final T2 unit) {
+    RowEntry(final CheckBox checkbox, final AbstractUnit unit) {
       this.checkbox = checkbox;
+      title = unit.getTitle();
       this.unit = unit;
-      title = ((AbstractUnit) unit).getTitle();
-      ((CheckBox) checkbox).selectedProperty().addListener((observable, oldValue, newValue) -> {
+      checkbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
         if (newValue) {
           selectedItems.add(this);
         } else {
@@ -159,17 +148,38 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       });
     }
 
-    public T1 getCheckbox() {
+    public CheckBox getCheckbox() {
       return checkbox;
-    }
-
-    public T2 getUnit() {
-      return unit;
     }
 
     @SuppressWarnings("unused")
     public String getTitle() {
-      return title;
+      return this.title;
+    }
+
+    boolean matches(final TextField query, final boolean all, final boolean showSelected,
+        final boolean showNotSelected) {
+      return this.titleMatchesQuery(query)
+        && this.checkboxMatchesCriteria(all, showSelected, showNotSelected);
+    }
+
+    private boolean checkboxMatchesCriteria(final boolean all, final boolean showSelected,
+        final boolean showNotSelected) {
+      final boolean checked = this.checkbox.isSelected();
+      final boolean showIfSelected = checked && showSelected;
+      final boolean showIfNotSelected = !checked && showNotSelected;
+      return all || showIfSelected || showIfNotSelected;
+    }
+
+    private boolean titleMatchesQuery(final TextField query) {
+      final String lowerCaseTitle = title.toLowerCase();
+      final String text = query.getText().toLowerCase();
+      return text.isEmpty() || lowerCaseTitle.contains(text);
+    }
+
+    @SuppressWarnings("unused")
+    AbstractUnit getUnit() {
+      return unit;
     }
   }
 }

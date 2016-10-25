@@ -30,10 +30,10 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   public AbstractUnitFilterTest() {
     abstractUnits = new ArrayList<>();
 
-    AbstractUnit a1 = new AbstractUnit();
+    final AbstractUnit a1 = new AbstractUnit();
     a1.setTitle("Abstract Unit 1");
     a1.setKey("Key 1");
-    AbstractUnit a2 = new AbstractUnit();
+    final AbstractUnit a2 = new AbstractUnit();
     a2.setTitle("Abstract Unit 2");
     a2.setKey("Key 2");
 
@@ -43,8 +43,8 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   @Test
   public void testContent() {
     final TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
-    for (AbstractUnitFilter.RowEntry entry : units.getItems()) {
-      AbstractUnit unit = (AbstractUnit) entry.getUnit();
+    for (final AbstractUnitFilter.RowEntry entry : units.getItems()) {
+      final AbstractUnit unit = entry.getUnit();
       Assert.assertTrue(abstractUnits.contains(unit));
     }
   }
@@ -52,7 +52,7 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   @Test
   public void testSelection() {
     TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
-    CheckBox cb = (CheckBox) units.getItems().get(0).getCheckbox();
+    final CheckBox cb = (CheckBox) units.getItems().get(0).getCheckbox();
     clickOn(cb);
 
     // only selected units
@@ -70,17 +70,17 @@ public class AbstractUnitFilterTest extends ApplicationTest {
 
   @Test
   public void testSearch() {
-    TextField field = lookup("#query").query();
+    final TextField field = lookup("#query").query();
     field.setText("1");
 
-    TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
+    final TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
     Assert.assertEquals(1, units.getItems().size());
   }
 
   @Test
   public void testClearingSelection() {
     TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
-    CheckBox cb = (CheckBox) units.getItems().get(0).getCheckbox();
+    final CheckBox cb = units.getItems().get(0).getCheckbox();
     clickOn(cb);
     clickOn((RadioButton) lookup("#selected").query());
     clickOn((Button) lookup("#clearSelection").query());
@@ -91,8 +91,8 @@ public class AbstractUnitFilterTest extends ApplicationTest {
 
   @Override
   @SuppressWarnings("unchecked")
-  public void start(Stage stage) throws Exception {
-    Inflater inflater = new Inflater(new FXMLLoader());
+  public void start(final Stage stage) throws Exception {
+    final Inflater inflater = new Inflater(new FXMLLoader());
     final AbstractUnitFilter filter = new AbstractUnitFilter(inflater);
     filter.setAbstractUnits(abstractUnits);
 
