@@ -44,7 +44,8 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   public void testContent() {
     final TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
     for (AbstractUnitFilter.RowEntry entry : units.getItems()) {
-      Assert.assertTrue(abstractUnits.contains(entry.getUnit()));
+      AbstractUnit unit = (AbstractUnit) entry.getUnit();
+      Assert.assertTrue(abstractUnits.contains(unit));
     }
   }
 
