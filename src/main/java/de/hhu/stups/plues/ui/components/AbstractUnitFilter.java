@@ -130,7 +130,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
    * Setter for abstract units. Required to display content.
    * @param abstractUnits List of abstract units to be displayed in TableView
    */
-  public void setAbstractUnits(List<AbstractUnit> abstractUnits) {
+  void setAbstractUnits(List<AbstractUnit> abstractUnits) {
     abstractUnits.forEach(abstractUnit -> {
       Tooltip tooltip = new Tooltip(abstractUnit.getTitle());
       CheckBox cb = new CheckBox();
@@ -139,7 +139,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     });
   }
 
-  public final class RowEntry<T1, T2> {
+  final class RowEntry<T1, T2> {
     private final T1 checkbox;
     private final T2 unit;
     private final String title;
@@ -157,7 +157,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       });
     }
 
-    public T1 getCheckbox() {
+    T1 getCheckbox() {
       return checkbox;
     }
 
