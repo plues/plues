@@ -2,6 +2,7 @@ package de.hhu.stups.plues.studienplaene;
 
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.prob.FeasibilityResult;
 
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
@@ -55,46 +56,40 @@ public class Renderer {
   private Map<String, String> fonts;
   private String minor;
 
-  // TODO: Use a FeasibilityResult as argument
-  public Renderer(final Store store, final Map<Integer, Integer> gc,
-                  final Map<Integer, Integer> sc,
-                  final Map<String, Set<Integer>> moduleChoice,
-                  final Course major, final Course minor,
+  public Renderer(final Store store,
+                  final FeasibilityResult feasibilityResult,
+                  final Course major,
+                  final Course minor,
                   final ColorChoice colorChoice) {
-    setup(store, gc, sc, moduleChoice, major, minor, colorChoice);
+    setup(store, feasibilityResult, major, minor, colorChoice);
   }
 
-  // TODO: Use a FeasibilityResult as argument
-  public Renderer(final Store store, final Map<Integer, Integer> gc,
-                  final Map<Integer, Integer> sc,
-                  final Map<String, Set<Integer>> moduleChoice,
-                  final Course major, final ColorChoice colorChoice) {
-    setup(store, gc, sc, moduleChoice, major, null, colorChoice);
+  public Renderer(final Store store,
+                  final FeasibilityResult feasibilityResult,
+                  final Course major,
+                  final ColorChoice colorChoice) {
+    setup(store, feasibilityResult, major, null, colorChoice);
   }
 
-  // TODO: Use a FeasibilityResult as argument
-  public Renderer(final Store store, final Map<Integer, Integer> gc,
-                  final Map<Integer, Integer> sc,
-                  final Map<String, Set<Integer>> moduleChoice,
+  public Renderer(final Store store,
+                  final FeasibilityResult feasibilityResult,
+                  final Course major,
+                  final Course minor) {
+    setup(store, feasibilityResult, major, minor, ColorChoice.COLOR);
+  }
+
+  public Renderer(final Store store,
+                  final FeasibilityResult feasibilityResult,
                   final Course major) {
-    setup(store, gc, sc, moduleChoice, major, null, ColorChoice.COLOR);
+    setup(store, feasibilityResult, major, null, ColorChoice.COLOR);
   }
 
-  // TODO: Use a FeasibilityResult as argument
-  public Renderer(final Store store, final Map<Integer, Integer> gc,
-                  final Map<Integer, Integer> sc,
-                  final Map<String, Set<Integer>> moduleChoice,
-                  final Course major, final Course minor) {
-    setup(store, gc, sc, moduleChoice, major, minor, ColorChoice.COLOR);
-  }
-
-  private void setup(final Store store, final Map<Integer, Integer> gc,
-                     final Map<Integer, Integer> sc,
-                     final Map<String, Set<Integer>> moduleChoice,
-                     final Course major, @Nullable final Course minor,
+  private void setup(final Store store,
+                     final FeasibilityResult feasibilityResult,
+                     final Course major,
+                     @Nullable final Course minor,
                      final ColorChoice colorChoice) {
-
-    final DataPreparatory prep = new DataPreparatory(store, gc, sc, moduleChoice, major, minor);
+    final DataPreparatory prep = new DataPreparatory(store, feasibilityResult, major, minor);
     final DataStoreWrapper wrap = new DataStoreWrapper(colorChoice, prep);
 
     this.major = major.getLongName();

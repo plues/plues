@@ -6,6 +6,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
+import de.hhu.stups.plues.prob.FeasibilityResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +22,12 @@ class DataPreparatory {
   private Map<AbstractUnit, Group> unitGroup;
 
   // constructors
-  DataPreparatory(final Store store, final Map<Integer, Integer> groupChoice,
-                  final Map<Integer, Integer> semesterChoice,
-                  final Map<String, Set<Integer>> moduleChoice,
-                  final Course major, @Nullable final Course minor) {
-    readData(store, groupChoice, semesterChoice, moduleChoice, major, minor);
+  DataPreparatory(final Store store,
+                  final FeasibilityResult feasibilityResult,
+                  final Course major,
+                  @Nullable final Course minor) {
+    readData(store, feasibilityResult.getGroupChoice(), feasibilityResult.getSemesterChoice(),
+      feasibilityResult.getModuleChoice(), major, minor);
   }
 
   private static Map<AbstractUnit, Integer> filterSemester(final Store store,

@@ -3,6 +3,7 @@ package de.hhu.stups.plues.studienplaene;
 import static org.junit.Assert.assertEquals;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.prob.FeasibilityResult;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,8 +48,10 @@ public class TestDataStoreWrapper {
     integerSet.add(3);
     moduleChoice.put("foo", integerSet);
 
-    final DataPreparatory data = new DataPreparatory(store, groupChoice, semesterChoice,
-        moduleChoice, course, null);
+    final FeasibilityResult result =
+        new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
+
+    final DataPreparatory data = new DataPreparatory(store, result, course, null);
     final DataStoreWrapper wrap = new DataStoreWrapper(ColorChoice.COLOR, data);
     semesters = wrap.getSemesters();
   }

@@ -8,7 +8,7 @@ public class FeasibilityResult {
   private final Map<String, Set<Integer>> moduleChoice;
   private final Map<Integer, Integer> semesterChoice;
 
-  FeasibilityResult(final Map<String, Set<Integer>> moduleChoice,
+  public FeasibilityResult(final Map<String, Set<Integer>> moduleChoice,
                     final Map<Integer, Integer> semesterChoice,
                     final Map<Integer, Integer> groupChoice) {
 

@@ -3,6 +3,7 @@ package de.hhu.stups.plues.studienplaene;
 import static org.junit.Assert.assertNotNull;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.prob.FeasibilityResult;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,10 +25,8 @@ import javax.xml.parsers.ParserConfigurationException;
 public class TestRenderer {
 
   private MockStore store;
-  private HashMap<Integer, Integer> groupChoice;
-  private HashMap<Integer, Integer> semesterChoice;
-  private Map<String, Set<Integer>> moduleChoice;
   private Course course;
+  private FeasibilityResult result;
 
   /**
    * Test setup.
@@ -39,7 +38,7 @@ public class TestRenderer {
     course = store.getCourseByKey("foo");
 
 
-    groupChoice = new HashMap<>();
+    final Map<Integer, Integer> groupChoice = new HashMap<>();
     groupChoice.put(1, 1);
     groupChoice.put(2, 12);
     groupChoice.put(3, 3);
@@ -50,20 +49,21 @@ public class TestRenderer {
     groupChoice.put(8, 10);
     groupChoice.put(9, 9);
 
-    semesterChoice = new HashMap<>();
+    final Map<Integer, Integer> semesterChoice = new HashMap<>();
     IntStream.rangeClosed(1, 9).forEach(i -> semesterChoice.put(i, 1));
 
-    moduleChoice = new HashMap<>();
+    final Map<String, Set<Integer>> moduleChoice = new HashMap<>();
     final Set<Integer> integerSet = new HashSet<Integer>();
     integerSet.add(1);
     integerSet.add(3);
     moduleChoice.put("foo", integerSet);
+
+    this.result = new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
   }
 
   @Test
   public void testItWorksForColor() throws IOException, ParserConfigurationException, SAXException {
-    final Renderer renderer = new Renderer(store, groupChoice, semesterChoice,
-        moduleChoice, course, ColorChoice.COLOR);
+    final Renderer renderer = new Renderer(store, result, course, ColorChoice.COLOR);
     final ByteArrayOutputStream result = renderer.getResult();
 
     File pdf = File.createTempFile("color", ".pdf");
@@ -76,8 +76,7 @@ public class TestRenderer {
   @Test
   public void testItWorksForGrayscale()
       throws IOException, ParserConfigurationException, SAXException {
-    final Renderer renderer = new Renderer(store, groupChoice, semesterChoice,
-        moduleChoice, course, ColorChoice.GRAYSCALE);
+    final Renderer renderer = new Renderer(store, result, course, ColorChoice.GRAYSCALE);
     final ByteArrayOutputStream result = renderer.getResult();
 
     File pdf = File.createTempFile("gray", ".pdf");
