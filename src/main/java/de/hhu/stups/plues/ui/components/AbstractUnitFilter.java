@@ -50,9 +50,18 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private RadioButton all;
+
   @FXML
   @SuppressWarnings("unused")
   private TableView<RowEntry> units;
+
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<RowEntry, String> checkboxColumn;
+
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<RowEntry, String> courseColumn;
 
   @Inject
   public AbstractUnitFilter(final Inflater inflater) {
@@ -84,22 +93,13 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     units.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     listProperty = new SimpleListProperty<>(allItems);
 
-    final TableColumn<RowEntry, CheckBox> checkBoxTableColumn = new TableColumn<>();
-    final TableColumn<RowEntry, String> nameTableColumn =
-        new TableColumn<>(resources.getString("title"));
+    courseColumn.setCellValueFactory(new PropertyValueFactory<>("checkbox"));
+    courseColumn.setSortable(false);
+    courseColumn.setResizable(false);
 
-    checkBoxTableColumn.setCellValueFactory(new PropertyValueFactory<>("checkbox"));
-    checkBoxTableColumn.setSortable(false);
-    checkBoxTableColumn.setResizable(false);
-    checkBoxTableColumn.setPrefWidth(50);
-    checkBoxTableColumn.setStyle("-fx-alignment: CENTER");
-    nameTableColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
-    nameTableColumn.setSortable(false);
-    nameTableColumn.setPrefWidth(400);
-    nameTableColumn.setResizable(false);
-
-    units.getColumns().add(checkBoxTableColumn);
-    units.getColumns().add(nameTableColumn);
+    courseColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+    courseColumn.setSortable(false);
+    courseColumn.setResizable(false);
 
     binding = new ListBinding<RowEntry>() {
       {
