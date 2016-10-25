@@ -142,12 +142,10 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   final class RowEntry<T1, T2> {
     private final T1 checkbox;
     private final T2 unit;
-    private final String title;
 
     RowEntry(final T1 checkbox, final T2 unit) {
       this.checkbox = checkbox;
       this.unit = unit;
-      this.title = ((AbstractUnit) unit).getTitle();
       ((CheckBox) checkbox).selectedProperty().addListener((observable, oldValue, newValue) -> {
         if (newValue) {
           selectedItems.add(this);
@@ -163,10 +161,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     public T2 getUnit() {
       return unit;
-    }
-
-    public String getTitle() {
-      return title;
     }
   }
 }
