@@ -113,21 +113,11 @@ public class AbstractUnitFilter extends VBox implements Initializable {
           String title = ((AbstractUnit) rowEntry.getUnit()).getTitle().toLowerCase();
           CheckBox cb = (CheckBox) rowEntry.getCheckbox();
 
-          if (!text.isEmpty() && !title.contains(text)) {
-            return false;
-          }
+          return !(!text.isEmpty() && !title.contains(text))
+              && (all.isSelected()
+                || cb.isSelected() && selected.isSelected()
+                || !cb.isSelected() && notSelected.isSelected());
 
-          if (all.isSelected()) {
-            return true;
-          }
-          if (cb.isSelected() && selected.isSelected()) {
-            return true;
-          }
-          if (!cb.isSelected() && notSelected.isSelected()) {
-            return true;
-          }
-
-          return false;
         });
       }
     };
