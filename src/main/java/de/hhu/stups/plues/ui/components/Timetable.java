@@ -44,32 +44,20 @@ import java.util.stream.IntStream;
 
 public class Timetable extends BorderPane implements Initializable {
 
-  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
+  private ListProperty<Session> sessions = new SimpleListProperty<>();
 
-  private final ObjectProperty<Course>
-      courseProperty = new SimpleObjectProperty<>();
   private final BooleanProperty
       solverProperty = new SimpleBooleanProperty(false);
-
-  @FXML
-  private Label selection;
-  @FXML
-  private Button checkSelection;
-  @FXML
-  private Label result;
   @FXML
   private AbstractUnitFilter abstractUnitFilter;
   @FXML
   private GridPane timeTable;
+
   @FXML
   @SuppressWarnings("unused")
   private SetOfCourseSelection setOfCourseSelection;
-
-  private SolverService solverService;
-
-  private ListProperty<Session> sessions = new SimpleListProperty<>();
 
   /**
    * Timetable component.
@@ -95,15 +83,7 @@ public class Timetable extends BorderPane implements Initializable {
       setSessions(s.getSessions());
     });
 
-    this.selection.textProperty().bind(
-        Bindings.selectString(this.courseProperty, "name"));
-
-    this.checkSelection.setDefaultButton(true);
-    this.checkSelection.disableProperty().bind(
-        this.courseProperty.isNull().or(this.solverProperty.not()));
-
     this.delayedSolverService.whenAvailable(s -> {
-      this.solverService = s;
       this.solverProperty.set(true);
     });
 
@@ -140,23 +120,6 @@ public class Timetable extends BorderPane implements Initializable {
     Integer[] times = { 1, 2, 3, 4, 5, 6, 7 };
 
     return new Session.Slot(days[index % widthX], times[index / widthX]);
-  }
-
-  @FXML
-  @SuppressWarnings({"UnusedParameters", "unused"})
-  private void checkButtonPressed(final ActionEvent actionEvent) {
-    final Course course = this.courseProperty.get();
-
-    final SolverService s = this.solverService;
-    assert s != null;
-
-    final SolverTask<Boolean> t = s.checkFeasibilityTask(course);
-    t.setOnSucceeded(event -> {
-      final Boolean i = (Boolean) event.getSource().getValue();
-      this.result.setText(i.toString());
-      logger.info(course.getName() + ": " + i.toString());
-    });
-    s.submit(t);
   }
 
   private void setSessions(List<Session> sessions) {

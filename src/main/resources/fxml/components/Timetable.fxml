@@ -85,11 +85,6 @@
                             <Label GridPane.rowIndex="0" GridPane.columnIndex="5" text="%friday" styleClass="headerLabel" />
                         </StackPane>
                     </GridPane>
-
-                    <Label fx:id="selection" />
-                    <Button fx:id="checkSelection" text="Check!!!!" onAction="#checkButtonPressed"/>
-                    <Label text="Result" />
-                    <Label fx:id="result"  />
                 </children>
             </VBox>
         </center>
