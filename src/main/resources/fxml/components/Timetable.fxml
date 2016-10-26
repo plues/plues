@@ -11,13 +11,11 @@
 <?import javafx.scene.layout.StackPane?>
 <?import de.hhu.stups.plues.ui.components.SetOfCourseSelection?>
 
-<?import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection?>
 <fx:root minHeight="600" prefWidth="250.0" type="javafx.scene.layout.BorderPane"
          xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
         <left>
             <VBox>
                 <SetOfCourseSelection fx:id="setOfCourseSelection" />
-                <CombinationOrSingleCourseSelection fx:id="combinationOrSingleCourseSelection"/>
             </VBox>
         </left>
         <bottom>

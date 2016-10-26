@@ -65,9 +65,6 @@ public class Timetable extends BorderPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private SetOfCourseSelection setOfCourseSelection;
-  @FXML
-  @SuppressWarnings("unused")
-  private CombinationOrSingleCourseSelection combinationOrSingleCourseSelection;
 
   private SolverService solverService;
 
@@ -92,7 +89,6 @@ public class Timetable extends BorderPane implements Initializable {
     this.delayedStore.whenAvailable(store -> {
       Runtime.getRuntime().addShutdownHook(new Thread(store::close));
       setOfCourseSelection.setCourses(store.getCourses());
-      combinationOrSingleCourseSelection.setCourses(store.getCourses());
       setSessions(store.getSessions());
     });
 
@@ -106,12 +102,6 @@ public class Timetable extends BorderPane implements Initializable {
     this.delayedSolverService.whenAvailable(solver -> {
       solverService = solver;
       solverProperty.set(true);
-
-      final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
-      impossibleCoursesTask.setOnSucceeded(event ->
-          combinationOrSingleCourseSelection.highlightImpossibleCourses(
-              impossibleCoursesTask.getValue()));
-      solverService.submit(impossibleCoursesTask);
     });
 
     initSessionBoxes();
