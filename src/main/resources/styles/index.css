@@ -22,6 +22,10 @@
     -fx-background-insets: 0, 0 1 1 0;
 }
 
+#timeTable .dragged-over .list-cell {
+    -fx-background-color: #eaeef7;
+}
+
 #batchListView .list-cell:odd {
     -fx-control-inner-background: #F2F2F2;
 }

@@ -12,6 +12,7 @@ import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
+import de.hhu.stups.plues.data.sessions.SessionFacade;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -38,6 +39,11 @@ public class MockStore implements Store {
   @Override
   public void init(final String dbpath) {
 
+  }
+
+  @Override
+  public void moveSession(SessionFacade session, SessionFacade.Slot slot) {
+    session.setSlot(slot);
   }
 
   @Override
@@ -253,5 +259,12 @@ public class MockStore implements Store {
     l3.setCreatedAt(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() - 10));
 
     return new ArrayList<>(Arrays.asList(l, l2, l3));
+  }
+
+  @Override
+  public Session getSessionById(int id) {
+    return this.getSessions().stream()
+      .filter(session -> session.getId() == id)
+      .findFirst().orElse(null);
   }
 }

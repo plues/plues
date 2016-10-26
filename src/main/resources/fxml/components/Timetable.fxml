@@ -2,6 +2,8 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -26,6 +28,24 @@
         <center>
             <VBox>
                 <children>
+
+                    <HBox>
+                        <fx:define>
+                            <ToggleGroup fx:id="semesterToggle"/>
+                        </fx:define>
+
+                        <Label text="%semester"/>
+
+                        <children>
+                            <ToggleButton text="1" toggleGroup="$semesterToggle" selected="true"/>
+                            <ToggleButton text="2" toggleGroup="$semesterToggle"/>
+                            <ToggleButton text="3" toggleGroup="$semesterToggle"/>
+                            <ToggleButton text="4" toggleGroup="$semesterToggle"/>
+                            <ToggleButton text="5" toggleGroup="$semesterToggle"/>
+                            <ToggleButton text="6" toggleGroup="$semesterToggle"/>
+                        </children>
+                    </HBox>
+
                     <GridPane maxHeight="Infinity" maxWidth="Infinity" BorderPane.alignment="CENTER" fx:id="timeTable">
                         <columnConstraints>
                             <ColumnConstraints fillWidth="true" hgrow="NEVER" minWidth="50.0" prefWidth="50.0" />

@@ -155,7 +155,7 @@ public class SolverTask<T> extends Task<T> {
 
     updateMessage(resources.getString("finished"));
     final T i = this.getValue();
-    logger.info("Result: " + i.toString());
+    logger.info("Result: " + (i != null ? i.toString() : " null"));
   }
 
   @Override
