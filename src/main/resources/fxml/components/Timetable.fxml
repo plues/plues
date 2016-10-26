@@ -2,6 +2,8 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -9,13 +11,15 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.StackPane?>
+<?import de.hhu.stups.plues.ui.components.AbstractUnitFilter?>
 <?import de.hhu.stups.plues.ui.components.SetOfCourseSelection?>
 
 <fx:root minHeight="600" prefWidth="250.0" type="javafx.scene.layout.BorderPane"
          xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
         <left>
-            <VBox>
-                <SetOfCourseSelection fx:id="setOfCourseSelection" />
+            <VBox spacing="20">
+                <SetOfCourseSelection fx:id="setOfCourseSelection"/>
+                <AbstractUnitFilter fx:id="abstractUnitFilter"/>
             </VBox>
         </left>
         <bottom>
@@ -24,6 +28,24 @@
         <center>
             <VBox>
                 <children>
+
+                    <HBox>
+                        <fx:define>
+                            <ToggleGroup fx:id="semesterToggle"/>
+                        </fx:define>
+
+                        <Label text="%semester"/>
+
+                        <children>
+                            <ToggleButton text="1" toggleGroup="$semesterToggle" selected="true"/>
+                            <ToggleButton text="2" toggleGroup="$semesterToggle"/>
+                            <ToggleButton text="3" toggleGroup="$semesterToggle"/>
+                            <ToggleButton text="4" toggleGroup="$semesterToggle"/>
+                            <ToggleButton text="5" toggleGroup="$semesterToggle"/>
+                            <ToggleButton text="6" toggleGroup="$semesterToggle"/>
+                        </children>
+                    </HBox>
+
                     <GridPane maxHeight="Infinity" maxWidth="Infinity" BorderPane.alignment="CENTER" fx:id="timeTable">
                         <columnConstraints>
                             <ColumnConstraints fillWidth="true" hgrow="NEVER" minWidth="50.0" prefWidth="50.0" />
@@ -82,13 +104,7 @@
                         <StackPane styleClass="day" GridPane.rowIndex="0" GridPane.columnIndex="5">
                             <Label GridPane.rowIndex="0" GridPane.columnIndex="5" text="%friday" styleClass="headerLabel" />
                         </StackPane>
-
                     </GridPane>
-
-                    <Label fx:id="selection" />
-                    <Button fx:id="checkSelection" text="Check!!!!" onAction="#checkButtonPressed"/>
-                    <Label text="Result" />
-                    <Label fx:id="result"  />
                 </children>
             </VBox>
         </center>

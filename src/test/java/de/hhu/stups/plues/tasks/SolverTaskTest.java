@@ -39,9 +39,11 @@ import java.util.concurrent.TimeUnit;
 public class SolverTaskTest extends ApplicationTest {
 
   private static final ExecutorService executor;
-  private static final String TITLE = "Title";
-  private static final String MESSAGE = "Message";
   private static final ResourceBundle resources = ResourceBundle.getBundle("lang.tasks");
+  private static final String TITLE =
+      ResourceBundle.getBundle("lang.solverTask").getString("testTitle");
+  private static final String MESSAGE =
+      ResourceBundle.getBundle("lang.solverTask").getString("testMessage");
 
   static {
     final ThreadFactory threadFactory

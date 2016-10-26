@@ -21,6 +21,7 @@ import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverServiceFactory;
+import de.hhu.stups.plues.ui.DragClipBoard;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
@@ -29,6 +30,8 @@ import de.prob.MainModule;
 
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
+
+import java.util.ResourceBundle;
 
 public class PluesModule extends AbstractModule {
 
@@ -39,6 +42,9 @@ public class PluesModule extends AbstractModule {
       = new TypeLiteral<Delayed<SolverService>>() {};
 
   private final Stage primaryStage;
+
+  // bundle with default language
+  private final ResourceBundle bundle = ResourceBundle.getBundle("lang.main");
 
   public PluesModule(final Stage primaryStage) {
     this.primaryStage = primaryStage;
@@ -68,6 +74,9 @@ public class PluesModule extends AbstractModule {
     bind(Stage.class).toInstance(primaryStage);
     bind(Router.class).toProvider(RouterProvider.class);
     bind(MainController.class);
+    bind(ResourceBundle.class).toInstance(bundle);
+
+    bind(DragClipBoard.class).toInstance(new DragClipBoard());
 
     bind(SolverLoader.class).to(SolverLoaderImpl.class);
 
@@ -77,13 +86,14 @@ public class PluesModule extends AbstractModule {
 
   @Provides
   final FXMLLoader provideLoader(final Injector injector,
-                                 final GuiceBuilderFactory
-                                   builderFactory) {
+                                 final GuiceBuilderFactory builderFactory,
+                                 final ResourceBundle bundle) {
 
     final FXMLLoader fxmlLoader = new FXMLLoader();
 
     fxmlLoader.setBuilderFactory(builderFactory);
     fxmlLoader.setControllerFactory(injector::getInstance);
+    fxmlLoader.setResources(bundle);
 
     return fxmlLoader;
   }

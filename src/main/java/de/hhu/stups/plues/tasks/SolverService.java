@@ -10,6 +10,7 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
+import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 public class SolverService {
   private final ExecutorService executor;
   private final Solver solver;
-  private final ResourceBundle resources = ResourceBundle.getBundle("lang.tasks");
+  private final ResourceBundle resources = ResourceBundle.getBundle("lang.solverTask");
   private final ReadOnlyMapProperty<MajorMinorKey, Boolean> courseCombinationResults;
 
   /**
@@ -61,7 +62,7 @@ public class SolverService {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     //
-    return new SolverTask<>("Checking Feasibility", msg, this.solver,
+    return new SolverTask<>(resources.getString("check"), msg, this.solver,
         () -> {
           final Boolean result = this.solver.checkFeasibility(names);
           this.addCourseCombinationResult(names, result);
@@ -81,7 +82,7 @@ public class SolverService {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     //
-    return new SolverTask<>("Computing Feasibility",
+    return new SolverTask<>(resources.getString("compute"),
         msg, solver,
         () -> {
           try {
@@ -127,7 +128,7 @@ public class SolverService {
 
     final String msg = getMessage(names);
     //
-    return new SolverTask<>("Computing Feasibility",
+    return new SolverTask<>(resources.getString("compute"),
       msg, solver,
         () -> {
           try {
@@ -152,7 +153,7 @@ public class SolverService {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     //
-    return new SolverTask<>("Computing UNSAT Core", msg, solver,
+    return new SolverTask<>(resources.getString("unsat"), msg, solver,
         () -> solver.unsatCore(names));
   }
 
@@ -167,7 +168,7 @@ public class SolverService {
                                                              final Course... courses) {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
-    return new SolverTask<>("Computing alternatives", msg, solver,
+    return new SolverTask<>(resources.getString("alternatives"), msg, solver,
         () -> solver.getLocalAlternatives(session.getId(), names));
   }
 
@@ -177,13 +178,13 @@ public class SolverService {
    * @return SolverTask
    */
   public SolverTask<Set<String>> impossibleCoursesTask() {
-    return new SolverTask<>("Collecting impossible courses", resources.getString("impossible"),
-      solver, solver::getImpossibleCourses);
+    return new SolverTask<>(resources.getString("impossible"),
+      resources.getString("impossibleMessage"), solver, solver::getImpossibleCourses);
   }
 
 
   public SolverTask<ReportData> collectReportDataTask() {
-    return new SolverTask<>("Report Data", "Collecting report data from ProB",
+    return new SolverTask<>(resources.getString("report"), resources.getString("reportMessage"),
       solver, solver::getReportingData);
   }
 
@@ -199,7 +200,8 @@ public class SolverService {
   @SuppressWarnings("unused")
   public SolverTask<Void> moveTask(final Session session, final String day, final String time) {
     final String sessionId = String.valueOf(session.getId());
-    return new SolverTask<>("Moving", "Moving session", solver, () -> {
+    return new SolverTask<>(resources.getString("moving"), resources.getString("movingMessage"),
+      solver, () -> {
       solver.move(sessionId, day, time);
       courseCombinationResults.clear();
       return null;
@@ -251,5 +253,21 @@ public class SolverService {
 
   public final ObservableMap<MajorMinorKey, Boolean> getCourseCombinationResults() {
     return this.courseCombinationResults;
+  }
+
+  /**
+   * Move a session to a new day/time slot.
+   * @param sessionId The id of the session to be moved
+   * @param slot the target slot (tay time)
+   * @return SolverTask object for moving a session
+   */
+  public SolverTask<Void> moveSession(final int sessionId, final SessionFacade.Slot slot) {
+    return new SolverTask<>("Verschiebe a nach b", "Verschiebe es!!!", solver, () -> {
+      solver.move(
+          String.valueOf(sessionId),
+          slot.getDayString(),
+          slot.getTime().toString());
+      return null;
+    });
   }
 }

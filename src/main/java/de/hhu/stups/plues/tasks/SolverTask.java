@@ -55,8 +55,9 @@ public class SolverTask<T> extends Task<T> {
     this(title, message, solver, func, 1, TimeUnit.MINUTES);
   }
 
-  SolverTask(final String title, final String message, final Solver solver, final Callable<T> func,
-      final int timeout, final TimeUnit timeUnit) {
+  SolverTask(final String title, final String message, final Solver solver,
+             final Callable<T> func, final int timeout, final TimeUnit timeUnit) {
+
     this.function = timedCallableWrapper(title, func);
     this.solver = solver;
     this.timeout = timeout;
@@ -154,7 +155,7 @@ public class SolverTask<T> extends Task<T> {
 
     updateMessage(resources.getString("finished"));
     final T i = this.getValue();
-    logger.info("Result: " + i.toString());
+    logger.info("Result: " + (i != null ? i.toString() : " null"));
   }
 
   @Override
