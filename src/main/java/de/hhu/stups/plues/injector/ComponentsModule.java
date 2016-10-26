@@ -3,6 +3,7 @@ package de.hhu.stups.plues.injector;
 import com.google.inject.AbstractModule;
 
 import de.hhu.stups.plues.ui.components.ChangeLog;
+import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.components.CourseFilter;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
@@ -24,5 +25,6 @@ class ComponentsModule extends AbstractModule {
     bind(ChangeLog.class);
     bind(ConflictMatrix.class);
     bind(SetOfCourseSelection.class);
+    bind(CombinationOrSingleCourseSelection.class);
   }
 }
