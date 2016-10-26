@@ -15,6 +15,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
@@ -69,7 +70,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     masterCourses = new ArrayList<>();
     selectedCourses = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
 
-    inflater.inflate("components/SetOfCourseSelection", this, this);
+    inflater.inflate("components/SetOfCourseSelection", this, this, "filter");
   }
 
   @Override
@@ -123,7 +124,9 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   }
 
   private TableRowPair<Node, String> getTableViewItem(final Course course) {
-    CheckBox checkBox = new CheckBox();
+    final CheckBox checkBox = new CheckBox();
+    final Tooltip tooltip = new Tooltip(course.getFullName());
+    checkBox.setTooltip(tooltip);
     checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
       if (newValue) {
         selectedCourses.add(course);

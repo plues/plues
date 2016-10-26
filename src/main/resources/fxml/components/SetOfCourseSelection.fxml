@@ -7,22 +7,22 @@
 <fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <TitledPane fx:id="titledPaneMasterCourse" text="Master" maxHeight="300.0">
+        <TitledPane fx:id="titledPaneMasterCourse" text="%master" maxHeight="300.0">
             <TableView fx:id="tableViewMasterCourse" prefWidth="500.0" maxHeight="300.0">
                 <columns>
                     <TableColumn fx:id="tableColumnMasterCheckBox" prefWidth="30.0"/>
                     <TableColumn fx:id="tableColumnMasterCourse" prefWidth="470.0"
-                                 minWidth="470.0" text="Studiengang"/>
+                                 minWidth="470.0" text="%course"/>
                 </columns>
             </TableView>
         </TitledPane>
-        <TitledPane fx:id="titledPaneBachelorCourse" text="Bachelor" prefWidth="400.0"
+        <TitledPane fx:id="titledPaneBachelorCourse" text="%bachelor" prefWidth="400.0"
                     maxHeight="300.0">
             <TableView fx:id="tableViewBachelorCourse" prefWidth="500.0" maxHeight="300.0">
                 <columns>
                     <TableColumn fx:id="tableColumnBachelorCheckBox" prefWidth="30.0"/>
                     <TableColumn fx:id="tableColumnBachelorCourse" prefWidth="470.0"
-                                 minWidth="470.0" text="Studiengang"/>
+                                 minWidth="470.0" text="%course"/>
                 </columns>
             </TableView>
         </TitledPane>

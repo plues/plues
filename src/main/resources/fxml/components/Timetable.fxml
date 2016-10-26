@@ -11,13 +11,16 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.StackPane?>
-
+<?import de.hhu.stups.plues.ui.components.AbstractUnitFilter?>
 <?import de.hhu.stups.plues.ui.components.SetOfCourseSelection?>
 
 <fx:root minHeight="600" prefWidth="250.0" type="javafx.scene.layout.BorderPane"
          xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
         <left>
-            <SetOfCourseSelection fx:id="setOfCourseSelection" />
+            <VBox spacing="20">
+                <SetOfCourseSelection fx:id="setOfCourseSelection"/>
+                <AbstractUnitFilter fx:id="abstractUnitFilter"/>
+            </VBox>
         </left>
         <bottom>
             <HBox prefHeight="20.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
@@ -101,13 +104,7 @@
                         <StackPane styleClass="day" GridPane.rowIndex="0" GridPane.columnIndex="5">
                             <Label GridPane.rowIndex="0" GridPane.columnIndex="5" text="%friday" styleClass="headerLabel" />
                         </StackPane>
-
                     </GridPane>
-
-                    <Label fx:id="selection" />
-                    <Button fx:id="checkSelection" text="Check!!!!" onAction="#checkButtonPressed"/>
-                    <Label text="Result" />
-                    <Label fx:id="result"  />
                 </children>
             </VBox>
         </center>

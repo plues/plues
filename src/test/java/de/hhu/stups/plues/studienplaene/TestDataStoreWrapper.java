@@ -2,55 +2,21 @@ package de.hhu.stups.plues.studienplaene;
 
 import static org.junit.Assert.assertEquals;
 
-import de.hhu.stups.plues.data.entities.Course;
-
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.IntStream;
 
 
-public class TestDataStoreWrapper {
-
-  private Map<String, String>[] semesters;
+public class TestDataStoreWrapper extends TestBase {
 
   /**
    * Test setup.
    */
   @Before
   public void setUp() throws URISyntaxException {
-    final MockStore store = new MockStore();
-    final Course course = store.getCourseByKey("foo");
-    final HashMap<Integer, Integer> groupChoice = new HashMap<>();
-
-    groupChoice.put(1, 1);
-    groupChoice.put(2, 12);
-    groupChoice.put(3, 3);
-    groupChoice.put(4, 4);
-    groupChoice.put(5, 11);
-    groupChoice.put(6, 6);
-    groupChoice.put(7, 7);
-    groupChoice.put(8, 10);
-    groupChoice.put(9, 9);
-
-    final HashMap<Integer, Integer> semesterChoice = new HashMap<>();
-    IntStream.rangeClosed(1, 9).forEach(i -> semesterChoice.put(i, 1));
-
-    final Map<String, Set<Integer>> moduleChoice = new HashMap<>();
-    final Set<Integer> integerSet = new HashSet<>();
-    integerSet.add(1);
-    integerSet.add(3);
-    moduleChoice.put("foo", integerSet);
-
-    final DataPreparatory data = new DataPreparatory(store, groupChoice, semesterChoice,
-        moduleChoice, course, null);
-    final DataStoreWrapper wrap = new DataStoreWrapper(ColorChoice.COLOR, data);
-    semesters = wrap.getSemesters();
+    super.setUp();
+    super.wrapper();
   }
 
   @Test

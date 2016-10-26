@@ -136,8 +136,7 @@ public class PdfRenderingTask extends Task<Path> {
 
   private Renderer getRenderer(final Store store, final FeasibilityResult result) {
     try {
-      return new Renderer(store, result.getGroupChoice(), result.getSemesterChoice(),
-        result.getModuleChoice(), this.major, this.minor);
+      return new Renderer(store, result, major, minor);
     } catch (final NullPointerException exc) {
       logger.log(Level.SEVERE, "Exception rendering PDF", exc);
       throw exc;

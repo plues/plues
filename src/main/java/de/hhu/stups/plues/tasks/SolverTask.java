@@ -12,8 +12,6 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.hhu.stups.plues.prob.Solver;
 import javafx.concurrent.Task;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
