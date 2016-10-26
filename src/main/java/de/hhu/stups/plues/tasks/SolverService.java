@@ -10,8 +10,8 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
-import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.ReportData;
@@ -255,24 +255,18 @@ public class SolverService {
     return this.courseCombinationResults;
   }
 
-  public SolverTask<Void> moveSession2(int sessionId, SessionFacade.Slot slot) {
-    return new SolverTask<Void>("Verschiebe a nach b", "Verschiebe es!!!", solver, () -> {
+  /**
+   * Move a session to a new day/time slot.
+   * @param sessionId The id of the session to be moved
+   * @param slot the target slot (tay time)
+   * @return SolverTask object for moving a session
+   */
+  public SolverTask<Void> moveSession(final int sessionId, final SessionFacade.Slot slot) {
+    return new SolverTask<>("Verschiebe a nach b", "Verschiebe es!!!", solver, () -> {
       solver.move(
-        String.valueOf(sessionId),
-        slot.getDayString(),
-        slot.getTime().toString()
-      );
-
-      return null;
-    });
-  }
-
-  public SolverTask<Void> moveSession(int sessionId, SessionFacade.Slot slot) {
-    return new SolverTask<Void>("Verschiebe a nach b", "Verschiebe es!!!", solver, () -> {
-      solver.move(
-        String.valueOf(sessionId),
-        slot.getDayString(),
-        slot.getTime().toString());
+          String.valueOf(sessionId),
+          slot.getDayString(),
+          slot.getTime().toString());
       return null;
     });
   }
