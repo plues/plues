@@ -10,29 +10,20 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
-import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.tasks.SolverService;
-import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -44,7 +35,6 @@ import java.time.DayOfWeek;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -52,11 +42,6 @@ public class Timetable extends BorderPane implements Initializable {
 
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
-
-  private final ObjectProperty<Course>
-      courseProperty = new SimpleObjectProperty<>();
-  private final BooleanProperty
-      solverProperty = new SimpleBooleanProperty(false);
 
   @FXML
   private AbstractUnitFilter abstractUnitFilter;
@@ -89,18 +74,13 @@ public class Timetable extends BorderPane implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.delayedStore.whenAvailable(store -> {
-      Runtime.getRuntime().addShutdownHook(new Thread(store::close));
-      this.abstractUnitFilter.setAbstractUnits(s.getAbstractUnits());
+      this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
       setOfCourseSelection.setCourses(store.getCourses());
 
       setSessions(store.getSessions()
           .parallelStream()
           .map(SessionFacade::new)
           .collect(Collectors.toList()));
-    });
-
-    this.delayedSolverService.whenAvailable(s -> {
-      this.solverProperty.set(true);
     });
 
     initSessionBoxes();
