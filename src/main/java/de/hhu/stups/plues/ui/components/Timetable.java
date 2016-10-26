@@ -39,6 +39,7 @@ import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
@@ -64,6 +65,9 @@ public class Timetable extends BorderPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private SetOfCourseSelection setOfCourseSelection;
+  @FXML
+  @SuppressWarnings("unused")
+  private CombinationOrSingleCourseSelection combinationOrSingleCourseSelection;
 
   private SolverService solverService;
 
@@ -88,6 +92,7 @@ public class Timetable extends BorderPane implements Initializable {
     this.delayedStore.whenAvailable(store -> {
       Runtime.getRuntime().addShutdownHook(new Thread(store::close));
       setOfCourseSelection.setCourses(store.getCourses());
+      combinationOrSingleCourseSelection.setCourses(store.getCourses());
       setSessions(store.getSessions());
     });
 
@@ -98,9 +103,15 @@ public class Timetable extends BorderPane implements Initializable {
     this.checkSelection.disableProperty().bind(
         this.courseProperty.isNull().or(this.solverProperty.not()));
 
-    this.delayedSolverService.whenAvailable(s -> {
-      this.solverService = s;
-      this.solverProperty.set(true);
+    this.delayedSolverService.whenAvailable(solver -> {
+      solverService = solver;
+      solverProperty.set(true);
+
+      final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
+      impossibleCoursesTask.setOnSucceeded(event ->
+          combinationOrSingleCourseSelection.highlightImpossibleCourses(
+              impossibleCoursesTask.getValue()));
+      solverService.submit(impossibleCoursesTask);
     });
 
     initSessionBoxes();

@@ -14,17 +14,16 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -41,19 +40,21 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<Course> cbMajor;
-
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<Course> cbMinor;
+  @FXML
+  @SuppressWarnings("unused")
+  private ColumnConstraints columnConstraints;
 
   private ObservableList<Course> initialMinorCourseList;
   private final List<InvalidationListener> listeners = new ArrayList<>();
 
   /**
-   * Create the component containing the combo boxes to choose major and minor courses. The combo
-   * boxes will fill the parent's width, therefore wrap the component in a grid pane for example.
-   * When using the component we need to initially call {@link #setMajorCourseList(ObservableList)},
-   * {@link #setMinorCourseList(ObservableList)}.
+   * Create the component containing the combo boxes to choose major and minor courses. When using
+   * the component we need to initially call {@link #setMajorCourseList(ObservableList)} and {@link
+   * #setMinorCourseList(ObservableList)}. As soon as the solver is available the impossible courses
+   * can be highlighted via {@link #highlightImpossibleCourses(Set)}.
    *
    * @param inflater Inflater to handle fxml.
    */
@@ -127,10 +128,10 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
    *         disabled.
    */
   public final Optional<Course> getSelectedMinorCourse() {
-    if (this.cbMinor.isDisabled()) {
+    if (cbMinor.getSelectionModel().getSelectedItem() == null || cbMinor.isDisabled()) {
       return Optional.empty();
     } else {
-      return Optional.of(this.cbMinor.getSelectionModel()
+      return Optional.of(cbMinor.getSelectionModel()
           .getSelectedItem());
     }
   }
@@ -180,6 +181,13 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     for (final InvalidationListener listener : listeners) {
       listener.invalidated(this);
     }
+  }
+
+  /**
+   * Set the percent width of this component according to the node it is placed in.
+   */
+  void setPercentWidth(final double percentWidth) {
+    columnConstraints.setPercentWidth(percentWidth);
   }
 
   @Override
