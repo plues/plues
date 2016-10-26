@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +41,7 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
         courseSelection.getMajorComboBox().getItems());
     Assert.assertEquals(
         observableList(minorCourseList).filtered(
-          course -> course.isCombinableWith(majorCourseList.get(0))),
+            course -> course.isCombinableWith(majorCourseList.get(0))),
         courseSelection.getMinorComboBox().getItems());
   }
 
@@ -55,7 +56,11 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
     Assert.assertFalse(courseSelection.getMinorComboBox().isDisabled());
 
     Assert.assertEquals(majorCourseList.get(1), courseSelection.getSelectedMajorCourse());
-    Assert.assertEquals(minorCourseList.get(0), courseSelection.getSelectedMinorCourse().get());
+    final Optional<Course> optionalMinor;
+    optionalMinor = courseSelection.getSelectedMinorCourse();
+    if (optionalMinor.isPresent()) {
+      Assert.assertEquals(minorCourseList.get(0), optionalMinor.get());
+    }
 
     Assert.assertEquals(4, courseSelection.getMajorComboBox().getItems().size());
     Assert.assertEquals(2, courseSelection.getMinorComboBox().getItems().size());
@@ -100,7 +105,7 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
 
     minorCourseList = majorCourseList;
 
-    Inflater inflater = new Inflater(new FXMLLoader());
+    final Inflater inflater = new Inflater(new FXMLLoader());
     courseSelection = new MajorMinorCourseSelection(inflater);
 
     courseSelection.setMinorCourseList(observableList(minorCourseList));

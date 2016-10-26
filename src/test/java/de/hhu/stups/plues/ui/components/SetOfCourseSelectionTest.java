@@ -73,7 +73,7 @@ public class SetOfCourseSelectionTest extends ApplicationTest {
     courseList.add(createCourse("shortName4", "ma"));
     courseList.add(createCourse("shortName5", "ma"));
 
-    Inflater inflater = new Inflater(new FXMLLoader());
+    final Inflater inflater = new Inflater(new FXMLLoader());
     courseSelection = new SetOfCourseSelection(inflater);
 
     courseSelection.setCourses(courseList);
