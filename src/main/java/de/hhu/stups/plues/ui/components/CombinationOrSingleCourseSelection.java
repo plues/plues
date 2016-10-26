@@ -129,5 +129,7 @@ public class CombinationOrSingleCourseSelection extends TitledPane implements In
 
   void highlightImpossibleCourses(final Set<String> impossibleCourses) {
     majorMinorCourseSelection.highlightImpossibleCourses(impossibleCourses);
+    singleCourseSelection.setCellFactory(
+        majorMinorCourseSelection.getCallbackForImpossibleCourses(impossibleCourses));
   }
 }

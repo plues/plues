@@ -114,7 +114,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
    *                          #highlightImpossibleCourses(Set) highlightImpossibleCourses}.
    * @return The callback providing the updated list cells of courses.
    */
-  private Callback<ListView<Course>, ListCell<Course>> getCallbackForImpossibleCourses(
+  public Callback<ListView<Course>, ListCell<Course>> getCallbackForImpossibleCourses(
       final Set<String> impossibleCourses) {
     return new ListViewListCellCallback(impossibleCourses);
   }
