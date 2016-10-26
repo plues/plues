@@ -53,7 +53,10 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   private ScrollPane scrollPane;
 
   /**
-   * Constructor for musterstudienplaene controller.
+   * This view presents a selection of major and minor courses where the user can choose a
+   * combination of courses or a standalone course from. The specific pdf file can be generated and
+   * success or failure is displayed in a list of {@link ResultBox result boxes}. The user is able
+   * to view or save the pdf file or remove the result box from the list.
    *
    * @param inflater             Inflater to handle fxml loading
    * @param delayedStore         Store containing relevant data
@@ -107,7 +110,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     scrollPane.visibleProperty().bind(resultBoxChildren.greaterThan(0));
 
     resultBox.setSpacing(10.0);
-    resultBox.setPadding(new Insets(10.0,10.0,10.0,10.0));
+    resultBox.setPadding(new Insets(10.0, 10.0, 10.0, 10.0));
 
     delayedStore.whenAvailable(store ->
         PdfRenderingHelper.initializeCourseSelection(store, courseSelection, delayedSolverService));
