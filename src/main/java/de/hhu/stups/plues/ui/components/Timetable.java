@@ -11,9 +11,9 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -75,7 +75,7 @@ public class Timetable extends BorderPane implements Initializable {
 
   private SolverService solverService;
 
-  private ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
+  private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
 
   /**
    * Timetable component.
@@ -98,9 +98,9 @@ public class Timetable extends BorderPane implements Initializable {
       setOfCourseSelection.setCourses(store.getCourses());
 
       setSessions(store.getSessions()
-        .parallelStream()
-        .map(SessionFacade::new)
-        .collect(Collectors.toList()));
+          .parallelStream()
+          .map(SessionFacade::new)
+          .collect(Collectors.toList()));
     });
 
     this.selection.textProperty().bind(
@@ -124,56 +124,26 @@ public class Timetable extends BorderPane implements Initializable {
     final int widthX = 5;
 
     IntStream.range(0, 35).forEach(i -> {
-      SessionFacade.Slot slot = getSlot(i, widthX);
+      final SessionFacade.Slot slot = getSlot(i, widthX);
 
-      ListView<SessionFacade> view = new SessionListView(slot, delayedStore,
-        delayedSolverService);
-
-      ((SessionListView) view).setSessions(sessions);
-      view.itemsProperty().bind(new ListBinding<SessionFacade>() {
-        {
-          bind(sessions, semesterToggle.selectedToggleProperty());
-
-          // http://stackoverflow.com/questions/32536096/javafx-bindings-not-working-as-expected
-          sessions.addListener((Change<? extends SessionFacade> change) -> {
-            while (change.next()) {
-              if (change.wasAdded()) {
-                change.getAddedSubList()
-                  .forEach(sessionFacade -> bind(sessionFacade.slotProperty()));
-              }
-
-              if (change.wasRemoved()) {
-                change.getRemoved().forEach(sessionFacade -> unbind(sessionFacade.slotProperty()));
-              }
-            }
-          });
-        }
-
-        @Override
-        protected ObservableList<SessionFacade> computeValue() {
-          ToggleButton semesterButton = (ToggleButton) semesterToggle.getSelectedToggle();
-
-          return sessions.filtered(session -> {
-            Set<Integer> semesters = session.getSemesters();
-
-            Integer semester = null;
-            if (null != semesterButton) {
-              semester = Integer.valueOf(semesterButton.getText());
-            }
-
-            return session.getSlot().equals(slot)
-              && (semester == null || semesters.contains(semester));
-          });
-        }
-      });
+      final ListView<SessionFacade> view = getSessionFacadeListView(slot);
 
       timeTable.add(view, i % widthX + offX, (i / widthX) + offY);
     });
   }
 
-  private SessionFacade.Slot getSlot(int index, int widthX) {
-    DayOfWeek[] days = { MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY };
-    Integer[] times = { 1, 2, 3, 4, 5, 6, 7 };
+  private ListView<SessionFacade> getSessionFacadeListView(final SessionFacade.Slot slot) {
+    final ListView<SessionFacade> view
+        = new SessionListView(slot, delayedStore, delayedSolverService);
+
+    ((SessionListView) view).setSessions(sessions);
+    view.itemsProperty().bind(new SessionFacadeListBinding(slot));
+    return view;
+  }
+
+  private SessionFacade.Slot getSlot(final int index, final int widthX) {
+    final DayOfWeek[] days = { MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY };
+    final Integer[] times = { 1, 2, 3, 4, 5, 6, 7 };
 
     return new SessionFacade.Slot(days[index % widthX], times[index / widthX]);
   }
@@ -195,8 +165,49 @@ public class Timetable extends BorderPane implements Initializable {
     s.submit(t);
   }
 
-  private void setSessions(List<SessionFacade> sessions) {
+  private void setSessions(final List<SessionFacade> sessions) {
     sessions.forEach(SessionFacade::initSlotProperty);
     this.sessions.set(FXCollections.observableArrayList(sessions));
+  }
+
+  private class SessionFacadeListBinding extends ListBinding<SessionFacade> {
+
+    private final SessionFacade.Slot slot;
+
+    SessionFacadeListBinding(final SessionFacade.Slot slot) {
+      this.slot = slot;
+      bind(sessions, semesterToggle.selectedToggleProperty());
+
+      // http://stackoverflow.com/questions/32536096/javafx-bindings-not-working-as-expected
+      sessions.addListener((Change<? extends SessionFacade> change) -> {
+        while (change.next()) {
+          if (change.wasAdded()) {
+            change.getAddedSubList()
+              .forEach(sessionFacade -> bind(sessionFacade.slotProperty()));
+          }
+
+          if (change.wasRemoved()) {
+            change.getRemoved().forEach(sessionFacade -> unbind(sessionFacade.slotProperty()));
+          }
+        }
+      });
+    }
+
+    @Override
+    protected ObservableList<SessionFacade> computeValue() {
+      final ToggleButton semesterButton = (ToggleButton) semesterToggle.getSelectedToggle();
+
+      return sessions.filtered(session -> {
+        final Set<Integer> semesters = session.getSemesters();
+
+        Integer semester = null;
+        if (null != semesterButton) {
+          semester = Integer.valueOf(semesterButton.getText());
+        }
+
+        return session.getSlot().equals(slot)
+          && (semester == null || semesters.contains(semester));
+      });
+    }
   }
 }
