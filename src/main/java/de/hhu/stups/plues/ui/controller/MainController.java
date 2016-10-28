@@ -163,7 +163,7 @@ public class MainController implements Initializable {
    */
   @SuppressWarnings("UnusedParameters")
   public final void openFile(final ActionEvent actionEvent) {
-    FileChooser fileChooser = prepareFileChooser("openDB");
+    final FileChooser fileChooser = prepareFileChooser("openDB");
     //
     final File file = fileChooser.showOpenDialog(stage);
     //
@@ -196,9 +196,10 @@ public class MainController implements Initializable {
    */
   @SuppressWarnings("UnusedParamters")
   public final void saveFileAs(final ActionEvent actionEvent) {
-    FileChooser fileChooser = prepareFileChooser("saveDB");
+    final FileChooser fileChooser = prepareFileChooser("saveDB");
     fileChooser.setInitialFileName("data.sqlite3");
-    File file = fileChooser.showSaveDialog(stage);
+    //
+    final File file = fileChooser.showSaveDialog(stage);
     //
     if (file != null) {
       try {
