@@ -44,14 +44,14 @@
     <BorderPane>
         <center>
             <TabPane>
-                <Tab text="%partial" closable="false">
-                    <PartialTimeTables fx:id="partialTimetables"/>
+                <Tab text="%timetable" closable="false">
+                    <Timetable fx:id="timetable"/>
                 </Tab>
                 <Tab text="%musterstudienplaene" closable="false">
                     <Musterstudienplaene fx:id="musterstudienplaene"/>
                 </Tab>
-                <Tab text="%timetable" closable="false">
-                    <Timetable fx:id="timetable"/>
+                <Tab text="%partial" closable="false">
+                    <PartialTimeTables fx:id="partialTimetables"/>
                 </Tab>
                 <Tab text="%batch" closable="false">
                     <BatchTimetableGeneration fx:id="batchTimetableGeneration"/>
