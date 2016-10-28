@@ -22,6 +22,10 @@
         <Menu mnemonicParsing="false" text="%file">
             <MenuItem fx:id="openFileMenuItem" onAction="#openFile"
                       mnemonicParsing="false" text="%open"/>
+            <MenuItem fx:id="saveFileMenuItem" onAction="#saveFile"
+                      mnemonicParsing="false" text="%save"/>
+            <MenuItem fx:id="saveFileAsMenuItem" onAction="#saveFileAs"
+                      mnemonicParsing="false" text="%saveAs"/>
             <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"
                       mnemonicParsing="false" text="%export"/>
             <MenuItem fx:id="openChangeLog" onAction="#openChangeLog"
