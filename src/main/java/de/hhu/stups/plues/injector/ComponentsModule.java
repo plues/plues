@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 
 import de.hhu.stups.plues.ui.components.AbstractUnitFilter;
 import de.hhu.stups.plues.ui.components.ChangeLog;
+import de.hhu.stups.plues.ui.components.CheckCourseFeasibility;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
@@ -26,5 +27,6 @@ class ComponentsModule extends AbstractModule {
     bind(AbstractUnitFilter.class);
     bind(SetOfCourseSelection.class);
     bind(CombinationOrSingleCourseSelection.class);
+    bind(CheckCourseFeasibility.class);
   }
 }
