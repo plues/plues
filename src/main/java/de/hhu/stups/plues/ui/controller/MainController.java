@@ -15,6 +15,7 @@ import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
+import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
 import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
@@ -81,6 +82,7 @@ public class MainController implements Initializable {
   private final SolverLoaderImpl solverLoader;
   private final Provider<ChangeLog> changeLogProvider;
   private final Provider<Reports> reportsProvider;
+  private final StoreLoaderTaskFactory storeLoaderTaskFactory;
 
   @FXML
   private MenuItem openFileMenuItem;
@@ -108,6 +110,7 @@ public class MainController implements Initializable {
                         final Stage stage,
                         final Provider<ChangeLog> changeLogProvider,
                         final Provider<Reports> reportsProvider,
+                        final StoreLoaderTaskFactory storeLoaderTaskFactory,
                         @Named("prob") final ObservableListeningExecutorService probExecutor,
                         final ObservableListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
@@ -116,6 +119,7 @@ public class MainController implements Initializable {
     this.stage = stage;
     this.changeLogProvider = changeLogProvider;
     this.reportsProvider = reportsProvider;
+    this.storeLoaderTaskFactory = storeLoaderTaskFactory;
     this.executor = executorService;
 
     delayedSolverService.whenAvailable(solverService -> openReports.setDisable(false));
@@ -289,7 +293,7 @@ public class MainController implements Initializable {
 
   private StoreLoaderTask getStoreLoaderTask(final String path) {
 
-    final StoreLoaderTask storeLoader = new StoreLoaderTask(path, properties);
+    final StoreLoaderTask storeLoader = storeLoaderTaskFactory.create(path, properties);
     //
     storeLoader.progressProperty().addListener(
         (observable, oldValue, newValue) -> logger.log(Level.FINE, "STORE progress " + newValue));
