@@ -92,11 +92,11 @@ public class ResultBox extends GridPane implements Initializable {
   /**
    * Constructor for ResultBox.
    *
-   * @param inflater    Inflater to handle fxml loader tasks
+   * @param inflater             Inflater to handle fxml loader tasks
    * @param renderingTaskFactory PDF Rendering task Factory
-   * @param major       Major course
-   * @param minor       Minor course if present, else null
-   * @param parent      The parent wrapper (VBox) to remove a single result box.
+   * @param major                Major course
+   * @param minor                Minor course if present, else null
+   * @param parent               The parent wrapper (VBox) to remove a single result box.
    */
   @Inject
   public ResultBox(final Inflater inflater,
@@ -107,10 +107,8 @@ public class ResultBox extends GridPane implements Initializable {
                    @Nullable @Assisted("minor") final Course minor,
                    @Assisted("parent") final VBox parent) {
     super();
-
     this.solverService = delayedSolverService;
     this.renderingTaskFactory = renderingTaskFactory;
-
     this.majorCourse = new SimpleObjectProperty<>(major);
     this.minorCourse = new SimpleObjectProperty<>(minor);
     this.pdf = new SimpleObjectProperty<>();
@@ -131,9 +129,9 @@ public class ResultBox extends GridPane implements Initializable {
     cancel = resources.getString("cancel");
     //
     this.major.textProperty()
-      .bind(Bindings.selectString(this.majorCourse, "fullName"));
+        .bind(Bindings.selectString(this.majorCourse, "fullName"));
     this.minor.textProperty()
-      .bind(Bindings.selectString(this.minorCourse, "fullName"));
+        .bind(Bindings.selectString(this.minorCourse, "fullName"));
     //
     solverService.whenAvailable(solver -> {
       final SolverTask<FeasibilityResult> solverTask;
@@ -148,7 +146,7 @@ public class ResultBox extends GridPane implements Initializable {
       //
       this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
       this.progressIndicator.visibleProperty()
-        .bind(task.runningProperty());
+          .bind(task.runningProperty());
       //
       icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(task));
       icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
@@ -171,7 +169,7 @@ public class ResultBox extends GridPane implements Initializable {
     //
     this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
     this.progressIndicator.visibleProperty()
-      .bind(task.runningProperty());
+        .bind(task.runningProperty());
 
     this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancel)));
     this.cbAction.getSelectionModel().selectFirst();

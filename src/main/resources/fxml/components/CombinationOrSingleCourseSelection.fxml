@@ -5,13 +5,10 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.layout.VBox?>
 
-<fx:root type="javafx.scene.control.TitledPane" alignment="CENTER_LEFT"
-         xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-         text="%title">
-    <VBox>
+<fx:root type="javafx.scene.layout.VBox" alignment="CENTER_LEFT"
+         xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
         <RadioButton fx:id="rbCombination" text="%combinable" alignment="CENTER_LEFT"/>
         <MajorMinorCourseSelection fx:id="majorMinorCourseSelection"/>
         <RadioButton fx:id="rbSingleSelection" text="%subject" alignment="CENTER_LEFT"/>
         <ComboBox fx:id="singleCourseSelection"/>
-    </VBox>
 </fx:root>

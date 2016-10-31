@@ -1,0 +1,13 @@
+<?import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/8"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <CombinationOrSingleCourseSelection fx:id="combinationOrSingleCourseSelection"/>
+    <Button fx:id="btCheckFeasibility" onAction="#checkFeasibility" text="%checkFeasibility"/>
+    <ScrollPane fx:id="scrollPaneResults" prefHeight="200.0">
+        <VBox fx:id="resultBoxWrapper"/>
+    </ScrollPane>
+</fx:root>
