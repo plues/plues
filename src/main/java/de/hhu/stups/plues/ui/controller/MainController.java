@@ -61,6 +61,8 @@ public class MainController implements Initializable {
   private static final FontAwesomeIcon DEFAULT_ICON = FontAwesomeIcon.TASKS;
   private static final String LAST_DB_OPEN_DIR = "LAST_DB_OPEN_DIR";
   private static final String LAST_XML_EXPORT_DIR = "LAST_XML_EXPORT_DIR";
+  private static final String DB_PATH = "dbpath";
+  private static final String TEMP_DB_PATH = "tempDBpath";
 
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
@@ -153,8 +155,8 @@ public class MainController implements Initializable {
       this.openChangeLog.setDisable(false);
     });
 
-    if (this.properties.get("dbpath") != null) {
-      this.loadData((String) this.properties.get("dbpath"));
+    if (this.properties.get(DB_PATH) != null) {
+      this.loadData((String) this.properties.get(DB_PATH));
     }
   }
 
@@ -169,7 +171,7 @@ public class MainController implements Initializable {
     //
     if (file != null) {
       final String newInitialDir = file.getAbsoluteFile().getParent();
-      preferences.put("dbpath", file.getAbsolutePath());
+      preferences.put(DB_PATH, file.getAbsolutePath());
       preferences.put(LAST_DB_OPEN_DIR, newInitialDir);
       //
       this.loadData(file.getAbsolutePath());
@@ -182,7 +184,7 @@ public class MainController implements Initializable {
   @SuppressWarnings("UnusedParamters")
   public final void saveFile(final ActionEvent actionEvent) {
     try {
-      Files.copy((Path) properties.get("tempDBpath"), Paths.get(properties.getProperty("dbpath")),
+      Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
           StandardCopyOption.REPLACE_EXISTING);
       logger.log(Level.INFO, "File saving finished!");
     } catch (IOException exc) {
@@ -203,7 +205,7 @@ public class MainController implements Initializable {
     //
     if (file != null) {
       try {
-        Files.copy((Path) properties.get("tempDBpath"), Paths.get(file.getAbsolutePath()));
+        Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(file.getAbsolutePath()));
         logger.log(Level.INFO, "File saving finished!");
       } catch (IOException exc) {
         logger.log(Level.INFO, "File saving failed!");
