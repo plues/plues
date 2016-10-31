@@ -531,7 +531,11 @@ public class ConflictMatrix extends GridPane implements Initializable {
     final int col = standaloneCourses.stream().map(Course::getName)
         .collect(Collectors.toList()).indexOf(majorName);
 
-    if (!impossibleCourses.contains(majorName)) {
+
+    // In {@link de.hhu.stups.plues.ui.components.CheckCourseFeasibility} it is possible to check a
+    // single subject's feasibility that is not a standalone course, therefore we check that col
+    // does not equal -1 because we don't want to add those partial results to the conflict matrix.
+    if (!impossibleCourses.contains(majorName) && col != -1) {
       Platform.runLater(() -> gridPaneStandalone.add(getActiveGridCellPane(result), col, 1));
     }
   }
