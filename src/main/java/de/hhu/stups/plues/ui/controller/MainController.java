@@ -37,6 +37,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -159,8 +163,62 @@ public class MainController implements Initializable {
    */
   @SuppressWarnings("UnusedParameters")
   public final void openFile(final ActionEvent actionEvent) {
+    final FileChooser fileChooser = prepareFileChooser("openDB");
+    //
+    final File file = fileChooser.showOpenDialog(stage);
+    //
+    if (file != null) {
+      final String newInitialDir = file.getAbsoluteFile().getParent();
+      preferences.put("dbpath", file.getAbsolutePath());
+      preferences.put(LAST_DB_OPEN_DIR, newInitialDir);
+      //
+      this.loadData(file.getAbsolutePath());
+    }
+  }
+
+  /**
+   * Saves a file.
+   */
+  @SuppressWarnings("UnusedParamters")
+  public final void saveFile(final ActionEvent actionEvent) {
+    try {
+      Files.copy((Path) properties.get("tempDBpath"), Paths.get(properties.getProperty("dbpath")),
+          StandardCopyOption.REPLACE_EXISTING);
+      logger.log(Level.INFO, "File saving finished!");
+    } catch (IOException exc) {
+      logger.log(Level.INFO, "File saving failed!");
+      exc.printStackTrace();
+    }
+  }
+
+  /**
+   * Saves a file at another location.
+   */
+  @SuppressWarnings("UnusedParamters")
+  public final void saveFileAs(final ActionEvent actionEvent) {
+    final FileChooser fileChooser = prepareFileChooser("saveDB");
+    fileChooser.setInitialFileName("data.sqlite3");
+    //
+    final File file = fileChooser.showSaveDialog(stage);
+    //
+    if (file != null) {
+      try {
+        Files.copy((Path) properties.get("tempDBpath"), Paths.get(file.getAbsolutePath()));
+        logger.log(Level.INFO, "File saving finished!");
+      } catch (IOException exc) {
+        logger.log(Level.INFO, "File saving failed!");
+        exc.printStackTrace();
+      }
+    }
+  }
+
+  /**
+   * Prepare a file chooser and return the file.
+   * @param title title key to find resource
+   */
+  public final FileChooser prepareFileChooser(final String title) {
     final FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle(resources.getString("openDB"));
+    fileChooser.setTitle(resources.getString(title));
     //
     final String initialDirName = preferences.get(LAST_DB_OPEN_DIR,
         System.getProperty("user.home"));
@@ -171,15 +229,8 @@ public class MainController implements Initializable {
     //
     fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter(
         "SQLite3 Database", "*.sqlite", "*.sqlite3"));
-    //
-    final File file = fileChooser.showOpenDialog(stage);
-    //
-    if (file != null) {
-      final String newInitialDir = file.getAbsoluteFile().getParent();
-      preferences.put(LAST_DB_OPEN_DIR, newInitialDir);
-      //
-      this.loadData(file.getAbsolutePath());
-    }
+
+    return fileChooser;
   }
 
   /**
@@ -236,7 +287,7 @@ public class MainController implements Initializable {
 
   private StoreLoaderTask getStoreLoaderTask(final String path) {
 
-    final StoreLoaderTask storeLoader = new StoreLoaderTask(path);
+    final StoreLoaderTask storeLoader = new StoreLoaderTask(path, properties);
     //
     storeLoader.progressProperty().addListener(
         (observable, oldValue, newValue) -> logger.log(Level.FINE, "STORE progress " + newValue));
