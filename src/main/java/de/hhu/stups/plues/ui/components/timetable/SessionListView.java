@@ -9,6 +9,7 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.DragClipBoard;
+import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.property.ListProperty;
 import javafx.scene.control.ListView;
@@ -29,15 +30,16 @@ public class SessionListView extends ListView<SessionFacade> {
    * Custom implementation of ListView for sessions.
    * @param slot the time slot identifying this session list
    */
-  public SessionListView(SessionFacade.Slot slot,
-      Delayed<Store> delayedStore, Delayed<SolverService> delayedSolver) {
+  public SessionListView(final Inflater inflater, final SessionFacade.Slot slot,
+                         final Delayed<Store> delayedStore,
+                         final Delayed<SolverService> delayedSolver) {
     super();
 
     this.slot = slot;
     this.delayedStore = delayedStore;
     this.delayedSolver = delayedSolver;
 
-    setCellFactory(param -> new SessionCell());
+    setCellFactory(param -> new SessionCell(inflater));
 
     initEvents();
   }

@@ -40,6 +40,7 @@ public class Timetable extends BorderPane implements Initializable {
 
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
+  private final Inflater inflater;
 
   @FXML
   private AbstractUnitFilter abstractUnitFilter;
@@ -63,6 +64,7 @@ public class Timetable extends BorderPane implements Initializable {
                    final Delayed<SolverService> delayedSolverService) {
     this.delayedStore = delayedStore;
     this.delayedSolverService = delayedSolverService;
+    this.inflater = inflater;
 
     // TODO: remove controller param if possible
     // TODO: currently not possible because of dependency circle
@@ -100,7 +102,7 @@ public class Timetable extends BorderPane implements Initializable {
 
   private ListView<SessionFacade> getSessionFacadeListView(final SessionFacade.Slot slot) {
     final ListView<SessionFacade> view
-        = new SessionListView(slot, delayedStore, delayedSolverService);
+        = new SessionListView(inflater, slot, delayedStore, delayedSolverService);
 
     ((SessionListView) view).setSessions(sessions);
     view.itemsProperty().bind(new SessionFacadeListBinding(slot));
