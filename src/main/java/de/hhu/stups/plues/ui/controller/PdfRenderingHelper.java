@@ -37,9 +37,9 @@ import javax.swing.SwingUtilities;
 public class PdfRenderingHelper {
 
   private static final String ICON_SIZE = "50";
-  private static final String WARNING_COLOR = "#FEEFB3";
-  private static final String FAILURE_COLOR = "#FFBABA";
-  private static final String SUCCESS_COLOR = "#DFF2BF";
+  public static final String WARNING_COLOR = "#FEEFB3";
+  public static final String FAILURE_COLOR = "#FFBABA";
+  public static final String SUCCESS_COLOR = "#DFF2BF";
   private static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
   private static final String MSG = "Error! Copying of temporary file into target file failed.";
 
