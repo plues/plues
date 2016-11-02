@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.tasks;
 
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.Helpers;
@@ -34,6 +35,7 @@ public class StoreLoaderTask extends Task<Store> {
    * Constuctor to create store loader task.
    * @param storePath Path where to find store
    */
+  @Inject
   public StoreLoaderTask(@Assisted final String storePath, @Assisted final Properties properties) {
     this.properties = properties;
     this.path = storePath;
