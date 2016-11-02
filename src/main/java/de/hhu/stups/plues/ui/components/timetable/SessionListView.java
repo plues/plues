@@ -2,14 +2,15 @@ package de.hhu.stups.plues.ui.components.timetable;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.DragClipBoard;
-import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.property.ListProperty;
 import javafx.scene.control.ListView;
@@ -29,17 +30,25 @@ public class SessionListView extends ListView<SessionFacade> {
   /**
    * Custom implementation of ListView for sessions.
    * @param slot the time slot identifying this session list
+   * @param delayedStore Store to save new session info after moving
+   * @param delayedSolver Solver to find out if moving a session is valid
    */
-  public SessionListView(final Inflater inflater, final SessionFacade.Slot slot,
+  @Inject
+  public SessionListView(@Assisted final SessionFacade.Slot slot,
                          final Delayed<Store> delayedStore,
-                         final Delayed<SolverService> delayedSolver) {
+                         final Delayed<SolverService> delayedSolver,
+                         final Provider<SessionCell> cellProvider) {
     super();
 
     this.slot = slot;
     this.delayedStore = delayedStore;
     this.delayedSolver = delayedSolver;
 
-    setCellFactory(param -> new SessionCell(inflater));
+    setCellFactory(param -> {
+      SessionCell sessionCell = cellProvider.get();
+      sessionCell.setSlot(slot);
+      return sessionCell;
+    });
 
     initEvents();
   }

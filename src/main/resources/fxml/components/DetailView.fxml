@@ -4,21 +4,30 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1">
-    <Label text="Session Info"/>
-    <TableView fx:id="sessionTable">
-        <columns>
-            <TableColumn fx:id="keyColumn"/>
-            <TableColumn fx:id="valueColumn"/>
-        </columns>
-    </TableView>
-    <Label text="Related Courses and Modules"/>
+         xmlns:fx="http://javafx.com/fxml/1" maxWidth="400" maxHeight="250">
+    <HBox fx:id="session">
+        <Label text="Session: "/>
+    </HBox>
+    <HBox fx:id="title">
+        <Label text="Title: "/>
+    </HBox>
+    <HBox fx:id="group">
+        <Label text="Group ID: "/>
+    </HBox>
+    <HBox fx:id="semesters">
+        <Label text="Semesters: "/>
+    </HBox>
+    <Label/>
+    <Label text="Course Assignments:"/>
     <TableView fx:id="courseTable">
         <columns>
-            <TableColumn fx:id="courseName"/>
-            <TableColumn fx:id="po"/>
-            <TableColumn fx:id="moduleName"/>
+            <TableColumn fx:id="courseKey"/>
+            <TableColumn fx:id="module"/>
+            <TableColumn fx:id="abstractUnit"/>
+            <TableColumn fx:id="courseSemesters"/>
+            <TableColumn fx:id="type"/>
         </columns>
     </TableView>
 </fx:root>

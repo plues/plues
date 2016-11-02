@@ -2,38 +2,51 @@ package de.hhu.stups.plues.ui.components.timetable;
 
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
-import de.hhu.stups.plues.data.entities.Unit;
+import de.hhu.stups.plues.data.entities.Session;
+import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
 public class DetailView extends VBox implements Initializable {
 
+  private final Delayed<Store> delayedStore;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<SessionTableEnry> sessionTable;
+  private HBox session;
 
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<SessionTableEnry, String> keyColumn;
+  private HBox title;
 
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<SessionTableEnry, String> valueColumn;
+  private HBox group;
+
+  @FXML
+  @SuppressWarnings("unused")
+  private HBox semesters;
 
   @FXML
   @SuppressWarnings("unused")
@@ -41,49 +54,105 @@ public class DetailView extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<CourseTableEntry, String> courseName;
+  private TableColumn<CourseTableEntry, String> courseKey;
 
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<CourseTableEntry, Integer> po;
+  private TableColumn<CourseTableEntry, String> module;
 
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<CourseTableEntry, String> moduleName;
+  private TableColumn<CourseTableEntry, Integer> abstractUnit;
+
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<CourseTableEntry, String> courseSemesters;
+
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<CourseTableEntry, Character> type;
 
   @Inject
-  public DetailView(final Inflater inflater) {
+  public DetailView(final Inflater inflater,
+                    final Delayed<Store> delayedStore) {
     inflater.inflate("components/DetailView", this, this);
+    this.delayedStore = delayedStore;
   }
 
   /**
    * Set content for detail view.
-   * @param abstractUnits Abstract unit to display
-   * @param unit Unit to display
-   * @param courseModuleMap Module to display
+   *
+   * @param session Session to build content for
    */
-  public void setContent(final Set<AbstractUnit> abstractUnits,
-                         final Unit unit,
-                         final Map<Course, Set<Module>> courseModuleMap) {
-    sessionTable.getItems().add(new SessionTableEnry("Unit", unit.getTitle()));
+  public void setContent(final Session session, final SessionFacade.Slot slot) {
+    this.session.getChildren().add(new Label(slot.toString()));
+    title.getChildren().add(new Label(session.getGroup().getUnit().getTitle()));
+    group.getChildren().add(new Label(String.valueOf(session.getGroup().getId())));
 
-    StringBuilder abstractUnitBuilder = new StringBuilder();
-    abstractUnits.forEach(abstractUnit -> {
-      abstractUnitBuilder.append(abstractUnit.getId());
-      abstractUnitBuilder.append(",");
+    final StringBuilder builder = new StringBuilder();
+    session.getGroup().getUnit().getSemesters().forEach(integer -> {
+      builder.append(integer);
+      builder.append(",");
     });
-    if (abstractUnitBuilder.length() > 0) {
-      abstractUnitBuilder.setLength(abstractUnitBuilder.length() - 1);
+    if (builder.length() > 0) {
+      builder.setLength(builder.length() - 1);
     }
-    sessionTable.getItems().add(
-        new SessionTableEnry("Abstract Units", abstractUnitBuilder.toString()));
+    semesters.getChildren().add(new Label(builder.toString()));
 
-    courseModuleMap.forEach((course, modules) ->
-        courseTable.getItems().add(new CourseTableEntry(course, modules)));
+    Map<Course, Map<Module, Set<AbstractUnit>>> courseModuleAbstractUnit = new HashMap<>();
+    Map<AbstractUnit, Set<Integer>> abstractUnitSemesters = new HashMap<>();
+    Map<AbstractUnit, Character> abstractUnitType = new HashMap<>();
+
+    delayedStore.whenAvailable(store -> {
+      store.getModuleAbstractUnitSemester().forEach(entry -> {
+        final Module module = entry.getModule();
+        final Integer semester = entry.getSemester();
+        final AbstractUnit abstractUnit = entry.getAbstractUnit();
+
+        Set<Integer> semesters;
+        if (abstractUnitSemesters.containsKey(abstractUnit.getId())) {
+          semesters = abstractUnitSemesters.get(abstractUnit.getId());
+        } else {
+          semesters = new HashSet<>(Arrays.asList(semester));
+        }
+        abstractUnitSemesters.put(abstractUnit, semesters);
+
+        module.getCourses().forEach(course -> {
+          Map<Module, Set<AbstractUnit>> innerMap;
+          if (courseModuleAbstractUnit.containsKey(course)) {
+            innerMap = courseModuleAbstractUnit.get(course);
+            Set<AbstractUnit> unitIds;
+            if (innerMap.containsKey(module)) {
+              unitIds = innerMap.get(module);
+              unitIds.add(abstractUnit);
+            } else {
+              unitIds = new HashSet<>(Arrays.asList(abstractUnit));
+            }
+            innerMap.put(module, unitIds);
+          } else {
+            innerMap = new HashMap<>();
+            innerMap.put(module, new HashSet<>(Arrays.asList(abstractUnit)));
+          }
+
+          courseModuleAbstractUnit.put(course, innerMap);
+        });
+      });
+
+      store.getModuleAbstractUnitType().forEach(entry ->
+          abstractUnitType.put(entry.getAbstractUnit(), entry.getType()));
+    });
+
+    courseModuleAbstractUnit.forEach((course, moduleSetMap) ->
+        moduleSetMap.forEach((module, units) ->
+            units.forEach(unit ->
+                courseTable.getItems().add(
+                  new CourseTableEntry(course, module, unit,
+                    abstractUnitSemesters.get(unit), abstractUnitType.get(unit))))));
   }
 
   /**
    * Remove header line of table.
+   *
    * @throws NullPointerException TODO: Exception sollte nicht geworfen werden
    */
   private void removeHeader() throws NullPointerException {
@@ -98,73 +167,75 @@ public class DetailView extends VBox implements Initializable {
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    keyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
-    valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
-
-    courseName.setCellValueFactory(new PropertyValueFactory<>("courseKey"));
-    courseName.setText("Course Name");
-    po.setCellValueFactory(new PropertyValueFactory<>("po"));
-    po.setText("PO");
-    moduleName.setCellValueFactory(new PropertyValueFactory<>("modules"));
-    moduleName.setText("Modules");
-  }
-
-  public static final class SessionTableEnry {
-    private final String key;
-    private final String value;
-
-    SessionTableEnry(final String key, final String value) {
-      this.key = key;
-      this.value = value;
-    }
-
-    public String getKey() {
-      return key;
-    }
-
-    public String getValue() {
-      return value;
-    }
+    courseKey.setCellValueFactory(new PropertyValueFactory<>("courseKey"));
+    courseKey.setText("Course");
+    module.setCellValueFactory(new PropertyValueFactory<>("module"));
+    module.setText("Module");
+    abstractUnit.setCellValueFactory(new PropertyValueFactory<>("abstractUnit"));
+    abstractUnit.setText("Abstract Unit");
+    courseSemesters.setCellValueFactory(new PropertyValueFactory<>("semesters"));
+    courseSemesters.setText("Semesters");
+    type.setCellValueFactory(new PropertyValueFactory<>("type"));
+    type.setText("Type");
   }
 
   public static final class CourseTableEntry {
     private final String courseKey;
-    private final Integer po;
-    private final Set<Module> modules;
+    private final String module;
+    private final Integer abstractUnit;
+    private final Set<Integer> semesters;
+    private final Character type;
 
     /**
-     * Constructor for course table entry.
-     * @param course Course object; display key and po
-     * @param modules Set of modules belonging to the course; display ids
+     * Constructor for course table.
+     * @param course       Course key
+     * @param module       Module title
+     * @param abstractUnit Abstract Unit title
+     * @param semesters     Semester
+     * @param type Type
      */
-    CourseTableEntry(final Course course, final Set<Module> modules) {
+    CourseTableEntry(final Course course,
+                     final Module module,
+                     final AbstractUnit abstractUnit,
+                     final Set<Integer> semesters,
+                     final Character type) {
       this.courseKey = course.getKey();
-      this.po = course.getPo();
-      this.modules = modules;
+      this.module = module.getTitle();
+      this.abstractUnit = abstractUnit.getId();
+      this.semesters = semesters;
+      this.type = type;
     }
 
     public String getCourseKey() {
       return courseKey;
     }
 
-    public Integer getPo() {
-      return po;
+    public String getModule() {
+      return module;
+    }
+
+    public Integer getAbstractUnit() {
+      return abstractUnit;
     }
 
     /**
-     * Build String containing comma separated ids of modules.
-     * @return String with module ids
+     * Create string based on semesters.
+     * @return String with comma seperated semesters.
      */
-    public String getModules() {
+    public String getSemesters() {
       StringBuilder builder = new StringBuilder();
-      modules.forEach(module -> {
-        builder.append(module.getId());
+      semesters.forEach(integer -> {
+        builder.append(integer);
         builder.append(",");
       });
       if (builder.length() > 0) {
         builder.setLength(builder.length() - 1);
       }
       return builder.toString();
+    }
+
+    public Character getType() {
+      return type;
     }
   }
 }

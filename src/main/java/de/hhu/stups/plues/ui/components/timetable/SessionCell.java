@@ -1,14 +1,10 @@
 package de.hhu.stups.plues.ui.components.timetable;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
-import de.hhu.stups.plues.data.entities.AbstractUnit;
-import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
-import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
-import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.scene.control.ListCell;
 import javafx.scene.input.ClipboardContent;
@@ -18,20 +14,16 @@ import javafx.scene.input.TransferMode;
 
 import org.controlsfx.control.PopOver;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 class SessionCell extends ListCell<SessionFacade> {
 
-  private final Inflater inflater;
+  private final Provider<DetailView> provider;
+  private SessionFacade.Slot slot;
 
   @Inject
-  SessionCell(final Inflater inflater) {
+  SessionCell(final Provider<DetailView> provider) {
     super();
 
-    this.inflater = inflater;
+    this.provider = provider;
 
     setOnDragDetected(this::dragItem);
     setOnMouseClicked(this::clickItem);
@@ -51,31 +43,15 @@ class SessionCell extends ListCell<SessionFacade> {
 
   private void clickItem(MouseEvent event) {
     Session session = getItem().getSession();
-    Unit unit = session.getGroup().getUnit();
-    Set<AbstractUnit> abstractUnits = unit.getAbstractUnits();
 
-    final Map<Course, Set<Module>> courseToModuleMap = new HashMap<>();
-    abstractUnits.forEach(abstractUnit ->
-        abstractUnit.getModules().forEach(module ->
-            module.getCourses().forEach(course -> {
-              Set<Module> modules;
-              if (courseToModuleMap.containsKey(course)) {
-                modules = courseToModuleMap.get(course);
-                modules.add(module);
-              } else {
-                modules = new HashSet<>();
-              }
-              courseToModuleMap.put(course, modules);
-            })));
-
-    DetailView view = new DetailView(inflater);
-    view.setContent(abstractUnits, unit, courseToModuleMap);
+    DetailView view = provider.get();
+    view.setContent(session, slot);
 
     PopOver pop = new PopOver(view);
     pop.setPrefHeight(400);
     pop.setPrefWidth(400);
     pop.setTitle("Session Detail");
-    pop.show(this);
+    pop.show(this); // TODO weitere Parameter zur Positionierung erforderlich aber nicht einheitlich
   }
 
   @Override
@@ -83,5 +59,9 @@ class SessionCell extends ListCell<SessionFacade> {
     super.updateItem(session, empty);
 
     setText(empty || session == null ? null : session.toString());
+  }
+
+  public void setSlot(SessionFacade.Slot slot) {
+    this.slot = slot;
   }
 }
