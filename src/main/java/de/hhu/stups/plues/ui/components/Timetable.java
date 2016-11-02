@@ -12,7 +12,6 @@ import com.google.inject.Provider;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
-import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
