@@ -23,11 +23,11 @@
     <Label text="%course"/>
     <TableView fx:id="courseTable">
         <columns>
-            <TableColumn fx:id="courseKey"/>
-            <TableColumn fx:id="module"/>
-            <TableColumn fx:id="abstractUnit"/>
-            <TableColumn fx:id="courseSemesters"/>
-            <TableColumn fx:id="type"/>
+            <TableColumn fx:id="courseKey" resizable="false"/>
+            <TableColumn fx:id="module" resizable="false"/>
+            <TableColumn fx:id="abstractUnit" resizable="false"/>
+            <TableColumn fx:id="courseSemesters" resizable="false"/>
+            <TableColumn fx:id="type" resizable="false"/>
         </columns>
     </TableView>
 </fx:root>
