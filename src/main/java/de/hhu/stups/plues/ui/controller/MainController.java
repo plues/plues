@@ -139,6 +139,7 @@ public class MainController implements Initializable {
     }
   }
 
+  @SuppressWarnings("unused")
   private Node getGraphicForTask(final Task<?> task) {
     final FontAwesomeIcon icon = iconMap.getOrDefault(task.getClass(), DEFAULT_ICON);
     return FontAwesomeIconFactory.get().createIcon(icon, "2em");
@@ -185,15 +186,14 @@ public class MainController implements Initializable {
   /**
    * Saves a file.
    */
-  @SuppressWarnings("UnusedParamters")
+  @SuppressWarnings("UnusedParameters")
   public final void saveFile(final ActionEvent actionEvent) {
     try {
       Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
           StandardCopyOption.REPLACE_EXISTING);
       logger.log(Level.INFO, "File saving finished!");
-    } catch (IOException exc) {
-      logger.log(Level.INFO, "File saving failed!");
-      exc.printStackTrace();
+    } catch (final IOException exc) {
+      logger.log(Level.SEVERE, "File saving failed!", exc);
     }
   }
 
@@ -354,8 +354,8 @@ public class MainController implements Initializable {
    */
   @FXML
   public void openReports() {
-    Reports reports = reportsProvider.get();
-    Stage reportStage = new Stage();
+    final Reports reports = reportsProvider.get();
+    final Stage reportStage = new Stage();
     reportStage.setTitle(resources.getString("reportsTitle"));
     reportStage.setScene(new Scene(reports, 700, 620));
     reportStage.setResizable(false);
