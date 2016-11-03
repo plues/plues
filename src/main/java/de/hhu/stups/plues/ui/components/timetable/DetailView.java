@@ -1,16 +1,14 @@
 package de.hhu.stups.plues.ui.components.timetable;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
-import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -21,15 +19,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
 public class DetailView extends VBox implements Initializable {
-
-  private final Delayed<Store> delayedStore;
 
   @FXML
   @SuppressWarnings("unused")
@@ -72,10 +65,8 @@ public class DetailView extends VBox implements Initializable {
   private TableColumn<CourseTableEntry, Character> type;
 
   @Inject
-  public DetailView(final Inflater inflater,
-                    final Delayed<Store> delayedStore) {
+  public DetailView(final Inflater inflater) {
     inflater.inflate("components/DetailView", this, this, "detailView");
-    this.delayedStore = delayedStore;
   }
 
   /**
@@ -83,68 +74,29 @@ public class DetailView extends VBox implements Initializable {
    *
    * @param session Session to build content for
    */
+  @SuppressWarnings("WeakerAccess")
   public void setContent(final Session session, final SessionFacade.Slot slot) {
     this.session.getChildren().add(new Label(slot.toString()));
     title.getChildren().add(new Label(session.getGroup().getUnit().getTitle()));
     group.getChildren().add(new Label(String.valueOf(session.getGroup().getId())));
 
-    final StringBuilder builder = new StringBuilder();
-    session.getGroup().getUnit().getSemesters().forEach(integer -> {
-      builder.append(integer);
-      builder.append(",");
-    });
-    if (builder.length() > 0) {
-      builder.setLength(builder.length() - 1);
-    }
-    semesters.getChildren().add(new Label(builder.toString()));
+    semesters.getChildren().add(
+        new Label(
+          Joiner.on(", ").join(session.getGroup().getUnit().getSemesters())));
 
-    Map<Course, Map<Module, Set<AbstractUnit>>> courseModuleAbstractUnit = new HashMap<>();
-    Map<AbstractUnit, Set<Integer>> abstractUnitSemesters = new HashMap<>();
-    Map<AbstractUnit, Character> abstractUnitType = new HashMap<>();
+    session.getGroup().getUnit().getAbstractUnits().forEach(au ->
+        au.getModuleAbstractUnitTypes().forEach(entry ->
+          entry.getModule().getCourses().forEach(course -> {
+            final Module entryModule = entry.getModule();
+            final CourseTableEntry tableEntry = new CourseTableEntry(course, entryModule, au,
+                entryModule.getSemestersForAbstractUnit(au), entry.getType());
+            courseTable.getItems().add(tableEntry);
+          })));
 
-    delayedStore.whenAvailable(store -> {
-      store.getModuleAbstractUnitSemester().forEach(entry -> {
-        final Module module = entry.getModule();
-        final Integer semester = entry.getSemester();
-        final AbstractUnit abstractUnit = entry.getAbstractUnit();
-
-        Set<Integer> semesters = new HashSet<>();
-        if (abstractUnitSemesters.containsKey(abstractUnit)) {
-          semesters = abstractUnitSemesters.get(abstractUnit);
-        }
-        semesters.add(semester);
-        abstractUnitSemesters.put(abstractUnit, semesters);
-
-        module.getCourses().forEach(course -> {
-          Map<Module, Set<AbstractUnit>> innerMap = new HashMap<>();
-          if (courseModuleAbstractUnit.containsKey(course)) {
-            innerMap = courseModuleAbstractUnit.get(course);
-            Set<AbstractUnit> unitIds = new HashSet<>();
-            if (innerMap.containsKey(module)) {
-              unitIds = innerMap.get(module);
-            }
-            unitIds.add(abstractUnit);
-            innerMap.put(module, unitIds);
-          }
-
-          courseModuleAbstractUnit.put(course, innerMap);
-        });
-      });
-
-      store.getModuleAbstractUnitType().forEach(entry ->
-          abstractUnitType.put(entry.getAbstractUnit(), entry.getType()));
-    });
-
-    courseModuleAbstractUnit.forEach((course, moduleSetMap) ->
-        moduleSetMap.forEach((module, units) ->
-            units.forEach(unit ->
-                courseTable.getItems().add(
-                  new CourseTableEntry(course, module, unit,
-                    abstractUnitSemesters.get(unit), abstractUnitType.get(unit))))));
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     courseKey.setCellValueFactory(new PropertyValueFactory<>("courseKey"));
     courseKey.setText(resources.getString("courseCell"));
     module.setCellValueFactory(new PropertyValueFactory<>("module"));
@@ -157,20 +109,23 @@ public class DetailView extends VBox implements Initializable {
     type.setText(resources.getString("typeCell"));
   }
 
+  @SuppressWarnings("WeakerAccess")
   public static final class CourseTableEntry {
     private final String courseKey;
     private final String module;
-    private final Integer abstractUnit;
+    private final String abstractUnit;
     private final Set<Integer> semesters;
     private final Character type;
 
+
     /**
      * Constructor for course table.
+     *
      * @param course       Course key
      * @param module       Module title
      * @param abstractUnit Abstract Unit title
-     * @param semesters     Semester
-     * @param type Type
+     * @param semesters    Semester
+     * @param type         Type
      */
     CourseTableEntry(final Course course,
                      final Module module,
@@ -179,37 +134,82 @@ public class DetailView extends VBox implements Initializable {
                      final Character type) {
       this.courseKey = course.getKey();
       this.module = module.getTitle();
-      this.abstractUnit = abstractUnit.getId();
+      this.abstractUnit = abstractUnit.getKey();
       this.semesters = semesters;
       this.type = type;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
+    @Override
+    public boolean equals(final Object other) {
+      if (this == other) {
+        return true;
+      }
+      if (other == null || getClass() != other.getClass()) {
+        return false;
+      }
+
+      final CourseTableEntry that = (CourseTableEntry) other;
+
+      if (!courseKey.equals(that.courseKey)) {
+        return false;
+      }
+      if (!module.equals(that.module)) {
+        return false;
+      }
+      if (!abstractUnit.equals(that.abstractUnit)) {
+        return false;
+      }
+      if (!semesters.equals(that.semesters)) {
+        return false;
+      }
+      return type.equals(that.type);
+
+    }
+
+    @Override
+    public int hashCode() {
+      int result = courseKey.hashCode();
+      result = 31 * result + module.hashCode();
+      result = 31 * result + abstractUnit.hashCode();
+      result = 31 * result + semesters.hashCode();
+      result = 31 * result + type.hashCode();
+      return result;
+    }
+
+    @Override
+    public String toString() {
+      return "CourseTableEntry{"
+        + "courseKey='" + courseKey + '\''
+        + ", module='" + module + '\''
+        + ", abstractUnit='" + abstractUnit + '\''
+        + ", semesters=" + semesters
+        + ", type=" + type
+        + '}';
+    }
+
+    @SuppressWarnings("unused")
     public String getCourseKey() {
       return courseKey;
     }
 
+    @SuppressWarnings("unused")
     public String getModule() {
       return module;
     }
 
-    public Integer getAbstractUnit() {
+    @SuppressWarnings("unused")
+    public String getAbstractUnit() {
       return abstractUnit;
     }
 
     /**
      * Create string based on semesters.
-     * @return String with comma seperated semesters.
+     *
+     * @return String with comma separated semesters.
      */
     public String getSemesters() {
-      final StringBuilder builder = new StringBuilder();
-      semesters.forEach(integer -> {
-        builder.append(integer);
-        builder.append(",");
-      });
-      if (builder.length() > 0) {
-        builder.setLength(builder.length() - 1);
-      }
-      return builder.toString();
+      return Joiner.on(',').join(semesters);
     }
 
     public Character getType() {
