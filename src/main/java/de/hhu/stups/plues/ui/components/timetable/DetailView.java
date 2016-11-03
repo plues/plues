@@ -30,6 +30,7 @@ import java.util.Set;
 public class DetailView extends VBox implements Initializable {
 
   private final Delayed<Store> delayedStore;
+
   @FXML
   @SuppressWarnings("unused")
   private HBox session;
@@ -73,7 +74,7 @@ public class DetailView extends VBox implements Initializable {
   @Inject
   public DetailView(final Inflater inflater,
                     final Delayed<Store> delayedStore) {
-    inflater.inflate("components/DetailView", this, this);
+    inflater.inflate("components/DetailView", this, this, "detailView");
     this.delayedStore = delayedStore;
   }
 
@@ -145,15 +146,15 @@ public class DetailView extends VBox implements Initializable {
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     courseKey.setCellValueFactory(new PropertyValueFactory<>("courseKey"));
-    courseKey.setText("Course");
+    courseKey.setText(resources.getString("courseCell"));
     module.setCellValueFactory(new PropertyValueFactory<>("module"));
-    module.setText("Module");
+    module.setText(resources.getString("moduleCell"));
     abstractUnit.setCellValueFactory(new PropertyValueFactory<>("abstractUnit"));
-    abstractUnit.setText("Abstract Unit");
+    abstractUnit.setText(resources.getString("abstractUnitCell"));
     courseSemesters.setCellValueFactory(new PropertyValueFactory<>("semesters"));
-    courseSemesters.setText("Semesters");
+    courseSemesters.setText(resources.getString("semesterCell"));
     type.setCellValueFactory(new PropertyValueFactory<>("type"));
-    type.setText("Type");
+    type.setText(resources.getString("typeCell"));
   }
 
   public static final class CourseTableEntry {
