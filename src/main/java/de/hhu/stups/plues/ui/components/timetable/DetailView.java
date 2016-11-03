@@ -142,21 +142,6 @@ public class DetailView extends VBox implements Initializable {
                     abstractUnitSemesters.get(unit), abstractUnitType.get(unit))))));
   }
 
-  /**
-   * Remove header line of table.
-   *
-   * @throws NullPointerException TODO: Exception sollte nicht geworfen werden
-   */
-  private void removeHeader() throws NullPointerException {
-    widthProperty().addListener((observable, oldValue, newValue) -> {
-      Pane header = (Pane) lookup("TableHeaderRow");
-      header.setVisible(false);
-      header.setMaxHeight(0);
-      header.setMinHeight(0);
-      header.setPrefHeight(0);
-    });
-  }
-
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     courseKey.setCellValueFactory(new PropertyValueFactory<>("courseKey"));
