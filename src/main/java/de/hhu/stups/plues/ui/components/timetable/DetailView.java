@@ -201,7 +201,7 @@ public class DetailView extends VBox implements Initializable {
      * @return String with comma seperated semesters.
      */
     public String getSemesters() {
-      StringBuilder builder = new StringBuilder();
+      final StringBuilder builder = new StringBuilder();
       semesters.forEach(integer -> {
         builder.append(integer);
         builder.append(",");

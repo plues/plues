@@ -58,8 +58,8 @@ public class DetailViewTest extends ApplicationTest {
     group = store.getGroups().get(0);
     session = store.getSessions().get(0);
 
-    Set<Integer> semesters = new HashSet<>(Arrays.asList(1,2));
-    StringBuilder builder = new StringBuilder();
+    final Set<Integer> semesters = new HashSet<>(Arrays.asList(1,2));
+    final StringBuilder builder = new StringBuilder();
     semesters.forEach(integer -> {
       builder.append(integer);
       builder.append(",");
@@ -76,45 +76,45 @@ public class DetailViewTest extends ApplicationTest {
 
   @Test
   public void testContentSize() {
-    TableView courseTable = lookup("#courseTable").query();
+    final TableView courseTable = lookup("#courseTable").query();
     Assert.assertEquals(8, courseTable.getItems().size());
   }
 
   @Test
   public void testSessionInfo() {
-    HBox sessionBox = lookup("#session").query();
+    final HBox sessionBox = lookup("#session").query();
     Assert.assertEquals(2, sessionBox.getChildren().size());
     Assert.assertEquals(slot.toString(), ((Label) sessionBox.getChildren().get(1)).getText());
 
-    HBox titleBox = lookup("#title").query();
+    final HBox titleBox = lookup("#title").query();
     Assert.assertEquals(2, titleBox.getChildren().size());
     Assert.assertEquals(unit.getTitle(), ((Label) titleBox.getChildren().get(1)).getText());
 
-    HBox groupBox = lookup("#group").query();
+    final HBox groupBox = lookup("#group").query();
     Assert.assertEquals(2, groupBox.getChildren().size());
     Assert.assertEquals(group.getId(),
         Integer.parseInt(((Label) groupBox.getChildren().get(1)).getText()));
 
-    HBox semestersBox = lookup("#semesters").query();
+    final HBox semestersBox = lookup("#semesters").query();
     Assert.assertEquals(2, semestersBox.getChildren().size());
     Assert.assertEquals(semesterString, ((Label) semestersBox.getChildren().get(1)).getText());
   }
 
   @Test
   public void testTableContent() {
-    TableView courseTable = lookup("#courseTable").query();
-    HashMap<AbstractUnit, Character> expectedType = store.getExpectedType();
+    final TableView courseTable = lookup("#courseTable").query();
+    final HashMap<AbstractUnit, Character> expectedType = store.getExpectedType();
 
     courseMap.forEach((course, moduleAbstractUnitSemesters) ->
         moduleAbstractUnitSemesters.forEach(moduleAbstractUnitSemester -> {
-          AbstractUnit abstractUnit = moduleAbstractUnitSemester.getAbstractUnit();
-          Module module = moduleAbstractUnitSemester.getModule();
-          Integer semester = moduleAbstractUnitSemester.getSemester();
+          final AbstractUnit abstractUnit = moduleAbstractUnitSemester.getAbstractUnit();
+          final Module module = moduleAbstractUnitSemester.getModule();
+          final Integer semester = moduleAbstractUnitSemester.getSemester();
 
           boolean containsEntry = false;
 
           for (Object o : courseTable.getItems()) {
-            DetailView.CourseTableEntry entry = (DetailView.CourseTableEntry) o;
+            final DetailView.CourseTableEntry entry = (DetailView.CourseTableEntry) o;
             if (entry.getCourseKey().equals(course.getKey())
                 && entry.getAbstractUnit() == abstractUnit.getId()
                 && entry.getSemesters().contains(semester.toString())
@@ -133,9 +133,9 @@ public class DetailViewTest extends ApplicationTest {
   public void start(Stage stage) throws Exception {
     final Inflater inflater = new Inflater(new FXMLLoader());
 
-    Delayed<Store> delayed = new Delayed<>();
+    final Delayed<Store> delayed = new Delayed<>();
     delayed.set(store);
-    DetailView detailView = new DetailView(inflater, delayed);
+    final DetailView detailView = new DetailView(inflater, delayed);
     detailView.setContent(session, slot);
 
     final Scene scene = new Scene(detailView, 400, 250);

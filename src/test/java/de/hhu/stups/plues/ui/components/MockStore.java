@@ -70,9 +70,9 @@ public class MockStore implements Store {
 
   @Override
   public List<AbstractUnit> getAbstractUnits() {
-    AbstractUnit a1 = new AbstractUnit();
+    final AbstractUnit a1 = new AbstractUnit();
     a1.setId(1);
-    AbstractUnit a2 = new AbstractUnit();
+    final AbstractUnit a2 = new AbstractUnit();
     a2.setId(2);
 
     return new ArrayList<>(Arrays.asList(a1, a2));
@@ -85,9 +85,9 @@ public class MockStore implements Store {
 
   @Override
   public List<Course> getCourses() {
-    Course c1 = new Course();
+    final Course c1 = new Course();
     c1.setKey("A-B-C-D");
-    Course c2 = new Course();
+    final Course c2 = new Course();
     c2.setKey("E-F-G-H");
 
     return new ArrayList<>(Arrays.asList(c1, c2));
@@ -100,7 +100,7 @@ public class MockStore implements Store {
 
   @Override
   public List<Group> getGroups() {
-    Group group = new Group();
+    final Group group = new Group();
     group.setUnit(getUnits().get(0));
     return new ArrayList<>(Arrays.asList(group));
   }
@@ -112,11 +112,11 @@ public class MockStore implements Store {
 
   @Override
   public List<Module> getModules() {
-    Module m1 = new Module();
+    final Module m1 = new Module();
     m1.setTitle("Module 1");
     m1.setCourses(new HashSet<>(getCourses()));
     m1.setAbstractUnits(new HashSet<>(getAbstractUnits()));
-    Module m2 = new Module();
+    final Module m2 = new Module();
     m2.setTitle("Module 2");
     m2.setAbstractUnits(new HashSet<>(getAbstractUnits()));
     m2.setCourses(new HashSet<>(getCourses()));
@@ -126,11 +126,11 @@ public class MockStore implements Store {
 
   @Override
   public List<ModuleAbstractUnitSemester> getModuleAbstractUnitSemester() {
-    List<ModuleAbstractUnitSemester> list = new ArrayList<>();
+    final List<ModuleAbstractUnitSemester> list = new ArrayList<>();
     getModules().forEach(module ->
         module.getAbstractUnits().forEach(abstractUnit -> {
           expectedSemesters.get(abstractUnit).forEach(semester -> {
-            ModuleAbstractUnitSemester content = new ModuleAbstractUnitSemester();
+            final ModuleAbstractUnitSemester content = new ModuleAbstractUnitSemester();
             content.setAbstractUnit(abstractUnit);
             content.setModule(module);
             content.setSemester(semester);
@@ -143,9 +143,9 @@ public class MockStore implements Store {
 
   @Override
   public List<ModuleAbstractUnitType> getModuleAbstractUnitType() {
-    List<ModuleAbstractUnitType> list = new ArrayList<>();
+    final List<ModuleAbstractUnitType> list = new ArrayList<>();
     for (Map.Entry<AbstractUnit, Character> entry : expectedType.entrySet()) {
-      ModuleAbstractUnitType type = new ModuleAbstractUnitType();
+      final ModuleAbstractUnitType type = new ModuleAbstractUnitType();
       type.setAbstractUnit(entry.getKey());
       type.setType(entry.getValue());
       list.add(type);
@@ -156,7 +156,7 @@ public class MockStore implements Store {
 
   @Override
   public List<Session> getSessions() {
-    Session session = new Session();
+    final Session session = new Session();
     session.setGroup(getGroups().get(0));
     session.setDay("mon");
     session.setTime(8);
@@ -165,7 +165,7 @@ public class MockStore implements Store {
 
   @Override
   public List<Unit> getUnits() {
-    Unit unit = new Unit();
+    final Unit unit = new Unit();
     unit.setTitle("Unit");
     unit.setSemesters(semesters);
     return new ArrayList<>(Arrays.asList(unit));
