@@ -293,7 +293,7 @@ public class MainController implements Initializable {
 
   private StoreLoaderTask getStoreLoaderTask(final String path) {
 
-    final StoreLoaderTask storeLoader = storeLoaderTaskFactory.create(path, properties);
+    final StoreLoaderTask storeLoader = storeLoaderTaskFactory.create(path);
     //
     storeLoader.progressProperty().addListener(
         (observable, oldValue, newValue) -> logger.log(Level.FINE, "STORE progress " + newValue));

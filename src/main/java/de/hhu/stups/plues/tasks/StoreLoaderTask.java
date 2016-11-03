@@ -36,7 +36,7 @@ public class StoreLoaderTask extends Task<Store> {
    * @param storePath Path where to find store
    */
   @Inject
-  public StoreLoaderTask(@Assisted final String storePath, @Assisted final Properties properties) {
+  public StoreLoaderTask(final Properties properties, @Assisted final String storePath) {
     this.properties = properties;
     this.path = storePath;
     this.resources = ResourceBundle.getBundle("lang.tasks");
