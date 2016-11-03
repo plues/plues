@@ -17,6 +17,7 @@ import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.ui.components.timetable.DetailView.CourseTableEntry;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -48,6 +49,7 @@ public class DetailViewTest extends ApplicationTest {
   /**
    * Test constructor.
    */
+  @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   public DetailViewTest() {
     store = mock(Store.class);
 
