@@ -1,123 +1,144 @@
 package de.hhu.stups.plues.ui.components;
 
+import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
+import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
+import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.ui.components.timetable.DetailView;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
 
+import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class DetailViewTest extends ApplicationTest {
 
-  private final Set<AbstractUnit> abstractUnitSet;
+  private final MockStore store;
+  private final Session session;
+  private final SessionFacade.Slot slot;
+  private final Group group;
   private final Unit unit;
-  private final HashMap<Course, Set<Module>> courseModuleHashMap;
+  private final String semesterString;
+  private final Map<Course, List<ModuleAbstractUnitSemester>> courseMap;
 
   /**
    * Test constructor.
    */
   public DetailViewTest() {
-    AbstractUnit a1 = new AbstractUnit();
-    a1.setId(1);
-    AbstractUnit a2 = new AbstractUnit();
-    a2.setId(2);
-    abstractUnitSet = new HashSet<>(Arrays.asList(a1, a2));
+    store = new MockStore();
+    try {
+      store.init();
+    } catch (Exception exception) {
+      exception.printStackTrace();
+    }
 
-    unit = new Unit();
-    unit.setTitle("Unit");
+    slot = new SessionFacade.Slot(DayOfWeek.MONDAY, 8);
+    unit = store.getUnits().get(0);
+    group = store.getGroups().get(0);
+    session = store.getSessions().get(0);
 
-    courseModuleHashMap = new HashMap<>();
-    Course c1 = new Course();
-    c1.setKey("A-B-C-D");
-    c1.setPo(2016);
-    Course c2 = new Course();
-    c2.setKey("E-F-G-H");
-    c2.setPo(2016);
-    Module m1 = new Module();
-    m1.setId(10);
-    Module m2 = new Module();
-    m2.setId(20);
-    courseModuleHashMap.put(c1, new HashSet<>(Arrays.asList(m1, m2)));
-    courseModuleHashMap.put(c2, new HashSet<>(Arrays.asList(m1, m2)));
+    Set<Integer> semesters = new HashSet<>(Arrays.asList(1,2));
+    StringBuilder builder = new StringBuilder();
+    semesters.forEach(integer -> {
+      builder.append(integer);
+      builder.append(",");
+    });
+    if (builder.length() > 0) {
+      builder.setLength(builder.length() - 1);
+    }
+    semesterString = builder.toString();
+
+    courseMap = new HashMap<>();
+    store.getCourses().forEach(course ->
+        courseMap.put(course, store.getModuleAbstractUnitSemester()));
   }
 
   @Test
   public void testContentSize() {
-    TableView sessionTable = lookup("#sessionTable").query();
     TableView courseTable = lookup("#courseTable").query();
-
-    Assert.assertEquals(2, sessionTable.getItems().size());
-    Assert.assertEquals(2, courseTable.getItems().size());
+    Assert.assertEquals(8, courseTable.getItems().size());
   }
 
   @Test
-  public void testContentSessionTable() {
-    HashMap<String, String> expectedContent = new HashMap<>();
-    expectedContent.put("Unit", unit.getTitle());
+  public void testSessionInfo() {
+    HBox sessionBox = lookup("#session").query();
+    Assert.assertEquals(2, sessionBox.getChildren().size());
+    Assert.assertEquals(slot.toString(), ((Label) sessionBox.getChildren().get(1)).getText());
 
-    StringBuilder b1 = new StringBuilder();
-    abstractUnitSet.forEach(abstractUnit -> {
-      b1.append(abstractUnit.getId());
-      b1.append(",");
-    });
-    b1.setLength(b1.length() - 1);
-    expectedContent.put("Abstract Units", b1.toString());
+    HBox titleBox = lookup("#title").query();
+    Assert.assertEquals(2, titleBox.getChildren().size());
+    Assert.assertEquals(unit.getTitle(), ((Label) titleBox.getChildren().get(1)).getText());
 
-    TableView sessionTable = lookup("#sessionTable").query();
-    sessionTable.getItems().forEach(o -> {
-      DetailView.SessionTableEnry entry = (DetailView.SessionTableEnry) o;
-      Assert.assertTrue(expectedContent.containsKey(entry.getKey()));
-      Assert.assertEquals(expectedContent.get(entry.getKey()), entry.getValue());
-    });
+    HBox groupBox = lookup("#group").query();
+    Assert.assertEquals(2, groupBox.getChildren().size());
+    Assert.assertEquals(group.getId(),
+        Integer.parseInt(((Label) groupBox.getChildren().get(1)).getText()));
+
+    HBox semestersBox = lookup("#semesters").query();
+    Assert.assertEquals(2, semestersBox.getChildren().size());
+    Assert.assertEquals(semesterString, ((Label) semestersBox.getChildren().get(1)).getText());
   }
 
   @Test
-  public void testContentCourseTable() {
+  public void testTableContent() {
     TableView courseTable = lookup("#courseTable").query();
-    courseTable.getItems().forEach(o -> {
-      DetailView.CourseTableEntry entry = (DetailView.CourseTableEntry) o;
-      boolean courseContained = false;
-      for (Course c : courseModuleHashMap.keySet()) {
-        if (c.getPo().equals(entry.getPo()) && c.getKey().equals(entry.getCourseKey())) {
-          courseContained = true;
-          break;
-        }
-      }
-      Assert.assertTrue(courseContained);
+    HashMap<AbstractUnit, Character> expectedType = store.getExpectedType();
 
-      for (Set<Module> modules : courseModuleHashMap.values()) {
-        StringBuilder builder = new StringBuilder();
-        modules.forEach(module -> {
-          builder.append(module.getId());
-          builder.append(",");
-        });
-        builder.setLength(builder.length() - 1);
-        Assert.assertEquals(builder.toString(), entry.getModules());
-      }
-    });
+    courseMap.forEach((course, moduleAbstractUnitSemesters) ->
+        moduleAbstractUnitSemesters.forEach(moduleAbstractUnitSemester -> {
+          AbstractUnit abstractUnit = moduleAbstractUnitSemester.getAbstractUnit();
+          Module module = moduleAbstractUnitSemester.getModule();
+          Integer semester = moduleAbstractUnitSemester.getSemester();
+
+          boolean containsEntry = false;
+
+          for (Object o : courseTable.getItems()) {
+            DetailView.CourseTableEntry entry = (DetailView.CourseTableEntry) o;
+            if (entry.getCourseKey().equals(course.getKey())
+                && entry.getAbstractUnit() == abstractUnit.getId()
+                && entry.getSemesters().contains(semester.toString())
+                && entry.getType().equals(expectedType.get(abstractUnit))
+                && entry.getModule().equals(module.getTitle())) {
+              containsEntry = true;
+              break;
+            }
+          }
+
+          Assert.assertTrue(containsEntry);
+        }));
   }
 
   @Override
   public void start(Stage stage) throws Exception {
     final Inflater inflater = new Inflater(new FXMLLoader());
-    DetailView detailView = new DetailView(inflater);
-    detailView.setContent(abstractUnitSet, unit, courseModuleHashMap);
 
-    final Scene scene = new Scene(detailView, 450, 200);
+    Delayed<Store> delayed = new Delayed<>();
+    delayed.set(store);
+    DetailView detailView = new DetailView(inflater, delayed);
+    detailView.setContent(session, slot);
+
+    final Scene scene = new Scene(detailView, 400, 250);
     stage.setScene(scene);
     stage.show();
   }
