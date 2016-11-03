@@ -18,11 +18,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -109,29 +107,23 @@ public class DetailView extends VBox implements Initializable {
         final Integer semester = entry.getSemester();
         final AbstractUnit abstractUnit = entry.getAbstractUnit();
 
-        Set<Integer> semesters;
-        if (abstractUnitSemesters.containsKey(abstractUnit.getId())) {
-          semesters = abstractUnitSemesters.get(abstractUnit.getId());
-        } else {
-          semesters = new HashSet<>(Arrays.asList(semester));
+        Set<Integer> semesters = new HashSet<>();
+        if (abstractUnitSemesters.containsKey(abstractUnit)) {
+          semesters = abstractUnitSemesters.get(abstractUnit);
         }
+        semesters.add(semester);
         abstractUnitSemesters.put(abstractUnit, semesters);
 
         module.getCourses().forEach(course -> {
-          Map<Module, Set<AbstractUnit>> innerMap;
+          Map<Module, Set<AbstractUnit>> innerMap = new HashMap<>();
           if (courseModuleAbstractUnit.containsKey(course)) {
             innerMap = courseModuleAbstractUnit.get(course);
-            Set<AbstractUnit> unitIds;
+            Set<AbstractUnit> unitIds = new HashSet<>();
             if (innerMap.containsKey(module)) {
               unitIds = innerMap.get(module);
-              unitIds.add(abstractUnit);
-            } else {
-              unitIds = new HashSet<>(Arrays.asList(abstractUnit));
             }
+            unitIds.add(abstractUnit);
             innerMap.put(module, unitIds);
-          } else {
-            innerMap = new HashMap<>();
-            innerMap.put(module, new HashSet<>(Arrays.asList(abstractUnit)));
           }
 
           courseModuleAbstractUnit.put(course, innerMap);
