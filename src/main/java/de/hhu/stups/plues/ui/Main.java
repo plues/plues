@@ -45,7 +45,6 @@ public class Main extends Application {
         final Logger logger = Logger.getAnonymousLogger();
         logger.log(Level.SEVERE, "Closing resources", exception);
       }
-      Platform.exit();
     });
 
     primaryStage.show();
