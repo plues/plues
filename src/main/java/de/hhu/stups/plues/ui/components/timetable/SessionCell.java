@@ -20,34 +20,36 @@ class SessionCell extends ListCell<SessionFacade> {
   private SessionFacade.Slot slot;
 
   @Inject
-  SessionCell(final Provider<DetailView> provider) {
+  SessionCell(final Provider<DetailView> detailViewProvider) {
     super();
 
-    this.provider = provider;
+    this.provider = detailViewProvider;
 
     setOnDragDetected(this::dragItem);
     setOnMouseClicked(this::clickItem);
   }
 
-  private void dragItem(MouseEvent event) {
+  @SuppressWarnings("unused")
+  private void dragItem(final MouseEvent event) {
     if (getItem() == null) {
       return;
     }
 
-    Dragboard dragboard = startDragAndDrop(TransferMode.MOVE);
-    ClipboardContent content = new ClipboardContent();
+    final Dragboard dragboard = startDragAndDrop(TransferMode.MOVE);
+    final ClipboardContent content = new ClipboardContent();
     content.putString(String.valueOf(getItem().getSession().getId()));
     dragboard.setContent(content);
     event.consume();
   }
 
-  private void clickItem(MouseEvent event) {
-    Session session = getItem().getSession();
+  @SuppressWarnings("unused")
+  private void clickItem(final MouseEvent event) {
+    final Session session = getItem().getSession();
 
-    DetailView view = provider.get();
+    final DetailView view = provider.get();
     view.setContent(session, slot);
 
-    PopOver pop = new PopOver(view);
+    final PopOver pop = new PopOver(view);
     pop.setPrefHeight(400);
     pop.setPrefWidth(400);
     pop.setTitle("Session Detail");
@@ -55,13 +57,13 @@ class SessionCell extends ListCell<SessionFacade> {
   }
 
   @Override
-  protected void updateItem(SessionFacade session, boolean empty) {
+  protected void updateItem(final SessionFacade session, final boolean empty) {
     super.updateItem(session, empty);
 
     setText(empty || session == null ? null : session.toString());
   }
 
-  public void setSlot(SessionFacade.Slot slot) {
+  public void setSlot(final SessionFacade.Slot slot) {
     this.slot = slot;
   }
 }
