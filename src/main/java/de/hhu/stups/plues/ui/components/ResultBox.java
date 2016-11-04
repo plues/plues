@@ -67,15 +67,15 @@ public class ResultBox extends GridPane implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private Label icon;
+  private Label lbIcon;
 
   @FXML
   @SuppressWarnings("unused")
-  private Label major;
+  private Label lbMajor;
 
   @FXML
   @SuppressWarnings("unused")
-  private Label minor;
+  private Label lbMinor;
 
   @FXML
   @SuppressWarnings("unused")
@@ -128,9 +128,9 @@ public class ResultBox extends GridPane implements Initializable {
     save = resources.getString("save");
     cancel = resources.getString("cancel");
     //
-    this.major.textProperty()
+    this.lbMajor.textProperty()
         .bind(Bindings.selectString(this.majorCourse, "fullName"));
-    this.minor.textProperty()
+    this.lbMinor.textProperty()
         .bind(Bindings.selectString(this.minorCourse, "fullName"));
     //
     solverService.whenAvailable(solver -> {
@@ -148,8 +148,8 @@ public class ResultBox extends GridPane implements Initializable {
       this.progressIndicator.visibleProperty()
           .bind(task.runningProperty());
       //
-      icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(task));
-      icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
+      lbIcon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(task));
+      lbIcon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
       //
       executor.submit(task);
     });

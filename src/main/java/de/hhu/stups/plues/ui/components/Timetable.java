@@ -53,6 +53,7 @@ public class Timetable extends BorderPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private AbstractUnitFilter abstractUnitFilter;
+
   @FXML
   private ToggleGroup semesterToggle;
 
@@ -85,7 +86,7 @@ public class Timetable extends BorderPane implements Initializable {
           .collect(Collectors.toList()));
     });
 
-    /* if the component checkCourseFeasibility is included
+    /*// if the component checkCourseFeasibility is included
     delayedSolverService.whenAvailable(solverService -> {
       checkCourseFeasibility.setSolverProperty(true);
       final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
