@@ -179,8 +179,9 @@ public class MainController implements Initializable {
   /**
    * Saves a file.
    */
+  @FXML
   @SuppressWarnings("UnusedParamters")
-  public final void saveFile(final ActionEvent actionEvent) {
+  private void saveFile(final ActionEvent actionEvent) {
     try {
       Files.copy((Path) properties.get("tempDBpath"), Paths.get(properties.getProperty("dbpath")),
           StandardCopyOption.REPLACE_EXISTING);
@@ -194,8 +195,9 @@ public class MainController implements Initializable {
   /**
    * Saves a file at another location.
    */
-  @SuppressWarnings("UnusedParamters")
-  public final void saveFileAs(final ActionEvent actionEvent) {
+  @FXML
+  @SuppressWarnings( {"UnusedParamters", "unused"})
+  private void saveFileAs(final ActionEvent actionEvent) {
     final FileChooser fileChooser = prepareFileChooser("saveDB");
     fileChooser.setInitialFileName("data.sqlite3");
     //
@@ -205,9 +207,8 @@ public class MainController implements Initializable {
       try {
         Files.copy((Path) properties.get("tempDBpath"), Paths.get(file.getAbsolutePath()));
         logger.log(Level.INFO, "File saving finished!");
-      } catch (IOException exc) {
-        logger.log(Level.INFO, "File saving failed!");
-        exc.printStackTrace();
+      } catch (final IOException exception) {
+        logger.log(Level.SEVERE, "File saving failed!", exception);
       }
     }
   }
@@ -216,7 +217,7 @@ public class MainController implements Initializable {
    * Prepare a file chooser and return the file.
    * @param title title key to find resource
    */
-  public final FileChooser prepareFileChooser(final String title) {
+  private FileChooser prepareFileChooser(final String title) {
     final FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle(resources.getString(title));
     //
@@ -326,6 +327,7 @@ public class MainController implements Initializable {
     exec.submit(task);
   }
 
+  @SuppressWarnings("unused")
   private void submitTask(final Task<?> task) {
     this.submitTask(task, this.executor);
   }
@@ -335,8 +337,8 @@ public class MainController implements Initializable {
    */
   @FXML
   public void openChangeLog() {
-    ChangeLog log = changeLogProvider.get();
-    Stage logStage = new Stage();
+    final ChangeLog log = changeLogProvider.get();
+    final Stage logStage = new Stage();
     logStage.setTitle(resources.getString("logTitle"));
     logStage.setScene(new Scene(log, 600, 600));
     logStage.setResizable(false);
