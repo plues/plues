@@ -22,7 +22,6 @@ import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverServiceFactory;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
-import de.hhu.stups.plues.ui.DragClipBoard;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
@@ -79,8 +78,6 @@ public class PluesModule extends AbstractModule {
     bind(Router.class).toProvider(RouterProvider.class);
     bind(MainController.class);
     bind(ResourceBundle.class).toInstance(bundle);
-
-    bind(DragClipBoard.class).toInstance(new DragClipBoard());
 
     bind(SolverLoader.class).to(SolverLoaderImpl.class);
 
