@@ -8,7 +8,6 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.DragClipBoard;
 
 import javafx.beans.property.ListProperty;
 import javafx.scene.control.ListView;
