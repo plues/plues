@@ -40,7 +40,7 @@ public class SolverLoaderImpl implements SolverLoader {
       this.delayedSolverService.set(solverServiceFactory.create(s));
     });
     //
-    solverLoader.setOnFailed(event -> {
+    solverLoader.setOnFailed(event -> Platform.runLater(() -> {
       final Throwable ex = event.getSource().getException();
       final ExceptionDialog ed = new ExceptionDialog();
 
@@ -52,7 +52,7 @@ public class SolverLoaderImpl implements SolverLoader {
 
       ed.showAndWait();
       Platform.exit();
-    });
+    }));
 
     return solverLoader;
   }
