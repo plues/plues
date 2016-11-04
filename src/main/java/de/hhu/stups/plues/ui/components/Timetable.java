@@ -7,12 +7,13 @@ import static java.time.DayOfWeek.TUESDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
-import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
+import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
@@ -39,7 +40,7 @@ import java.util.stream.IntStream;
 public class Timetable extends BorderPane implements Initializable {
 
   private final Delayed<Store> delayedStore;
-  private final Delayed<SolverService> delayedSolverService;
+  private final SessionListViewFactory factory;
 
   @FXML
   private AbstractUnitFilter abstractUnitFilter;
@@ -60,9 +61,9 @@ public class Timetable extends BorderPane implements Initializable {
    */
   @Inject
   public Timetable(final Inflater inflater, final Delayed<Store> delayedStore,
-                   final Delayed<SolverService> delayedSolverService) {
+                   final SessionListViewFactory factory) {
     this.delayedStore = delayedStore;
-    this.delayedSolverService = delayedSolverService;
+    this.factory = factory;
 
     // TODO: remove controller param if possible
     // TODO: currently not possible because of dependency circle
@@ -99,8 +100,7 @@ public class Timetable extends BorderPane implements Initializable {
   }
 
   private ListView<SessionFacade> getSessionFacadeListView(final SessionFacade.Slot slot) {
-    final ListView<SessionFacade> view
-        = new SessionListView(slot, delayedStore, delayedSolverService);
+    final ListView<SessionFacade> view = factory.create(slot);
 
     ((SessionListView) view).setSessions(sessions);
     view.itemsProperty().bind(new SessionFacadeListBinding(slot));

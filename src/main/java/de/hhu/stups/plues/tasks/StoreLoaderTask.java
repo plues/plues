@@ -1,5 +1,8 @@
 package de.hhu.stups.plues.tasks;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.IncompatibleSchemaError;
 import de.hhu.stups.plues.data.SqliteStore;
@@ -32,7 +35,8 @@ public class StoreLoaderTask extends Task<Store> {
    * Constuctor to create store loader task.
    * @param storePath Path where to find store
    */
-  public StoreLoaderTask(final String storePath, final Properties properties) {
+  @Inject
+  public StoreLoaderTask(final Properties properties, @Assisted final String storePath) {
     this.properties = properties;
     this.path = storePath;
     this.resources = ResourceBundle.getBundle("lang.tasks");
