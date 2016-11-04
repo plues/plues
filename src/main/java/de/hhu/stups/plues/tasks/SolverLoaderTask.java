@@ -184,7 +184,7 @@ public class SolverLoaderTask extends Task<Solver> {
   protected final void succeeded() {
     super.succeeded();
     this.updateMessage(resources.getString("finished"));
-    logger.log(Level.FINE, "loading Solver succeeded");
+    logger.fine("loading Solver succeeded");
   }
 
   @Override
@@ -197,8 +197,7 @@ public class SolverLoaderTask extends Task<Solver> {
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   protected final void failed() {
     this.store.close();
-    logger.severe("Loading solver failed");
-    this.getException().printStackTrace();
+    logger.log(Level.SEVERE, "Loading solver failed", this.getException());
   }
 
   private ProBSolver initSolver() throws IOException, BException {
