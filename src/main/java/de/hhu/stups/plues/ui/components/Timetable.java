@@ -15,8 +15,6 @@ import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import org.controlsfx.control.PopOver;
-
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -30,6 +28,8 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+
+import org.controlsfx.control.PopOver;
 
 import java.net.URL;
 import java.time.DayOfWeek;
@@ -54,6 +54,7 @@ public class Timetable extends BorderPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private SetOfCourseSelection setOfCourseSelection;
+
   @FXML
   private ToggleGroup semesterToggle;
 
