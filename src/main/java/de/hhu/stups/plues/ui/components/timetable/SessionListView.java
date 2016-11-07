@@ -12,13 +12,13 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 
-import org.controlsfx.control.PopOver;
-
 import javafx.beans.property.ListProperty;
 import javafx.scene.control.ListView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+
+import org.controlsfx.control.PopOver;
 
 import java.util.Optional;
 import javax.annotation.Nullable;

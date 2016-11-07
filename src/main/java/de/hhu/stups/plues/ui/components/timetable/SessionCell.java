@@ -51,7 +51,8 @@ class SessionCell extends ListCell<SessionFacade> {
     detailView.setContent(session, slot);
 
     sessionDetail.setContentNode(detailView);
-    sessionDetail.show(this); // TODO: weitere Parameter zur Positionierung erforderlich aber nicht einheitlich
+    // TODO: weitere Parameter zur Positionierung erforderlich aber nicht einheitlich
+    sessionDetail.show(this);
   }
 
   @Override
