@@ -53,6 +53,7 @@ class SessionCell extends ListCell<SessionFacade> {
     detailView.setContent(session, slot);
 
     final Stage stage = new Stage();
+    stage.setTitle(detailView.getTitle());
     stage.setScene(new Scene(detailView));
     stage.show();
   }

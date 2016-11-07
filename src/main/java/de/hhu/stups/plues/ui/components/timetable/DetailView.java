@@ -107,6 +107,10 @@ public class DetailView extends VBox implements Initializable {
     type.setText(resources.getString("typeCell"));
   }
 
+  public String getTitle() {
+    return title.getText();
+  }
+
   @SuppressWarnings("WeakerAccess")
   public static final class CourseTableEntry {
     private final String courseKey;
