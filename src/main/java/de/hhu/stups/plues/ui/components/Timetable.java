@@ -29,8 +29,6 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
-import org.controlsfx.control.PopOver;
-
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.List;
@@ -43,7 +41,6 @@ public class Timetable extends BorderPane implements Initializable {
 
   private final Delayed<Store> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
-  private final PopOver sessionDetail;
 
   @FXML
   private AbstractUnitFilter abstractUnitFilter;
@@ -68,7 +65,6 @@ public class Timetable extends BorderPane implements Initializable {
                    final SessionListViewFactory sessionListViewFactory) {
     this.delayedStore = delayedStore;
     this.sessionListViewFactory = sessionListViewFactory;
-    sessionDetail = new PopOver();
 
     // TODO: remove controller param if possible
     // TODO: currently not possible because of dependency circle
@@ -77,10 +73,6 @@ public class Timetable extends BorderPane implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    sessionDetail.setPrefHeight(400);
-    sessionDetail.setPrefWidth(400);
-    sessionDetail.setTitle(resources.getString("detailTitle"));
-
     this.delayedStore.whenAvailable(store -> {
       this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
       setOfCourseSelection.setCourses(store.getCourses());
@@ -109,7 +101,7 @@ public class Timetable extends BorderPane implements Initializable {
   }
 
   private ListView<SessionFacade> getSessionFacadeListView(final SessionFacade.Slot slot) {
-    final ListView<SessionFacade> view = sessionListViewFactory.create(slot, sessionDetail);
+    final ListView<SessionFacade> view = sessionListViewFactory.create(slot);
 
     ((SessionListView) view).setSessions(sessions);
     view.itemsProperty().bind(new SessionFacadeListBinding(slot));

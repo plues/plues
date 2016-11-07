@@ -18,8 +18,6 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
-import org.controlsfx.control.PopOver;
-
 import java.util.Optional;
 import javax.annotation.Nullable;
 
@@ -37,7 +35,6 @@ public class SessionListView extends ListView<SessionFacade> {
    */
   @Inject
   public SessionListView(@Assisted final SessionFacade.Slot slot,
-                         @Assisted final PopOver sessionDetail,
                          final Delayed<Store> delayedStore,
                          final Delayed<SolverService> delayedSolver,
                          final Provider<SessionCell> cellProvider) {
@@ -50,7 +47,6 @@ public class SessionListView extends ListView<SessionFacade> {
     setCellFactory(param -> {
       final SessionCell sessionCell = cellProvider.get();
       sessionCell.setSlot(slot);
-      sessionCell.setSessionDetail(sessionDetail);
       return sessionCell;
     });
 
