@@ -44,7 +44,7 @@ class SessionCell extends ListCell<SessionFacade> {
 
   @SuppressWarnings("unused")
   private void clickItem(final MouseEvent event) {
-    if (getItem() == null) {
+    if (getItem() == null || event.getClickCount() < 2) {
       return;
     }
     final Session session = getItem().getSession();
