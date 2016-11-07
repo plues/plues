@@ -4,6 +4,9 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 
+import org.controlsfx.control.PopOver;
+
 public interface SessionListViewFactory {
-  SessionListView create(@Assisted SessionFacade.Slot slot);
+  SessionListView create(@Assisted final SessionFacade.Slot slot,
+                         @Assisted final PopOver sessionDetail);
 }

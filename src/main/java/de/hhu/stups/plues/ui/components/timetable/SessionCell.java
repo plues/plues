@@ -18,6 +18,7 @@ class SessionCell extends ListCell<SessionFacade> {
 
   private final Provider<DetailView> provider;
   private SessionFacade.Slot slot;
+  private PopOver sessionDetail;
 
   @Inject
   SessionCell(final Provider<DetailView> detailViewProvider) {
@@ -46,14 +47,11 @@ class SessionCell extends ListCell<SessionFacade> {
   private void clickItem(final MouseEvent event) {
     final Session session = getItem().getSession();
 
-    final DetailView view = provider.get();
-    view.setContent(session, slot);
+    final DetailView detailView = provider.get();
+    detailView.setContent(session, slot);
 
-    final PopOver pop = new PopOver(view);
-    pop.setPrefHeight(400);
-    pop.setPrefWidth(400);
-    pop.setTitle("Session Detail");
-    pop.show(this); // TODO weitere Parameter zur Positionierung erforderlich aber nicht einheitlich
+    sessionDetail.setContentNode(detailView);
+    sessionDetail.show(this); // TODO: weitere Parameter zur Positionierung erforderlich aber nicht einheitlich
   }
 
   @Override
@@ -65,5 +63,9 @@ class SessionCell extends ListCell<SessionFacade> {
 
   public void setSlot(final SessionFacade.Slot slot) {
     this.slot = slot;
+  }
+
+  public void setSessionDetail(PopOver sessionDetail) {
+    this.sessionDetail = sessionDetail;
   }
 }

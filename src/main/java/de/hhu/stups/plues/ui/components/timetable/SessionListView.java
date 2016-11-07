@@ -12,6 +12,8 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 
+import org.controlsfx.control.PopOver;
+
 import javafx.beans.property.ListProperty;
 import javafx.scene.control.ListView;
 import javafx.scene.input.DragEvent;
@@ -35,6 +37,7 @@ public class SessionListView extends ListView<SessionFacade> {
    */
   @Inject
   public SessionListView(@Assisted final SessionFacade.Slot slot,
+                         @Assisted final PopOver sessionDetail,
                          final Delayed<Store> delayedStore,
                          final Delayed<SolverService> delayedSolver,
                          final Provider<SessionCell> cellProvider) {
@@ -47,6 +50,7 @@ public class SessionListView extends ListView<SessionFacade> {
     setCellFactory(param -> {
       final SessionCell sessionCell = cellProvider.get();
       sessionCell.setSlot(slot);
+      sessionCell.setSessionDetail(sessionDetail);
       return sessionCell;
     });
 
