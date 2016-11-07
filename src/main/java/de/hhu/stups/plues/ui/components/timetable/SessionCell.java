@@ -45,14 +45,16 @@ class SessionCell extends ListCell<SessionFacade> {
 
   @SuppressWarnings("unused")
   private void clickItem(final MouseEvent event) {
-    final Session session = getItem().getSession();
+    if (getItem() != null) {
+      final Session session = getItem().getSession();
 
-    final DetailView detailView = provider.get();
-    detailView.setContent(session, slot);
+      final DetailView detailView = provider.get();
+      detailView.setContent(session, slot);
 
-    sessionDetail.setContentNode(detailView);
-    // TODO: weitere Parameter zur Positionierung erforderlich aber nicht einheitlich
-    sessionDetail.show(this);
+      sessionDetail.setContentNode(detailView);
+      // TODO: weitere Parameter zur Positionierung erforderlich aber nicht einheitlich
+      sessionDetail.show(this);
+    }
   }
 
   @Override
