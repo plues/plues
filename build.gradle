@@ -1,0 +1,128 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'idea'
+    id 'eclipse'
+    id 'findbugs'
+    id 'checkstyle'
+    id 'edu.sc.seis.launch4j' version '1.6.1'
+    id "edu.sc.seis.macAppBundle" version "2.1.6"
+}
+
+checkstyle {
+    toolVersion = "7.1"
+}
+
+sourceCompatibility = 8
+targetCompatibility = 8
+
+version = "2.0.0-PREVIEW1"
+
+mainClassName = "de.hhu.stups.plues.ui.Main"
+
+applicationDefaultJvmArgs = ["-Dapple.awt.UIElement=true"]
+def appName = "plues-" + project.version
+
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven {
+        name "snapshots"
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+    maven {
+        name "releases"
+        url "https://oss.sonatype.org/content/repositories/releases"
+    }
+}
+
+dependencies {
+    compile 'com.google.code.findbugs:annotations:3.0.1'
+    compile 'de.jensd:fontawesomefx-fontawesome:4.6.3'
+    compile 'org.apache.xmlgraphics:fop:2.1'
+    compile 'org.controlsfx:controlsfx:8.40.12'
+    compile 'org.jtwig:jtwig-core:5.58'
+
+    compile group: 'org.fxmisc.easybind', name: 'easybind', version: '1.0.3'
+    compile group:'de.hhu.stups', name:'de.prob2.kernel', version:'2.0.4-SNAPSHOT'
+
+    compile 'com.google.inject.extensions:guice-assistedinject:4.1.0'
+
+    compile project(':model-generator')
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile "org.mockito:mockito-core:1.+"
+    testCompile "org.powermock:powermock-module-junit4:1.6.6"
+    testCompile "org.powermock:powermock-module-junit4-rule:1.6.6"
+    testCompile "org.powermock:powermock-api-mockito:1.6.6"
+    testCompile "org.powermock:powermock-classloading-xstream:1.6.6"
+
+    // provides org.testfx.api, org.testfx.matcher to the test source set.
+    testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.4-alpha")
+    // provides org.testfx.framework.junit to the test source set.
+    testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.4-alpha")
+    testRuntime 'org.testfx:openjfx-monocle:1.8.0_20'
+}
+
+launch4j {
+    mainClassName = project.mainClassName
+    outfile = appName + ".exe"
+    version = project.version
+    textVersion = project.version
+
+    messagesStartupError = "Startup Error"
+    messagesBundledJreError = "Bundled JRE Error"
+    messagesLauncherError = "Launch Error"
+    messagesJreVersionError = "JRE Version Error"
+}
+
+task winZip(dependsOn: "launch4j", type: Zip) {
+    def outdir = "${project.buildDir}/launch4j" // project.launch4j.outputDir not working as expected
+    def libdir = "${project.buildDir}/launch4j/${project.launch4j.libraryDir}"
+    def zipdir = "${project.buildDir}/launch4j"
+
+    from(outdir) {
+        include project.launch4j.outfile
+        into ''
+    }
+
+    from(libdir) {
+        include "*.jar"
+        into 'lib'
+    }
+
+    archiveName appName + "-win.zip"
+    destinationDir file(zipdir)
+}
+
+macAppBundle{
+    appName = appName
+    mainClassName = project.mainClassName
+    icon = "icon.icns"
+    javaProperties.put("apple.laf.useScreenMenuBar", "true")
+
+}
+/*
+ * Allows you to run the UI tests in headless mode by calling gradle with the -Pheadless=true argument
+ */
+if (project.hasProperty('headless') ? project.headless : false) {
+    println "Running UI Tests Headless"
+    test {
+        jvmArgs = ['-Djava.awt.headless=true', '-Dtestfx.robot=glass', '-Dtestfx.headless=true', '-Dprism.order=sw', '-Dprism.text=t2k']
+    }
+}
+
+if(System.getenv('TRAVIS')) {
+  println "Running on Travis"
+  test {
+    exclude 'de/hhu/stups/plues/tasks/SolverTaskTest.class'
+  }
+}

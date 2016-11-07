@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.hhu.stups.plues.ui.components.Timetable?>
+<?import de.hhu.stups.plues.ui.controller.Musterstudienplaene?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.TaskProgressView?>
+<?import de.hhu.stups.plues.ui.controller.PartialTimeTables?>
+<?import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration?>
+<?import de.hhu.stups.plues.ui.controller.ConflictMatrix?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="de.hhu.stups.plues.ui.controller.MainController">
+    <MenuBar useSystemMenuBar="true" BorderPane.alignment="CENTER">
+        <Menu mnemonicParsing="false" text="%file">
+            <MenuItem fx:id="openFileMenuItem" onAction="#openFile"
+                      mnemonicParsing="false" text="%open"/>
+            <MenuItem fx:id="saveFileMenuItem" onAction="#saveFile"
+                      mnemonicParsing="false" text="%save"/>
+            <MenuItem fx:id="saveFileAsMenuItem" onAction="#saveFileAs"
+                      mnemonicParsing="false" text="%saveAs"/>
+            <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"
+                      mnemonicParsing="false" text="%export"/>
+            <MenuItem fx:id="openChangeLog" onAction="#openChangeLog"
+                      mnemonicParsing="false" text="%log"/>
+            <MenuItem fx:id="openReports" onAction="#openReports"
+                      mnemonicParsing="false" text="%reports"/>
+            <MenuItem mnemonicParsing="false" text="%close"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="%edit">
+            <MenuItem mnemonicParsing="false" text="%delete"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="%help">
+            <MenuItem mnemonicParsing="false" text="%about"/>
+        </Menu>
+    </MenuBar>
+    <BorderPane>
+        <center>
+            <TabPane>
+                <Tab text="%timetable" closable="false">
+                    <Timetable fx:id="timetable"/>
+                </Tab>
+                <Tab text="%musterstudienplaene" closable="false">
+                    <Musterstudienplaene fx:id="musterstudienplaene"/>
+                </Tab>
+                <Tab text="%partial" closable="false">
+                    <PartialTimeTables fx:id="partialTimetables"/>
+                </Tab>
+                <Tab text="%batch" closable="false">
+                    <BatchTimetableGeneration fx:id="batchTimetableGeneration"/>
+                </Tab>
+                <Tab text="%conflictMatrix" closable="false">
+                    <ConflictMatrix fx:id="conflictMatrix"/>
+                </Tab>
+            </TabPane>
+        </center>
+        <right>
+            <ScrollPane prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
+                <TaskProgressView fx:id="taskProgress" prefWidth="300"/>
+            </ScrollPane>
+        </right>
+    </BorderPane>
+</VBox>

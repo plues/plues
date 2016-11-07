@@ -1,0 +1,16 @@
+{#- we use 'only' when including this template to isolate it from the parent env, to avoid variable name clashes -#}
+{%- if (semester is not null) -%}
+{%- set values = split(semester, ";") -%}
+{%- set val = values[1] -%}
+<fo:table-cell border-style="solid" border-width="0.5pt" background-color="{{ modules[val] }}">
+    <fo:block text-align="center">
+            <fo:inline color="{{ fonts[val] }}">
+                {{ values[0] }}
+            </fo:inline>
+    </fo:block>
+</fo:table-cell>
+{%- else -%}
+<fo:table-cell border-style="solid" border-width="0.5pt">
+    <fo:block></fo:block>
+</fo:table-cell>
+{% endif %}

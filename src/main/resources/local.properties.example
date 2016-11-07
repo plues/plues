@@ -1,0 +1,13 @@
+# This file can be used to override some user specific settings.
+# Copy this file to src/main/resources/local.properties and comment out the options you want to  overwrite
+#
+# DO NOT PUT THE local.properties FILE UNDER VERSION CONTROL
+
+# Specify the path where the B models are located at
+# modelpath=../models
+
+# Specify the path where the sqlite database is located at
+# dbpath=../data/wiwi_data.sqlite3
+
+# Specify which solver class to use for development. Options are prob (default) or mock
+# solver=mock

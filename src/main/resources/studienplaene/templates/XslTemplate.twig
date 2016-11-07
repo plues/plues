@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" font-family="sans-serif">
+    <fo:layout-master-set>
+        <fo:simple-page-master master-name="rest" page-width="29.7cm" page-height="21.0cm" margin="1cm">
+            <fo:region-body extent="1cm"/>
+            <fo:region-after region-name="footer" display-align="before" extent="0.9cm"/>
+        </fo:simple-page-master>
+        <fo:simple-page-master master-name="first" page-width="29.7cm" page-height="21.0cm" margin="1cm">
+            <fo:region-body extent="1cm"/>
+            <fo:region-after region-name="footer" display-align="before" extent="1cm"/>
+        </fo:simple-page-master>
+    </fo:layout-master-set>
+    <fo:page-sequence master-reference="first">
+        <fo:static-content flow-name="footer">
+            <fo:block text-align="center" font-size="10pt">
+                Anmerkung: Dies ist ein möglicher Studienverlauf, keine Vorgabe. Die Daten basieren auf den letzten
+                Jahren und bieten keine Garantie, dass dieser Studienverlauf exakt wie angegeben durchführbar ist.
+            </fo:block>
+        </fo:static-content>
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block text-align="right">
+                <fo:inline>
+                    <fo:external-graphic src="{{ logo }}"
+                                     content-height="5cm" content-width="7cm"/>
+                </fo:inline>
+            </fo:block>
+            <fo:block text-align="center" font-size="70pt" font-weight="bold">
+                Studienverlaufsplan
+            </fo:block>
+            <fo:block text-align="center" font-size="30pt" font-style="italic">
+                {{ major }}
+            </fo:block>
+            <fo:block text-align="center" font-size="30pt" font-style="italic">
+                {{ minor }}
+            </fo:block>
+            <fo:block-container display-align="after" height="7cm">
+                <fo:block text-align="left" font-size="15pt" font-style="italic">
+                    Legende:
+                </fo:block>
+                <fo:block text-align="left" font-size="10pt" font-style="italic">
+                (A) Jede gerade Woche
+                </fo:block>
+                <fo:block text-align="left" font-size="10pt" font-style="italic">
+                (B) Jede ungerade Woche
+                </fo:block>
+                <fo:block text-align="left" font-size="10pt" font-style="italic">
+                (f) Nur in der ersten Semester-Hälfte
+                </fo:block>
+                <fo:block text-align="left" font-size="10pt" font-style="italic">
+                (s) Nur in der zweiten Semester-Hälfte
+                </fo:block>
+                <fo:block text-align="left" font-size="10pt" font-style="italic" break-after="page">
+                (b) Block-Seminar
+                </fo:block>
+            </fo:block-container>
+        </fo:flow>
+    </fo:page-sequence>
+    <fo:page-sequence master-reference="rest">
+        <fo:static-content flow-name="footer">
+            <fo:block text-align="center" font-size="10pt">
+                Erstellt mit PlÜS am {{ date }} - Ein
+                Projekt des Lehrstuhls für Softwaretechnik und Programmiersprachen
+                in Zusammenarbeit mit den Studiendekanaten der philosophischen und
+                wirtschaftswissenschaftlichen Fakultäten.
+            </fo:block>
+        </fo:static-content>
+        <fo:flow flow-name="xsl-region-body">
+            {% for semester in semesters %}
+                <fo:table border-style="transperent" width="100%" table-layout="fixed">
+                    <fo:table-column column-width="33.3%"/>
+                    <fo:table-column column-width="33.3%"/>
+                    <fo:table-column column-width="33.3%"/>
+                    <fo:table-body>
+                        <fo:table-row height="1.5cm">
+                            <fo:table-cell font-size="12pt" padding-after="35pt" display-align="after">
+                                <fo:block text-align="left">
+                                    {{ major }}
+                                </fo:block>
+                                <fo:block text-align="left">
+                                    {{ minor }}
+                                </fo:block>
+                                <fo:block text-align="left">
+                                    {{ loop.index }}. Fachsemester
+                                </fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell font-size="20pt" font-weight="bold" padding-after="35pt" display-align="after">
+                                <fo:block text-align="center">
+                                    Studienverlaufsplan
+                                </fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell text-align="right">
+                                <fo:block>
+                                    <fo:inline>
+                                        <fo:external-graphic src="{{ logo }}"
+                                                             content-height="5cm" content-width="7cm"
+                                                             padding-before="-30pt" display-align="after"/>
+                                    </fo:inline>
+                                </fo:block>
+                            </fo:table-cell>
+                        </fo:table-row>
+                    </fo:table-body>
+                </fo:table>
+                <fo:table font-size="9pt" border-style="solid" border-width="2pt"
+                          table-layout="fixed" width="100%"
+                          display-align="center" break-after="page">
+                    <fo:table-column column-width="12%"/>
+                    <fo:table-column column-width="17.6%"/>
+                    <fo:table-column column-width="17.6%"/>
+                    <fo:table-column column-width="17.6%"/>
+                    <fo:table-column column-width="17.6%"/>
+                    <fo:table-column column-width="17.6%"/>
+                    <fo:table-header>
+                        <fo:table-row height="0.7cm" font-size="15pt">
+                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                                <fo:block text-align="center">Uhrzeit</fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                                <fo:block text-align="center">Montag</fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                                <fo:block text-align="center">Dienstag</fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                                <fo:block text-align="center">Mittwoch</fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                                <fo:block text-align="center">Donnerstag</fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                                <fo:block text-align="center">Freitag</fo:block>
+                            </fo:table-cell>
+                        </fo:table-row>
+                    </fo:table-header>
+                    <fo:table-body>
+                        {%- for time in [1,2,3,4,5,6] -%}
+                            <fo:table-row height="64pt">
+                                <fo:table-cell border-style="solid" border-width="2pt" font-size="15pt" font-weight="bold">
+                                    <fo:block text-align="center">{{ times[time] }}</fo:block>
+                                </fo:table-cell>
+                                {%- for day in ["mon","tue","wed","thu","fri"] -%}
+                                    {%- set key = concat(day, time) %}{% set c = semester[key] -%}
+                                    {%- include '/studienplaene/templates/cell.twig'  with { semester: c, fonts:fonts, modules:modules } only -%}
+                                {% endfor %}
+                            </fo:table-row>
+                        {% endfor %}
+                    </fo:table-body>
+                </fo:table>
+            {% endfor %}
+        </fo:flow>
+    </fo:page-sequence>
+</fo:root>

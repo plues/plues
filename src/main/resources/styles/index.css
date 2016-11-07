@@ -1,0 +1,76 @@
+#body {
+    -fx-background-color: white;
+}
+
+#timeTable .headerLabel {
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+}
+
+#timeTable .time {
+    -fx-background-color: black, white;
+    -fx-background-insets: 0, 0 1 0 0;
+}
+
+#timeTable .day {
+    -fx-background-color: black, white;
+    -fx-background-insets: 0, 0 0 1 0;
+}
+
+#timeTable .list-view {
+    -fx-background-color: black, white;
+    -fx-background-insets: 0, 0 1 1 0;
+}
+
+#timeTable .dragged-over .list-cell {
+    -fx-background-color: #eaeef7;
+}
+
+#batchListView .list-cell:odd {
+    -fx-control-inner-background: #F2F2F2;
+}
+
+#conflictMatrixCellDefault {
+    -fx-background-color: black, white;
+    -fx-background-insets: 0, 0 1 1 0;
+}
+
+#conflictMatrixCellImpossible {
+    -fx-background-color: black, #BDBDBD;
+    -fx-background-insets: 0, 0 1 1 0;
+}
+
+#conflictMatrixCellSuccess {
+    -fx-background-color: black, #DFF2BF;
+    -fx-background-insets: 0, 0 1 1 0;
+}
+
+#conflictMatrixCellFailed {
+    -fx-background-color: black, #FFBABA;
+    -fx-background-insets: 0, 0 1 1 0;
+}
+
+#conflictMatrixCellInfeasible {
+    -fx-background-color: black, #FA9D9D;
+    -fx-background-insets: 0, 0 1 1 0;
+}
+
+#conflictMatrixLegendImpossible {
+    -fx-background-color: black, #BDBDBD;
+    -fx-background-insets: 0, 1 1 1 1;
+}
+
+#conflictMatrixLegendSuccess {
+    -fx-background-color: black, #DFF2BF;
+    -fx-background-insets: 0, 1 1 1 1;
+}
+
+#conflictMatrixLegendFailed {
+    -fx-background-color: black, #FFBABA;
+    -fx-background-insets: 0, 1 1 1 1;
+}
+
+#conflictMatrixLegendInfeasible {
+    -fx-background-color: black, #FA9D9D;
+    -fx-background-insets: 0, 1 1 1 1;
+}
