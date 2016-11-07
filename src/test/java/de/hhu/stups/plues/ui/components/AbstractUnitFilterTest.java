@@ -84,6 +84,19 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   }
 
   @Test
+  public void testLiveUpdate() {
+    TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
+    final CheckBox cb = units.getItems().get(0).getCheckbox();
+
+    clickOn(cb); // click on checkbox
+    clickOn((RadioButton) lookup("#selected").query()); // filter by selected
+    clickOn(cb); // click on checkbox again
+    units = lookup("#units").query(); // collect units again
+
+    Assert.assertEquals(0, units.getItems().size());
+  }
+
+  @Test
   public void testClearingSelection() {
     TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
     final CheckBox cb = units.getItems().get(0).getCheckbox();
