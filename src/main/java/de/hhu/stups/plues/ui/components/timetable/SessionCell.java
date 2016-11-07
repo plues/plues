@@ -27,7 +27,7 @@ class SessionCell extends ListCell<SessionFacade> {
     this.provider = detailViewProvider;
 
     setOnDragDetected(this::dragItem);
-    setOnMouseClicked(this::clickItem);
+    setOnMousePressed(this::clickItem);
   }
 
   @SuppressWarnings("unused")
