@@ -5,5 +5,5 @@ import com.google.inject.assistedinject.Assisted;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 
 public interface SessionListViewFactory {
-  SessionListView create(@Assisted SessionFacade.Slot slot);
+  SessionListView create(@Assisted final SessionFacade.Slot slotl);
 }

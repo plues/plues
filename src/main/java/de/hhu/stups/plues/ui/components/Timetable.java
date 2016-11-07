@@ -7,7 +7,6 @@ import static java.time.DayOfWeek.TUESDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
@@ -15,6 +14,7 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -40,7 +40,7 @@ import java.util.stream.IntStream;
 public class Timetable extends BorderPane implements Initializable {
 
   private final Delayed<Store> delayedStore;
-  private final SessionListViewFactory factory;
+  private final SessionListViewFactory sessionListViewFactory;
 
   @FXML
   private AbstractUnitFilter abstractUnitFilter;
@@ -51,6 +51,7 @@ public class Timetable extends BorderPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private SetOfCourseSelection setOfCourseSelection;
+
   @FXML
   private ToggleGroup semesterToggle;
 
@@ -61,9 +62,9 @@ public class Timetable extends BorderPane implements Initializable {
    */
   @Inject
   public Timetable(final Inflater inflater, final Delayed<Store> delayedStore,
-                   final SessionListViewFactory factory) {
+                   final SessionListViewFactory sessionListViewFactory) {
     this.delayedStore = delayedStore;
-    this.factory = factory;
+    this.sessionListViewFactory = sessionListViewFactory;
 
     // TODO: remove controller param if possible
     // TODO: currently not possible because of dependency circle
@@ -100,7 +101,7 @@ public class Timetable extends BorderPane implements Initializable {
   }
 
   private ListView<SessionFacade> getSessionFacadeListView(final SessionFacade.Slot slot) {
-    final ListView<SessionFacade> view = factory.create(slot);
+    final ListView<SessionFacade> view = sessionListViewFactory.create(slot);
 
     ((SessionListView) view).setSessions(sessions);
     view.itemsProperty().bind(new SessionFacadeListBinding(slot));

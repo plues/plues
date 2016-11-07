@@ -122,22 +122,17 @@ public class DetailViewTest extends ApplicationTest {
 
   @Test
   public void testSessionInfo() {
-    final HBox sessionBox = lookup("#session").query();
-    Assert.assertEquals(2, sessionBox.getChildren().size());
-    Assert.assertEquals("MONDAY: 8", ((Label) sessionBox.getChildren().get(1)).getText());
+    final Label sessionLabel = lookup("#session").query();
+    Assert.assertEquals("MONDAY: 8", sessionLabel.getText());
 
-    final HBox titleBox = lookup("#title").query();
-    Assert.assertEquals(2, titleBox.getChildren().size());
-    Assert.assertEquals("Unit", ((Label) titleBox.getChildren().get(1)).getText());
+    final Label titleLabel = lookup("#title").query();
+    Assert.assertEquals("Unit", titleLabel.getText());
 
-    final HBox groupBox = lookup("#group").query();
-    Assert.assertEquals(2, groupBox.getChildren().size());
-    Assert.assertEquals(1025,
-        Integer.parseInt(((Label) groupBox.getChildren().get(1)).getText()));
+    final Label groupLabel = lookup("#group").query();
+    Assert.assertEquals(1025, Integer.parseInt(groupLabel.getText()));
 
-    final HBox semestersBox = lookup("#semesters").query();
-    Assert.assertEquals(2, semestersBox.getChildren().size());
-    Assert.assertEquals("1, 2", ((Label) semestersBox.getChildren().get(1)).getText());
+    final Label semsterLabel = lookup("#semesters").query();
+    Assert.assertEquals("1,2", semsterLabel.getText());
   }
 
   @Test

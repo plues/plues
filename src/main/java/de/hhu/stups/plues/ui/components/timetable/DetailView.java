@@ -26,19 +26,19 @@ public class DetailView extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private HBox session;
+  private Label session;
 
   @FXML
   @SuppressWarnings("unused")
-  private HBox title;
+  private Label title;
 
   @FXML
   @SuppressWarnings("unused")
-  private HBox group;
+  private Label group;
 
   @FXML
   @SuppressWarnings("unused")
-  private HBox semesters;
+  private Label semesters;
 
   @FXML
   @SuppressWarnings("unused")
@@ -73,16 +73,14 @@ public class DetailView extends VBox implements Initializable {
    * Set content for detail view.
    *
    * @param session Session to build content for
+   * @param slot Get slot information
    */
   @SuppressWarnings("WeakerAccess")
   public void setContent(final Session session, final SessionFacade.Slot slot) {
-    this.session.getChildren().add(new Label(slot.toString()));
-    title.getChildren().add(new Label(session.getGroup().getUnit().getTitle()));
-    group.getChildren().add(new Label(String.valueOf(session.getGroup().getId())));
-
-    semesters.getChildren().add(
-        new Label(
-          Joiner.on(", ").join(session.getGroup().getUnit().getSemesters())));
+    this.session.setText(slot.toString());
+    title.setText(session.getGroup().getUnit().getTitle());
+    group.setText(String.valueOf(session.getGroup().getId()));
+    semesters.setText(Joiner.on(",").join(session.getGroup().getUnit().getSemesters()));
 
     session.getGroup().getUnit().getAbstractUnits().forEach(au ->
         au.getModuleAbstractUnitTypes().forEach(entry ->
@@ -107,6 +105,10 @@ public class DetailView extends VBox implements Initializable {
     courseSemesters.setText(resources.getString("semesterCell"));
     type.setCellValueFactory(new PropertyValueFactory<>("type"));
     type.setText(resources.getString("typeCell"));
+  }
+
+  public String getTitle() {
+    return title.getText();
   }
 
   @SuppressWarnings("WeakerAccess")

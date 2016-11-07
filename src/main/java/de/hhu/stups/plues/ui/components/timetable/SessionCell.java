@@ -6,13 +6,13 @@ import com.google.inject.Provider;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 
+import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
-
-import org.controlsfx.control.PopOver;
+import javafx.stage.Stage;
 
 class SessionCell extends ListCell<SessionFacade> {
 
@@ -26,7 +26,7 @@ class SessionCell extends ListCell<SessionFacade> {
     this.provider = detailViewProvider;
 
     setOnDragDetected(this::dragItem);
-    setOnMouseClicked(this::clickItem);
+    setOnMousePressed(this::clickItem);
   }
 
   @SuppressWarnings("unused")
@@ -44,16 +44,18 @@ class SessionCell extends ListCell<SessionFacade> {
 
   @SuppressWarnings("unused")
   private void clickItem(final MouseEvent event) {
+    if (getItem() == null || event.getClickCount() < 2) {
+      return;
+    }
     final Session session = getItem().getSession();
 
-    final DetailView view = provider.get();
-    view.setContent(session, slot);
+    final DetailView detailView = provider.get();
+    detailView.setContent(session, slot);
 
-    final PopOver pop = new PopOver(view);
-    pop.setPrefHeight(400);
-    pop.setPrefWidth(400);
-    pop.setTitle("Session Detail");
-    pop.show(this); // TODO weitere Parameter zur Positionierung erforderlich aber nicht einheitlich
+    final Stage stage = new Stage();
+    stage.setTitle(detailView.getTitle());
+    stage.setScene(new Scene(detailView));
+    stage.show();
   }
 
   @Override
