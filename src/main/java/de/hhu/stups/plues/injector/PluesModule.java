@@ -8,6 +8,7 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.prob.MockSolver;
 import de.hhu.stups.plues.prob.ProBSolver;
@@ -38,6 +39,8 @@ public class PluesModule extends AbstractModule {
 
   private final TypeLiteral<Delayed<Store>> delayedStoreType
       = new TypeLiteral<Delayed<Store>>() {};
+  private final TypeLiteral<Delayed<ObservableStore>> delayedObservableStoreType
+      = new TypeLiteral<Delayed<ObservableStore>>() {};
 
   private final TypeLiteral<Delayed<SolverService>> delayedSolverServiceType
       = new TypeLiteral<Delayed<SolverService>>() {};
@@ -81,7 +84,9 @@ public class PluesModule extends AbstractModule {
 
     bind(SolverLoader.class).to(SolverLoaderImpl.class);
 
-    bind(delayedStoreType).toInstance(new Delayed<>());
+    Delayed store = new Delayed<>(); // TODO: Unchecked Cast need to be solved
+    bind(delayedStoreType).toInstance(store);
+    bind(delayedObservableStoreType).toInstance(store);
     bind(delayedSolverServiceType).toInstance(new Delayed<>());
   }
 
