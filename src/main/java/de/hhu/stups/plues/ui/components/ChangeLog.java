@@ -95,9 +95,9 @@ public class ChangeLog extends VBox implements Initializable {
     final SimpleListProperty<Log> logs = new SimpleListProperty<>();
 
     delayedStore.whenAvailable(store ->
-      logs.set(FXCollections.observableList(store.getLogEntries())));
+        logs.set(FXCollections.observableList(store.getLogEntries())));
     final SimpleObjectProperty compare =
-      new SimpleObjectProperty(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
+        new SimpleObjectProperty(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
 
     final ListBinding<Log> persistentBinding = new ListBinding<Log>() {
       {

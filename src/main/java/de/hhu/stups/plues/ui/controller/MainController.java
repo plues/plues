@@ -124,7 +124,7 @@ public class MainController implements Initializable {
     this.storeLoaderTaskFactory = storeLoaderTaskFactory;
     this.executor = executorService;
 
-//    stage.setOnHiding(event -> closeWindow()); TODO: sth. like that for close button
+    //    stage.setOnHiding(event -> closeWindow()); TODO: sth. like that for close button
 
     delayedSolverService.whenAvailable(solverService -> openReports.setDisable(false));
 
@@ -370,6 +370,10 @@ public class MainController implements Initializable {
     reportStage.show();
   }
 
+  /**
+   * Ask user for permission to close window using Alert.
+   * User can save database before closing.
+   */
   @FXML
   public void closeWindow() {
     Alert closeConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
