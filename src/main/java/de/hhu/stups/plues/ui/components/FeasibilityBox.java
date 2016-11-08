@@ -60,7 +60,7 @@ public class FeasibilityBox extends VBox implements Initializable {
   private String noConflictString;
 
   private SolverTask<List<Integer>> unsatCoreTask;
-  private SolverTask<Boolean> task;
+  private SolverTask<Boolean> feasibilityTask;
   private ResourceBundle resources;
   private final EnumMap<DayOfWeek, String> dayOfWeekStrings;
   private final Map<Integer, String> timeStrings;
@@ -153,37 +153,37 @@ public class FeasibilityBox extends VBox implements Initializable {
       final Course cMinor = minorCourseProperty.get();
 
       if (cMinor != null) {
-        task = solver.checkFeasibilityTask(cMajor, cMinor);
+        feasibilityTask = solver.checkFeasibilityTask(cMajor, cMinor);
       } else {
-        task = solver.checkFeasibilityTask(cMajor);
+        feasibilityTask = solver.checkFeasibilityTask(cMajor);
       }
 
       progressIndicator.setStyle("-fx-progress-color: " + WORKING_COLOR);
-      progressIndicator.visibleProperty().bind(task.runningProperty());
+      progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
 
-      executorService.submit(task);
+      executorService.submit(feasibilityTask);
     });
 
     final String bgColorCommand = "-fx-background-color:";
-    task.setOnSucceeded(event -> Platform.runLater(() -> {
-      cbAction.setItems(task.getValue()
+    feasibilityTask.setOnSucceeded(event -> Platform.runLater(() -> {
+      cbAction.setItems(feasibilityTask.getValue()
           ? FXCollections.observableList(Collections.singletonList(removeString))
           : getActionsForInfeasibleCourse());
       cbAction.getSelectionModel().selectFirst();
-      lbIcon.setGraphic(FontAwesomeIconFactory.get().createIcon(task.getValue()
+      lbIcon.setGraphic(FontAwesomeIconFactory.get().createIcon(feasibilityTask.getValue()
           ? FontAwesomeIcon.CHECK : FontAwesomeIcon.REMOVE, "50"));
-      lbIcon.setStyle(bgColorCommand + (task.getValue()
+      lbIcon.setStyle(bgColorCommand + (feasibilityTask.getValue()
           ? PdfRenderingHelper.SUCCESS_COLOR : PdfRenderingHelper.FAILURE_COLOR));
     }));
 
-    task.setOnFailed(event -> {
+    feasibilityTask.setOnFailed(event -> {
       cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
       cbAction.getSelectionModel().selectFirst();
       lbIcon.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.REMOVE, "50"));
       lbIcon.setStyle(bgColorCommand + PdfRenderingHelper.FAILURE_COLOR);
     });
 
-    task.setOnCancelled(event -> {
+    feasibilityTask.setOnCancelled(event -> {
       cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
       cbAction.getSelectionModel().selectFirst();
       lbIcon.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.QUESTION, "50"));
@@ -191,7 +191,7 @@ public class FeasibilityBox extends VBox implements Initializable {
     });
 
     progressIndicator.setStyle("-fx-progress-color: " + WORKING_COLOR);
-    progressIndicator.visibleProperty().bind(task.runningProperty());
+    progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
 
     cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancelString)));
     cbAction.getSelectionModel().selectFirst();
@@ -209,7 +209,7 @@ public class FeasibilityBox extends VBox implements Initializable {
       parent.getChildren().remove(this);
     }
     if (selectedItem.equals(cancelString)) {
-      if (task.isRunning()) {
+      if (feasibilityTask.isRunning()) {
         interrupt();
         cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
         cbAction.getSelectionModel().selectFirst();
@@ -220,7 +220,8 @@ public class FeasibilityBox extends VBox implements Initializable {
   }
 
   /**
-   * Initialize and submit the task to compute the unsat core and set all its listeners.
+   * Initialize and submit the {@link #unsatCoreTask task} to compute the unsat core and set all its
+   * necessary listeners.
    */
   private void initUnsatCoreTask() {
     final Course majorCourse = majorCourseProperty.get();
@@ -267,6 +268,8 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   /**
    * Create the titled pane and grid pane to show the conflicts grouped by the day of week.
+   *
+   * @param unsatCore The list of session Ids that form the unsat core.
    */
   @SuppressWarnings("unused")
   private void showConflictResult(final List<Integer> unsatCore) {
@@ -382,6 +385,6 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   @FXML
   private void interrupt() {
-    task.cancel();
+    feasibilityTask.cancel();
   }
 }
