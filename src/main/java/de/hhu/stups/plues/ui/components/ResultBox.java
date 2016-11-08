@@ -47,44 +47,36 @@ public class ResultBox extends GridPane implements Initializable {
   private String save;
   private String cancel;
 
+  private PdfRenderingTask task;
   private final ObjectProperty<Course> majorCourse;
   private final ObjectProperty<Course> minorCourse;
-  private PdfRenderingTask task;
   private final ExecutorService executor;
   private final Delayed<SolverService> solverService;
   private final PdfRenderingTaskFactory renderingTaskFactory;
   private final VBox parent;
-
   private final ObjectProperty<Path> pdf;
 
   @FXML
   @SuppressWarnings("unused")
   private StackPane statePane;
-
   @FXML
   @SuppressWarnings("unused")
   private ProgressIndicator progressIndicator;
-
   @FXML
   @SuppressWarnings("unused")
   private Label lbIcon;
-
   @FXML
   @SuppressWarnings("unused")
   private Label lbMajor;
-
   @FXML
   @SuppressWarnings("unused")
   private Label lbMinor;
-
   @FXML
   @SuppressWarnings("unused")
   private Label lbErrorMsg;
-
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<String> cbAction;
-
   @FXML
   @SuppressWarnings("unused")
   private Button btSubmit;

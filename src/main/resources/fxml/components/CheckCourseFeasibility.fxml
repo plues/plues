@@ -7,7 +7,7 @@
          xmlns:fx="http://javafx.com/fxml/1">
     <CombinationOrSingleCourseSelection fx:id="combinationOrSingleCourseSelection"/>
     <Button fx:id="btCheckFeasibility" onAction="#checkFeasibility" text="%checkFeasibility"/>
-    <ScrollPane fx:id="scrollPaneResults" prefHeight="200.0">
+    <ScrollPane fx:id="scrollPaneResults" prefHeight="400.0">
         <VBox fx:id="resultBoxWrapper"/>
     </ScrollPane>
 </fx:root>
