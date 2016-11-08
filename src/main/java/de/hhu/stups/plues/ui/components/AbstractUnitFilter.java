@@ -61,7 +61,11 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<RowEntry, String> abstractUnitColumn;
+  private TableColumn<RowEntry, String> abstractUnitTitleColumn;
+
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<RowEntry, String> abstractUnitKeyColumn;
 
   @Inject
   public AbstractUnitFilter(final Inflater inflater) {
@@ -97,9 +101,13 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     checkboxColumn.setSortable(false);
     checkboxColumn.setResizable(false);
 
-    abstractUnitColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
-    abstractUnitColumn.setSortable(false);
-    abstractUnitColumn.setResizable(false);
+    abstractUnitTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+    abstractUnitTitleColumn.setSortable(false);
+    abstractUnitTitleColumn.setResizable(false);
+
+    abstractUnitKeyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
+    abstractUnitKeyColumn.setSortable(false);
+    abstractUnitKeyColumn.setResizable(false);
   }
 
   /**
@@ -138,17 +146,19 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       }
     });
 
-    return new RowEntry(checkBox, unit.getTitle());
+    return new RowEntry(checkBox, unit.getTitle(), unit.getKey());
   }
 
   @SuppressWarnings("WeakerAccess")
   public static final class RowEntry {
     private final CheckBox checkbox;
     private final String title;
+    private final String key;
 
-    RowEntry(final CheckBox checkbox, final String title) {
+    RowEntry(final CheckBox checkbox, final String title, final String key) {
       this.checkbox = checkbox;
       this.title = title;
+      this.key = key;
     }
 
     public CheckBox getCheckbox() {
@@ -157,6 +167,10 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     public String getTitle() {
       return this.title;
+    }
+
+    public String getKey() {
+      return key;
     }
 
     boolean matches(final TextField query, final boolean all, final boolean showSelected,
@@ -175,8 +189,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     private boolean titleMatchesQuery(final TextField query) {
       final String lowerCaseTitle = title.toLowerCase();
+      final String lowerCaseKey = key.toLowerCase();
       final String text = query.getText().toLowerCase();
-      return text.isEmpty() || lowerCaseTitle.contains(text);
+      return text.isEmpty() || lowerCaseTitle.contains(text) || lowerCaseKey.contains(text);
     }
   }
 }

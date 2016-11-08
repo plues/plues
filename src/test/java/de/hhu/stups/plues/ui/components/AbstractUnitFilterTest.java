@@ -75,9 +75,18 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   }
 
   @Test
-  public void testSearch() {
+  public void testSearchForTitle() {
     final TextField field = lookup("#query").query();
-    field.setText("1");
+    field.setText("Abstract Unit 1");
+
+    final TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
+    Assert.assertEquals(1, units.getItems().size());
+  }
+
+  @Test
+  public void testSearchForKey() {
+    final TextField field = lookup("#query").query();
+    field.setText("Key 1");
 
     final TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
     Assert.assertEquals(1, units.getItems().size());
