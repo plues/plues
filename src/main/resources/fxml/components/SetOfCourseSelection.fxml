@@ -3,10 +3,14 @@
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 
 <fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
     <children>
+        <Label text="%search"/>
+        <TextField fx:id="txtQuery"/>
         <TitledPane fx:id="titledPaneMasterCourse" text="%master" maxHeight="300.0">
             <TableView fx:id="tableViewMasterCourse" prefWidth="500.0" maxHeight="300.0">
                 <columns>

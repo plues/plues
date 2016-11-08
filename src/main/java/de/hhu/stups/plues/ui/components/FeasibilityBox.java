@@ -49,6 +49,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+@SuppressWarnings("WeakerAccess")
 public class FeasibilityBox extends VBox implements Initializable {
 
   private static final String WORKING_COLOR = "#BDE5F8";

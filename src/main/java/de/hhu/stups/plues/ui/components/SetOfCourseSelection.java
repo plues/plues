@@ -14,6 +14,7 @@ import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -26,12 +27,16 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("WeakerAccess")
 public class SetOfCourseSelection extends VBox implements Initializable {
 
-  private final List<Course> masterCourses;
-  private final List<Course> bachelorCourses;
+  private final ArrayList<Course> masterCourses;
+  private final ArrayList<Course> bachelorCourses;
   private final ReadOnlyListProperty<Course> selectedCourses;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private TextField txtQuery;
   @FXML
   @SuppressWarnings("unused")
   private TitledPane titledPaneMasterCourse;
@@ -75,8 +80,12 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    txtQuery.textProperty().addListener((observable, oldValue, newValue) ->
+        filterCourses(newValue));
+
     final String first = "first";
     final String second = "second";
+
     tableColumnMasterCheckBox.setResizable(false);
     tableColumnMasterCheckBox.setSortable(false);
     tableColumnMasterCourse.setSortable(false);
@@ -96,6 +105,21 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
     tableViewMasterCourse.setId("batchListView");
     tableViewBachelorCourse.setId("batchListView");
+  }
+
+  /**
+   * Filter the bachelor and master courses according to the current filter text. This method is
+   * called when the filter text within {@link #txtQuery} is changed.
+   */
+  private void filterCourses(String filterText) {
+    tableViewMasterCourse.getItems().clear();
+    tableViewBachelorCourse.getItems().clear();
+    masterCourses.stream().filter(course -> course.getFullName().toLowerCase()
+        .contains(filterText.toLowerCase()))
+        .forEach(course -> tableViewMasterCourse.getItems().add(getTableViewItem(course)));
+    bachelorCourses.stream().filter(course -> course.getFullName().toLowerCase()
+        .contains(filterText.toLowerCase()))
+        .forEach(course -> tableViewBachelorCourse.getItems().add(getTableViewItem(course)));
   }
 
   /**
@@ -148,7 +172,6 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   TableView<TableRowPair<Node, String>> getTableViewBachelorCourse() {
     return tableViewBachelorCourse;
   }
-
 
   public static final class TableRowPair<T1, T2> {
     private final T1 first;

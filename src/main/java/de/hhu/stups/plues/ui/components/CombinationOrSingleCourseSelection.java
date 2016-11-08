@@ -12,7 +12,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 
@@ -129,6 +128,7 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
     rbCombination.setSelected(true);
   }
 
+  @SuppressWarnings("WeakerAccess")
   public ReadOnlyListProperty<Course> getSelectedCourses() {
     return selectedCourses;
   }
