@@ -6,7 +6,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.modelgenerator.XmlExporter;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
@@ -76,16 +76,17 @@ public class MainController implements Initializable {
   }
 
   private final Logger logger = Logger.getLogger(getClass().getName());
-  private final Delayed<Store> delayedStore;
+  private final Delayed<ObservableStore> delayedStore;
   private final Properties properties;
   private final Stage stage;
   private final ExecutorService executor;
 
   private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
   private final SolverLoaderImpl solverLoader;
-  private final Provider<ChangeLog> changeLogProvider;
   private final Provider<Reports> reportsProvider;
   private final StoreLoaderTaskFactory storeLoaderTaskFactory;
+  private final Provider<ChangeLog> changeLogProvider;
+  private ResourceBundle resources;
 
   @FXML
   private MenuItem openFileMenuItem;
@@ -98,16 +99,14 @@ public class MainController implements Initializable {
 
   @FXML
   private MenuItem openReports;
-
   @FXML
   private TaskProgressView<Task<?>> taskProgress;
-  private ResourceBundle resources;
 
   /**
    * MainController component.
    */
   @Inject
-  public MainController(final Delayed<Store> delayedStore,
+  public MainController(final Delayed<ObservableStore> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
@@ -197,6 +196,7 @@ public class MainController implements Initializable {
     try {
       Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
           StandardCopyOption.REPLACE_EXISTING);
+      delayedStore.get().notifyObservers();
       logger.log(Level.INFO, "File saving finished!");
     } catch (final IOException exc) {
       logger.log(Level.SEVERE, "File saving failed!", exc);
@@ -218,6 +218,7 @@ public class MainController implements Initializable {
       try {
         Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(file.getAbsolutePath()));
         logger.log(Level.INFO, "File saving finished!");
+        delayedStore.get().notifyObservers();
       } catch (final IOException exception) {
         logger.log(Level.SEVERE, "File saving failed!", exception);
       }
@@ -318,7 +319,7 @@ public class MainController implements Initializable {
         value -> logger.log(Level.FINE, "STORE: loading Store succeeded"));
 
     storeLoader.setOnSucceeded(event -> Platform.runLater(() -> {
-      final Store s = (Store) event.getSource().getValue();
+      final ObservableStore s = (ObservableStore) event.getSource().getValue();
       this.delayedStore.set(s);
     }));
     return storeLoader;
@@ -348,10 +349,10 @@ public class MainController implements Initializable {
    */
   @FXML
   public void openChangeLog() {
-    final ChangeLog log = changeLogProvider.get();
+    final ChangeLog changeLog = changeLogProvider.get();
     final Stage logStage = new Stage();
     logStage.setTitle(resources.getString("logTitle"));
-    logStage.setScene(new Scene(log, 600, 600));
+    logStage.setScene(new Scene(changeLog, 600, 600));
     logStage.setResizable(false);
     logStage.show();
   }

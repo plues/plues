@@ -9,7 +9,7 @@ import static java.time.DayOfWeek.WEDNESDAY;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
@@ -39,7 +39,7 @@ import java.util.stream.IntStream;
 
 public class Timetable extends BorderPane implements Initializable {
 
-  private final Delayed<Store> delayedStore;
+  private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
 
   @FXML
@@ -61,7 +61,7 @@ public class Timetable extends BorderPane implements Initializable {
    * Timetable component.
    */
   @Inject
-  public Timetable(final Inflater inflater, final Delayed<Store> delayedStore,
+  public Timetable(final Inflater inflater, final Delayed<ObservableStore> delayedStore,
                    final SessionListViewFactory sessionListViewFactory) {
     this.delayedStore = delayedStore;
     this.sessionListViewFactory = sessionListViewFactory;

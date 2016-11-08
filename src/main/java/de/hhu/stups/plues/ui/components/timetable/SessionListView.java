@@ -7,7 +7,7 @@ import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 
 public class SessionListView extends ListView<SessionFacade> {
   private final SessionFacade.Slot slot;
-  private final Delayed<Store> delayedStore;
+  private final Delayed<ObservableStore> delayedStore;
   private final Delayed<SolverService> delayedSolver;
   private ListProperty<SessionFacade> sessions;
 
@@ -35,7 +35,7 @@ public class SessionListView extends ListView<SessionFacade> {
    */
   @Inject
   public SessionListView(@Assisted final SessionFacade.Slot slot,
-                         final Delayed<Store> delayedStore,
+                         final Delayed<ObservableStore> delayedStore,
                          final Delayed<SolverService> delayedSolver,
                          final Provider<SessionCell> cellProvider) {
     super();
@@ -106,8 +106,11 @@ public class SessionListView extends ListView<SessionFacade> {
         Futures.addCallback(solver.submit(moveSession), new FutureCallback<Void>() {
           @Override
           public void onSuccess(@Nullable final Void result) {
-            delayedStore.whenAvailable(
-                store -> store.moveSession(getSessionFacadeById(sessionId), slot));
+            delayedStore.whenAvailable(store -> {
+              store.moveSession(getSessionFacadeById(sessionId), slot);
+              store.notifyObservers();
+            });
+
           }
 
           @Override
