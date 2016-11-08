@@ -103,11 +103,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     abstractUnitTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
     abstractUnitTitleColumn.setSortable(false);
-    abstractUnitTitleColumn.setResizable(false);
 
     abstractUnitKeyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
     abstractUnitKeyColumn.setSortable(false);
-    abstractUnitKeyColumn.setResizable(false);
   }
 
   /**
