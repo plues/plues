@@ -37,7 +37,6 @@ import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -291,17 +290,18 @@ public class FeasibilityBox extends VBox implements Initializable {
       }
     });
 
-    final Set<DayOfWeek> keySetDay = sortedSessionsByDay.keySet();
+    final Set<Map.Entry<DayOfWeek, ArrayList<Session>>> entrySetDay =
+        sortedSessionsByDay.entrySet();
     // add conflicts to the grid pane
     int conflictRowCounter = 0;
-    for (final DayOfWeek dayOfWeek : keySetDay) {
-      final Label labelDayOfWeek = new Label(dayOfWeekStrings.get(dayOfWeek));
+    for (final Map.Entry<DayOfWeek, ArrayList<Session>> sessionsAtDay : entrySetDay) {
+      final Label labelDayOfWeek = new Label(dayOfWeekStrings.get(sessionsAtDay.getKey()));
       labelDayOfWeek.setStyle("-fx-font-weight: bold");
       conflictGridPane.add(labelDayOfWeek, 0, conflictRowCounter);
       conflictRowCounter++;
 
       final Map<Integer, ArrayList<Session>> sortedSessionByTime = sortSessionsByTime(
-          sortedSessionsByDay.get(dayOfWeek));
+          sortedSessionsByDay.get(sessionsAtDay.getKey()));
       final List<Integer> keySetTime = Lists.newArrayList(sortedSessionByTime.keySet());
       Collections.sort(keySetTime);
 
