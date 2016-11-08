@@ -94,6 +94,10 @@ public class AbstractUnitFilterTest extends ApplicationTest {
     units = lookup("#units").query(); // collect units again
 
     Assert.assertEquals(0, units.getItems().size());
+
+    clickOn((RadioButton) lookup("#notSelected").query());
+    units = lookup("#units").query();
+    Assert.assertEquals(2, units.getItems().size());
   }
 
   @Test

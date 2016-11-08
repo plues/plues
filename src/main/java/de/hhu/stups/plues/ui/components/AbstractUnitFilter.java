@@ -100,9 +100,19 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     abstractUnitColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
     abstractUnitColumn.setSortable(false);
     abstractUnitColumn.setResizable(false);
+  }
 
+  /**
+   * Setter for abstract units. Required to display content.
+   * @param abstractUnits List of abstract units to be displayed in TableView
+   */
+  void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
+    abstractUnits.forEach(abstractUnit -> allItems.add(getTableViewItem(abstractUnit)));
+
+    units.itemsProperty().unbind();
     binding = new ListBinding<RowEntry>() {
       {
+        listProperty.get().forEach(rowEntry -> bind(rowEntry.getCheckbox().selectedProperty()));
         bind(query.textProperty(), all.selectedProperty(), selected.selectedProperty(),
             notSelected.selectedProperty(), listProperty);
       }
@@ -113,16 +123,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
           selected.isSelected(), notSelected.isSelected()));
       }
     };
-
     units.itemsProperty().bind(binding);
-  }
-
-  /**
-   * Setter for abstract units. Required to display content.
-   * @param abstractUnits List of abstract units to be displayed in TableView
-   */
-  void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
-    abstractUnits.forEach(abstractUnit -> allItems.add(getTableViewItem(abstractUnit)));
   }
 
   private RowEntry getTableViewItem(final AbstractUnit unit) {
