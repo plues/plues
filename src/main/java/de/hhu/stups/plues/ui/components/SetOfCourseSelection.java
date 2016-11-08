@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 @SuppressWarnings("WeakerAccess")
 public class SetOfCourseSelection extends VBox implements Initializable {
 
-  private final ArrayList<Course> masterCourses;
-  private final ArrayList<Course> bachelorCourses;
+  private final List<Course> masterCourses;
+  private final List<Course> bachelorCourses;
   private final ReadOnlyListProperty<Course> selectedCourses;
 
   @FXML
