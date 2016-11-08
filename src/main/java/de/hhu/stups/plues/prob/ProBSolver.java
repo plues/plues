@@ -50,7 +50,7 @@ public class ProBSolver implements Solver {
     logger.info("Loaded machine in " + TimeUnit.NANOSECONDS.toMillis(t2 - t1) + " ms");
     //
     this.stateSpace.getSubscribedFormulas()
-      .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
+        .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
 
     this.operationExecutionCache = new SolverCache<>(100);
 
@@ -124,6 +124,7 @@ public class ProBSolver implements Solver {
     synchronized (operationExecutionCache) {
       operationExecutionCache.put(key, solverResult);
     }
+
 
     logger.fine(String.format("RESULT %s %s = %s", op, predicate, solverResult));
 
@@ -378,7 +379,7 @@ public class ProBSolver implements Solver {
 
     report.setImpossibleCourseModuleAbstractUnitPairs(
         Mappers.mapCourseModuleAbstractUnitPairs(
-          (Set) data.get("impossible_courses_module_combinations")));
+            (Set) data.get("impossible_courses_module_combinations")));
 
     report.setImpossibleAbstractUnitsInModule(
         Mappers.mapModuleAbstractUnitPairs((Set) data.get("impossible_module_abstract_unit")));
@@ -390,7 +391,7 @@ public class ProBSolver implements Solver {
 
     report.setQuasiMandatoryModuleAbstractUnits(
         Mappers.mapQuasiMandatoryModuleAbstractUnits(
-          (Set) data.get("quasi_mandatory_module_abstract_units"))
+            (Set) data.get("quasi_mandatory_module_abstract_units"))
     );
 
     report.setRedundantUnitGroups(Mappers.mapUnitGroups((Set) data.get("redundant_unit_groups")));

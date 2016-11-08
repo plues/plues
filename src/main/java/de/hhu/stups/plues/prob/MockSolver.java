@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.prob;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,7 @@ public class MockSolver implements Solver {
 
   @Override
   public List<Integer> unsatCore(final String... courses) throws SolverException {
-    return Collections.emptyList();
+    return Arrays.asList(76, 7, 50, 43);
   }
 
   @Override

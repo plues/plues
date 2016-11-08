@@ -47,44 +47,36 @@ public class ResultBox extends GridPane implements Initializable {
   private String save;
   private String cancel;
 
+  private PdfRenderingTask task;
   private final ObjectProperty<Course> majorCourse;
   private final ObjectProperty<Course> minorCourse;
-  private PdfRenderingTask task;
   private final ExecutorService executor;
   private final Delayed<SolverService> solverService;
   private final PdfRenderingTaskFactory renderingTaskFactory;
   private final VBox parent;
-
   private final ObjectProperty<Path> pdf;
 
   @FXML
   @SuppressWarnings("unused")
   private StackPane statePane;
-
   @FXML
   @SuppressWarnings("unused")
   private ProgressIndicator progressIndicator;
-
   @FXML
   @SuppressWarnings("unused")
-  private Label icon;
-
+  private Label lbIcon;
   @FXML
   @SuppressWarnings("unused")
-  private Label major;
-
+  private Label lbMajor;
   @FXML
   @SuppressWarnings("unused")
-  private Label minor;
-
+  private Label lbMinor;
   @FXML
   @SuppressWarnings("unused")
   private Label lbErrorMsg;
-
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<String> cbAction;
-
   @FXML
   @SuppressWarnings("unused")
   private Button btSubmit;
@@ -92,11 +84,11 @@ public class ResultBox extends GridPane implements Initializable {
   /**
    * Constructor for ResultBox.
    *
-   * @param inflater    Inflater to handle fxml loader tasks
+   * @param inflater             Inflater to handle fxml loader tasks
    * @param renderingTaskFactory PDF Rendering task Factory
-   * @param major       Major course
-   * @param minor       Minor course if present, else null
-   * @param parent      The parent wrapper (VBox) to remove a single result box.
+   * @param major                Major course
+   * @param minor                Minor course if present, else null
+   * @param parent               The parent wrapper (VBox) to remove a single result box.
    */
   @Inject
   public ResultBox(final Inflater inflater,
@@ -107,10 +99,8 @@ public class ResultBox extends GridPane implements Initializable {
                    @Nullable @Assisted("minor") final Course minor,
                    @Assisted("parent") final VBox parent) {
     super();
-
     this.solverService = delayedSolverService;
     this.renderingTaskFactory = renderingTaskFactory;
-
     this.majorCourse = new SimpleObjectProperty<>(major);
     this.minorCourse = new SimpleObjectProperty<>(minor);
     this.pdf = new SimpleObjectProperty<>();
@@ -130,10 +120,10 @@ public class ResultBox extends GridPane implements Initializable {
     save = resources.getString("save");
     cancel = resources.getString("cancel");
     //
-    this.major.textProperty()
-      .bind(Bindings.selectString(this.majorCourse, "fullName"));
-    this.minor.textProperty()
-      .bind(Bindings.selectString(this.minorCourse, "fullName"));
+    this.lbMajor.textProperty()
+        .bind(Bindings.selectString(this.majorCourse, "fullName"));
+    this.lbMinor.textProperty()
+        .bind(Bindings.selectString(this.minorCourse, "fullName"));
     //
     solverService.whenAvailable(solver -> {
       final SolverTask<FeasibilityResult> solverTask;
@@ -148,10 +138,10 @@ public class ResultBox extends GridPane implements Initializable {
       //
       this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
       this.progressIndicator.visibleProperty()
-        .bind(task.runningProperty());
+          .bind(task.runningProperty());
       //
-      icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(task));
-      icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
+      lbIcon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(task));
+      lbIcon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
       //
       executor.submit(task);
     });
@@ -171,7 +161,7 @@ public class ResultBox extends GridPane implements Initializable {
     //
     this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
     this.progressIndicator.visibleProperty()
-      .bind(task.runningProperty());
+        .bind(task.runningProperty());
 
     this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancel)));
     this.cbAction.getSelectionModel().selectFirst();
