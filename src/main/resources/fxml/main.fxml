@@ -32,7 +32,8 @@
                       mnemonicParsing="false" text="%log"/>
             <MenuItem fx:id="openReports" onAction="#openReports"
                       mnemonicParsing="false" text="%reports"/>
-            <MenuItem mnemonicParsing="false" text="%close"/>
+            <MenuItem fx:id="close" onAction="#closeWindow"
+                      mnemonicParsing="false" text="%close"/>
         </Menu>
         <Menu mnemonicParsing="false" text="%edit">
             <MenuItem mnemonicParsing="false" text="%delete"/>

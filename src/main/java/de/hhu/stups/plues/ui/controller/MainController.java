@@ -27,6 +27,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -122,6 +125,8 @@ public class MainController implements Initializable {
     this.storeLoaderTaskFactory = storeLoaderTaskFactory;
     this.executor = executorService;
 
+//    stage.setOnHiding(event -> closeWindow()); TODO: sth. like that for close button
+
     delayedSolverService.whenAvailable(solverService -> openReports.setDisable(false));
 
     probExecutor.addObserver((observable, arg) -> this.register(arg));
@@ -188,7 +193,7 @@ public class MainController implements Initializable {
    */
   @FXML
   @SuppressWarnings("UnusedParamters")
-  private void saveFile(final ActionEvent actionEvent) {
+  private void saveFile() {
     try {
       Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
           StandardCopyOption.REPLACE_EXISTING);
@@ -203,7 +208,7 @@ public class MainController implements Initializable {
    */
   @FXML
   @SuppressWarnings( {"UnusedParamters", "unused"})
-  private void saveFileAs(final ActionEvent actionEvent) {
+  private void saveFileAs() {
     final FileChooser fileChooser = prepareFileChooser("saveDB");
     fileChooser.setInitialFileName("data.sqlite3");
     //
@@ -362,6 +367,33 @@ public class MainController implements Initializable {
     reportStage.setScene(new Scene(reports, 700, 620));
     reportStage.setResizable(false);
     reportStage.show();
+  }
+
+  @FXML
+  public void closeWindow() {
+    Alert closeConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
+    closeConfirmation.setTitle("Confirm");
+    closeConfirmation.setHeaderText("Save before closing?");
+
+    final ButtonType save = new ButtonType("Save");
+    final ButtonType saveAs = new ButtonType("Save as");
+    final ButtonType withoutSaving = new ButtonType("Close withut saving");
+    final ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+    closeConfirmation.getButtonTypes().setAll(save, saveAs, withoutSaving, cancel);
+
+    ButtonType result = closeConfirmation.showAndWait().get();
+
+    if (result == save) {
+      saveFile();
+    } else {
+      if (result == saveAs) {
+        saveFileAs();
+      } else {
+        if (result == withoutSaving) {
+          stage.close();
+        }
+      }
+    }
   }
 
   private class ExportXmlTask extends Task<Void> {
