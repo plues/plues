@@ -1,5 +1,8 @@
 package de.hhu.stups.plues.tasks;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.IncompatibleSchemaError;
 import de.hhu.stups.plues.data.SqliteStore;
@@ -11,6 +14,7 @@ import javafx.concurrent.Task;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,6 +26,7 @@ public class StoreLoaderTask extends Task<Store> {
   private static final String PLUES = "plues";
   private static final String EXTENSION = ".sqlite3";
   private final ResourceBundle resources;
+  private final Properties properties;
 
   private Path dbWorkingPath;
   private final String path;
@@ -30,7 +35,9 @@ public class StoreLoaderTask extends Task<Store> {
    * Constuctor to create store loader task.
    * @param storePath Path where to find store
    */
-  public StoreLoaderTask(final String storePath) {
+  @Inject
+  public StoreLoaderTask(final Properties properties, @Assisted final String storePath) {
+    this.properties = properties;
     this.path = storePath;
     this.resources = ResourceBundle.getBundle("lang.tasks");
     updateTitle(resources.getString("dbTitle"));
@@ -79,6 +86,7 @@ public class StoreLoaderTask extends Task<Store> {
       logger.log(Level.SEVERE, "An exception was thrown copying files", exception);
       throw exception;
     }
+    properties.put("tempDBpath", dbWorkingPath);
     updateProgress(3, MAX_STEPS);
   }
 }

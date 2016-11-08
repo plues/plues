@@ -21,11 +21,12 @@ import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverServiceFactory;
-import de.hhu.stups.plues.ui.DragClipBoard;
+import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.FeasibilityBoxFactory;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
+import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
 
@@ -67,6 +68,8 @@ public class PluesModule extends AbstractModule {
     install(new FactoryModuleBuilder().build(FeasibilityBoxFactory.class));
     install(new FactoryModuleBuilder().build(BatchResultBoxFactory.class));
     install(new FactoryModuleBuilder().build(CheckBoxGroupFactory.class));
+    install(new FactoryModuleBuilder().build(StoreLoaderTaskFactory.class));
+    install(new FactoryModuleBuilder().build(SessionListViewFactory.class));
 
     install(new FactoryModuleBuilder()
         .implement(Solver.class, Names.named("prob"), ProBSolver.class)
@@ -77,8 +80,6 @@ public class PluesModule extends AbstractModule {
     bind(Router.class).toProvider(RouterProvider.class);
     bind(MainController.class);
     bind(ResourceBundle.class).toInstance(bundle);
-
-    bind(DragClipBoard.class).toInstance(new DragClipBoard());
 
     bind(SolverLoader.class).to(SolverLoaderImpl.class);
 

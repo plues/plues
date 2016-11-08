@@ -108,6 +108,7 @@ public class ProBSolver implements Solver {
 
       logger.fine(String.format("RESULT %s %s = TIMEOUT/CANCEL // interrupted %s completed %s",
           op, predicate, cmd.isInterrupted(), cmd.isCompleted()));
+      return solverResult;
     } else if (cmd.hasErrors()) {
       solverResult.setState(ResultState.FAILED);
       cmd.getErrors().forEach(logger::severe);

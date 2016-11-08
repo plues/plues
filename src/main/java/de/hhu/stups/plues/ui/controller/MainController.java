@@ -15,6 +15,7 @@ import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
+import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
 import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
@@ -37,6 +38,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -57,6 +62,8 @@ public class MainController implements Initializable {
   private static final FontAwesomeIcon DEFAULT_ICON = FontAwesomeIcon.TASKS;
   private static final String LAST_DB_OPEN_DIR = "LAST_DB_OPEN_DIR";
   private static final String LAST_XML_EXPORT_DIR = "LAST_XML_EXPORT_DIR";
+  private static final String DB_PATH = "dbpath";
+  private static final String TEMP_DB_PATH = "tempDBpath";
 
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
@@ -75,6 +82,7 @@ public class MainController implements Initializable {
   private final SolverLoaderImpl solverLoader;
   private final Provider<ChangeLog> changeLogProvider;
   private final Provider<Reports> reportsProvider;
+  private final StoreLoaderTaskFactory storeLoaderTaskFactory;
 
   @FXML
   private MenuItem openFileMenuItem;
@@ -102,6 +110,7 @@ public class MainController implements Initializable {
                         final Stage stage,
                         final Provider<ChangeLog> changeLogProvider,
                         final Provider<Reports> reportsProvider,
+                        final StoreLoaderTaskFactory storeLoaderTaskFactory,
                         @Named("prob") final ObservableListeningExecutorService probExecutor,
                         final ObservableListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
@@ -110,6 +119,7 @@ public class MainController implements Initializable {
     this.stage = stage;
     this.changeLogProvider = changeLogProvider;
     this.reportsProvider = reportsProvider;
+    this.storeLoaderTaskFactory = storeLoaderTaskFactory;
     this.executor = executorService;
 
     delayedSolverService.whenAvailable(solverService -> openReports.setDisable(false));
@@ -129,6 +139,7 @@ public class MainController implements Initializable {
     }
   }
 
+  @SuppressWarnings("unused")
   private Node getGraphicForTask(final Task<?> task) {
     final FontAwesomeIcon icon = iconMap.getOrDefault(task.getClass(), DEFAULT_ICON);
     return FontAwesomeIconFactory.get().createIcon(icon, "2em");
@@ -149,8 +160,8 @@ public class MainController implements Initializable {
       this.openChangeLog.setDisable(false);
     });
 
-    if (this.properties.get("dbpath") != null) {
-      this.loadData((String) this.properties.get("dbpath"));
+    if (this.properties.get(DB_PATH) != null) {
+      this.loadData((String) this.properties.get(DB_PATH));
     }
   }
 
@@ -159,8 +170,62 @@ public class MainController implements Initializable {
    */
   @SuppressWarnings("UnusedParameters")
   public final void openFile(final ActionEvent actionEvent) {
+    final FileChooser fileChooser = prepareFileChooser("openDB");
+    //
+    final File file = fileChooser.showOpenDialog(stage);
+    //
+    if (file != null) {
+      final String newInitialDir = file.getAbsoluteFile().getParent();
+      preferences.put(DB_PATH, file.getAbsolutePath());
+      preferences.put(LAST_DB_OPEN_DIR, newInitialDir);
+      //
+      this.loadData(file.getAbsolutePath());
+    }
+  }
+
+  /**
+   * Saves a file.
+   */
+  @FXML
+  @SuppressWarnings("UnusedParamters")
+  private void saveFile(final ActionEvent actionEvent) {
+    try {
+      Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
+          StandardCopyOption.REPLACE_EXISTING);
+      logger.log(Level.INFO, "File saving finished!");
+    } catch (final IOException exc) {
+      logger.log(Level.SEVERE, "File saving failed!", exc);
+    }
+  }
+
+  /**
+   * Saves a file at another location.
+   */
+  @FXML
+  @SuppressWarnings( {"UnusedParamters", "unused"})
+  private void saveFileAs(final ActionEvent actionEvent) {
+    final FileChooser fileChooser = prepareFileChooser("saveDB");
+    fileChooser.setInitialFileName("data.sqlite3");
+    //
+    final File file = fileChooser.showSaveDialog(stage);
+    //
+    if (file != null) {
+      try {
+        Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(file.getAbsolutePath()));
+        logger.log(Level.INFO, "File saving finished!");
+      } catch (final IOException exception) {
+        logger.log(Level.SEVERE, "File saving failed!", exception);
+      }
+    }
+  }
+
+  /**
+   * Prepare a file chooser and return the file.
+   * @param title title key to find resource
+   */
+  private FileChooser prepareFileChooser(final String title) {
     final FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle(resources.getString("openDB"));
+    fileChooser.setTitle(resources.getString(title));
     //
     final String initialDirName = preferences.get(LAST_DB_OPEN_DIR,
         System.getProperty("user.home"));
@@ -171,15 +236,8 @@ public class MainController implements Initializable {
     //
     fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter(
         "SQLite3 Database", "*.sqlite", "*.sqlite3"));
-    //
-    final File file = fileChooser.showOpenDialog(stage);
-    //
-    if (file != null) {
-      final String newInitialDir = file.getAbsoluteFile().getParent();
-      preferences.put(LAST_DB_OPEN_DIR, newInitialDir);
-      //
-      this.loadData(file.getAbsolutePath());
-    }
+
+    return fileChooser;
   }
 
   /**
@@ -236,7 +294,7 @@ public class MainController implements Initializable {
 
   private StoreLoaderTask getStoreLoaderTask(final String path) {
 
-    final StoreLoaderTask storeLoader = new StoreLoaderTask(path);
+    final StoreLoaderTask storeLoader = storeLoaderTaskFactory.create(path);
     //
     storeLoader.progressProperty().addListener(
         (observable, oldValue, newValue) -> logger.log(Level.FINE, "STORE progress " + newValue));
@@ -275,6 +333,7 @@ public class MainController implements Initializable {
     exec.submit(task);
   }
 
+  @SuppressWarnings("unused")
   private void submitTask(final Task<?> task) {
     this.submitTask(task, this.executor);
   }
@@ -284,8 +343,8 @@ public class MainController implements Initializable {
    */
   @FXML
   public void openChangeLog() {
-    ChangeLog log = changeLogProvider.get();
-    Stage logStage = new Stage();
+    final ChangeLog log = changeLogProvider.get();
+    final Stage logStage = new Stage();
     logStage.setTitle(resources.getString("logTitle"));
     logStage.setScene(new Scene(log, 600, 600));
     logStage.setResizable(false);
@@ -297,8 +356,8 @@ public class MainController implements Initializable {
    */
   @FXML
   public void openReports() {
-    Reports reports = reportsProvider.get();
-    Stage reportStage = new Stage();
+    final Reports reports = reportsProvider.get();
+    final Stage reportStage = new Stage();
     reportStage.setTitle(resources.getString("reportsTitle"));
     reportStage.setScene(new Scene(reports, 700, 620));
     reportStage.setResizable(false);

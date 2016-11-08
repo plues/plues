@@ -9,6 +9,7 @@ import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
+import de.hhu.stups.plues.ui.components.timetable.DetailView;
 import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration;
 import de.hhu.stups.plues.ui.controller.ConflictMatrix;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
@@ -28,5 +29,6 @@ class ComponentsModule extends AbstractModule {
     bind(SetOfCourseSelection.class);
     bind(CombinationOrSingleCourseSelection.class);
     bind(CheckCourseFeasibility.class);
+    bind(DetailView.class);
   }
 }

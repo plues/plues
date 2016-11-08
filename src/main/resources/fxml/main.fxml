@@ -22,6 +22,10 @@
         <Menu mnemonicParsing="false" text="%file">
             <MenuItem fx:id="openFileMenuItem" onAction="#openFile"
                       mnemonicParsing="false" text="%open"/>
+            <MenuItem fx:id="saveFileMenuItem" onAction="#saveFile"
+                      mnemonicParsing="false" text="%save"/>
+            <MenuItem fx:id="saveFileAsMenuItem" onAction="#saveFileAs"
+                      mnemonicParsing="false" text="%saveAs"/>
             <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"
                       mnemonicParsing="false" text="%export"/>
             <MenuItem fx:id="openChangeLog" onAction="#openChangeLog"
@@ -40,14 +44,14 @@
     <BorderPane>
         <center>
             <TabPane>
-                <Tab text="%partial" closable="false">
-                    <PartialTimeTables fx:id="partialTimetables"/>
+                <Tab text="%timetable" closable="false">
+                    <Timetable fx:id="timetable"/>
                 </Tab>
                 <Tab text="%musterstudienplaene" closable="false">
                     <Musterstudienplaene fx:id="musterstudienplaene"/>
                 </Tab>
-                <Tab text="%timetable" closable="false">
-                    <Timetable fx:id="timetable"/>
+                <Tab text="%partial" closable="false">
+                    <PartialTimeTables fx:id="partialTimetables"/>
                 </Tab>
                 <Tab text="%batch" closable="false">
                     <BatchTimetableGeneration fx:id="batchTimetableGeneration"/>
