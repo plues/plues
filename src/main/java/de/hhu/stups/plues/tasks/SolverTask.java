@@ -174,6 +174,10 @@ public class SolverTask<T> extends Task<T> {
     }
   }
 
+  public String getReason() {
+    return reason;
+  }
+
   private class TaskCallback<J> implements FutureCallback<J> {
     @Override
     public void onSuccess(@Nullable final J result) {
