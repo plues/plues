@@ -51,6 +51,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
@@ -392,14 +393,14 @@ public class MainController implements Initializable {
     final ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
     closeConfirmation.getButtonTypes().setAll(save, saveAs, withoutSaving, cancel);
 
-    final ButtonType result = closeConfirmation.showAndWait().get();
-
+    final Optional<ButtonType> answer = closeConfirmation.showAndWait();
+    final ButtonType result = answer.orElse(cancel);
     if (result == save) {
       saveFile();
     } else if (result == saveAs) {
       saveFileAs();
     } else if (result == withoutSaving) {
-        stage.close();
+      stage.close();
     }
   }
 
