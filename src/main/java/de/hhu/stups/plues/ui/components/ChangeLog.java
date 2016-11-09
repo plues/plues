@@ -33,6 +33,7 @@ public class ChangeLog extends VBox implements Initializable, Observer {
 
   private final Delayed<ObservableStore> delayedStore;
   private SimpleObjectProperty<Date> compare;
+  private ObservableStore store;
 
   @FXML
   TableView<Log> persistentTable;
@@ -90,7 +91,8 @@ public class ChangeLog extends VBox implements Initializable, Observer {
     dateT.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
     delayedStore.whenAvailable(store -> {
-      store.addObserver(this);
+      this.store = store;
+      this.store.addObserver(this);
       compare = new SimpleObjectProperty<>(
         new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
       updateBinding(store);
@@ -105,6 +107,14 @@ public class ChangeLog extends VBox implements Initializable, Observer {
       }
       updateBinding((ObservableStore) observable);
     }
+  }
+
+  public void updateTimeStamp() {
+    compare.set(new Date());
+  }
+
+  public void deleteObserver() {
+    store.deleteObserver(this);
   }
 
   private void updateBinding(final ObservableStore store) {

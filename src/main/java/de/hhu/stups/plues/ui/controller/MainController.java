@@ -6,7 +6,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.modelgenerator.XmlExporter;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
@@ -50,7 +50,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Observable;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
@@ -77,7 +76,7 @@ public class MainController implements Initializable {
   }
 
   private final Logger logger = Logger.getLogger(getClass().getName());
-  private final Delayed<ObservableStore> delayedStore;
+  private final Delayed<Store> delayedStore;
   private final Properties properties;
   private final Stage stage;
   private final ExecutorService executor;
@@ -86,7 +85,7 @@ public class MainController implements Initializable {
   private final SolverLoaderImpl solverLoader;
   private final Provider<Reports> reportsProvider;
   private final StoreLoaderTaskFactory storeLoaderTaskFactory;
-  private final Provider<ChangeLog> changeLogProvider;
+  private final ChangeLog changeLog;
   private ResourceBundle resources;
 
   @FXML
@@ -107,7 +106,7 @@ public class MainController implements Initializable {
    * MainController component.
    */
   @Inject
-  public MainController(final Delayed<ObservableStore> delayedStore,
+  public MainController(final Delayed<Store> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
@@ -120,7 +119,7 @@ public class MainController implements Initializable {
     this.solverLoader = solverLoader;
     this.properties = properties;
     this.stage = stage;
-    this.changeLogProvider = changeLogProvider;
+    changeLog = changeLogProvider.get();
     this.reportsProvider = reportsProvider;
     this.storeLoaderTaskFactory = storeLoaderTaskFactory;
     this.executor = executorService;
@@ -197,7 +196,7 @@ public class MainController implements Initializable {
     try {
       Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
           StandardCopyOption.REPLACE_EXISTING);
-      delayedStore.get().updateObservers(true);
+      changeLog.updateTimeStamp();
       logger.log(Level.INFO, "File saving finished!");
     } catch (final IOException exc) {
       logger.log(Level.SEVERE, "File saving failed!", exc);
@@ -219,7 +218,7 @@ public class MainController implements Initializable {
       try {
         Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(file.getAbsolutePath()));
         logger.log(Level.INFO, "File saving finished!");
-        delayedStore.get().updateObservers(true);
+        changeLog.updateTimeStamp();
       } catch (final IOException exception) {
         logger.log(Level.SEVERE, "File saving failed!", exception);
       }
@@ -320,7 +319,7 @@ public class MainController implements Initializable {
         value -> logger.log(Level.FINE, "STORE: loading Store succeeded"));
 
     storeLoader.setOnSucceeded(event -> Platform.runLater(() -> {
-      final ObservableStore s = (ObservableStore) event.getSource().getValue();
+      final Store s = (Store) event.getSource().getValue();
       this.delayedStore.set(s);
     }));
     return storeLoader;
@@ -350,15 +349,13 @@ public class MainController implements Initializable {
    */
   @FXML
   private void openChangeLog() {
-    final ChangeLog changeLog = changeLogProvider.get();
     final Stage logStage = new Stage();
     logStage.setTitle(resources.getString("logTitle"));
     logStage.setScene(new Scene(changeLog, 800, 600));
     logStage.setResizable(false);
     logStage.show();
 
-    logStage.setOnHiding(event ->
-        delayedStore.whenAvailable((observableStore) -> observableStore.deleteObserver(changeLog)));
+    logStage.setOnHiding(event -> changeLog.deleteObserver());
   }
 
   /**
@@ -390,16 +387,18 @@ public class MainController implements Initializable {
     final ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
     closeConfirmation.getButtonTypes().setAll(save, saveAs, withoutSaving, cancel);
 
-    ButtonType result = closeConfirmation.showAndWait().get();
+    if (closeConfirmation.showAndWait().isPresent()) {
+      ButtonType result = closeConfirmation.showAndWait().get();
 
-    if (result == save) {
-      saveFile();
-    } else {
-      if (result == saveAs) {
-        saveFileAs();
+      if (result == save) {
+        saveFile();
       } else {
-        if (result == withoutSaving) {
-          stage.close();
+        if (result == saveAs) {
+          saveFileAs();
+        } else {
+          if (result == withoutSaving) {
+            stage.close();
+          }
         }
       }
     }
