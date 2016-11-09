@@ -10,8 +10,7 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.ListBinding;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -21,9 +20,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
-import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
@@ -33,7 +32,7 @@ public class ChangeLog extends VBox implements Initializable, Observer {
 
   private final Delayed<ObservableStore> delayedStore;
   private final ObservableList<Log> logs;
-  private SimpleObjectProperty<Date> compare;
+  private ObjectProperty<Date> compare;
 
   @FXML
   TableView<Log> persistentTable;
@@ -71,9 +70,11 @@ public class ChangeLog extends VBox implements Initializable, Observer {
    * @param delayedStore Store which contains data
    */
   @Inject
-  public ChangeLog(final Inflater inflater,
+  public ChangeLog(final Inflater inflater, final ObjectProperty<Date> lastSaved,
+
                    final Delayed<ObservableStore> delayedStore) {
     this.delayedStore = delayedStore;
+    this.compare = lastSaved;
     this.logs = FXCollections.observableArrayList();
 
     inflater.inflate("components/ChangeLog", this, this, "ChangeLog");
@@ -91,7 +92,6 @@ public class ChangeLog extends VBox implements Initializable, Observer {
     targetT.setCellValueFactory(new PropertyValueFactory<>("target"));
     dateT.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
-    compare = new SimpleObjectProperty<>(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
     updateBinding();
 
     delayedStore.whenAvailable(store -> {
@@ -102,6 +102,11 @@ public class ChangeLog extends VBox implements Initializable, Observer {
 
   @Override
   public void update(final Observable observable, final Object arg) {
+    final Store store = (Store) observable;
+    // TODO: add method to store get only last log entry
+    final List<Log> newLogs = store.getLogEntries();
+    final Log log = newLogs.get(newLogs.size() - 1);
+    logs.add(log);
   }
 
   private void updateBinding() {

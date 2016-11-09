@@ -31,9 +31,13 @@ import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 
+import java.lang.management.ManagementFactory;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 public class PluesModule extends AbstractModule {
@@ -45,6 +49,9 @@ public class PluesModule extends AbstractModule {
 
   private final TypeLiteral<Delayed<SolverService>> delayedSolverServiceType
       = new TypeLiteral<Delayed<SolverService>>() {};
+
+  private final TypeLiteral<ObjectProperty<Date>> lastSavedType
+      = new TypeLiteral<ObjectProperty<Date>>() {};
 
   private final Stage primaryStage;
 
@@ -86,10 +93,13 @@ public class PluesModule extends AbstractModule {
 
     bind(SolverLoader.class).to(SolverLoaderImpl.class);
 
-    Delayed store = new Delayed<>(); // TODO: Unchecked Cast need to be solved
+    final Delayed store = new Delayed(); // TODO: Unchecked Cast need to be solved
     bind(delayedStoreType).toInstance(store);
     bind(delayedObservableStoreType).toInstance(store);
     bind(delayedSolverServiceType).toInstance(new Delayed<>());
+
+    bind(lastSavedType).toInstance(new SimpleObjectProperty<>(
+        new Date(ManagementFactory.getRuntimeMXBean().getStartTime())));
   }
 
   @Provides

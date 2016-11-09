@@ -21,6 +21,7 @@ import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -50,7 +51,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Observable;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
@@ -87,6 +87,7 @@ public class MainController implements Initializable {
   private final Provider<Reports> reportsProvider;
   private final StoreLoaderTaskFactory storeLoaderTaskFactory;
   private final Provider<ChangeLog> changeLogProvider;
+  private final ObjectProperty<Date> lastSaved;
   private ResourceBundle resources;
 
   @FXML
@@ -114,6 +115,7 @@ public class MainController implements Initializable {
                         final Provider<ChangeLog> changeLogProvider,
                         final Provider<Reports> reportsProvider,
                         final StoreLoaderTaskFactory storeLoaderTaskFactory,
+                        final ObjectProperty<Date> lastSaved,
                         @Named("prob") final ObservableListeningExecutorService probExecutor,
                         final ObservableListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
@@ -123,6 +125,7 @@ public class MainController implements Initializable {
     this.changeLogProvider = changeLogProvider;
     this.reportsProvider = reportsProvider;
     this.storeLoaderTaskFactory = storeLoaderTaskFactory;
+    this.lastSaved = lastSaved;
     this.executor = executorService;
 
     //    stage.setOnHiding(event -> closeWindow()); TODO: sth. like that for close button
@@ -197,6 +200,7 @@ public class MainController implements Initializable {
     try {
       Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
           StandardCopyOption.REPLACE_EXISTING);
+      lastSaved.set(new Date());
       logger.log(Level.INFO, "File saving finished!");
     } catch (final IOException exc) {
       logger.log(Level.SEVERE, "File saving failed!", exc);
@@ -378,28 +382,24 @@ public class MainController implements Initializable {
    */
   @FXML
   private void closeWindow() {
-    Alert closeConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
+    final Alert closeConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
     closeConfirmation.setTitle("Confirm");
     closeConfirmation.setHeaderText("Save before closing?");
 
     final ButtonType save = new ButtonType("Save");
     final ButtonType saveAs = new ButtonType("Save as");
-    final ButtonType withoutSaving = new ButtonType("Close withut saving");
+    final ButtonType withoutSaving = new ButtonType("Close without saving");
     final ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
     closeConfirmation.getButtonTypes().setAll(save, saveAs, withoutSaving, cancel);
 
-    ButtonType result = closeConfirmation.showAndWait().get();
+    final ButtonType result = closeConfirmation.showAndWait().get();
 
     if (result == save) {
       saveFile();
-    } else {
-      if (result == saveAs) {
-        saveFileAs();
-      } else {
-        if (result == withoutSaving) {
-          stage.close();
-        }
-      }
+    } else if (result == saveAs) {
+      saveFileAs();
+    } else if (result == withoutSaving) {
+        stage.close();
     }
   }
 
