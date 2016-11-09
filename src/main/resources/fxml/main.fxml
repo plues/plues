@@ -39,7 +39,8 @@
             <MenuItem mnemonicParsing="false" text="%delete"/>
         </Menu>
         <Menu mnemonicParsing="false" text="%help">
-            <MenuItem mnemonicParsing="false" text="%about"/>
+            <MenuItem fx:id="about" onAction="#about"
+                      mnemonicParsing="false" text="%about"/>
         </Menu>
     </MenuBar>
     <BorderPane>

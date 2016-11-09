@@ -16,6 +16,7 @@ import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
+import de.hhu.stups.plues.ui.components.AboutWindow;
 import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
@@ -86,6 +87,7 @@ public class MainController implements Initializable {
   private final Provider<Reports> reportsProvider;
   private final StoreLoaderTaskFactory storeLoaderTaskFactory;
   private final ChangeLog changeLog;
+  private final Provider<AboutWindow> aboutWindowProvider;
   private ResourceBundle resources;
 
   @FXML
@@ -111,6 +113,7 @@ public class MainController implements Initializable {
                         final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
                         final Provider<ChangeLog> changeLogProvider,
+                        final Provider<AboutWindow> aboutWindowProvider,
                         final Provider<Reports> reportsProvider,
                         final StoreLoaderTaskFactory storeLoaderTaskFactory,
                         @Named("prob") final ObservableListeningExecutorService probExecutor,
@@ -119,7 +122,8 @@ public class MainController implements Initializable {
     this.solverLoader = solverLoader;
     this.properties = properties;
     this.stage = stage;
-    changeLog = changeLogProvider.get();
+    this.changeLog = changeLogProvider.get();
+    this.aboutWindowProvider = aboutWindowProvider;
     this.reportsProvider = reportsProvider;
     this.storeLoaderTaskFactory = storeLoaderTaskFactory;
     this.executor = executorService;
@@ -395,13 +399,22 @@ public class MainController implements Initializable {
       } else {
         if (result == saveAs) {
           saveFileAs();
-        } else {
-          if (result == withoutSaving) {
-            stage.close();
-          }
         }
       }
     }
+  }
+
+  /**
+   * Show credits.
+   */
+  @FXML
+  private void about() {
+    final AboutWindow aboutWindow = aboutWindowProvider.get();
+    final Stage aboutStage = new Stage();
+    aboutStage.setTitle(resources.getString("about"));
+    aboutStage.setScene(new Scene(aboutWindow, 550, 400));
+    aboutStage.setResizable(false);
+    aboutStage.show();
   }
 
   private class ExportXmlTask extends Task<Void> {

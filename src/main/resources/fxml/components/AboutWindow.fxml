@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+
+<?import javafx.scene.text.Font?>
+<fx:root type="GridPane" xmlns="http://javafx.com/javafx/8.0.76-ea"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <Label fx:id="logo" GridPane.rowIndex="0" GridPane.columnIndex="0"
+           GridPane.columnSpan="2"/>
+    <Label GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+    <Label text="%developer" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2">
+        <font>
+            <Font size="24"/>
+        </font>
+    </Label>
+    <Label text="David Schneider" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+    <Label text="%ui_model" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+    <Label text="Michael Leuschel" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+    <Label text="%model" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+    <Label text="Tobias Witt" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+    <Label text="%ui" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+    <Label text="Philip Höfges" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+    <Label text="%ui" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+    <Label text="Joshua Schmidt" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+    <Label text="%ui" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+    <Label GridPane.rowIndex="8" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+    <Label text="%footer" GridPane.rowIndex="9" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+    <columnConstraints>
+        <ColumnConstraints percentWidth="50"/>
+        <ColumnConstraints percentWidth="50"/>
+    </columnConstraints>
+</fx:root>

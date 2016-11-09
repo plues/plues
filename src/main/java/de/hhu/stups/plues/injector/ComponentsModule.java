@@ -2,6 +2,7 @@ package de.hhu.stups.plues.injector;
 
 import com.google.inject.AbstractModule;
 
+import de.hhu.stups.plues.ui.components.AboutWindow;
 import de.hhu.stups.plues.ui.components.AbstractUnitFilter;
 import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.CheckCourseFeasibility;
@@ -30,5 +31,6 @@ class ComponentsModule extends AbstractModule {
     bind(CombinationOrSingleCourseSelection.class);
     bind(CheckCourseFeasibility.class);
     bind(DetailView.class);
+    bind(AboutWindow.class);
   }
 }
