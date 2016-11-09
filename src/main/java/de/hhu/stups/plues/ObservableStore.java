@@ -32,12 +32,12 @@ public class ObservableStore extends Observable implements Store {
   }
 
   @Override
-  public void init(String dbpath) throws IncompatibleSchemaError, StoreException {
+  public void init(final String dbpath) throws IncompatibleSchemaError, StoreException {
     store.init(dbpath);
   }
 
   @Override
-  public void moveSession(SessionFacade sessionFacade, SessionFacade.Slot slot) {
+  public void moveSession(final SessionFacade sessionFacade, final SessionFacade.Slot slot) {
     store.moveSession(sessionFacade, slot);
     updateObservers(false);
   }
@@ -73,7 +73,7 @@ public class ObservableStore extends Observable implements Store {
   }
 
   @Override
-  public Course getCourseByKey(String key) {
+  public Course getCourseByKey(final String key) {
     return store.getCourseByKey(key);
   }
 
@@ -113,27 +113,27 @@ public class ObservableStore extends Observable implements Store {
   }
 
   @Override
-  public Unit getUnitById(Integer uid) {
+  public Unit getUnitById(final Integer uid) {
     return store.getUnitById(uid);
   }
 
   @Override
-  public AbstractUnit getAbstractUnitById(Integer key) {
+  public AbstractUnit getAbstractUnitById(final Integer key) {
     return store.getAbstractUnitById(key);
   }
 
   @Override
-  public Group getGroupById(Integer integer) {
+  public Group getGroupById(final Integer integer) {
     return store.getGroupById(integer);
   }
 
   @Override
-  public String getInfoByKey(String key) {
+  public String getInfoByKey(final String key) {
     return store.getInfoByKey(key);
   }
 
   @Override
-  public Module getModuleById(Integer mid) {
+  public Module getModuleById(final Integer mid) {
     return store.getModuleById(mid);
   }
 
@@ -143,7 +143,7 @@ public class ObservableStore extends Observable implements Store {
   }
 
   @Override
-  public Session getSessionById(int id) {
+  public Session getSessionById(final int id) {
     return store.getSessionById(id);
   }
 
