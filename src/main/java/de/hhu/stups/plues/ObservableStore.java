@@ -39,8 +39,7 @@ public class ObservableStore extends Observable implements Store {
   @Override
   public void moveSession(SessionFacade sessionFacade, SessionFacade.Slot slot) {
     store.moveSession(sessionFacade, slot);
-    setChanged();
-    notifyObservers();
+    updateObservers(false);
   }
 
   @Override
@@ -146,5 +145,10 @@ public class ObservableStore extends Observable implements Store {
   @Override
   public Session getSessionById(int id) {
     return store.getSessionById(id);
+  }
+
+  public final void updateObservers(final boolean fromSave) {
+    setChanged();
+    notifyObservers(fromSave);
   }
 }

@@ -31,6 +31,9 @@ import java.util.stream.Collectors;
 
 public class ChangeLog extends VBox implements Initializable, Observer {
 
+  private final Delayed<ObservableStore> delayedStore;
+  private SimpleObjectProperty<Date> compare;
+
   @FXML
   TableView<Log> persistentTable;
 
@@ -61,8 +64,6 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   @FXML
   private TableColumn<Log, Date> dateT;
 
-  private final Delayed<ObservableStore> delayedStore;
-
   /**
    * Constructor to create the change log.
    * @param inflater Inflater to handle fxml.
@@ -90,6 +91,8 @@ public class ChangeLog extends VBox implements Initializable, Observer {
 
     delayedStore.whenAvailable(store -> {
       store.addObserver(this);
+      compare = new SimpleObjectProperty<>(
+        new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
       updateBinding(store);
     });
   }
@@ -97,6 +100,9 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   @Override
   public void update(Observable observable, Object arg) {
     if (observable instanceof ObservableStore) {
+      if ((Boolean) arg) {
+        compare = new SimpleObjectProperty<>(new Date());
+      }
       updateBinding((ObservableStore) observable);
     }
   }
@@ -104,9 +110,6 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private void updateBinding(final ObservableStore store) {
     final SimpleListProperty<Log> logs =
         new SimpleListProperty<>(FXCollections.observableArrayList(store.getLogEntries()));
-
-    final SimpleObjectProperty<Date> compare =
-        new SimpleObjectProperty<>(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
 
     final ListBinding<Log> persistentBinding = new ListBinding<Log>() {
       {

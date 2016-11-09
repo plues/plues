@@ -197,7 +197,7 @@ public class MainController implements Initializable {
     try {
       Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
           StandardCopyOption.REPLACE_EXISTING);
-      delayedStore.get().notifyObservers();
+      delayedStore.get().updateObservers(true);
       logger.log(Level.INFO, "File saving finished!");
     } catch (final IOException exc) {
       logger.log(Level.SEVERE, "File saving failed!", exc);
@@ -219,7 +219,7 @@ public class MainController implements Initializable {
       try {
         Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(file.getAbsolutePath()));
         logger.log(Level.INFO, "File saving finished!");
-        delayedStore.get().notifyObservers();
+        delayedStore.get().updateObservers(true);
       } catch (final IOException exception) {
         logger.log(Level.SEVERE, "File saving failed!", exception);
       }
