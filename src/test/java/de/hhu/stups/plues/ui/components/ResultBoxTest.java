@@ -59,19 +59,19 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Test
   public void majorLabel() {
-    verifyThat("#major", LabeledMatchers.hasText(major.getFullName()));
+    verifyThat("#lbMajor", LabeledMatchers.hasText(major.getFullName()));
   }
 
   @Test
   public void minorLabel() {
-    verifyThat("#minor", LabeledMatchers.hasText(minor.getFullName()));
+    verifyThat("#lbMinor", LabeledMatchers.hasText(minor.getFullName()));
   }
 
   @Test
   public void testIcon() {
     final Text mark = this.icon;
 
-    final Label icon = lookup("#icon").query();
+    final Label icon = lookup("#lbIcon").query();
     final Text graphic = (Text) icon.getGraphic();
     Assert.assertEquals(mark.getText(), graphic.getText());
   }

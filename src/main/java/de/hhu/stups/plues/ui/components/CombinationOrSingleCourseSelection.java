@@ -12,8 +12,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class CombinationOrSingleCourseSelection extends TitledPane implements Initializable {
+public class CombinationOrSingleCourseSelection extends VBox implements Initializable {
 
   private final ReadOnlyListProperty<Course> selectedCourses;
   private final ToggleGroup toggleGroup;
@@ -46,11 +46,14 @@ public class CombinationOrSingleCourseSelection extends TitledPane implements In
    * buttons. When using the component we need to initialize the courses with the use of {@link
    * #setCourses(List)}. The selected combination of courses or a single course is stored in an
    * {@link #selectedCourses observable list} and can be accessed via {@link #getSelectedCourses}.
+   * Impossible courses also need to be initialized via {@link #highlightImpossibleCourses(Set)}.
    */
   @Inject
   public CombinationOrSingleCourseSelection(final Inflater inflater) {
     selectedCourses = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
     toggleGroup = new ToggleGroup();
+
+    setSpacing(5.0);
 
     inflater.inflate("components/CombinationOrSingleCourseSelection", this, this,
         "combinationOrSingleCourseSelection");
@@ -106,6 +109,8 @@ public class CombinationOrSingleCourseSelection extends TitledPane implements In
   /**
    * Initialize the courses within the components {@link #majorMinorCourseSelection} and {@link
    * #singleCourseSelection}.
+   *
+   * @param courses The unfiltered list of courses as it is obtained by the store.
    */
   public void setCourses(final List<Course> courses) {
     final List<Course> majorCourses;
@@ -123,6 +128,7 @@ public class CombinationOrSingleCourseSelection extends TitledPane implements In
     rbCombination.setSelected(true);
   }
 
+  @SuppressWarnings("WeakerAccess")
   public ReadOnlyListProperty<Course> getSelectedCourses() {
     return selectedCourses;
   }

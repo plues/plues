@@ -24,8 +24,9 @@
         <TableView fx:id="units">
             <columns>
                 <TableColumn fx:id="checkboxColumn" prefWidth="30"/>
-                <TableColumn fx:id="abstractUnitKeyColumn" prefWidth="120" text="%key"/>
-                <TableColumn fx:id="abstractUnitTitleColumn" prefWidth="350" text="%title"/>
+                <TableColumn fx:id="abstractUnitKeyColumn" minWidth="120" maxWidth="200"
+                             text="%key"/>
+                <TableColumn fx:id="abstractUnitTitleColumn" minWidth="350" text="%title"/>
             </columns>
         </TableView>
     </children>

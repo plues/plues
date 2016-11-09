@@ -42,8 +42,6 @@ public class Timetable extends BorderPane implements Initializable {
   private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
 
-  @FXML
-  private AbstractUnitFilter abstractUnitFilter;
 
   @FXML
   private GridPane timeTable;
@@ -51,6 +49,10 @@ public class Timetable extends BorderPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private SetOfCourseSelection setOfCourseSelection;
+
+  @FXML
+  @SuppressWarnings("unused")
+  private AbstractUnitFilter abstractUnitFilter;
 
   @FXML
   private ToggleGroup semesterToggle;
@@ -76,12 +78,22 @@ public class Timetable extends BorderPane implements Initializable {
     this.delayedStore.whenAvailable(store -> {
       this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
       setOfCourseSelection.setCourses(store.getCourses());
+      //checkCourseFeasibility.setCourses(store.getCourses());
 
       setSessions(store.getSessions()
           .parallelStream()
           .map(SessionFacade::new)
           .collect(Collectors.toList()));
     });
+
+    /*// if the component checkCourseFeasibility is included
+    delayedSolverService.whenAvailable(solverService -> {
+      checkCourseFeasibility.setSolverProperty(true);
+      final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
+      impossibleCoursesTask.setOnSucceeded(event ->
+          checkCourseFeasibility.highlightImpossibleCourses(impossibleCoursesTask.getValue()));
+      solverService.submit(impossibleCoursesTask);
+    });*/
 
     initSessionBoxes();
   }
@@ -109,8 +121,8 @@ public class Timetable extends BorderPane implements Initializable {
   }
 
   private SessionFacade.Slot getSlot(final int index, final int widthX) {
-    final DayOfWeek[] days = { MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY };
-    final Integer[] times = { 1, 2, 3, 4, 5, 6, 7 };
+    final DayOfWeek[] days = {MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY};
+    final Integer[] times = {1, 2, 3, 4, 5, 6, 7};
 
     return new SessionFacade.Slot(days[index % widthX], times[index / widthX]);
   }
@@ -133,7 +145,7 @@ public class Timetable extends BorderPane implements Initializable {
         while (change.next()) {
           if (change.wasAdded()) {
             change.getAddedSubList()
-              .forEach(sessionFacade -> bind(sessionFacade.slotProperty()));
+                .forEach(sessionFacade -> bind(sessionFacade.slotProperty()));
           }
 
           if (change.wasRemoved()) {
@@ -156,7 +168,7 @@ public class Timetable extends BorderPane implements Initializable {
         }
 
         return session.getSlot().equals(slot)
-          && (semester == null || semesters.contains(semester));
+            && (semester == null || semesters.contains(semester));
       });
     }
   }

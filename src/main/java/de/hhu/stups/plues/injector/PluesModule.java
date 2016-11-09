@@ -25,6 +25,7 @@ import de.hhu.stups.plues.tasks.SolverServiceFactory;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
+import de.hhu.stups.plues.ui.components.FeasibilityBoxFactory;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
@@ -67,6 +68,7 @@ public class PluesModule extends AbstractModule {
     install(new FactoryModuleBuilder().build(SolverServiceFactory.class));
     install(new FactoryModuleBuilder().build(PdfRenderingTaskFactory.class));
     install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
+    install(new FactoryModuleBuilder().build(FeasibilityBoxFactory.class));
     install(new FactoryModuleBuilder().build(BatchResultBoxFactory.class));
     install(new FactoryModuleBuilder().build(CheckBoxGroupFactory.class));
     install(new FactoryModuleBuilder().build(StoreLoaderTaskFactory.class));
