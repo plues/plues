@@ -50,6 +50,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
@@ -355,6 +356,8 @@ public class MainController implements Initializable {
     logStage.setScene(new Scene(changeLog, 600, 600));
     logStage.setResizable(false);
     logStage.show();
+
+    logStage.setOnHiding(event -> delayedStore.whenAvailable(Observable::deleteObservers));
   }
 
   /**
