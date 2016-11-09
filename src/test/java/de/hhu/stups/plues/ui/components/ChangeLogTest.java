@@ -1,7 +1,7 @@
 package de.hhu.stups.plues.ui.components;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.studienplaene.MockStore;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -40,8 +40,8 @@ public class ChangeLogTest extends ApplicationTest {
   @Override
   public void start(Stage stage) throws Exception {
     Inflater inflater = new Inflater(new FXMLLoader());
-    Delayed<Store> delayed = new Delayed<>();
-    Store store = new MockStore();
+    Delayed<ObservableStore> delayed = new Delayed<>();
+    ObservableStore store = new ObservableStore(new MockStore());
     delayed.set(store);
     changeLog = new ChangeLog(inflater, delayed);
 
