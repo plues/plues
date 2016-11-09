@@ -120,7 +120,7 @@ public class ChangeLog extends VBox implements Initializable, Observer {
       protected ObservableList<Log> computeValue() {
         return logs.stream()
           .filter(log -> log.getCreatedAt().compareTo(compare.get()) < 0)
-          .sorted((o1, o2) -> o1.getCreatedAt().compareTo(o2.getCreatedAt()))
+          .sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()))
           .collect(Collectors.toCollection(FXCollections::observableArrayList));
       }
     };
@@ -134,7 +134,7 @@ public class ChangeLog extends VBox implements Initializable, Observer {
       protected ObservableList<Log> computeValue() {
         return logs.stream()
           .filter(log -> log.getCreatedAt().compareTo(compare.get()) > 0)
-          .sorted((o1, o2) -> o1.getCreatedAt().compareTo(o2.getCreatedAt()))
+          .sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()))
           .collect(Collectors.toCollection(FXCollections::observableArrayList));
       }
     };
