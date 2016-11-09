@@ -353,7 +353,7 @@ public class MainController implements Initializable {
     final ChangeLog changeLog = changeLogProvider.get();
     final Stage logStage = new Stage();
     logStage.setTitle(resources.getString("logTitle"));
-    logStage.setScene(new Scene(changeLog, 600, 600));
+    logStage.setScene(new Scene(changeLog, 800, 600));
     logStage.setResizable(false);
     logStage.show();
 
