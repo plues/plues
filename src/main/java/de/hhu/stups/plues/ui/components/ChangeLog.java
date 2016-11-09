@@ -102,14 +102,6 @@ public class ChangeLog extends VBox implements Initializable, Observer {
 
   @Override
   public void update(final Observable observable, final Object arg) {
-    if (observable instanceof Store) {
-      final Store store = (Store) observable;
-      if ((Boolean) arg) {
-        compare = new SimpleObjectProperty<>(new Date());
-      }
-      logs.clear();
-      logs.addAll(store.getLogEntries());
-    }
   }
 
   private void updateBinding() {
