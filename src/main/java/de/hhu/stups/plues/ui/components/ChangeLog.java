@@ -89,14 +89,16 @@ public class ChangeLog extends VBox implements Initializable, Observer {
     dateT.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
     delayedStore.whenAvailable(store -> {
-        store.addObserver(this);
-        updateBinding(store);
-      });
+      store.addObserver(this);
+      updateBinding(store);
+    });
   }
 
   @Override
-  public void update(Observable o, Object arg) {
-    updateBinding((ObservableStore) o);
+  public void update(Observable observable, Object arg) {
+    if (observable instanceof ObservableStore) {
+      updateBinding((ObservableStore) observable);
+    }
   }
 
   private void updateBinding(final ObservableStore store) {
