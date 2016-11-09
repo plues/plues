@@ -32,10 +32,10 @@ public class ChangeLog extends VBox implements Initializable, Observer {
 
   private final Delayed<ObservableStore> delayedStore;
   private final ObservableList<Log> logs;
-  private ObjectProperty<Date> compare;
+  private final ObjectProperty<Date> compare;
 
   @FXML
-  TableView<Log> persistentTable;
+  private TableView<Log> persistentTable;
 
   @FXML
   private TableColumn<Log, Session> sessionP;
@@ -50,7 +50,7 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private TableColumn<Log, Date> dateP;
 
   @FXML
-  TableView<Log> tempTable;
+  private TableView<Log> tempTable;
 
   @FXML
   private TableColumn<Log, Session> sessionT;
@@ -138,7 +138,15 @@ public class ChangeLog extends VBox implements Initializable, Observer {
       }
     };
 
-    persistentTable.itemsProperty().bind(persistentBinding);
-    tempTable.itemsProperty().bind(tempBinding);
+    getPersistentTable().itemsProperty().bind(persistentBinding);
+    getTempTable().itemsProperty().bind(tempBinding);
+  }
+
+  TableView<Log> getPersistentTable() {
+    return persistentTable;
+  }
+
+  TableView<Log> getTempTable() {
+    return tempTable;
   }
 }
