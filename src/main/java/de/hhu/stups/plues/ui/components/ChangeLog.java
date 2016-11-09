@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 public class ChangeLog extends VBox implements Initializable, Observer {
 
   private final Delayed<ObservableStore> delayedStore;
+  private final ObservableList<Log> logs;
   private SimpleObjectProperty<Date> compare;
 
   @FXML
@@ -73,6 +74,7 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   public ChangeLog(final Inflater inflater,
                    final Delayed<ObservableStore> delayedStore) {
     this.delayedStore = delayedStore;
+    this.logs = FXCollections.observableArrayList();
 
     inflater.inflate("components/ChangeLog", this, this, "ChangeLog");
   }
@@ -89,28 +91,28 @@ public class ChangeLog extends VBox implements Initializable, Observer {
     targetT.setCellValueFactory(new PropertyValueFactory<>("target"));
     dateT.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
+    compare = new SimpleObjectProperty<>(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
+    updateBinding();
+
     delayedStore.whenAvailable(store -> {
       store.addObserver(this);
-      compare = new SimpleObjectProperty<>(
-        new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
-      updateBinding(store);
+      logs.addAll(store.getLogEntries());
     });
   }
 
   @Override
-  public void update(Observable observable, Object arg) {
-    if (observable instanceof ObservableStore) {
+  public void update(final Observable observable, final Object arg) {
+    if (observable instanceof Store) {
+      final Store store = (Store) observable;
       if ((Boolean) arg) {
         compare = new SimpleObjectProperty<>(new Date());
       }
-      updateBinding((ObservableStore) observable);
+      logs.clear();
+      logs.addAll(store.getLogEntries());
     }
   }
 
-  private void updateBinding(final ObservableStore store) {
-    final SimpleListProperty<Log> logs =
-        new SimpleListProperty<>(FXCollections.observableArrayList(store.getLogEntries()));
-
+  private void updateBinding() {
     final ListBinding<Log> persistentBinding = new ListBinding<Log>() {
       {
         bind(logs, compare);
