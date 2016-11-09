@@ -252,7 +252,7 @@ public class MainController implements Initializable {
    * containing the xml files.
    */
   @FXML
-  public final void exportCurrentDbState() {
+  private final void exportCurrentDbState() {
     // TODO: should we have a modal progress window to avoid confusion, since the export takes
     // a few instants to finish
     // TODO: consider generating the file to a temporary location and moving it to the final
@@ -349,7 +349,7 @@ public class MainController implements Initializable {
    * Method to open ChangeLog by clicking on menu item.
    */
   @FXML
-  public void openChangeLog() {
+  private void openChangeLog() {
     final ChangeLog changeLog = changeLogProvider.get();
     final Stage logStage = new Stage();
     logStage.setTitle(resources.getString("logTitle"));
@@ -357,14 +357,15 @@ public class MainController implements Initializable {
     logStage.setResizable(false);
     logStage.show();
 
-    logStage.setOnHiding(event -> delayedStore.whenAvailable(Observable::deleteObservers));
+    logStage.setOnHiding(event ->
+        delayedStore.whenAvailable((observableStore) -> observableStore.deleteObserver(changeLog)));
   }
 
   /**
    * Open the reports view in a new stage.
    */
   @FXML
-  public void openReports() {
+  private void openReports() {
     final Reports reports = reportsProvider.get();
     final Stage reportStage = new Stage();
     reportStage.setTitle(resources.getString("reportsTitle"));
@@ -378,7 +379,7 @@ public class MainController implements Initializable {
    * User can save database before closing.
    */
   @FXML
-  public void closeWindow() {
+  private void closeWindow() {
     Alert closeConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
     closeConfirmation.setTitle("Confirm");
     closeConfirmation.setHeaderText("Save before closing?");
