@@ -39,6 +39,7 @@ public class ObservableStore extends Observable implements Store {
   @Override
   public void moveSession(SessionFacade sessionFacade, SessionFacade.Slot slot) {
     store.moveSession(sessionFacade, slot);
+    setChanged();
     notifyObservers();
   }
 

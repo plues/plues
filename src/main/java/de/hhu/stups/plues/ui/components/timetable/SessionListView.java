@@ -108,7 +108,6 @@ public class SessionListView extends ListView<SessionFacade> {
           public void onSuccess(@Nullable final Void result) {
             delayedStore.whenAvailable(store -> {
               store.moveSession(getSessionFacadeById(sessionId), slot);
-              store.notifyObservers();
             });
 
           }

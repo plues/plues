@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Session;
@@ -23,10 +24,12 @@ import javafx.scene.layout.VBox;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.Date;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class ChangeLog extends VBox implements Initializable {
+public class ChangeLog extends VBox implements Initializable, Observer {
 
   @FXML
   TableView<Log> persistentTable;
@@ -58,7 +61,7 @@ public class ChangeLog extends VBox implements Initializable {
   @FXML
   private TableColumn<Log, Date> dateT;
 
-  private final Delayed<Store> delayedStore;
+  private final Delayed<ObservableStore> delayedStore;
 
   /**
    * Constructor to create the change log.
@@ -67,7 +70,7 @@ public class ChangeLog extends VBox implements Initializable {
    */
   @Inject
   public ChangeLog(final Inflater inflater,
-                   final Delayed<Store> delayedStore) {
+                   final Delayed<ObservableStore> delayedStore) {
     this.delayedStore = delayedStore;
 
     inflater.inflate("components/ChangeLog", this, this, "ChangeLog");
@@ -85,19 +88,23 @@ public class ChangeLog extends VBox implements Initializable {
     targetT.setCellValueFactory(new PropertyValueFactory<>("target"));
     dateT.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
-    updateBinding();
+    delayedStore.whenAvailable(store -> {
+        store.addObserver(this);
+        updateBinding(store);
+      });
   }
 
-  private void updateBinding() {
-    persistentTable.itemsProperty().unbind();
-    tempTable.itemsProperty().unbind();
+  @Override
+  public void update(Observable o, Object arg) {
+    updateBinding((ObservableStore) o);
+  }
 
-    final SimpleListProperty<Log> logs = new SimpleListProperty<>();
+  private void updateBinding(final ObservableStore store) {
+    final SimpleListProperty<Log> logs =
+        new SimpleListProperty<>(FXCollections.observableArrayList(store.getLogEntries()));
 
-    delayedStore.whenAvailable(store ->
-        logs.set(FXCollections.observableList(store.getLogEntries())));
-    final SimpleObjectProperty compare =
-        new SimpleObjectProperty(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
+    final SimpleObjectProperty<Date> compare =
+        new SimpleObjectProperty<>(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
 
     final ListBinding<Log> persistentBinding = new ListBinding<Log>() {
       {
@@ -107,7 +114,7 @@ public class ChangeLog extends VBox implements Initializable {
       @Override
       protected ObservableList<Log> computeValue() {
         return logs.stream()
-          .filter(log -> log.getCreatedAt().compareTo((Date) compare.get()) < 0)
+          .filter(log -> log.getCreatedAt().compareTo(compare.get()) < 0)
           .sorted((o1, o2) -> o1.getCreatedAt().compareTo(o2.getCreatedAt()))
           .collect(Collectors.toCollection(FXCollections::observableArrayList));
       }
@@ -121,7 +128,7 @@ public class ChangeLog extends VBox implements Initializable {
       @Override
       protected ObservableList<Log> computeValue() {
         return logs.stream()
-          .filter(log -> log.getCreatedAt().compareTo((Date) compare.get()) > 0)
+          .filter(log -> log.getCreatedAt().compareTo(compare.get()) > 0)
           .sorted((o1, o2) -> o1.getCreatedAt().compareTo(o2.getCreatedAt()))
           .collect(Collectors.toCollection(FXCollections::observableArrayList));
       }
