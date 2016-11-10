@@ -26,8 +26,8 @@ public class SetOfCourseSelectionTest extends ApplicationTest {
 
   @Test
   public void selectionTest() {
-    TableView<SetOfCourseSelection.TableRowPair<Node, String>> tableViewMasterCourse;
-    TableView<SetOfCourseSelection.TableRowPair<Node, String>> tableViewBachelorCourse;
+    final TableView<SetOfCourseSelection.TableRowPair<Node, Course>> tableViewMasterCourse;
+    final TableView<SetOfCourseSelection.TableRowPair<Node, Course>> tableViewBachelorCourse;
 
     tableViewMasterCourse = courseSelection.getTableViewMasterCourse();
     tableViewBachelorCourse = courseSelection.getTableViewBachelorCourse();
