@@ -91,9 +91,9 @@ public class ReportData {
   /**
    * B: incomplete_modules
    * Modules that contain less elective abstract units than required according
-   * to the module defintion.  This does not affect the validation, in the
-   * sense that we only consider the minum of required and available modules
-   * (needed among other things in UC computatoin)
+   * to the module definition.  This does not affect the validation, in the
+   * sense that we only consider the minimum of required and available modules
+   * (needed among other things in UC computation)
    *
    * @return Set of module IDs
    */
