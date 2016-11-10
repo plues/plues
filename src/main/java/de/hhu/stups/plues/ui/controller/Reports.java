@@ -38,6 +38,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 class Reports extends VBox implements Initializable {
@@ -110,7 +111,7 @@ class Reports extends VBox implements Initializable {
   private TableView<TableRowTriple<String>> tableViewAbstractUnitsWithUnits;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<TableRowTriple<String>> tableViewRedundantUnitGroups;
+  private TableView<TableRowPair<String>> tableViewRedundantUnitGroups;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<TableRowPair<String>, String> tableColumnCourseName;
@@ -134,10 +135,11 @@ class Reports extends VBox implements Initializable {
   private TableColumn<TableRowTriple<String>, String> tableColumnSemesters;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<String>, String> tableColumnRedundantGroup1;
+  private TableColumn<TableRowTriple<String>, String> tableColumnUnitSemesters;
+
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<String>, String> tableColumnRedundantGroup2;
+  private TableColumn<TableRowPair<String>, String> tableColumnRedundantUnitKey;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<TableRowPair<String>, String> tableColumnRedundantUnit;
@@ -237,9 +239,8 @@ class Reports extends VBox implements Initializable {
     tableColumnUnit.setCellValueFactory(new PropertyValueFactory<>(second));
     tableColumnSemesters.setCellValueFactory(new PropertyValueFactory<>(third));
 
-    tableColumnRedundantGroup1.setCellValueFactory(new PropertyValueFactory<>(first));
-    tableColumnRedundantGroup2.setCellValueFactory(new PropertyValueFactory<>(second));
-    tableColumnRedundantUnit.setCellValueFactory(new PropertyValueFactory<>(third));
+    tableColumnRedundantUnitKey.setCellValueFactory(new PropertyValueFactory<>(first));
+    tableColumnRedundantUnit.setCellValueFactory(new PropertyValueFactory<>(second));
 
     // add listener to update the (quasi-) mandatory list views according to the selected course
     listViewCourses.getSelectionModel().selectedItemProperty()
@@ -316,17 +317,10 @@ class Reports extends VBox implements Initializable {
     final Map<Integer, Set<Pair<Integer>>> redundantUnitGroups =
         reportData.getRedundantUnitGroups();
 
-    final Set<Unit> redundantUnits = redundantUnitGroups.keySet().stream()
-        .map(store::getUnitById).collect(Collectors.toSet());
-
-    redundantUnits.forEach(redundantUnit ->
-        redundantUnitGroups.get(redundantUnit.getId())
-            .forEach(groupPair ->
-                tableViewRedundantUnitGroups.getItems().add(
-                    new TableRowTriple<>(
-                        groupPair.getFirst().toString(),
-                        groupPair.getSecond().toString(),
-                        store.getGroupById(groupPair.getFirst()).getUnit().getTitle()))));
+    final List<TableRowPair<String>> redundantUnits = redundantUnitGroups.keySet().stream()
+        .map(store::getUnitById).map(unit -> new TableRowPair<>(unit.getKey(), unit.getTitle()))
+        .collect(Collectors.toList());
+    tableViewRedundantUnitGroups.getItems().addAll(redundantUnits);
   }
 
   /**
