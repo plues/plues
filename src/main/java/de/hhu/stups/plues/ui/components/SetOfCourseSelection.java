@@ -2,12 +2,17 @@ package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.binding.Binding;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -30,8 +35,8 @@ import java.util.stream.Collectors;
 @SuppressWarnings("WeakerAccess")
 public class SetOfCourseSelection extends VBox implements Initializable {
 
-  private final List<Course> masterCourses;
-  private final List<Course> bachelorCourses;
+  private final ObservableList<Course> masterCourses;
+  private final ObservableList<Course> bachelorCourses;
   private final ReadOnlyListProperty<Course> selectedCourses;
 
   @FXML
@@ -71,8 +76,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
    */
   @Inject
   public SetOfCourseSelection(final Inflater inflater) {
-    bachelorCourses = new ArrayList<>();
-    masterCourses = new ArrayList<>();
+    bachelorCourses = FXCollections.observableArrayList();
+    masterCourses = FXCollections.observableArrayList();
     selectedCourses = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
 
     inflater.inflate("components/SetOfCourseSelection", this, this, "filter");
@@ -80,8 +85,6 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    txtQuery.textProperty().addListener((observable, oldValue, newValue) ->
-        filterCourses(newValue));
 
     final String first = "first";
     final String second = "second";
@@ -105,21 +108,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
     tableViewMasterCourse.setId("batchListView");
     tableViewBachelorCourse.setId("batchListView");
-  }
-
-  /**
-   * Filter the bachelor and master courses according to the current filter text. This method is
-   * called when the filter text within {@link #txtQuery} is changed.
-   */
-  private void filterCourses(String filterText) {
-    tableViewMasterCourse.getItems().clear();
-    tableViewBachelorCourse.getItems().clear();
-    masterCourses.stream().filter(course -> course.getFullName().toLowerCase()
-        .contains(filterText.toLowerCase()))
-        .forEach(course -> tableViewMasterCourse.getItems().add(getTableViewItem(course)));
-    bachelorCourses.stream().filter(course -> course.getFullName().toLowerCase()
-        .contains(filterText.toLowerCase()))
-        .forEach(course -> tableViewBachelorCourse.getItems().add(getTableViewItem(course)));
+    initializeTableViews();
   }
 
   /**
@@ -128,23 +117,26 @@ public class SetOfCourseSelection extends VBox implements Initializable {
    * @param courses The list of courses.
    */
   public void setCourses(final List<Course> courses) {
-    masterCourses.addAll(courses.stream().filter(Course::isMaster).collect(Collectors.toList()));
-    bachelorCourses.addAll(courses.stream()
-        .filter(Course::isBachelor).collect(Collectors.toList()));
-    initializeTableViews();
-  }
-
-  private void initializeTableViews() {
-    masterCourses.forEach(course -> tableViewMasterCourse.getItems()
-        .add(getTableViewItem(course)));
-    bachelorCourses.forEach(course -> tableViewBachelorCourse.getItems()
-        .add(getTableViewItem(course)));
-
-    tableViewMasterCourse.setPrefHeight(masterCourses.isEmpty() ? 50 : 300);
-    tableViewBachelorCourse.setPrefHeight(bachelorCourses.isEmpty() ? 50 : 300);
+    masterCourses.addAll(FXCollections.observableArrayList(courses.stream()
+        .filter(Course::isMaster).collect(Collectors.toList())));
+    bachelorCourses.addAll(FXCollections.observableArrayList(courses.stream()
+        .filter(Course::isBachelor).collect(Collectors.toList())));
 
     titledPaneMasterCourse.setExpanded(!masterCourses.isEmpty());
     titledPaneBachelorCourse.setExpanded(!bachelorCourses.isEmpty());
+  }
+
+  private void initializeTableViews() {
+    tableViewMasterCourse.itemsProperty().bind(new TableRowPairListBinding(masterCourses));
+    tableViewBachelorCourse.itemsProperty().bind(new TableRowPairListBinding(bachelorCourses));
+
+    tableViewMasterCourse.prefHeightProperty().bind(
+        Bindings.createIntegerBinding(() -> masterCourses.isEmpty() ? 50 : 300, masterCourses));
+    tableViewBachelorCourse.prefHeightProperty().bind(
+        Bindings.createIntegerBinding(() -> bachelorCourses.isEmpty() ? 50 : 300, bachelorCourses));
+
+    titledPaneMasterCourse.setExpanded(false);
+    titledPaneBachelorCourse.setExpanded(false);
   }
 
   private TableRowPair<Node, String> getTableViewItem(final Course course) {
@@ -211,6 +203,23 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     @SuppressWarnings("unused")
     public T2 getSecond() {
       return second;
+    }
+  }
+
+  private class TableRowPairListBinding extends ListBinding<TableRowPair<Node, String>> {
+
+    private final ObservableList<Course> courses;
+
+    public TableRowPairListBinding(final ObservableList<Course> courses) {
+      this.courses = courses;
+      bind(courses, txtQuery.textProperty());
+    }
+
+    @Override
+    protected ObservableList<TableRowPair<Node, String>> computeValue() {
+      return FXCollections.observableArrayList(courses.stream()
+        .filter(course -> course.getFullName().toLowerCase().contains(txtQuery.getText()))
+        .map(SetOfCourseSelection.this::getTableViewItem).collect(Collectors.toList()));
     }
   }
 }
