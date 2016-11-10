@@ -18,7 +18,7 @@ import java.util.ResourceBundle;
 @SuppressWarnings("WeakerAccess")
 public class AboutWindow extends GridPane implements Initializable {
 
-  public final InputStream URL = getClass().getResourceAsStream("/images/logo-min.png");
+  public final InputStream url = getClass().getResourceAsStream("/images/logo-min.png");
 
   @FXML
   public Label logo;
@@ -30,8 +30,8 @@ public class AboutWindow extends GridPane implements Initializable {
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    if (URL != null) {
-      logo.setGraphic(new ImageView(new Image(URL)));
+    if (url != null) {
+      logo.setGraphic(new ImageView(new Image(url)));
     }
   }
 }

@@ -262,6 +262,11 @@ public class MockStore implements Store {
   }
 
   @Override
+  public Log getLastLogEntry() {
+    return null;
+  }
+
+  @Override
   public Session getSessionById(int id) {
     return this.getSessions().stream()
       .filter(session -> session.getId() == id)
