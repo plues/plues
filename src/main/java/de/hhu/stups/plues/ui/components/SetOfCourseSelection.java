@@ -2,15 +2,14 @@ package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
 
-import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -26,7 +25,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -35,8 +33,8 @@ import java.util.stream.Collectors;
 @SuppressWarnings("WeakerAccess")
 public class SetOfCourseSelection extends VBox implements Initializable {
 
-  private final ObservableList<Course> masterCourses;
-  private final ObservableList<Course> bachelorCourses;
+  private final ObservableList<TableRowPair<Node, Course>> masterCourses;
+  private final ObservableList<TableRowPair<Node, Course>> bachelorCourses;
   private final ReadOnlyListProperty<Course> selectedCourses;
 
   @FXML
@@ -50,22 +48,22 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   private TitledPane titledPaneBachelorCourse;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<TableRowPair<Node, String>> tableViewMasterCourse;
+  private TableView<TableRowPair<Node, Course>> tableViewMasterCourse;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<TableRowPair<Node, String>> tableViewBachelorCourse;
+  private TableView<TableRowPair<Node, Course>> tableViewBachelorCourse;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<Node, String>, String> tableColumnMasterCourse;
+  private TableColumn<TableRowPair<Node, Course>, String> tableColumnMasterCourse;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<Node, String>, String> tableColumnMasterCheckBox;
+  private TableColumn<TableRowPair<Node, Course>, String> tableColumnMasterCheckBox;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<Node, String>, String> tableColumnBachelorCourse;
+  private TableColumn<TableRowPair<Node, Course>, String> tableColumnBachelorCourse;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<Node, String>, String> tableColumnBachelorCheckBox;
+  private TableColumn<TableRowPair<Node, Course>, String> tableColumnBachelorCheckBox;
 
   /**
    * Component that allows the user to select one or more courses. The courses need to be
@@ -87,21 +85,23 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
 
     final String first = "first";
-    final String second = "second";
 
     tableColumnMasterCheckBox.setResizable(false);
     tableColumnMasterCheckBox.setSortable(false);
     tableColumnMasterCourse.setSortable(false);
 
     tableColumnMasterCheckBox.setCellValueFactory(new PropertyValueFactory<>(first));
-    tableColumnMasterCourse.setCellValueFactory(new PropertyValueFactory<>(second));
+    tableColumnMasterCourse.setCellValueFactory(
+        param -> new SimpleStringProperty(param.getValue().getSecond().getFullName()));
+
 
     tableColumnBachelorCheckBox.setResizable(false);
     tableColumnBachelorCheckBox.setSortable(false);
     tableColumnBachelorCourse.setSortable(false);
 
     tableColumnBachelorCheckBox.setCellValueFactory(new PropertyValueFactory<>(first));
-    tableColumnBachelorCourse.setCellValueFactory(new PropertyValueFactory<>(second));
+    tableColumnBachelorCourse.setCellValueFactory(
+        param -> new SimpleStringProperty(param.getValue().getSecond().getFullName()));
 
     tableViewMasterCourse.setSelectionModel(null);
     tableViewBachelorCourse.setSelectionModel(null);
@@ -118,9 +118,9 @@ public class SetOfCourseSelection extends VBox implements Initializable {
    */
   public void setCourses(final List<Course> courses) {
     masterCourses.addAll(FXCollections.observableArrayList(courses.stream()
-        .filter(Course::isMaster).collect(Collectors.toList())));
+        .filter(Course::isMaster).map(this::getTableViewItem).collect(Collectors.toList())));
     bachelorCourses.addAll(FXCollections.observableArrayList(courses.stream()
-        .filter(Course::isBachelor).collect(Collectors.toList())));
+        .filter(Course::isBachelor).map(this::getTableViewItem).collect(Collectors.toList())));
 
     titledPaneMasterCourse.setExpanded(!masterCourses.isEmpty());
     titledPaneBachelorCourse.setExpanded(!bachelorCourses.isEmpty());
@@ -139,7 +139,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     titledPaneBachelorCourse.setExpanded(false);
   }
 
-  private TableRowPair<Node, String> getTableViewItem(final Course course) {
+  private TableRowPair<Node, Course> getTableViewItem(final Course course) {
     final CheckBox checkBox = new CheckBox();
     final Tooltip tooltip = new Tooltip(course.getFullName());
     checkBox.setTooltip(tooltip);
@@ -150,18 +150,18 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         selectedCourses.remove(course);
       }
     });
-    return new TableRowPair<>(checkBox, course.getFullName());
+    return new TableRowPair<>(checkBox, course);
   }
 
   public ReadOnlyListProperty<Course> getSelectedCourses() {
     return selectedCourses;
   }
 
-  TableView<TableRowPair<Node, String>> getTableViewMasterCourse() {
+  TableView<TableRowPair<Node, Course>> getTableViewMasterCourse() {
     return tableViewMasterCourse;
   }
 
-  TableView<TableRowPair<Node, String>> getTableViewBachelorCourse() {
+  TableView<TableRowPair<Node, Course>> getTableViewBachelorCourse() {
     return tableViewBachelorCourse;
   }
 
@@ -206,20 +206,20 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     }
   }
 
-  private class TableRowPairListBinding extends ListBinding<TableRowPair<Node, String>> {
+  private class TableRowPairListBinding extends ListBinding<TableRowPair<Node, Course>> {
 
-    private final ObservableList<Course> courses;
+    private final ObservableList<TableRowPair<Node, Course>> courses;
 
-    public TableRowPairListBinding(final ObservableList<Course> courses) {
+    public TableRowPairListBinding(final ObservableList<TableRowPair<Node, Course>> courses) {
       this.courses = courses;
       bind(courses, txtQuery.textProperty());
     }
 
     @Override
-    protected ObservableList<TableRowPair<Node, String>> computeValue() {
+    protected ObservableList<TableRowPair<Node, Course>> computeValue() {
       return FXCollections.observableArrayList(courses.stream()
-        .filter(course -> course.getFullName().toLowerCase().contains(txtQuery.getText()))
-        .map(SetOfCourseSelection.this::getTableViewItem).collect(Collectors.toList()));
+        .filter(row -> row.getSecond().getFullName().toLowerCase().contains(txtQuery.getText()))
+        .collect(Collectors.toList()));
     }
   }
 }
