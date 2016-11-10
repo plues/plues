@@ -44,66 +44,84 @@
             <panes>
                 <TitledPane fx:id="paneImpossibleCourses" collapsible="true"
                             text="%titleImpossibleCourses" maxHeight="250.0">
-                    <TableView fx:id="tableViewImpossibleCourses" maxHeight="250.0">
-                        <columns>
-                            <TableColumn fx:id="tableColumnCourseName" text="%columnCourseName"
-                                         minWidth="100.0" prefWidth="150.0"/>
-                            <TableColumn fx:id="tableColumnCourseFullName"
-                                         text="%columnCourseFullName" minWidth="100.0"
-                                         prefWidth="500.0"/>
-                        </columns>
-                    </TableView>
+                    <VBox>
+                        <Label fx:id="lbExplainImpossibleCourses"/>
+                        <TableView fx:id="tableViewImpossibleCourses" maxHeight="250.0">
+                            <columns>
+                                <TableColumn fx:id="tableColumnCourseName" text="%columnCourseName"
+                                             minWidth="100.0" prefWidth="150.0"/>
+                                <TableColumn fx:id="tableColumnCourseFullName"
+                                             text="%columnCourseFullName" minWidth="100.0"
+                                             prefWidth="500.0"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
                 </TitledPane>
                 <TitledPane fx:id="paneAbstractUnits" collapsible="true" text="%titleAbstractUnits"
                             maxHeight="250.0">
-                    <TableView fx:id="tableViewAbstractUnits" maxHeight="250.0">
-                        <columns>
-                            <TableColumn fx:id="tableColumnAbstractKey" text="%columnUnitKey"
-                                         minWidth="100.0" prefWidth="150.0"/>
-                            <TableColumn fx:id="tableColumnAbstractTitle" text="%columnUnitTitle"
-                                         minWidth="100.0" prefWidth="500.0"/>
-                        </columns>
-                    </TableView>
+                    <VBox>
+                        <Label fx:id="lbExplainAbstractUnits"/>
+                        <TableView fx:id="tableViewAbstractUnits" maxHeight="250.0">
+                            <columns>
+                                <TableColumn fx:id="tableColumnAbstractKey" text="%columnUnitKey"
+                                             minWidth="100.0" prefWidth="150.0"/>
+                                <TableColumn fx:id="tableColumnAbstractTitle" text="%columnUnitTitle"
+                                             minWidth="100.0" prefWidth="500.0"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
                 </TitledPane>
                 <TitledPane fx:id="paneAbstractUnitsWithUnits" collapsible="true"
                             text="%titleAbstractUnitsWithUnits" maxHeight="250.0">
-                    <TableView fx:id="tableViewAbstractUnitsWithUnits" maxHeight="250.0">
-                        <columns>
-                            <TableColumn fx:id="tableColumnAbstractUnit" text="%columnAbstractUnit"
-                                         minWidth="100.0" prefWidth="350.0"/>
-                            <TableColumn fx:id="tableColumnUnit" text="%columnExplicitUnit"
-                                         minWidth="100.0" prefWidth="350.0"/>
-                            <TableColumn fx:id="tableColumnSemesters" text="%columnSemesters"
-                                         minWidth="80.0" prefWidth="100.0"/>
-                        </columns>
-                    </TableView>
+                    <VBox>
+                        <Label fx:id="lbExplainAbstractUnitsWithUnits"/>
+                        <TableView fx:id="tableViewAbstractUnitsWithUnits" maxHeight="250.0">
+                            <columns>
+                                <TableColumn fx:id="tableColumnAbstractUnit" text="%columnAbstractUnit"
+                                             minWidth="100.0" prefWidth="350.0"/>
+                                <TableColumn fx:id="tableColumnUnit" text="%columnExplicitUnit"
+                                             minWidth="100.0" prefWidth="350.0"/>
+                                <TableColumn fx:id="tableColumnSemesters" text="%columnSemesters"
+                                             minWidth="80.0" prefWidth="100.0"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
                 </TitledPane>
                 <TitledPane fx:id="paneMandatoryModules" collapsible="true"
                             text="%titleMandatoryModules" maxHeight="300.0">
-                    <VBox spacing="5.0">
-                        <ListView fx:id="listViewCourses" maxHeight="145.0"/>
-                        <ListView fx:id="listViewMandatoryModules" maxHeight="145.0"/>
+                    <VBox>
+                        <Label fx:id="lbExplainMandatoryModules"/>
+                        <VBox spacing="5.0">
+                            <ListView fx:id="listViewCourses" maxHeight="145.0"/>
+                            <ListView fx:id="listViewMandatoryModules" maxHeight="145.0"/>
+                        </VBox>
                     </VBox>
                 </TitledPane>
                 <TitledPane fx:id="paneQuasiMandatoryModules" collapsible="true"
                             text="%titleQuasiMandatoryModules" maxHeight="300.0">
-                    <VBox spacing="5.0">
-                        <ListView fx:id="listViewQuasiCourses" maxHeight="145.0"/>
-                        <ListView fx:id="listViewQuasiMandatoryModules" maxHeight="100.0"/>
+                    <VBox>
+                        <Label fx:id="lbExplainQuasiMandatoryModules"/>
+                        <VBox spacing="5.0">
+                            <ListView fx:id="listViewQuasiCourses" maxHeight="145.0"/>
+                            <ListView fx:id="listViewQuasiMandatoryModules" maxHeight="100.0"/>
+                        </VBox>
                     </VBox>
                 </TitledPane>
                 <TitledPane fx:id="paneRedundantUnitGroups" collapsible="true"
                             text="%titleRedundantUnitGroups" maxHeight="125.0">
-                    <TableView fx:id="tableViewRedundantUnitGroups" maxHeight="125.0">
-                        <columns>
-                            <TableColumn fx:id="tableColumnRedundantGroup1" text="%columnGroupId"
-                                         minWidth="100.0" prefWidth="100.0"/>
-                            <TableColumn fx:id="tableColumnRedundantGroup2" text="%columnGroupId"
-                                         minWidth="100.0" prefWidth="100.0"/>
-                            <TableColumn fx:id="tableColumnRedundantUnit" text="%columnExplicitUnit"
-                                         minWidth="100.0" prefWidth="400.0"/>
-                        </columns>
-                    </TableView>
+                    <VBox>
+                        <Label fx:id="lbExplainRedundantUnitGroups"/>
+                        <TableView fx:id="tableViewRedundantUnitGroups" maxHeight="125.0">
+                            <columns>
+                                <TableColumn fx:id="tableColumnRedundantGroup1" text="%columnGroupId"
+                                             minWidth="100.0" prefWidth="100.0"/>
+                                <TableColumn fx:id="tableColumnRedundantGroup2" text="%columnGroupId"
+                                             minWidth="100.0" prefWidth="100.0"/>
+                                <TableColumn fx:id="tableColumnRedundantUnit" text="%columnExplicitUnit"
+                                             minWidth="100.0" prefWidth="400.0"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
                 </TitledPane>
             </panes>
         </Accordion>

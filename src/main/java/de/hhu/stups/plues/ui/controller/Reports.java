@@ -153,6 +153,25 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ListView<String> listViewQuasiMandatoryModules;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbExplainImpossibleCourses;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbExplainAbstractUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbExplainAbstractUnitsWithUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbExplainMandatoryModules;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbExplainQuasiMandatoryModules;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbExplainRedundantUnitGroups;
+
 
   /**
    * Reports view to present several reports and information about the loaded data, statistics,
@@ -241,6 +260,13 @@ class Reports extends VBox implements Initializable {
     lbGroupAmount.setText(String.valueOf(groupAmount));
     lbSessionAmount.setText(String.valueOf(sessionAmount));
     lbModelVersion.setText(String.valueOf(properties.get("model_version")));
+
+    lbExplainImpossibleCourses.setText(resources.getString("explainImpossibleCourses"));
+    lbExplainAbstractUnits.setText(resources.getString("explainAbstractUnits"));
+    lbExplainAbstractUnitsWithUnits.setText(resources.getString("explainAbstractUnitsWithUnits"));
+    lbExplainMandatoryModules.setText(resources.getString("explainMandatoryModules"));
+    lbExplainQuasiMandatoryModules.setText(resources.getString("explainQuasiMandatoryModules"));
+    lbExplainRedundantUnitGroups.setText(resources.getString("explainRedundantUnitGroups"));
 
     paneAccordion.setExpandedPane(paneImpossibleCourses);
   }
