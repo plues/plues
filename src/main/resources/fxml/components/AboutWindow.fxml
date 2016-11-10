@@ -3,12 +3,11 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.ColumnConstraints?>
-
 <?import javafx.scene.text.Font?>
+
 <fx:root type="GridPane" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
-    <Label fx:id="logo" GridPane.rowIndex="0" GridPane.columnIndex="0"
-           GridPane.columnSpan="2"/>
+    <Label fx:id="logo" GridPane.rowIndex="0" GridPane.columnIndex="1" textAlignment="RIGHT"/>
     <Label GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
     <Label text="%developer" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2">
         <font>
