@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui.controller;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
@@ -106,7 +107,7 @@ class Reports extends VBox implements Initializable {
   private TableView<TableRowPair<String>> tableViewAbstractUnits;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<TableRowPair<String>> tableViewAbstractUnitsWithUnits;
+  private TableView<TableRowTriple<String>> tableViewAbstractUnitsWithUnits;
   @FXML
   @SuppressWarnings("unused")
   private TableView<TableRowTriple<String>> tableViewRedundantUnitGroups;
@@ -124,10 +125,13 @@ class Reports extends VBox implements Initializable {
   private TableColumn<TableRowPair<String>, String> tableColumnAbstractTitle;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<String>, String> tableColumnAbstractUnit;
+  private TableColumn<TableRowTriple<String>, String> tableColumnAbstractUnit;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<String>, String> tableColumnUnit;
+  private TableColumn<TableRowTriple<String>, String> tableColumnUnit;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<TableRowTriple<String>, String> tableColumnSemesters;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<TableRowPair<String>, String> tableColumnRedundantGroup1;
@@ -203,6 +207,7 @@ class Reports extends VBox implements Initializable {
 
     final String first = "first";
     final String second = "second";
+    final String third = "third";
     tableColumnCourseName.setCellValueFactory(new PropertyValueFactory<>(first));
     tableColumnCourseFullName.setCellValueFactory(new PropertyValueFactory<>(second));
 
@@ -211,10 +216,11 @@ class Reports extends VBox implements Initializable {
 
     tableColumnAbstractUnit.setCellValueFactory(new PropertyValueFactory<>(first));
     tableColumnUnit.setCellValueFactory(new PropertyValueFactory<>(second));
+    tableColumnSemesters.setCellValueFactory(new PropertyValueFactory<>(third));
 
     tableColumnRedundantGroup1.setCellValueFactory(new PropertyValueFactory<>(first));
     tableColumnRedundantGroup2.setCellValueFactory(new PropertyValueFactory<>(second));
-    tableColumnRedundantUnit.setCellValueFactory(new PropertyValueFactory<>("third"));
+    tableColumnRedundantUnit.setCellValueFactory(new PropertyValueFactory<>(third));
 
     // add listener to update the (quasi-) mandatory list views according to the selected course
     listViewCourses.getSelectionModel().selectedItemProperty()
@@ -267,7 +273,10 @@ class Reports extends VBox implements Initializable {
               .collect(Collectors.toList()).isEmpty())
           .forEach(unit ->
               tableViewAbstractUnitsWithUnits.getItems()
-                  .add(new TableRowPair<>(abstractUnit.getTitle(), unit.getTitle())));
+                  .add(new TableRowTriple<>(
+                      abstractUnit.getTitle(),
+                      unit.getTitle(),
+                      Joiner.on(",").join(unit.getSemesters()))));
     }
 
     quasiMandatoryModules.putAll(reportData.getQuasiMandatoryModuleAbstractUnits());
