@@ -97,6 +97,12 @@ public class MainController implements Initializable {
   private ResourceBundle resources;
 
   @FXML
+  private MenuItem saveFileMenuItem;
+
+  @FXML
+  private MenuItem saveFileAsMenuItem;
+
+  @FXML
   private MenuItem openFileMenuItem;
 
   @FXML
@@ -107,6 +113,7 @@ public class MainController implements Initializable {
 
   @FXML
   private MenuItem openReports;
+
   @FXML
   private TaskProgressView<Task<?>> taskProgress;
 
@@ -172,10 +179,14 @@ public class MainController implements Initializable {
     this.exportStateMenuItem.setDisable(true);
     this.openChangeLog.setDisable(true);
     this.openReports.setDisable(true);
+    this.saveFileMenuItem.setDisable(true);
+    this.saveFileAsMenuItem.setDisable(true);
 
     delayedStore.whenAvailable(s -> {
       this.exportStateMenuItem.setDisable(false);
       this.openChangeLog.setDisable(false);
+      this.saveFileMenuItem.setDisable(false);
+      this.saveFileAsMenuItem.setDisable(false);
     });
 
     if (this.properties.get(DB_PATH) != null) {
