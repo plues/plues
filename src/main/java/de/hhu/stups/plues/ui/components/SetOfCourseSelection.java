@@ -218,7 +218,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     @Override
     protected ObservableList<TableRowPair<Node, Course>> computeValue() {
       return FXCollections.observableArrayList(courses.stream()
-        .filter(row -> row.getSecond().getFullName().toLowerCase().contains(txtQuery.getText()))
+        .filter(row -> row.getSecond().getFullName().toLowerCase().contains(
+            txtQuery.getText().toLowerCase()))
         .collect(Collectors.toList()));
     }
   }
