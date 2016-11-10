@@ -145,6 +145,11 @@ public class ObservableStore extends Observable implements Store {
   }
 
   @Override
+  public Log getLastLogEntry() {
+    return store.getLastLogEntry();
+  }
+
+  @Override
   public Session getSessionById(final int id) {
     return store.getSessionById(id);
   }

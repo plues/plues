@@ -103,9 +103,7 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   @Override
   public void update(final Observable observable, final Object arg) {
     final Store store = (Store) observable;
-    // TODO: add method to store get only last log entry
-    final List<Log> newLogs = store.getLogEntries();
-    final Log log = newLogs.get(newLogs.size() - 1);
+    final Log log = store.getLastLogEntry();
     logs.add(log);
   }
 
