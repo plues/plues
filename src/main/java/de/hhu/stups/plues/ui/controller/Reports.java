@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -47,6 +48,7 @@ class Reports extends VBox implements Initializable {
   private final List<Module> mandatoryModules;
   private final Map<Integer, Set<Integer>> quasiMandatoryModules;
   private final List<Group> groups;
+  private final Properties properties;
   private Store store;
   private int groupAmount;
   private int sessionAmount;
@@ -93,6 +95,9 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Label lbSessionAmount;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbModelVersion;
   @FXML
   @SuppressWarnings("unused")
   private TableView<TableRowPair<String>> tableViewImpossibleCourses;
@@ -152,7 +157,8 @@ class Reports extends VBox implements Initializable {
   @Inject
   public Reports(final Inflater inflater, final Delayed<Store> delayedStore,
                  final Delayed<SolverService> delayedSolverService,
-                 final ExecutorService executor) {
+                 final ExecutorService executor,
+                 final Properties properties) {
     courses = new ArrayList<>();
     units = new ArrayList<>();
     abstractUnits = new ArrayList<>();
@@ -160,6 +166,8 @@ class Reports extends VBox implements Initializable {
     mandatoryModules = new ArrayList<>();
     groups = new ArrayList<>();
     quasiMandatoryModules = new HashMap<>();
+
+    this.properties = properties;
 
     delayedStore.whenAvailable(localStore -> {
       this.store = localStore;
@@ -226,6 +234,7 @@ class Reports extends VBox implements Initializable {
     lbAbstractUnitAmount.setText(String.valueOf(abstractUnits.size()));
     lbGroupAmount.setText(String.valueOf(groupAmount));
     lbSessionAmount.setText(String.valueOf(sessionAmount));
+    lbModelVersion.setText(String.valueOf(properties.get("model_version")));
 
     paneAccordion.setExpandedPane(paneImpossibleCourses);
   }

@@ -36,6 +36,8 @@
                        GridPane.rowIndex="1"/>
                 <Label text="%sessionAmount" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
                 <Label fx:id="lbSessionAmount" GridPane.columnIndex="4" GridPane.rowIndex="2"/>
+                <Label text="%modelVersion" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                <Label fx:id="lbModelVersion" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
             </GridPane>
         </VBox>
         <Accordion fx:id="paneAccordion">
