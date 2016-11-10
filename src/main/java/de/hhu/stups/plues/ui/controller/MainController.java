@@ -17,13 +17,16 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
 import de.hhu.stups.plues.ui.components.AboutWindow;
+import de.hhu.stups.plues.ui.ResourceManager;
 import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -51,6 +54,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
@@ -88,6 +92,8 @@ public class MainController implements Initializable {
   private final StoreLoaderTaskFactory storeLoaderTaskFactory;
   private final ChangeLog changeLog;
   private final Provider<AboutWindow> aboutWindowProvider;
+  private final ObjectProperty<Date> lastSaved;
+  private final ResourceManager resourceManager;
   private ResourceBundle resources;
 
   @FXML
@@ -116,8 +122,10 @@ public class MainController implements Initializable {
                         final Provider<AboutWindow> aboutWindowProvider,
                         final Provider<Reports> reportsProvider,
                         final StoreLoaderTaskFactory storeLoaderTaskFactory,
+                        final ObjectProperty<Date> lastSaved,
                         @Named("prob") final ObservableListeningExecutorService probExecutor,
-                        final ObservableListeningExecutorService executorService) {
+                        final ObservableListeningExecutorService executorService,
+                        final ResourceManager resourceManager) {
     this.delayedStore = delayedStore;
     this.solverLoader = solverLoader;
     this.properties = properties;
@@ -126,7 +134,9 @@ public class MainController implements Initializable {
     this.aboutWindowProvider = aboutWindowProvider;
     this.reportsProvider = reportsProvider;
     this.storeLoaderTaskFactory = storeLoaderTaskFactory;
+    this.lastSaved = lastSaved;
     this.executor = executorService;
+    this.resourceManager = resourceManager;
 
     //    stage.setOnHiding(event -> closeWindow()); TODO: sth. like that for close button
 
@@ -171,6 +181,18 @@ public class MainController implements Initializable {
     if (this.properties.get(DB_PATH) != null) {
       this.loadData((String) this.properties.get(DB_PATH));
     }
+
+    stage.setOnCloseRequest(t -> {
+      try {
+        this.closeWindow(t);
+        if (!t.isConsumed()) {
+          this.resourceManager.close();
+        }
+      } catch (final InterruptedException exception) {
+        final Logger logger = Logger.getAnonymousLogger();
+        logger.log(Level.SEVERE, "Closing resources", exception);
+      }
+    });
   }
 
   /**
@@ -200,7 +222,7 @@ public class MainController implements Initializable {
     try {
       Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
           StandardCopyOption.REPLACE_EXISTING);
-      changeLog.updateTimeStamp();
+      lastSaved.set(new Date());
       logger.log(Level.INFO, "File saving finished!");
     } catch (final IOException exc) {
       logger.log(Level.SEVERE, "File saving failed!", exc);
@@ -222,7 +244,6 @@ public class MainController implements Initializable {
       try {
         Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(file.getAbsolutePath()));
         logger.log(Level.INFO, "File saving finished!");
-        changeLog.updateTimeStamp();
       } catch (final IOException exception) {
         logger.log(Level.SEVERE, "File saving failed!", exception);
       }
@@ -359,7 +380,7 @@ public class MainController implements Initializable {
     logStage.setResizable(false);
     logStage.show();
 
-    logStage.setOnHiding(event -> changeLog.deleteObserver());
+    // TODO delete observer
   }
 
   /**
@@ -380,27 +401,32 @@ public class MainController implements Initializable {
    * User can save database before closing.
    */
   @FXML
-  private void closeWindow() {
-    Alert closeConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
+  private void closeWindow(final Event event) {
+    final Alert closeConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
     closeConfirmation.setTitle("Confirm");
     closeConfirmation.setHeaderText("Save before closing?");
 
     final ButtonType save = new ButtonType("Save");
     final ButtonType saveAs = new ButtonType("Save as");
-    final ButtonType withoutSaving = new ButtonType("Close withut saving");
+    final ButtonType withoutSaving = new ButtonType("Close without saving");
     final ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
     closeConfirmation.getButtonTypes().setAll(save, saveAs, withoutSaving, cancel);
 
-    if (closeConfirmation.showAndWait().isPresent()) {
-      ButtonType result = closeConfirmation.showAndWait().get();
+    final Optional<ButtonType> answer = closeConfirmation.showAndWait();
+    final ButtonType result = answer.orElse(cancel);
 
-      if (result == save) {
-        saveFile();
-      } else {
-        if (result == saveAs) {
-          saveFileAs();
-        }
-      }
+    if (result == save) {
+      saveFile();
+    } else if (result == saveAs) {
+      saveFileAs();
+    }
+
+    // if the result is to cancel we ignore the close request and consume the event
+    // in all other cases we close the stage
+    if (result == cancel) {
+      event.consume();
+    } else {
+      stage.close();
     }
   }
 

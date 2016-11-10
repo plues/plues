@@ -10,8 +10,7 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.ListBinding;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -21,9 +20,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
-import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
@@ -32,11 +31,11 @@ import java.util.stream.Collectors;
 public class ChangeLog extends VBox implements Initializable, Observer {
 
   private final Delayed<ObservableStore> delayedStore;
-  private SimpleObjectProperty<Date> compare;
-  private ObservableStore store;
+  private final ObservableList<Log> logs;
+  private final ObjectProperty<Date> compare;
 
   @FXML
-  TableView<Log> persistentTable;
+  private TableView<Log> persistentTable;
 
   @FXML
   private TableColumn<Log, Session> sessionP;
@@ -51,7 +50,7 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private TableColumn<Log, Date> dateP;
 
   @FXML
-  TableView<Log> tempTable;
+  private TableView<Log> tempTable;
 
   @FXML
   private TableColumn<Log, Session> sessionT;
@@ -71,9 +70,12 @@ public class ChangeLog extends VBox implements Initializable, Observer {
    * @param delayedStore Store which contains data
    */
   @Inject
-  public ChangeLog(final Inflater inflater,
+  public ChangeLog(final Inflater inflater, final ObjectProperty<Date> lastSaved,
+
                    final Delayed<ObservableStore> delayedStore) {
     this.delayedStore = delayedStore;
+    this.compare = lastSaved;
+    this.logs = FXCollections.observableArrayList();
 
     inflater.inflate("components/ChangeLog", this, this, "ChangeLog");
   }
@@ -90,37 +92,24 @@ public class ChangeLog extends VBox implements Initializable, Observer {
     targetT.setCellValueFactory(new PropertyValueFactory<>("target"));
     dateT.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
+    updateBinding();
+
     delayedStore.whenAvailable(store -> {
-      this.store = store;
-      this.store.addObserver(this);
-      compare = new SimpleObjectProperty<>(
-        new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
-      updateBinding(store);
+      store.addObserver(this);
+      logs.addAll(store.getLogEntries());
     });
   }
 
   @Override
-  public void update(Observable observable, Object arg) {
-    if (observable instanceof ObservableStore) {
-      if ((Boolean) arg) {
-        compare = new SimpleObjectProperty<>(new Date());
-      }
-      updateBinding((ObservableStore) observable);
-    }
+  public void update(final Observable observable, final Object arg) {
+    final Store store = (Store) observable;
+    // TODO: add method to store get only last log entry
+    final List<Log> newLogs = store.getLogEntries();
+    final Log log = newLogs.get(newLogs.size() - 1);
+    logs.add(log);
   }
 
-  public void updateTimeStamp() {
-    compare.set(new Date());
-  }
-
-  public void deleteObserver() {
-    store.deleteObserver(this);
-  }
-
-  private void updateBinding(final ObservableStore store) {
-    final SimpleListProperty<Log> logs =
-        new SimpleListProperty<>(FXCollections.observableArrayList(store.getLogEntries()));
-
+  private void updateBinding() {
     final ListBinding<Log> persistentBinding = new ListBinding<Log>() {
       {
         bind(logs, compare);
@@ -149,7 +138,15 @@ public class ChangeLog extends VBox implements Initializable, Observer {
       }
     };
 
-    persistentTable.itemsProperty().bind(persistentBinding);
-    tempTable.itemsProperty().bind(tempBinding);
+    getPersistentTable().itemsProperty().bind(persistentBinding);
+    getTempTable().itemsProperty().bind(tempBinding);
+  }
+
+  TableView<Log> getPersistentTable() {
+    return persistentTable;
+  }
+
+  TableView<Log> getTempTable() {
+    return tempTable;
   }
 }

@@ -1,10 +1,14 @@
 package de.hhu.stups.plues.ui.components;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
-import de.hhu.stups.plues.studienplaene.MockStore;
+import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -15,35 +19,54 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.testfx.framework.junit.ApplicationTest;
 
-import java.lang.management.ManagementFactory;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 
 @RunWith(JUnit4.class)
 public class ChangeLogTest extends ApplicationTest {
 
   private ChangeLog changeLog;
+  private Date lastSaveDate;
 
   @Test
   public void sizeOfLists() {
-    Assert.assertTrue(changeLog.persistentTable.getItems().size() == 2);
-    Assert.assertTrue(changeLog.tempTable.getItems().size() == 1);
+    Assert.assertTrue(changeLog.getPersistentTable().getItems().size() == 2);
+    Assert.assertTrue(changeLog.getTempTable().getItems().size() == 1);
   }
 
   @Test
   public void orderInList() {
-    Assert.assertTrue(changeLog.persistentTable.getItems().get(0).getCreatedAt()
-        .compareTo(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() - 1)) == 0);
-    Assert.assertTrue(changeLog.persistentTable.getItems().get(1).getCreatedAt()
-        .compareTo(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() - 10)) == 0);
+    final Log log0 = changeLog.getPersistentTable().getItems().get(0);
+    final Log log1 = changeLog.getPersistentTable().getItems().get(1);
+    Assert.assertTrue(log0.getCreatedAt().compareTo(log1.getCreatedAt()) > 0);
   }
 
   @Override
   public void start(Stage stage) throws Exception {
-    Inflater inflater = new Inflater(new FXMLLoader());
-    Delayed<ObservableStore> delayed = new Delayed<>();
-    ObservableStore store = new ObservableStore(new MockStore());
+    final Inflater inflater = new Inflater(new FXMLLoader());
+    final Delayed<ObservableStore> delayed = new Delayed<>();
+
+    final Log l1 = mock(Log.class);
+    final Date d1 = new Calendar.Builder().setDate(2016, 11, 1).build().getTime();
+    doReturn(d1).when(l1).getCreatedAt();
+
+    final Log l2 = mock(Log.class);
+    final Date d2 = new Calendar.Builder().setDate(2016, 10, 2).build().getTime();
+    doReturn(d2).when(l2).getCreatedAt();
+
+    final Log l3 = mock(Log.class);
+    final Date d3 = new Calendar.Builder().setDate(2016, 11, 4).build().getTime();
+    doReturn(d3).when(l3).getCreatedAt();
+
+    final ObservableStore store = mock(ObservableStore.class);
+    doReturn(Arrays.asList(l1, l2, l3)).when(store).getLogEntries();
+
+    lastSaveDate = new Calendar.Builder().setDate(2016, 11, 3).build().getTime();
+    final SimpleObjectProperty<Date> saved = new SimpleObjectProperty<>(lastSaveDate);
+
     delayed.set(store);
-    changeLog = new ChangeLog(inflater, delayed);
+    changeLog = new ChangeLog(inflater, saved, delayed);
 
     final Scene scene = new Scene(changeLog, 600, 600);
     stage.setScene(scene);
