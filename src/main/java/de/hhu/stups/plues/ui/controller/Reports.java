@@ -111,7 +111,7 @@ class Reports extends VBox implements Initializable {
   private TableView<TableRowTriple<String>> tableViewAbstractUnitsWithUnits;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<TableRowPair<String>> tableViewRedundantUnitGroups;
+  private TableView<Unit> tableViewRedundantUnitGroups;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<TableRowPair<String>, String> tableColumnCourseName;
@@ -239,8 +239,8 @@ class Reports extends VBox implements Initializable {
     tableColumnUnit.setCellValueFactory(new PropertyValueFactory<>(second));
     tableColumnSemesters.setCellValueFactory(new PropertyValueFactory<>(third));
 
-    tableColumnRedundantUnitKey.setCellValueFactory(new PropertyValueFactory<>(first));
-    tableColumnRedundantUnit.setCellValueFactory(new PropertyValueFactory<>(second));
+    tableColumnRedundantUnitKey.setCellValueFactory(new PropertyValueFactory<>("key"));
+    tableColumnRedundantUnit.setCellValueFactory(new PropertyValueFactory<>("title"));
 
     // add listener to update the (quasi-) mandatory list views according to the selected course
     listViewCourses.getSelectionModel().selectedItemProperty()
@@ -317,8 +317,8 @@ class Reports extends VBox implements Initializable {
     final Map<Integer, Set<Pair<Integer>>> redundantUnitGroups =
         reportData.getRedundantUnitGroups();
 
-    final List<TableRowPair<String>> redundantUnits = redundantUnitGroups.keySet().stream()
-        .map(store::getUnitById).map(unit -> new TableRowPair<>(unit.getKey(), unit.getTitle()))
+    final List<Unit> redundantUnits = redundantUnitGroups.keySet().stream()
+        .map(store::getUnitById)
         .collect(Collectors.toList());
     tableViewRedundantUnitGroups.getItems().addAll(redundantUnits);
   }
