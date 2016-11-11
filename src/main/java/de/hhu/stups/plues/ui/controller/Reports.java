@@ -105,7 +105,7 @@ class Reports extends VBox implements Initializable {
   private TableView<Course> tableViewImpossibleCourses;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<TableRowPair<String>> tableViewAbstractUnits;
+  private TableView<AbstractUnit> tableViewAbstractUnits;
   @FXML
   @SuppressWarnings("unused")
   private TableView<TableRowTriple<String>> tableViewAbstractUnitsWithUnits;
@@ -232,8 +232,8 @@ class Reports extends VBox implements Initializable {
     tableColumnCourseName.setCellValueFactory(new PropertyValueFactory<>("key"));
     tableColumnCourseFullName.setCellValueFactory(new PropertyValueFactory<>("fullName"));
 
-    tableColumnAbstractKey.setCellValueFactory(new PropertyValueFactory<>(first));
-    tableColumnAbstractTitle.setCellValueFactory(new PropertyValueFactory<>(second));
+    tableColumnAbstractKey.setCellValueFactory(new PropertyValueFactory<>("key"));
+    tableColumnAbstractTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
 
     tableColumnAbstractUnit.setCellValueFactory(new PropertyValueFactory<>(first));
     tableColumnUnit.setCellValueFactory(new PropertyValueFactory<>(second));
@@ -262,8 +262,6 @@ class Reports extends VBox implements Initializable {
     lbSessionAmount.setText(String.valueOf(sessionAmount));
     lbModelVersion.setText(String.valueOf(properties.get("model_version")));
 
-    lbExplainImpossibleCourses.setText(resources.getString("explainImpossibleCourses"));
-    lbExplainAbstractUnits.setText(resources.getString("explainAbstractUnits"));
     lbExplainAbstractUnitsWithUnits.setText(resources.getString("explainAbstractUnitsWithUnits"));
     lbExplainMandatoryModules.setText(resources.getString("explainMandatoryModules"));
     lbExplainQuasiMandatoryModules.setText(resources.getString("explainQuasiMandatoryModules"));
@@ -279,15 +277,13 @@ class Reports extends VBox implements Initializable {
    */
   @SuppressWarnings("unused")
   private void displayReportData(final ReportData reportData) {
-    tableViewImpossibleCourses.getItems().addAll(reportData.getImpossibleCourses()
-        .stream().map(courseName -> store.getCourseByKey(courseName))
-        .collect(Collectors.toList()));
+    tableViewImpossibleCourses.getItems().addAll(
+        reportData.getImpossibleCourses().stream()
+          .map(store::getCourseByKey)
+          .collect(Collectors.toList()));
     lbImpossibleCoursesAmount.setText(String.valueOf(reportData.getImpossibleCourses().size()));
 
-    tableViewAbstractUnits.getItems()
-        .addAll(abstractUnitsWithoutUnits.stream()
-            .map(unit -> new TableRowPair<>(unit.getKey(), unit.getTitle()))
-            .collect(Collectors.toList()));
+    tableViewAbstractUnits.getItems().addAll(abstractUnitsWithoutUnits);
 
     // get abstract units with units that have no semesters in common
     for (AbstractUnit abstractUnit : abstractUnits) {

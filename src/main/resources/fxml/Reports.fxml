@@ -11,7 +11,7 @@
 <?import javafx.scene.control.TableColumn?>
 
 <fx:root prefHeight="600.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1">
+        xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <VBox fx:id="paneHeader" prefHeight="100.0">
             <padding>
@@ -45,7 +45,7 @@
                 <TitledPane fx:id="paneImpossibleCourses" collapsible="true"
                             text="%titleImpossibleCourses" maxHeight="250.0">
                     <VBox>
-                        <Label fx:id="lbExplainImpossibleCourses"/>
+                        <Label fx:id="lbExplainImpossibleCourses" text="%explainImpossibleCourses"/>
                         <TableView fx:id="tableViewImpossibleCourses" maxHeight="250.0">
                             <columns>
                                 <TableColumn fx:id="tableColumnCourseName" text="%columnCourseName"
@@ -60,7 +60,7 @@
                 <TitledPane fx:id="paneAbstractUnits" collapsible="true" text="%titleAbstractUnits"
                             maxHeight="250.0">
                     <VBox>
-                        <Label fx:id="lbExplainAbstractUnits"/>
+                        <Label fx:id="lbExplainAbstractUnits" text="%explainAbstractUnits" />
                         <TableView fx:id="tableViewAbstractUnits" maxHeight="250.0">
                             <columns>
                                 <TableColumn fx:id="tableColumnAbstractKey" text="%columnUnitKey"
