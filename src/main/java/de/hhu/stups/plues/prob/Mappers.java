@@ -236,4 +236,22 @@ final class Mappers {
       Map.Entry::getKey,
       e -> Collections.unmodifiableSet(e.getValue()))));
   }
+
+  static java.util.Set<ModuleAbstractUnitUnitSemesterConflict>
+      mapModuleAbstractUnitUnitSemesterMismatch(final Set conflicts) {
+    return conflicts.stream().map(bObject -> {
+      final Tuple tuple = (Tuple) bObject;
+      final Tuple maus = (Tuple) tuple.getFirst();
+      final Tuple mau = (Tuple) maus.getFirst();
+
+      final Integer module = mapValue(mau.getFirst().toString(), MODULE_PREFIX);
+      final Integer abstractUnit = mapValue(mau.getSecond().toString(), ABSTRACT_UNIT_PREFIX);
+
+      final Integer unit = mapValue(tuple.getSecond().toString(), UNIT_PREFIX);
+      final java.util.Set<Integer> semesters = ((Set) maus.getSecond()).stream()
+          .map(sem -> mapValue(sem.toString(), SEMESTER_PREFIX))
+          .collect(Collectors.toSet());
+      return new ModuleAbstractUnitUnitSemesterConflict(module, abstractUnit, semesters, unit);
+    }).collect(Collectors.toSet());
+  }
 }

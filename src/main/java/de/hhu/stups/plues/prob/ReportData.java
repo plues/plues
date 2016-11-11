@@ -10,13 +10,18 @@ public class ReportData {
 
   private Map<String, Map<Integer, Set<Integer>>> impossibleCourseModuleAbstractUnits;
   private Set<String> impossibleCourses;
-  private Set<String> impossibleCoursesBecauseofImpossibleModules;
+  private Set<String> impossibleCoursesBecauseOfImpossibleModules;
   private Map<String, Map<Integer, Set<Pair<Integer>>>> impossibleCourseModuleAbstractUnitPairs;
   private Map<Integer, Set<Integer>> impossibleAbstractUnitsInModule;
   private Set<Integer> incompleteModules;
   private Map<String, Set<Integer>> mandatoryModules;
   private Map<Integer, Set<Integer>> quasiMandatoryModuleAbstractUnits;
   private Map<Integer, Set<Pair<Integer>>> redundantUnitGroups;
+  private Set<Integer> impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+  private Set<String>
+      impossibleCoursesBecauseOfImpossibleModuleCombinations;
+
+  private Set<ModuleAbstractUnitUnitSemesterConflict> moduleAbstractUnitUnitSemesterConflicts;
 
   ReportData() {
     // package private constructor
@@ -44,12 +49,12 @@ public class ReportData {
    * @return Set of Strings representing the course keys
    */
   public Set<String> getImpossibleCoursesBecauseofImpossibleModules() {
-    return impossibleCoursesBecauseofImpossibleModules;
+    return impossibleCoursesBecauseOfImpossibleModules;
   }
 
-  void setImpossibleCoursesBecauseofImpossibleModules(
-      final Set<String> impossibleCoursesBecauseofImpossibleModules) {
-    this.impossibleCoursesBecauseofImpossibleModules = impossibleCoursesBecauseofImpossibleModules;
+  void setImpossibleCoursesBecauseOfImpossibleModules(
+      final Set<String> impossibleCoursesBecauseOfImpossibleModules) {
+    this.impossibleCoursesBecauseOfImpossibleModules = impossibleCoursesBecauseOfImpossibleModules;
   }
 
   /**
@@ -168,4 +173,49 @@ public class ReportData {
       final Map<String, Map<Integer, Set<Integer>>> impossibleCourseModuleAbstractUnits) {
     this.impossibleCourseModuleAbstractUnits = impossibleCourseModuleAbstractUnits;
   }
+
+  /**
+   * B: impossible_modules_because_of_missing_elective_abstract_units.
+   * modules which are impossible, because they contain less valid (with a proper unit
+   * associated to it) elective abstract units than required by the module definition.
+   */
+  public Set<Integer> getImpossibleModulesBecauseOfMissingElectiveAbstractUnits() {
+    return this.impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+  }
+
+  void setImpossibleModulesBecauseOfMissingElectiveAbstractUnits(
+      final Set<Integer> impossibleModulesBecauseOfMissingElectiveAbstractUnits) {
+    this.impossibleModulesBecauseOfMissingElectiveAbstractUnits
+      = impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+  }
+
+  /**
+   * B: impossible_courses_because_of_impossible_module_combinations.
+   * Impossible courses, because all module combinations contain impossible modules
+   */
+  void setImpossibleCoursesBecauseOfImpossibleModuleCombinations(final Set<String>
+          impossibleCoursesBecauseOfImpossibleModuleCombinations) {
+    this.impossibleCoursesBecauseOfImpossibleModuleCombinations
+      = impossibleCoursesBecauseOfImpossibleModuleCombinations;
+  }
+
+  public Set<String> getImpossibleCoursesBecauseOfImpossibleModuleCombinations() {
+    return impossibleCoursesBecauseOfImpossibleModuleCombinations;
+  }
+
+
+  void setModuleAbstractUnitUnitSemesterMismatch(
+      final Set<ModuleAbstractUnitUnitSemesterConflict> moduleAbstractUnitUnitSemesterConflicts) {
+    this.moduleAbstractUnitUnitSemesterConflicts = moduleAbstractUnitUnitSemesterConflicts;
+
+  }
+
+  /**
+   * B: module_abstract_unit_unit_semester_mismatch.
+   * pairs of abstract units and units that have no semesters in common in a given module
+   */
+  public Set<ModuleAbstractUnitUnitSemesterConflict> getModuleAbstractUnitUnitSemesterConflicts() {
+    return moduleAbstractUnitUnitSemesterConflicts;
+  }
+
 }

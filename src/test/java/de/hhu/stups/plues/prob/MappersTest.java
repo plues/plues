@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MappersTest {
 
@@ -75,6 +76,32 @@ public class MappersTest {
     final String result = Mappers.mapToModuleChoice(inp);
 
     assertEquals("{(\"a\" |-> {mod1,mod2,mod3}),(\"b\" |-> {mod11,mod12,mod13})}", result);
+
+  }
+
+
+  @Test
+  public void testMapImpossibleCoursesBecauseOfImpossibleModuleCombinations() throws BException {
+    final String raw = "{(((mod39|->au58)|->{sem6})|->unit577),"
+        + "(((mod37|->au5)|->{sem1})|->unit578),"
+        + "(((mod560|->au88)|->{sem3})|->unit579)}";
+    final Set input = (Set) Translator.translate(raw);
+    final java.util.Set<ModuleAbstractUnitUnitSemesterConflict> result
+        = Mappers.mapModuleAbstractUnitUnitSemesterMismatch(input);
+
+    final Map<Integer, ModuleAbstractUnitUnitSemesterConflict> resultMap
+        = result.stream().collect(
+            Collectors.toMap(ModuleAbstractUnitUnitSemesterConflict::getModuleId, t -> t));
+
+    assertEquals(3, result.size());
+
+    final ModuleAbstractUnitUnitSemesterConflict r1 = resultMap.get(39);
+
+    assertEquals(Integer.valueOf(58), r1.getAbstractUnitId());
+    assertEquals(Integer.valueOf(577), r1.getUnitId());
+    assertTrue(r1.getAbstractUnitSemesters().contains(6));
+
+
 
   }
 }

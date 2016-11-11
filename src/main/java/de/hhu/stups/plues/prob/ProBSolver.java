@@ -374,7 +374,7 @@ public class ProBSolver implements Solver {
         Mappers.mapCourseModuleAbstractUnits((Set) data.get("impossible_course_abstract_units")));
 
     report.setImpossibleCourses(Mappers.mapCourseSet((Set) data.get("impossible_courses")));
-    report.setImpossibleCoursesBecauseofImpossibleModules(Mappers.mapCourseSet(
+    report.setImpossibleCoursesBecauseOfImpossibleModules(Mappers.mapCourseSet(
         (Set) data.get("impossible_courses_because_of_impossible_modules")));
 
     report.setImpossibleCourseModuleAbstractUnitPairs(
@@ -391,10 +391,21 @@ public class ProBSolver implements Solver {
 
     report.setQuasiMandatoryModuleAbstractUnits(
         Mappers.mapQuasiMandatoryModuleAbstractUnits(
-            (Set) data.get("quasi_mandatory_module_abstract_units"))
-    );
+            (Set) data.get("quasi_mandatory_module_abstract_units")));
 
     report.setRedundantUnitGroups(Mappers.mapUnitGroups((Set) data.get("redundant_unit_groups")));
+
+    report.setImpossibleModulesBecauseOfMissingElectiveAbstractUnits(
+        Mappers.mapModules(
+            (Set) data.get("impossible_modules_because_of_missing_elective_abstract_units")));
+
+    report.setImpossibleCoursesBecauseOfImpossibleModuleCombinations(
+        Mappers.mapCourseSet(
+            (Set) data.get("impossible_courses_because_of_impossible_module_combinations")));
+
+    report.setModuleAbstractUnitUnitSemesterMismatch(
+        Mappers.mapModuleAbstractUnitUnitSemesterMismatch(
+            (Set) data.get("module_abstract_unit_unit_semester_mismatch")));
 
     return report;
   }
