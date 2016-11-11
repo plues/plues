@@ -102,7 +102,7 @@ class Reports extends VBox implements Initializable {
   private Label lbModelVersion;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<TableRowPair<String>> tableViewImpossibleCourses;
+  private TableView<Course> tableViewImpossibleCourses;
   @FXML
   @SuppressWarnings("unused")
   private TableView<TableRowPair<String>> tableViewAbstractUnits;
@@ -114,10 +114,10 @@ class Reports extends VBox implements Initializable {
   private TableView<Unit> tableViewRedundantUnitGroups;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<String>, String> tableColumnCourseName;
+  private TableColumn<Course, String> tableColumnCourseName;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<String>, String> tableColumnCourseFullName;
+  private TableColumn<Course, String> tableColumnCourseFullName;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<TableRowPair<String>, String> tableColumnAbstractKey;
@@ -229,8 +229,8 @@ class Reports extends VBox implements Initializable {
     final String first = "first";
     final String second = "second";
     final String third = "third";
-    tableColumnCourseName.setCellValueFactory(new PropertyValueFactory<>(first));
-    tableColumnCourseFullName.setCellValueFactory(new PropertyValueFactory<>(second));
+    tableColumnCourseName.setCellValueFactory(new PropertyValueFactory<>("key"));
+    tableColumnCourseFullName.setCellValueFactory(new PropertyValueFactory<>("fullName"));
 
     tableColumnAbstractKey.setCellValueFactory(new PropertyValueFactory<>(first));
     tableColumnAbstractTitle.setCellValueFactory(new PropertyValueFactory<>(second));
@@ -280,8 +280,7 @@ class Reports extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private void displayReportData(final ReportData reportData) {
     tableViewImpossibleCourses.getItems().addAll(reportData.getImpossibleCourses()
-        .stream().map(courseName ->
-            new TableRowPair<>(courseName, store.getCourseByKey(courseName).getFullName()))
+        .stream().map(courseName -> store.getCourseByKey(courseName))
         .collect(Collectors.toList()));
     lbImpossibleCoursesAmount.setText(String.valueOf(reportData.getImpossibleCourses().size()));
 
