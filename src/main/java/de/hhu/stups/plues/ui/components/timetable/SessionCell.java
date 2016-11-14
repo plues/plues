@@ -7,6 +7,7 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
 
 import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
@@ -21,22 +22,39 @@ class SessionCell extends ListCell<SessionFacade> {
   private final Provider<DetailView> provider;
   private final Delayed<SolverService> delayedSolverService;
 
+  private final UiDataService uiDataService;
+
   private SessionFacade.Slot slot;
 
   private volatile boolean solverIsLoaded = false;
 
   @Inject
   SessionCell(final Provider<DetailView> detailViewProvider,
-              final Delayed<SolverService> delayedSolverService) {
+              final Delayed<SolverService> delayedSolverService,
+              final UiDataService uiDataService) {
     super();
 
     this.provider = detailViewProvider;
     this.delayedSolverService = delayedSolverService;
+    this.uiDataService = uiDataService;
 
     waitForSolver();
 
     setOnDragDetected(this::dragItem);
     setOnMousePressed(this::clickItem);
+
+    setupDataService();
+  }
+
+  private void setupDataService() {
+    this.uiDataService.conflictMarkedSessionsProperty()
+        .addListener((observable, oldValue, newValue) -> {
+          getStyleClass().remove("conflicted-session");
+
+          if (getItem() != null && newValue.contains(getItem().getSession().getId())) {
+            getStyleClass().add("conflicted-session");
+          }
+        });
   }
 
   private void waitForSolver() {
