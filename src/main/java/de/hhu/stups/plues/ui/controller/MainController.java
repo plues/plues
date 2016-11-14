@@ -6,7 +6,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.modelgenerator.XmlExporter;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
@@ -81,7 +81,7 @@ public class MainController implements Initializable {
   }
 
   private final Logger logger = Logger.getLogger(getClass().getName());
-  private final Delayed<Store> delayedStore;
+  private final Delayed<ObservableStore> delayedStore;
   private final Properties properties;
   private final Stage stage;
   private final ExecutorService executor;
@@ -117,11 +117,13 @@ public class MainController implements Initializable {
   @FXML
   private TaskProgressView<Task<?>> taskProgress;
 
+  private boolean databaseChanged = false;
+
   /**
    * MainController component.
    */
   @Inject
-  public MainController(final Delayed<Store> delayedStore,
+  public MainController(final Delayed<ObservableStore> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
@@ -144,8 +146,6 @@ public class MainController implements Initializable {
     this.lastSaved = lastSaved;
     this.executor = executorService;
     this.resourceManager = resourceManager;
-
-    //    stage.setOnHiding(event -> closeWindow()); TODO: sth. like that for close button
 
     delayedSolverService.whenAvailable(solverService -> openReports.setDisable(false));
 
@@ -187,6 +187,7 @@ public class MainController implements Initializable {
       this.openChangeLog.setDisable(false);
       this.saveFileMenuItem.setDisable(false);
       this.saveFileAsMenuItem.setDisable(false);
+      s.addObserver((object, arg) -> this.databaseChanged = true);
     });
 
     if (this.properties.get(DB_PATH) != null) {
@@ -355,7 +356,7 @@ public class MainController implements Initializable {
         value -> logger.log(Level.FINE, "STORE: loading Store succeeded"));
 
     storeLoader.setOnSucceeded(event -> Platform.runLater(() -> {
-      final Store s = (Store) event.getSource().getValue();
+      final ObservableStore s = (ObservableStore) event.getSource().getValue();
       this.delayedStore.set(s);
     }));
     return storeLoader;
@@ -413,6 +414,11 @@ public class MainController implements Initializable {
    */
   @FXML
   private void closeWindow(final Event event) {
+    if (!databaseChanged) {
+      stage.close();
+      return;
+    }
+
     final Alert closeConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
     closeConfirmation.setTitle("Confirm");
     closeConfirmation.setHeaderText("Save before closing?");
