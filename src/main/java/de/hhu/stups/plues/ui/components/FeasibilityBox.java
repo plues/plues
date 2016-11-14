@@ -7,7 +7,8 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Session;
-import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -74,8 +75,9 @@ public class FeasibilityBox extends VBox implements Initializable {
   private final Set<String> impossibleCourses;
   private final VBox parent;
 
-  // later defined within the UiDataService
-  private final ListProperty<Integer> unsatCoreProperty;
+  // TODO add empty TreeView to FXML and bind it's root property to an ObjectBinding that is
+  // TODO dependent on this property and computes the tree as a TreeItem<String>
+  private final ListProperty<Integer> unsatCoreProperty = new SimpleListProperty<>();
 
   @FXML
   @SuppressWarnings("unused")
@@ -104,6 +106,10 @@ public class FeasibilityBox extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Button btSubmit;
+  @FXML
+  private Button btHighlightAllConflicts;
+
+  private UiDataService uiDataService;
 
   /**
    * A container to display the feasibility of a combination of courses or a single one. For
@@ -115,6 +121,7 @@ public class FeasibilityBox extends VBox implements Initializable {
                         final Delayed<Store> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final ExecutorService executorService,
+                        final UiDataService uiDataService,
                         @Assisted("major") final Course majorCourse,
                         @Nullable @Assisted("minor") final Course minorCourse,
                         @Assisted("impossibleCourses") final Set<String> impossibleCourses,
@@ -125,9 +132,7 @@ public class FeasibilityBox extends VBox implements Initializable {
     this.executorService = executorService;
     this.impossibleCourses = impossibleCourses;
     this.parent = parent;
-
-    unsatCoreProperty = new SimpleListProperty<>();
-    unsatCoreProperty.addListener((observable, oldValue, newValue) -> showConflictResult(newValue));
+    this.uiDataService = uiDataService;
 
     majorCourseProperty = new SimpleObjectProperty<>(majorCourse);
     minorCourseProperty = new SimpleObjectProperty<>(minorCourse);
@@ -135,6 +140,9 @@ public class FeasibilityBox extends VBox implements Initializable {
     timeStrings = new HashMap<>();
 
     inflater.inflate("components/FeasibilityBox", this, this, "feasibilityBox");
+
+    btHighlightAllConflicts.visibleProperty().bind(
+      Bindings.not(unsatCoreProperty.emptyProperty()));
   }
 
   @Override
@@ -207,6 +215,12 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
+  private void highlightConflicts() {
+    uiDataService.setConflictMarkedSessions(unsatCoreProperty.get());
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
   private void submitAction() {
     final String selectedItem = cbAction.getSelectionModel().getSelectedItem();
 
@@ -242,7 +256,8 @@ public class FeasibilityBox extends VBox implements Initializable {
     }
 
     unsatCoreTask.setOnSucceeded(unsatCore -> {
-      unsatCoreProperty.setValue(FXCollections.observableList(unsatCoreTask.getValue()));
+      unsatCoreProperty.set(FXCollections.observableList(unsatCoreTask.getValue()));
+      showConflictResult(unsatCoreProperty.get());
       cbAction.setItems(FXCollections.singletonObservableList(removeString));
       cbAction.getSelectionModel().selectFirst();
     });
@@ -320,11 +335,6 @@ public class FeasibilityBox extends VBox implements Initializable {
     conflictTreeView.setRoot(rootTreeViewItem);
     conflictTreeView.setPrefHeight(26.0);
 
-    final Button btHighlightAllConflicts = new Button(resources.getString("highlightConflicts"));
-
-    final TreeItem<Object> treeItemButton = new TreeItem<>(btHighlightAllConflicts);
-    rootTreeViewItem.getChildren().add(treeItemButton);
-
     // adapt the tree view's height according to its expanded state
     rootTreeViewItem.expandedProperty().addListener((observable, oldValue, newValue) -> {
       if (!newValue) {
@@ -335,10 +345,6 @@ public class FeasibilityBox extends VBox implements Initializable {
     });
 
     getChildren().add(conflictTreeView);
-
-    btHighlightAllConflicts.setOnAction(event -> {
-      // Todo: highlight conflicting sessions in the timetable view
-    });
   }
 
   private Map<String, ArrayList<Session>> sortSessionsByTime(ArrayList<Session> sessions) {

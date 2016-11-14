@@ -2,7 +2,7 @@ package de.hhu.stups.plues.ui.batchgeneration;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.keys.MajorMinorKey;
-import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 
 import javafx.collections.ObservableMap;

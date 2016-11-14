@@ -3,12 +3,14 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -27,6 +29,8 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   private final BooleanProperty solverProperty;
   private Set<String> impossibleCourses;
 
+  private UiDataService uiDataService;
+
   @FXML
   @SuppressWarnings("unused")
   private CombinationOrSingleCourseSelection combinationOrSingleCourseSelection;
@@ -39,6 +43,8 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private VBox resultBoxWrapper;
+  @FXML
+  private Button btUnhighlightAllConflicts;
 
   /**
    * Component to select a combination of courses or a single subject obtained by {@link
@@ -51,14 +57,21 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
    */
   @Inject
   public CheckCourseFeasibility(final Inflater inflater,
-                                final FeasibilityBoxFactory feasibilityBoxFactory) {
+                                final FeasibilityBoxFactory feasibilityBoxFactory,
+                                final UiDataService uiDataService) {
+
     this.feasibilityBoxFactory = feasibilityBoxFactory;
+    this.uiDataService = uiDataService;
+
     impossibleCourses = new HashSet<>();
     solverProperty = new SimpleBooleanProperty(false);
 
     setSpacing(10.0);
 
     inflater.inflate("components/CheckCourseFeasibility", this, this, "checkCourseFeasibility");
+
+    btUnhighlightAllConflicts.visibleProperty().bind(
+      Bindings.not(this.uiDataService.conflictMarkedSessionsProperty().emptyProperty()));
   }
 
   @Override
@@ -103,5 +116,11 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
 
   void setSolverProperty(Boolean value) {
     solverProperty.setValue(value);
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
+  public void unhighlightConflicts() {
+    uiDataService.setConflictMarkedSessions(FXCollections.observableArrayList());
   }
 }

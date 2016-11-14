@@ -3,10 +3,14 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.layout.HBox?>
 <fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
     <CombinationOrSingleCourseSelection fx:id="combinationOrSingleCourseSelection"/>
-    <Button fx:id="btCheckFeasibility" onAction="#checkFeasibility" text="%checkFeasibility"/>
+    <HBox>
+        <Button fx:id="btCheckFeasibility" onAction="#checkFeasibility" text="%checkFeasibility"/>
+        <Button fx:id="btUnhighlightAllConflicts" text="unhighlightConflicts" visible="false" onAction="#unhighlightConflicts"/>
+    </HBox>
     <ScrollPane fx:id="scrollPaneResults" prefHeight="400.0">
         <VBox fx:id="resultBoxWrapper"/>
     </ScrollPane>

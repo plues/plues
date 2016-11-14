@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.prob.Solver;
+import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import javafx.application.Platform;
 

@@ -4,7 +4,7 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;

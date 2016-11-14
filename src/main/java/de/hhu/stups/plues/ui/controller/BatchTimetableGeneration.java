@@ -5,7 +5,7 @@ import com.google.inject.Provider;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.ui.batchgeneration.BatchPdfRenderingTask;
 import de.hhu.stups.plues.ui.batchgeneration.CollectPdfRenderingTasksTask;
 import de.hhu.stups.plues.ui.components.BatchResultBox;

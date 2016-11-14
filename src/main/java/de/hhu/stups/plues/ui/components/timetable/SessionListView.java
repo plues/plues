@@ -9,7 +9,7 @@ import com.google.inject.assistedinject.Assisted;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
-import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 
 import javafx.beans.property.ListProperty;
