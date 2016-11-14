@@ -7,16 +7,16 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-import java.util.Set;
-
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+
+import java.net.URL;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 public class IncompleteModules extends VBox implements Initializable {
 
@@ -35,6 +35,11 @@ public class IncompleteModules extends VBox implements Initializable {
   private final Delayed<Store> delayedStore;
   private Store store;
 
+  /**
+   * Default constructor for incomplete modules component.
+   * @param inflater Inflater to handle fxml files and resources
+   * @param delayedStore Store to get necessary information
+   */
   @Inject
   public IncompleteModules(final Inflater inflater,
                            final Delayed<Store> delayedStore) {

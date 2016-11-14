@@ -41,6 +41,10 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
   @SuppressWarnings("unused")
   private TableColumn<AbstractUnit, String> columnAbstractUnitTitle;
 
+  /**
+   * Default constructor
+   * @param inflater Inflater to handle fxml files and resources.
+   */
   @Inject
   public ImpossibleAbstractUnitsInModule(final Inflater inflater) {
     modules = new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -66,7 +70,7 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
       }
     });
     listViewModules.getSelectionModel().selectedItemProperty()
-      .addListener((observable, oldValue, newValue) ->
+        .addListener((observable, oldValue, newValue) ->
           abstractUnits.setAll(impossibleAbstractUnitsInModule.get(newValue)));
   }
 
