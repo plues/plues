@@ -14,18 +14,16 @@ import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.report.Pair;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.components.reports.IncompleteModules;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Accordion;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -38,7 +36,6 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 class Reports extends VBox implements Initializable {
@@ -55,30 +52,6 @@ class Reports extends VBox implements Initializable {
   private int groupAmount;
   private int sessionAmount;
 
-  @FXML
-  @SuppressWarnings("unused")
-  private Accordion paneAccordion;
-  @FXML
-  @SuppressWarnings("unused")
-  private Pane paneHeader;
-  @FXML
-  @SuppressWarnings("unused")
-  private TitledPane paneImpossibleCourses;
-  @FXML
-  @SuppressWarnings("unused")
-  private TitledPane paneMandatoryModules;
-  @FXML
-  @SuppressWarnings("unused")
-  private TitledPane paneAbstractUnits;
-  @FXML
-  @SuppressWarnings("unused")
-  private TitledPane paneAbstractUnitsWithUnits;
-  @FXML
-  @SuppressWarnings("unused")
-  private TitledPane paneQuasiMandatoryModules;
-  @FXML
-  @SuppressWarnings("unused")
-  private TitledPane paneRedundantUnitGroups;
   @FXML
   @SuppressWarnings("unused")
   private Label lbCourseAmount;
@@ -242,8 +215,6 @@ class Reports extends VBox implements Initializable {
     lbGroupAmount.setText(String.valueOf(groupAmount));
     lbSessionAmount.setText(String.valueOf(sessionAmount));
     lbModelVersion.setText(String.valueOf(properties.get("model_version")));
-
-    paneAccordion.setExpandedPane(paneImpossibleCourses);
   }
 
   /**
