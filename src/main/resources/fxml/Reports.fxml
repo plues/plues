@@ -10,8 +10,9 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 
+<?import de.hhu.stups.plues.ui.components.reports.IncompleteModules?>
 <fx:root prefHeight="600.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
-        xmlns:fx="http://javafx.com/fxml/1">
+         xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <VBox fx:id="paneHeader" prefHeight="100.0">
             <padding>
@@ -42,8 +43,7 @@
         </VBox>
         <Accordion expandedPane="paneImpossibleCourses">
             <panes>
-                <TitledPane fx:id="paneImpossibleCourses" collapsible="true"
-                            text="%titleImpossibleCourses" maxHeight="250.0">
+                <TitledPane text="%titleIncompleteModules" collapsible="true" maxHeight="200.0">
                     <VBox>
                         <Label text="%explainIncompleteModules"/>
                         <IncompleteModules fx:id="incompleteModules"/>

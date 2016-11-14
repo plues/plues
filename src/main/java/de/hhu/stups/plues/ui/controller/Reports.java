@@ -129,6 +129,9 @@ class Reports extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private ListView<String> listViewQuasiMandatoryModules;
 
+  @FXML
+  private IncompleteModules incompleteModules;
+
   /**
    * Reports view to present several reports and information about the loaded data, statistics,
    * etc.
@@ -224,6 +227,7 @@ class Reports extends VBox implements Initializable {
    */
   @SuppressWarnings("unused")
   private void displayReportData(final ReportData reportData) {
+    incompleteModules.setData(reportData.getIncompleteModules());
     tableViewImpossibleCourses.getItems().addAll(
         reportData.getImpossibleCourses().stream()
           .map(store::getCourseByKey)
