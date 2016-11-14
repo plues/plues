@@ -18,9 +18,7 @@ public class ReportData {
   private Map<Integer, Set<Integer>> quasiMandatoryModuleAbstractUnits;
   private Map<Integer, Set<Pair<Integer>>> redundantUnitGroups;
   private Set<Integer> impossibleModulesBecauseOfMissingElectiveAbstractUnits;
-  private Set<String>
-      impossibleCoursesBecauseOfImpossibleModuleCombinations;
-
+  private Set<String> impossibleCoursesBecauseOfImpossibleModuleCombinations;
   private Set<ModuleAbstractUnitUnitSemesterConflict> moduleAbstractUnitUnitSemesterConflicts;
 
   ReportData() {
