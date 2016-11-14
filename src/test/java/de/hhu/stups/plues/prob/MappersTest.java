@@ -100,8 +100,17 @@ public class MappersTest {
     assertEquals(Integer.valueOf(58), r1.getAbstractUnitId());
     assertEquals(Integer.valueOf(577), r1.getUnitId());
     assertTrue(r1.getAbstractUnitSemesters().contains(6));
+  }
 
+  @Test
+  public void testMapModules() throws  BException {
+    final String raw = "{mod1, mod200}";
+    final Set input = (Set) Translator.translate(raw);
+    final java.util.Set<Integer> result = Mappers.mapModules(input);
 
+    assertEquals(2, result.size());
+    assertTrue(result.contains(1));
+    assertTrue(result.contains(200));
 
   }
 }
