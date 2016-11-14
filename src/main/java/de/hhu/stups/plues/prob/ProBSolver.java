@@ -385,7 +385,7 @@ public class ProBSolver implements Solver {
         Mappers.mapModuleAbstractUnitPairs((Set) data.get("impossible_module_abstract_unit")));
 
     report.setIncompleteModules(
-        Mappers.mapModules((Set) data.get("incomplete_modules")));
+        Mappers.extractModules((Set) data.get("incomplete_modules")));
 
     report.setMandatoryModules(Mappers.mapModuleChoice((Set) data.get("mandatory_modules")));
 
