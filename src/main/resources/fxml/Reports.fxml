@@ -45,7 +45,8 @@
                 <TitledPane fx:id="paneImpossibleCourses" collapsible="true"
                             text="%titleImpossibleCourses" maxHeight="250.0">
                     <VBox>
-                        <Label fx:id="lbExplainImpossibleCourses" text="%explainImpossibleCourses"/>
+                        <Label fx:id="lbExplainImpossibleCourses" text="%explainImpossibleCourses"
+                               wrapText="true"/>
                         <TableView fx:id="tableViewImpossibleCourses" maxHeight="250.0">
                             <columns>
                                 <TableColumn fx:id="tableColumnCourseName" text="%columnCourseName"
@@ -60,7 +61,8 @@
                 <TitledPane fx:id="paneAbstractUnits" collapsible="true" text="%titleAbstractUnits"
                             maxHeight="250.0">
                     <VBox>
-                        <Label fx:id="lbExplainAbstractUnits" text="%explainAbstractUnits" />
+                        <Label fx:id="lbExplainAbstractUnits" text="%explainAbstractUnits"
+                               wrapText="true"/>
                         <TableView fx:id="tableViewAbstractUnits" maxHeight="250.0">
                             <columns>
                                 <TableColumn fx:id="tableColumnAbstractKey" text="%columnUnitKey"
@@ -74,7 +76,8 @@
                 <TitledPane fx:id="paneAbstractUnitsWithUnits" collapsible="true"
                             text="%titleAbstractUnitsWithUnits" maxHeight="250.0">
                     <VBox>
-                        <Label fx:id="lbExplainAbstractUnitsWithUnits"/>
+                        <Label fx:id="lbExplainAbstractUnitsWithUnits"
+                               text="%explainAbstractUnitsWithUnits" wrapText="true"/>
                         <TableView fx:id="tableViewAbstractUnitsWithUnits" maxHeight="250.0">
                             <columns>
                                 <TableColumn fx:id="tableColumnAbstractUnit" text="%columnAbstractUnit"
@@ -90,7 +93,8 @@
                 <TitledPane fx:id="paneMandatoryModules" collapsible="true"
                             text="%titleMandatoryModules" maxHeight="300.0">
                     <VBox>
-                        <Label fx:id="lbExplainMandatoryModules"/>
+                        <Label fx:id="lbExplainMandatoryModules" text="%explainMandatoryModules"
+                               wrapText="true"/>
                         <VBox spacing="5.0">
                             <ListView fx:id="listViewCourses" maxHeight="145.0"/>
                             <ListView fx:id="listViewMandatoryModules" maxHeight="145.0"/>
@@ -100,7 +104,8 @@
                 <TitledPane fx:id="paneQuasiMandatoryModules" collapsible="true"
                             text="%titleQuasiMandatoryModules" maxHeight="300.0">
                     <VBox>
-                        <Label fx:id="lbExplainQuasiMandatoryModules"/>
+                        <Label fx:id="lbExplainQuasiMandatoryModules"
+                               text="%explainQuasiMandatoryModules" wrapText="true"/>
                         <VBox spacing="5.0">
                             <ListView fx:id="listViewQuasiCourses" maxHeight="145.0"/>
                             <ListView fx:id="listViewQuasiMandatoryModules" maxHeight="100.0"/>
@@ -110,7 +115,8 @@
                 <TitledPane fx:id="paneRedundantUnitGroups" collapsible="true"
                             text="%titleRedundantUnitGroups" maxHeight="125.0">
                     <VBox>
-                        <Label fx:id="lbExplainRedundantUnitGroups"/>
+                        <Label fx:id="lbExplainRedundantUnitGroups"
+                               text="%explainRedundantUnitGroups" wrapText="true"/>
                         <TableView fx:id="tableViewRedundantUnitGroups" maxHeight="125.0">
                             <columns>
                                 <TableColumn fx:id="tableColumnRedundantUnitKey" text="%columnUnitKey"
