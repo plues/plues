@@ -14,6 +14,7 @@ import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.report.Pair;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
 import de.hhu.stups.plues.ui.components.reports.IncompleteModules;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -130,7 +131,11 @@ class Reports extends VBox implements Initializable {
   private ListView<String> listViewQuasiMandatoryModules;
 
   @FXML
+  @SuppressWarnings("unused")
   private IncompleteModules incompleteModules;
+  @FXML
+  @SuppressWarnings("unused")
+  private ImpossibleAbstractUnitsInModule impossibleAbstractUnitsInModule;
 
   /**
    * Reports view to present several reports and information about the loaded data, statistics,
@@ -228,6 +233,11 @@ class Reports extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private void displayReportData(final ReportData reportData) {
     incompleteModules.setData(reportData.getIncompleteModules());
+    impossibleAbstractUnitsInModule.setData(reportData.getImpossibleAbstractUnitsInModule()
+        .entrySet().stream().collect(Collectors.toMap(
+          entry -> store.getModuleById(entry.getKey()),
+          entry -> entry.getValue().stream().map(
+              store::getAbstractUnitById).collect(Collectors.toSet()))));
     tableViewImpossibleCourses.getItems().addAll(
         reportData.getImpossibleCourses().stream()
           .map(store::getCourseByKey)

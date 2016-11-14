@@ -10,6 +10,7 @@ import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
+import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
 import de.hhu.stups.plues.ui.components.reports.IncompleteModules;
 import de.hhu.stups.plues.ui.components.timetable.DetailView;
 import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration;
@@ -34,5 +35,6 @@ class ComponentsModule extends AbstractModule {
     bind(DetailView.class);
     bind(AboutWindow.class);
     bind(IncompleteModules.class);
+    bind(ImpossibleAbstractUnitsInModule.class);
   }
 }

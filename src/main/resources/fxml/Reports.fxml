@@ -11,6 +11,7 @@
 <?import javafx.scene.control.TableColumn?>
 
 <?import de.hhu.stups.plues.ui.components.reports.IncompleteModules?>
+<?import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule?>
 <fx:root prefHeight="600.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
     <children>
@@ -41,15 +42,17 @@
                 <Label fx:id="lbModelVersion" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
             </GridPane>
         </VBox>
-        <Accordion expandedPane="paneImpossibleCourses">
+        <Accordion>
             <panes>
                 <TitledPane text="%titleIncompleteModules" collapsible="true" maxHeight="200.0">
-                    <VBox>
-                        <Label text="%explainIncompleteModules"/>
-                        <IncompleteModules fx:id="incompleteModules"/>
-                    </VBox>
+                    <IncompleteModules fx:id="incompleteModules"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleImpossibleCourses" maxHeight="250.0">
+                <TitledPane text="%titleImpossibleAbstractUnitsInModule" collapsible="true"
+                            maxHeight="250.0">
+                    <ImpossibleAbstractUnitsInModule fx:id="impossibleAbstractUnitsInModule"/>
+                </TitledPane>
+                <TitledPane collapsible="true" text="%titleImpossibleCourses" maxHeight="250.0"
+                            fx:id="paneImpossibleCourses">
                     <VBox>
                         <Label text="%explainImpossibleCourses" wrapText="true"/>
                         <TableView fx:id="tableViewImpossibleCourses" maxHeight="250.0">
