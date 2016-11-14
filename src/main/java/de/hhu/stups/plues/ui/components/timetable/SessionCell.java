@@ -6,7 +6,7 @@ import com.google.inject.Provider;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
-import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.services.SolverService;
 
 import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
