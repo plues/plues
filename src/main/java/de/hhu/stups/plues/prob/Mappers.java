@@ -191,7 +191,7 @@ final class Mappers {
       e -> Collections.unmodifiableSet(e.getValue()))));
   }
 
-  static java.util.Set<Integer> mapModules(final Set incompleteModules) {
+  static java.util.Set<Integer> extractModules(final Set incompleteModules) {
     return Collections.unmodifiableSet(
       incompleteModules.stream().map(bObject -> {
         final Tuple module = (Tuple) bObject;
@@ -248,10 +248,17 @@ final class Mappers {
       final Integer abstractUnit = mapValue(mau.getSecond().toString(), ABSTRACT_UNIT_PREFIX);
 
       final Integer unit = mapValue(tuple.getSecond().toString(), UNIT_PREFIX);
-      final java.util.Set<Integer> semesters = ((Set) maus.getSecond()).stream()
-          .map(sem -> mapValue(sem.toString(), SEMESTER_PREFIX))
-          .collect(Collectors.toSet());
+      final java.util.Set<Integer> semesters = Collections.unmodifiableSet(
+          ((Set) maus.getSecond()).stream()
+              .map(sem -> mapValue(sem.toString(), SEMESTER_PREFIX))
+              .collect(Collectors.toSet()));
       return new ModuleAbstractUnitUnitSemesterConflict(module, abstractUnit, semesters, unit);
     }).collect(Collectors.toSet());
+  }
+
+  static java.util.Set<Integer> mapModules(final Set modules) {
+    return Collections.unmodifiableSet(
+      modules.stream().map(bObject ->
+          mapValue(bObject.toString(), MODULE_PREFIX)).collect(Collectors.toSet()));
   }
 }
