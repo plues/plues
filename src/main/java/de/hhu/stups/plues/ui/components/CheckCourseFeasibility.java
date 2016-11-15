@@ -29,7 +29,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   private final BooleanProperty solverProperty;
   private Set<String> impossibleCourses;
 
-  private UiDataService uiDataService;
+  private final UiDataService uiDataService;
 
   @FXML
   @SuppressWarnings("unused")
@@ -75,7 +75,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     resultBoxWrapper.setSpacing(5.0);
 
-    IntegerBinding resultBoxChildren = Bindings.size(resultBoxWrapper.getChildren());
+    final IntegerBinding resultBoxChildren = Bindings.size(resultBoxWrapper.getChildren());
     scrollPaneResults.visibleProperty().bind(resultBoxChildren.greaterThan(0));
     scrollPaneResults.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
     scrollPaneResults.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -109,7 +109,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     combinationOrSingleCourseSelection.setCourses(courses);
   }
 
-  void highlightImpossibleCourses(Set<String> impossibleCourses) {
+  void highlightImpossibleCourses(final Set<String> impossibleCourses) {
     this.impossibleCourses = impossibleCourses;
     combinationOrSingleCourseSelection.highlightImpossibleCourses(impossibleCourses);
   }
