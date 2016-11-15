@@ -6,11 +6,8 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
-import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.prob.ReportData;
-import de.hhu.stups.plues.prob.report.Pair;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
@@ -31,25 +28,22 @@ import javafx.scene.layout.VBox;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 class Reports extends VBox implements Initializable {
 
   private final List<AbstractUnit> abstractUnitsWithoutUnits;
-  private final List<Unit> units;
   private final List<AbstractUnit> abstractUnits;
-  private final List<Course> courses;
-  private final List<Group> groups;
   private final Properties properties;
   private Store store;
   private int groupAmount;
   private int sessionAmount;
+  private int courseAmount;
+  private int unitAmount;
 
   @FXML
   @SuppressWarnings("unused")
@@ -132,23 +126,19 @@ class Reports extends VBox implements Initializable {
                  final Delayed<SolverService> delayedSolverService,
                  final ExecutorService executor,
                  final Properties properties) {
-    courses = new ArrayList<>();
-    units = new ArrayList<>();
     abstractUnits = new ArrayList<>();
     abstractUnitsWithoutUnits = new ArrayList<>();
-    groups = new ArrayList<>();
 
     this.properties = properties;
 
     delayedStore.whenAvailable(localStore -> {
       this.store = localStore;
-      groups.addAll(store.getGroups());
-      courses.addAll(store.getCourses());
-      units.addAll(store.getUnits());
       abstractUnits.addAll(store.getAbstractUnits());
       abstractUnitsWithoutUnits.addAll(store.getAbstractUnitsWithoutUnits());
-      groupAmount = groups.size();
+      groupAmount = store.getGroups().size();
       sessionAmount = store.getSessions().size();
+      courseAmount = store.getCourses().size();
+      unitAmount = store.getUnits().size();
     });
 
     delayedSolverService.whenAvailable(solverService -> {
@@ -177,11 +167,8 @@ class Reports extends VBox implements Initializable {
     tableColumnUnit.setCellValueFactory(new PropertyValueFactory<>(second));
     tableColumnSemesters.setCellValueFactory(new PropertyValueFactory<>(third));
 
-    tableColumnRedundantUnitKey.setCellValueFactory(new PropertyValueFactory<>("key"));
-    tableColumnRedundantUnit.setCellValueFactory(new PropertyValueFactory<>("title"));
-
-    lbCourseAmount.setText(String.valueOf(courses.size()));
-    lbUnitAmount.setText(String.valueOf(units.size()));
+    lbCourseAmount.setText(String.valueOf(courseAmount));
+    lbUnitAmount.setText(String.valueOf(unitAmount));
     lbAbstractUnitAmount.setText(String.valueOf(abstractUnits.size()));
     lbGroupAmount.setText(String.valueOf(groupAmount));
     lbSessionAmount.setText(String.valueOf(sessionAmount));
