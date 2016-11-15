@@ -182,7 +182,9 @@ class Reports extends VBox implements Initializable {
           entry -> store.getModuleById(entry.getKey()),
           entry -> entry.getValue().stream().map(
               store::getAbstractUnitById).collect(Collectors.toSet()))));
-    impossibleCourses.setData(reportData.getImpossibleCourses());
+    impossibleCourses.setData(reportData.getImpossibleCourses(),
+        reportData.getImpossibleCoursesBecauseofImpossibleModules(),
+        reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations());
     mandatoryModules.setData(reportData.getMandatoryModules()
         .entrySet().stream().collect(Collectors.toMap(
           entry -> store.getCourseByKey(entry.getKey()),

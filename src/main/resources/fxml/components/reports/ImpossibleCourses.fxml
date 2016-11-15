@@ -4,9 +4,22 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.SegmentedButton?>
+<?import javafx.scene.control.ToggleButton?>
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
-    <Label text="%explainImpossibleCourses" wrapText="true"/>
+    <SegmentedButton padding="5">
+        <buttons>
+            <ToggleButton fx:id="buttonImpossibleCourses" text="%titleImpossibleCourses"
+                          selected="true" wrapText="true"/>
+            <ToggleButton fx:id="buttonImpossibleCoursesBecauseOfImpossibleModules"
+                          text="%titleImpossibleCoursesBecauseOfImpossibleModules" wrapText="true"/>
+            <ToggleButton fx:id="buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations"
+                          text="%titleImpossibleCoursesBecauseOfImpossibleModuleCombinations"
+                          wrapText="true"/>
+        </buttons>
+    </SegmentedButton>
+    <Label fx:id="explanation" wrapText="true"/>
     <Label text="%courses" style="-fx-font-size: 20px"/>
     <TableView fx:id="tableViewImpossibleCourses" maxHeight="250.0">
         <columns>
