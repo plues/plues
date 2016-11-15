@@ -7,9 +7,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.collections.ObservableList;
 
 /**
- * Stupid data container that can be injected and used by all UI components to store global data
- *
- * Created by Tobias Witt on 14.11.16.
+ * Stupid data container that can be injected and used by all UI components to store global data.
  */
 
 @Singleton

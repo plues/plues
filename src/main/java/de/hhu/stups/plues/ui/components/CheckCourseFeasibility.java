@@ -83,7 +83,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     btCheckFeasibility.disableProperty().bind(solverProperty.not());
 
     btUnhighlightAllConflicts.visibleProperty().bind(this.uiDataService
-      .conflictMarkedSessionsProperty().emptyProperty().not());
+        .conflictMarkedSessionsProperty().emptyProperty().not());
   }
 
   /**
