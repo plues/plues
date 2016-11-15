@@ -324,16 +324,6 @@ public class MainController implements Initializable {
     return fileChooser;
   }
 
-  @FXML
-  private void setPrefDisplaySessionName() {
-
-  }
-
-  @FXML
-  private void setPrefDisplaySessionId() {
-
-  }
-
   /**
    * The menu item's action to export the current state of the database to a zip file containing the
    * xml files.
