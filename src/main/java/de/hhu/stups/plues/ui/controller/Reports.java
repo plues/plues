@@ -17,6 +17,7 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses;
 import de.hhu.stups.plues.ui.components.reports.IncompleteModules;
+import de.hhu.stups.plues.ui.components.reports.MandatoryModules;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.fxml.FXML;
@@ -46,7 +47,6 @@ class Reports extends VBox implements Initializable {
   private final List<Unit> units;
   private final List<AbstractUnit> abstractUnits;
   private final List<Course> courses;
-  private final List<Module> mandatoryModules;
   private final Map<Integer, Set<Integer>> quasiMandatoryModules;
   private final List<Group> groups;
   private final Properties properties;
@@ -111,12 +111,6 @@ class Reports extends VBox implements Initializable {
   private TableColumn<TableRowPair<String>, String> tableColumnRedundantUnit;
   @FXML
   @SuppressWarnings("unused")
-  private ListView<String> listViewCourses;
-  @FXML
-  @SuppressWarnings("unused")
-  private ListView<String> listViewMandatoryModules;
-  @FXML
-  @SuppressWarnings("unused")
   private ListView<String> listViewQuasiCourses;
   @FXML
   @SuppressWarnings("unused")
@@ -131,6 +125,9 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ImpossibleCourses impossibleCourses;
+  @FXML
+  @SuppressWarnings("unused")
+  private MandatoryModules mandatoryModules;
 
   /**
    * Reports view to present several reports and information about the loaded data, statistics,
@@ -145,7 +142,6 @@ class Reports extends VBox implements Initializable {
     units = new ArrayList<>();
     abstractUnits = new ArrayList<>();
     abstractUnitsWithoutUnits = new ArrayList<>();
-    mandatoryModules = new ArrayList<>();
     groups = new ArrayList<>();
     quasiMandatoryModules = new HashMap<>();
 
@@ -156,7 +152,6 @@ class Reports extends VBox implements Initializable {
       groups.addAll(store.getGroups());
       courses.addAll(store.getCourses());
       units.addAll(store.getUnits());
-      mandatoryModules.addAll(store.getModules());
       abstractUnits.addAll(store.getAbstractUnits());
       abstractUnitsWithoutUnits.addAll(store.getAbstractUnitsWithoutUnits());
       groupAmount = groups.size();
@@ -177,8 +172,6 @@ class Reports extends VBox implements Initializable {
     final String listStyle = "batchListView";
     tableViewAbstractUnits.setId(listStyle);
     tableViewAbstractUnitsWithUnits.setId(listStyle);
-    listViewCourses.setId(listStyle);
-    listViewMandatoryModules.setId(listStyle);
     listViewQuasiCourses.setId(listStyle);
     listViewQuasiMandatoryModules.setId(listStyle);
 
@@ -197,11 +190,6 @@ class Reports extends VBox implements Initializable {
     tableColumnRedundantUnit.setCellValueFactory(new PropertyValueFactory<>("title"));
 
     // add listener to update the (quasi-) mandatory list views according to the selected course
-    listViewCourses.getSelectionModel().selectedItemProperty()
-        .addListener((observable, oldValue, newValue) -> {
-          listViewMandatoryModules.getItems().clear();
-          showMandatoryModulesOfCourse(listViewCourses.getSelectionModel().getSelectedItem());
-        });
     listViewQuasiCourses.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) -> {
           listViewQuasiMandatoryModules.getItems().clear();
@@ -231,6 +219,13 @@ class Reports extends VBox implements Initializable {
           entry -> entry.getValue().stream().map(
               store::getAbstractUnitById).collect(Collectors.toSet()))));
     impossibleCourses.setData(reportData.getImpossibleCourses());
+    mandatoryModules.setData(reportData.getMandatoryModules()
+        .entrySet().stream().collect(Collectors.toMap(
+          entry -> store.getCourseByKey(entry.getKey()),
+          entry -> entry.getValue().stream().map(
+              store::getModuleById).collect(Collectors.toSet()))));
+
+
     lbImpossibleCoursesAmount.setText(String.valueOf(reportData.getImpossibleCourses().size()));
 
     tableViewAbstractUnits.getItems().addAll(abstractUnitsWithoutUnits);
@@ -252,11 +247,8 @@ class Reports extends VBox implements Initializable {
     }
 
     quasiMandatoryModules.putAll(reportData.getQuasiMandatoryModuleAbstractUnits());
-    listViewCourses.getItems()
-        .addAll(courses.stream().map(Course::getName).collect(Collectors.toList()));
     listViewQuasiCourses.getItems()
         .addAll(courses.stream().map(Course::getName).collect(Collectors.toList()));
-    listViewCourses.getSelectionModel().select(0);
     listViewQuasiCourses.getSelectionModel().select(0);
 
     final Map<Integer, Set<Pair<Integer>>> redundantUnitGroups =
@@ -291,23 +283,6 @@ class Reports extends VBox implements Initializable {
     } else {
       listViewQuasiMandatoryModules.getItems().clear();
     }
-  }
-
-  /**
-   * Update {@link Reports#listViewMandatoryModules} to show the mandatory modules of the currently
-   * selected course in {@link Reports#listViewCourses}.
-   *
-   * @param selectedCourseName The currently selected course within {@link Reports#listViewCourses}.
-   */
-  @SuppressWarnings("unused")
-  private void showMandatoryModulesOfCourse(final String selectedCourseName) {
-    mandatoryModules.forEach(module -> {
-      if (module.getCourses().stream()
-          .map(Course::getName).collect(Collectors.toList())
-          .contains(selectedCourseName)) {
-        listViewMandatoryModules.getItems().add(module.getTitle());
-      }
-    });
   }
 
   public static final class TableRowPair<T> {

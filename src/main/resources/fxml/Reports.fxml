@@ -13,6 +13,7 @@
 <?import de.hhu.stups.plues.ui.components.reports.IncompleteModules?>
 <?import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule?>
 <?import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses?>
+<?import de.hhu.stups.plues.ui.components.reports.MandatoryModules?>
 <fx:root prefHeight="600.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
     <children>
@@ -85,13 +86,7 @@
                     </VBox>
                 </TitledPane>
                 <TitledPane collapsible="true" text="%titleMandatoryModules" maxHeight="300.0">
-                    <VBox>
-                        <Label text="%explainMandatoryModules" wrapText="true"/>
-                        <VBox spacing="5.0">
-                            <ListView fx:id="listViewCourses" maxHeight="145.0"/>
-                            <ListView fx:id="listViewMandatoryModules" maxHeight="145.0"/>
-                        </VBox>
-                    </VBox>
+                    <MandatoryModules fx:id="mandatoryModules"/>
                 </TitledPane>
                 <TitledPane collapsible="true" text="%titleQuasiMandatoryModules" maxHeight="300.0">
                     <VBox>

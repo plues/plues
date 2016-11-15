@@ -1,0 +1,75 @@
+package de.hhu.stups.plues.ui.components.reports;
+
+import com.google.inject.Inject;
+
+import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.ui.layout.Inflater;
+
+import java.net.URL;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
+
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.layout.VBox;
+import javafx.util.Callback;
+
+public class MandatoryModules extends VBox implements Initializable {
+
+  private Map<Course, Set<Module>> mandatoryModules;
+  private SimpleListProperty<Course> courses;
+  private SimpleListProperty<Module> modules;
+
+  @FXML
+  @SuppressWarnings("unused")
+  private ListView<Course> listViewCourses;
+  @FXML
+  @SuppressWarnings("unused")
+  private ListView<Module> listViewMandatoryModules;
+
+  @Inject
+  public MandatoryModules(final Inflater inflater) {
+    courses = new SimpleListProperty<>(FXCollections.observableArrayList());
+    modules = new SimpleListProperty<>(FXCollections.observableArrayList());
+
+    inflater.inflate("/components/reports/MandatoryModules", this, this, "reports");
+  }
+
+  @Override
+  public void initialize(URL location, ResourceBundle resources) {
+    listViewCourses.itemsProperty().bind(courses);
+    listViewCourses.setCellFactory(param -> new ListCell<Course>() {
+      @Override
+      protected void updateItem(Course course, boolean empty) {
+        super.updateItem(course, empty);
+        if (!empty) {
+          setText(course.getKey());
+        }
+      }
+    });
+    listViewMandatoryModules.itemsProperty().bind(modules);
+    listViewMandatoryModules.setCellFactory(param -> new ListCell<Module>() {
+      @Override
+      protected void updateItem(Module module, boolean empty) {
+        super.updateItem(module, empty);
+        if (!empty) {
+          setText(module.getTitle());
+        }
+      }
+    });
+    listViewCourses.getSelectionModel().selectedItemProperty()
+        .addListener((observable, oldValue, newValue) ->
+          modules.setAll(mandatoryModules.get(newValue)));
+  }
+
+  public void setData(final Map<Course, Set<Module>> mandatoryModules) {
+    this.mandatoryModules = mandatoryModules;
+    courses.addAll(mandatoryModules.keySet());
+  }
+}
