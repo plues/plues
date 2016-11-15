@@ -19,6 +19,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -74,9 +75,8 @@ public class FeasibilityBox extends VBox implements Initializable {
   private final Delayed<Store> delayedStore;
   private final Set<String> impossibleCourses;
   private final VBox parent;
+  private final UiDataService uiDataService;
 
-  // TODO add empty TreeView to FXML and bind it's root property to an ObjectBinding that is
-  // TODO dependent on this property and computes the tree as a TreeItem<String>
   private final ListProperty<Integer> unsatCoreProperty = new SimpleListProperty<>();
 
   @FXML
@@ -106,15 +106,15 @@ public class FeasibilityBox extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Button btSubmit;
-  @FXML
-  private Button btHighlightAllConflicts;
 
-  private UiDataService uiDataService;
+  private Button btHighlightAllConflicts;
+  private TreeView<String> conflictTreeView;
+  private TreeItem<String> conflictTreeRootItem;
 
   /**
    * A container to display the feasibility of a combination of courses or a single one. For
-   * infeasible courses it is possible to compute the unsat core which is presented in a titled pane
-   * grouped by the day of week.
+   * infeasible courses it is possible to compute the unsat core which is presented in a {@link
+   * #conflictTreeView} grouped by the day of week.
    */
   @Inject
   public FeasibilityBox(final Inflater inflater,
@@ -140,9 +140,6 @@ public class FeasibilityBox extends VBox implements Initializable {
     timeStrings = new HashMap<>();
 
     inflater.inflate("components/FeasibilityBox", this, this, "feasibilityBox");
-
-    btHighlightAllConflicts.visibleProperty().bind(
-      Bindings.not(unsatCoreProperty.emptyProperty()));
   }
 
   @Override
@@ -159,10 +156,30 @@ public class FeasibilityBox extends VBox implements Initializable {
 
     gridPaneResults.setHgap(5.0);
 
+    btHighlightAllConflicts = new Button();
+    btHighlightAllConflicts.setText(resources.getString("highlightConflicts"));
+    conflictTreeView = new TreeView<>();
+    conflictTreeRootItem = new TreeItem<>();
+
     lbMajor.textProperty()
         .bind(Bindings.selectString(majorCourseProperty, "fullName"));
     lbMinor.textProperty()
         .bind(Bindings.selectString(minorCourseProperty, "fullName"));
+
+    conflictTreeView.rootProperty().bind(new ReadOnlyObjectWrapper<>(conflictTreeRootItem));
+
+    conflictTreeRootItem.setValue(resources.getString("conflictPaneTitle"));
+
+    conflictTreeRootItem.expandedProperty().addListener((observable, oldValue, newValue) -> {
+      if (!newValue) {
+        conflictTreeView.setPrefHeight(26.0);
+      } else {
+        conflictTreeView.setPrefHeight(175.0);
+      }
+    });
+    conflictTreeRootItem.setExpanded(true);
+
+    btHighlightAllConflicts.visibleProperty().bind(unsatCoreProperty.emptyProperty().not());
 
     delayedSolverService.whenAvailable(solver -> {
       final Course cMajor = majorCourseProperty.get();
@@ -290,13 +307,14 @@ public class FeasibilityBox extends VBox implements Initializable {
   }
 
   /**
-   * Create the titled pane and grid pane to show the conflicts grouped by the day of week.
+   * Display the unsat core in a TreeView grouped by the day of week and the time of the day. The
+   * TreeView's root property is bound to {@link #conflictTreeRootItem}.
    *
    * @param unsatCore The list of session Ids that form the unsat core.
    */
   @SuppressWarnings("unused")
   private void showConflictResult(final List<Integer> unsatCore) {
-    final TreeView<Object> conflictTreeView = new TreeView<>();
+    conflictTreeRootItem.getChildren().clear();
 
     final List<Session> conflictSessions = delayedStore.get().getSessions()
         .stream().filter(session -> unsatCore.contains(session.getId()))
@@ -315,39 +333,26 @@ public class FeasibilityBox extends VBox implements Initializable {
       }
     });
 
-    final TreeItem<Object> rootTreeViewItem = new TreeItem<>(
-        resources.getString("conflictPaneTitle"));
     // add all conflicting sessions to the tree view grouped by the day of week and time of the day
     sortedSessionsByDay.entrySet().forEach(dayOfWeekEntry -> {
-      final TreeItem<Object> dayRootItem = new TreeItem<>(dayOfWeekStrings
+      final TreeItem<String> dayRootItem = new TreeItem<>(dayOfWeekStrings
           .get(dayOfWeekEntry.getKey()));
-      dayRootItem.setExpanded(false);
-      sortSessionsByTime(sortedSessionsByDay.get(dayOfWeekEntry.getKey())).entrySet()
+      dayRootItem.setExpanded(true);
+      groupSessionsByTime(sortedSessionsByDay.get(dayOfWeekEntry.getKey())).entrySet()
           .forEach(timeAtDayEntry -> {
-            final TreeItem<Object> timeRootItem = new TreeItem<>(timeAtDayEntry.getKey());
+            final TreeItem<String> timeRootItem = new TreeItem<>(timeAtDayEntry.getKey());
+            timeRootItem.setExpanded(true);
             timeRootItem.getChildren().addAll(timeAtDayEntry.getValue().stream()
-                .map(session -> new TreeItem<Object>(session.toString()))
+                .map(session -> new TreeItem<>(session.toString()))
                 .collect(Collectors.toList()));
             dayRootItem.getChildren().add(timeRootItem);
           });
-      rootTreeViewItem.getChildren().add(dayRootItem);
+      conflictTreeRootItem.getChildren().add(dayRootItem);
     });
-    conflictTreeView.setRoot(rootTreeViewItem);
-    conflictTreeView.setPrefHeight(26.0);
-
-    // adapt the tree view's height according to its expanded state
-    rootTreeViewItem.expandedProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue) {
-        conflictTreeView.setPrefHeight(26.0);
-      } else {
-        conflictTreeView.setPrefHeight(175.0);
-      }
-    });
-
-    getChildren().add(conflictTreeView);
+    getChildren().addAll(conflictTreeView, btHighlightAllConflicts);
   }
 
-  private Map<String, ArrayList<Session>> sortSessionsByTime(ArrayList<Session> sessions) {
+  private Map<String, ArrayList<Session>> groupSessionsByTime(ArrayList<Session> sessions) {
     final Map<String, ArrayList<Session>> sortedSessionsByTime = new HashMap<>(sessions.size());
     sessions.forEach(session -> {
       final String timeString = timeStrings.get(session.getTime());

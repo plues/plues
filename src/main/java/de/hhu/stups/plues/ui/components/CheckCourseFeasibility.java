@@ -70,8 +70,8 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
 
     inflater.inflate("components/CheckCourseFeasibility", this, this, "checkCourseFeasibility");
 
-    btUnhighlightAllConflicts.visibleProperty().bind(
-      Bindings.not(this.uiDataService.conflictMarkedSessionsProperty().emptyProperty()));
+    btUnhighlightAllConflicts.visibleProperty().bind(this.uiDataService
+        .conflictMarkedSessionsProperty().emptyProperty().not());
   }
 
   @Override
