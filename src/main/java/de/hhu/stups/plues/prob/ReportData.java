@@ -125,7 +125,7 @@ public class ReportData {
   /**
    * B: quasi_mandatory_module_abstract_units.
    * modules and set of abstract units that are elective but quasi-mandatory,
-   * because the module contains exactly as much elective abstract units as it
+   * because the module contains exactly as many elective abstract units as it
    * requires for its completion
    *
    * @return Map from module ID to a set of abstract unit IDs
