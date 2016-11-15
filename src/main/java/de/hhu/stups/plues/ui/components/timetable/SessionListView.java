@@ -10,9 +10,11 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 
 import javafx.beans.property.ListProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -27,26 +29,49 @@ public class SessionListView extends ListView<SessionFacade> {
   private final Delayed<SolverService> delayedSolver;
   private ListProperty<SessionFacade> sessions;
 
+  private final UiDataService uiDataService;
+
   /**
    * Custom implementation of ListView for sessions.
    * @param slot the time slot identifying this session list
    * @param delayedStore Store to save new session info after moving
    * @param delayedSolver Solver to find out if moving a session is valid
+   * @param uiDataService a stupid data container to dump any kind of data in it
    */
   @Inject
   public SessionListView(@Assisted final SessionFacade.Slot slot,
                          final Delayed<ObservableStore> delayedStore,
                          final Delayed<SolverService> delayedSolver,
-                         final Provider<SessionCell> cellProvider) {
+                         final Provider<SessionCell> cellProvider,
+                         final UiDataService uiDataService) {
     super();
 
     this.slot = slot;
     this.delayedStore = delayedStore;
     this.delayedSolver = delayedSolver;
+    this.uiDataService = uiDataService;
 
     setCellFactory(param -> cellProvider.get());
 
     initEvents();
+    setupConflictHighlight();
+  }
+
+  private void setupConflictHighlight() {
+    this.uiDataService.conflictMarkedSessionsProperty()
+        .addListener((observable, oldValue, newValue) -> {
+          getStyleClass().remove("red-border");
+
+          if (hasSessionIdsIn(this.uiDataService.conflictMarkedSessionsProperty())) {
+            getStyleClass().add("red-border");
+          }
+        });
+  }
+
+  private boolean hasSessionIdsIn(ObservableList<Integer> ids) {
+    return ids.stream().anyMatch(
+        conflictedId -> getItems().stream().anyMatch(
+            (SessionFacade session) -> session.getSession().getId() == conflictedId));
   }
 
   private void initEvents() {

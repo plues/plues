@@ -79,3 +79,9 @@
     -fx-background-color: darkred;
     -fx-text-fill: aliceblue;
 }
+
+.red-border {
+    -fx-border-color: red;
+    -fx-border-width: 10;
+    -fx-border-style: dotted;
+}
