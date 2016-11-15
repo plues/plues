@@ -107,7 +107,12 @@ public class FeasibilityBox extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private Button btSubmit;
 
+  @FXML
   private Button btHighlightAllConflicts;
+
+  @FXML
+  private VBox conflictResults;
+
   private TreeView<String> conflictTreeView;
   private TreeItem<String> conflictTreeRootItem;
 
@@ -156,8 +161,8 @@ public class FeasibilityBox extends VBox implements Initializable {
 
     gridPaneResults.setHgap(5.0);
 
-    btHighlightAllConflicts = new Button();
-    btHighlightAllConflicts.setText(resources.getString("highlightConflicts"));
+    btHighlightAllConflicts.visibleProperty().bind(unsatCoreProperty.emptyProperty().not());
+
     conflictTreeView = new TreeView<>();
     conflictTreeRootItem = new TreeItem<>();
 
@@ -349,7 +354,7 @@ public class FeasibilityBox extends VBox implements Initializable {
           });
       conflictTreeRootItem.getChildren().add(dayRootItem);
     });
-    getChildren().addAll(conflictTreeView, btHighlightAllConflicts);
+    conflictResults.getChildren().add(conflictTreeView);
   }
 
   private Map<String, ArrayList<Session>> groupSessionsByTime(ArrayList<Session> sessions) {
