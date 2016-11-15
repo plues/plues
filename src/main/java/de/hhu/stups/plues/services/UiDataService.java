@@ -25,8 +25,8 @@ public class UiDataService {
     return sessionDisplayFormatProperty;
   }
 
-  public void setSessionDisplayFormatProperty(String prefSessionDisplayFormatProperty) {
-    this.sessionDisplayFormatProperty.set(prefSessionDisplayFormatProperty);
+  public void setSessionDisplayFormatProperty(final String sessionDisplayFormatProperty) {
+    this.sessionDisplayFormatProperty.set(sessionDisplayFormatProperty);
   }
 
   public ObservableList<Integer> getConflictMarkedSessions() {
@@ -37,7 +37,7 @@ public class UiDataService {
     return conflictMarkedSessionsProperty;
   }
 
-  public void setConflictMarkedSessions(ObservableList<Integer> conflictMarkedSessions) {
+  public void setConflictMarkedSessions(final ObservableList<Integer> conflictMarkedSessions) {
     this.conflictMarkedSessionsProperty.set(conflictMarkedSessions);
   }
 }
