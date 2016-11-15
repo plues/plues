@@ -56,15 +56,7 @@ class SessionCell extends ListCell<SessionFacade> {
           }
         });
     uiDataService.sessionDisplayFormatProperty()
-        .addListener((observable, oldValue, newValue) -> {
-          if (getItem() != null) {
-            if ("name".equals(newValue)) {
-              setText(getItem().getSession().toString());
-            } else {
-              setText(String.valueOf(getItem().getSession().getId()));
-            }
-          }
-        });
+        .addListener((observable, oldValue, newValue) -> this.updateItem(getItem(), false));
   }
 
   private void waitForSolver() {
