@@ -6,7 +6,6 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
-import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -176,15 +175,18 @@ class Reports extends VBox implements Initializable {
    */
   @SuppressWarnings("unused")
   private void displayReportData(final ReportData reportData) {
-    incompleteModules.setData(reportData.getIncompleteModules());
+    incompleteModules.setData(reportData.getIncompleteModules().stream().map(store::getModuleById).collect(Collectors.toList()));
     impossibleAbstractUnitsInModule.setData(reportData.getImpossibleAbstractUnitsInModule()
         .entrySet().stream().collect(Collectors.toMap(
           entry -> store.getModuleById(entry.getKey()),
           entry -> entry.getValue().stream().map(
               store::getAbstractUnitById).collect(Collectors.toSet()))));
-    impossibleCourses.setData(reportData.getImpossibleCourses(),
-        reportData.getImpossibleCoursesBecauseofImpossibleModules(),
-        reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations());
+    impossibleCourses.setData(reportData.getImpossibleCourses()
+          .stream().map(store::getCourseByKey).collect(Collectors.toSet()),
+        reportData.getImpossibleCoursesBecauseofImpossibleModules()
+          .stream().map(store::getCourseByKey).collect(Collectors.toSet()),
+        reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations()
+          .stream().map(store::getCourseByKey).collect(Collectors.toSet()));
     mandatoryModules.setData(reportData.getMandatoryModules()
         .entrySet().stream().collect(Collectors.toMap(
           entry -> store.getCourseByKey(entry.getKey()),

@@ -143,16 +143,13 @@ public class ImpossibleCourses extends VBox implements Initializable {
     delayedStore.whenAvailable(store -> this.store = store);
   }
 
-  public void setData(final Set<String> impossibleCourses,
-                      final Set<String> impossibleCoursesBecauseOfImpossibleModules,
-                      final Set<String> impossibleCoursesBecauseOfImpossibleModuleCombinations) {
-    this.impossibleCoursesList =
-        impossibleCourses.stream().map(store::getCourseByKey).collect(Collectors.toList());
-    this.impossibleCoursesBecauseOfImpossibleModulesList =
-        impossibleCoursesBecauseOfImpossibleModules.stream().map(
-            store::getCourseByKey).collect(Collectors.toList());
-    this.impossibleCoursesBecauseOfImpossibleModuleCombinationsList =
-      impossibleCoursesBecauseOfImpossibleModuleCombinations.stream().map(
-        store::getCourseByKey).collect(Collectors.toList());
+  public void setData(final Set<Course> impossibleCourses,
+                      final Set<Course> impossibleCoursesBecauseOfImpossibleModules,
+                      final Set<Course> impossibleCoursesBecauseOfImpossibleModuleCombinations) {
+    impossibleCoursesList.setAll(impossibleCourses);
+    impossibleCoursesBecauseOfImpossibleModulesList.setAll(
+      impossibleCoursesBecauseOfImpossibleModules);
+    impossibleCoursesBecauseOfImpossibleModuleCombinationsList.setAll(
+      impossibleCoursesBecauseOfImpossibleModuleCombinations);
   }
 }

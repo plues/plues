@@ -7,6 +7,7 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
@@ -15,8 +16,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 public class IncompleteModules extends VBox implements Initializable {
 
@@ -56,7 +57,7 @@ public class IncompleteModules extends VBox implements Initializable {
     delayedStore.whenAvailable(store -> this.store = store);
   }
 
-  public void setData(final Set<Integer> incompleteModules) {
-    incompleteModules.forEach(id -> tableViewModules.getItems().add(store.getModuleById(id)));
+  public void setData(final List<Module> incompleteModules) {
+    tableViewModules.setItems(FXCollections.observableList(incompleteModules));
   }
 }
