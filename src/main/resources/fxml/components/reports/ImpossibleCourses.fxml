@@ -6,17 +6,21 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.SegmentedButton?>
 <?import javafx.scene.control.ToggleButton?>
+<?import javafx.geometry.Insets?>
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
-    <SegmentedButton padding="5">
+    <SegmentedButton>
+        <padding>
+            <Insets left="20" right="20"/>
+        </padding>
         <buttons>
-            <ToggleButton fx:id="buttonImpossibleCourses" text="%titleImpossibleCourses"
-                          selected="true" wrapText="true"/>
-            <ToggleButton fx:id="buttonImpossibleCoursesBecauseOfImpossibleModules"
-                          text="%titleImpossibleCoursesBecauseOfImpossibleModules" wrapText="true"/>
+            <ToggleButton fx:id="buttonImpossibleCourses" text="%buttonMissingData"
+                          minWidth="150.0" selected="true"/>
+            <ToggleButton fx:id="buttonImpossibleCoursesBecauseOfImpossibleModules" minWidth="150.0"
+                          text="%buttonImpossibleModules"/>
             <ToggleButton fx:id="buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations"
-                          text="%titleImpossibleCoursesBecauseOfImpossibleModuleCombinations"
-                          wrapText="true"/>
+                          text="%buttonImpossibleModuleCombinations"
+                          minWidth="200.0"/>
         </buttons>
     </SegmentedButton>
     <Label fx:id="explanation" wrapText="true"/>
