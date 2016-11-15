@@ -17,8 +17,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
 
 public class MandatoryModules extends VBox implements Initializable {
 
@@ -31,7 +33,13 @@ public class MandatoryModules extends VBox implements Initializable {
   private ListView<Course> listViewCourses;
   @FXML
   @SuppressWarnings("unused")
-  private ListView<Module> listViewMandatoryModules;
+  private TableView<Module> listViewMandatoryModules;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> columnModuleTitle;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, Boolean> columnModuleElectability;
 
   @Inject
   public MandatoryModules(final Inflater inflater) {
@@ -54,15 +62,9 @@ public class MandatoryModules extends VBox implements Initializable {
       }
     });
     listViewMandatoryModules.itemsProperty().bind(modules);
-    listViewMandatoryModules.setCellFactory(param -> new ListCell<Module>() {
-      @Override
-      protected void updateItem(Module module, boolean empty) {
-        super.updateItem(module, empty);
-        if (!empty) {
-          setText(module.getTitle());
-        }
-      }
-    });
+    columnModuleTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
+    columnModuleElectability.setCellValueFactory(new PropertyValueFactory<>("mandatory"));
+
     listViewCourses.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) ->
           modules.setAll(mandatoryModules.get(newValue)));

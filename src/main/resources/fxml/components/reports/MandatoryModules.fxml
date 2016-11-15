@@ -3,6 +3,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
     <Label text="%explainMandatoryModules" wrapText="true"/>
@@ -10,6 +12,13 @@
         <Label text="%courses" style="-fx-font-size: 20px"/>
         <ListView fx:id="listViewCourses" maxHeight="145.0"/>
         <Label text="%modules" style="-fx-font-size: 20px"/>
-        <ListView fx:id="listViewMandatoryModules" maxHeight="145.0"/>
+        <TableView fx:id="listViewMandatoryModules" maxHeight="145.0">
+            <columns>
+                <TableColumn fx:id="columnModuleTitle" text="%columnTitle"
+                             prefWidth="300.0" minWidth="100.0"/>
+                <TableColumn fx:id="columnModuleElectability" text="%columnElectability"
+                             prefWidth="50.0" minWidth="20.0"/>
+            </columns>
+        </TableView>
     </VBox>
 </fx:root>
