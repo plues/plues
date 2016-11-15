@@ -69,9 +69,6 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     setSpacing(10.0);
 
     inflater.inflate("components/CheckCourseFeasibility", this, this, "checkCourseFeasibility");
-
-    btUnhighlightAllConflicts.visibleProperty().bind(this.uiDataService
-        .conflictMarkedSessionsProperty().emptyProperty().not());
   }
 
   @Override
@@ -84,6 +81,9 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     scrollPaneResults.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
     btCheckFeasibility.disableProperty().bind(solverProperty.not());
+
+    btUnhighlightAllConflicts.visibleProperty().bind(this.uiDataService
+      .conflictMarkedSessionsProperty().emptyProperty().not());
   }
 
   /**
