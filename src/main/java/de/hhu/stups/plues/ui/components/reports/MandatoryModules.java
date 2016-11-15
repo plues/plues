@@ -6,11 +6,6 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import java.net.URL;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
-
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -21,6 +16,11 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+
+import java.net.URL;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 public class MandatoryModules extends VBox implements Initializable {
 
@@ -41,6 +41,10 @@ public class MandatoryModules extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private TableColumn<Module, Boolean> columnModuleElectability;
 
+  /**
+   * Default constructor.
+   * @param inflater Handle fxml and resources
+   */
   @Inject
   public MandatoryModules(final Inflater inflater) {
     courses = new SimpleListProperty<>(FXCollections.observableArrayList());

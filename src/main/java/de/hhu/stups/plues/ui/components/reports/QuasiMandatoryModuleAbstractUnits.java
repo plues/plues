@@ -6,11 +6,6 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import java.net.URL;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
-
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -18,6 +13,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
+
+import java.net.URL;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializable {
 
@@ -32,12 +32,17 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
   @SuppressWarnings("unused")
   private ListView<AbstractUnit> listViewAbstractUnits;
 
+  /**
+   * Default constructor.
+   * @param inflater Handle fxml and resources
+   */
   @Inject
   public QuasiMandatoryModuleAbstractUnits(final Inflater inflater) {
     abstractUnits = new SimpleListProperty<>(FXCollections.observableArrayList());
     modules = new SimpleListProperty<>(FXCollections.observableArrayList());
 
-    inflater.inflate("/components/reports/QuasiMandatoryModuleAbstractUnits", this, this, "reports");
+    inflater.inflate("/components/reports/QuasiMandatoryModuleAbstractUnits",
+        this, this, "reports");
   }
 
   @Override

@@ -7,11 +7,6 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.ResourceBundle;
-import java.util.Set;
-
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,6 +14,11 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 public class RedundantUnitGroups extends VBox implements Initializable {
 
@@ -52,6 +52,6 @@ public class RedundantUnitGroups extends VBox implements Initializable {
 
   public void setData(Set<Unit> redundantUnitGroups) {
     tableViewRedundantUnitGroups.setItems(
-       FXCollections.observableList(new ArrayList<>(redundantUnitGroups)));
+        FXCollections.observableList(new ArrayList<>(redundantUnitGroups)));
   }
 }

@@ -5,10 +5,6 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import java.net.URL;
-import java.util.List;
-import java.util.ResourceBundle;
-
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleListProperty;
@@ -22,6 +18,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+
+import java.net.URL;
+import java.util.List;
+import java.util.ResourceBundle;
 
 public class ImpossibleCourses extends VBox implements Initializable {
 
@@ -57,6 +57,10 @@ public class ImpossibleCourses extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private ToggleButton buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations;
 
+  /**
+   * Default constructor.
+   * @param inflater Handle fxml and resources
+   */
   @Inject
   public ImpossibleCourses(final Inflater inflater) {
     impossibleCoursesList = new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -108,6 +112,7 @@ public class ImpossibleCourses extends VBox implements Initializable {
         bind(buttonImpossibleCoursesBecauseOfImpossibleModules.selectedProperty());
         bind(buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations.selectedProperty());
       }
+
       @Override
       protected String computeValue() {
         String string;
@@ -131,13 +136,20 @@ public class ImpossibleCourses extends VBox implements Initializable {
     explanation.textProperty().bind(stringBinding);
   }
 
+  /**
+   * Fill list with content.
+   * @param impossibleCourses Courses with missing data
+   * @param impossibleCoursesBecauseOfImpossibleModules Courses with impossible modules
+   * @param impossibleCoursesBecauseOfImpossibleModuleCombinations Courses with impossible module
+   *                                                               combinations
+   */
   public void setData(final List<Course> impossibleCourses,
                       final List<Course> impossibleCoursesBecauseOfImpossibleModules,
                       final List<Course> impossibleCoursesBecauseOfImpossibleModuleCombinations) {
     impossibleCoursesList.setAll(impossibleCourses);
     impossibleCoursesBecauseOfImpossibleModulesList.setAll(
-      impossibleCoursesBecauseOfImpossibleModules);
+        impossibleCoursesBecauseOfImpossibleModules);
     impossibleCoursesBecauseOfImpossibleModuleCombinationsList.setAll(
-      impossibleCoursesBecauseOfImpossibleModuleCombinations);
+        impossibleCoursesBecauseOfImpossibleModuleCombinations);
   }
 }

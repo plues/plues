@@ -175,7 +175,8 @@ class Reports extends VBox implements Initializable {
    */
   @SuppressWarnings("unused")
   private void displayReportData(final ReportData reportData) {
-    incompleteModules.setData(reportData.getIncompleteModules().stream().map(store::getModuleById).collect(Collectors.toList()));
+    incompleteModules.setData(reportData.getIncompleteModules()
+        .stream().map(store::getModuleById).collect(Collectors.toList()));
     impossibleAbstractUnitsInModule.setData(reportData.getImpossibleAbstractUnitsInModule()
         .entrySet().stream().collect(Collectors.toMap(
           entry -> store.getModuleById(entry.getKey()),
