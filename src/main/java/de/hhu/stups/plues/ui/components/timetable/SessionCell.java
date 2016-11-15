@@ -51,7 +51,7 @@ class SessionCell extends ListCell<SessionFacade> {
         .addListener((observable, oldValue, newValue) -> {
           getStyleClass().remove("conflicted-session");
 
-          if (getItem() != null && newValue.contains(getItem().getSession().getId())) {
+          if (getItem() != null && newValue.contains(getItem().getId())) {
             getStyleClass().add("conflicted-session");
           }
         });
@@ -71,7 +71,7 @@ class SessionCell extends ListCell<SessionFacade> {
 
     final Dragboard dragboard = startDragAndDrop(TransferMode.MOVE);
     final ClipboardContent content = new ClipboardContent();
-    content.putString(String.valueOf(getItem().getSession().getId()));
+    content.putString(String.valueOf(getItem().getId()));
     dragboard.setContent(content);
     event.consume();
   }

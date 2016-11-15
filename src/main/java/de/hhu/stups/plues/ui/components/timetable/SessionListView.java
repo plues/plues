@@ -63,7 +63,7 @@ public class SessionListView extends ListView<SessionFacade> {
   private boolean isValidTarget(final DragEvent event) {
     return event.getDragboard().hasString()
       && !getItems().stream().anyMatch(sessionFacade ->
-        String.valueOf(sessionFacade.getSession().getId()).equals(event.getDragboard().getString()))
+        String.valueOf(sessionFacade.getId()).equals(event.getDragboard().getString()))
       && event.getGestureSource() != this;
   }
 
@@ -126,7 +126,7 @@ public class SessionListView extends ListView<SessionFacade> {
 
   private SessionFacade getSessionFacadeById(final int sessionId) {
     final Optional<SessionFacade> session = sessions.stream()
-        .filter(facade -> facade.getSession().getId() == sessionId)
+        .filter(facade -> facade.getId() == sessionId)
         .findFirst();
     return session.isPresent() ? session.get() : null;
   }
