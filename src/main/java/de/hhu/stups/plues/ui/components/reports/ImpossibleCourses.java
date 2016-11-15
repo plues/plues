@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.StringBinding;
+import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -31,9 +32,9 @@ public class ImpossibleCourses extends VBox implements Initializable {
 
   private final Delayed<Store> delayedStore;
   private Store store;
-  private List<Course> impossibleCoursesList;
-  private List<Course> impossibleCoursesBecauseOfImpossibleModulesList;
-  private List<Course> impossibleCoursesBecauseOfImpossibleModuleCombinationsList;
+  private SimpleListProperty<Course> impossibleCoursesList;
+  private SimpleListProperty<Course> impossibleCoursesBecauseOfImpossibleModulesList;
+  private SimpleListProperty<Course> impossibleCoursesBecauseOfImpossibleModuleCombinationsList;
 
   @FXML
   @SuppressWarnings("unused")
@@ -68,9 +69,11 @@ public class ImpossibleCourses extends VBox implements Initializable {
                            final Delayed<Store> delayedStore) {
     this.delayedStore = delayedStore;
 
-    impossibleCoursesList = new ArrayList<>();
-    impossibleCoursesBecauseOfImpossibleModulesList = new ArrayList<>();
-    impossibleCoursesBecauseOfImpossibleModuleCombinationsList = new ArrayList<>();
+    impossibleCoursesList = new SimpleListProperty<>(FXCollections.observableArrayList());
+    impossibleCoursesBecauseOfImpossibleModulesList =
+        new SimpleListProperty<>(FXCollections.observableArrayList());
+    impossibleCoursesBecauseOfImpossibleModuleCombinationsList =
+        new SimpleListProperty<>(FXCollections.observableArrayList());
 
     inflater.inflate("/components/reports/ImpossibleCourses", this, this, "reports");
   }
@@ -82,19 +85,21 @@ public class ImpossibleCourses extends VBox implements Initializable {
         bind(buttonImpossibleCourses.selectedProperty());
         bind(buttonImpossibleCoursesBecauseOfImpossibleModules.selectedProperty());
         bind(buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations.selectedProperty());
+        bind(impossibleCoursesList);
+        bind(impossibleCoursesBecauseOfImpossibleModulesList);
+        bind(impossibleCoursesBecauseOfImpossibleModuleCombinationsList);
       }
 
       @Override
       protected ObservableList<Course> computeValue() {
         if (buttonImpossibleCourses.isSelected()) {
-          return FXCollections.observableList(impossibleCoursesList);
+          return impossibleCoursesList;
         } else {
           if (buttonImpossibleCoursesBecauseOfImpossibleModules.isSelected()) {
-            return FXCollections.observableList(impossibleCoursesBecauseOfImpossibleModulesList);
+            return impossibleCoursesBecauseOfImpossibleModulesList;
           } else {
             if (buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations.isSelected()) {
-              return FXCollections.observableList(
-                  impossibleCoursesBecauseOfImpossibleModuleCombinationsList);
+              return impossibleCoursesBecauseOfImpossibleModuleCombinationsList;
             }
           }
         }
