@@ -95,12 +95,18 @@ class SessionCell extends ListCell<SessionFacade> {
   @Override
   protected void updateItem(final SessionFacade session, final boolean empty) {
     super.updateItem(session, empty);
-
-    if ("name".equals(uiDataService.sessionDisplayFormatProperty().get())) {
-      setText(empty || session == null ? null : session.toString());
-    } else {
-      setText(empty || session == null ? null : Integer.toString(session.getSession().getId()));
+    if (empty || session == null) {
+      setText(null);
+      return;
     }
+
+    final String representation;
+    if ("name".equals(uiDataService.sessionDisplayFormatProperty().get())) {
+      representation = session.toString();
+    } else {
+      representation = String.format("%s/%d", session.getUnitKey(), session.getGroupId());
+    }
+    setText(representation);
   }
 
   public void setSlot(final SessionFacade.Slot slot) {
