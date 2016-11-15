@@ -21,7 +21,6 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
@@ -39,7 +38,6 @@ import java.time.DayOfWeek;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -63,13 +61,6 @@ public class Timetable extends BorderPane implements Initializable {
 
   @FXML
   private ToggleGroup semesterToggle;
-  @FXML
-  @SuppressWarnings("unused")
-  private RadioButton rbPrefSessionName;
-  @FXML
-  @SuppressWarnings("unused")
-  private RadioButton rbPrefSessionId;
-  private final ToggleGroup sessionPreferenceToggle;
 
   private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
 
@@ -85,7 +76,6 @@ public class Timetable extends BorderPane implements Initializable {
     this.sessionListViewFactory = sessionListViewFactory;
     this.delayedSolverService = delayedSolverService;
     this.uiDataService = uiDataService;
-    sessionPreferenceToggle = new ToggleGroup();
 
     // TODO: remove controller param if possible
     // TODO: currently not possible because of dependency circle
@@ -113,34 +103,6 @@ public class Timetable extends BorderPane implements Initializable {
           checkCourseFeasibility.highlightImpossibleCourses(impossibleCoursesTask.getValue()));
       solverService.submit(impossibleCoursesTask);
     });
-
-    final String sessionName = "sessionName";
-    final String sessionFormat = "sessionFormat";
-    final Preferences userPreferences = Preferences.userRoot().node("Plues");
-
-    uiDataService.setSessionDisplayFormatProperty(userPreferences.get(sessionFormat, ""));
-
-    if ("id".equals(userPreferences.get(sessionFormat, ""))) {
-      rbPrefSessionId.setSelected(true);
-    } else {
-      rbPrefSessionName.setSelected(true);
-    }
-    rbPrefSessionName.setToggleGroup(sessionPreferenceToggle);
-    rbPrefSessionName.setUserData(sessionName);
-    rbPrefSessionId.setToggleGroup(sessionPreferenceToggle);
-    rbPrefSessionId.setUserData("sessionId");
-    sessionPreferenceToggle.selectedToggleProperty().addListener(
-        (observable, oldValue, newValue) -> {
-          if (sessionPreferenceToggle.getSelectedToggle() != null) {
-            if (sessionName.equals(sessionPreferenceToggle.getSelectedToggle()
-                .getUserData().toString())) {
-              userPreferences.put(sessionFormat, "name");
-            } else {
-              userPreferences.put(sessionFormat, "id");
-            }
-            uiDataService.setSessionDisplayFormatProperty(userPreferences.get(sessionFormat, ""));
-          }
-        });
 
     initSessionBoxes();
   }

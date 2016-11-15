@@ -45,8 +45,6 @@
                             <ToggleButton text="5" toggleGroup="$semesterToggle"/>
                             <ToggleButton text="6" toggleGroup="$semesterToggle"/>
                         </children>
-                        <RadioButton fx:id="rbPrefSessionName" text="%prefSessionName"/>
-                        <RadioButton fx:id="rbPrefSessionId" text="%prefSessionId"/>
                     </HBox>
 
                     <GridPane maxHeight="Infinity" maxWidth="Infinity" BorderPane.alignment="CENTER" fx:id="timeTable">

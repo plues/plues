@@ -15,6 +15,7 @@
 <?import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration?>
 <?import de.hhu.stups.plues.ui.controller.ConflictMatrix?>
 
+<?import javafx.scene.control.RadioMenuItem?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="de.hhu.stups.plues.ui.controller.MainController">
@@ -38,9 +39,16 @@
         <Menu mnemonicParsing="false" text="%edit">
             <MenuItem mnemonicParsing="false" text="%delete"/>
         </Menu>
+        <Menu mnemonicParsing="false" text="%view">
+            <Menu mnemonicParsing="false" text="%timetableView">
+                <RadioMenuItem fx:id="rbMenuItemSessionName" mnemonicParsing="false"
+                               text="%displaySessionName"/>
+                <RadioMenuItem fx:id="rbMenuItemSessionId" mnemonicParsing="false"
+                               text="%displaySessionId"/>
+            </Menu>
+        </Menu>
         <Menu mnemonicParsing="false" text="%help">
-            <MenuItem fx:id="about" onAction="#about"
-                      mnemonicParsing="false" text="%about"/>
+            <MenuItem fx:id="about" onAction="#about" mnemonicParsing="false" text="%about"/>
         </Menu>
     </MenuBar>
     <BorderPane>
