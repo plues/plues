@@ -15,6 +15,7 @@ import de.hhu.stups.plues.prob.report.Pair;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
+import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses;
 import de.hhu.stups.plues.ui.components.reports.IncompleteModules;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -76,9 +77,6 @@ class Reports extends VBox implements Initializable {
   private Label lbModelVersion;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<Course> tableViewImpossibleCourses;
-  @FXML
-  @SuppressWarnings("unused")
   private TableView<AbstractUnit> tableViewAbstractUnits;
   @FXML
   @SuppressWarnings("unused")
@@ -86,12 +84,6 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableView<Unit> tableViewRedundantUnitGroups;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<Course, String> tableColumnCourseName;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<Course, String> tableColumnCourseFullName;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<TableRowPair<String>, String> tableColumnAbstractKey;
@@ -136,6 +128,9 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ImpossibleAbstractUnitsInModule impossibleAbstractUnitsInModule;
+  @FXML
+  @SuppressWarnings("unused")
+  private ImpossibleCourses impossibleCourses;
 
   /**
    * Reports view to present several reports and information about the loaded data, statistics,
@@ -180,7 +175,6 @@ class Reports extends VBox implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     final String listStyle = "batchListView";
-    tableViewImpossibleCourses.setId(listStyle);
     tableViewAbstractUnits.setId(listStyle);
     tableViewAbstractUnitsWithUnits.setId(listStyle);
     listViewCourses.setId(listStyle);
@@ -191,8 +185,6 @@ class Reports extends VBox implements Initializable {
     final String first = "first";
     final String second = "second";
     final String third = "third";
-    tableColumnCourseName.setCellValueFactory(new PropertyValueFactory<>("key"));
-    tableColumnCourseFullName.setCellValueFactory(new PropertyValueFactory<>("fullName"));
 
     tableColumnAbstractKey.setCellValueFactory(new PropertyValueFactory<>("key"));
     tableColumnAbstractTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
@@ -238,10 +230,7 @@ class Reports extends VBox implements Initializable {
           entry -> store.getModuleById(entry.getKey()),
           entry -> entry.getValue().stream().map(
               store::getAbstractUnitById).collect(Collectors.toSet()))));
-    tableViewImpossibleCourses.getItems().addAll(
-        reportData.getImpossibleCourses().stream()
-          .map(store::getCourseByKey)
-          .collect(Collectors.toList()));
+    impossibleCourses.setData(reportData.getImpossibleCourses());
     lbImpossibleCoursesAmount.setText(String.valueOf(reportData.getImpossibleCourses().size()));
 
     tableViewAbstractUnits.getItems().addAll(abstractUnitsWithoutUnits);
