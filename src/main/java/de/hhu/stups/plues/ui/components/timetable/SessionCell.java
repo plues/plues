@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
@@ -23,8 +22,6 @@ class SessionCell extends ListCell<SessionFacade> {
   private final Delayed<SolverService> delayedSolverService;
 
   private final UiDataService uiDataService;
-
-  private SessionFacade.Slot slot;
 
   private volatile boolean solverIsLoaded = false;
 
@@ -81,10 +78,9 @@ class SessionCell extends ListCell<SessionFacade> {
     if (getItem() == null || event.getClickCount() < 2) {
       return;
     }
-    final Session session = getItem().getSession();
 
     final DetailView detailView = provider.get();
-    detailView.setContent(session, slot);
+    detailView.setSession(getItem());
 
     final Stage stage = new Stage();
     stage.setTitle(detailView.getTitle());
@@ -107,9 +103,5 @@ class SessionCell extends ListCell<SessionFacade> {
       representation = String.format("%s/%d", session.getUnitKey(), session.getGroupId());
     }
     setText(representation);
-  }
-
-  public void setSlot(final SessionFacade.Slot slot) {
-    this.slot = slot;
   }
 }

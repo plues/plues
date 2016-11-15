@@ -44,11 +44,7 @@ public class SessionListView extends ListView<SessionFacade> {
     this.delayedStore = delayedStore;
     this.delayedSolver = delayedSolver;
 
-    setCellFactory(param -> {
-      final SessionCell sessionCell = cellProvider.get();
-      sessionCell.setSlot(slot);
-      return sessionCell;
-    });
+    setCellFactory(param -> cellProvider.get());
 
     initEvents();
   }
