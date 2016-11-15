@@ -2,8 +2,6 @@ package de.hhu.stups.plues.ui.components.reports;
 
 import com.google.inject.Inject;
 
-import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -33,19 +31,12 @@ public class IncompleteModules extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private TableColumn<Module, String> columnModuleTitle;
 
-  private final Delayed<Store> delayedStore;
-  private Store store;
-
   /**
    * Default constructor for incomplete modules component.
    * @param inflater Inflater to handle fxml files and resources
-   * @param delayedStore Store to get necessary information
    */
   @Inject
-  public IncompleteModules(final Inflater inflater,
-                           final Delayed<Store> delayedStore) {
-    this.delayedStore = delayedStore;
-
+  public IncompleteModules(final Inflater inflater) {
     inflater.inflate("/components/reports/IncompleteModules", this, this, "reports");
   }
 
@@ -53,8 +44,6 @@ public class IncompleteModules extends VBox implements Initializable {
   public void initialize(URL location, ResourceBundle resources) {
     columnModulePordnr.setCellValueFactory(new PropertyValueFactory<>("pordnr"));
     columnModuleTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
-
-    delayedStore.whenAvailable(store -> this.store = store);
   }
 
   public void setData(final List<Module> incompleteModules) {
