@@ -14,8 +14,8 @@ import javafx.collections.ObservableList;
 
 @Singleton
 public class UiDataService {
-  private ListProperty<Integer> conflictMarkedSessionsProperty = new SimpleListProperty<>();
-  private StringProperty sessionDisplayFormatProperty = new SimpleStringProperty();
+  private final ListProperty<Integer> conflictMarkedSessionsProperty = new SimpleListProperty<>();
+  private final StringProperty sessionDisplayFormatProperty = new SimpleStringProperty();
 
   public String getSessionDisplayFormatProperty() {
     return sessionDisplayFormatProperty.get();
