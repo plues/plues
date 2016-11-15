@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <Label text="%explainRedundantUnitGroups" wrapText="true"/>
+    <Label text="%units" style="-fx-font-size: 20px"/>
+    <TableView fx:id="tableViewRedundantUnitGroups" maxHeight="250.0">
+        <columns>
+            <TableColumn fx:id="columnUnitId" text="%columnUnitKey"
+                         minWidth="100.0" prefWidth="150.0"/>
+            <TableColumn fx:id="columnUnitTitle" text="%columnTitle"
+                         minWidth="100.0" prefWidth="500.0"/>
+        </columns>
+    </TableView>
+</fx:root>

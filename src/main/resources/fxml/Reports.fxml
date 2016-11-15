@@ -15,6 +15,7 @@
 <?import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses?>
 <?import de.hhu.stups.plues.ui.components.reports.MandatoryModules?>
 <?import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits?>
+<?import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups?>
 <fx:root prefHeight="600.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
     <children>
@@ -93,17 +94,7 @@
                     <QuasiMandatoryModuleAbstractUnits fx:id="quasiMandatoryModuleAbstractUnits"/>
                 </TitledPane>
                 <TitledPane collapsible="true" text="%titleRedundantUnitGroups" maxHeight="125.0">
-                    <VBox>
-                        <Label text="%explainRedundantUnitGroups" wrapText="true"/>
-                        <TableView fx:id="tableViewRedundantUnitGroups" maxHeight="125.0">
-                            <columns>
-                                <TableColumn fx:id="tableColumnRedundantUnitKey" text="%columnUnitKey"
-                                             minWidth="100.0" prefWidth="150.0"/>
-                                <TableColumn fx:id="tableColumnRedundantUnit" text="%columnExplicitUnit"
-                                             minWidth="100.0" prefWidth="500.0"/>
-                            </columns>
-                        </TableView>
-                    </VBox>
+                    <RedundantUnitGroups fx:id="redundantUnitGroups"/>
                 </TitledPane>
             </panes>
         </Accordion>

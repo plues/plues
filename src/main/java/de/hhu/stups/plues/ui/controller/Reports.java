@@ -15,6 +15,7 @@ import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses;
 import de.hhu.stups.plues.ui.components.reports.IncompleteModules;
 import de.hhu.stups.plues.ui.components.reports.MandatoryModules;
 import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits;
+import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.fxml.FXML;
@@ -74,9 +75,6 @@ class Reports extends VBox implements Initializable {
   private TableView<TableRowTriple<String>> tableViewAbstractUnitsWithUnits;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<Unit> tableViewRedundantUnitGroups;
-  @FXML
-  @SuppressWarnings("unused")
   private TableColumn<TableRowPair<String>, String> tableColumnAbstractKey;
   @FXML
   @SuppressWarnings("unused")
@@ -96,13 +94,6 @@ class Reports extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<String>, String> tableColumnRedundantUnitKey;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<String>, String> tableColumnRedundantUnit;
-
-  @FXML
-  @SuppressWarnings("unused")
   private IncompleteModules incompleteModules;
   @FXML
   @SuppressWarnings("unused")
@@ -116,6 +107,9 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private QuasiMandatoryModuleAbstractUnits quasiMandatoryModuleAbstractUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private RedundantUnitGroups redundantUnitGroups;
 
   /**
    * Reports view to present several reports and information about the loaded data, statistics,
@@ -199,6 +193,8 @@ class Reports extends VBox implements Initializable {
           entry -> store.getModuleById(entry.getKey()),
           entry -> entry.getValue().stream().map(
               store::getAbstractUnitById).collect(Collectors.toSet()))));
+    redundantUnitGroups.setData(reportData.getRedundantUnitGroups().keySet().stream()
+        .map(store::getUnitById).collect(Collectors.toSet()));
 
 
     lbImpossibleCoursesAmount.setText(String.valueOf(reportData.getImpossibleCourses().size()));
@@ -220,14 +216,6 @@ class Reports extends VBox implements Initializable {
                       unit.getTitle(),
                       Joiner.on(",").join(unit.getSemesters()))));
     }
-
-    final Map<Integer, Set<Pair<Integer>>> redundantUnitGroups =
-        reportData.getRedundantUnitGroups();
-
-    final List<Unit> redundantUnits = redundantUnitGroups.keySet().stream()
-        .map(store::getUnitById)
-        .collect(Collectors.toList());
-    tableViewRedundantUnitGroups.getItems().addAll(redundantUnits);
   }
 
   public static final class TableRowPair<T> {
