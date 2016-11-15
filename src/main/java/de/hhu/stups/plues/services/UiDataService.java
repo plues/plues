@@ -4,6 +4,8 @@ import com.google.inject.Singleton;
 
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 
 /**
@@ -13,6 +15,19 @@ import javafx.collections.ObservableList;
 @Singleton
 public class UiDataService {
   private ListProperty<Integer> conflictMarkedSessionsProperty = new SimpleListProperty<>();
+  private StringProperty sessionDisplayFormatProperty = new SimpleStringProperty();
+
+  public String getSessionDisplayFormatProperty() {
+    return sessionDisplayFormatProperty.get();
+  }
+
+  public StringProperty sessionDisplayFormatProperty() {
+    return sessionDisplayFormatProperty;
+  }
+
+  public void setSessionDisplayFormatProperty(String prefSessionDisplayFormatProperty) {
+    this.sessionDisplayFormatProperty.set(prefSessionDisplayFormatProperty);
+  }
 
   public ObservableList<Integer> getConflictMarkedSessions() {
     return conflictMarkedSessionsProperty.get();

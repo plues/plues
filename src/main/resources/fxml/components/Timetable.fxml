@@ -14,12 +14,13 @@
 <?import de.hhu.stups.plues.ui.components.SetOfCourseSelection?>
 
 <?import de.hhu.stups.plues.ui.components.CheckCourseFeasibility?>
+<?import javafx.scene.control.RadioButton?>
 <fx:root minHeight="600" prefWidth="250.0" type="javafx.scene.layout.BorderPane"
          xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
         <left>
             <VBox spacing="20">
                 <SetOfCourseSelection fx:id="setOfCourseSelection"/>
-                <AbstractUnitFilter fx:id="abstractUnitFilter"/>
+                <CheckCourseFeasibility fx:id="checkCourseFeasibility"/>
             </VBox>
         </left>
         <bottom>
@@ -44,6 +45,8 @@
                             <ToggleButton text="5" toggleGroup="$semesterToggle"/>
                             <ToggleButton text="6" toggleGroup="$semesterToggle"/>
                         </children>
+                        <RadioButton fx:id="rbPrefSessionName" text="%prefSessionName"/>
+                        <RadioButton fx:id="rbPrefSessionId" text="%prefSessionId"/>
                     </HBox>
 
                     <GridPane maxHeight="Infinity" maxWidth="Infinity" BorderPane.alignment="CENTER" fx:id="timeTable">

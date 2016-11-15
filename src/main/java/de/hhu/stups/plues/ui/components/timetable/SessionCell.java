@@ -47,12 +47,22 @@ class SessionCell extends ListCell<SessionFacade> {
   }
 
   private void setupDataService() {
-    this.uiDataService.conflictMarkedSessionsProperty()
+    uiDataService.conflictMarkedSessionsProperty()
         .addListener((observable, oldValue, newValue) -> {
           getStyleClass().remove("conflicted-session");
 
           if (getItem() != null && newValue.contains(getItem().getSession().getId())) {
             getStyleClass().add("conflicted-session");
+          }
+        });
+    uiDataService.sessionDisplayFormatProperty()
+        .addListener((observable, oldValue, newValue) -> {
+          if (getItem() != null) {
+            if ("name".equals(newValue)) {
+              setText(getItem().getSession().toString());
+            } else {
+              setText(String.valueOf(getItem().getSession().getId()));
+            }
           }
         });
   }
@@ -94,7 +104,11 @@ class SessionCell extends ListCell<SessionFacade> {
   protected void updateItem(final SessionFacade session, final boolean empty) {
     super.updateItem(session, empty);
 
-    setText(empty || session == null ? null : session.toString());
+    if ("name".equals(uiDataService.sessionDisplayFormatProperty().get())) {
+      setText(empty || session == null ? null : session.toString());
+    } else {
+      setText(empty || session == null ? null : Integer.toString(session.getSession().getId()));
+    }
   }
 
   public void setSlot(final SessionFacade.Slot slot) {

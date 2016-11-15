@@ -11,6 +11,9 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -18,12 +21,14 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
@@ -34,6 +39,7 @@ import java.time.DayOfWeek;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -41,7 +47,8 @@ public class Timetable extends BorderPane implements Initializable {
 
   private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
-
+  private final Delayed<SolverService> delayedSolverService;
+  private final UiDataService uiDataService;
 
   @FXML
   private GridPane timeTable;
@@ -52,10 +59,17 @@ public class Timetable extends BorderPane implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private AbstractUnitFilter abstractUnitFilter;
+  private CheckCourseFeasibility checkCourseFeasibility;
 
   @FXML
   private ToggleGroup semesterToggle;
+  @FXML
+  @SuppressWarnings("unused")
+  private RadioButton rbPrefSessionName;
+  @FXML
+  @SuppressWarnings("unused")
+  private RadioButton rbPrefSessionId;
+  private final ToggleGroup sessionPreferenceToggle;
 
   private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
 
@@ -64,9 +78,14 @@ public class Timetable extends BorderPane implements Initializable {
    */
   @Inject
   public Timetable(final Inflater inflater, final Delayed<ObservableStore> delayedStore,
+                   final Delayed<SolverService> delayedSolverService,
+                   final UiDataService uiDataService,
                    final SessionListViewFactory sessionListViewFactory) {
     this.delayedStore = delayedStore;
     this.sessionListViewFactory = sessionListViewFactory;
+    this.delayedSolverService = delayedSolverService;
+    this.uiDataService = uiDataService;
+    sessionPreferenceToggle = new ToggleGroup();
 
     // TODO: remove controller param if possible
     // TODO: currently not possible because of dependency circle
@@ -76,9 +95,9 @@ public class Timetable extends BorderPane implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.delayedStore.whenAvailable(store -> {
-      this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
+      //this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
       setOfCourseSelection.setCourses(store.getCourses());
-      //checkCourseFeasibility.setCourses(store.getCourses());
+      checkCourseFeasibility.setCourses(store.getCourses());
 
       setSessions(store.getSessions()
           .parallelStream()
@@ -86,14 +105,42 @@ public class Timetable extends BorderPane implements Initializable {
           .collect(Collectors.toList()));
     });
 
-    /*// if the component checkCourseFeasibility is included
+    // if the component checkCourseFeasibility is included
     delayedSolverService.whenAvailable(solverService -> {
       checkCourseFeasibility.setSolverProperty(true);
       final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
       impossibleCoursesTask.setOnSucceeded(event ->
           checkCourseFeasibility.highlightImpossibleCourses(impossibleCoursesTask.getValue()));
       solverService.submit(impossibleCoursesTask);
-    });*/
+    });
+
+    final String sessionName = "sessionName";
+    final String sessionFormat = "sessionFormat";
+    final Preferences userPreferences = Preferences.userRoot().node("Plues");
+
+    uiDataService.setSessionDisplayFormatProperty(userPreferences.get(sessionFormat, ""));
+
+    if ("id".equals(userPreferences.get(sessionFormat, ""))) {
+      rbPrefSessionId.setSelected(true);
+    } else {
+      rbPrefSessionName.setSelected(true);
+    }
+    rbPrefSessionName.setToggleGroup(sessionPreferenceToggle);
+    rbPrefSessionName.setUserData(sessionName);
+    rbPrefSessionId.setToggleGroup(sessionPreferenceToggle);
+    rbPrefSessionId.setUserData("sessionId");
+    sessionPreferenceToggle.selectedToggleProperty().addListener(
+        (observable, oldValue, newValue) -> {
+          if (sessionPreferenceToggle.getSelectedToggle() != null) {
+            if (sessionName.equals(sessionPreferenceToggle.getSelectedToggle()
+                .getUserData().toString())) {
+              userPreferences.put(sessionFormat, "name");
+            } else {
+              userPreferences.put(sessionFormat, "id");
+            }
+            uiDataService.setSessionDisplayFormatProperty(userPreferences.get(sessionFormat, ""));
+          }
+        });
 
     initSessionBoxes();
   }
