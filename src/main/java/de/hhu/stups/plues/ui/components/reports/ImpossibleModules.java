@@ -115,6 +115,13 @@ public class ImpossibleModules extends VBox implements Initializable {
     columnModuleTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
   }
 
+  /**
+   * Set data for this component.
+   * @param incompleteModules Incomplete modules
+   * @param impossibleModulesBecauseOfMissingElectiveAbstractUnits modules which are impossible
+   *                                                               because of missing elective
+   *                                                               abstract units
+   */
   public void setData(final List<Module> incompleteModules,
                       final List<Module> impossibleModulesBecauseOfMissingElectiveAbstractUnits) {
     this.incompleteModules.setAll(incompleteModules);
