@@ -82,10 +82,10 @@ public class ConflictTree extends VBox implements Initializable {
   }
 
   /**
-   * Display the unsat core in a TreeView grouped by the day of week and the time of the day. The
-   * TreeView's root property is bound to {@link #conflictTreeRootItem}.
+   * Add the sessions from the unsat core to the {@link #conflictTreeRootItem TreeItem} that is
+   * bound to the {@link #conflictTreeView TreeView's} root property.
    *
-   * @param unsatCore The list of session Ids that form the unsat core.
+   * @param unsatCore The list of sessions that form the unsat core.
    */
   @SuppressWarnings("unused")
   private void showConflictResult(final List<Session> unsatCore) {
@@ -105,7 +105,8 @@ public class ConflictTree extends VBox implements Initializable {
       }
     });
 
-    // add all conflicting sessions to the tree view grouped by the day of week and time of the day
+    // add all conflicting sessions to the TreeView's root grouped by the day of the week and the
+    // time of the day
     sortedSessionsByDay.entrySet().forEach(dayOfWeekEntry -> {
       final TreeItem<String> dayRootItem = new TreeItem<>(dayOfWeekStrings
           .get(dayOfWeekEntry.getKey()));

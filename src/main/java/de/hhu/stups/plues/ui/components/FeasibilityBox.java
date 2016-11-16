@@ -211,7 +211,9 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   /**
    * Initialize and submit the {@link #unsatCoreTask task} to compute the unsat core and set all its
-   * necessary listeners.
+   * necessary listeners. If the task succeeded the {@link ConflictTree} is dynamically added to the
+   * {@link this FeasibilityBox}. Otherwise the unsat core computation failed and an error message
+   * is shown to the user.
    */
   private void initUnsatCoreTask() {
     final Course majorCourse = majorCourseProperty.get();
