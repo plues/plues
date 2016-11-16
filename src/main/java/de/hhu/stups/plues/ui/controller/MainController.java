@@ -330,7 +330,7 @@ public class MainController implements Initializable {
    * xml files.
    */
   @FXML
-  private final void exportCurrentDbState() {
+  private void exportCurrentDbState() {
     // TODO: should we have a modal progress window to avoid confusion, since the export takes
     // a few instants to finish
     // TODO: consider generating the file to a temporary location and moving it to the final

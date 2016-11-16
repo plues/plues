@@ -52,11 +52,9 @@ public class Timetable extends BorderPane implements Initializable {
   private GridPane timeTable;
 
   @FXML
-  @SuppressWarnings("unused")
   private SetOfCourseSelection setOfCourseSelection;
 
   @FXML
-  @SuppressWarnings("unused")
   private CheckCourseFeasibility checkCourseFeasibility;
 
   @FXML

@@ -5,7 +5,6 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.BooleanProperty;
@@ -114,7 +113,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     combinationOrSingleCourseSelection.highlightImpossibleCourses(impossibleCourses);
   }
 
-  void setSolverProperty(Boolean value) {
+  void setSolverProperty(final Boolean value) {
     solverProperty.setValue(value);
   }
 

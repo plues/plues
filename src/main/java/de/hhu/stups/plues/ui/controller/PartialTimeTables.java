@@ -139,8 +139,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
       modulesUnits.getChildren().add(createCheckBoxGroup(m, major));
     }
 
-    if (courseSelection.getSelectedMinorCourse().isPresent()) {
-      Course minor = courseSelection.getSelectedMinorCourse().get();
+    courseSelection.getSelectedMinorCourse().ifPresent(minor -> {
       final Text minorText = new Text();
       minorText.setText(minor.getFullName());
       minorText.setUnderline(true);
@@ -149,7 +148,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
       for (final Module m : minor.getModules()) {
         modulesUnits.getChildren().add(createCheckBoxGroup(m, minor));
       }
-    }
+    });
   }
 
   private Node createCheckBoxGroup(final Module module, final Course course) {

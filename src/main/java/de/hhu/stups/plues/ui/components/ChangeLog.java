@@ -8,7 +8,6 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
@@ -22,7 +21,6 @@ import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.Date;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;

@@ -106,7 +106,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     btGenerate.setDefaultButton(true);
     btGenerate.disableProperty().bind(solverProperty.not());
 
-    IntegerBinding resultBoxChildren = Bindings.size(resultBox.getChildren());
+    final IntegerBinding resultBoxChildren = Bindings.size(resultBox.getChildren());
     scrollPane.visibleProperty().bind(resultBoxChildren.greaterThan(0));
 
     resultBox.setSpacing(10.0);

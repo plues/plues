@@ -141,12 +141,11 @@ public class PdfRenderingHelper {
    * @param minor Course object representing the chosen minor course
    * @return String representing the file name
    */
-  public static String getDocumentName(final Course major, final Course minor) {
+  static String getDocumentName(final Course major, final Course minor) {
     if (minor == null) {
       return getDocumentName(major);
     }
-    return "musterstudienplan_" + major.getName() + "_" + minor.getName()
-        + ".pdf";
+    return "musterstudienplan_" + major.getName() + "_" + minor.getName() + ".pdf";
   }
 
   /**
