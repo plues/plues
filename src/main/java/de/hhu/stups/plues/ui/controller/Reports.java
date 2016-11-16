@@ -10,6 +10,7 @@ import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
+import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleModules;
 import de.hhu.stups.plues.ui.components.reports.MandatoryModules;
@@ -109,6 +110,9 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private RedundantUnitGroups redundantUnitGroups;
+  @FXML
+  @SuppressWarnings("unused")
+  private ImpossibleCourseModuleAbstractUnits impossibleCourseModuleAbstractUnits;
 
   /**
    * Reports view to present several reports and information about the loaded data, statistics,
@@ -202,6 +206,13 @@ class Reports extends VBox implements Initializable {
               store::getAbstractUnitById).collect(Collectors.toSet()))));
     redundantUnitGroups.setData(reportData.getRedundantUnitGroups().keySet().stream()
         .map(store::getUnitById).collect(Collectors.toSet()));
+    impossibleCourseModuleAbstractUnits.setData(reportData.getImpossibleCourseModuleAbstractUnits()
+        .entrySet().stream().collect(Collectors.toMap(
+          entry -> store.getCourseByKey(entry.getKey()),
+          entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
+            innerEntry -> store.getModuleById(innerEntry.getKey()),
+            innerEntry -> innerEntry.getValue().stream().map(
+                store::getAbstractUnitById).collect(Collectors.toSet()))))));
 
 
     lbImpossibleCoursesAmount.setText(String.valueOf(reportData.getImpossibleCourses().size()));
