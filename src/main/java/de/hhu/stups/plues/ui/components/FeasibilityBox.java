@@ -1,14 +1,13 @@
 package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.SolverService;
-import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -19,7 +18,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -30,21 +28,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
-import java.time.DayOfWeek;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -63,11 +54,9 @@ public class FeasibilityBox extends VBox implements Initializable {
   private String impossibleCourseString;
   private String noConflictString;
 
+  private Injector injector;
   private SolverTask<List<Integer>> unsatCoreTask;
   private SolverTask<Boolean> feasibilityTask;
-  private ResourceBundle resources;
-  private final EnumMap<DayOfWeek, String> dayOfWeekStrings;
-  private final Map<Integer, String> timeStrings;
   private final ObjectProperty<Course> majorCourseProperty;
   private final ObjectProperty<Course> minorCourseProperty;
   private final ExecutorService executorService;
@@ -75,10 +64,8 @@ public class FeasibilityBox extends VBox implements Initializable {
   private final Delayed<Store> delayedStore;
   private final Set<String> impossibleCourses;
   private final VBox parent;
-  private final UiDataService uiDataService;
 
   private final ListProperty<Integer> unsatCoreProperty = new SimpleListProperty<>();
-
   @FXML
   @SuppressWarnings("unused")
   private GridPane gridPaneResults;
@@ -106,27 +93,18 @@ public class FeasibilityBox extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Button btSubmit;
-  @FXML
-  @SuppressWarnings("unused")
-  private Button btHighlightAllConflicts;
-  @FXML
-  @SuppressWarnings("unused")
-  private VBox conflictResults;
-
-  private TreeView<String> conflictTreeView;
-  private TreeItem<String> conflictTreeRootItem;
 
   /**
    * A container to display the feasibility of a combination of courses or a single one. For
    * infeasible courses it is possible to compute the unsat core which is presented in a {@link
-   * #conflictTreeView} grouped by the day of week.
+   * ConflictTree TreeView}.
    */
   @Inject
   public FeasibilityBox(final Inflater inflater,
                         final Delayed<Store> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final ExecutorService executorService,
-                        final UiDataService uiDataService,
+                        final Injector injector,
                         @Assisted("major") final Course majorCourse,
                         @Nullable @Assisted("minor") final Course minorCourse,
                         @Assisted("impossibleCourses") final Set<String> impossibleCourses,
@@ -137,22 +115,16 @@ public class FeasibilityBox extends VBox implements Initializable {
     this.executorService = executorService;
     this.impossibleCourses = impossibleCourses;
     this.parent = parent;
-    this.uiDataService = uiDataService;
+    this.injector = injector;
 
     majorCourseProperty = new SimpleObjectProperty<>(majorCourse);
     minorCourseProperty = new SimpleObjectProperty<>(minorCourse);
-    dayOfWeekStrings = new EnumMap<>(DayOfWeek.class);
-    timeStrings = new HashMap<>();
 
     inflater.inflate("components/FeasibilityBox", this, this, "feasibilityBox");
   }
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
-    initDayOfWeekString();
-    initTimeStrings();
-
     removeString = resources.getString("remove");
     unsatCoreString = resources.getString("unsatCore");
     cancelString = resources.getString("cancel");
@@ -161,28 +133,10 @@ public class FeasibilityBox extends VBox implements Initializable {
 
     gridPaneResults.setHgap(5.0);
 
-    btHighlightAllConflicts.visibleProperty().bind(unsatCoreProperty.emptyProperty().not());
-
-    conflictTreeView = new TreeView<>();
-    conflictTreeRootItem = new TreeItem<>();
-
     lbMajor.textProperty()
         .bind(Bindings.selectString(majorCourseProperty, "fullName"));
     lbMinor.textProperty()
         .bind(Bindings.selectString(minorCourseProperty, "fullName"));
-
-    conflictTreeView.rootProperty().bind(new ReadOnlyObjectWrapper<>(conflictTreeRootItem));
-
-    conflictTreeRootItem.setValue(resources.getString("conflictPaneTitle"));
-
-    conflictTreeRootItem.expandedProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue) {
-        conflictTreeView.setPrefHeight(26.0);
-      } else {
-        conflictTreeView.setPrefHeight(175.0);
-      }
-    });
-    conflictTreeRootItem.setExpanded(true);
 
     delayedSolverService.whenAvailable(solver -> {
       final Course cMajor = majorCourseProperty.get();
@@ -235,12 +189,6 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private void highlightConflicts() {
-    uiDataService.setConflictMarkedSessions(unsatCoreProperty.get());
-  }
-
-  @FXML
-  @SuppressWarnings("unused")
   private void submitAction() {
     final String selectedItem = cbAction.getSelectionModel().getSelectedItem();
 
@@ -277,7 +225,12 @@ public class FeasibilityBox extends VBox implements Initializable {
 
     unsatCoreTask.setOnSucceeded(unsatCore -> {
       unsatCoreProperty.set(FXCollections.observableList(unsatCoreTask.getValue()));
-      showConflictResult(unsatCoreProperty.get());
+      final ConflictTree conflictTree = injector.getInstance(ConflictTree.class);
+      conflictTree.setConflictSessions(delayedStore.get().getSessions()
+          .stream().filter(session -> unsatCoreProperty.get().contains(session.getId()))
+          .collect(Collectors.toList()));
+      conflictTree.setUnsatCoreProperty(unsatCoreProperty);
+      getChildren().add(conflictTree);
       cbAction.setItems(FXCollections.singletonObservableList(removeString));
       cbAction.getSelectionModel().selectFirst();
     });
@@ -307,82 +260,6 @@ public class FeasibilityBox extends VBox implements Initializable {
     });
 
     executorService.submit(unsatCoreTask);
-  }
-
-  /**
-   * Display the unsat core in a TreeView grouped by the day of week and the time of the day. The
-   * TreeView's root property is bound to {@link #conflictTreeRootItem}.
-   *
-   * @param unsatCore The list of session Ids that form the unsat core.
-   */
-  @SuppressWarnings("unused")
-  private void showConflictResult(final List<Integer> unsatCore) {
-    conflictTreeRootItem.getChildren().clear();
-
-    final List<Session> conflictSessions = delayedStore.get().getSessions()
-        .stream().filter(session -> unsatCore.contains(session.getId()))
-        .collect(Collectors.toList());
-    final EnumMap<DayOfWeek, ArrayList<Session>> sortedSessionsByDay =
-        new EnumMap<>(DayOfWeek.class);
-
-    // group conflicting sessions by the day of week
-    conflictSessions.forEach(session -> {
-      if (session != null) {
-        final DayOfWeek dayOfWeek = session.getDayOfWeekMap().get(session.getDay());
-        if (!sortedSessionsByDay.containsKey(dayOfWeek)) {
-          sortedSessionsByDay.put(dayOfWeek, new ArrayList<>());
-        }
-        sortedSessionsByDay.get(dayOfWeek).add(session);
-      }
-    });
-
-    // add all conflicting sessions to the tree view grouped by the day of week and time of the day
-    sortedSessionsByDay.entrySet().forEach(dayOfWeekEntry -> {
-      final TreeItem<String> dayRootItem = new TreeItem<>(dayOfWeekStrings
-          .get(dayOfWeekEntry.getKey()));
-      dayRootItem.setExpanded(true);
-      groupSessionsByTime(sortedSessionsByDay.get(dayOfWeekEntry.getKey())).entrySet()
-          .forEach(timeAtDayEntry -> {
-            final TreeItem<String> timeRootItem = new TreeItem<>(timeAtDayEntry.getKey());
-            timeRootItem.setExpanded(true);
-            timeRootItem.getChildren().addAll(timeAtDayEntry.getValue().stream()
-                .map(session -> new TreeItem<>(session.toString()))
-                .collect(Collectors.toList()));
-            dayRootItem.getChildren().add(timeRootItem);
-          });
-      conflictTreeRootItem.getChildren().add(dayRootItem);
-    });
-    conflictResults.getChildren().add(conflictTreeView);
-  }
-
-  private Map<String, ArrayList<Session>> groupSessionsByTime(ArrayList<Session> sessions) {
-    final Map<String, ArrayList<Session>> sortedSessionsByTime = new HashMap<>(sessions.size());
-    sessions.forEach(session -> {
-      final String timeString = timeStrings.get(session.getTime());
-      if (!sortedSessionsByTime.containsKey(timeString)) {
-        sortedSessionsByTime.put(timeString, new ArrayList<>());
-      }
-      sortedSessionsByTime.get(timeString).add(session);
-    });
-    return sortedSessionsByTime;
-  }
-
-  private void initTimeStrings() {
-    timeStrings.put(1, "08:30");
-    timeStrings.put(2, "10:30");
-    timeStrings.put(3, "12:30");
-    timeStrings.put(4, "14:30");
-    timeStrings.put(5, "16:30");
-    timeStrings.put(6, "18:30");
-    timeStrings.put(7, "20:30");
-  }
-
-  private void initDayOfWeekString() {
-    dayOfWeekStrings.put(DayOfWeek.MONDAY, resources.getString("monday"));
-    dayOfWeekStrings.put(DayOfWeek.TUESDAY, resources.getString("tuesday"));
-    dayOfWeekStrings.put(DayOfWeek.WEDNESDAY, resources.getString("wednesday"));
-    dayOfWeekStrings.put(DayOfWeek.THURSDAY, resources.getString("thursday"));
-    dayOfWeekStrings.put(DayOfWeek.FRIDAY, resources.getString("friday"));
   }
 
   /**
