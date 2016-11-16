@@ -10,7 +10,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 
-<?import de.hhu.stups.plues.ui.components.reports.IncompleteModules?>
+<?import de.hhu.stups.plues.ui.components.reports.ImpossibleModules?>
 <?import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule?>
 <?import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses?>
 <?import de.hhu.stups.plues.ui.components.reports.MandatoryModules?>
@@ -48,8 +48,8 @@
         </VBox>
         <Accordion>
             <panes>
-                <TitledPane text="%titleIncompleteModules" collapsible="true" maxHeight="200.0">
-                    <IncompleteModules fx:id="incompleteModules"/>
+                <TitledPane text="%titleImpossibleModules" collapsible="true" maxHeight="200.0">
+                    <ImpossibleModules fx:id="impossibleModules"/>
                 </TitledPane>
                 <TitledPane text="%titleImpossibleAbstractUnitsInModule" collapsible="true"
                             maxHeight="250.0">

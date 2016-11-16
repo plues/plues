@@ -11,7 +11,7 @@ import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses;
-import de.hhu.stups.plues.ui.components.reports.IncompleteModules;
+import de.hhu.stups.plues.ui.components.reports.ImpossibleModules;
 import de.hhu.stups.plues.ui.components.reports.MandatoryModules;
 import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
@@ -93,7 +93,7 @@ class Reports extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private IncompleteModules incompleteModules;
+  private ImpossibleModules impossibleModules;
   @FXML
   @SuppressWarnings("unused")
   private ImpossibleAbstractUnitsInModule impossibleAbstractUnitsInModule;
@@ -175,7 +175,9 @@ class Reports extends VBox implements Initializable {
    */
   @SuppressWarnings("unused")
   private void displayReportData(final ReportData reportData) {
-    incompleteModules.setData(reportData.getIncompleteModules()
+    impossibleModules.setData(reportData.getIncompleteModules()
+        .stream().map(store::getModuleById).collect(Collectors.toList()),
+        reportData.getImpossibleModulesBecauseOfMissingElectiveAbstractUnits()
         .stream().map(store::getModuleById).collect(Collectors.toList()));
     impossibleAbstractUnitsInModule.setData(reportData.getImpossibleAbstractUnitsInModule()
         .entrySet().stream().collect(Collectors.toMap(
