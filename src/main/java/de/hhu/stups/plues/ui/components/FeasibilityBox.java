@@ -106,11 +106,11 @@ public class FeasibilityBox extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Button btSubmit;
-
   @FXML
+  @SuppressWarnings("unused")
   private Button btHighlightAllConflicts;
-
   @FXML
+  @SuppressWarnings("unused")
   private VBox conflictResults;
 
   private TreeView<String> conflictTreeView;
@@ -183,8 +183,6 @@ public class FeasibilityBox extends VBox implements Initializable {
       }
     });
     conflictTreeRootItem.setExpanded(true);
-
-    btHighlightAllConflicts.visibleProperty().bind(unsatCoreProperty.emptyProperty().not());
 
     delayedSolverService.whenAvailable(solver -> {
       final Course cMajor = majorCourseProperty.get();
