@@ -7,6 +7,7 @@ import de.hhu.stups.plues.ui.components.AbstractUnitFilter;
 import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.CheckCourseFeasibility;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
+import de.hhu.stups.plues.ui.components.ConflictTree;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
@@ -32,5 +33,6 @@ class ComponentsModule extends AbstractModule {
     bind(CheckCourseFeasibility.class);
     bind(DetailView.class);
     bind(AboutWindow.class);
+    bind(ConflictTree.class);
   }
 }
