@@ -25,7 +25,7 @@
     </SegmentedButton>
     <Label fx:id="explanation" wrapText="true"/>
     <Label text="%courses" style="-fx-font-size: 20px"/>
-    <TableView fx:id="tableViewImpossibleCourses" maxHeight="250.0">
+    <TableView fx:id="tableViewImpossibleCourses">
         <columns>
             <TableColumn fx:id="tableColumnCourseName" text="%columnCourseName"
                          minWidth="100.0" prefWidth="150.0"/>

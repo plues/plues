@@ -8,7 +8,7 @@
          xmlns:fx="http://javafx.com/fxml/1">
     <Label text="%explainRedundantUnitGroups" wrapText="true"/>
     <Label text="%units" style="-fx-font-size: 20px"/>
-    <TableView fx:id="tableViewRedundantUnitGroups" maxHeight="250.0">
+    <TableView fx:id="tableViewRedundantUnitGroups">
         <columns>
             <TableColumn fx:id="columnUnitId" text="%columnUnitKey"
                          minWidth="100.0" prefWidth="150.0"/>

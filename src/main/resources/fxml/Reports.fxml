@@ -49,21 +49,20 @@
         </VBox>
         <Accordion>
             <panes>
-                <TitledPane text="%titleImpossibleModules" collapsible="true" maxHeight="200.0">
+                <TitledPane text="%titleImpossibleModules" collapsible="true">
                     <ImpossibleModules fx:id="impossibleModules"/>
                 </TitledPane>
-                <TitledPane text="%titleImpossibleAbstractUnitsInModule" collapsible="true"
-                            maxHeight="250.0">
+                <TitledPane text="%titleImpossibleAbstractUnitsInModule" collapsible="true">
                     <ImpossibleAbstractUnitsInModule fx:id="impossibleAbstractUnitsInModule"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleImpossibleCourses" maxHeight="250.0"
+                <TitledPane collapsible="true" text="%titleImpossibleCourses"
                             fx:id="paneImpossibleCourses">
                     <ImpossibleCourses fx:id="impossibleCourses"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleAbstractUnits" maxHeight="250.0">
+                <TitledPane collapsible="true" text="%titleAbstractUnits">
                     <VBox>
                         <Label text="%explainAbstractUnits" wrapText="true"/>
-                        <TableView fx:id="tableViewAbstractUnits" maxHeight="250.0">
+                        <TableView fx:id="tableViewAbstractUnits">
                             <columns>
                                 <TableColumn fx:id="tableColumnAbstractKey" text="%columnUnitKey"
                                              minWidth="100.0" prefWidth="150.0"/>
@@ -73,10 +72,10 @@
                         </TableView>
                     </VBox>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleAbstractUnitsWithUnits" maxHeight="250.0">
+                <TitledPane collapsible="true" text="%titleAbstractUnitsWithUnits">
                     <VBox>
                         <Label text="%explainAbstractUnitsWithUnits" wrapText="true"/>
-                        <TableView fx:id="tableViewAbstractUnitsWithUnits" maxHeight="250.0">
+                        <TableView fx:id="tableViewAbstractUnitsWithUnits">
                             <columns>
                                 <TableColumn fx:id="tableColumnAbstractUnit" text="%columnAbstractUnit"
                                              minWidth="100.0" prefWidth="350.0"/>
@@ -88,17 +87,16 @@
                         </TableView>
                     </VBox>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleMandatoryModules" maxHeight="300.0">
+                <TitledPane collapsible="true" text="%titleMandatoryModules">
                     <MandatoryModules fx:id="mandatoryModules"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleQuasiMandatoryModules" maxHeight="300.0">
+                <TitledPane collapsible="true" text="%titleQuasiMandatoryModules">
                     <QuasiMandatoryModuleAbstractUnits fx:id="quasiMandatoryModuleAbstractUnits"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleRedundantUnitGroups" maxHeight="125.0">
+                <TitledPane collapsible="true" text="%titleRedundantUnitGroups">
                     <RedundantUnitGroups fx:id="redundantUnitGroups"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleImpossibleCourseModuleAbstractUnits"
-                            maxHeight="125.0">
+                <TitledPane collapsible="true" text="%titleImpossibleCourseModuleAbstractUnits">
                     <ImpossibleCourseModuleAbstractUnits fx:id="impossibleCourseModuleAbstractUnits"/>
                 </TitledPane>
             </panes>

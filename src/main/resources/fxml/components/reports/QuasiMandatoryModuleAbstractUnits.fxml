@@ -8,8 +8,8 @@
     <Label text="%explainQuasiMandatoryModules" wrapText="true"/>
     <VBox spacing="5.0">
         <Label text="%modules" style="-fx-font-size: 20px"/>
-        <ListView fx:id="listViewQuasiMandatoryModules" maxHeight="145.0"/>
+        <ListView fx:id="listViewQuasiMandatoryModules"/>
         <Label text="%abstractUnits" style="-fx-font-size: 20px"/>
-        <ListView fx:id="listViewAbstractUnits" maxHeight="145.0"/>
+        <ListView fx:id="listViewAbstractUnits"/>
     </VBox>
 </fx:root>

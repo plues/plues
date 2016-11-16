@@ -8,6 +8,6 @@
     <Label text="%explainImpossibleCourseModuleAbstractUnits" wrapText="true"/>
     <VBox spacing="5.0">
         <Label text="%courses" style="-fx-font-size: 20px"/>
-        <TreeView fx:id="treeViewCourseModuleAbstractUnits" maxHeight="145.0" showRoot="fal"/>
+        <TreeView fx:id="treeViewCourseModuleAbstractUnits" showRoot="fal"/>
     </VBox>
 </fx:root>
