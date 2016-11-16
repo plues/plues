@@ -33,7 +33,7 @@ public class MandatoryModules extends VBox implements Initializable {
   private ListView<Course> listViewCourses;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<Module> listViewMandatoryModules;
+  private TableView<Module> tableViewMandatoryModules;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Module, String> columnModuleTitle;
@@ -65,7 +65,7 @@ public class MandatoryModules extends VBox implements Initializable {
         }
       }
     });
-    listViewMandatoryModules.itemsProperty().bind(modules);
+    tableViewMandatoryModules.itemsProperty().bind(modules);
     columnModuleTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
     columnModuleElectability.setCellValueFactory(new PropertyValueFactory<>("mandatory"));
 

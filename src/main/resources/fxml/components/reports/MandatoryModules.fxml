@@ -12,7 +12,7 @@
         <Label text="%courses" style="-fx-font-size: 20px"/>
         <ListView fx:id="listViewCourses" maxHeight="145.0"/>
         <Label text="%modules" style="-fx-font-size: 20px"/>
-        <TableView fx:id="listViewMandatoryModules" maxHeight="145.0">
+        <TableView fx:id="tableViewMandatoryModules" maxHeight="145.0">
             <columns>
                 <TableColumn fx:id="columnModuleTitle" text="%columnTitle"
                              prefWidth="300.0" minWidth="100.0"/>
