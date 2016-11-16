@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-
 public class ConflictTree extends VBox implements Initializable {
 
   private final EnumMap<DayOfWeek, String> dayOfWeekStrings;
@@ -45,7 +44,8 @@ public class ConflictTree extends VBox implements Initializable {
   /**
    * Display the unsat core in a {@link #conflictTreeView TreeView} grouped by the day of week and
    * the time of the day. Furthermore provide a button to highlight all conflicting session in the
-   * {@link Timetable}.
+   * {@link Timetable}. This component is dynamically added to a {@link FeasibilityBox} in case the
+   * specific combination of courses is infeasible and we have found an unsat core.
    */
   @Inject
   public ConflictTree(final Inflater inflater, final UiDataService uiDataService) {
