@@ -1,7 +1,7 @@
 package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.Delayed;
@@ -13,7 +13,6 @@ import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
@@ -47,6 +46,7 @@ import javax.annotation.Nullable;
 public class FeasibilityBox extends VBox implements Initializable {
 
   private static final String WORKING_COLOR = "#BDE5F8";
+  private final Provider<ConflictTree> conflictTreeProvider;
 
   private String removeString;
   private String unsatCoreString;
@@ -54,7 +54,6 @@ public class FeasibilityBox extends VBox implements Initializable {
   private String impossibleCourseString;
   private String noConflictString;
 
-  private Injector injector;
   private SolverTask<List<Integer>> unsatCoreTask;
   private SolverTask<Boolean> feasibilityTask;
   private final ObjectProperty<Course> majorCourseProperty;
@@ -104,7 +103,7 @@ public class FeasibilityBox extends VBox implements Initializable {
                         final Delayed<Store> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final ExecutorService executorService,
-                        final Injector injector,
+                        final Provider<ConflictTree> conflictTreeProvider,
                         @Assisted("major") final Course majorCourse,
                         @Nullable @Assisted("minor") final Course minorCourse,
                         @Assisted("impossibleCourses") final Set<String> impossibleCourses,
@@ -113,9 +112,9 @@ public class FeasibilityBox extends VBox implements Initializable {
     this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
     this.executorService = executorService;
+    this.conflictTreeProvider = conflictTreeProvider;
     this.impossibleCourses = impossibleCourses;
     this.parent = parent;
-    this.injector = injector;
 
     majorCourseProperty = new SimpleObjectProperty<>(majorCourse);
     minorCourseProperty = new SimpleObjectProperty<>(minorCourse);
@@ -227,7 +226,7 @@ public class FeasibilityBox extends VBox implements Initializable {
 
     unsatCoreTask.setOnSucceeded(unsatCore -> {
       unsatCoreProperty.set(FXCollections.observableList(unsatCoreTask.getValue()));
-      final ConflictTree conflictTree = injector.getInstance(ConflictTree.class);
+      final ConflictTree conflictTree = conflictTreeProvider.get();
       conflictTree.setConflictSessions(delayedStore.get().getSessions()
           .stream().filter(session -> unsatCoreProperty.get().contains(session.getId()))
           .collect(Collectors.toList()));
