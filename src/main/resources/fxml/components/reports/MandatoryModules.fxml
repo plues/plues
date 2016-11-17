@@ -10,10 +10,19 @@
     <Label text="%explainMandatoryModules" wrapText="true"/>
     <VBox spacing="5.0">
         <Label text="%courses" style="-fx-font-size: 20px"/>
-        <ListView fx:id="listViewCourses"/>
+        <TableView fx:id="tableViewcourses">
+            <columns>
+                <TableColumn fx:id="tableColumnCourseName" text="%columnCourseName"
+                             minWidth="100.0" prefWidth="150.0"/>
+                <TableColumn fx:id="tableColumnCourseFullName"
+                             text="%columnCourseFullName" minWidth="100.0" prefWidth="500.0"/>
+            </columns>
+        </TableView>
         <Label text="%modules" style="-fx-font-size: 20px"/>
         <TableView fx:id="tableViewMandatoryModules">
             <columns>
+                <TableColumn fx:id="columnModulePordnr" text="%columnPordnr"
+                             prefWidth="300.0" minWidth="100.0"/>
                 <TableColumn fx:id="columnModuleTitle" text="%columnTitle"
                              prefWidth="300.0" minWidth="100.0"/>
                 <TableColumn fx:id="columnModuleElectability" text="%columnElectability"
