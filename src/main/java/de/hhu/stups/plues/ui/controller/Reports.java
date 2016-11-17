@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
+import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.report.Pair;
 import de.hhu.stups.plues.tasks.SolverService;
@@ -16,6 +17,7 @@ import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUn
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleModules;
 import de.hhu.stups.plues.ui.components.reports.MandatoryModules;
+import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterConflicts;
 import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -30,6 +32,8 @@ import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -74,25 +78,10 @@ class Reports extends VBox implements Initializable {
   private TableView<AbstractUnit> tableViewAbstractUnits;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<TableRowTriple<String>> tableViewAbstractUnitsWithUnits;
-  @FXML
-  @SuppressWarnings("unused")
   private TableColumn<TableRowPair<String>, String> tableColumnAbstractKey;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<TableRowPair<String>, String> tableColumnAbstractTitle;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<TableRowTriple<String>, String> tableColumnAbstractUnit;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<TableRowTriple<String>, String> tableColumnUnit;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<TableRowTriple<String>, String> tableColumnSemesters;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<TableRowTriple<String>, String> tableColumnUnitSemesters;
 
   @FXML
   @SuppressWarnings("unused")
@@ -118,6 +107,9 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ImpossibleCourseModuleAbstractUnitPairs impossibleCourseModuleAbstractUnitPairs;
+  @FXML
+  @SuppressWarnings("unused")
+  private ModuleAbstractUnitUnitSemesterConflicts moduleAbstractUnitUnitSemesterConflicts;
 
   /**
    * Reports view to present several reports and information about the loaded data, statistics,
@@ -156,18 +148,9 @@ class Reports extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     final String listStyle = "batchListView";
     tableViewAbstractUnits.setId(listStyle);
-    tableViewAbstractUnitsWithUnits.setId(listStyle);
-
-    final String first = "first";
-    final String second = "second";
-    final String third = "third";
 
     tableColumnAbstractKey.setCellValueFactory(new PropertyValueFactory<>("key"));
     tableColumnAbstractTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
-
-    tableColumnAbstractUnit.setCellValueFactory(new PropertyValueFactory<>(first));
-    tableColumnUnit.setCellValueFactory(new PropertyValueFactory<>(second));
-    tableColumnSemesters.setCellValueFactory(new PropertyValueFactory<>(third));
 
     lbCourseAmount.setText(String.valueOf(courseAmount));
     lbUnitAmount.setText(String.valueOf(unitAmount));
@@ -228,26 +211,32 @@ class Reports extends VBox implements Initializable {
                 pair -> new Pair<AbstractUnit>(store.getAbstractUnitById(pair.getFirst()),
                     store.getAbstractUnitById(pair.getSecond()))).collect(Collectors.toSet()))))));
 
+    HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.TableRowTriple>> conflicts
+        = new HashMap<>();
+    reportData.getModuleAbstractUnitUnitSemesterConflicts().forEach(conflict -> {
+      Module module = store.getModuleById(conflict.getModuleId());
+      if (conflicts.containsKey(module)) {
+        conflicts.get(module).add(new ModuleAbstractUnitUnitSemesterConflicts.TableRowTriple(
+            store.getAbstractUnitById(conflict.getAbstractUnitId()),
+            store.getUnitById(conflict.getUnitId()),
+            Joiner.on(",").join(conflict.getAbstractUnitSemesters())
+        ));
+      } else {
+        conflicts.put(module,
+            new ArrayList<>(Collections.singletonList(
+              new ModuleAbstractUnitUnitSemesterConflicts.TableRowTriple(
+                store.getAbstractUnitById(conflict.getAbstractUnitId()),
+                store.getUnitById(conflict.getUnitId()),
+                Joiner.on(",").join(conflict.getAbstractUnitSemesters())
+              ))));
+      }
+    });
+    moduleAbstractUnitUnitSemesterConflicts.setData(conflicts);
+
 
     lbImpossibleCoursesAmount.setText(String.valueOf(reportData.getImpossibleCourses().size()));
 
     tableViewAbstractUnits.getItems().addAll(abstractUnitsWithoutUnits);
-
-    // get abstract units with units that have no semesters in common
-    for (AbstractUnit abstractUnit : abstractUnits) {
-      abstractUnit.getUnits().stream()
-          .filter(unit -> abstractUnit
-              .getModuleAbstractUnitSemesters().stream()
-              .filter(moduleAbstractUnitSemester ->
-                  unit.getSemesters().contains(moduleAbstractUnitSemester.getSemester()))
-              .collect(Collectors.toList()).isEmpty())
-          .forEach(unit ->
-              tableViewAbstractUnitsWithUnits.getItems()
-                  .add(new TableRowTriple<>(
-                      abstractUnit.getTitle(),
-                      unit.getTitle(),
-                      Joiner.on(",").join(unit.getSemesters()))));
-    }
   }
 
   public static final class TableRowPair<T> {
@@ -290,55 +279,4 @@ class Reports extends VBox implements Initializable {
       return second;
     }
   }
-
-  public static final class TableRowTriple<T> {
-    private final T first;
-    private final T second;
-    private final T third;
-
-    /**
-     * An object to obtain three values of the same type to use within a table view.
-     */
-    TableRowTriple(final T first, final T second, final T third) {
-      this.first = first;
-      this.second = second;
-      this.third = third;
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-      if (this == other) {
-        return true;
-      }
-      if (other == null || getClass() != other.getClass()) {
-        return false;
-      }
-      TableRowTriple<?> triple = (TableRowTriple<?>) other;
-      return Objects.equals(first, triple.first)
-          && Objects.equals(second, triple.second)
-          && Objects.equals(third, triple.third);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(first, second, third);
-    }
-
-    @SuppressWarnings("unused")
-    public T getFirst() {
-      return this.first;
-    }
-
-    @SuppressWarnings("unused")
-    public T getSecond() {
-      return this.second;
-    }
-
-    @SuppressWarnings("unused")
-    public T getThird() {
-      return this.third;
-    }
-
-  }
-
 }
