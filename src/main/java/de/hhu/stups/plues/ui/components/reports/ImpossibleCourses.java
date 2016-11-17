@@ -25,9 +25,10 @@ import java.util.ResourceBundle;
 
 public class ImpossibleCourses extends VBox implements Initializable {
 
-  private SimpleListProperty<Course> impossibleCoursesList;
-  private SimpleListProperty<Course> impossibleCoursesBecauseOfImpossibleModulesList;
-  private SimpleListProperty<Course> impossibleCoursesBecauseOfImpossibleModuleCombinationsList;
+  private final SimpleListProperty<Course> impossibleCoursesList;
+  private final SimpleListProperty<Course> impossibleCoursesBecauseOfImpossibleModulesList;
+  private final SimpleListProperty<Course>
+      impossibleCoursesBecauseOfImpossibleModuleCombinationsList;
 
   @FXML
   @SuppressWarnings("unused")
@@ -73,8 +74,8 @@ public class ImpossibleCourses extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
-    ListBinding<Course> binding = new ListBinding<Course>() {
+  public void initialize(final URL location, final ResourceBundle resources) {
+    final ListBinding<Course> binding = new ListBinding<Course>() {
       {
         bind(buttonImpossibleCourses.selectedProperty());
         bind(buttonImpossibleCoursesBecauseOfImpossibleModules.selectedProperty());
@@ -106,7 +107,7 @@ public class ImpossibleCourses extends VBox implements Initializable {
     tableColumnCourseName.setCellValueFactory(new PropertyValueFactory<>("key"));
     tableColumnCourseFullName.setCellValueFactory(new PropertyValueFactory<>("fullName"));
 
-    StringBinding stringBinding = new StringBinding() {
+    final StringBinding stringBinding = new StringBinding() {
       {
         bind(buttonImpossibleCourses.selectedProperty());
         bind(buttonImpossibleCoursesBecauseOfImpossibleModules.selectedProperty());
@@ -115,7 +116,7 @@ public class ImpossibleCourses extends VBox implements Initializable {
 
       @Override
       protected String computeValue() {
-        String string;
+        final String string;
         if (buttonImpossibleCourses.isSelected()) {
           string = resources.getString("explainImpossibleCourses");
         } else {

@@ -22,8 +22,8 @@ import java.util.Set;
 public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializable {
 
   private Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits;
-  private SimpleListProperty<Module> modules;
-  private SimpleListProperty<AbstractUnit> abstractUnits;
+  private final SimpleListProperty<Module> modules;
+  private final SimpleListProperty<AbstractUnit> abstractUnits;
 
   @FXML
   @SuppressWarnings("unused")
@@ -46,7 +46,7 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     listViewQuasiMandatoryModules.itemsProperty().bind(modules);
     listViewQuasiMandatoryModules.setCellFactory(param -> new ListCell<Module>() {
       @Override
