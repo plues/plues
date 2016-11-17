@@ -218,45 +218,4 @@ class Reports extends VBox implements Initializable {
 
     lbImpossibleCoursesAmount.setText(String.valueOf(reportData.getImpossibleCourses().size()));
   }
-
-  public static final class TableRowPair<T> {
-    private final T second;
-    private final T first;
-
-    /**
-     * An object to obtain two values of the same type to use within a table view.
-     */
-    TableRowPair(final T first, final T second) {
-      this.first = first;
-      this.second = second;
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-      if (this == other) {
-        return true;
-      }
-      if (other == null || getClass() != other.getClass()) {
-        return false;
-      }
-      final TableRowPair<?> pair = (TableRowPair<?>) other;
-      return Objects.equals(second, pair.second)
-          && Objects.equals(first, pair.first);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(second, first);
-    }
-
-    @SuppressWarnings("unused")
-    public T getFirst() {
-      return first;
-    }
-
-    @SuppressWarnings("unused")
-    public T getSecond() {
-      return second;
-    }
-  }
 }
