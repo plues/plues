@@ -12,7 +12,6 @@ import de.hhu.stups.plues.prob.report.Pair;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits;
-import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses;
@@ -74,9 +73,6 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ImpossibleModules impossibleModules;
-  @FXML
-  @SuppressWarnings("unused")
-  private ImpossibleAbstractUnitsInModule impossibleAbstractUnitsInModule;
   @FXML
   @SuppressWarnings("unused")
   private ImpossibleCourses impossibleCourses;
@@ -153,29 +149,29 @@ class Reports extends VBox implements Initializable {
         .stream().map(store::getModuleById).collect(Collectors.toList()),
         reportData.getImpossibleModulesBecauseOfMissingElectiveAbstractUnits()
         .stream().map(store::getModuleById).collect(Collectors.toList()));
-    impossibleAbstractUnitsInModule.setData(reportData.getImpossibleAbstractUnitsInModule()
-        .entrySet().stream().collect(Collectors.toMap(
-          entry -> store.getModuleById(entry.getKey()),
-          entry -> entry.getValue().stream().map(
-              store::getAbstractUnitById).collect(Collectors.toSet()))));
+
     impossibleCourses.setData(reportData.getImpossibleCourses()
           .stream().map(store::getCourseByKey).collect(Collectors.toList()),
         reportData.getImpossibleCoursesBecauseofImpossibleModules()
           .stream().map(store::getCourseByKey).collect(Collectors.toList()),
         reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations()
           .stream().map(store::getCourseByKey).collect(Collectors.toList()));
+
     mandatoryModules.setData(reportData.getMandatoryModules()
         .entrySet().stream().collect(Collectors.toMap(
           entry -> store.getCourseByKey(entry.getKey()),
           entry -> entry.getValue().stream().map(
               store::getModuleById).collect(Collectors.toSet()))));
+
     quasiMandatoryModuleAbstractUnits.setData(reportData.getQuasiMandatoryModuleAbstractUnits()
         .entrySet().stream().collect(Collectors.toMap(
           entry -> store.getModuleById(entry.getKey()),
           entry -> entry.getValue().stream().map(
               store::getAbstractUnitById).collect(Collectors.toSet()))));
+
     redundantUnitGroups.setData(reportData.getRedundantUnitGroups().keySet().stream()
         .map(store::getUnitById).collect(Collectors.toSet()));
+
     impossibleCourseModuleAbstractUnits.setData(reportData.getImpossibleCourseModuleAbstractUnits()
         .entrySet().stream().collect(Collectors.toMap(
           entry -> store.getCourseByKey(entry.getKey()),
@@ -183,6 +179,7 @@ class Reports extends VBox implements Initializable {
             innerEntry -> store.getModuleById(innerEntry.getKey()),
             innerEntry -> innerEntry.getValue().stream().map(
                 store::getAbstractUnitById).collect(Collectors.toSet()))))));
+
     impossibleCourseModuleAbstractUnitPairs.setData(
         reportData.getImpossibleCourseModuleAbstractUnitPairs()
         .entrySet().stream().collect(Collectors.toMap(
@@ -190,13 +187,13 @@ class Reports extends VBox implements Initializable {
           entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
             innerEntry -> store.getModuleById(innerEntry.getKey()),
             innerEntry -> innerEntry.getValue().stream().map(
-                pair -> new Pair<AbstractUnit>(store.getAbstractUnitById(pair.getFirst()),
-                    store.getAbstractUnitById(pair.getSecond()))).collect(Collectors.toSet()))))));
+                pair -> new Pair<>(store.getAbstractUnitById(pair.getFirst()),
+                  store.getAbstractUnitById(pair.getSecond()))).collect(Collectors.toSet()))))));
 
-    HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.TableRowTriple>> conflicts
+    final HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.TableRowTriple>> conflicts
         = new HashMap<>();
     reportData.getModuleAbstractUnitUnitSemesterConflicts().forEach(conflict -> {
-      Module module = store.getModuleById(conflict.getModuleId());
+      final Module module = store.getModuleById(conflict.getModuleId());
       if (conflicts.containsKey(module)) {
         conflicts.get(module).add(new ModuleAbstractUnitUnitSemesterConflicts.TableRowTriple(
             store.getAbstractUnitById(conflict.getAbstractUnitId()),

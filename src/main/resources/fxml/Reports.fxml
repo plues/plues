@@ -11,7 +11,6 @@
 <?import javafx.scene.control.TableColumn?>
 
 <?import de.hhu.stups.plues.ui.components.reports.ImpossibleModules?>
-<?import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule?>
 <?import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses?>
 <?import de.hhu.stups.plues.ui.components.reports.MandatoryModules?>
 <?import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits?>
@@ -54,9 +53,6 @@
             <panes>
                 <TitledPane text="%titleImpossibleModules" collapsible="true">
                     <ImpossibleModules fx:id="impossibleModules"/>
-                </TitledPane>
-                <TitledPane text="%titleImpossibleAbstractUnitsInModule" collapsible="true">
-                    <ImpossibleAbstractUnitsInModule fx:id="impossibleAbstractUnitsInModule"/>
                 </TitledPane>
                 <TitledPane collapsible="true" text="%titleImpossibleCourses"
                             fx:id="paneImpossibleCourses">
