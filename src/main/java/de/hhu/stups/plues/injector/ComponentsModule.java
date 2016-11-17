@@ -10,6 +10,7 @@ import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
+import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnits;
@@ -50,5 +51,6 @@ class ComponentsModule extends AbstractModule {
     bind(ImpossibleCourseModuleAbstractUnits.class);
     bind(ImpossibleCourseModuleAbstractUnitPairs.class);
     bind(ModuleAbstractUnitUnitSemesterConflicts.class);
+    bind(AbstractUnitsWithoutUnits.class);
   }
 }

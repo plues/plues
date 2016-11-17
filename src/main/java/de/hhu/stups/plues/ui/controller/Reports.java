@@ -11,6 +11,7 @@ import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.report.Pair;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnits;
@@ -25,9 +26,6 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -43,9 +41,8 @@ import java.util.stream.Collectors;
 
 class Reports extends VBox implements Initializable {
 
-  private final List<AbstractUnit> abstractUnitsWithoutUnits;
-  private final List<AbstractUnit> abstractUnits;
   private final Properties properties;
+  private int abstractUnitAmount;
   private Store store;
   private int groupAmount;
   private int sessionAmount;
@@ -73,15 +70,6 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Label lbModelVersion;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableView<AbstractUnit> tableViewAbstractUnits;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<String>, String> tableColumnAbstractKey;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<String>, String> tableColumnAbstractTitle;
 
   @FXML
   @SuppressWarnings("unused")
@@ -110,6 +98,9 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ModuleAbstractUnitUnitSemesterConflicts moduleAbstractUnitUnitSemesterConflicts;
+  @FXML
+  @SuppressWarnings("unused")
+  private AbstractUnitsWithoutUnits abstractUnitsWithoutUnits;
 
   /**
    * Reports view to present several reports and information about the loaded data, statistics,
@@ -120,19 +111,16 @@ class Reports extends VBox implements Initializable {
                  final Delayed<SolverService> delayedSolverService,
                  final ExecutorService executor,
                  final Properties properties) {
-    abstractUnits = new ArrayList<>();
-    abstractUnitsWithoutUnits = new ArrayList<>();
 
     this.properties = properties;
 
     delayedStore.whenAvailable(localStore -> {
       this.store = localStore;
-      abstractUnits.addAll(store.getAbstractUnits());
-      abstractUnitsWithoutUnits.addAll(store.getAbstractUnitsWithoutUnits());
       groupAmount = store.getGroups().size();
       sessionAmount = store.getSessions().size();
       courseAmount = store.getCourses().size();
       unitAmount = store.getUnits().size();
+      abstractUnitAmount = store.getAbstractUnits().size();
     });
 
     delayedSolverService.whenAvailable(solverService -> {
@@ -146,15 +134,9 @@ class Reports extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    final String listStyle = "batchListView";
-    tableViewAbstractUnits.setId(listStyle);
-
-    tableColumnAbstractKey.setCellValueFactory(new PropertyValueFactory<>("key"));
-    tableColumnAbstractTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
-
     lbCourseAmount.setText(String.valueOf(courseAmount));
     lbUnitAmount.setText(String.valueOf(unitAmount));
-    lbAbstractUnitAmount.setText(String.valueOf(abstractUnits.size()));
+    lbAbstractUnitAmount.setText(String.valueOf(abstractUnitAmount));
     lbGroupAmount.setText(String.valueOf(groupAmount));
     lbSessionAmount.setText(String.valueOf(sessionAmount));
     lbModelVersion.setText(String.valueOf(properties.get("model_version")));
@@ -232,11 +214,9 @@ class Reports extends VBox implements Initializable {
       }
     });
     moduleAbstractUnitUnitSemesterConflicts.setData(conflicts);
-
+    abstractUnitsWithoutUnits.setData(store.getAbstractUnitsWithoutUnits());
 
     lbImpossibleCoursesAmount.setText(String.valueOf(reportData.getImpossibleCourses().size()));
-
-    tableViewAbstractUnits.getItems().addAll(abstractUnitsWithoutUnits);
   }
 
   public static final class TableRowPair<T> {
