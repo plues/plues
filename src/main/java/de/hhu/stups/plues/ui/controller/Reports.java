@@ -7,9 +7,11 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.prob.ReportData;
+import de.hhu.stups.plues.prob.report.Pair;
 import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
+import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleModules;
@@ -113,6 +115,9 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ImpossibleCourseModuleAbstractUnits impossibleCourseModuleAbstractUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private ImpossibleCourseModuleAbstractUnitPairs impossibleCourseModuleAbstractUnitPairs;
 
   /**
    * Reports view to present several reports and information about the loaded data, statistics,
@@ -213,6 +218,15 @@ class Reports extends VBox implements Initializable {
             innerEntry -> store.getModuleById(innerEntry.getKey()),
             innerEntry -> innerEntry.getValue().stream().map(
                 store::getAbstractUnitById).collect(Collectors.toSet()))))));
+    impossibleCourseModuleAbstractUnitPairs.setData(
+        reportData.getImpossibleCourseModuleAbstractUnitPairs()
+        .entrySet().stream().collect(Collectors.toMap(
+          entry -> store.getCourseByKey(entry.getKey()),
+          entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
+            innerEntry -> store.getModuleById(innerEntry.getKey()),
+            innerEntry -> innerEntry.getValue().stream().map(
+                pair -> new Pair<AbstractUnit>(store.getAbstractUnitById(pair.getFirst()),
+                    store.getAbstractUnitById(pair.getSecond()))).collect(Collectors.toSet()))))));
 
 
     lbImpossibleCoursesAmount.setText(String.valueOf(reportData.getImpossibleCourses().size()));

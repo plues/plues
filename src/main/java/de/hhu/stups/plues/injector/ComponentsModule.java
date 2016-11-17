@@ -11,6 +11,7 @@ import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
+import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleModules;
@@ -46,5 +47,6 @@ class ComponentsModule extends AbstractModule {
     bind(QuasiMandatoryModuleAbstractUnits.class);
     bind(RedundantUnitGroups.class);
     bind(ImpossibleCourseModuleAbstractUnits.class);
+    bind(ImpossibleCourseModuleAbstractUnitPairs.class);
   }
 }

@@ -17,6 +17,7 @@
 <?import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits?>
 <?import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups?>
 <?import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnits?>
+<?import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs?>
 <fx:root prefHeight="600.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
     <children>
@@ -98,6 +99,10 @@
                 </TitledPane>
                 <TitledPane collapsible="true" text="%titleImpossibleCourseModuleAbstractUnits">
                     <ImpossibleCourseModuleAbstractUnits fx:id="impossibleCourseModuleAbstractUnits"/>
+                </TitledPane>
+                <TitledPane collapsible="true" text="%titleImpossibleCourseModuleAbstractUnitPairs">
+                    <ImpossibleCourseModuleAbstractUnitPairs
+                            fx:id="impossibleCourseModuleAbstractUnitPairs"/>
                 </TitledPane>
             </panes>
         </Accordion>
