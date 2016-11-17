@@ -45,6 +45,10 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
   @SuppressWarnings("unused")
   private TableColumn<TableRowTriple, String> tableColumnSemesters;
 
+  /**
+   * Default constructor.
+   * @param inflater Handle fxml and resources
+   */
   @Inject
   public ModuleAbstractUnitUnitSemesterConflicts(final Inflater inflater) {
     modules = new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -76,7 +80,8 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
           entries.setAll(moduleAbstractUnitUnitSemesterConflicts.get(newValue)));
   }
 
-  public void setData(final Map<Module, List<TableRowTriple>> moduleAbstractUnitUnitSemesterConflicts) {
+  public void setData(final Map<Module, List<TableRowTriple>>
+                        moduleAbstractUnitUnitSemesterConflicts) {
     this.moduleAbstractUnitUnitSemesterConflicts = moduleAbstractUnitUnitSemesterConflicts;
     this.modules.setAll(moduleAbstractUnitUnitSemesterConflicts.keySet());
   }
@@ -89,7 +94,8 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
     /**
      * An object to obtain three values of the same type to use within a table view.
      */
-    public TableRowTriple(final AbstractUnit abstractUnit, final Unit unit, final String semesters) {
+    public TableRowTriple(final AbstractUnit abstractUnit, final Unit unit,
+                          final String semesters) {
       this.abstractUnitTitle = abstractUnit.getTitle();
       this.unitTitle = unit.getTitle();
       this.semesters = semesters;
