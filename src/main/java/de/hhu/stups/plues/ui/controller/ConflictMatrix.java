@@ -7,6 +7,7 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.batchgeneration.BatchFeasibilityTask;
 import de.hhu.stups.plues.ui.batchgeneration.CollectFeasibilityTasksTask;
@@ -15,8 +16,11 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
+import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -132,6 +136,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   @Inject
   public ConflictMatrix(final Inflater inflater, final Delayed<Store> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
+                        final UiDataService uiDataService,
                         final ExecutorService executorService) {
     this.delayedSolverService = delayedSolverService;
     this.executor = executorService;
@@ -155,15 +160,14 @@ public class ConflictMatrix extends GridPane implements Initializable {
       setInitialGridPaneVisibility();
     });
 
-    delayedSolverService.whenAvailable(solverService -> {
 
-      final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
-      impossibleCoursesTask.setOnSucceeded(event -> {
-        impossibleCourses.addAll(impossibleCoursesTask.getValue());
-        highlightImpossibleCourses();
+    uiDataService.impossibleCoursesProperty().addListener(
+        (SetChangeListener<? super String>) change -> {
+          impossibleCourses.addAll(change.getSet());
+          highlightImpossibleCourses();
       });
-      executor.submit(impossibleCoursesTask);
 
+    delayedSolverService.whenAvailable(solverService -> {
       courseCombinationResults = solverService.getCourseCombinationResults();
       courseCombinationResults.addListener(getMapChangeListener());
       solverProperty.set(true);
