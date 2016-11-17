@@ -4,29 +4,37 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ListBinding;
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListProperty;
-import javafx.beans.property.ReadOnlyListWrapper;
+import javafx.beans.property.SetProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class CombinationOrSingleCourseSelection extends VBox implements Initializable {
 
-  private final ReadOnlyListProperty<Course> selectedCourses;
+  private final ListProperty<Course> selectedCourses;
   private final ToggleGroup toggleGroup;
-
+  private final SetProperty<String> impossibleCoursesProperty;
+  private final ListProperty<Course> coursesProperty;
   @FXML
   @SuppressWarnings("unused")
   private RadioButton rbCombination;
@@ -46,12 +54,15 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
    * buttons. When using the component we need to initialize the courses with the use of {@link
    * #setCourses(List)}. The selected combination of courses or a single course is stored in an
    * {@link #selectedCourses observable list} and can be accessed via {@link #getSelectedCourses}.
-   * Impossible courses also need to be initialized via {@link #highlightImpossibleCourses(Set)}.
+   * Impossible courses can be initialized via {@link #impossibleCoursesProperty}.
    */
   @Inject
   public CombinationOrSingleCourseSelection(final Inflater inflater) {
-    selectedCourses = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
+    selectedCourses = new SimpleListProperty<>();
     toggleGroup = new ToggleGroup();
+
+    coursesProperty = new SimpleListProperty<>(FXCollections.emptyObservableList());
+    impossibleCoursesProperty = new SimpleSetProperty<>(FXCollections.emptyObservableSet());
 
     setSpacing(5.0);
 
@@ -62,48 +73,59 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     majorMinorCourseSelection.setPercentWidth(100.0);
+    majorMinorCourseSelection.impossibleCoursesProperty().bind(impossibleCoursesProperty);
+
+    singleCourseSelection.cellFactoryProperty().bind(
+        new ObjectBinding<Callback<ListView<Course>, ListCell<Course>>>() {
+          {
+            bind(impossibleCoursesProperty);
+          }
+
+        @Override
+        protected Callback<ListView<Course>, ListCell<Course>> computeValue() {
+          return majorMinorCourseSelection.getCallbackForImpossibleCourses(getImpossibleCourses());
+        }
+      });
 
     rbCombination.setToggleGroup(toggleGroup);
     rbSingleSelection.setToggleGroup(toggleGroup);
 
-    rbCombination.selectedProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue) {
-        majorMinorCourseSelection.setDisable(false);
-        singleCourseSelection.setDisable(true);
-        selectedCourses.clear();
-        selectedCourses.add(majorMinorCourseSelection.getSelectedMajorCourse());
-        final Optional<Course> optionalMinor;
-        optionalMinor = majorMinorCourseSelection.getSelectedMinorCourse();
-        if (optionalMinor.isPresent()) {
-          selectedCourses.add(optionalMinor.get());
-        }
-      }
+    singleCourseSelection.itemsProperty().bind(coursesProperty);
+    singleCourseSelection.itemsProperty().addListener((observable, oldValue, newValue) -> {
+      singleCourseSelection.getSelectionModel().selectFirst();
     });
 
-    rbSingleSelection.selectedProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue) {
-        majorMinorCourseSelection.setDisable(true);
-        singleCourseSelection.setDisable(false);
-        selectedCourses.clear();
-        selectedCourses.add(singleCourseSelection.getSelectionModel().getSelectedItem());
-      }
-    });
+    rbCombination.setSelected(true);
+    rbCombination.disableProperty().bind(coursesProperty.emptyProperty());
+    rbSingleSelection.disableProperty().bind(coursesProperty.emptyProperty());
 
-    singleCourseSelection.setDisable(true);
-    singleCourseSelection.valueProperty().addListener((observable, oldValue, newValue) -> {
-      selectedCourses.clear();
-      selectedCourses.add(newValue);
-    });
+    majorMinorCourseSelection.disableProperty().bind(
+        rbCombination.selectedProperty().not().or(coursesProperty.emptyProperty()));
+    singleCourseSelection.disableProperty().bind(
+        rbSingleSelection.selectedProperty().not().or(coursesProperty.emptyProperty()));
 
-    majorMinorCourseSelection.addListener(observable -> {
-      selectedCourses.clear();
-      selectedCourses.add(majorMinorCourseSelection.getSelectedMajorCourse());
-      final Optional<Course> optionalMinor;
-      optionalMinor = majorMinorCourseSelection.getSelectedMinorCourse();
-      if (optionalMinor.isPresent()) {
-        selectedCourses.add(optionalMinor.get());
-      }
-    });
+    majorMinorCourseSelection.majorCourseListProperty()
+      .bind(new SimpleListProperty<>(coursesProperty.filtered(Course::isMajor)));
+    majorMinorCourseSelection.minorCourseListProperty()
+      .bind(new SimpleListProperty<>(coursesProperty.filtered(Course::isMinor)));
+
+    selectedCourses.bind(Bindings.when(rbSingleSelection.selectedProperty())
+        .then(new ListBinding<Course>() {
+            {
+              bind(singleCourseSelection.getSelectionModel().selectedItemProperty());
+            }
+
+            @Override
+            protected ObservableList<Course> computeValue() {
+              final Course item = singleCourseSelection.getSelectionModel().getSelectedItem();
+              if (item == null) {
+                return FXCollections.emptyObservableList();
+              }
+              return FXCollections.singletonObservableList(
+                  singleCourseSelection.getSelectionModel().getSelectedItem());
+            }
+        }).otherwise(
+            (ObservableList<Course>) majorMinorCourseSelection.selectedCoursesProperty()));
   }
 
   /**
@@ -113,19 +135,7 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
    * @param courses The unfiltered list of courses as it is obtained by the store.
    */
   public void setCourses(final List<Course> courses) {
-    final List<Course> majorCourses;
-    majorCourses = courses.stream().filter(Course::isMinor)
-        .collect(Collectors.toList());
-    final List<Course> minorCourses = courses.stream().filter(Course::isMajor)
-        .collect(Collectors.toList());
-
-    majorMinorCourseSelection.setMinorCourseList(FXCollections.observableList(majorCourses));
-    majorMinorCourseSelection.setMajorCourseList(FXCollections.observableList(minorCourses));
-
-    singleCourseSelection.setItems(FXCollections.observableList(courses));
-    singleCourseSelection.getSelectionModel().selectFirst();
-
-    rbCombination.setSelected(true);
+    this.coursesProperty.set(FXCollections.observableList(courses));
   }
 
   @SuppressWarnings("WeakerAccess")
@@ -133,9 +143,16 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
     return selectedCourses;
   }
 
-  void highlightImpossibleCourses(final Set<String> impossibleCourses) {
-    majorMinorCourseSelection.highlightImpossibleCourses(impossibleCourses);
-    singleCourseSelection.setCellFactory(
-        majorMinorCourseSelection.getCallbackForImpossibleCourses(impossibleCourses));
+
+  public ObservableSet<String> getImpossibleCourses() {
+    return impossibleCoursesProperty.get();
+  }
+
+  public void setImpossibleCourses(final ObservableSet<String> impossibleCourses) {
+    this.impossibleCoursesProperty.set(impossibleCourses);
+  }
+
+  public SetProperty<String> impossibleCoursesProperty() {
+    return this.impossibleCoursesProperty;
   }
 }
