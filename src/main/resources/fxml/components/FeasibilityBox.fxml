@@ -44,8 +44,4 @@
             <RowConstraints percentHeight="25"/>
         </rowConstraints>
     </GridPane>
-
-    <VBox fx:id="conflictResults"/>
-
-    <Button fx:id="btHighlightAllConflicts" text="%highlightConflicts" visible="false" onAction="#highlightConflicts"/>
 </fx:root>

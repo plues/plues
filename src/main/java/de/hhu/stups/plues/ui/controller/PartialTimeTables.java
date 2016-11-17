@@ -9,6 +9,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -20,6 +21,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -37,7 +39,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
@@ -54,6 +55,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
   private final PdfRenderingTaskFactory renderingTaskFactory;
   private final ExecutorService executor;
+  private final UiDataService uiDataService;
   private PdfRenderingTask task;
   private final ObjectProperty<Path> pdf;
 
@@ -97,11 +99,13 @@ public class PartialTimeTables extends GridPane implements Initializable {
   public PartialTimeTables(final Inflater inflater,
                            final Delayed<Store> delayedStore,
                            final Delayed<SolverService> delayedSolverService,
+                           final UiDataService uiDataService,
                            final PdfRenderingTaskFactory renderingTaskFactory,
                            final ExecutorService executor,
                            final CheckBoxGroupFactory checkBoxGroupFactory) {
     this.delayedStore = delayedStore;
     this.delayedSolverService = delayedSolverService;
+    this.uiDataService = uiDataService;
     this.checkBoxGroupFactory = checkBoxGroupFactory;
     this.renderingTaskFactory = renderingTaskFactory;
     this.executor = executor;
@@ -129,7 +133,7 @@ public class PartialTimeTables extends GridPane implements Initializable {
     scrollPane.setVisible(true);
     btCheck.setVisible(true);
 
-    final Course major = courseSelection.getSelectedMajorCourse();
+    final Course major = courseSelection.getSelectedMajor();
     final Text majorText = new Text();
     majorText.setText(major.getFullName());
     majorText.setUnderline(true);
@@ -139,8 +143,8 @@ public class PartialTimeTables extends GridPane implements Initializable {
       modulesUnits.getChildren().add(createCheckBoxGroup(m, major));
     }
 
-    if (courseSelection.getSelectedMinorCourse().isPresent()) {
-      Course minor = courseSelection.getSelectedMinorCourse().get();
+    final Course minor = courseSelection.getSelectedMinor();
+    if (minor != null) {
       final Text minorText = new Text();
       minorText.setText(minor.getFullName());
       minorText.setUnderline(true);
@@ -163,24 +167,17 @@ public class PartialTimeTables extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   public void btCheckPressed() throws InterruptedException {
     checkStarted.set(true);
-    final Course major = courseSelection.getSelectedMajorCourse();
+
+    final ObservableList<Course> courses = courseSelection.getSelectedCourses();
+    final Course major = courseSelection.getSelectedMajor();
+    final Course minor = courseSelection.getSelectedMinor();
 
     final Map<Course, List<Module>> moduleChoice = new HashMap<>();
     final List<AbstractUnit> unitChoice = new ArrayList<>();
-    moduleChoice.put(major, new ArrayList<>());
 
-    final List<Course> courses = new ArrayList<>();
-    courses.add(major);
+    for (final Course course : courses) {
+      moduleChoice.put(course, new ArrayList<>());
 
-    final Course minor;
-    final Optional<Course> selectedMinorCourse = courseSelection.getSelectedMinorCourse();
-
-    if (selectedMinorCourse.isPresent()) {
-      minor = selectedMinorCourse.get();
-      moduleChoice.put(minor, new ArrayList<>());
-      courses.add(minor);
-    } else {
-      minor = null;
     }
 
     for (final Object o : modulesUnits.getChildren()) {
@@ -229,9 +226,9 @@ public class PartialTimeTables extends GridPane implements Initializable {
     btCheck.disableProperty().bind(solverProperty.not());
     buttons.visibleProperty().bindBidirectional(checkStarted);
     buttons.disableProperty().bind(pdf.isNull().and(checkStarted));
-    //
+
     delayedStore.whenAvailable(s -> {
-      PdfRenderingHelper.initializeCourseSelection(s, courseSelection, delayedSolverService);
+      PdfRenderingHelper.initializeCourseSelection(s, uiDataService, courseSelection);
       this.storeProperty.set(s);
     });
 
@@ -247,8 +244,8 @@ public class PartialTimeTables extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   @FXML
   private void savePdf() {
-    final Course major = courseSelection.getSelectedMajorCourse();
-    final Course minor = courseSelection.getSelectedMinorCourse().orElse(null);
+    final Course major = courseSelection.getSelectedMajor();
+    final Course minor = courseSelection.getSelectedMinor();
 
     PdfRenderingHelper.savePdf(pdf.get(), major, minor, null);
   }

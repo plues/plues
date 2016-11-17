@@ -29,7 +29,7 @@ public class AboutWindow extends GridPane implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     if (url != null) {
       logo.setGraphic(new ImageView(new Image(url)));
     }

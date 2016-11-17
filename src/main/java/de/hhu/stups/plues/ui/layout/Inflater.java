@@ -47,7 +47,7 @@ public class Inflater {
   }
 
   /**
-   * Inflate wiht default bundle name.
+   * Inflate with default bundle name.
    * @param name The name of the fxml file without the <tt>.fxml</tt> extension.
    * @param root optional root node to inflate this layout into
    * @param controller controller for the fxml file

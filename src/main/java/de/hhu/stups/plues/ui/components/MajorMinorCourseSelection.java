@@ -4,15 +4,21 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.ListBinding;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SetProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleSetProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
+import javafx.collections.ObservableSet;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
@@ -26,17 +32,21 @@ import javafx.util.StringConverter;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 
 public class MajorMinorCourseSelection extends GridPane implements Initializable, Observable {
 
-  private final Comparator<Course> courseComparator
-      = (course1, course2) -> course1.getFullName().compareTo(course2.getFullName());
-
+  private final List<InvalidationListener> listeners = new ArrayList<>();
+  // input properties
+  private final ListProperty<Course> majorCourseList = new SimpleListProperty<>();
+  private final ListProperty<Course> minorCourseList = new SimpleListProperty<>();
+  private final SetProperty<String> impossibleCoursesProperty = new SimpleSetProperty<>();
+  // output properties
+  private final ObjectProperty<Course> selectedMajor = new SimpleObjectProperty<>();
+  private final ObjectProperty<Course> selectedMinor = new SimpleObjectProperty<>();
+  private final ListProperty<Course> selectedCourses = new SimpleListProperty<>();
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<Course> cbMajor;
@@ -47,14 +57,11 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   @SuppressWarnings("unused")
   private ColumnConstraints columnConstraints;
 
-  private ObservableList<Course> initialMinorCourseList;
-  private final List<InvalidationListener> listeners = new ArrayList<>();
-
   /**
    * Create the component containing the combo boxes to choose major and minor courses. When using
    * the component we need to initially call {@link #setMajorCourseList(ObservableList)} and {@link
    * #setMinorCourseList(ObservableList)}. As soon as the solver is available the impossible courses
-   * can be highlighted via {@link #highlightImpossibleCourses(Set)}.
+   * can be highlighted via the {@link #impossibleCoursesProperty} property.
    *
    * @param inflater Inflater to handle fxml.
    */
@@ -63,77 +70,123 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     inflater.inflate("components/MajorMinorCourseSelection", this, this);
   }
 
+  @SuppressWarnings("unused")
+  public Course getSelectedMajor() {
+    return selectedMajor.get();
+  }
+
+  @SuppressWarnings("unused")
+  public ReadOnlyObjectProperty<Course> selectedMajorProperty() {
+    return selectedMajor;
+  }
+
+  @SuppressWarnings("unused")
+  public Course getSelectedMinor() {
+    return selectedMinor.get();
+  }
+
+  @SuppressWarnings("unused")
+  public ReadOnlyObjectProperty<Course> selectedMinorProperty() {
+    return selectedMinor;
+  }
+
+  @SuppressWarnings("unused")
+  public ObservableList<Course> getSelectedCourses() {
+    return selectedCourses.get();
+  }
+
+  @SuppressWarnings("unused")
+  public ReadOnlyListProperty<Course> selectedCoursesProperty() {
+    return selectedCourses;
+  }
+
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     cbMajor.setConverter(new CourseConverter());
     cbMinor.setConverter(new CourseConverter());
 
-    cbMajor.valueProperty().addListener((observable, oldValue, newValue) ->
-        fireListenerEvents());
-    cbMinor.valueProperty().addListener((observable, oldValue, newValue) ->
-        fireListenerEvents());
+    cbMajor.valueProperty().addListener((observable, oldValue, newValue)
+        -> fireListenerEvents());
+    cbMinor.valueProperty().addListener((observable, oldValue, newValue)
+        -> fireListenerEvents());
 
-    final ReadOnlyObjectProperty<Course> selectedMajor
-        = this.cbMajor.getSelectionModel().selectedItemProperty();
+    majorCourseList.addListener((observable, oldValue, newValue)
+        -> cbMajor.getSelectionModel().select(0));
 
-    final BooleanBinding majorIsCombinable;
-    majorIsCombinable = Bindings.createBooleanBinding(() -> {
-      final Course c = selectedMajor.get();
-      return c != null && c.isCombinable();
-    }, selectedMajor);
+    cbMinor.itemsProperty().addListener((observable, oldValue, newValue)
+        -> cbMinor.getSelectionModel().selectFirst());
 
-    cbMinor.disableProperty().bind(majorIsCombinable.not());
+    cbMajor.itemsProperty().bind(majorCourseList);
+    cbMinor.itemsProperty().bind(new ListBinding<Course>() {
+      {
+        bind(cbMajor.getSelectionModel().selectedItemProperty(), minorCourseList);
+      }
 
-    // Filter courses from minor course list with a different short name as soon as a
-    // major course is selected, so don't allow to select the same major and minor courses.
-    cbMajor.valueProperty().addListener((observable, oldValue, newValue) -> {
-      if (initialMinorCourseList != null) {
-        filterCbMinorCourses();
+      @Override
+      public void dispose() {
+        super.dispose();
+        unbind(cbMajor.getSelectionModel().selectedItemProperty(), minorCourseList);
+      }
+
+      @Override
+      protected ObservableList<Course> computeValue() {
+        final Course major = getSelectedMajor();
+        if (major == null) {
+          return minorCourseList;
+        }
+        return minorCourseList.filtered(major::isCombinableWith);
       }
     });
-  }
 
-  /**
-   * Highlight the impossible courses in red to signalize the user invalid course choices before
-   * trying to generate the pdf file. This method is called as soon as the solver is available.
-   *
-   * @param impossibleCourses The set of impossible courses obtained by {@link
-   *                          de.hhu.stups.plues.prob.Solver#getImpossibleCourses()
-   *                          getImpossibleCourses}.
-   */
-  public void highlightImpossibleCourses(final Set<String> impossibleCourses) {
-    cbMajor.setCellFactory(getCallbackForImpossibleCourses(impossibleCourses));
-    cbMinor.setCellFactory(getCallbackForImpossibleCourses(impossibleCourses));
+    final ReadOnlyObjectProperty<Course> selectedMajorProperty
+        = this.cbMajor.getSelectionModel().selectedItemProperty();
+
+    cbMinor.disableProperty().bind(
+        Bindings.selectBoolean(selectedMajorProperty, "combinable").not());
+
+    impossibleCoursesProperty.addListener((observable, oldValue, newValue) -> {
+      cbMajor.setCellFactory(getCallbackForImpossibleCourses(newValue));
+      cbMinor.setCellFactory(getCallbackForImpossibleCourses(newValue));
+    });
+
+    this.selectedMajor.bind(cbMajor.getSelectionModel().selectedItemProperty());
+    this.selectedMinor.bind(Bindings.when(cbMinor.disabledProperty().not())
+        .then(cbMinor.getSelectionModel().selectedItemProperty())
+        .otherwise(new SimpleObjectProperty<>(null)));
+    this.selectedCourses.bind(new ListBinding<Course>() {
+      {
+        bind(selectedMajor, selectedMinor);
+      }
+
+      @Override
+      public void dispose() {
+        super.dispose();
+        unbind(selectedMajor, selectedMinor);
+      }
+
+      @Override
+      protected ObservableList<Course> computeValue() {
+        final ObservableList<Course> result
+            = FXCollections.observableArrayList(selectedMajor.get());
+        final Course minor = selectedMinor.get();
+        if (minor != null) {
+          result.add(minor);
+        }
+        return result;
+      }
+    });
   }
 
   /**
    * Create callback for a given set of impossible courses to use as the combo box's cell factory.
    * This is necessary to change the item's color later on.
    *
-   * @param impossibleCourses The set of impossible courses obtained by {@link
-   *                          #highlightImpossibleCourses(Set) highlightImpossibleCourses}.
+   * @param impossibleCourses The set of impossible courses to be highlighted
    * @return The callback providing the updated list cells of courses.
    */
-  public Callback<ListView<Course>, ListCell<Course>> getCallbackForImpossibleCourses(
+  Callback<ListView<Course>, ListCell<Course>> getCallbackForImpossibleCourses(
       final Set<String> impossibleCourses) {
     return new ListViewListCellCallback(impossibleCourses);
-  }
-
-  public Course getSelectedMajorCourse() {
-    return cbMajor.getSelectionModel().getSelectedItem();
-  }
-
-  /**
-   * @return Return the selected minor course or an empty Optional in case the combo box is
-   *         disabled.
-   */
-  public final Optional<Course> getSelectedMinorCourse() {
-    if (cbMinor.getSelectionModel().getSelectedItem() == null || cbMinor.isDisabled()) {
-      return Optional.empty();
-    } else {
-      return Optional.of(cbMinor.getSelectionModel()
-          .getSelectedItem());
-    }
   }
 
   ComboBox<Course> getMajorComboBox() {
@@ -142,39 +195,6 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
 
   ComboBox<Course> getMinorComboBox() {
     return this.cbMinor;
-  }
-
-  /**
-   * Set the initial minor course list. We need to store this list to be able to filter the possible
-   * minor courses according to the currently chosen major course.
-   */
-  public void setMinorCourseList(final ObservableList<Course> initialMinorCourseList) {
-    this.initialMinorCourseList = initialMinorCourseList.sorted(courseComparator);
-    filterCbMinorCourses();
-  }
-
-  /**
-   * Set the initial major course list. We need to store this list to be able to filter the possible
-   * minor courses according to the currently chosen major course.
-   *
-   * @param majorCourseList ObservableList of majors
-   */
-  public void setMajorCourseList(final ObservableList<Course> majorCourseList) {
-    final SortedList<Course> items = majorCourseList.sorted(courseComparator);
-    cbMajor.setItems(items);
-    cbMajor.getSelectionModel().select(0);
-  }
-
-  private void filterCbMinorCourses() {
-    final Course major = getSelectedMajorCourse();
-    if (major == null) {
-      return;
-    }
-    final FilteredList<Course> minorCourseList = initialMinorCourseList.filtered(
-        course -> course.isCombinableWith(major));
-
-    cbMinor.setItems(minorCourseList);
-    cbMinor.getSelectionModel().select(0);
   }
 
   private void fireListenerEvents() {
@@ -200,20 +220,33 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     listeners.remove(listener);
   }
 
-  /**
-   * Convert from String to Course and vice versa to be able to use the Course objects directly
-   * within the combo boxes.
-   */
-  private static class CourseConverter extends StringConverter<Course> {
-    @Override
-    public String toString(final Course object) {
-      return object.getFullName();
-    }
+  public SetProperty<String> impossibleCoursesProperty() {
+    return this.impossibleCoursesProperty;
+  }
 
-    @Override
-    public Course fromString(final String string) {
-      throw new UnsupportedOperationException();
-    }
+  @SuppressWarnings("unused")
+  public void setImpossibleCourses(final ObservableSet<String> impossibleCourses) {
+    this.impossibleCoursesProperty.set(impossibleCourses);
+  }
+
+
+
+  @SuppressWarnings("WeakerAccess")
+  public ListProperty<Course> majorCourseListProperty() {
+    return this.majorCourseList;
+  }
+
+  @SuppressWarnings("WeakerAccess")
+  public ListProperty<Course> minorCourseListProperty() {
+    return this.minorCourseList;
+  }
+
+  public void setMajorCourseList(final ObservableList<Course> majorCourseList) {
+    this.majorCourseList.set(majorCourseList);
+  }
+
+  public void setMinorCourseList(final ObservableList<Course> minorCourseList) {
+    this.minorCourseList.set(minorCourseList);
   }
 
   private static class ListViewListCellCallback
@@ -240,11 +273,25 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
             } else {
               setTextFill(Color.BLACK);
             }
-
           }
-
         }
       };
+    }
+  }
+
+  /**
+   * Convert from String to Course and vice versa to be able to use the Course objects directly
+   * within the combo boxes.
+   */
+  private static class CourseConverter extends StringConverter<Course> {
+    @Override
+    public String toString(final Course object) {
+      return object.getFullName();
+    }
+
+    @Override
+    public Course fromString(final String string) {
+      throw new UnsupportedOperationException();
     }
   }
 }

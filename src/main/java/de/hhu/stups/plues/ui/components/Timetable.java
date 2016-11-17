@@ -52,11 +52,9 @@ public class Timetable extends BorderPane implements Initializable {
   private GridPane timeTable;
 
   @FXML
-  @SuppressWarnings("unused")
   private SetOfCourseSelection setOfCourseSelection;
 
   @FXML
-  @SuppressWarnings("unused")
   private CheckCourseFeasibility checkCourseFeasibility;
 
   @FXML
@@ -96,13 +94,10 @@ public class Timetable extends BorderPane implements Initializable {
     });
 
     // if the component checkCourseFeasibility is included
-    delayedSolverService.whenAvailable(solverService -> {
-      checkCourseFeasibility.setSolverProperty(true);
-      final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
-      impossibleCoursesTask.setOnSucceeded(event ->
-          checkCourseFeasibility.highlightImpossibleCourses(impossibleCoursesTask.getValue()));
-      solverService.submit(impossibleCoursesTask);
-    });
+    checkCourseFeasibility.impossibleCoursesProperty().bind(
+        uiDataService.impossibleCoursesProperty());
+    delayedSolverService.whenAvailable(
+        solverService -> checkCourseFeasibility.setSolverProperty(true));
 
     initSessionBoxes();
   }
