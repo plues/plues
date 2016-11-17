@@ -202,7 +202,7 @@ public class ReportData {
   }
 
 
-  void setModuleAbstractUnitUnitSemesterMismatch(
+  void setModuleAbstractUnitUnitSemesterConflicts(
       final Set<ModuleAbstractUnitUnitSemesterConflict> moduleAbstractUnitUnitSemesterConflicts) {
     this.moduleAbstractUnitUnitSemesterConflicts = moduleAbstractUnitUnitSemesterConflicts;
 

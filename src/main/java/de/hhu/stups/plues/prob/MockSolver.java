@@ -2,6 +2,8 @@ package de.hhu.stups.plues.prob;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,7 +83,21 @@ public class MockSolver implements Solver {
 
   @Override
   public ReportData getReportingData() throws SolverException {
-    return new ReportData();
+    final ReportData reportData = new ReportData();
+    reportData.setImpossibleCourseModuleAbstractUnits(new HashMap<>());
+    reportData.setImpossibleCourses(new HashSet<>());
+    reportData.setImpossibleCoursesBecauseOfImpossibleModules(new HashSet<>());
+    reportData.setImpossibleCourseModuleAbstractUnitPairs(new HashMap<>());
+    reportData.setImpossibleAbstractUnitsInModule(new HashMap<>());
+    reportData.setIncompleteModules(new HashSet<>());
+    reportData.setMandatoryModules(new HashMap<>());
+    reportData.setQuasiMandatoryModuleAbstractUnits(new HashMap<>());
+    reportData.setRedundantUnitGroups(new HashMap<>());
+    reportData.setImpossibleModulesBecauseOfMissingElectiveAbstractUnits(new HashSet<>());
+    reportData.setImpossibleCoursesBecauseOfImpossibleModuleCombinations(new HashSet<>());
+    reportData.setModuleAbstractUnitUnitSemesterConflicts(new HashSet<>());
+
+    return reportData;
   }
 
   @Override

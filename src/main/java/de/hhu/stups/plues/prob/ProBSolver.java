@@ -403,7 +403,7 @@ public class ProBSolver implements Solver {
         Mappers.mapCourseSet(
             (Set) data.get("impossible_courses_because_of_impossible_module_combinations")));
 
-    report.setModuleAbstractUnitUnitSemesterMismatch(
+    report.setModuleAbstractUnitUnitSemesterConflicts(
         Mappers.mapModuleAbstractUnitUnitSemesterMismatch(
             (Set) data.get("module_abstract_unit_unit_semester_mismatch")));
 
