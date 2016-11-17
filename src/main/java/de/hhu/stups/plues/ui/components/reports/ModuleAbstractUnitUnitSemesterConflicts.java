@@ -1,12 +1,12 @@
 package de.hhu.stups.plues.ui.components.reports;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -22,31 +22,34 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Initializable {
 
-  private SimpleListProperty<Module> modules;
-  private SimpleListProperty<TableRowTriple> entries;
-  private Map<Module, List<TableRowTriple>> moduleAbstractUnitUnitSemesterConflicts;
+  private final SimpleListProperty<Module> modules;
+  private final SimpleListProperty<Conflict> entries;
+  private Map<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflicts;
 
   @FXML
-  @SuppressWarnings("unused")
   private ListView<Module> listViewModules;
   @FXML
-  @SuppressWarnings("unused")
-  private TableView<TableRowTriple> tableViewAbstractUnitUnitSemesters;
+  private TableView<Conflict> tableViewAbstractUnitUnitSemesters;
   @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<TableRowTriple, String> tableColumnAbstractUnit;
+  private TableColumn<Conflict, String> tableColumnAbstractUnitKey;
   @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<TableRowTriple, String> tableColumnUnit;
+  private TableColumn<Conflict, String> tableColumnAbstractUnitTitle;
   @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<TableRowTriple, String> tableColumnSemesters;
+  private TableColumn<Conflict, String> tableColumnAbstractUnitSemesters;
+  @FXML
+  private TableColumn<Conflict, String> tableColumnUnitTitle;
+  @FXML
+  private TableColumn<Conflict, String> tableColumnUnitKey;
+  @FXML
+  private TableColumn<Conflict, String> tableColumnUnitSemesters;
 
   /**
    * Default constructor.
+   *
    * @param inflater Handle fxml and resources
    */
   @Inject
@@ -59,16 +62,23 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     tableViewAbstractUnitUnitSemesters.itemsProperty().bind(entries);
-    tableColumnAbstractUnit.setCellValueFactory(new PropertyValueFactory<>("abstractUnitTitle"));
-    tableColumnUnit.setCellValueFactory(new PropertyValueFactory<>("unitTitle"));
-    tableColumnSemesters.setCellValueFactory(new PropertyValueFactory<>("semesters"));
+
+    tableColumnAbstractUnitKey.setCellValueFactory(new PropertyValueFactory<>("abstractUnitKey"));
+    tableColumnAbstractUnitTitle.setCellValueFactory(
+        new PropertyValueFactory<>("abstractUnitTitle"));
+    tableColumnAbstractUnitSemesters.setCellValueFactory(
+        new PropertyValueFactory<>("abstractUnitSemesters"));
+
+    tableColumnUnitKey.setCellValueFactory(new PropertyValueFactory<>("unitKey"));
+    tableColumnUnitTitle.setCellValueFactory(new PropertyValueFactory<>("unitTitle"));
+    tableColumnUnitSemesters.setCellValueFactory(new PropertyValueFactory<>("unitSemesters"));
 
     listViewModules.itemsProperty().bind(modules);
     listViewModules.setCellFactory(param -> new ListCell<Module>() {
       @Override
-      protected void updateItem(Module module, boolean empty) {
+      protected void updateItem(final Module module, final boolean empty) {
         super.updateItem(module, empty);
         if (!empty) {
           setText(module.getTitle());
@@ -77,44 +87,58 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
     });
     listViewModules.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) ->
-          entries.setAll(moduleAbstractUnitUnitSemesterConflicts.get(newValue)));
+        entries.setAll(moduleAbstractUnitUnitSemesterConflicts.get(newValue)));
   }
 
-  public void setData(final Map<Module, List<TableRowTriple>>
+  public void setData(final Map<Module, List<Conflict>>
                         moduleAbstractUnitUnitSemesterConflicts) {
     this.moduleAbstractUnitUnitSemesterConflicts = moduleAbstractUnitUnitSemesterConflicts;
     this.modules.setAll(moduleAbstractUnitUnitSemesterConflicts.keySet());
   }
 
-  public static final class TableRowTriple {
-    private final String abstractUnitTitle;
-    private final String unitTitle;
-    private final String semesters;
+  public static final class Conflict {
+    private final Set<Integer> semesters;
+    private final AbstractUnit abstractUnit;
+    private final Unit unit;
 
     /**
      * An object to obtain three values of the same type to use within a table view.
      */
-    public TableRowTriple(final AbstractUnit abstractUnit, final Unit unit,
-                          final String semesters) {
-      this.abstractUnitTitle = abstractUnit.getTitle();
-      this.unitTitle = unit.getTitle();
-      this.semesters = semesters;
+    public Conflict(final AbstractUnit abstractUnit, final Unit unit,
+                    final Set<Integer> abstractUnitSemesters) {
+      this.abstractUnit = abstractUnit;
+      this.unit = unit;
+      this.semesters = abstractUnitSemesters;
     }
 
     @SuppressWarnings("unused")
     public String getAbstractUnitTitle() {
-      return this.abstractUnitTitle;
+      return this.abstractUnit.getTitle();
+    }
+
+    @SuppressWarnings("unused")
+    public String getAbstractUnitKey() {
+      return this.abstractUnit.getKey();
+    }
+
+    @SuppressWarnings("unused")
+    public String getAbstractUnitSemesters() {
+      return Joiner.on(",").join(this.semesters);
+    }
+
+    @SuppressWarnings("unused")
+    public String getUnitSemesters() {
+      return Joiner.on(",").join(unit.getSemesters());
+    }
+
+    @SuppressWarnings("unused")
+    public String getUnitKey() {
+      return unit.getKey();
     }
 
     @SuppressWarnings("unused")
     public String getUnitTitle() {
-      return this.unitTitle;
+      return this.unit.getTitle();
     }
-
-    @SuppressWarnings("unused")
-    public String getSemesters() {
-      return this.semesters;
-    }
-
   }
 }
