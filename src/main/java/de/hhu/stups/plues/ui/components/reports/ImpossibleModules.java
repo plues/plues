@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleListProperty;
@@ -62,8 +61,8 @@ public class ImpossibleModules extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
-    ListBinding<Module> binding = new ListBinding<Module>() {
+  public void initialize(final URL location, final ResourceBundle resources) {
+    final ListBinding<Module> binding = new ListBinding<Module>() {
       {
         bind(buttonIncompleteModules.selectedProperty());
         bind(buttonMissingElectiveAbstractUnits.selectedProperty());
@@ -86,7 +85,7 @@ public class ImpossibleModules extends VBox implements Initializable {
     };
     tableViewModules.itemsProperty().bind(binding);
 
-    StringBinding stringBinding = new StringBinding() {
+    final StringBinding stringBinding = new StringBinding() {
       {
         bind(buttonIncompleteModules.selectedProperty());
         bind(buttonMissingElectiveAbstractUnits.selectedProperty());
@@ -94,7 +93,7 @@ public class ImpossibleModules extends VBox implements Initializable {
 
       @Override
       protected String computeValue() {
-        String string;
+        final String string;
         if (buttonIncompleteModules.isSelected()) {
           string = resources.getString("explainIncompleteModules");
         } else {
