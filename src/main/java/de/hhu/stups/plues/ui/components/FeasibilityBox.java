@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.ui.components;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -8,7 +7,8 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Session;
-import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -17,7 +17,10 @@ import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,8 +30,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -72,6 +75,9 @@ public class FeasibilityBox extends VBox implements Initializable {
   private final Delayed<Store> delayedStore;
   private final Set<String> impossibleCourses;
   private final VBox parent;
+  private final UiDataService uiDataService;
+
+  private final ListProperty<Integer> unsatCoreProperty = new SimpleListProperty<>();
 
   @FXML
   @SuppressWarnings("unused")
@@ -101,16 +107,26 @@ public class FeasibilityBox extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private Button btSubmit;
 
+  @FXML
+  private Button btHighlightAllConflicts;
+
+  @FXML
+  private VBox conflictResults;
+
+  private TreeView<String> conflictTreeView;
+  private TreeItem<String> conflictTreeRootItem;
+
   /**
    * A container to display the feasibility of a combination of courses or a single one. For
-   * infeasible courses it is possible to compute the unsat core which is presented in a titled pane
-   * grouped by the day of week.
+   * infeasible courses it is possible to compute the unsat core which is presented in a {@link
+   * #conflictTreeView} grouped by the day of week.
    */
   @Inject
   public FeasibilityBox(final Inflater inflater,
                         final Delayed<Store> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final ExecutorService executorService,
+                        final UiDataService uiDataService,
                         @Assisted("major") final Course majorCourse,
                         @Nullable @Assisted("minor") final Course minorCourse,
                         @Assisted("impossibleCourses") final Set<String> impossibleCourses,
@@ -121,6 +137,7 @@ public class FeasibilityBox extends VBox implements Initializable {
     this.executorService = executorService;
     this.impossibleCourses = impossibleCourses;
     this.parent = parent;
+    this.uiDataService = uiDataService;
 
     majorCourseProperty = new SimpleObjectProperty<>(majorCourse);
     minorCourseProperty = new SimpleObjectProperty<>(minorCourse);
@@ -144,10 +161,30 @@ public class FeasibilityBox extends VBox implements Initializable {
 
     gridPaneResults.setHgap(5.0);
 
+    btHighlightAllConflicts.visibleProperty().bind(unsatCoreProperty.emptyProperty().not());
+
+    conflictTreeView = new TreeView<>();
+    conflictTreeRootItem = new TreeItem<>();
+
     lbMajor.textProperty()
         .bind(Bindings.selectString(majorCourseProperty, "fullName"));
     lbMinor.textProperty()
         .bind(Bindings.selectString(minorCourseProperty, "fullName"));
+
+    conflictTreeView.rootProperty().bind(new ReadOnlyObjectWrapper<>(conflictTreeRootItem));
+
+    conflictTreeRootItem.setValue(resources.getString("conflictPaneTitle"));
+
+    conflictTreeRootItem.expandedProperty().addListener((observable, oldValue, newValue) -> {
+      if (!newValue) {
+        conflictTreeView.setPrefHeight(26.0);
+      } else {
+        conflictTreeView.setPrefHeight(175.0);
+      }
+    });
+    conflictTreeRootItem.setExpanded(true);
+
+    btHighlightAllConflicts.visibleProperty().bind(unsatCoreProperty.emptyProperty().not());
 
     delayedSolverService.whenAvailable(solver -> {
       final Course cMajor = majorCourseProperty.get();
@@ -200,6 +237,12 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
+  private void highlightConflicts() {
+    uiDataService.setConflictMarkedSessions(unsatCoreProperty.get());
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
   private void submitAction() {
     final String selectedItem = cbAction.getSelectionModel().getSelectedItem();
 
@@ -235,7 +278,8 @@ public class FeasibilityBox extends VBox implements Initializable {
     }
 
     unsatCoreTask.setOnSucceeded(unsatCore -> {
-      showConflictResult(unsatCoreTask.getValue());
+      unsatCoreProperty.set(FXCollections.observableList(unsatCoreTask.getValue()));
+      showConflictResult(unsatCoreProperty.get());
       cbAction.setItems(FXCollections.singletonObservableList(removeString));
       cbAction.getSelectionModel().selectFirst();
     });
@@ -268,14 +312,14 @@ public class FeasibilityBox extends VBox implements Initializable {
   }
 
   /**
-   * Create the titled pane and grid pane to show the conflicts grouped by the day of week.
+   * Display the unsat core in a TreeView grouped by the day of week and the time of the day. The
+   * TreeView's root property is bound to {@link #conflictTreeRootItem}.
    *
    * @param unsatCore The list of session Ids that form the unsat core.
    */
   @SuppressWarnings("unused")
   private void showConflictResult(final List<Integer> unsatCore) {
-    final ScrollPane conflictScrollPane = new ScrollPane();
-    final GridPane conflictGridPane = new GridPane();
+    conflictTreeRootItem.getChildren().clear();
 
     final List<Session> conflictSessions = delayedStore.get().getSessions()
         .stream().filter(session -> unsatCore.contains(session.getId()))
@@ -294,58 +338,33 @@ public class FeasibilityBox extends VBox implements Initializable {
       }
     });
 
-    final Set<Map.Entry<DayOfWeek, ArrayList<Session>>> entrySetDay =
-        sortedSessionsByDay.entrySet();
-    // add conflicts to the grid pane
-    int conflictRowCounter = 0;
-    for (final Map.Entry<DayOfWeek, ArrayList<Session>> sessionsAtDay : entrySetDay) {
-      final Label labelDayOfWeek = new Label(dayOfWeekStrings.get(sessionsAtDay.getKey()));
-      labelDayOfWeek.setStyle("-fx-font-weight: bold");
-      conflictGridPane.add(labelDayOfWeek, 0, conflictRowCounter);
-      conflictRowCounter++;
-
-      final Map<Integer, ArrayList<Session>> sortedSessionByTime = sortSessionsByTime(
-          sortedSessionsByDay.get(sessionsAtDay.getKey()));
-      final List<Integer> keySetTime = Lists.newArrayList(sortedSessionByTime.keySet());
-      Collections.sort(keySetTime);
-
-      for (Integer keyIndex : keySetTime) {
-        conflictGridPane.add(new Label(timeStrings.get(keyIndex)), 0,
-            conflictRowCounter);
-        for (Session session : sortedSessionByTime.get(keyIndex)) {
-          conflictGridPane.add(new Label(session.toString()), 1, conflictRowCounter);
-          conflictRowCounter++;
-        }
-      }
-    }
-    conflictScrollPane.setContent(conflictGridPane);
-
-    final Button btHighlightAllConflicts = new Button(resources.getString("highlightConflicts"));
-
-    final TitledPane conflictTitledPane = new TitledPane();
-    conflictTitledPane.setText(resources.getString("conflictPaneTitle"));
-
-    final VBox wrapper = new VBox();
-    wrapper.setSpacing(5.0);
-    wrapper.getChildren().add(conflictScrollPane);
-    wrapper.getChildren().add(btHighlightAllConflicts);
-
-    conflictTitledPane.setContent(wrapper);
-
-    getChildren().add(conflictTitledPane);
-
-    btHighlightAllConflicts.setOnAction(event -> {
-      // Todo: highlight conflicting sessions in the timetable view
+    // add all conflicting sessions to the tree view grouped by the day of week and time of the day
+    sortedSessionsByDay.entrySet().forEach(dayOfWeekEntry -> {
+      final TreeItem<String> dayRootItem = new TreeItem<>(dayOfWeekStrings
+          .get(dayOfWeekEntry.getKey()));
+      dayRootItem.setExpanded(true);
+      groupSessionsByTime(sortedSessionsByDay.get(dayOfWeekEntry.getKey())).entrySet()
+          .forEach(timeAtDayEntry -> {
+            final TreeItem<String> timeRootItem = new TreeItem<>(timeAtDayEntry.getKey());
+            timeRootItem.setExpanded(true);
+            timeRootItem.getChildren().addAll(timeAtDayEntry.getValue().stream()
+                .map(session -> new TreeItem<>(session.toString()))
+                .collect(Collectors.toList()));
+            dayRootItem.getChildren().add(timeRootItem);
+          });
+      conflictTreeRootItem.getChildren().add(dayRootItem);
     });
+    conflictResults.getChildren().add(conflictTreeView);
   }
 
-  private Map<Integer, ArrayList<Session>> sortSessionsByTime(ArrayList<Session> sessions) {
-    final Map<Integer, ArrayList<Session>> sortedSessionsByTime = new HashMap<>(sessions.size());
+  private Map<String, ArrayList<Session>> groupSessionsByTime(ArrayList<Session> sessions) {
+    final Map<String, ArrayList<Session>> sortedSessionsByTime = new HashMap<>(sessions.size());
     sessions.forEach(session -> {
-      if (!sortedSessionsByTime.containsKey(session.getTime())) {
-        sortedSessionsByTime.put(session.getTime(), new ArrayList<>());
+      final String timeString = timeStrings.get(session.getTime());
+      if (!sortedSessionsByTime.containsKey(timeString)) {
+        sortedSessionsByTime.put(timeString, new ArrayList<>());
       }
-      sortedSessionsByTime.get(session.getTime()).add(session);
+      sortedSessionsByTime.get(timeString).add(session);
     });
     return sortedSessionsByTime;
   }

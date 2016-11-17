@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.tasks;
+package de.hhu.stups.plues.services;
 
 import com.google.common.base.Joiner;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -18,6 +18,8 @@ import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.Solver;
 
 import de.hhu.stups.plues.prob.SolverException;
+import de.hhu.stups.plues.tasks.SolverTask;
+
 import javafx.beans.property.ReadOnlyMapProperty;
 import javafx.beans.property.ReadOnlyMapWrapper;
 import javafx.collections.FXCollections;

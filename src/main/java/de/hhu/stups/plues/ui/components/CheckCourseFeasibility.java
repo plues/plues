@@ -3,12 +3,14 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -27,6 +29,8 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   private final BooleanProperty solverProperty;
   private Set<String> impossibleCourses;
 
+  private final UiDataService uiDataService;
+
   @FXML
   @SuppressWarnings("unused")
   private CombinationOrSingleCourseSelection combinationOrSingleCourseSelection;
@@ -39,6 +43,8 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private VBox resultBoxWrapper;
+  @FXML
+  private Button btUnhighlightAllConflicts;
 
   /**
    * Component to select a combination of courses or a single subject obtained by {@link
@@ -51,8 +57,12 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
    */
   @Inject
   public CheckCourseFeasibility(final Inflater inflater,
-                                final FeasibilityBoxFactory feasibilityBoxFactory) {
+                                final FeasibilityBoxFactory feasibilityBoxFactory,
+                                final UiDataService uiDataService) {
+
     this.feasibilityBoxFactory = feasibilityBoxFactory;
+    this.uiDataService = uiDataService;
+
     impossibleCourses = new HashSet<>();
     solverProperty = new SimpleBooleanProperty(false);
 
@@ -65,12 +75,15 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     resultBoxWrapper.setSpacing(5.0);
 
-    IntegerBinding resultBoxChildren = Bindings.size(resultBoxWrapper.getChildren());
+    final IntegerBinding resultBoxChildren = Bindings.size(resultBoxWrapper.getChildren());
     scrollPaneResults.visibleProperty().bind(resultBoxChildren.greaterThan(0));
     scrollPaneResults.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
     scrollPaneResults.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
     btCheckFeasibility.disableProperty().bind(solverProperty.not());
+
+    btUnhighlightAllConflicts.visibleProperty().bind(this.uiDataService
+        .conflictMarkedSessionsProperty().emptyProperty().not());
   }
 
   /**
@@ -96,12 +109,18 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     combinationOrSingleCourseSelection.setCourses(courses);
   }
 
-  void highlightImpossibleCourses(Set<String> impossibleCourses) {
+  void highlightImpossibleCourses(final Set<String> impossibleCourses) {
     this.impossibleCourses = impossibleCourses;
     combinationOrSingleCourseSelection.highlightImpossibleCourses(impossibleCourses);
   }
 
   void setSolverProperty(Boolean value) {
     solverProperty.setValue(value);
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
+  public void unhighlightConflicts() {
+    uiDataService.setConflictMarkedSessions(FXCollections.observableArrayList());
   }
 }

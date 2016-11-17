@@ -7,10 +7,9 @@ import static org.testfx.api.FxAssert.verifyThat;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
-
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

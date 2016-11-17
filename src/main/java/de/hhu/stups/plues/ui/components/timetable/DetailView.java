@@ -6,16 +6,21 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
-import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ListBinding;
+import javafx.beans.binding.StringBinding;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -24,77 +29,107 @@ import java.util.Set;
 
 public class DetailView extends VBox implements Initializable {
 
+  private final ObjectProperty<SessionFacade> sessionProperty;
   @FXML
   @SuppressWarnings("unused")
   private Label session;
-
   @FXML
   @SuppressWarnings("unused")
   private Label title;
-
   @FXML
   @SuppressWarnings("unused")
   private Label group;
-
   @FXML
   @SuppressWarnings("unused")
   private Label semesters;
-
   @FXML
   @SuppressWarnings("unused")
   private TableView<CourseTableEntry> courseTable;
-
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<CourseTableEntry, String> courseKey;
-
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<CourseTableEntry, String> module;
-
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<CourseTableEntry, Integer> abstractUnit;
-
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<CourseTableEntry, String> courseSemesters;
-
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<CourseTableEntry, Character> type;
 
+  /**
+   * Constructor.
+   * @param inflater Inflater instance to load FXMl
+   */
   @Inject
   public DetailView(final Inflater inflater) {
+    sessionProperty = new SimpleObjectProperty<>();
     inflater.inflate("components/DetailView", this, this, "detailView");
   }
 
   /**
    * Set content for detail view.
    *
-   * @param session Session to build content for
-   * @param slot Get slot information
+   * @param session SessionFacade to build content for
    */
   @SuppressWarnings("WeakerAccess")
-  public void setContent(final Session session, final SessionFacade.Slot slot) {
-    this.session.setText(slot.toString());
-    title.setText(session.getGroup().getUnit().getTitle());
-    group.setText(String.valueOf(session.getGroup().getId()));
-    semesters.setText(Joiner.on(",").join(session.getGroup().getUnit().getSemesters()));
-
-    session.getGroup().getUnit().getAbstractUnits().forEach(au ->
-        au.getModuleAbstractUnitTypes().forEach(entry ->
-          entry.getModule().getCourses().forEach(course -> {
-            final Module entryModule = entry.getModule();
-            final CourseTableEntry tableEntry = new CourseTableEntry(course, entryModule, au,
-                entryModule.getSemestersForAbstractUnit(au), entry.getType());
-            courseTable.getItems().add(tableEntry);
-          })));
-
+  public void setSession(final SessionFacade session) {
+    this.sessionProperty.set(session);
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    this.title.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
+        Bindings.selectString(sessionProperty, "session", "group", "unit", "title")).otherwise(""));
+    this.session.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
+        Bindings.selectString(sessionProperty, "slot")).otherwise(""));
+    this.group.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
+        Bindings.selectString(sessionProperty, "session", "group", "id")).otherwise(""));
+    this.semesters.textProperty().bind(new StringBinding() {
+      {
+        bind(sessionProperty);
+      }
+
+      @Override
+      protected String computeValue() {
+        final SessionFacade sessionFacade = sessionProperty.get();
+        if (sessionFacade == null) {
+          return "";
+        }
+        return Joiner.on(", ").join(sessionFacade.getSession().getGroup().getUnit().getSemesters());
+      }
+    });
+
+    courseTable.itemsProperty().bind(new ListBinding<CourseTableEntry>() {
+      {
+        bind(sessionProperty);
+      }
+
+      @Override
+      protected ObservableList<CourseTableEntry> computeValue() {
+        final SessionFacade sessionFacade = sessionProperty.get();
+        if (sessionFacade == null) {
+          return FXCollections.observableArrayList();
+        }
+        final Set<AbstractUnit> abstractUnits
+            = sessionFacade.getSession().getGroup().getUnit().getAbstractUnits();
+        final ObservableList<CourseTableEntry> result = FXCollections.observableArrayList();
+        abstractUnits.forEach(au ->
+            au.getModuleAbstractUnitTypes().forEach(entry ->
+              entry.getModule().getCourses().forEach(course -> {
+                final Module entryModule = entry.getModule();
+                final CourseTableEntry tableEntry = new CourseTableEntry(course, entryModule, au,
+                    entryModule.getSemestersForAbstractUnit(au), entry.getType());
+                result.add(tableEntry);
+              })));
+        return result;
+      }
+    });
+
     courseKey.setCellValueFactory(new PropertyValueFactory<>("courseKey"));
     courseKey.setText(resources.getString("courseCell"));
     module.setCellValueFactory(new PropertyValueFactory<>("module"));

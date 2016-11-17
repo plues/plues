@@ -11,6 +11,9 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -24,6 +27,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
@@ -41,7 +45,8 @@ public class Timetable extends BorderPane implements Initializable {
 
   private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
-
+  private final Delayed<SolverService> delayedSolverService;
+  private final UiDataService uiDataService;
 
   @FXML
   private GridPane timeTable;
@@ -52,7 +57,7 @@ public class Timetable extends BorderPane implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private AbstractUnitFilter abstractUnitFilter;
+  private CheckCourseFeasibility checkCourseFeasibility;
 
   @FXML
   private ToggleGroup semesterToggle;
@@ -64,9 +69,13 @@ public class Timetable extends BorderPane implements Initializable {
    */
   @Inject
   public Timetable(final Inflater inflater, final Delayed<ObservableStore> delayedStore,
+                   final Delayed<SolverService> delayedSolverService,
+                   final UiDataService uiDataService,
                    final SessionListViewFactory sessionListViewFactory) {
     this.delayedStore = delayedStore;
     this.sessionListViewFactory = sessionListViewFactory;
+    this.delayedSolverService = delayedSolverService;
+    this.uiDataService = uiDataService;
 
     // TODO: remove controller param if possible
     // TODO: currently not possible because of dependency circle
@@ -76,9 +85,9 @@ public class Timetable extends BorderPane implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.delayedStore.whenAvailable(store -> {
-      this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
+      //this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
       setOfCourseSelection.setCourses(store.getCourses());
-      //checkCourseFeasibility.setCourses(store.getCourses());
+      checkCourseFeasibility.setCourses(store.getCourses());
 
       setSessions(store.getSessions()
           .parallelStream()
@@ -86,14 +95,14 @@ public class Timetable extends BorderPane implements Initializable {
           .collect(Collectors.toList()));
     });
 
-    /*// if the component checkCourseFeasibility is included
+    // if the component checkCourseFeasibility is included
     delayedSolverService.whenAvailable(solverService -> {
       checkCourseFeasibility.setSolverProperty(true);
       final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
       impossibleCoursesTask.setOnSucceeded(event ->
           checkCourseFeasibility.highlightImpossibleCourses(impossibleCoursesTask.getValue()));
       solverService.submit(impossibleCoursesTask);
-    });*/
+    });
 
     initSessionBoxes();
   }

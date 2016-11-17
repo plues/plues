@@ -50,8 +50,8 @@ public class SolverTask<T> extends Task<T> {
   private ListenableScheduledFuture<?> timer;
   private String reason;
 
-  SolverTask(final String title, final String message, final Solver solver,
-             final Callable<T> func) {
+  public SolverTask(final String title, final String message, final Solver solver,
+                    final Callable<T> func) {
     this(title, message, solver, func, 1, TimeUnit.MINUTES);
   }
 

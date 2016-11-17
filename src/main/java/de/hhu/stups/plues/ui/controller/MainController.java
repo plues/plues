@@ -6,13 +6,14 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.modelgenerator.XmlExporter;
+import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
-import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
@@ -22,6 +23,7 @@ import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.concurrent.Task;
@@ -29,14 +31,18 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.ToggleGroup;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import org.controlsfx.control.TaskProgressView;
 
 import java.io.ByteArrayOutputStream;
@@ -81,10 +87,12 @@ public class MainController implements Initializable {
   }
 
   private final Logger logger = Logger.getLogger(getClass().getName());
-  private final Delayed<Store> delayedStore;
+  private final Delayed<ObservableStore> delayedStore;
   private final Properties properties;
   private final Stage stage;
   private final ExecutorService executor;
+  private final UiDataService uiDataService;
+  private final Preferences userPreferences;
 
   private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
   private final SolverLoaderImpl solverLoader;
@@ -98,30 +106,31 @@ public class MainController implements Initializable {
 
   @FXML
   private MenuItem saveFileMenuItem;
-
   @FXML
   private MenuItem saveFileAsMenuItem;
-
   @FXML
   private MenuItem openFileMenuItem;
-
   @FXML
   private MenuItem exportStateMenuItem;
-
   @FXML
   private MenuItem openChangeLog;
-
   @FXML
   private MenuItem openReports;
-
+  @FXML
+  private RadioMenuItem rbMenuItemSessionName;
+  @FXML
+  private RadioMenuItem rbMenuItemSessionId;
   @FXML
   private TaskProgressView<Task<?>> taskProgress;
+
+  private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
+  private boolean databaseChanged = false;
 
   /**
    * MainController component.
    */
   @Inject
-  public MainController(final Delayed<Store> delayedStore,
+  public MainController(final Delayed<ObservableStore> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
@@ -132,7 +141,8 @@ public class MainController implements Initializable {
                         final ObjectProperty<Date> lastSaved,
                         @Named("prob") final ObservableListeningExecutorService probExecutor,
                         final ObservableListeningExecutorService executorService,
-                        final ResourceManager resourceManager) {
+                        final ResourceManager resourceManager,
+                        final UiDataService uiDataService) {
     this.delayedStore = delayedStore;
     this.solverLoader = solverLoader;
     this.properties = properties;
@@ -144,8 +154,9 @@ public class MainController implements Initializable {
     this.lastSaved = lastSaved;
     this.executor = executorService;
     this.resourceManager = resourceManager;
+    this.uiDataService = uiDataService;
+    userPreferences = Preferences.userRoot().node("Plues");
 
-    //    stage.setOnHiding(event -> closeWindow()); TODO: sth. like that for close button
 
     delayedSolverService.whenAvailable(solverService -> openReports.setDisable(false));
 
@@ -182,11 +193,14 @@ public class MainController implements Initializable {
     this.saveFileMenuItem.setDisable(true);
     this.saveFileAsMenuItem.setDisable(true);
 
+    initializeViewMenuItems();
+
     delayedStore.whenAvailable(s -> {
       this.exportStateMenuItem.setDisable(false);
       this.openChangeLog.setDisable(false);
       this.saveFileMenuItem.setDisable(false);
       this.saveFileAsMenuItem.setDisable(false);
+      s.addObserver((object, arg) -> this.databaseChanged = true);
     });
 
     if (this.properties.get(DB_PATH) != null) {
@@ -204,6 +218,34 @@ public class MainController implements Initializable {
         logger.log(Level.SEVERE, "Closing resources", exception);
       }
     });
+  }
+
+  private void initializeViewMenuItems() {
+    final String sessionName = "sessionName";
+    final String sessionFormat = "sessionFormat";
+    uiDataService.setSessionDisplayFormatProperty(userPreferences.get(sessionFormat, ""));
+
+    if ("id".equals(userPreferences.get(sessionFormat, ""))) {
+      rbMenuItemSessionId.setSelected(true);
+    } else {
+      rbMenuItemSessionName.setSelected(true);
+    }
+    rbMenuItemSessionName.setToggleGroup(sessionPreferenceToggle);
+    rbMenuItemSessionName.setUserData(sessionName);
+    rbMenuItemSessionId.setToggleGroup(sessionPreferenceToggle);
+    rbMenuItemSessionId.setUserData("sessionId");
+    sessionPreferenceToggle.selectedToggleProperty().addListener(
+        (observable, oldValue, newValue) -> {
+          if (sessionPreferenceToggle.getSelectedToggle() != null) {
+            if (sessionName.equals(sessionPreferenceToggle.getSelectedToggle()
+                .getUserData().toString())) {
+              userPreferences.put(sessionFormat, "name");
+            } else {
+              userPreferences.put(sessionFormat, "id");
+            }
+            uiDataService.setSessionDisplayFormatProperty(userPreferences.get(sessionFormat, ""));
+          }
+        });
   }
 
   /**
@@ -263,6 +305,7 @@ public class MainController implements Initializable {
 
   /**
    * Prepare a file chooser and return the file.
+   *
    * @param title title key to find resource
    */
   private FileChooser prepareFileChooser(final String title) {
@@ -283,8 +326,8 @@ public class MainController implements Initializable {
   }
 
   /**
-   * The menu item's action to export the current state of the database to a zip file
-   * containing the xml files.
+   * The menu item's action to export the current state of the database to a zip file containing the
+   * xml files.
    */
   @FXML
   private final void exportCurrentDbState() {
@@ -355,7 +398,7 @@ public class MainController implements Initializable {
         value -> logger.log(Level.FINE, "STORE: loading Store succeeded"));
 
     storeLoader.setOnSucceeded(event -> Platform.runLater(() -> {
-      final Store s = (Store) event.getSource().getValue();
+      final ObservableStore s = (ObservableStore) event.getSource().getValue();
       this.delayedStore.set(s);
     }));
     return storeLoader;
@@ -407,11 +450,15 @@ public class MainController implements Initializable {
   }
 
   /**
-   * Ask user for permission to close window using Alert.
-   * User can save database before closing.
+   * Ask user for permission to close window using Alert. User can save database before closing.
    */
   @FXML
   private void closeWindow(final Event event) {
+    if (!databaseChanged) {
+      stage.close();
+      return;
+    }
+
     final Alert closeConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
     closeConfirmation.setTitle("Confirm");
     closeConfirmation.setHeaderText("Save before closing?");
@@ -447,6 +494,7 @@ public class MainController implements Initializable {
   private void about() {
     final AboutWindow aboutWindow = aboutWindowProvider.get();
     final Stage aboutStage = new Stage();
+    aboutWindow.setPadding(new Insets(10.0, 10.0, 10.0, 10.0));
     aboutStage.setTitle(resources.getString("about"));
     aboutStage.setScene(new Scene(aboutWindow, 550, 400));
     aboutStage.setResizable(false);
