@@ -12,28 +12,6 @@
 
 <fx:root alignment="center" type="javafx.scene.layout.GridPane"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-        <MajorMinorCourseSelection fx:id="courseSelection" GridPane.columnIndex="0"
-                                   GridPane.halignment="CENTER" GridPane.rowIndex="0"
-                                   GridPane.columnSpan="2"/>
-        <Button fx:id="btChoose" onAction="#btChoosePressed" prefWidth="300" maxHeight="10000.0"
-                text="%choose" GridPane.halignment="CENTER" GridPane.columnIndex="0"
-                GridPane.rowIndex="1" GridPane.columnSpan="2"/>
-        <ScrollPane fx:id="scrollPane" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2"
-                    maxHeight="10000.0" maxWidth="10000.0">
-            <VBox fx:id="modulesUnits" spacing="25"/>
-        </ScrollPane>
-        <Button fx:id="btCheck" onAction="#btCheckPressed" prefWidth="300" maxHeight="10000.0"
-                text="%check" GridPane.halignment="CENTER" GridPane.columnIndex="0"
-                GridPane.rowIndex="3" GridPane.columnSpan="2"/>
-        <HBox fx:id="buttons" prefWidth="250" maxWidth="250"
-              spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="4"
-              GridPane.columnSpan="2" GridPane.halignment="CENTER">
-            <Label fx:id="icon" prefWidth="50" alignment="CENTER"/>
-            <Button fx:id="show" text="%show" onMouseClicked="#showPdf" prefWidth="100"/>
-            <Button fx:id="save" text="%save" onMouseClicked="#savePdf" prefWidth="100"/>
-        </HBox>
-    </children>
     <columnConstraints>
         <ColumnConstraints percentWidth="30.0"/>
         <ColumnConstraints percentWidth="30.0"/>
@@ -43,4 +21,25 @@
         <RowConstraints percentHeight="5.0"/>
         <RowConstraints percentHeight="60.0"/>
     </rowConstraints>
+    <MajorMinorCourseSelection fx:id="courseSelection" GridPane.columnIndex="0"
+                               GridPane.halignment="CENTER" GridPane.rowIndex="0"
+                               GridPane.columnSpan="2"/>
+    <Button fx:id="btChoose" onAction="#btChoosePressed" prefWidth="300" maxHeight="10000.0"
+            text="%choose" GridPane.halignment="CENTER" GridPane.columnIndex="0"
+            GridPane.rowIndex="1" GridPane.columnSpan="2"/>
+    <ScrollPane fx:id="scrollPane" GridPane.columnIndex="0" GridPane.columnSpan="2"
+                GridPane.rowIndex="2"
+                maxHeight="10000.0" maxWidth="10000.0">
+        <VBox fx:id="modulesUnits" spacing="25"/>
+    </ScrollPane>
+    <Button fx:id="btCheck" onAction="#btCheckPressed" prefWidth="300" maxHeight="10000.0"
+            text="%check" GridPane.halignment="CENTER" GridPane.columnIndex="0"
+            GridPane.rowIndex="3" GridPane.columnSpan="2"/>
+    <HBox fx:id="buttons" prefWidth="250" maxWidth="250"
+          spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="4"
+          GridPane.columnSpan="2" GridPane.halignment="CENTER">
+        <Label fx:id="icon" prefWidth="50" alignment="CENTER"/>
+        <Button fx:id="show" text="%show" onMouseClicked="#showPdf" prefWidth="100"/>
+        <Button fx:id="save" text="%save" onMouseClicked="#savePdf" prefWidth="100"/>
+    </HBox>
 </fx:root>
