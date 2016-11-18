@@ -6,13 +6,14 @@ import static org.mockito.Mockito.mock;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.entities.Log;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +28,6 @@ import java.util.Date;
 public class ChangeLogTest extends ApplicationTest {
 
   private ChangeLog changeLog;
-  private Date lastSaveDate;
 
   @Test
   public void sizeOfLists() {
@@ -43,7 +43,7 @@ public class ChangeLogTest extends ApplicationTest {
   }
 
   @Override
-  public void start(Stage stage) throws Exception {
+  public void start(final Stage stage) throws Exception {
     final Inflater inflater = new Inflater(new FXMLLoader());
     final Delayed<ObservableStore> delayed = new Delayed<>();
 
@@ -62,14 +62,21 @@ public class ChangeLogTest extends ApplicationTest {
     final ObservableStore store = mock(ObservableStore.class);
     doReturn(Arrays.asList(l1, l2, l3)).when(store).getLogEntries();
 
-    lastSaveDate = new Calendar.Builder().setDate(2016, 11, 3).build().getTime();
-    final SimpleObjectProperty<Date> saved = new SimpleObjectProperty<>(lastSaveDate);
+    final UiDataService dataService = getUiDataService();
 
     delayed.set(store);
-    changeLog = new ChangeLog(inflater, saved, delayed);
+    changeLog = new ChangeLog(inflater, dataService, delayed);
 
     final Scene scene = new Scene(changeLog, 600, 600);
     stage.setScene(scene);
     stage.show();
+  }
+
+  @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+  private UiDataService getUiDataService() {
+    final UiDataService dataService = mock(UiDataService.class);
+    final Date lastSaveDate = new Calendar.Builder().setDate(2016, 11, 3).build().getTime();
+    doReturn(new SimpleObjectProperty<>(lastSaveDate)).when(dataService).lastSavedDateProperty();
+    return dataService;
   }
 }

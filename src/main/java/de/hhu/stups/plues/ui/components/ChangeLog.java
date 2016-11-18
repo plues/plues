@@ -7,6 +7,7 @@ import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Session;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ObjectProperty;
@@ -68,11 +69,10 @@ public class ChangeLog extends VBox implements Initializable, Observer {
    * @param delayedStore Store which contains data
    */
   @Inject
-  public ChangeLog(final Inflater inflater, final ObjectProperty<Date> lastSaved,
-
+  public ChangeLog(final Inflater inflater, final UiDataService uiDataService,
                    final Delayed<ObservableStore> delayedStore) {
     this.delayedStore = delayedStore;
-    this.compare = lastSaved;
+    this.compare = uiDataService.lastSavedDateProperty();
     this.logs = FXCollections.observableArrayList();
 
     inflater.inflate("components/ChangeLog", this, this, "ChangeLog");

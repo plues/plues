@@ -100,7 +100,6 @@ public class MainController implements Initializable {
   private final StoreLoaderTaskFactory storeLoaderTaskFactory;
   private final ChangeLog changeLog;
   private final Provider<AboutWindow> aboutWindowProvider;
-  private final ObjectProperty<Date> lastSaved;
   private final ResourceManager resourceManager;
   private ResourceBundle resources;
 
@@ -138,7 +137,6 @@ public class MainController implements Initializable {
                         final Provider<AboutWindow> aboutWindowProvider,
                         final Provider<Reports> reportsProvider,
                         final StoreLoaderTaskFactory storeLoaderTaskFactory,
-                        final ObjectProperty<Date> lastSaved,
                         @Named("prob") final ObservableListeningExecutorService probExecutor,
                         final ObservableListeningExecutorService executorService,
                         final ResourceManager resourceManager,
@@ -151,7 +149,6 @@ public class MainController implements Initializable {
     this.aboutWindowProvider = aboutWindowProvider;
     this.reportsProvider = reportsProvider;
     this.storeLoaderTaskFactory = storeLoaderTaskFactory;
-    this.lastSaved = lastSaved;
     this.executor = executorService;
     this.resourceManager = resourceManager;
     this.uiDataService = uiDataService;
@@ -275,7 +272,7 @@ public class MainController implements Initializable {
     try {
       Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
           StandardCopyOption.REPLACE_EXISTING);
-      lastSaved.set(new Date());
+      uiDataService.setLastSavedDate(new Date());
       logger.log(Level.INFO, "File saving finished!");
     } catch (final IOException exc) {
       logger.log(Level.SEVERE, "File saving failed!", exc);

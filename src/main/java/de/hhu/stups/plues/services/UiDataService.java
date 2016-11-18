@@ -6,8 +6,10 @@ import com.google.inject.Singleton;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.beans.property.ListProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -15,6 +17,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 
+import java.lang.management.ManagementFactory;
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -27,14 +31,32 @@ public class UiDataService {
   private final StringProperty sessionDisplayFormatProperty = new SimpleStringProperty();
   private final SetProperty<String> impossibleCoursesProperty
       = new SimpleSetProperty<>(FXCollections.observableSet());
+  private final ObjectProperty<Date> lastSavedDate
+      = new SimpleObjectProperty<>(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
 
   @Inject
-  UiDataService(final Delayed<SolverService> solverServiceDelayed) {
+  public UiDataService(final Delayed<SolverService> solverServiceDelayed) {
     solverServiceDelayed.whenAvailable(this::loadImpossibleCourses);
+  }
+
+  public Date getLastSavedDate() {
+    return lastSavedDate.get();
+  }
+
+  public void setLastSavedDate(final Date lastSavedDate) {
+    this.lastSavedDate.set(lastSavedDate);
+  }
+
+  public ObjectProperty<Date> lastSavedDateProperty() {
+    return lastSavedDate;
   }
 
   public ObservableSet<String> getImpossibleCourses() {
     return impossibleCoursesProperty.get();
+  }
+
+  private void setImpossibleCourses(final Set<String> value) {
+    this.impossibleCoursesProperty.set(FXCollections.observableSet(value));
   }
 
   public SetProperty<String> impossibleCoursesProperty() {
@@ -45,10 +67,6 @@ public class UiDataService {
     final SolverTask<Set<String>> t = solverService.impossibleCoursesTask();
     solverService.submit(t);
     t.setOnSucceeded(event -> this.setImpossibleCourses(t.getValue()));
-  }
-
-  private void setImpossibleCourses(final Set<String> value) {
-    this.impossibleCoursesProperty.set(FXCollections.observableSet(value));
   }
 
   public String getSessionDisplayFormatProperty() {

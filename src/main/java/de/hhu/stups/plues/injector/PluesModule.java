@@ -51,9 +51,6 @@ public class PluesModule extends AbstractModule {
   private final TypeLiteral<Delayed<SolverService>> delayedSolverServiceType
       = new TypeLiteral<Delayed<SolverService>>() {};
 
-  private final TypeLiteral<ObjectProperty<Date>> lastSavedType
-      = new TypeLiteral<ObjectProperty<Date>>() {};
-
   private final Stage primaryStage;
 
   // bundle with default language
@@ -110,9 +107,6 @@ public class PluesModule extends AbstractModule {
     bind(delayedStoreType).toInstance(convertInstanceOfObject(delayedObservableStore));
     bind(delayedObservableStoreType).toInstance(delayedObservableStore);
     bind(delayedSolverServiceType).toInstance(new Delayed<>());
-
-    bind(lastSavedType).toInstance(new SimpleObjectProperty<>(
-        new Date(ManagementFactory.getRuntimeMXBean().getStartTime())));
   }
 
   @Provides
