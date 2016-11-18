@@ -38,6 +38,8 @@ import javafx.stage.Stage;
 import java.lang.management.ManagementFactory;
 import java.util.Date;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PluesModule extends AbstractModule {
 
@@ -59,6 +61,16 @@ public class PluesModule extends AbstractModule {
 
   public PluesModule(final Stage primaryStage) {
     this.primaryStage = primaryStage;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> T convertInstanceOfObject(final Object object) {
+    try {
+      return (T) object;
+    } catch (final ClassCastException exception) {
+      Logger.getAnonymousLogger().log(Level.SEVERE, "Exception casting", exception);
+      throw exception;
+    }
   }
 
   @Override
@@ -92,9 +104,11 @@ public class PluesModule extends AbstractModule {
 
     bind(SolverLoader.class).to(SolverLoaderImpl.class);
 
-    final Delayed store = new Delayed(); // TODO: Unchecked Cast need to be solved
-    bind(delayedStoreType).toInstance(store);
-    bind(delayedObservableStoreType).toInstance(store);
+    final Delayed<ObservableStore> delayedObservableStore = new Delayed<>();
+
+
+    bind(delayedStoreType).toInstance(convertInstanceOfObject(delayedObservableStore));
+    bind(delayedObservableStoreType).toInstance(delayedObservableStore);
     bind(delayedSolverServiceType).toInstance(new Delayed<>());
 
     bind(lastSavedType).toInstance(new SimpleObjectProperty<>(
@@ -114,4 +128,5 @@ public class PluesModule extends AbstractModule {
 
     return fxmlLoader;
   }
+
 }
