@@ -446,7 +446,6 @@ public class MainController implements Initializable {
     final Stage reportStage = new Stage();
     reportStage.setTitle(resources.getString("reportsTitle"));
     reportStage.setScene(new Scene(reports, 700, 620));
-    reportStage.setResizable(false);
     reportStage.show();
   }
 

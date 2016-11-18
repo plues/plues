@@ -26,5 +26,6 @@ public class IndexRoute implements Route {
 
     scene.getStylesheets().add("/styles/index.css");
     stage.setScene(scene);
+    stage.setMaximized(true);
   }
 }

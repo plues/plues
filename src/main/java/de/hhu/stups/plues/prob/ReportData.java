@@ -18,9 +18,7 @@ public class ReportData {
   private Map<Integer, Set<Integer>> quasiMandatoryModuleAbstractUnits;
   private Map<Integer, Set<Pair<Integer>>> redundantUnitGroups;
   private Set<Integer> impossibleModulesBecauseOfMissingElectiveAbstractUnits;
-  private Set<String>
-      impossibleCoursesBecauseOfImpossibleModuleCombinations;
-
+  private Set<String> impossibleCoursesBecauseOfImpossibleModuleCombinations;
   private Set<ModuleAbstractUnitUnitSemesterConflict> moduleAbstractUnitUnitSemesterConflicts;
 
   ReportData() {
@@ -127,7 +125,7 @@ public class ReportData {
   /**
    * B: quasi_mandatory_module_abstract_units.
    * modules and set of abstract units that are elective but quasi-mandatory,
-   * because the module contains exactly as much elective abstract units as it
+   * because the module contains exactly as many elective abstract units as it
    * requires for its completion
    *
    * @return Map from module ID to a set of abstract unit IDs
@@ -204,7 +202,7 @@ public class ReportData {
   }
 
 
-  void setModuleAbstractUnitUnitSemesterMismatch(
+  void setModuleAbstractUnitUnitSemesterConflicts(
       final Set<ModuleAbstractUnitUnitSemesterConflict> moduleAbstractUnitUnitSemesterConflicts) {
     this.moduleAbstractUnitUnitSemesterConflicts = moduleAbstractUnitUnitSemesterConflicts;
 
