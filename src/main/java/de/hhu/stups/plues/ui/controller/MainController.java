@@ -197,7 +197,6 @@ public class MainController implements Initializable {
       this.openChangeLog.setDisable(false);
       this.saveFileMenuItem.setDisable(false);
       this.saveFileAsMenuItem.setDisable(false);
-      s.addObserver((object, arg) -> this.databaseChanged = true);
     });
 
     if (this.properties.get(DB_PATH) != null) {
@@ -215,6 +214,16 @@ public class MainController implements Initializable {
         logger.log(Level.SEVERE, "Closing resources", exception);
       }
     });
+
+    // Handle database changes for confirmation dialogue on close.
+    delayedStore.whenAvailable(s -> {
+      // set unsaved flag
+      s.addObserver((object, arg) -> this.databaseChanged = true);
+    });
+    // reset unsaved flag.
+    uiDataService.lastSavedDateProperty().addListener(
+        (observable, oldValue, newValue) -> this.databaseChanged = false);
+
   }
 
   private void initializeViewMenuItems() {
