@@ -15,12 +15,23 @@
 
 <?import de.hhu.stups.plues.ui.components.CheckCourseFeasibility?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
 <fx:root minHeight="600" prefWidth="250.0" type="javafx.scene.layout.BorderPane"
          xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
         <left>
             <VBox spacing="20">
-                <SetOfCourseSelection fx:id="setOfCourseSelection"/>
-                <CheckCourseFeasibility fx:id="checkCourseFeasibility"/>
+                <TabPane side="LEFT">
+                    <Tab text="Filters" closable="false" >
+                        <VBox>
+                            <SetOfCourseSelection fx:id="setOfCourseSelection"/>
+                            <AbstractUnitFilter fx:id="abstractUnitFilter" />
+                        </VBox>
+                    </Tab>
+                    <Tab text="Check" closable="false">
+                        <CheckCourseFeasibility fx:id="checkCourseFeasibility"/>
+                    </Tab>
+                </TabPane>
             </VBox>
         </left>
         <bottom>

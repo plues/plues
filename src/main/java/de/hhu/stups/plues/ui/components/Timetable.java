@@ -55,6 +55,9 @@ public class Timetable extends BorderPane implements Initializable {
   private SetOfCourseSelection setOfCourseSelection;
 
   @FXML
+  private AbstractUnitFilter abstractUnitFilter;
+
+  @FXML
   private CheckCourseFeasibility checkCourseFeasibility;
 
   @FXML
@@ -83,7 +86,7 @@ public class Timetable extends BorderPane implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.delayedStore.whenAvailable(store -> {
-      //this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
+      this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
       setOfCourseSelection.setCourses(store.getCourses());
       checkCourseFeasibility.setCourses(store.getCourses());
 
