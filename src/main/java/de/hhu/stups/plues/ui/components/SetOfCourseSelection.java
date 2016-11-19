@@ -4,38 +4,40 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
-import javafx.beans.binding.Bindings;
+import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("WeakerAccess")
 public class SetOfCourseSelection extends VBox implements Initializable {
 
-  private final ObservableList<TableRowPair<Node, Course>> masterCourses;
-  private final ObservableList<TableRowPair<Node, Course>> bachelorCourses;
-  private final ReadOnlyListProperty<Course> selectedCourses;
+  private final ListProperty<Course> selectedCourses;
+
+  private final ListProperty<Course> courses;
+  private final ListProperty<SelectableCourse> selectableCourses;
 
   @FXML
   @SuppressWarnings("unused")
@@ -48,35 +50,35 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   private TitledPane titledPaneBachelorCourse;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<TableRowPair<Node, Course>> tableViewMasterCourse;
+  private TableView<SelectableCourse> tableViewMasterCourse;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<TableRowPair<Node, Course>> tableViewBachelorCourse;
+  private TableView<SelectableCourse> tableViewBachelorCourse;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<Node, Course>, String> tableColumnMasterCourse;
+  private TableColumn<SelectableCourse, String> tableColumnMasterCourse;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<Node, Course>, String> tableColumnMasterCheckBox;
+  private TableColumn<SelectableCourse, Boolean> tableColumnMasterCheckBox;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<Node, Course>, String> tableColumnBachelorCourse;
+  private TableColumn<SelectableCourse, String> tableColumnBachelorCourse;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<TableRowPair<Node, Course>, String> tableColumnBachelorCheckBox;
+  private TableColumn<SelectableCourse, Boolean> tableColumnBachelorCheckBox;
 
   /**
    * Component that allows the user to select one or more courses. The courses need to be
-   * instantiated by calling {@link this#setCourses(List)}. Those are used to highlight all events
+   * instantiated via the {@link this#coursesProperty()}. Those are used to highlight all events
    * in the timetable view associated with the courses. Selected courses are stored in the readonly
-   * list property {@link this#selectedCourses} and can be accessed via {@link
-   * this#getSelectedCourses()}.
+   * list property {@link this#selectedCoursesProperty()}.
    */
   @Inject
   public SetOfCourseSelection(final Inflater inflater) {
-    bachelorCourses = FXCollections.observableArrayList();
-    masterCourses = FXCollections.observableArrayList();
-    selectedCourses = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
+    selectedCourses = new ReadOnlyListWrapper<>(FXCollections.emptyObservableList());
+
+    courses = new SimpleListProperty<>(FXCollections.emptyObservableList());
+    selectableCourses = new SimpleListProperty<>(FXCollections.emptyObservableList());
 
     inflater.inflate("components/SetOfCourseSelection", this, this, "filter");
   }
@@ -84,31 +86,105 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
 
-    final String first = "first";
-
     tableColumnMasterCheckBox.setResizable(false);
     tableColumnMasterCheckBox.setSortable(false);
     tableColumnMasterCourse.setSortable(false);
 
-    tableColumnMasterCheckBox.setCellValueFactory(new PropertyValueFactory<>(first));
-    tableColumnMasterCourse.setCellValueFactory(
-        param -> new SimpleStringProperty(param.getValue().getSecond().getFullName()));
+    tableColumnMasterCheckBox.setCellFactory(
+        CheckBoxTableCell.forTableColumn(tableColumnMasterCheckBox));
+    tableColumnMasterCheckBox.setCellValueFactory(new PropertyValueFactory<>("selected"));
+    tableColumnMasterCourse.setCellValueFactory(new PropertyValueFactory<>("name"));
 
 
     tableColumnBachelorCheckBox.setResizable(false);
     tableColumnBachelorCheckBox.setSortable(false);
     tableColumnBachelorCourse.setSortable(false);
 
-    tableColumnBachelorCheckBox.setCellValueFactory(new PropertyValueFactory<>(first));
-    tableColumnBachelorCourse.setCellValueFactory(
-        param -> new SimpleStringProperty(param.getValue().getSecond().getFullName()));
+    tableColumnBachelorCheckBox.setCellFactory(
+        CheckBoxTableCell.forTableColumn(tableColumnBachelorCheckBox));
+    tableColumnBachelorCheckBox.setCellValueFactory(new PropertyValueFactory<>("selected"));
+
+    tableColumnBachelorCourse.setCellValueFactory(new PropertyValueFactory<>("name"));
 
     tableViewMasterCourse.setSelectionModel(null);
     tableViewBachelorCourse.setSelectionModel(null);
 
     tableViewMasterCourse.setId("batchListView");
     tableViewBachelorCourse.setId("batchListView");
-    initializeTableViews();
+
+    selectableCourses.bind(new ListBinding<SelectableCourse>() {
+      {
+        bind(courses);
+      }
+
+      @Override
+      public void dispose() {
+        super.dispose();
+        unbind(courses);
+      }
+
+      @Override
+      protected ObservableList<SelectableCourse> computeValue() {
+        return FXCollections.observableList(
+          courses.parallelStream().map(SelectableCourse::new)
+            .collect(Collectors.toList()), SelectableCourse.getExtractor());
+      }
+    });
+
+    tableViewMasterCourse.itemsProperty().bind(newFilterBinding(SelectableCourse::isMaster));
+    tableViewBachelorCourse.itemsProperty().bind(newFilterBinding(SelectableCourse::isBachelor));
+
+    tableViewMasterCourse.itemsProperty().addListener(
+        (observable, oldValue, newValue)
+            -> titledPaneMasterCourse.setExpanded(!newValue.isEmpty()));
+    tableViewBachelorCourse.itemsProperty().addListener(
+        (observable, oldValue, newValue)
+            -> titledPaneBachelorCourse.setExpanded(!newValue.isEmpty()));
+
+    selectedCourses.bind(new ListBinding<Course>() {
+      {
+        bind(selectableCourses);
+      }
+
+      @Override
+      public void dispose() {
+        super.dispose();
+        unbind(selectableCourses);
+      }
+
+      @Override
+      protected ObservableList<Course> computeValue() {
+        return selectableCourses.parallelStream()
+            .filter(SelectableCourse::isSelected)
+            .map(SelectableCourse::getCourse)
+            .collect(
+                Collectors.collectingAndThen(Collectors.toList(),
+                    FXCollections::observableArrayList));
+      }
+    });
+  }
+
+  private ListBinding<SelectableCourse> newFilterBinding(
+      final Predicate<SelectableCourse> predicate) {
+    return new ListBinding<SelectableCourse>() {
+      {
+        bind(selectableCourses, txtQuery.textProperty());
+      }
+
+      @Override
+      public void dispose() {
+        super.dispose();
+        unbind(selectableCourses);
+      }
+
+      @Override
+      protected ObservableList<SelectableCourse> computeValue() {
+        return selectableCourses
+            .filtered(predicate)
+            .filtered(row
+                -> row.getName().toLowerCase().contains(txtQuery.getText().toLowerCase()));
+      }
+    };
   }
 
   /**
@@ -117,110 +193,75 @@ public class SetOfCourseSelection extends VBox implements Initializable {
    * @param courses The list of courses.
    */
   public void setCourses(final List<Course> courses) {
-    masterCourses.addAll(FXCollections.observableArrayList(courses.stream()
-        .filter(Course::isMaster).map(this::getTableViewItem).collect(Collectors.toList())));
-    bachelorCourses.addAll(FXCollections.observableArrayList(courses.stream()
-        .filter(Course::isBachelor).map(this::getTableViewItem).collect(Collectors.toList())));
-
-    titledPaneMasterCourse.setExpanded(!masterCourses.isEmpty());
-    titledPaneBachelorCourse.setExpanded(!bachelorCourses.isEmpty());
+    this.courses.set(FXCollections.observableList(courses));
   }
 
-  private void initializeTableViews() {
-    tableViewMasterCourse.itemsProperty().bind(new TableRowPairListBinding(masterCourses));
-    tableViewBachelorCourse.itemsProperty().bind(new TableRowPairListBinding(bachelorCourses));
-
-    tableViewMasterCourse.prefHeightProperty().bind(
-        Bindings.createIntegerBinding(() -> masterCourses.isEmpty() ? 50 : 300, masterCourses));
-    tableViewBachelorCourse.prefHeightProperty().bind(
-        Bindings.createIntegerBinding(() -> bachelorCourses.isEmpty() ? 50 : 300, bachelorCourses));
-
-    titledPaneMasterCourse.setExpanded(false);
-    titledPaneBachelorCourse.setExpanded(false);
+  @SuppressWarnings("unused")
+  private ObservableList<Course> getCourses() {
+    return courses.get();
   }
 
-  private TableRowPair<Node, Course> getTableViewItem(final Course course) {
-    final CheckBox checkBox = new CheckBox();
-    final Tooltip tooltip = new Tooltip(course.getFullName());
-    checkBox.setTooltip(tooltip);
-    checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue) {
-        selectedCourses.add(course);
-      } else {
-        selectedCourses.remove(course);
-      }
-    });
-    return new TableRowPair<>(checkBox, course);
+  @SuppressWarnings("unused")
+  public ListProperty<Course> coursesProperty() {
+    return courses;
   }
 
-  public ReadOnlyListProperty<Course> getSelectedCourses() {
+  public ObservableList<Course> getSelectedCourses() {
+    return selectedCourses.get();
+  }
+
+  @SuppressWarnings("unused")
+  public ReadOnlyListProperty<Course> selectedCoursesProperty() {
     return selectedCourses;
   }
 
-  TableView<TableRowPair<Node, Course>> getTableViewMasterCourse() {
+  TableView<SelectableCourse> getTableViewMasterCourse() {
     return tableViewMasterCourse;
   }
 
-  TableView<TableRowPair<Node, Course>> getTableViewBachelorCourse() {
+  TableView<SelectableCourse> getTableViewBachelorCourse() {
     return tableViewBachelorCourse;
   }
 
-  public static final class TableRowPair<T1, T2> {
-    private final T1 first;
-    private final T2 second;
+  public static final class SelectableCourse {
+    private final Course course;
+    private final BooleanProperty selected = new SimpleBooleanProperty(false);
 
-    /**
-     * An object to obtain two values to use within a table view.
-     */
-    TableRowPair(final T1 first, final T2 second) {
-      this.first = first;
-      this.second = second;
+    SelectableCourse(final Course course) {
+      this.course = course;
     }
 
-    @Override
-    public boolean equals(final Object other) {
-      if (this == other) {
-        return true;
-      }
-      if (other == null || getClass() != other.getClass()) {
-        return false;
-      }
-      final TableRowPair<?, ?> pair = (TableRowPair<?, ?>) other;
-      return Objects.equals(second, pair.second)
-          && Objects.equals(first, pair.first);
+    private static Callback<SelectableCourse, Observable[]> getExtractor() {
+      return  (SelectableCourse param) -> new Observable[] {param.selectedProperty()};
     }
 
-    @Override
-    public int hashCode() {
-      return Objects.hash(second, first);
+    private boolean isSelected() {
+      return selected.get();
     }
 
     @SuppressWarnings("unused")
-    public T1 getFirst() {
-      return first;
+    private void setSelected(final boolean selected) {
+      this.selected.set(selected);
     }
 
-    @SuppressWarnings("unused")
-    public T2 getSecond() {
-      return second;
-    }
-  }
-
-  private class TableRowPairListBinding extends ListBinding<TableRowPair<Node, Course>> {
-
-    private final ObservableList<TableRowPair<Node, Course>> courses;
-
-    public TableRowPairListBinding(final ObservableList<TableRowPair<Node, Course>> courses) {
-      this.courses = courses;
-      bind(courses, txtQuery.textProperty());
+    public BooleanProperty selectedProperty() {
+      return selected;
     }
 
-    @Override
-    protected ObservableList<TableRowPair<Node, Course>> computeValue() {
-      return FXCollections.observableArrayList(courses.stream()
-        .filter(row -> row.getSecond().getFullName().toLowerCase().contains(
-            txtQuery.getText().toLowerCase()))
-        .collect(Collectors.toList()));
+    public Course getCourse() {
+      return this.course;
+    }
+
+    public String getName() {
+      return this.course.getFullName();
+    }
+
+    public boolean isMaster() {
+      return this.course.isMaster();
+    }
+
+    public boolean isBachelor() {
+      return this.course.isBachelor();
     }
   }
 }
