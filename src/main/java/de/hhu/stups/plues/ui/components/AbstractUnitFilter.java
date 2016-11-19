@@ -12,6 +12,7 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
+import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -63,11 +64,10 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<SelectableAbstractUnit, String> abstractUnitKeyColumn;
-  private Object selectedItems;
 
   /**
    * AbstractUnitFilter component.
-   * Show a list of abtract units and allow the user to select one or more of them.
+   * Show a list of abstract units and allow the user to select one or more of them.
    *
    * @param inflater Inflater
    */
@@ -81,15 +81,28 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     inflater.inflate("components/AbstractUnitFilter", this, this, "filter");
   }
 
+  private ObservableList<AbstractUnit> getAbstractUnits() {
+    return abstractUnits.get();
+  }
+
+  /**
+   * Setter for abstract units. Required to display content.
+   *
+   * @param abstractUnits List of abstract units to be displayed in TableView
+   */
+  void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
+    this.abstractUnits.setAll(abstractUnits);
+  }
+
+  public ListProperty<AbstractUnit> abstractUnitsProperty() {
+    return abstractUnits;
+  }
+
   public ObservableList<AbstractUnit> getSelectedAbstractUnits() {
     return selectedAbstractUnits.get();
   }
 
-  private void setSelectedAbstractUnits(final ObservableList<AbstractUnit> selectedAbstractUnits) {
-    this.selectedAbstractUnits.set(selectedAbstractUnits);
-  }
-
-  public ListProperty<AbstractUnit> selectedAbstractUnitsProperty() {
+  public ReadOnlyListProperty<AbstractUnit> selectedAbstractUnitsProperty() {
     return selectedAbstractUnits;
   }
 
@@ -192,15 +205,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
                 Collectors.toList(), FXCollections::observableList));
       }
     });
-  }
-
-  /**
-   * Setter for abstract units. Required to display content.
-   *
-   * @param abstractUnits List of abstract units to be displayed in TableView
-   */
-  void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
-    this.abstractUnits.setAll(abstractUnits);
   }
 
   private SelectableAbstractUnit getTableViewItem(final AbstractUnit unit) {
