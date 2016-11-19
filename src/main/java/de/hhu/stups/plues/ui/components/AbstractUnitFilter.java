@@ -3,12 +3,12 @@ package de.hhu.stups.plues.ui.components;
 import static java.util.stream.Collectors.toList;
 import static javafx.collections.FXCollections.emptyObservableList;
 import static javafx.collections.FXCollections.observableArrayList;
-import static javafx.collections.FXCollections.observableList;
 
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
@@ -27,6 +27,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 
 import java.net.URL;
 import java.util.List;
@@ -145,27 +146,24 @@ public class AbstractUnitFilter extends VBox implements Initializable {
         unbind(abstractUnits);
       }
 
+
+      // extractor used to compute an observable list that propagates changes on the extracted
+      // property to the observers of the list
+      final Callback<SelectableAbstractUnit, Observable[]> extractor
+          = (SelectableAbstractUnit param) -> new Observable[] {param.selectedProperty()};
+
       @Override
       protected ObservableList<SelectableAbstractUnit> computeValue() {
-        return observableList(
-          abstractUnits.stream().map(
-            abstractUnit -> getTableViewItem(abstractUnit)).collect(toList()));
+        return FXCollections.observableList(
+          abstractUnits.parallelStream().map(SelectableAbstractUnit::new)
+            .collect(toList()), extractor);
       }
     });
+
 
     final ListBinding<SelectableAbstractUnit> tableViewBinding
         = new ListBinding<SelectableAbstractUnit>() {
           {
-            selectableAbstractUnits.stream()
-              .map(SelectableAbstractUnit::selectedProperty)
-              .forEach(this::bind);
-            selectableAbstractUnits.addListener((observable, oldValue, newValue)
-                -> newValue.stream()
-                .map(SelectableAbstractUnit::selectedProperty).forEach(booleanProperty -> {
-                  this.unbind(booleanProperty);
-                  this.bind(booleanProperty);
-                }
-              ));
             bind(query.textProperty(), all.selectedProperty(), selected.selectedProperty(),
                 notSelected.selectedProperty(), selectableAbstractUnits);
           }
@@ -181,34 +179,19 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     selectedAbstractUnits.bind(new ListBinding<AbstractUnit>() {
       {
-        selectableAbstractUnits.stream()
-            .map(SelectableAbstractUnit::selectedProperty)
-            .forEach(this::bind);
-        selectableAbstractUnits.addListener((observable, oldValue, newValue)
-            -> newValue.stream()
-            .map(SelectableAbstractUnit::selectedProperty)
-            .forEach(booleanProperty -> {
-                    this.unbind(booleanProperty);
-                    this.bind(booleanProperty);
-            }
-        ));
         bind(selectableAbstractUnits);
       }
 
       @Override
       protected ObservableList<AbstractUnit> computeValue() {
         return
-          selectableAbstractUnits.filtered(SelectableAbstractUnit::isSelected).stream()
+          selectableAbstractUnits.filtered(SelectableAbstractUnit::isSelected).parallelStream()
             .map(SelectableAbstractUnit::getAbstractUnit)
             .collect(
               Collectors.collectingAndThen(
                 Collectors.toList(), FXCollections::observableList));
       }
     });
-  }
-
-  private SelectableAbstractUnit getTableViewItem(final AbstractUnit unit) {
-    return new SelectableAbstractUnit(unit);
   }
 
   @SuppressWarnings("WeakerAccess")
