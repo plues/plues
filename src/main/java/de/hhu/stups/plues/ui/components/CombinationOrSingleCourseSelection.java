@@ -139,7 +139,11 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
   }
 
   @SuppressWarnings("WeakerAccess")
-  public ReadOnlyListProperty<Course> getSelectedCourses() {
+  public ObservableList<Course> getSelectedCourses() {
+    return selectedCourses.get();
+  }
+
+  public ReadOnlyListProperty<Course> selectedCoursesProperty() {
     return selectedCourses;
   }
 
