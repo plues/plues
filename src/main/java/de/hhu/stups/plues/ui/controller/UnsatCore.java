@@ -13,7 +13,7 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
+import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
@@ -53,7 +53,7 @@ public class UnsatCore extends VBox implements Initializable {
   private final ListProperty<Course> courses;
 
   @FXML
-  private MajorMinorCourseSelection courseSelection;
+  private CombinationOrSingleCourseSelection courseSelection;
   @FXML
   private Button unsatCoreModulesButton;
   @FXML
@@ -289,7 +289,7 @@ public class UnsatCore extends VBox implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     store.addListener((observable, oldValue, store)
-        -> PdfRenderingHelper.initializeCourseSelection(store, uiDataService, courseSelection));
+        -> courseSelection.setCourses(store.getCourses()));
 
     initializeCourses();
     initializeModules();
