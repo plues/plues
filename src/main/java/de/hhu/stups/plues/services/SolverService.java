@@ -170,58 +170,52 @@ public class SolverService {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     //
-    return new SolverTask<>("Computing UNSAT CORE of modules", msg, solver,
+    return new SolverTask<>(resources.getString("unsatCoreModules"), msg, solver,
         () -> solver.unsatCoreModules(names));
   }
 
   /**
-   *
-   * @param modules
-   * @return
+   * For a given list of modules, compute a set of abstract unit IDs that are in conflict.
+   * @param modules List of Modules
+   * @return SolverTask to compute unsat core of abstract units
    */
   public SolverTask<Set<Integer>> unsatCoreAbstractUnits(final List<Module> modules) {
-    final String msg = "TODO";
+    final String msg = "";
     final List<Integer> moduleIds = modules.stream()
         .map(Module::getId).collect(Collectors.toList());
     //
-    return new SolverTask<>("Computing UNSAT CORE of abstract units", msg, solver,
+    return new SolverTask<>(resources.getString("unsatCoreAbstractUnits"), msg, solver,
       () -> solver.unsatCoreAbstractUnits(moduleIds));
   }
 
   /**
-   *
-   * @param abstractUnits
-   * @param modules
-   * @param courses
-   * @return
+   * For a given list of abstract units and modules, compute the associated groups that are in conflict.
+   * @param abstractUnits List of abstract untis
+   * @param modules List of modules
+   * @return SolverTask to compute unsat core of groups
    */
   public SolverTask<Set<Integer>> unsatCoreGroups(final List<AbstractUnit> abstractUnits,
-      final List<Module> modules, final List<Course> courses) {
-      final String msg = "TODO";
+                                                  final List<Module> modules) {
+      final String msg = "";
     final List<Integer> abstractUnitIds = abstractUnits.stream().map(AbstractUnit::getId)
         .collect(Collectors.toList());
     final List<Integer> moduleIds = modules.stream()
       .map(Module::getId).collect(Collectors.toList());
       //
-      return new SolverTask<>("Computing UNSAT CORE of groups", msg, solver,
+      return new SolverTask<>(resources.getString("unsatCoreGroups"), msg, solver,
         () -> solver.unsatCoreGroups(abstractUnitIds, moduleIds));
   }
 
   /**
-   *
-   * @param groups
-   * @param abstractUnits
-   * @param modules
-   * @param courses
-   * @return
+   * For a given list of group IDs compute the set of sessions in those groups that are in conflict.
+   * @param groups List of groups
+   * @return SolverTask to compute unsat core of sessions
    */
-  public SolverTask<Set<Integer>> unsatCoreSessions(final List<Group> groups,
-      final List<AbstractUnit> abstractUnits, final List<Module> modules,
-      final List<Course> courses) {
-      final String msg = "TODO";
+  public SolverTask<Set<Integer>> unsatCoreSessions(final List<Group> groups) {
+      final String msg = "";
       final List<Integer> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
       //
-      return new SolverTask<>("Computing UNSAT CORE of groups", msg, solver,
+      return new SolverTask<>(resources.getString("unsatCoreSessions"), msg, solver,
         () -> solver.unsatCoreSessions(groupIds));
   }
 
@@ -259,7 +253,6 @@ public class SolverService {
   /**
    * Create a solver task to move a session to a new day/time and thus modifying the model's state.
    * Clears all caches as a side-effect.
-   * TODO: Adapt signature to requirements of consumers (once merged)
    * @param session Session to be moved
    * @param day String target day
    * @param time String target time slot

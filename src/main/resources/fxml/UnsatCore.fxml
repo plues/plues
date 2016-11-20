@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Font?>
 <fx:root prefHeight="600.0" prefWidth="700.0" type="VBox"
          xmlns="http://javafx.com/javafx/8.0.112-ea" xmlns:fx="http://javafx.com/fxml/1">
-    <Label text="Unsatisfiable Core">
+    <Label text="%unsatCore">
         <font>
             <Font size="30.0"/>
         </font>
@@ -19,25 +19,24 @@
     <CombinationOrSingleCourseSelection fx:id="courseSelection"/>
     <HBox>
         <Button fx:id="unsatCoreModulesButton" disable="true" onAction="#computeUnsatCoreModules"
-                text="Compute Modules in Conflict"/>
+                text="%unsatCoreModulesButton"/>
         <Label fx:id="modulesTaskStateIcon"/>
         <Label fx:id="modulesTaskStateLabel"/>
     </HBox>
     <VBox fx:id="modulesPane" visible="false">
         <Separator prefWidth="200.0"/>
-        <Label text="Modules in conflict:"/>
+        <Label text="%modulesPaneTitle"/>
         <TableView fx:id="modulesTable" prefHeight="200">
             <columns>
                 <TableColumn fx:id="modulePordnrColumn" minWidth="50" prefWidth="100"
-                             text="Pordnr"/>
-                <TableColumn fx:id="moduleNameColumn" minWidth="200" text="Name"/>
+                             text="%modulePordnrColumn"/>
+                <TableColumn fx:id="moduleNameColumn" minWidth="200" text="%moduleNameColumn"/>
             </columns>
         </TableView>
         <HBox>
             <Button fx:id="unsatCoreAbstractUnitsButton" disable="true"
                     onAction="#computeUnsatCoreAbstractUnits"
-                    text="Compute Abstract-Units in Conflict"/>
-
+                    text="%unsatCoreAbstractUnitsButton"/>
             <Label fx:id="abstractUnitsTaskStateIcon"/>
             <Label fx:id="abstractUnitsTaskStateLabel"/>
         </HBox>
@@ -45,52 +44,61 @@
     <VBox fx:id="abstractUnitsPane" visible="false">
         <Separator prefWidth="200.0"/>
 
-        <Label text="Abstract Units in conflict:"/>
+        <Label text="%abstractUnitsPaneTitle"/>
         <TableView fx:id="abstractUnitsTable" prefHeight="200">
             <columns>
                 <TableColumn fx:id="abstractUnitKeyColumn" minWidth="50" prefWidth="100"
-                             text="ID"/>
-                <TableColumn fx:id="abstractUnitTitleColumn" minWidth="200" text="Title"/>
-                <TableColumn fx:id="abstractUnitModuleSemester" minWidth="200" text="Module/Semesters"/>
+                             text="%abstractUnitKeyColumn"/>
+                <TableColumn fx:id="abstractUnitTitleColumn" minWidth="200"
+                             text="%abstractUnitTitleColumn"/>
+                <TableColumn fx:id="abstractUnitModuleSemester" minWidth="200"
+                             text="%abstractUnitModuleSemester"/>
             </columns>
         </TableView>
         <HBox>
             <Button fx:id="unsatCoreGroupsButton" disable="true"
                     onAction="#computeUnsatCoreGroups"
-                    text="Compute Units and Groups in Conflict"/>
+                    text="%unsatCoreGroupsButton"/>
             <Label fx:id="groupsTaskStateIcon"/>
             <Label fx:id="groupsTaskStateLabel"/>
         </HBox>
     </VBox>
     <VBox fx:id="groupsPane" visible="false">
         <Separator prefWidth="200.0"/>
-        <Label text="Units and groups in conflict:"/>
+        <Label text="%groupsPaneTitle"/>
         <TableView fx:id="groupsTable" prefHeight="200">
             <columns>
-                <TableColumn fx:id="groupUnitKeyColumn" minWidth="50" prefWidth="100" text="ID"/>
-                <TableColumn fx:id="groupUnitTitleColumn" minWidth="200" text="Title"/>
-                <TableColumn fx:id="groupUnitSemestersColumn" minWidth="200" text="Semester"/>
-                <TableColumn fx:id="groupSessionsColumn" minWidth="200" text="Gruppe"/>
-                <TableColumn fx:id="groupAbstractUnits"  minWidth="200" text="Abstract Unit(s)"/>
+                <TableColumn fx:id="groupUnitKeyColumn" minWidth="50" prefWidth="100"
+                             text="groupUnitKeyColumn"/>
+                <TableColumn fx:id="groupUnitTitleColumn" minWidth="200"
+                             text="%groupUnitTitleColumn"/>
+                <TableColumn fx:id="groupUnitSemestersColumn" minWidth="200"
+                             text="%groupUnitSemestersColumn"/>
+                <TableColumn fx:id="groupSessionsColumn" minWidth="200"
+                             text="%groupSessionsColumn"/>
+                <TableColumn fx:id="groupAbstractUnits" minWidth="200" text="%groupAbstractUnits"/>
             </columns>
         </TableView>
         <HBox>
             <Button fx:id="unsatCoreSessionButton" disable="true"
                     onAction="#computeUnsatCoreSessions"
-                    text="Compute Sessions in Conflict"/>
+                    text="%unsatCoreSessionButton"/>
             <Label fx:id="sessionsTaskStateIcon"/>
             <Label fx:id="sessionsTaskStateLabel"/>
         </HBox>
     </VBox>
     <VBox fx:id="sessionsPane" visible="false">
         <Separator prefWidth="200.0"/>
-        <Label text="Sessions in conflict"/>
+        <Label text="%sessionsPaneTitle"/>
         <TableView fx:id="sessionsTable" prefHeight="200">
             <columns>
-                <TableColumn fx:id="sessionDayColumn" minWidth="50" prefWidth="100" text="Day"/>
-                <TableColumn fx:id="sessionTimeColumn" minWidth="200" text="Time"/>
-                <TableColumn fx:id="sessionUnitKeyColumn" minWidth="50" prefWidth="100" text="ID"/>
-                <TableColumn fx:id="sessionUnitTitleColumn" minWidth="200" text="Title"/>
+                <TableColumn fx:id="sessionDayColumn" minWidth="50" prefWidth="100"
+                             text="sessionDayColumn"/>
+                <TableColumn fx:id="sessionTimeColumn" minWidth="200" text="%sessionTimeColumn"/>
+                <TableColumn fx:id="sessionUnitKeyColumn" minWidth="50" prefWidth="100"
+                             text="%sessionUnitKeyColumn"/>
+                <TableColumn fx:id="sessionUnitTitleColumn" minWidth="200"
+                             text="%sessionUnitTitleColumn"/>
             </columns>
         </TableView>
     </VBox>

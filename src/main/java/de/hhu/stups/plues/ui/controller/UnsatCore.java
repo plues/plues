@@ -128,6 +128,7 @@ public class UnsatCore extends VBox implements Initializable {
   private Pane groupsPane;
   @FXML
   private Pane sessionsPane;
+  private ResourceBundle resources;
 
   /**
    * Constructor.
@@ -156,7 +157,7 @@ public class UnsatCore extends VBox implements Initializable {
     delayedStore.whenAvailable(this.store::set);
     delayedSolverService.whenAvailable(this.solverService::set);
 
-    inflater.inflate("UnsatCore", this, this);
+    inflater.inflate("UnsatCore", this, this, "unsatCore");
   }
 
   /**
@@ -192,16 +193,16 @@ public class UnsatCore extends VBox implements Initializable {
           msg = "";
           break;
         case CANCELLED:
-          msg = "canceled";
+          msg = this.resources.getString("taskCancelled");
           break;
         case FAILED:
-          msg = "failed";
+          msg = this.resources.getString("taskFailed");
           break;
         case READY:
         case SCHEDULED:
         case RUNNING:
         default:
-          msg = "running";
+          msg = this.resources.getString("taskRunning");
           break;
       }
       return msg;
@@ -240,7 +241,7 @@ public class UnsatCore extends VBox implements Initializable {
     final ObservableList<AbstractUnit> aUnits = getAbstractUnits();
 
     final SolverTask<Set<Integer>> task
-        = getSolverService().unsatCoreGroups(aUnits, mods, courses);
+        = getSolverService().unsatCoreGroups(aUnits, mods);
 
     task.setOnSucceeded(event -> {
       final Set<Integer> groupIds = task.getValue();
@@ -264,7 +265,7 @@ public class UnsatCore extends VBox implements Initializable {
     final ObservableList<Group> groups = getGroups();
 
     final SolverTask<Set<Integer>> task
-        = getSolverService().unsatCoreSessions(groups, aUnits, mods, courses);
+        = getSolverService().unsatCoreSessions(groups);
 
     task.setOnSucceeded(event -> {
       final Set<Integer> sessionIds = task.getValue();
@@ -296,6 +297,7 @@ public class UnsatCore extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    this.resources = resources;
     store.addListener((observable, oldValue, store)
         -> courseSelection.setCourses(store.getCourses()));
 
