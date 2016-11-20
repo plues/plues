@@ -37,6 +37,10 @@ public class ProBSolver implements Solver {
   private static final String MOVE = "move";
   private static final String IMPOSSIBLE_COURSES = "getImpossibleCourses";
   private static final String UNSAT_CORE = "unsatCore";
+  private static final String UNSAT_CORE_MODULES = "unsatCoreModules";
+  private static final String UNSAT_CORE_ABSTRACT_UNITS = "unsatCoreAbstractUnits";
+  private static final String UNSAT_CORE_GROUPS = "unsatCoreGroups";
+  private static final String UNSAT_CORE_SESSIONS = "unsatCoreSessions";
   private static final String LOCAL_ALTERNATIVES = "localAlternatives";
 
   private static final String DEFAULT_PREDICATE = "1=1";
@@ -301,7 +305,7 @@ public class ProBSolver implements Solver {
    *                         interrupt)
    */
   @Override
-  public final synchronized List<Integer> unsatCore(final String... courses)
+  public final synchronized java.util.Set<Integer> unsatCore(final String... courses)
       throws SolverException {
 
     final String predicate = getFeasibilityPredicate(courses);
@@ -312,27 +316,52 @@ public class ProBSolver implements Solver {
   }
 
   @Override
-  public List<Integer> unsatCoreModules(final Course[] courses) throws SolverException {
-    throw new NotImplementedException("Implement me");
+  public final synchronized java.util.Set<Integer> unsatCoreModules(final String... courses)
+      throws SolverException {
+
+    final String predicate = getFeasibilityPredicate(courses);
+    logger.info(predicate);
+    //
+    final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_MODULES, predicate);
+    //
+    return Mappers.mapModules(uc);
   }
 
   @Override
-  public List<Integer> unsatCoreAbstractUnits(final List<Module> modules,
-      final List<Course> courses) throws SolverException {
-    throw new NotImplementedException("Implement me");
+  public final synchronized java.util.Set<Integer> unsatCoreAbstractUnits(
+      final List<Integer> modules) throws SolverException {
+
+    final String predicate = "uc_modules={"
+        + Joiner.on(", ").join(Mappers.mapToModules(modules)) + "}";
+    //
+    final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_ABSTRACT_UNITS, predicate);
+    //
+    return Mappers.mapAbstractUnits(uc);
   }
 
   @Override
-  public List<Integer> unsatCoreGroups(final List<AbstractUnit> abstractUnits,
-      final List<Module> modules, final List<Course> courses) throws SolverException {
-    throw new NotImplementedException("Implement me");
+  public final synchronized java.util.Set<Integer> unsatCoreGroups(
+    final List<Integer> abstractUnits, final List<Integer> modules) throws SolverException {
+
+    final String predicate = "uc_modules={" + Joiner.on(", ").join(Mappers.mapToModules(modules))
+        + "} & uc_abstract_units={"
+        + Joiner.on(", ").join(Mappers.mapToAbstractUnits(abstractUnits)) + "}";
+    //
+    final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_GROUPS, predicate);
+    //
+    return Mappers.mapGroups(uc);
   }
 
   @Override
-  public List<Integer> unsatCoreSessions(final List<Group> groups,
-      final List<AbstractUnit> abstractUnits, final List<Module> modules,
-      final List<Course> courses) {
-    throw new NotImplementedException("Implement me");
+  public final synchronized  java.util.Set<Integer> unsatCoreSessions(final List<Integer> groups)
+      throws SolverException {
+
+    final String predicate = "uc_groups={"
+        + Joiner.on(", ").join(Mappers.mapToGroups(groups)) + "}";
+    //
+    final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_SESSIONS, predicate);
+    //
+    return Mappers.mapSessions(uc);
   }
 
 

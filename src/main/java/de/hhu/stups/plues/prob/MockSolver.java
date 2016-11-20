@@ -1,10 +1,5 @@
 package de.hhu.stups.plues.prob;
 
-import de.hhu.stups.plues.data.entities.AbstractUnit;
-import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.data.entities.Group;
-import de.hhu.stups.plues.data.entities.Module;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,48 +61,44 @@ public class MockSolver implements Solver {
   }
 
   @Override
-  public List<Integer> unsatCore(final String... courses) throws SolverException {
-    return Arrays.asList(76, 7, 50, 43);
+  public Set<Integer> unsatCore(final String... courses) throws SolverException {
+    return new HashSet<>(Arrays.asList(76, 7, 50, 43));
   }
 
   @Override
-  public List<Integer> unsatCoreModules(final Course[] courses) throws SolverException {
+  public Set<Integer> unsatCoreModules(final String... courses) throws SolverException {
     try {
       TimeUnit.SECONDS.sleep(2);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    } catch (final InterruptedException exception) {
+      exception.printStackTrace();
     }
-    return Arrays.asList(1, 2, 3);
+    return new HashSet<>(Arrays.asList(1, 2, 3));
   }
 
   @Override
-  public List<Integer> unsatCoreAbstractUnits(final List<Module> modules,
-      final List<Course> courses) throws SolverException {
+  public Set<Integer> unsatCoreAbstractUnits(final List<Integer> modules) throws SolverException {
     try {
       TimeUnit.SECONDS.sleep(2);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    } catch (final InterruptedException exception) {
+      exception.printStackTrace();
     }
-    return Arrays.asList(11, 12, 13);
+    return new HashSet<>(Arrays.asList(1,2,5,6,11));
   }
 
   @Override
-  public List<Integer> unsatCoreGroups(final List<AbstractUnit> abstractUnits,
-      final List<Module> modules, final List<Course> courses) throws SolverException {
-    return Arrays.asList(1, 11, 21, 100, 203, 1527);
+  public Set<Integer> unsatCoreGroups(final List<Integer> abstractUnits,
+      final List<Integer> modules) throws SolverException {
+    return new HashSet<>(Arrays.asList(1, 11, 21, 100, 203, 1527));
   }
 
   @Override
-  public List<Integer> unsatCoreSessions(final List<Group> groups,
-                                         final List<AbstractUnit> abstractUnits,
-                                         final List<Module> modules,
-                                         final List<Course> courses) {
+  public Set<Integer> unsatCoreSessions(final List<Integer> groups) {
     try {
       TimeUnit.SECONDS.sleep(2);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    } catch (final InterruptedException exception) {
+      exception.printStackTrace();
     }
-    return Arrays.asList(1,100,1000);
+    return new HashSet<>(Arrays.asList(1,100,1000));
   }
 
   @Override

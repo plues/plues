@@ -24,7 +24,6 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.beans.property.ReadOnlyMapProperty;
 import javafx.beans.property.ReadOnlyMapWrapper;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 
 import java.util.List;
@@ -152,7 +151,7 @@ public class SolverService {
    * @return SolverTasks containing a list of integers representing the unsat core
    */
   @SuppressWarnings("unused")
-  public SolverTask<List<Integer>> unsatCore(final Course... courses) {
+  public SolverTask<Set<Integer>> unsatCore(final Course... courses) {
 
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
@@ -167,26 +166,26 @@ public class SolverService {
    * @param courses Courses to compute modules in conflict
    * @return SolverTask to compute the unsat core of modules
    */
-  public SolverTask<List<Integer>> unsatCoreModules(final Course... courses) {
+  public SolverTask<Set<Integer>> unsatCoreModules(final Course... courses) {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     //
     return new SolverTask<>("Computing UNSAT CORE of modules", msg, solver,
-        () -> solver.unsatCoreModules(courses));
+        () -> solver.unsatCoreModules(names));
   }
 
   /**
    *
    * @param modules
-   * @param courses
    * @return
    */
-  public SolverTask<List<Integer>> unsatCoreAbstractUnits(final List<Module> modules,
-      final List<Course> courses) {
+  public SolverTask<Set<Integer>> unsatCoreAbstractUnits(final List<Module> modules) {
     final String msg = "TODO";
+    final List<Integer> moduleIds = modules.stream()
+        .map(Module::getId).collect(Collectors.toList());
     //
     return new SolverTask<>("Computing UNSAT CORE of abstract units", msg, solver,
-      () -> solver.unsatCoreAbstractUnits(modules, courses));
+      () -> solver.unsatCoreAbstractUnits(moduleIds));
   }
 
   /**
@@ -196,12 +195,16 @@ public class SolverService {
    * @param courses
    * @return
    */
-  public SolverTask<List<Integer>> unsatCoreGroups(final List<AbstractUnit> abstractUnits,
+  public SolverTask<Set<Integer>> unsatCoreGroups(final List<AbstractUnit> abstractUnits,
       final List<Module> modules, final List<Course> courses) {
       final String msg = "TODO";
+    final List<Integer> abstractUnitIds = abstractUnits.stream().map(AbstractUnit::getId)
+        .collect(Collectors.toList());
+    final List<Integer> moduleIds = modules.stream()
+      .map(Module::getId).collect(Collectors.toList());
       //
       return new SolverTask<>("Computing UNSAT CORE of groups", msg, solver,
-        () -> solver.unsatCoreGroups(abstractUnits, modules, courses));
+        () -> solver.unsatCoreGroups(abstractUnitIds, moduleIds));
   }
 
   /**
@@ -212,13 +215,14 @@ public class SolverService {
    * @param courses
    * @return
    */
-  public SolverTask<List<Integer>> unsatCoreSessions(final List<Group> groups,
+  public SolverTask<Set<Integer>> unsatCoreSessions(final List<Group> groups,
       final List<AbstractUnit> abstractUnits, final List<Module> modules,
       final List<Course> courses) {
       final String msg = "TODO";
+      final List<Integer> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
       //
       return new SolverTask<>("Computing UNSAT CORE of groups", msg, solver,
-        () -> solver.unsatCoreSessions(groups, abstractUnits, modules, courses));
+        () -> solver.unsatCoreSessions(groupIds));
   }
 
   /**

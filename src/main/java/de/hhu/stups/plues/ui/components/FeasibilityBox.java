@@ -53,7 +53,7 @@ public class FeasibilityBox extends VBox implements Initializable {
   private String impossibleCourseString;
   private String noConflictString;
 
-  private SolverTask<List<Integer>> unsatCoreTask;
+  private SolverTask<Set<Integer>> unsatCoreTask;
   private SolverTask<Boolean> feasibilityTask;
   private final ObjectProperty<Course> majorCourseProperty;
   private final ObjectProperty<Course> minorCourseProperty;
@@ -224,7 +224,7 @@ public class FeasibilityBox extends VBox implements Initializable {
     }
 
     unsatCoreTask.setOnSucceeded(unsatCore -> {
-      unsatCoreProperty.set(FXCollections.observableList(unsatCoreTask.getValue()));
+      unsatCoreProperty.set(FXCollections.observableArrayList(unsatCoreTask.getValue()));
       final ConflictTree conflictTree = conflictTreeProvider.get();
       conflictTree.setConflictSessions(delayedStore.get().getSessions()
           .stream().filter(session -> unsatCoreProperty.get().contains(session.getId()))

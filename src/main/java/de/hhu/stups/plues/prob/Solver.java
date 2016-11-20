@@ -58,14 +58,12 @@ public interface Solver {
    * @throws SolverException if no result could be found or the solver did not exit cleanly (e.g.
    *                         interrupt)
    */
-  List<Integer> unsatCore(final String... courses) throws SolverException;
-  List<Integer> unsatCoreModules(Course[] courses) throws SolverException;
-  List<Integer> unsatCoreAbstractUnits(List<Module> modules, List<Course> courses)
-      throws SolverException;
-  List<Integer> unsatCoreGroups(List<AbstractUnit> abstractUnits, List<Module> modules,
-      List<Course> courses) throws SolverException;
-  List<Integer> unsatCoreSessions(List<Group> groups, List<AbstractUnit> abstractUnits,
-      List<Module> modules, List<Course> courses);
+  Set<Integer> unsatCore(final String... courses) throws SolverException;
+  Set<Integer> unsatCoreModules(String... courses) throws SolverException;
+  Set<Integer> unsatCoreAbstractUnits(List<Integer> modules) throws SolverException;
+  Set<Integer> unsatCoreGroups(List<Integer> abstractUnits,
+                               List<Integer> modules) throws SolverException;
+  Set<Integer> unsatCoreSessions(List<Integer> groups) throws SolverException;
 
   /**
    * Move a session identified by its ID to a new day and time slot.

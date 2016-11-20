@@ -11,6 +11,7 @@ import de.prob.translator.types.Tuple;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ final class Mappers {
   private static final String GROUP_PREFIX = "group";
   private static final String UNIT_PREFIX = "unit";
   private static final String SEMESTER_PREFIX = "sem";
+  private static final String SESSION_PREFIX = "session";
 
   private Mappers() {
   }
@@ -72,9 +74,9 @@ final class Mappers {
         .map(Mappers::mapString).collect(Collectors.toSet()));
   }
 
-  static List<Integer> mapSessions(final Set modelResult) {
-    return Collections.unmodifiableList(modelResult.stream().map(
-        v -> mapValue(v.toString(), "session")).collect(Collectors.toList()));
+  static java.util.Set<Integer> mapSessions(final Set modelResult) {
+    return Collections.unmodifiableSet(modelResult.stream().map(
+        v -> mapValue(v.toString(), SESSION_PREFIX)).collect(Collectors.toSet()));
   }
 
   static String mapSession(final Integer session) {
@@ -260,5 +262,32 @@ final class Mappers {
     return Collections.unmodifiableSet(
       modules.stream().map(bObject ->
           mapValue(bObject.toString(), MODULE_PREFIX)).collect(Collectors.toSet()));
+  }
+
+  static java.util.Set<Integer> mapAbstractUnits(final Set abstractUnits) {
+    return Collections.unmodifiableSet(
+      abstractUnits.stream().map(bObject ->
+        mapValue(bObject.toString(), ABSTRACT_UNIT_PREFIX)).collect(Collectors.toSet()));
+  }
+
+  static java.util.Set<Integer> mapGroups(final Set groups) {
+    return Collections.unmodifiableSet(
+      groups.stream().map(bObject ->
+        mapValue(bObject.toString(), GROUP_PREFIX)).collect(Collectors.toSet()));
+  }
+
+  static List<String> mapToModules(final List<Integer> modules) {
+    return modules.stream().map(module
+        -> String.format("%s%d", MODULE_PREFIX, module)).collect(Collectors.toList());
+  }
+
+  static List<String> mapToAbstractUnits(final List<Integer> abstractUnits) {
+    return abstractUnits.stream().map(module
+      -> String.format("%s%d", ABSTRACT_UNIT_PREFIX, module)).collect(Collectors.toList());
+  }
+
+  static List<String> mapToGroups(final List<Integer> groups) {
+    return groups.stream().map(module
+      -> String.format("%s%d", GROUP_PREFIX, module)).collect(Collectors.toList());
   }
 }

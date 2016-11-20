@@ -158,10 +158,10 @@ public class UnsatCore extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private void computeUnsatCoreModules() {
     final Course[] courses = getCoursesAsArray();
-    final SolverTask<List<Integer>> task = getSolverService().unsatCoreModules(courses);
+    final SolverTask<Set<Integer>> task = getSolverService().unsatCoreModules(courses);
 
     task.setOnSucceeded(event -> {
-      final List<Integer> moduleIds = task.getValue();
+      final Set<Integer> moduleIds = task.getValue();
       this.modules.set(moduleIds.stream().map(getStore()::getModuleById).collect(Collectors
           .collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
 
@@ -208,10 +208,10 @@ public class UnsatCore extends VBox implements Initializable {
   private void computeUnsatCoreAbstractUnits() {
     final ObservableList<Course> courses = getCourses();
     final ObservableList<Module> mods = getModules();
-    final SolverTask<List<Integer>> task = getSolverService().unsatCoreAbstractUnits(mods, courses);
+    final SolverTask<Set<Integer>> task = getSolverService().unsatCoreAbstractUnits(mods);
 
     task.setOnSucceeded(event -> {
-      final List<Integer> abstractUnitIds = task.getValue();
+      final Set<Integer> abstractUnitIds = task.getValue();
       this.abstractUnits.set(abstractUnitIds.stream()
           .map(getStore()::getAbstractUnitById).collect(Collectors
           .collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
@@ -231,11 +231,11 @@ public class UnsatCore extends VBox implements Initializable {
     final ObservableList<Module> mods = getModules();
     final ObservableList<AbstractUnit> aUnits = getAbstractUnits();
 
-    final SolverTask<List<Integer>> task
+    final SolverTask<Set<Integer>> task
         = getSolverService().unsatCoreGroups(aUnits, mods, courses);
 
     task.setOnSucceeded(event -> {
-      final List<Integer> groupIds = task.getValue();
+      final Set<Integer> groupIds = task.getValue();
       this.groups.set(groupIds.stream().map(getStore()::getGroupById).collect(Collectors
           .collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
 
@@ -255,11 +255,11 @@ public class UnsatCore extends VBox implements Initializable {
     final ObservableList<AbstractUnit> aUnits = getAbstractUnits();
     final ObservableList<Group> groups = getGroups();
 
-    final SolverTask<List<Integer>> task
+    final SolverTask<Set<Integer>> task
         = getSolverService().unsatCoreSessions(groups, aUnits, mods, courses);
 
     task.setOnSucceeded(event -> {
-      final List<Integer> sessionIds = task.getValue();
+      final Set<Integer> sessionIds = task.getValue();
       this.sessions.set(sessionIds.stream().map(getStore()::getSessionById).collect(
           Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
 
