@@ -8,6 +8,7 @@ import com.google.inject.name.Named;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
@@ -23,6 +24,7 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.beans.property.ReadOnlyMapProperty;
 import javafx.beans.property.ReadOnlyMapWrapper;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 
 import java.util.List;
@@ -160,6 +162,66 @@ public class SolverService {
   }
 
   /**
+   * Compute a set of modules in conflict for a given set of courses.
+   *
+   * @param courses Courses to compute modules in conflict
+   * @return SolverTask to compute the unsat core of modules
+   */
+  public SolverTask<List<Integer>> unsatCoreModules(final Course... courses) {
+    final String[] names = getNames(courses);
+    final String msg = getMessage(names);
+    //
+    return new SolverTask<>("Computing UNSAT CORE of modules", msg, solver,
+        () -> solver.unsatCoreModules(courses));
+  }
+
+  /**
+   *
+   * @param modules
+   * @param courses
+   * @return
+   */
+  public SolverTask<List<Integer>> unsatCoreAbstractUnits(final List<Module> modules,
+      final List<Course> courses) {
+    final String msg = "TODO";
+    //
+    return new SolverTask<>("Computing UNSAT CORE of abstract units", msg, solver,
+      () -> solver.unsatCoreAbstractUnits(modules, courses));
+  }
+
+  /**
+   *
+   * @param abstractUnits
+   * @param modules
+   * @param courses
+   * @return
+   */
+  public SolverTask<List<Integer>> unsatCoreGroups(final List<AbstractUnit> abstractUnits,
+      final List<Module> modules, final List<Course> courses) {
+      final String msg = "TODO";
+      //
+      return new SolverTask<>("Computing UNSAT CORE of groups", msg, solver,
+        () -> solver.unsatCoreGroups(abstractUnits, modules, courses));
+  }
+
+  /**
+   *
+   * @param groups
+   * @param abstractUnits
+   * @param modules
+   * @param courses
+   * @return
+   */
+  public SolverTask<List<Integer>> unsatCoreSessions(final List<Group> groups,
+      final List<AbstractUnit> abstractUnits, final List<Module> modules,
+      final List<Course> courses) {
+      final String msg = "TODO";
+      //
+      return new SolverTask<>("Computing UNSAT CORE of groups", msg, solver,
+        () -> solver.unsatCoreSessions(groups, abstractUnits, modules, courses));
+  }
+
+  /**
    * Find a list of alternatives so a session and some courses.
    * @param session Session to find alternatives to
    * @param courses Courses for the given sessions
@@ -272,4 +334,5 @@ public class SolverService {
       return null;
     });
   }
+
 }

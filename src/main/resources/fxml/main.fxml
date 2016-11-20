@@ -14,6 +14,7 @@
 <?import de.hhu.stups.plues.ui.controller.PartialTimeTables?>
 <?import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration?>
 <?import de.hhu.stups.plues.ui.controller.ConflictMatrix?>
+<?import de.hhu.stups.plues.ui.controller.UnsatCore?>
 
 <?import javafx.scene.control.RadioMenuItem?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
@@ -56,6 +57,9 @@
     <BorderPane>
         <center>
             <TabPane>
+                <Tab text="Unsat Core" closable="false">
+                    <UnsatCore fx:id="unsatCore"/>
+                </Tab>
                 <Tab text="%timetable" closable="false">
                     <Timetable fx:id="timetable"/>
                 </Tab>

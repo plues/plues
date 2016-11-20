@@ -14,6 +14,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -40,6 +41,7 @@ public class PdfRenderingHelper {
   public static final String WARNING_COLOR = "#FEEFB3";
   public static final String FAILURE_COLOR = "#FFBABA";
   public static final String SUCCESS_COLOR = "#DFF2BF";
+  public static final String WORKING_COLOR = "#BDE5F8";
   private static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
   private static final String MSG = "Error! Copying of temporary file into target file failed.";
 
@@ -177,7 +179,7 @@ public class PdfRenderingHelper {
    * @return Object binding depending on the tasks state
    */
   public static ObjectBinding<Text> getIconBinding(final String iconSize,
-                                                   final PdfRenderingTask task) {
+                                                   final Task<?> task) {
     return Bindings.createObjectBinding(() -> {
       final FontAwesomeIcon symbol = getIcon(task);
       if (symbol == null) {
@@ -190,7 +192,7 @@ public class PdfRenderingHelper {
     }, task.stateProperty());
   }
 
-  private static FontAwesomeIcon getIcon(final PdfRenderingTask task) {
+  private static FontAwesomeIcon getIcon(final Task<?> task) {
     FontAwesomeIcon symbol = null;
 
     switch (task.getState()) {
@@ -207,6 +209,7 @@ public class PdfRenderingHelper {
       case SCHEDULED:
       case RUNNING:
       default:
+        symbol = FontAwesomeIcon.CLOCK_ALT;
         break;
     }
     return symbol;
@@ -218,7 +221,7 @@ public class PdfRenderingHelper {
    * @param task Given task
    * @return String binding depending on the tasks state
    */
-  public static StringBinding getStyleBinding(final PdfRenderingTask task) {
+  public static StringBinding getStyleBinding(final Task<?> task) {
     return Bindings.createStringBinding(() -> {
       final String color = getColor(task);
 
@@ -229,8 +232,8 @@ public class PdfRenderingHelper {
     }, task.stateProperty());
   }
 
-  private static String getColor(final PdfRenderingTask task) {
-    String color = null;
+  private static String getColor(final Task<?> task) {
+    final String color;
 
     switch (task.getState()) {
       case SUCCEEDED:
@@ -246,7 +249,7 @@ public class PdfRenderingHelper {
       case SCHEDULED:
       case RUNNING:
       default:
-        break;
+        return WORKING_COLOR;
     }
     return color;
   }

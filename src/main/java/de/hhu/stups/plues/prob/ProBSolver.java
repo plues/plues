@@ -5,6 +5,10 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.be4.classicalb.core.parser.exceptions.BException;
+import de.hhu.stups.plues.data.entities.AbstractUnit;
+import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Group;
+import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.keys.OperationPredicateKey;
 import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.IEvalElement;
@@ -15,6 +19,7 @@ import de.prob.statespace.Transition;
 import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
+import de.tla2b.exceptions.NotImplementedException;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -304,6 +309,30 @@ public class ProBSolver implements Solver {
     final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE, predicate);
     //
     return Mappers.mapSessions(uc);
+  }
+
+  @Override
+  public List<Integer> unsatCoreModules(final Course[] courses) throws SolverException {
+    throw new NotImplementedException("Implement me");
+  }
+
+  @Override
+  public List<Integer> unsatCoreAbstractUnits(final List<Module> modules,
+      final List<Course> courses) throws SolverException {
+    throw new NotImplementedException("Implement me");
+  }
+
+  @Override
+  public List<Integer> unsatCoreGroups(final List<AbstractUnit> abstractUnits,
+      final List<Module> modules, final List<Course> courses) throws SolverException {
+    throw new NotImplementedException("Implement me");
+  }
+
+  @Override
+  public List<Integer> unsatCoreSessions(final List<Group> groups,
+      final List<AbstractUnit> abstractUnits, final List<Module> modules,
+      final List<Course> courses) {
+    throw new NotImplementedException("Implement me");
   }
 
 

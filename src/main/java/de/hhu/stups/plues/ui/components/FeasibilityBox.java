@@ -45,7 +45,6 @@ import javax.annotation.Nullable;
 @SuppressWarnings("WeakerAccess")
 public class FeasibilityBox extends VBox implements Initializable {
 
-  private static final String WORKING_COLOR = "#BDE5F8";
   private final Provider<ConflictTree> conflictTreeProvider;
 
   private String removeString;
@@ -147,7 +146,7 @@ public class FeasibilityBox extends VBox implements Initializable {
         feasibilityTask = solver.checkFeasibilityTask(cMajor);
       }
 
-      progressIndicator.setStyle("-fx-progress-color: " + WORKING_COLOR);
+      progressIndicator.setStyle("-fx-progress-color: " + PdfRenderingHelper.WORKING_COLOR);
       progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
 
       executorService.submit(feasibilityTask);
@@ -179,7 +178,7 @@ public class FeasibilityBox extends VBox implements Initializable {
       lbIcon.setStyle(bgColorCommand + PdfRenderingHelper.WARNING_COLOR);
     });
 
-    progressIndicator.setStyle("-fx-progress-color: " + WORKING_COLOR);
+    progressIndicator.setStyle("-fx-progress-color: " + PdfRenderingHelper.WORKING_COLOR);
     progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
 
     cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancelString)));

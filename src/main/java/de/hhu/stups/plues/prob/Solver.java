@@ -1,7 +1,13 @@
 package de.hhu.stups.plues.prob;
 
+import de.hhu.stups.plues.data.entities.AbstractUnit;
+import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Group;
+import de.hhu.stups.plues.data.entities.Module;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public interface Solver {
@@ -53,6 +59,13 @@ public interface Solver {
    *                         interrupt)
    */
   List<Integer> unsatCore(final String... courses) throws SolverException;
+  List<Integer> unsatCoreModules(Course[] courses) throws SolverException;
+  List<Integer> unsatCoreAbstractUnits(List<Module> modules, List<Course> courses)
+      throws SolverException;
+  List<Integer> unsatCoreGroups(List<AbstractUnit> abstractUnits, List<Module> modules,
+      List<Course> courses) throws SolverException;
+  List<Integer> unsatCoreSessions(List<Group> groups, List<AbstractUnit> abstractUnits,
+      List<Module> modules, List<Course> courses);
 
   /**
    * Move a session identified by its ID to a new day and time slot.

@@ -26,6 +26,7 @@ import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration;
 import de.hhu.stups.plues.ui.controller.ConflictMatrix;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
 import de.hhu.stups.plues.ui.controller.PartialTimeTables;
+import de.hhu.stups.plues.ui.controller.UnsatCore;
 
 class ComponentsModule extends AbstractModule {
   @Override
@@ -54,5 +55,6 @@ class ComponentsModule extends AbstractModule {
     bind(ModuleAbstractUnitUnitSemesterConflicts.class);
     bind(AbstractUnitsWithoutUnits.class);
     bind(ConflictTree.class);
+    bind(UnsatCore.class);
   }
 }
