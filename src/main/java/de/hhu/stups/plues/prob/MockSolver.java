@@ -88,7 +88,7 @@ public class MockSolver implements Solver {
   @Override
   public Set<Integer> unsatCoreGroups(final List<Integer> abstractUnits,
       final List<Integer> modules) throws SolverException {
-    return new HashSet<>(Arrays.asList(1, 11, 21, 100, 203, 1527));
+    return new HashSet<>(Arrays.asList(452, 455, 459, 456, 429, 426, 1527));
   }
 
   @Override

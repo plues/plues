@@ -71,6 +71,7 @@
                 <TableColumn fx:id="groupUnitTitleColumn" minWidth="200" text="Title"/>
                 <TableColumn fx:id="groupUnitSemestersColumn" minWidth="200" text="Semester"/>
                 <TableColumn fx:id="groupSessionsColumn" minWidth="200" text="Gruppe"/>
+                <TableColumn fx:id="groupAbstractUnits"  minWidth="200" text="Abstract Unit(s)"/>
             </columns>
         </TableView>
         <HBox>

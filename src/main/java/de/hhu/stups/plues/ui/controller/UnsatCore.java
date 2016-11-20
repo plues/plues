@@ -111,6 +111,8 @@ public class UnsatCore extends VBox implements Initializable {
   @FXML
   private TableColumn<Group, Set<Session>> groupSessionsColumn;
   @FXML
+  private TableColumn<Group, Set<AbstractUnit>> groupAbstractUnits;
+  @FXML
   private TableColumn<Session, String> sessionDayColumn;
   @FXML
   private TableColumn<Session, Integer> sessionTimeColumn;
@@ -350,6 +352,26 @@ public class UnsatCore extends VBox implements Initializable {
             .reduce(String::concat).orElse("??"));
       }
     });
+
+    // extract abstract units associated to group (through unit) in the current abstract unit core
+    groupAbstractUnits.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
+        param.getValue().getUnit().getAbstractUnits().stream()
+          .filter(this.abstractUnits::contains)
+            .collect(Collectors.toSet())));
+
+    groupAbstractUnits.setCellFactory(param -> new TableCell<Group, Set<AbstractUnit>>() {
+      @Override
+      protected void updateItem(final Set<AbstractUnit> item, final boolean empty) {
+        super.updateItem(item, empty);
+        if (item == null || empty) {
+          setText(null);
+          return;
+        }
+        setText(item.stream()
+            .map(e -> String.format("• %s", e.getKey()))
+            .reduce(String::concat).orElse("-"));
+      }
+    });
   }
 
   private void initializeAbstractUnits() {
@@ -384,7 +406,7 @@ public class UnsatCore extends VBox implements Initializable {
                 return;
               }
               setText(item.entrySet().stream()
-                  .map(e -> String.format("• %s: %s",
+                  .map(e -> String.format("• %s: %s\n",
                     e.getKey().getPordnr(),
                     Joiner.on(',').join( e.getValue().stream().sorted().iterator())))
                   .reduce(String::concat).orElse("-"));
