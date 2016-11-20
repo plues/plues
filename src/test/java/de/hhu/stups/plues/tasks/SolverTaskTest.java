@@ -228,7 +228,28 @@ public class SolverTaskTest extends ApplicationTest {
     }
 
     @Override
-    public List<Integer> unsatCore(final String... courses) {
+    public Set<Integer> unsatCore(final String... courses) {
+      return null;
+    }
+
+    @Override
+    public Set<Integer> unsatCoreModules(final String... courses) throws SolverException {
+      return null;
+    }
+
+    @Override
+    public Set<Integer> unsatCoreAbstractUnits(final List<Integer> modules) throws SolverException {
+      return null;
+    }
+
+    @Override
+    public Set<Integer> unsatCoreGroups(final List<Integer> abstractUnits,
+        final List<Integer> modules) throws SolverException {
+      return null;
+    }
+
+    @Override
+    public Set<Integer> unsatCoreSessions(final List<Integer> groups) throws SolverException {
       return null;
     }
 

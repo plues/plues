@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.prob.translator.Translator;
 import de.prob.translator.types.Set;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -112,5 +113,43 @@ public class MappersTest {
     assertTrue(result.contains(1));
     assertTrue(result.contains(200));
 
+  }
+
+  @Test
+  public void testMapToModules() {
+    Assert.assertEquals(Arrays.asList("mod1", "mod11"), Mappers.mapToModules(Arrays.asList(1, 11)));
+  }
+
+  @Test
+  public void testMapAbstractUnits() throws BException {
+    Assert.assertEquals(
+      new HashSet<>(Arrays.asList(1, 11)),
+      new HashSet<>(Mappers.mapAbstractUnits((Set) Translator.translate("{au1, au11}"))));
+  }
+
+  @Test
+  public void testMapToAbstractUnits() {
+    Assert.assertEquals(Arrays.asList("au22", "au23"),
+        Mappers.mapToAbstractUnits(Arrays.asList(22, 23)));
+  }
+
+  @Test
+  public void testMapGroups() throws BException {
+    Assert.assertEquals(
+      new HashSet<>(Arrays.asList(22, 234)),
+      new HashSet<>(Mappers.mapGroups((Set) Translator.translate("{group234, group22}"))));
+  }
+
+  @Test
+  public void testMapToGroups() {
+    Assert.assertEquals(Arrays.asList("group22", "group223"),
+      Mappers.mapToGroups(Arrays.asList(22, 223)));
+  }
+
+  @Test
+  public void testMapSessions() throws BException {
+    Assert.assertEquals(
+      new HashSet<>(Arrays.asList(222, 23423)),
+      new HashSet<>(Mappers.mapSessions((Set) Translator.translate("{session222, session23423}"))));
   }
 }

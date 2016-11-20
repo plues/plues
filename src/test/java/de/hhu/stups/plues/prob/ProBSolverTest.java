@@ -49,6 +49,63 @@ public class ProBSolverTest {
   private Trace trace;
   private StateSpace stateSpace;
 
+  @Test
+  public void unsatCoreModules() throws Exception {
+    final String[] modelReturnValues = new String[] {"{mod1, mod99}"};
+
+    final String op = "unsatCoreModules";
+    final String predicate = "ccss={\"foo\", \"bar\"}";
+    setupOperationCanBeExecuted(modelReturnValues, op, predicate);
+
+    final Set<Integer> uc = solver.unsatCoreModules("foo", "bar");
+    assertEquals(2, uc.size());
+    assertTrue(uc.contains(1));
+    assertTrue(uc.contains(99));
+  }
+
+  @Test
+  public void unsatCoreAbstractUnits() throws Exception {
+    final String[] modelReturnValues = new String[] {"{au2, au123}"};
+
+    final String op = "unsatCoreAbstractUnits";
+    final String predicate = "uc_modules={1, 99}";
+    setupOperationCanBeExecuted(modelReturnValues, op, predicate);
+
+    final Set<Integer> uc = solver.unsatCoreAbstractUnits(Arrays.asList(2, 123));
+    assertEquals(2, uc.size());
+    assertTrue(uc.contains(2));
+    assertTrue(uc.contains(123));
+  }
+
+  @Test
+  public void unsatCoreGroups() throws Exception {
+    final String[] modelReturnValues = new String[] {"{group32, group2123}"};
+
+    final String op = "unsatCoreGroups";
+    final String predicate = "uc_modules={1, 99}, uc_abstract_units={2, 87}";
+    setupOperationCanBeExecuted(modelReturnValues, op, predicate);
+
+    final Set<Integer> uc = solver.unsatCoreGroups(Arrays.asList(1, 99), Arrays.asList(2, 87));
+    assertEquals(2, uc.size());
+    assertTrue(uc.contains(32));
+    assertTrue(uc.contains(2123));
+  }
+
+  @Test
+  public void unsatCoreSessions() throws Exception {
+    final String[] modelReturnValues = new String[] {"{session77, session1234}"};
+
+    final String op = "unsatCoreSessions";
+    final String predicate = "uc_groups={1, 99}";
+    setupOperationCanBeExecuted(modelReturnValues, op, predicate);
+
+    final Set<Integer> uc = solver.unsatCoreSessions(Arrays.asList(1, 99));
+    assertEquals(2, uc.size());
+    assertTrue(uc.contains(77));
+    assertTrue(uc.contains(1234));
+
+  }
+
   /**
    * Setup state for test.
    */
@@ -90,10 +147,10 @@ public class ProBSolverTest {
 
   @Test
   public void checkFeasibilityFeasibleCourse() throws Exception {
-    final String[] t = new String[]{};
+    final String[] t = new String[] {};
     setupOperationCanBeExecuted(t, "check", "ccss={\"NoFoo\", \"NoBar\"}");
     assertTrue(solver.checkFeasibility("foo", "bar"));
-    OperationPredicateKey key = new OperationPredicateKey("check", "ccss={\"foo\", \"bar\"}");
+    final OperationPredicateKey key = new OperationPredicateKey("check", "ccss={\"foo\", \"bar\"}");
     assertTrue(solver.getOperationExecutionCache().containsKey(key));
   }
 
@@ -101,7 +158,8 @@ public class ProBSolverTest {
   public void checkFeasibilityInfeasibleCourse() throws Exception {
     setupOperationCannotBeExecuted("check", "ccss={\"NoFoo\", \"NoBar\"}");
     assertFalse(solver.checkFeasibility("NoFoo", "NoBar"));
-    OperationPredicateKey key = new OperationPredicateKey("check", "ccss={\"NoFoo\", \"NoBar\"}");
+    final OperationPredicateKey key
+        = new OperationPredicateKey("check", "ccss={\"NoFoo\", \"NoBar\"}");
     assertTrue(solver.getOperationExecutionCache().containsKey(key));
   }
 
@@ -111,7 +169,7 @@ public class ProBSolverTest {
     final String op = "check";
     final String predicate = "ccss={\"foo\", \"bar\"}";
     final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(au3,group4)}",
-        "{\"foo\" |-> {mod5,mod6}}"};
+      "{\"foo\" |-> {mod5,mod6}}"};
 
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
@@ -141,7 +199,7 @@ public class ProBSolverTest {
         + "partialModuleChoice={(\"foo\" |-> {mod5})} & "
         + "partialAbstractUnitChoice={au7}";
     final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(au3,group4)}",
-        "{\"foo\" |-> {mod5,mod6}}"};
+      "{\"foo\" |-> {mod5,mod6}}"};
 
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
@@ -199,7 +257,7 @@ public class ProBSolverTest {
 
 
     final Integer[] unsatCore = new Integer[] {1, 77};
-    assertEquals(solver.unsatCore("foo", "bar"), Arrays.asList(unsatCore));
+    assertEquals(solver.unsatCore("foo", "bar"), new HashSet<>(Arrays.asList(unsatCore)));
   }
 
   @Test
@@ -223,7 +281,7 @@ public class ProBSolverTest {
     final String op = "move";
     final String predicate = "session=session101 & dow=mon & slot=slot8";
 
-    final String[] t = new String[]{};
+    final String[] t = new String[] {};
     setupOperationCanBeExecuted(t, op, predicate);
 
     solver.move("101", "mon", "8");
@@ -262,8 +320,8 @@ public class ProBSolverTest {
         = PowerMockito.mock(GetOperationByPredicateCommand.class);
 
     PowerMockito.whenNew(GetOperationByPredicateCommand.class)
-      .withArguments(eq(stateSpace), anyString(), eq(op), any(ClassicalB.class), eq(1))
-      .thenReturn(cmd);
+        .withArguments(eq(stateSpace), anyString(), eq(op), any(ClassicalB.class), eq(1))
+        .thenReturn(cmd);
 
     when(cmd.hasErrors()).thenReturn(true);
     when(cmd.getErrors()).thenReturn(new ArrayList<>());

@@ -11,7 +11,6 @@ import de.prob.translator.types.Tuple;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,7 +52,7 @@ final class Mappers {
 
   static Map<String, java.util.Set<Integer>> mapModuleChoice(final Set moduleChoice) {
     final java.util.Map<java.lang.String, java.util.Set<Integer>> collectedModules
-        = new HashMap<>();
+      = new HashMap<>();
 
     for (final BObject o : moduleChoice) {
 
@@ -63,20 +62,20 @@ final class Mappers {
       final String key = ((de.prob.translator.types.String) mc.getFirst()).getValue();
 
       collectedModules.put(key, modules.stream()
-          .map(m -> mapValue(m.toString(), MODULE_PREFIX))
-          .collect(Collectors.toSet()));
+        .map(m -> mapValue(m.toString(), MODULE_PREFIX))
+        .collect(Collectors.toSet()));
     }
     return Collections.unmodifiableMap(collectedModules);
   }
 
   static java.util.Set<String> mapCourseSet(final Set value) {
-    return Collections.unmodifiableSet( value.stream().map(Object::toString)
-        .map(Mappers::mapString).collect(Collectors.toSet()));
+    return Collections.unmodifiableSet(value.stream().map(Object::toString)
+      .map(Mappers::mapString).collect(Collectors.toSet()));
   }
 
   static java.util.Set<Integer> mapSessions(final Set modelResult) {
     return Collections.unmodifiableSet(modelResult.stream().map(
-        v -> mapValue(v.toString(), SESSION_PREFIX)).collect(Collectors.toSet()));
+      v -> mapValue(v.toString(), SESSION_PREFIX)).collect(Collectors.toSet()));
   }
 
   static String mapSession(final Integer session) {
@@ -86,10 +85,10 @@ final class Mappers {
   static String mapToModuleChoice(final Map<String, List<Integer>> moduleChoice) {
 
     final String result = Joiner.on(',').join(moduleChoice.entrySet().stream().map(e -> "(\""
-        + e.getKey()
-        + "\" |-> {"
-        + Joiner.on(',').join(e.getValue().stream().map(i -> MODULE_PREFIX + i).iterator())
-        + "})").iterator());
+      + e.getKey()
+      + "\" |-> {"
+      + Joiner.on(',').join(e.getValue().stream().map(i -> MODULE_PREFIX + i).iterator())
+      + "})").iterator());
 
     return "{" + result + "}";
   }
@@ -109,7 +108,7 @@ final class Mappers {
   }
 
   static Map<String, Map<Integer, java.util.Set<Integer>>> mapCourseModuleAbstractUnits(
-      final Set courseModuleAbstractUnits) {
+    final Set courseModuleAbstractUnits) {
 
     final Map<String, Map<Integer, java.util.Set<Integer>>> result = new HashMap<>();
     courseModuleAbstractUnits.forEach(bObject -> {
@@ -139,7 +138,7 @@ final class Mappers {
   }
 
   static Map<String, Map<Integer, java.util.Set<Pair<Integer>>>> mapCourseModuleAbstractUnitPairs(
-      final Set courseModuleAbstractUnitPairs) {
+    final Set courseModuleAbstractUnitPairs) {
     final Map<String, Map<Integer, java.util.Set<Pair<Integer>>>> result = new HashMap<>();
 
     courseModuleAbstractUnitPairs.forEach(bObject -> {
@@ -173,14 +172,14 @@ final class Mappers {
   }
 
   static Map<Integer, java.util.Set<Integer>> mapModuleAbstractUnitPairs(
-      final Set moduleAbstractUnits) {
+    final Set moduleAbstractUnits) {
     final Map<Integer, java.util.Set<Integer>> result = new HashMap<>();
 
     moduleAbstractUnits.forEach(bObject -> {
       final Tuple moduleAbstractUnit = (Tuple) ((Tuple) bObject).getFirst();
       final Integer module = mapValue(moduleAbstractUnit.getFirst().toString(), MODULE_PREFIX);
       final Integer abstractUnit
-          = mapValue(moduleAbstractUnit.getSecond().toString(), ABSTRACT_UNIT_PREFIX);
+        = mapValue(moduleAbstractUnit.getSecond().toString(), ABSTRACT_UNIT_PREFIX);
       //
       if (!result.containsKey(module)) {
         result.put(module, new HashSet<>());
@@ -202,7 +201,7 @@ final class Mappers {
   }
 
   static Map<Integer, java.util.Set<Integer>> mapQuasiMandatoryModuleAbstractUnits(
-      final Set quasiMandatoryModuleAbstractUnits) {
+    final Set quasiMandatoryModuleAbstractUnits) {
 
     final Map<Integer, java.util.Set<Integer>> moduleAbstractUnits = new HashMap<>();
     quasiMandatoryModuleAbstractUnits.forEach(bObject -> {
@@ -240,7 +239,7 @@ final class Mappers {
   }
 
   static java.util.Set<ModuleAbstractUnitUnitSemesterConflict>
-      mapModuleAbstractUnitUnitSemesterMismatch(final Set conflicts) {
+  mapModuleAbstractUnitUnitSemesterMismatch(final Set conflicts) {
     return conflicts.stream().map(bObject -> {
       final Tuple tuple = (Tuple) bObject;
       final Tuple maus = (Tuple) tuple.getFirst();
@@ -251,9 +250,9 @@ final class Mappers {
 
       final Integer unit = mapValue(tuple.getSecond().toString(), UNIT_PREFIX);
       final java.util.Set<Integer> semesters = Collections.unmodifiableSet(
-          ((Set) maus.getSecond()).stream()
-              .map(sem -> mapValue(sem.toString(), SEMESTER_PREFIX))
-              .collect(Collectors.toSet()));
+        ((Set) maus.getSecond()).stream()
+          .map(sem -> mapValue(sem.toString(), SEMESTER_PREFIX))
+          .collect(Collectors.toSet()));
       return new ModuleAbstractUnitUnitSemesterConflict(module, abstractUnit, semesters, unit);
     }).collect(Collectors.toSet());
   }
@@ -261,7 +260,7 @@ final class Mappers {
   static java.util.Set<Integer> mapModules(final Set modules) {
     return Collections.unmodifiableSet(
       modules.stream().map(bObject ->
-          mapValue(bObject.toString(), MODULE_PREFIX)).collect(Collectors.toSet()));
+        mapValue(bObject.toString(), MODULE_PREFIX)).collect(Collectors.toSet()));
   }
 
   static java.util.Set<Integer> mapAbstractUnits(final Set abstractUnits) {
@@ -278,7 +277,7 @@ final class Mappers {
 
   static List<String> mapToModules(final List<Integer> modules) {
     return modules.stream().map(module
-        -> String.format("%s%d", MODULE_PREFIX, module)).collect(Collectors.toList());
+      -> String.format("%s%d", MODULE_PREFIX, module)).collect(Collectors.toList());
   }
 
   static List<String> mapToAbstractUnits(final List<Integer> abstractUnits) {
