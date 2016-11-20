@@ -9,6 +9,7 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
@@ -18,6 +19,7 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -37,20 +39,22 @@ import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class UnsatCore extends VBox implements Initializable {
   private final ObjectProperty<Store> store;
   private final ObjectProperty<SolverService> solverService;
 
-  private final UiDataService uiDataService;
   private final ListProperty<Session> sessions;
   private final ListProperty<Group> groups;
   private final ListProperty<AbstractUnit> abstractUnits;
   private final ListProperty<Module> modules;
   private final ListProperty<Course> courses;
+  private final UiDataService uiDataService;
 
   @FXML
   private CombinationOrSingleCourseSelection courseSelection;
@@ -96,6 +100,8 @@ public class UnsatCore extends VBox implements Initializable {
   private TableColumn<AbstractUnit, String> abstractUnitKeyColumn;
   @FXML
   private TableColumn<AbstractUnit, String> abstractUnitTitleColumn;
+  @FXML
+  private TableColumn<AbstractUnit, Map<Module, List<Integer>>> abstractUnitModuleSemester;
   @FXML
   private TableColumn<Group, String> groupUnitKeyColumn;
   @FXML
@@ -214,7 +220,7 @@ public class UnsatCore extends VBox implements Initializable {
       final Set<Integer> abstractUnitIds = task.getValue();
       this.abstractUnits.set(abstractUnitIds.stream()
           .map(getStore()::getAbstractUnitById).collect(Collectors
-          .collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
+            .collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
 
     });
     showTaskState(abstractUnitsTaskStateIcon, abstractUnitsTaskStateLabel, task);
@@ -327,7 +333,7 @@ public class UnsatCore extends VBox implements Initializable {
         -> Bindings.selectString(param, "value", "unit", "title"));
     groupUnitSemestersColumn.setCellValueFactory(param
         -> new SimpleStringProperty(
-          Joiner.on(',').join(param.getValue().getUnit().getSemesters())));
+            Joiner.on(',').join(param.getValue().getUnit().getSemesters())));
 
     // display a bullet-list of sessions to represent the group
     groupSessionsColumn.setCellValueFactory(new PropertyValueFactory<>("sessions"));
@@ -351,6 +357,39 @@ public class UnsatCore extends VBox implements Initializable {
     abstractUnitsTable.itemsProperty().bind(abstractUnits);
     abstractUnitKeyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
     abstractUnitTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+
+    abstractUnitModuleSemester.setCellValueFactory(param -> {
+      final Set<ModuleAbstractUnitSemester> maus
+          = param.getValue().getModuleAbstractUnitSemesters();
+
+      // filter ModuleAbstractUnitSemester by those modules in the current unsat core
+      final Stream<ModuleAbstractUnitSemester> filtered = maus.stream().filter(
+          moduleAbstractUnitSemester
+              -> this.modules.contains(moduleAbstractUnitSemester.getModule()));
+
+      // group entries by module and map to the corresponding semesters as a list
+      final Map<Module, List<Integer>> result = filtered.collect(
+          Collectors.groupingBy(
+            ModuleAbstractUnitSemester::getModule,
+            Collectors.mapping(ModuleAbstractUnitSemester::getSemester, Collectors.toList())));
+      return new ReadOnlyObjectWrapper<>(result);
+    });
+    abstractUnitModuleSemester.setCellFactory(param
+        -> new TableCell<AbstractUnit, Map<Module, List<Integer>>>() {
+            @Override
+            protected void updateItem(final Map<Module, List<Integer>> item, final boolean empty) {
+              super.updateItem(item, empty);
+              if (item == null || empty) {
+                setText(null);
+                return;
+              }
+              setText(item.entrySet().stream()
+                  .map(e -> String.format("• %s: %s",
+                    e.getKey().getPordnr(),
+                    Joiner.on(',').join( e.getValue().stream().sorted().iterator())))
+                  .reduce(String::concat).orElse("-"));
+            }
+          });
   }
 
   private void initializeModules() {
