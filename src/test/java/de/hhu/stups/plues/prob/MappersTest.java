@@ -201,5 +201,24 @@ public class MappersTest {
     Assert.assertTrue(entry.contains(425));
     Assert.assertTrue(entry.contains(426));
   }
+
+  @Test
+  public void testMapCourseSet() throws BException {
+    final String input = "{\"BA-IWS-H-2013\",\"BA-KUL-H-2013\",\"BA-LIN-COM-H-2013\","
+        + "\"BA-LIN-GRU-H-2013\",\"BA-LIN-PSY-H-2013\"}";
+    final BObject translated = Translator.translate(input);
+    final java.util.Set result = Mappers.mapCourseSet((Set) translated);
+
+
+    Assert.assertEquals(5, result.size());
+    Assert.assertTrue(result.contains("BA-KUL-H-2013"));
+
+    Assert.assertFalse(result.contains("\"BA-IWS-H-2013\""));
+  }
+
+
+
+
+
 }
 
