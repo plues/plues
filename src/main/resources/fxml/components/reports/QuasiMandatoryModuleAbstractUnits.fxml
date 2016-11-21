@@ -2,14 +2,29 @@
 
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
     <Label text="%explainQuasiMandatoryModules" wrapText="true"/>
     <VBox spacing="5.0">
         <Label text="%modules" style="-fx-font-size: 20px"/>
-        <ListView fx:id="listViewQuasiMandatoryModules"/>
+        <TableView fx:id="tableViewQuasiMandatoryModules">
+            <columns>
+                <TableColumn fx:id="columnModulePordnr" text="%columnPordnr"
+                             prefWidth="200.0" minWidth="100.0"/>
+                <TableColumn fx:id="columnModuleTitle" text="%columnTitle"
+                             prefWidth="500.0" minWidth="100.0"/>
+            </columns>
+        </TableView>
         <Label text="%abstractUnits" style="-fx-font-size: 20px"/>
-        <ListView fx:id="listViewAbstractUnits"/>
+        <TableView fx:id="tableViewAbstractUnits">
+            <columns>
+                <TableColumn fx:id="columnAbstractUnitKey" text="%columnUnitKey"
+                             prefWidth="200.0" minWidth="100.0"/>
+                <TableColumn fx:id="columnAbstractUnitTitle" text="%columnTitle"
+                             prefWidth="500.0" minWidth="100.0"/>
+            </columns>
+        </TableView>
     </VBox>
 </fx:root>

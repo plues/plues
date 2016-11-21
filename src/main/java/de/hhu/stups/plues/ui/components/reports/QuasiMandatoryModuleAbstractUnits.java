@@ -10,8 +10,9 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -27,10 +28,22 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
 
   @FXML
   @SuppressWarnings("unused")
-  private ListView<Module> listViewQuasiMandatoryModules;
+  private TableView<Module> tableViewQuasiMandatoryModules;
   @FXML
   @SuppressWarnings("unused")
-  private ListView<AbstractUnit> listViewAbstractUnits;
+  private TableColumn<Module, Integer> columnModulePordnr;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> columnModuleTitle;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableView<AbstractUnit> tableViewAbstractUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<AbstractUnit, String> columnAbstractUnitKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<AbstractUnit, String> columnAbstractUnitTitle;
 
   /**
    * Default constructor.
@@ -47,27 +60,15 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    listViewQuasiMandatoryModules.itemsProperty().bind(modules);
-    listViewQuasiMandatoryModules.setCellFactory(param -> new ListCell<Module>() {
-      @Override
-      protected void updateItem(Module module, boolean empty) {
-        super.updateItem(module, empty);
-        if (!empty) {
-          setText(module.getTitle());
-        }
-      }
-    });
-    listViewAbstractUnits.itemsProperty().bind(abstractUnits);
-    listViewAbstractUnits.setCellFactory(param -> new ListCell<AbstractUnit>() {
-      @Override
-      protected void updateItem(AbstractUnit abstractUnit, boolean empty) {
-        super.updateItem(abstractUnit, empty);
-        if (!empty) {
-          setText(abstractUnit.getTitle());
-        }
-      }
-    });
-    listViewQuasiMandatoryModules.getSelectionModel().selectedItemProperty()
+    tableViewQuasiMandatoryModules.itemsProperty().bind(modules);
+    columnModulePordnr.setCellValueFactory(new PropertyValueFactory<>("pordnr"));
+    columnModuleTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
+
+    tableViewAbstractUnits.itemsProperty().bind(abstractUnits);
+    columnAbstractUnitKey.setCellValueFactory(new PropertyValueFactory<>("key"));
+    columnAbstractUnitTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
+
+    tableViewQuasiMandatoryModules.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) ->
           abstractUnits.setAll(quasiMandatoryModuleAbstractUnits.get(newValue)));
   }
