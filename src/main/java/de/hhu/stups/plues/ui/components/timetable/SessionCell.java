@@ -8,6 +8,7 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 
+import javafx.beans.binding.StringBinding;
 import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
 import javafx.scene.input.ClipboardContent;
@@ -56,8 +57,22 @@ class SessionCell extends ListCell<SessionFacade> {
             getStyleClass().add("conflicted-session");
           }
         });
-    uiDataService.sessionDisplayFormatProperty()
-        .addListener((observable, oldValue, newValue) -> this.updateItem(getItem(), false));
+
+    textProperty().bind(new StringBinding() {
+      {
+        bind(itemProperty());
+        bind(uiDataService.sessionDisplayFormatProperty());
+      }
+
+      @Override
+      protected String computeValue() {
+        if (getItem() == null) {
+          return null;
+        }
+
+        return displayText(getItem());
+      }
+    });
   }
 
   private void waitForSolver() {
@@ -92,15 +107,9 @@ class SessionCell extends ListCell<SessionFacade> {
     stage.show();
   }
 
-  @Override
-  protected void updateItem(final SessionFacade sessionFacade, final boolean empty) {
-    super.updateItem(sessionFacade, empty);
-    if (empty || sessionFacade == null) {
-      setText(null);
-      return;
-    }
-
+  private String displayText(final SessionFacade sessionFacade) {
     final String representation;
+
     if ("name".equals(uiDataService.sessionDisplayFormatProperty().get())) {
       representation = sessionFacade.toString();
     } else if ("key".equals(uiDataService.sessionDisplayFormatProperty().get())) {
@@ -112,7 +121,7 @@ class SessionCell extends ListCell<SessionFacade> {
       representation = String.format("%s/%d", sessionFacade.getUnitKey(),
           sessionFacade.getGroupId());
     }
-    setText(representation);
+    return representation;
   }
 
   /**
