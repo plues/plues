@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import de.be4.classicalb.core.parser.exceptions.BException;
+import de.hhu.stups.plues.prob.report.Pair;
 import de.prob.translator.Translator;
+import de.prob.translator.types.BObject;
 import de.prob.translator.types.Set;
 import org.junit.Assert;
 import org.junit.Test;
@@ -152,4 +154,49 @@ public class MappersTest {
       new HashSet<>(Arrays.asList(222, 23423)),
       new HashSet<>(Mappers.mapSessions((Set) Translator.translate("{session222, session23423}"))));
   }
+
+  @Test
+  public void testRedundantUnitGroups() throws BException {
+    final String input = "{((unit254|->group269)|->group270),((unit254|->group277)|->group280),((unit493|->group542)|->group543)}";
+    final BObject translated = Translator.translate(input);
+    final Map<Integer, java.util.Set<Pair<Integer>>> result = Mappers.mapUnitGroups((Set) translated);
+
+    Assert.assertEquals(2, result.size());
+    final java.util.Set<Pair<Integer>> u254 = result.get(254);
+    Assert.assertEquals(2, u254.size());
+    Assert.assertTrue(u254.contains(new Pair<>(269, 270)));
+  }
+
+  @Test
+  public void testMapQuasiMandatoryModuleAbstractUnits() throws BException {
+    final String input = "{(mod1|->au1),(mod1|->au2),(mod286|->au568),(mod286|->au569)}";
+    final BObject translated = Translator.translate(input);
+    final Map<Integer, java.util.Set<Integer>> result
+        = Mappers.mapQuasiMandatoryModuleAbstractUnits((Set) translated);
+
+    Assert.assertEquals(2, result.size());
+    final java.util.Set<Integer> entry = result.get(1);
+    Assert.assertEquals(2, entry.size());
+    Assert.assertTrue(entry.contains(1));
+    Assert.assertTrue(entry.contains(2));
+
+  }
+
+
+  @Test
+  public void testMapModuleAbstractUnitPairs() throws BException {
+    final String input = "{((mod235|->au329)|->{sem1,sem3}),((mod235|->au425)|->{sem1,sem3}),"
+        + "((mod235|->au426)|->{sem1,sem3}),((mod236|->au429)|->{sem1,sem3}),"
+        + "((mod236|->au430)|->{sem1,sem3})}";
+    final BObject translated = Translator.translate(input);
+    final Map<Integer, java.util.Set<Integer>> result
+      = Mappers.mapModuleAbstractUnitPairs((Set) translated);
+    Assert.assertEquals(2, result.size());
+    final java.util.Set<Integer> entry = result.get(235);
+    Assert.assertEquals(3, entry.size());
+    Assert.assertTrue(entry.contains(329));
+    Assert.assertTrue(entry.contains(425));
+    Assert.assertTrue(entry.contains(426));
+  }
 }
+
