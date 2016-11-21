@@ -125,12 +125,12 @@ final class Mappers {
     });
 
     return Collections.unmodifiableMap(
-      result.entrySet().stream().collect(Collectors.toMap(
-        Map.Entry::getKey,
-        e -> Collections.unmodifiableMap(
-          e.getValue().entrySet().stream().collect(Collectors.toMap(
-            Map.Entry::getKey,
-            i -> Collections.unmodifiableSet(i.getValue())))))));
+        result.entrySet().stream().collect(Collectors.toMap(
+          Map.Entry::getKey,
+          e -> Collections.unmodifiableMap(
+            e.getValue().entrySet().stream().collect(Collectors.toMap(
+              Map.Entry::getKey,
+              i -> Collections.unmodifiableSet(i.getValue())))))));
   }
 
   static Map<String, Map<Integer, java.util.Set<Pair<Integer>>>> mapCourseModuleAbstractUnitPairs(

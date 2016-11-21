@@ -17,10 +17,8 @@ import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.Solver;
-
 import de.hhu.stups.plues.prob.SolverException;
 import de.hhu.stups.plues.tasks.SolverTask;
-
 import javafx.beans.property.ReadOnlyMapProperty;
 import javafx.beans.property.ReadOnlyMapWrapper;
 import javafx.collections.FXCollections;
@@ -185,24 +183,24 @@ public class SolverService {
         .map(Module::getId).collect(Collectors.toList());
     //
     return new SolverTask<>(resources.getString("unsatCoreAbstractUnits"), msg, solver,
-      () -> solver.unsatCoreAbstractUnits(moduleIds));
+        () -> solver.unsatCoreAbstractUnits(moduleIds));
   }
 
   /**
-   * For a given list of abstract units and modules, compute the associated groups that are in conflict.
+   * For a given list of abstract units and modules, compute the associated groups that are in
+   * conflict.
    * @param abstractUnits List of abstract untis
    * @param modules List of modules
    * @return SolverTask to compute unsat core of groups
    */
   public SolverTask<Set<Integer>> unsatCoreGroups(final List<AbstractUnit> abstractUnits,
                                                   final List<Module> modules) {
-      final String msg = "";
+    final String msg = "";
     final List<Integer> abstractUnitIds = abstractUnits.stream().map(AbstractUnit::getId)
         .collect(Collectors.toList());
     final List<Integer> moduleIds = modules.stream()
-      .map(Module::getId).collect(Collectors.toList());
-      //
-      return new SolverTask<>(resources.getString("unsatCoreGroups"), msg, solver,
+        .map(Module::getId).collect(Collectors.toList());
+    return new SolverTask<>(resources.getString("unsatCoreGroups"), msg, solver,
         () -> solver.unsatCoreGroups(abstractUnitIds, moduleIds));
   }
 
@@ -212,10 +210,10 @@ public class SolverService {
    * @return SolverTask to compute unsat core of sessions
    */
   public SolverTask<Set<Integer>> unsatCoreSessions(final List<Group> groups) {
-      final String msg = "";
-      final List<Integer> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
-      //
-      return new SolverTask<>(resources.getString("unsatCoreSessions"), msg, solver,
+    final String msg = "";
+    final List<Integer> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
+    //
+    return new SolverTask<>(resources.getString("unsatCoreSessions"), msg, solver,
         () -> solver.unsatCoreSessions(groupIds));
   }
 

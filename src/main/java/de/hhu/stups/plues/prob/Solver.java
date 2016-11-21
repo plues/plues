@@ -74,7 +74,8 @@ public interface Solver {
   Set<Integer> unsatCoreAbstractUnits(List<Integer> modules) throws SolverException;
 
   /**
-   * For a given list of abstract units and modules, compute the associated groups that are in conflict.
+   * For a given list of abstract units and modules, compute the associated groups that are in
+   * conflict.
    * @param abstractUnits list of abstract unit IDs
    * @param modules list of module IDs
    * @return Set of group IDs in conflict

@@ -341,7 +341,7 @@ public class ProBSolver implements Solver {
 
   @Override
   public final synchronized java.util.Set<Integer> unsatCoreGroups(
-    final List<Integer> abstractUnits, final List<Integer> modules) throws SolverException {
+      final List<Integer> abstractUnits, final List<Integer> modules) throws SolverException {
 
     final String predicate = "uc_modules={" + Joiner.on(", ").join(Mappers.mapToModules(modules))
         + "} & uc_abstract_units={"

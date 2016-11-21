@@ -125,8 +125,8 @@ public class MappersTest {
   @Test
   public void testMapAbstractUnits() throws BException {
     Assert.assertEquals(
-      new HashSet<>(Arrays.asList(1, 11)),
-      new HashSet<>(Mappers.mapAbstractUnits((Set) Translator.translate("{au1, au11}"))));
+        new HashSet<>(Arrays.asList(1, 11)),
+        new HashSet<>(Mappers.mapAbstractUnits((Set) Translator.translate("{au1, au11}"))));
   }
 
   @Test
@@ -138,28 +138,31 @@ public class MappersTest {
   @Test
   public void testMapGroups() throws BException {
     Assert.assertEquals(
-      new HashSet<>(Arrays.asList(22, 234)),
-      new HashSet<>(Mappers.mapGroups((Set) Translator.translate("{group234, group22}"))));
+        new HashSet<>(Arrays.asList(22, 234)),
+        new HashSet<>(Mappers.mapGroups((Set) Translator.translate("{group234, group22}"))));
   }
 
   @Test
   public void testMapToGroups() {
     Assert.assertEquals(Arrays.asList("group22", "group223"),
-      Mappers.mapToGroups(Arrays.asList(22, 223)));
+        Mappers.mapToGroups(Arrays.asList(22, 223)));
   }
 
   @Test
   public void testMapSessions() throws BException {
     Assert.assertEquals(
-      new HashSet<>(Arrays.asList(222, 23423)),
-      new HashSet<>(Mappers.mapSessions((Set) Translator.translate("{session222, session23423}"))));
+        new HashSet<>(Arrays.asList(222, 23423)),
+        new HashSet<>(Mappers.mapSessions(
+            (Set) Translator.translate("{session222, session23423}"))));
   }
 
   @Test
   public void testRedundantUnitGroups() throws BException {
-    final String input = "{((unit254|->group269)|->group270),((unit254|->group277)|->group280),((unit493|->group542)|->group543)}";
+    final String input = "{((unit254|->group269)|->group270),((unit254|->group277)|->group280),"
+        + "((unit493|->group542)|->group543)}";
     final BObject translated = Translator.translate(input);
-    final Map<Integer, java.util.Set<Pair<Integer>>> result = Mappers.mapUnitGroups((Set) translated);
+    final Map<Integer, java.util.Set<Pair<Integer>>> result
+        = Mappers.mapUnitGroups((Set) translated);
 
     Assert.assertEquals(2, result.size());
     final java.util.Set<Pair<Integer>> u254 = result.get(254);
@@ -190,7 +193,7 @@ public class MappersTest {
         + "((mod236|->au430)|->{sem1,sem3})}";
     final BObject translated = Translator.translate(input);
     final Map<Integer, java.util.Set<Integer>> result
-      = Mappers.mapModuleAbstractUnitPairs((Set) translated);
+        = Mappers.mapModuleAbstractUnitPairs((Set) translated);
     Assert.assertEquals(2, result.size());
     final java.util.Set<Integer> entry = result.get(235);
     Assert.assertEquals(3, entry.size());
