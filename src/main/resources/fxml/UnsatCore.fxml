@@ -74,7 +74,7 @@
                 <TableView fx:id="groupsTable" prefHeight="200">
                     <columns>
                         <TableColumn fx:id="groupUnitKeyColumn" minWidth="50" prefWidth="100"
-                                     text="groupUnitKeyColumn"/>
+                                     text="%groupUnitKeyColumn"/>
                         <TableColumn fx:id="groupUnitTitleColumn" minWidth="200"
                                      text="%groupUnitTitleColumn"/>
                         <TableColumn fx:id="groupUnitSemestersColumn" minWidth="200"
@@ -99,7 +99,7 @@
                 <TableView fx:id="sessionsTable" prefHeight="200">
                     <columns>
                         <TableColumn fx:id="sessionDayColumn" minWidth="50" prefWidth="100"
-                                     text="sessionDayColumn"/>
+                                     text="%sessionDayColumn"/>
                         <TableColumn fx:id="sessionTimeColumn" minWidth="200"
                                      text="%sessionTimeColumn"/>
                         <TableColumn fx:id="sessionUnitKeyColumn" minWidth="50" prefWidth="100"
