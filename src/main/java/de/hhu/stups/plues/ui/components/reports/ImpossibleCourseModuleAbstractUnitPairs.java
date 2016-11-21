@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui.components.reports;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -45,17 +46,32 @@ public class ImpossibleCourseModuleAbstractUnitPairs extends VBox implements Ini
       courseModuleAbstractUnitPairs) {
     treeViewCourseModuleAbstractUnitPairs.getRoot().getChildren().setAll(
         courseModuleAbstractUnitPairs.entrySet().stream().map(courseMapEntry -> {
-          TreeItem<String> courseItem = new TreeItem<>(courseMapEntry.getKey().getFullName());
+          TreeItem<String> courseItem = new TreeItem<>(getCourseString(courseMapEntry.getKey()));
           courseItem.getChildren().setAll(
               courseMapEntry.getValue().entrySet().stream().map(moduleSetEntry -> {
-                TreeItem<String> moduleItem = new TreeItem<>(moduleSetEntry.getKey().getTitle());
+                TreeItem<String> moduleItem =
+                    new TreeItem<>(getModuleString(moduleSetEntry.getKey()));
                 moduleItem.getChildren().setAll(
                     moduleSetEntry.getValue().stream().map(pair ->
-                    new TreeItem<>(pair.getFirst().getTitle() + "," + pair.getSecond().getTitle()))
+                    new TreeItem<>(getAbstractUnitString(pair.getFirst(), pair.getSecond())))
                         .collect(Collectors.toSet()));
                 return moduleItem;
               }).collect(Collectors.toSet()));
           return courseItem;
         }).collect(Collectors.toSet()));
+  }
+
+  private String getCourseString(Course course) {
+    return Joiner.on(", ").join(course.getKey(), course.getFullName());
+  }
+
+  private String getModuleString(Module module) {
+    return Joiner.on(", ").join(module.getPordnr(), module.getTitle());
+  }
+
+  private String getAbstractUnitString(AbstractUnit abstractUnit1, AbstractUnit abstractUnit2) {
+    return Joiner.on("\n").join(
+      Joiner.on(", ").join(abstractUnit1.getKey(), abstractUnit1.getTitle()),
+      Joiner.on(", ").join(abstractUnit2.getKey(), abstractUnit2.getTitle()));
   }
 }
