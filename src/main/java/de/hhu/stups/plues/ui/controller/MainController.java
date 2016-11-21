@@ -120,6 +120,8 @@ public class MainController implements Initializable {
   @FXML
   private RadioMenuItem rbMenuItemSessionId;
   @FXML
+  private RadioMenuItem rbMenuItemSessionKey;
+  @FXML
   private TaskProgressView<Task<?>> taskProgress;
 
   private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
@@ -233,19 +235,28 @@ public class MainController implements Initializable {
 
     if ("id".equals(userPreferences.get(sessionFormat, ""))) {
       rbMenuItemSessionId.setSelected(true);
+    } else if ("key".equals(userPreferences.get(sessionFormat, ""))) {
+      rbMenuItemSessionKey.setSelected(true);
     } else {
       rbMenuItemSessionName.setSelected(true);
     }
+
     rbMenuItemSessionName.setToggleGroup(sessionPreferenceToggle);
     rbMenuItemSessionName.setUserData(sessionName);
     rbMenuItemSessionId.setToggleGroup(sessionPreferenceToggle);
     rbMenuItemSessionId.setUserData("sessionId");
+    rbMenuItemSessionKey.setToggleGroup(sessionPreferenceToggle);
+    rbMenuItemSessionKey.setUserData("sessionKey");
+
     sessionPreferenceToggle.selectedToggleProperty().addListener(
         (observable, oldValue, newValue) -> {
           if (sessionPreferenceToggle.getSelectedToggle() != null) {
-            if (sessionName.equals(sessionPreferenceToggle.getSelectedToggle()
-                .getUserData().toString())) {
+            final String selectedPref = sessionPreferenceToggle.getSelectedToggle().getUserData()
+                .toString();
+            if (sessionName.equals(selectedPref)) {
               userPreferences.put(sessionFormat, "name");
+            } else if ("sessionKey".equals(selectedPref)) {
+              userPreferences.put(sessionFormat, "key");
             } else {
               userPreferences.put(sessionFormat, "id");
             }

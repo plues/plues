@@ -45,6 +45,8 @@
                                text="%displaySessionName"/>
                 <RadioMenuItem fx:id="rbMenuItemSessionId" mnemonicParsing="false"
                                text="%displaySessionId"/>
+                <RadioMenuItem fx:id="rbMenuItemSessionKey" mnemonicParsing="false"
+                               text="%displaySessionKey"/>
             </Menu>
         </Menu>
         <Menu mnemonicParsing="false" text="%help">
