@@ -215,7 +215,6 @@ public class UnsatCore extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void computeUnsatCoreAbstractUnits() {
-    final ObservableList<Course> courses = getCourses();
     final ObservableList<Module> mods = getModules();
     final SolverTask<Set<Integer>> task = getSolverService().unsatCoreAbstractUnits(mods);
 
@@ -236,7 +235,6 @@ public class UnsatCore extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void computeUnsatCoreGroups() {
-    final ObservableList<Course> courses = getCourses();
     final ObservableList<Module> mods = getModules();
     final ObservableList<AbstractUnit> aUnits = getAbstractUnits();
 
@@ -259,9 +257,6 @@ public class UnsatCore extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void computeUnsatCoreSessions() {
-    final ObservableList<Course> courses = getCourses();
-    final ObservableList<Module> mods = getModules();
-    final ObservableList<AbstractUnit> aUnits = getAbstractUnits();
     final ObservableList<Group> groups = getGroups();
 
     final SolverTask<Set<Integer>> task
