@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui.components.reports;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -43,16 +44,30 @@ public class ImpossibleCourseModuleAbstractUnits extends VBox implements Initial
   public void setData(final Map<Course, Map<Module, Set<AbstractUnit>>> courseModuleAbstractUnit) {
     treeViewCourseModuleAbstractUnits.getRoot().getChildren().setAll(
         courseModuleAbstractUnit.entrySet().stream().map(courseMapEntry -> {
-          TreeItem<String> courseItem = new TreeItem<>(courseMapEntry.getKey().getFullName());
+          TreeItem<String> courseItem = new TreeItem<>(getCourseString(courseMapEntry.getKey()));
           courseItem.getChildren().setAll(
               courseMapEntry.getValue().entrySet().stream().map(moduleSetEntry -> {
-                TreeItem<String> moduleItem = new TreeItem<>(moduleSetEntry.getKey().getTitle());
+                TreeItem<String> moduleItem =
+                    new TreeItem<>(getModuleString(moduleSetEntry.getKey()));
                 moduleItem.getChildren().setAll(
                     moduleSetEntry.getValue().stream().map(abstractUnit ->
-                    new TreeItem<>(abstractUnit.getTitle())).collect(Collectors.toSet()));
+                    new TreeItem<>(getAbstractUnitString(abstractUnit)))
+                        .collect(Collectors.toSet()));
                 return moduleItem;
               }).collect(Collectors.toSet()));
           return courseItem;
         }).collect(Collectors.toSet()));
+  }
+
+  private String getCourseString(Course course) {
+    return Joiner.on(", ").join(course.getKey(), course.getFullName());
+  }
+
+  private String getModuleString(Module module) {
+    return Joiner.on(", ").join(module.getPordnr(), module.getTitle());
+  }
+
+  private String getAbstractUnitString(AbstractUnit abstractUnit) {
+    return Joiner.on(", ").join(abstractUnit.getKey(), abstractUnit.getTitle());
   }
 }
