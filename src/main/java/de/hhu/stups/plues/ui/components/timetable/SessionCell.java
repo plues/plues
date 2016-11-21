@@ -16,6 +16,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.stage.Stage;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 class SessionCell extends ListCell<SessionFacade> {
 
   private final Provider<DetailView> provider;
@@ -89,19 +93,41 @@ class SessionCell extends ListCell<SessionFacade> {
   }
 
   @Override
-  protected void updateItem(final SessionFacade session, final boolean empty) {
-    super.updateItem(session, empty);
-    if (empty || session == null) {
+  protected void updateItem(final SessionFacade sessionFacade, final boolean empty) {
+    super.updateItem(sessionFacade, empty);
+    if (empty || sessionFacade == null) {
       setText(null);
       return;
     }
 
     final String representation;
     if ("name".equals(uiDataService.sessionDisplayFormatProperty().get())) {
-      representation = session.toString();
+      representation = sessionFacade.toString();
+    } else if ("key".equals(uiDataService.sessionDisplayFormatProperty().get())) {
+      final String unitKeys = sessionFacade.getAbstractUnitKeys().stream()
+          .map(this::trimUnitKey).collect(Collectors.joining(", "));
+      // display session title if there are no abstract units
+      representation = unitKeys.isEmpty() ? sessionFacade.toString() : unitKeys;
     } else {
-      representation = String.format("%s/%d", session.getUnitKey(), session.getGroupId());
+      representation = String.format("%s/%d", sessionFacade.getUnitKey(),
+          sessionFacade.getGroupId());
     }
     setText(representation);
+  }
+
+  /**
+   * Adapt a unit key to be displayed within the timetable view, i.e. remove the key's prefix for
+   * WiWi data like 'W-WiWi' or 'W-Wichem' and for all other data remove the first letter in the
+   * key, e.g. 'P-..'.
+   */
+  private String trimUnitKey(final String unitKey) {
+    final List<String> splitedKey = Arrays.asList(unitKey.split("-"));
+    if ("w".equalsIgnoreCase(splitedKey.get(0))) {
+      return splitedKey.subList(2, splitedKey.size()).stream()
+          .collect(Collectors.joining("-"));
+    } else {
+      return splitedKey.subList(1, splitedKey.size()).stream()
+          .collect(Collectors.joining("-"));
+    }
   }
 }
