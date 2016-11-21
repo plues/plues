@@ -370,8 +370,7 @@ public class UnsatCore extends VBox implements Initializable {
           return;
         }
         setText(item.stream()
-            .map(e -> String.format("• %s", e.getKey()))
-            .reduce(String::concat).orElse("-"));
+            .map(e -> String.format("• %s", e.getKey())).collect(Collectors.joining("\n")));
       }
     });
   }
@@ -408,10 +407,13 @@ public class UnsatCore extends VBox implements Initializable {
                 return;
               }
               setText(item.entrySet().stream()
-                  .map(e -> String.format("• %s: %s\n",
+                  .map(e -> String.format("• %s: %s",
                     e.getKey().getPordnr(),
-                    Joiner.on(',').join( e.getValue().stream().sorted().iterator())))
-                  .reduce(String::concat).orElse("-"));
+                    e.getValue().stream()
+                      .sorted()
+                      .map(String::valueOf)
+                      .collect(Collectors.joining(","))))
+                  .collect(Collectors.joining("\n")));
             }
           });
   }
