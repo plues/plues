@@ -533,11 +533,11 @@ public class MainController implements Initializable {
     dialog.setHeaderText(resources.getString("timeoutHeader"));
     dialog.setContentText(resources.getString("timeoutContent"));
 
-    Optional<String> result = dialog.showAndWait();
+    final Optional<String> result = dialog.showAndWait();
     result.ifPresent(timeout -> {
       try {
         setTimeout(Integer.parseInt(timeout));
-      } catch (NumberFormatException exception) {
+      } catch (final NumberFormatException exception) {
         logger.log(Level.SEVERE, "Incorrect input: " + timeout);
       }
     });
