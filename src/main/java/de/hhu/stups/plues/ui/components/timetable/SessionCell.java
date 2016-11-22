@@ -50,13 +50,8 @@ class SessionCell extends ListCell<SessionFacade> {
 
   private void setupDataService() {
     uiDataService.conflictMarkedSessionsProperty()
-        .addListener((observable, oldValue, newValue) -> {
-          getStyleClass().remove("conflicted-session");
+        .addListener((observable, oldValue, newValue) -> setConflictedStyleClass(newValue));
 
-          if (getItem() != null && newValue.contains(getItem().getId())) {
-            getStyleClass().add("conflicted-session");
-          }
-        });
 
     textProperty().bind(new StringBinding() {
       {
@@ -73,6 +68,14 @@ class SessionCell extends ListCell<SessionFacade> {
         return displayText(getItem());
       }
     });
+  }
+
+  private void setConflictedStyleClass(List<Integer> sessionIDs) {
+    getStyleClass().remove("conflicted-session");
+
+    if (getItem() != null && sessionIDs.contains(getItem().getId())) {
+      getStyleClass().add("conflicted-session");
+    }
   }
 
   private void waitForSolver() {
@@ -105,6 +108,15 @@ class SessionCell extends ListCell<SessionFacade> {
     stage.setTitle(detailView.getTitle());
     stage.setScene(new Scene(detailView));
     stage.show();
+  }
+
+  @Override
+  protected void updateItem(SessionFacade item, boolean empty) {
+    super.updateItem(item, empty);
+
+    if (!empty && item != null) {
+      setConflictedStyleClass(uiDataService.getConflictMarkedSessions());
+    }
   }
 
   private String displayText(final SessionFacade sessionFacade) {
