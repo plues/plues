@@ -23,22 +23,31 @@
     <MenuBar useSystemMenuBar="true" BorderPane.alignment="CENTER">
         <Menu mnemonicParsing="false" text="%file">
             <MenuItem fx:id="openFileMenuItem" onAction="#openFile"
-                      mnemonicParsing="false" text="%open"/>
+                      mnemonicParsing="false" text="%open" accelerator="Shortcut+O"/>
             <MenuItem fx:id="saveFileMenuItem" onAction="#saveFile"
-                      mnemonicParsing="false" text="%save"/>
+                      mnemonicParsing="false" text="%save" accelerator="Shortcut+S"/>
             <MenuItem fx:id="saveFileAsMenuItem" onAction="#saveFileAs"
-                      mnemonicParsing="false" text="%saveAs"/>
+                      mnemonicParsing="false" text="%saveAs" accelerator="Shortcut+Shift+S"/>
             <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"
-                      mnemonicParsing="false" text="%export"/>
+                      mnemonicParsing="false" text="%export" accelerator="Shortcut+E"/>
             <MenuItem fx:id="openChangeLog" onAction="#openChangeLog"
-                      mnemonicParsing="false" text="%log"/>
-            <MenuItem fx:id="openReports" onAction="#openReports"
-                      mnemonicParsing="false" text="%reports"/>
+                      mnemonicParsing="false" text="%log" accelerator="Shortcut+L"/>
+            <MenuItem fx:id="openReportsMenuItem" onAction="#openReports"
+                      mnemonicParsing="false" text="%reports" accelerator="Shortcut+R"/>
             <MenuItem fx:id="close" onAction="#closeWindow"
                       mnemonicParsing="false" text="%close"/>
         </Menu>
         <Menu mnemonicParsing="false" text="%edit">
-            <MenuItem mnemonicParsing="false" text="%delete"/>
+            <Menu mnemonicParsing="false" text="%timeoutSelect">
+                <MenuItem fx:id="oneMinuteMenuItem" text="%oneMinute"
+                          mnemonicParsing="false" onAction="#setTimeoutOneMinute"/>
+                <MenuItem fx:id="threeMinutesMenuItem" text="%threeMinutes"
+                          mnemonicParsing="false" onAction="#setTimeoutThreeMinutes"/>
+                <MenuItem fx:id="fiveMinutesMenuItem" text="%fiveMinutes"
+                          mnemonicParsing="false" onAction="#setTimeoutFiveMinutes"/>
+                <MenuItem fx:id="setTimeoutMenuItem" text="%timeoutTitle"
+                          mnemonicParsing="false" onAction="#setTimeoutCustom"/>
+            </Menu>
         </Menu>
         <Menu mnemonicParsing="false" text="%view">
             <Menu mnemonicParsing="false" text="%timetableView">
@@ -56,7 +65,7 @@
     </MenuBar>
     <BorderPane>
         <center>
-            <TabPane>
+            <TabPane fx:id="tabPane">
                 <Tab text="%timetable" closable="false">
                     <Timetable fx:id="timetable"/>
                 </Tab>

@@ -51,8 +51,8 @@ public class SolverTask<T> extends Task<T> {
   private String reason;
 
   public SolverTask(final String title, final String message, final Solver solver,
-                    final Callable<T> func) {
-    this(title, message, solver, func, 1, TimeUnit.MINUTES);
+                    final Callable<T> func, final Integer timeout) {
+    this(title, message, solver, func, timeout, TimeUnit.SECONDS);
   }
 
   SolverTask(final String title, final String message, final Solver solver,

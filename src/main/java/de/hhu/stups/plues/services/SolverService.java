@@ -37,6 +37,7 @@ public class SolverService {
   private final Solver solver;
   private final ResourceBundle resources = ResourceBundle.getBundle("lang.solverTask");
   private final ReadOnlyMapProperty<MajorMinorKey, Boolean> courseCombinationResults;
+  private int timeout = 60;
 
   /**
    * Create an ew SolverService instance. Using executorService to run tasks executed by solver.
@@ -68,7 +69,7 @@ public class SolverService {
           final Boolean result = this.solver.checkFeasibility(names);
           this.addCourseCombinationResult(names, result);
           return result;
-        });
+        }, timeout);
   }
 
   /**
@@ -94,7 +95,7 @@ public class SolverService {
             this.addCourseCombinationResult(names, false);
             throw exception;
           }
-        });
+        }, timeout);
   }
 
   /**
@@ -140,7 +141,7 @@ public class SolverService {
             this.addCourseCombinationResult(combination, false);
             throw exception;
           }
-        });
+        }, timeout);
   }
 
   /**
@@ -155,7 +156,7 @@ public class SolverService {
     final String msg = getMessage(names);
     //
     return new SolverTask<>(resources.getString("unsat"), msg, solver,
-        () -> solver.unsatCore(names));
+        () -> solver.unsatCore(names), timeout);
   }
 
   /**
@@ -169,7 +170,7 @@ public class SolverService {
     final String msg = getMessage(names);
     //
     return new SolverTask<>(resources.getString("unsatCoreModules"), msg, solver,
-        () -> solver.unsatCoreModules(names));
+        () -> solver.unsatCoreModules(names), timeout);
   }
 
   /**
@@ -183,7 +184,7 @@ public class SolverService {
         .map(Module::getId).collect(Collectors.toList());
     //
     return new SolverTask<>(resources.getString("unsatCoreAbstractUnits"), msg, solver,
-        () -> solver.unsatCoreAbstractUnits(moduleIds));
+        () -> solver.unsatCoreAbstractUnits(moduleIds), timeout);
   }
 
   /**
@@ -201,7 +202,7 @@ public class SolverService {
     final List<Integer> moduleIds = modules.stream()
         .map(Module::getId).collect(Collectors.toList());
     return new SolverTask<>(resources.getString("unsatCoreGroups"), msg, solver,
-        () -> solver.unsatCoreGroups(abstractUnitIds, moduleIds));
+        () -> solver.unsatCoreGroups(abstractUnitIds, moduleIds), timeout);
   }
 
   /**
@@ -214,7 +215,7 @@ public class SolverService {
     final List<Integer> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
     //
     return new SolverTask<>(resources.getString("unsatCoreSessions"), msg, solver,
-        () -> solver.unsatCoreSessions(groupIds));
+        () -> solver.unsatCoreSessions(groupIds), timeout);
   }
 
   /**
@@ -229,7 +230,7 @@ public class SolverService {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     return new SolverTask<>(resources.getString("alternatives"), msg, solver,
-        () -> solver.getLocalAlternatives(session.getId(), names));
+        () -> solver.getLocalAlternatives(session.getId(), names), timeout);
   }
 
 
@@ -239,13 +240,14 @@ public class SolverService {
    */
   public SolverTask<Set<String>> impossibleCoursesTask() {
     return new SolverTask<>(resources.getString("impossible"),
-      resources.getString("impossibleMessage"), solver, solver::getImpossibleCourses);
+      resources.getString("impossibleMessage"), solver, solver::getImpossibleCourses,
+      timeout);
   }
 
 
   public SolverTask<ReportData> collectReportDataTask() {
     return new SolverTask<>(resources.getString("report"), resources.getString("reportMessage"),
-      solver, solver::getReportingData);
+      solver, solver::getReportingData, timeout);
   }
 
   /**
@@ -264,7 +266,7 @@ public class SolverService {
       solver.move(sessionId, day, time);
       courseCombinationResults.clear();
       return null;
-    });
+    }, timeout);
   }
 
   private String getMessage(final String[] names) {
@@ -327,7 +329,10 @@ public class SolverService {
           slot.getDayString(),
           slot.getTime().toString());
       return null;
-    });
+    }, timeout);
   }
 
+  public void setTimeout(int timeout) {
+    this.timeout = timeout;
+  }
 }

@@ -25,7 +25,6 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -39,6 +38,8 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -101,8 +102,11 @@ public class MainController implements Initializable {
   private final ChangeLog changeLog;
   private final Provider<AboutWindow> aboutWindowProvider;
   private final ResourceManager resourceManager;
-  private ResourceBundle resources;
+  private SolverService solverService;
+  private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
+  private boolean databaseChanged = false;
 
+  private ResourceBundle resources;
   @FXML
   private MenuItem saveFileMenuItem;
   @FXML
@@ -112,20 +116,28 @@ public class MainController implements Initializable {
   @FXML
   private MenuItem exportStateMenuItem;
   @FXML
+  private MenuItem setTimeoutMenuItem;
+  @FXML
+  private MenuItem oneMinuteMenuItem;
+  @FXML
+  private MenuItem threeMinutesMenuItem;
+  @FXML
+  private MenuItem fiveMinutesMenuItem;
+  @FXML
   private MenuItem openChangeLog;
   @FXML
-  private MenuItem openReports;
+  private MenuItem openReportsMenuItem;
   @FXML
   private RadioMenuItem rbMenuItemSessionName;
   @FXML
   private RadioMenuItem rbMenuItemSessionId;
   @FXML
-  private RadioMenuItem rbMenuItemSessionKey;
+  private TabPane tabPane;
+
   @FXML
   private TaskProgressView<Task<?>> taskProgress;
-
-  private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
-  private boolean databaseChanged = false;
+  @FXML
+  private RadioMenuItem rbMenuItemSessionKey;
 
   /**
    * MainController component.
@@ -156,8 +168,14 @@ public class MainController implements Initializable {
     this.uiDataService = uiDataService;
     userPreferences = Preferences.userRoot().node("Plues");
 
-
-    delayedSolverService.whenAvailable(solverService -> openReports.setDisable(false));
+    delayedSolverService.whenAvailable(solverService -> {
+      this.solverService = solverService;
+      openReportsMenuItem.setDisable(false);
+      setTimeoutMenuItem.setDisable(false);
+      oneMinuteMenuItem.setDisable(false);
+      threeMinutesMenuItem.setDisable(false);
+      fiveMinutesMenuItem.setDisable(false);
+    });
 
     probExecutor.addObserver((observable, arg) -> this.register(arg));
     executorService.addObserver((observable, arg) -> this.register(arg));
@@ -188,9 +206,38 @@ public class MainController implements Initializable {
     this.taskProgress.setGraphicFactory(this::getGraphicForTask);
     this.exportStateMenuItem.setDisable(true);
     this.openChangeLog.setDisable(true);
-    this.openReports.setDisable(true);
+    this.openReportsMenuItem.setDisable(true);
     this.saveFileMenuItem.setDisable(true);
     this.saveFileAsMenuItem.setDisable(true);
+    this.setTimeoutMenuItem.setDisable(true);
+    this.oneMinuteMenuItem.setDisable(true);
+    this.threeMinutesMenuItem.setDisable(true);
+    this.fiveMinutesMenuItem.setDisable(true);
+
+    tabPane.setOnKeyPressed(event -> {
+      switch (event.getCode()) {
+        case DIGIT1:
+          tabPane.getSelectionModel().select(0);
+          break;
+        case DIGIT2:
+          tabPane.getSelectionModel().select(1);
+          break;
+        case DIGIT3:
+          tabPane.getSelectionModel().select(2);
+          break;
+        case DIGIT4:
+          tabPane.getSelectionModel().select(3);
+          break;
+        case DIGIT5:
+          tabPane.getSelectionModel().select(4);
+          break;
+        case DIGIT6:
+          tabPane.getSelectionModel().select(5);
+          break;
+        default:
+          break;
+      }
+    });
 
     initializeViewMenuItems();
 
@@ -462,6 +509,47 @@ public class MainController implements Initializable {
     reportStage.setTitle(resources.getString("reportsTitle"));
     reportStage.setScene(new Scene(reports, 700, 620));
     reportStage.show();
+  }
+
+  @FXML
+  private void setTimeoutOneMinute() {
+    setTimeout(60);
+  }
+
+  @FXML
+  private void setTimeoutThreeMinutes() {
+    setTimeout(180);
+  }
+
+  @FXML
+  private void setTimeoutFiveMinutes() {
+    setTimeout(300);
+  }
+
+  @FXML
+  private void setTimeoutCustom() {
+    final TextInputDialog dialog = new TextInputDialog();
+    dialog.setTitle(resources.getString("timeoutTitle"));
+    dialog.setHeaderText(resources.getString("timeoutHeader"));
+    dialog.setContentText(resources.getString("timeoutContent"));
+
+    final Optional<String> result = dialog.showAndWait();
+    result.ifPresent(timeout -> {
+      try {
+        setTimeout(Integer.parseInt(timeout));
+      } catch (final NumberFormatException exception) {
+        logger.log(Level.SEVERE, "Incorrect input: " + timeout);
+      }
+    });
+  }
+
+  /**
+   * Set timeout for solver tasks.
+   * @param timeout New timeout
+   */
+  private void setTimeout(final int timeout) {
+    solverService.setTimeout(timeout);
+    logger.log(Level.INFO, "Timeout set to " + timeout + "seconds");
   }
 
   /**
