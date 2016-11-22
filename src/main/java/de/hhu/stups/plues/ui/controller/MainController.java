@@ -5,6 +5,7 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
+import de.codecentric.centerdevice.MenuToolkit;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.modelgenerator.XmlExporter;
@@ -36,8 +37,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
@@ -108,6 +112,8 @@ public class MainController implements Initializable {
 
   private ResourceBundle resources;
   @FXML
+  private MenuBar menuBar;
+  @FXML
   private MenuItem saveFileMenuItem;
   @FXML
   private MenuItem saveFileAsMenuItem;
@@ -138,6 +144,10 @@ public class MainController implements Initializable {
   private TaskProgressView<Task<?>> taskProgress;
   @FXML
   private RadioMenuItem rbMenuItemSessionKey;
+  @FXML
+  private Menu windowMenu;
+  @FXML
+  private MenuItem aboutMenuItem;
 
   /**
    * MainController component.
@@ -204,15 +214,6 @@ public class MainController implements Initializable {
     this.resources = resources;
 
     this.taskProgress.setGraphicFactory(this::getGraphicForTask);
-    this.exportStateMenuItem.setDisable(true);
-    this.openChangeLog.setDisable(true);
-    this.openReportsMenuItem.setDisable(true);
-    this.saveFileMenuItem.setDisable(true);
-    this.saveFileAsMenuItem.setDisable(true);
-    this.setTimeoutMenuItem.setDisable(true);
-    this.oneMinuteMenuItem.setDisable(true);
-    this.threeMinutesMenuItem.setDisable(true);
-    this.fiveMinutesMenuItem.setDisable(true);
 
     tabPane.setOnKeyPressed(event -> {
       switch (event.getCode()) {
@@ -239,7 +240,7 @@ public class MainController implements Initializable {
       }
     });
 
-    initializeViewMenuItems();
+    initializeMenu();
 
     delayedStore.whenAvailable(s -> {
       this.exportStateMenuItem.setDisable(false);
@@ -271,6 +272,39 @@ public class MainController implements Initializable {
     uiDataService.lastSavedDateProperty().addListener(
         (observable, oldValue, newValue) -> this.databaseChanged = false);
 
+  }
+
+  private void initializeMenu() {
+    initializeViewMenuItems();
+    initializeMacOsMenu();
+  }
+
+  private void initializeMacOsMenu() {
+    // based on https://github.com/bendisposto/prob2-ui/blob/master/src/main/java/de/prob2/ui/menu/MenuController.java#L244
+    if (System.getProperty("os.name", "").toLowerCase().contains("mac")) {
+      final String applicationName = "PlÜS";
+      final MenuToolkit tk = MenuToolkit.toolkit();
+
+      // Remove About menu item from Help
+      aboutMenuItem.getParentMenu().getItems().remove(aboutMenuItem);
+      aboutMenuItem.setText("About " + applicationName);
+
+      // Create Mac-style application menu
+      final Menu applicationMenu = tk.createDefaultApplicationMenu(applicationName);
+      menuBar.getMenus().add(0, applicationMenu);
+      tk.setApplicationMenu(applicationMenu);
+      applicationMenu.getItems().setAll(aboutMenuItem, new SeparatorMenuItem(),
+          new SeparatorMenuItem(), tk.createHideMenuItem(applicationName),
+          tk.createHideOthersMenuItem(), tk.createUnhideAllMenuItem(), new SeparatorMenuItem(),
+          tk.createQuitMenuItem(applicationName));
+
+      // Add Mac-style items to Window menu
+      windowMenu.getItems().addAll(tk.createMinimizeMenuItem(), tk.createZoomMenuItem(),
+              tk.createCycleWindowsItem(), new SeparatorMenuItem(), tk.createBringAllToFrontItem(),
+              new SeparatorMenuItem());
+      tk.autoAddWindowMenuItems(windowMenu);
+      tk.setGlobalMenuBar(menuBar);
+    }
   }
 
   private void initializeViewMenuItems() {
