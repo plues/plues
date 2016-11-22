@@ -39,11 +39,11 @@
         </Menu>
         <Menu mnemonicParsing="false" text="%edit">
             <Menu mnemonicParsing="false" text="%timeoutSelect">
-                <MenuItem fx:id="OneMinuteMenuItem" text="%oneMinute"
+                <MenuItem fx:id="oneMinuteMenuItem" text="%oneMinute"
                           mnemonicParsing="false" onAction="#setTimeoutOneMinute"/>
-                <MenuItem fx:id="ThreeMinutesMenuItem" text="%threeMinutes"
+                <MenuItem fx:id="threeMinutesMenuItem" text="%threeMinutes"
                           mnemonicParsing="false" onAction="#setTimeoutThreeMinutes"/>
-                <MenuItem fx:id="FiveMinutesMenuItem" text="%fiveMinutes"
+                <MenuItem fx:id="fiveMinutesMenuItem" text="%fiveMinutes"
                           mnemonicParsing="false" onAction="#setTimeoutFiveMinutes"/>
                 <MenuItem fx:id="setTimeoutMenuItem" text="%timeoutTitle"
                           mnemonicParsing="false" onAction="#setTimeoutCustom"/>

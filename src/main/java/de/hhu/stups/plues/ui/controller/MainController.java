@@ -117,11 +117,11 @@ public class MainController implements Initializable {
   @FXML
   private MenuItem setTimeoutMenuItem;
   @FXML
-  private MenuItem OneMinuteMenuItem;
+  private MenuItem oneMinuteMenuItem;
   @FXML
-  private MenuItem ThreeMinutesMenuItem;
+  private MenuItem threeMinutesMenuItem;
   @FXML
-  private MenuItem FiveMinutesMenuItem;
+  private MenuItem fiveMinutesMenuItem;
   @FXML
   private MenuItem openChangeLog;
   @FXML
@@ -170,9 +170,9 @@ public class MainController implements Initializable {
       this.solverService = solverService;
       openReportsMenuItem.setDisable(false);
       setTimeoutMenuItem.setDisable(false);
-      OneMinuteMenuItem.setDisable(false);
-      ThreeMinutesMenuItem.setDisable(false);
-      FiveMinutesMenuItem.setDisable(false);
+      oneMinuteMenuItem.setDisable(false);
+      threeMinutesMenuItem.setDisable(false);
+      fiveMinutesMenuItem.setDisable(false);
     });
 
     probExecutor.addObserver((observable, arg) -> this.register(arg));
@@ -208,9 +208,9 @@ public class MainController implements Initializable {
     this.saveFileMenuItem.setDisable(true);
     this.saveFileAsMenuItem.setDisable(true);
     this.setTimeoutMenuItem.setDisable(true);
-    this.OneMinuteMenuItem.setDisable(true);
-    this.ThreeMinutesMenuItem.setDisable(true);
-    this.FiveMinutesMenuItem.setDisable(true);
+    this.oneMinuteMenuItem.setDisable(true);
+    this.threeMinutesMenuItem.setDisable(true);
+    this.fiveMinutesMenuItem.setDisable(true);
 
     initializeViewMenuItems();
 

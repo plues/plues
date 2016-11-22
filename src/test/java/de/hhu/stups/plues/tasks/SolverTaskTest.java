@@ -44,6 +44,7 @@ public class SolverTaskTest extends ApplicationTest {
       ResourceBundle.getBundle("lang.solverTask").getString("testTitle");
   private static final String MESSAGE =
       ResourceBundle.getBundle("lang.solverTask").getString("testMessage");
+  private static final int TIMEOUT = 60;
 
   static {
     final ThreadFactory threadFactory
@@ -55,7 +56,7 @@ public class SolverTaskTest extends ApplicationTest {
   public void testCallableIsSuccessful() throws ExecutionException, InterruptedException {
     final CountDownLatch latch = new CountDownLatch(1);
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), () -> 1);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), () -> 1, TIMEOUT);
     final TaskProperties taskProperties = new TaskProperties();
 
     Platform.runLater(() -> {
@@ -89,7 +90,7 @@ public class SolverTaskTest extends ApplicationTest {
       throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c, TIMEOUT);
 
     executor.submit(solverTask);
 
@@ -125,7 +126,7 @@ public class SolverTaskTest extends ApplicationTest {
       throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c, TIMEOUT);
 
     Platform.runLater(() -> {
       executor.submit(solverTask);
