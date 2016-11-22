@@ -38,6 +38,7 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.FileChooser;
@@ -130,6 +131,8 @@ public class MainController implements Initializable {
   private RadioMenuItem rbMenuItemSessionName;
   @FXML
   private RadioMenuItem rbMenuItemSessionId;
+  @FXML
+  private TabPane tabPane;
 
   @FXML
   private TaskProgressView<Task<?>> taskProgress;
@@ -164,7 +167,6 @@ public class MainController implements Initializable {
     this.resourceManager = resourceManager;
     this.uiDataService = uiDataService;
     userPreferences = Preferences.userRoot().node("Plues");
-
 
     delayedSolverService.whenAvailable(solverService -> {
       this.solverService = solverService;
@@ -211,6 +213,29 @@ public class MainController implements Initializable {
     this.oneMinuteMenuItem.setDisable(true);
     this.threeMinutesMenuItem.setDisable(true);
     this.fiveMinutesMenuItem.setDisable(true);
+
+    tabPane.setOnKeyPressed(event -> {
+      switch (event.getCode()) {
+        case DIGIT1:
+          tabPane.getSelectionModel().select(0);
+          break;
+        case DIGIT2:
+          tabPane.getSelectionModel().select(1);
+          break;
+        case DIGIT3:
+          tabPane.getSelectionModel().select(2);
+          break;
+        case DIGIT4:
+          tabPane.getSelectionModel().select(3);
+          break;
+        case DIGIT5:
+          tabPane.getSelectionModel().select(4);
+          break;
+        case DIGIT6:
+          tabPane.getSelectionModel().select(5);
+          break;
+      }
+    });
 
     initializeViewMenuItems();
 

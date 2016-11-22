@@ -65,7 +65,7 @@
     </MenuBar>
     <BorderPane>
         <center>
-            <TabPane>
+            <TabPane fx:id="tabPane">
                 <Tab text="Unsat Core" closable="false">
                     <UnsatCore fx:id="unsatCore"/>
                 </Tab>
