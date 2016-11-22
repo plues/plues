@@ -57,9 +57,6 @@
     <BorderPane>
         <center>
             <TabPane>
-                <Tab text="Unsat Core" closable="false">
-                    <UnsatCore fx:id="unsatCore"/>
-                </Tab>
                 <Tab text="%timetable" closable="false">
                     <Timetable fx:id="timetable"/>
                 </Tab>
@@ -74,6 +71,9 @@
                 </Tab>
                 <Tab text="%conflictMatrix" closable="false">
                     <ConflictMatrix fx:id="conflictMatrix"/>
+                </Tab>
+                <Tab text="Unsat Core" closable="false">
+                    <UnsatCore fx:id="unsatCore"/>
                 </Tab>
             </TabPane>
         </center>
