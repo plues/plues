@@ -4,7 +4,7 @@
 [![SonarQube Tech Debt](https://img.shields.io/sonar/http/sonarqube.com/plues/tech_debt.svg?maxAge=2592000&style=flat-square)](https://sonarqube.com/overview?id=plues)
 [![Dependency Status](https://www.versioneye.com/user/projects/57a33b001dadcb004d680562/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/57a33b001dadcb004d680562)
 
-**Current Version:** 2.0.0-PREVIEW2
+**Current Version:** 2.0.0-SNAPSHOT
 
 This is the main application component of the
 [ProB](https://www3.hhu.de/stups/prob/) based timetable validation tool
