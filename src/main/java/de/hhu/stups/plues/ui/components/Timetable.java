@@ -167,7 +167,7 @@ public class Timetable extends BorderPane implements Initializable {
       final ToggleButton semesterButton = (ToggleButton) semesterToggle.getSelectedToggle();
 
       return sessions.filtered(session -> {
-        final Set<Integer> semesters = session.getSemesters();
+        final Set<Integer> semesters = session.getUnitSemesters();
 
         Integer semester = null;
         if (null != semesterButton) {
