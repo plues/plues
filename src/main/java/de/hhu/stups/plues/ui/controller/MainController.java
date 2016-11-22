@@ -234,6 +234,8 @@ public class MainController implements Initializable {
         case DIGIT6:
           tabPane.getSelectionModel().select(5);
           break;
+        default:
+          break;
       }
     });
 
