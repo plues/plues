@@ -216,6 +216,23 @@ public class MappersTest {
     Assert.assertFalse(result.contains("\"BA-IWS-H-2013\""));
   }
 
+  @Test
+  public void testMapCourseModuleAbstractUnitPairs() throws BException {
+    final String input = "{(((\"BA-KUL-H-2013\"|->mod273)|->au530)|->au531)}";
+    final BObject translated = Translator.translate(input);
+    final Map<String, Map<Integer, java.util.Set<Pair<Integer>>>> result
+        = Mappers.mapCourseModuleAbstractUnitPairs((Set) translated);
+
+    assertEquals(1, result.size());
+
+    final Map<Integer, java.util.Set<Pair<Integer>>> maup = result.get("BA-KUL-H-2013");
+    assertEquals(1, maup.size());
+
+    final java.util.Set<Pair<Integer>> aup = maup.get(273);
+    assertEquals(1, aup.size());
+    assertTrue(aup.contains(new Pair<>(530, 531)));
+
+  }
 
 
 
