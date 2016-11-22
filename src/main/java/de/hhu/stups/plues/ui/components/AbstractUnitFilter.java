@@ -7,6 +7,7 @@ import static javafx.collections.FXCollections.observableArrayList;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
@@ -19,6 +20,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -32,6 +34,7 @@ import javafx.util.Callback;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("WeakerAccess")
@@ -41,6 +44,8 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   private final ListProperty<AbstractUnit> selectedAbstractUnits;
   private final ListProperty<AbstractUnit> abstractUnits;
   private final SimpleListProperty<SelectableAbstractUnit> selectableAbstractUnits;
+  private final SimpleListProperty<Course> courseFilter;
+
   @FXML
   @SuppressWarnings("unused")
   private TextField query;
@@ -53,6 +58,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private RadioButton all;
+  @FXML
+  @SuppressWarnings("unused")
+  private CheckBox selectedCoursesOnly;
   @FXML
   @SuppressWarnings("unused")
   private TableView<SelectableAbstractUnit> units;
@@ -78,6 +86,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     selectedAbstractUnits = new SimpleListProperty<>();
     filterGroup = new ToggleGroup();
     selectableAbstractUnits = new SimpleListProperty<>(emptyObservableList());
+    courseFilter = new SimpleListProperty<>(emptyObservableList());
 
     inflater.inflate("components/AbstractUnitFilter", this, this, "filter");
   }
@@ -105,6 +114,22 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
   public ReadOnlyListProperty<AbstractUnit> selectedAbstractUnitsProperty() {
     return selectedAbstractUnits;
+  }
+
+  public ObservableList<Course> getCourseFilter() {
+    return courseFilter.get();
+  }
+
+  public SimpleListProperty<Course> courseFilterProperty() {
+    return courseFilter;
+  }
+
+  /**
+   * Setter for courseFilter.
+   * @param courseFilter List of courses to be filtered by in TableView
+   */
+  public void setCourseFilter(ObservableList<Course> courseFilter) {
+    this.courseFilter.set(courseFilter);
   }
 
   /**
@@ -166,13 +191,15 @@ public class AbstractUnitFilter extends VBox implements Initializable {
           {
             bind(query.textProperty(), all.selectedProperty(), selected.selectedProperty(),
                 notSelected.selectedProperty(), selectableAbstractUnits);
+            bind(selectedCoursesOnly.selectedProperty(), courseFilter);
           }
 
           @Override
           protected ObservableList<SelectableAbstractUnit> computeValue() {
             return selectableAbstractUnits.get().filtered(selectableAbstractUnit
                 -> selectableAbstractUnit.matches(query, all.isSelected(),
-              selected.isSelected(), notSelected.isSelected()));
+              selected.isSelected(), notSelected.isSelected(),
+              selectedCoursesOnly.isSelected(), getCourseFilter()));
           }
         };
     units.itemsProperty().bind(tableViewBinding);
@@ -198,10 +225,14 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   public static final class SelectableAbstractUnit {
     private final BooleanProperty selected;
     private final AbstractUnit abstractUnit;
+    private final Set<Course> abstractUnitCourses;
 
     SelectableAbstractUnit(final AbstractUnit abstractUnit) {
       this.selected = new SimpleBooleanProperty(false);
       this.abstractUnit = abstractUnit;
+      abstractUnitCourses = abstractUnit.getModules().stream()
+        .flatMap(module -> module.getCourses().stream())
+        .collect(Collectors.toSet());
     }
 
     private boolean isSelected() {
@@ -225,9 +256,11 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     }
 
     boolean matches(final TextField query, final boolean all, final boolean showSelected,
-                    final boolean showNotSelected) {
-      return this.titleMatchesQuery(query)
-        && this.checkboxMatchesCriteria(all, showSelected, showNotSelected);
+                    final boolean showNotSelected, final boolean selectedCoursesOnly,
+                    final List<Course> courseFilter) {
+      return this.titleOrKeyMatchesQuery(query)
+        && this.checkboxMatchesCriteria(all, showSelected, showNotSelected)
+        && this.selectedCoursesCriteria(courseFilter, selectedCoursesOnly);
     }
 
     private boolean checkboxMatchesCriteria(final boolean all, final boolean showSelected,
@@ -238,11 +271,18 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       return all || showIfSelected || showIfNotSelected;
     }
 
-    private boolean titleMatchesQuery(final TextField query) {
+    private boolean titleOrKeyMatchesQuery(final TextField query) {
       final String lowerCaseTitle = this.abstractUnit.getTitle().toLowerCase();
       final String lowerCaseKey = this.abstractUnit.getKey().toLowerCase();
       final String text = query.getText().toLowerCase();
       return text.isEmpty() || lowerCaseTitle.contains(text) || lowerCaseKey.contains(text);
+    }
+
+    private boolean selectedCoursesCriteria(final List<Course> selectedCourses,
+                                            final boolean selectedCoursesOnly) {
+      return !selectedCoursesOnly
+        || selectedCourses.stream().anyMatch(abstractUnitCourses::contains);
+
     }
 
     private AbstractUnit getAbstractUnit() {
