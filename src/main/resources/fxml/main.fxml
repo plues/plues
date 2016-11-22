@@ -14,7 +14,9 @@
 <?import de.hhu.stups.plues.ui.controller.PartialTimeTables?>
 <?import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration?>
 <?import de.hhu.stups.plues.ui.controller.ConflictMatrix?>
+<?import de.hhu.stups.plues.ui.controller.UnsatCore?>
 
+<?import javafx.scene.control.RadioMenuItem?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="de.hhu.stups.plues.ui.controller.MainController">
@@ -32,13 +34,24 @@
                       mnemonicParsing="false" text="%log"/>
             <MenuItem fx:id="openReports" onAction="#openReports"
                       mnemonicParsing="false" text="%reports"/>
-            <MenuItem mnemonicParsing="false" text="%close"/>
+            <MenuItem fx:id="close" onAction="#closeWindow"
+                      mnemonicParsing="false" text="%close"/>
         </Menu>
         <Menu mnemonicParsing="false" text="%edit">
             <MenuItem mnemonicParsing="false" text="%delete"/>
         </Menu>
+        <Menu mnemonicParsing="false" text="%view">
+            <Menu mnemonicParsing="false" text="%timetableView">
+                <RadioMenuItem fx:id="rbMenuItemSessionName" mnemonicParsing="false"
+                               text="%displaySessionName"/>
+                <RadioMenuItem fx:id="rbMenuItemSessionId" mnemonicParsing="false"
+                               text="%displaySessionId"/>
+                <RadioMenuItem fx:id="rbMenuItemSessionKey" mnemonicParsing="false"
+                               text="%displaySessionKey"/>
+            </Menu>
+        </Menu>
         <Menu mnemonicParsing="false" text="%help">
-            <MenuItem mnemonicParsing="false" text="%about"/>
+            <MenuItem fx:id="about" onAction="#about" mnemonicParsing="false" text="%about"/>
         </Menu>
     </MenuBar>
     <BorderPane>
@@ -58,6 +71,9 @@
                 </Tab>
                 <Tab text="%conflictMatrix" closable="false">
                     <ConflictMatrix fx:id="conflictMatrix"/>
+                </Tab>
+                <Tab text="Unsat Core" closable="false">
+                    <UnsatCore fx:id="unsatCore"/>
                 </Tab>
             </TabPane>
         </center>

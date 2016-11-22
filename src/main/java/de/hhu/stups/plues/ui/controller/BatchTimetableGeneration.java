@@ -4,14 +4,13 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.ui.batchgeneration.BatchPdfRenderingTask;
 import de.hhu.stups.plues.ui.batchgeneration.CollectPdfRenderingTasksTask;
 import de.hhu.stups.plues.ui.components.BatchResultBox;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

@@ -10,13 +10,16 @@ public class ReportData {
 
   private Map<String, Map<Integer, Set<Integer>>> impossibleCourseModuleAbstractUnits;
   private Set<String> impossibleCourses;
-  private Set<String> impossibleCoursesBecauseofImpossibleModules;
+  private Set<String> impossibleCoursesBecauseOfImpossibleModules;
   private Map<String, Map<Integer, Set<Pair<Integer>>>> impossibleCourseModuleAbstractUnitPairs;
   private Map<Integer, Set<Integer>> impossibleAbstractUnitsInModule;
   private Set<Integer> incompleteModules;
   private Map<String, Set<Integer>> mandatoryModules;
   private Map<Integer, Set<Integer>> quasiMandatoryModuleAbstractUnits;
   private Map<Integer, Set<Pair<Integer>>> redundantUnitGroups;
+  private Set<Integer> impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+  private Set<String> impossibleCoursesBecauseOfImpossibleModuleCombinations;
+  private Set<ModuleAbstractUnitUnitSemesterConflict> moduleAbstractUnitUnitSemesterConflicts;
 
   ReportData() {
     // package private constructor
@@ -44,12 +47,12 @@ public class ReportData {
    * @return Set of Strings representing the course keys
    */
   public Set<String> getImpossibleCoursesBecauseofImpossibleModules() {
-    return impossibleCoursesBecauseofImpossibleModules;
+    return impossibleCoursesBecauseOfImpossibleModules;
   }
 
-  void setImpossibleCoursesBecauseofImpossibleModules(
-      final Set<String> impossibleCoursesBecauseofImpossibleModules) {
-    this.impossibleCoursesBecauseofImpossibleModules = impossibleCoursesBecauseofImpossibleModules;
+  void setImpossibleCoursesBecauseOfImpossibleModules(
+      final Set<String> impossibleCoursesBecauseOfImpossibleModules) {
+    this.impossibleCoursesBecauseOfImpossibleModules = impossibleCoursesBecauseOfImpossibleModules;
   }
 
   /**
@@ -91,9 +94,9 @@ public class ReportData {
   /**
    * B: incomplete_modules
    * Modules that contain less elective abstract units than required according
-   * to the module defintion.  This does not affect the validation, in the
-   * sense that we only consider the minum of required and available modules
-   * (needed among other things in UC computatoin)
+   * to the module definition.  This does not affect the validation, in the
+   * sense that we only consider the minimum of required and available modules
+   * (needed among other things in UC computation)
    *
    * @return Set of module IDs
    */
@@ -122,7 +125,7 @@ public class ReportData {
   /**
    * B: quasi_mandatory_module_abstract_units.
    * modules and set of abstract units that are elective but quasi-mandatory,
-   * because the module contains exactly as much elective abstract units as it
+   * because the module contains exactly as many elective abstract units as it
    * requires for its completion
    *
    * @return Map from module ID to a set of abstract unit IDs
@@ -168,4 +171,49 @@ public class ReportData {
       final Map<String, Map<Integer, Set<Integer>>> impossibleCourseModuleAbstractUnits) {
     this.impossibleCourseModuleAbstractUnits = impossibleCourseModuleAbstractUnits;
   }
+
+  /**
+   * B: impossible_modules_because_of_missing_elective_abstract_units.
+   * modules which are impossible, because they contain less valid (with a proper unit
+   * associated to it) elective abstract units than required by the module definition.
+   */
+  public Set<Integer> getImpossibleModulesBecauseOfMissingElectiveAbstractUnits() {
+    return this.impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+  }
+
+  void setImpossibleModulesBecauseOfMissingElectiveAbstractUnits(
+      final Set<Integer> impossibleModulesBecauseOfMissingElectiveAbstractUnits) {
+    this.impossibleModulesBecauseOfMissingElectiveAbstractUnits
+      = impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+  }
+
+  /**
+   * B: impossible_courses_because_of_impossible_module_combinations.
+   * Impossible courses, because all module combinations contain impossible modules
+   */
+  void setImpossibleCoursesBecauseOfImpossibleModuleCombinations(final Set<String>
+          impossibleCoursesBecauseOfImpossibleModuleCombinations) {
+    this.impossibleCoursesBecauseOfImpossibleModuleCombinations
+      = impossibleCoursesBecauseOfImpossibleModuleCombinations;
+  }
+
+  public Set<String> getImpossibleCoursesBecauseOfImpossibleModuleCombinations() {
+    return impossibleCoursesBecauseOfImpossibleModuleCombinations;
+  }
+
+
+  void setModuleAbstractUnitUnitSemesterConflicts(
+      final Set<ModuleAbstractUnitUnitSemesterConflict> moduleAbstractUnitUnitSemesterConflicts) {
+    this.moduleAbstractUnitUnitSemesterConflicts = moduleAbstractUnitUnitSemesterConflicts;
+
+  }
+
+  /**
+   * B: module_abstract_unit_unit_semester_mismatch.
+   * pairs of abstract units and units that have no semesters in common in a given module
+   */
+  public Set<ModuleAbstractUnitUnitSemesterConflict> getModuleAbstractUnitUnitSemesterConflicts() {
+    return moduleAbstractUnitUnitSemesterConflicts;
+  }
+
 }

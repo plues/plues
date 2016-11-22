@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-class ResourceManager {
+public class ResourceManager {
   private final Delayed<Store> delayedStore;
   private final ExecutorService executorService;
   private final ExecutorService probExecutor;
@@ -40,7 +40,7 @@ class ResourceManager {
    *
    * @throws InterruptedException thrown if any of the executors throws it.
    */
-  void close() throws InterruptedException {
+  public void close() throws InterruptedException {
     delayedStore.whenAvailable(Store::close);
     logger.info("Store closed");
 

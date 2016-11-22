@@ -7,10 +7,9 @@ import static org.testfx.api.FxAssert.verifyThat;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
-
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -59,19 +58,19 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Test
   public void majorLabel() {
-    verifyThat("#major", LabeledMatchers.hasText(major.getFullName()));
+    verifyThat("#lbMajor", LabeledMatchers.hasText(major.getFullName()));
   }
 
   @Test
   public void minorLabel() {
-    verifyThat("#minor", LabeledMatchers.hasText(minor.getFullName()));
+    verifyThat("#lbMinor", LabeledMatchers.hasText(minor.getFullName()));
   }
 
   @Test
   public void testIcon() {
     final Text mark = this.icon;
 
-    final Label icon = lookup("#icon").query();
+    final Label icon = lookup("#lbIcon").query();
     final Text graphic = (Text) icon.getGraphic();
     Assert.assertEquals(mark.getText(), graphic.getText());
   }

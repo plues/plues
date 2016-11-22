@@ -2,6 +2,7 @@ package de.hhu.stups.plues.prob;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public interface Solver {
@@ -45,14 +46,53 @@ public interface Solver {
       throws SolverException;
 
   /**
-   * For a given list of course keys computes the session IDs in one of the unsat-cores
+   * For a given list of course keys computes the session IDs in one of the unsat-cores.
    *
    * @param courses String[] of course keys
    * @return a list of sessions IDs
    * @throws SolverException if no result could be found or the solver did not exit cleanly (e.g.
    *                         interrupt)
    */
-  List<Integer> unsatCore(final String... courses) throws SolverException;
+  Set<Integer> unsatCore(final String... courses) throws SolverException;
+
+  /**
+   * For a given list of course keys computes the module IDs that represent an unsat-core.
+   * @param courses String[] of course keys
+   * @return Set of module IDs
+   * @throws SolverException if no result could be found or the solver did not exit cleanly (e.g.
+   *                         interrupt)
+   */
+  Set<Integer> unsatCoreModules(String... courses) throws SolverException;
+
+  /**
+   * For a given list of modules, compute a set of abstract unit IDs that are in conflict.
+   * @param modules List of abstract unit IDs
+   * @return Set of abstract unit IDs
+   * @throws SolverException if no result could be found or the solver did not exit cleanly (e.g.
+   *                         interrupt)
+   */
+  Set<Integer> unsatCoreAbstractUnits(List<Integer> modules) throws SolverException;
+
+  /**
+   * For a given list of abstract units and modules, compute the associated groups that are in
+   * conflict.
+   * @param abstractUnits list of abstract unit IDs
+   * @param modules list of module IDs
+   * @return Set of group IDs in conflict
+   * @throws SolverException if no result could be found or the solver did not exit cleanly (e.g.
+   *                         interrupt)
+   */
+  Set<Integer> unsatCoreGroups(List<Integer> abstractUnits,
+                               List<Integer> modules) throws SolverException;
+
+  /**
+   * For a given list of group IDs compute the set of sessions in those groups that are in conflict.
+   * @param groups List of group IDs
+   * @return Set of sessoin IDs
+   * @throws SolverException if no result could be found or the solver did not exit cleanly (e.g.
+   *                         interrupt)
+   */
+  Set<Integer> unsatCoreSessions(List<Integer> groups) throws SolverException;
 
   /**
    * Move a session identified by its ID to a new day and time slot.

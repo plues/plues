@@ -18,11 +18,12 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.ui.components.timetable.DetailView.CourseTableEntry;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,12 +40,11 @@ import java.util.Map;
 public class DetailViewTest extends ApplicationTest {
 
   private final Store store;
-  private final Session session;
-  private final SessionFacade.Slot slot;
   private final Map<Course, List<ModuleAbstractUnitSemester>> courseMap;
   private final List<Course> courses;
   private final List<Module> modules;
   private final List<AbstractUnit> abstractUnits;
+  private final SessionFacade sessionFacade;
 
   /**
    * Test constructor.
@@ -53,10 +53,12 @@ public class DetailViewTest extends ApplicationTest {
   public DetailViewTest() {
     store = mock(Store.class);
 
-    slot = new SessionFacade.Slot(DayOfWeek.MONDAY, 8);
+    final ObjectProperty<SessionFacade.Slot> slot = new SimpleObjectProperty<>(
+        new SessionFacade.Slot(DayOfWeek.MONDAY, 8));
     final Unit unit = mock(Unit.class, new ThrowsException(new RuntimeException()));
     final Group group = mock(Group.class, new ThrowsException(new RuntimeException()));
-    session = mock(Session.class, new ThrowsException(new RuntimeException()));
+    final Session session = mock(Session.class, new ThrowsException(new RuntimeException()));
+    sessionFacade = mock(SessionFacade.class, new ThrowsException(new RuntimeException()));
 
     final AbstractUnit au1 = mock(AbstractUnit.class, new ThrowsException(new RuntimeException()));
     final AbstractUnit au2 = mock(AbstractUnit.class, new ThrowsException(new RuntimeException()));
@@ -112,6 +114,9 @@ public class DetailViewTest extends ApplicationTest {
     courseMap = new HashMap<>();
     store.getCourses().forEach(course ->
         courseMap.put(course, store.getModuleAbstractUnitSemester()));
+
+    doReturn(session).when(sessionFacade).getSession();
+    doReturn(slot).when(sessionFacade).slotProperty();
   }
 
   @Test
@@ -131,8 +136,8 @@ public class DetailViewTest extends ApplicationTest {
     final Label groupLabel = lookup("#group").query();
     Assert.assertEquals(1025, Integer.parseInt(groupLabel.getText()));
 
-    final Label semsterLabel = lookup("#semesters").query();
-    Assert.assertEquals("1,2", semsterLabel.getText());
+    final Label semesterLabel = lookup("#semesters").query();
+    Assert.assertEquals("1, 2", semesterLabel.getText());
   }
 
   @Test
@@ -162,7 +167,7 @@ public class DetailViewTest extends ApplicationTest {
     final Inflater inflater = new Inflater(new FXMLLoader());
 
     final DetailView detailView = new DetailView(inflater);
-    detailView.setContent(session, slot);
+    detailView.setSession(sessionFacade);
 
     final Scene scene = new Scene(detailView, 400, 250);
     stage.setScene(scene);

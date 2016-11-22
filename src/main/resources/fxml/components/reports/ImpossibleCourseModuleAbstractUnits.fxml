@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TreeView?>
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <Label text="%explainImpossibleCourseModuleAbstractUnits" wrapText="true"/>
+    <VBox spacing="5.0">
+        <Label text="%courses" style="-fx-font-size: 20px"/>
+        <TreeView fx:id="treeViewCourseModuleAbstractUnits" showRoot="fal"/>
+    </VBox>
+</fx:root>

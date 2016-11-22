@@ -5,7 +5,8 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.tasks.SolverService;
+import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
@@ -35,6 +36,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
   private final BooleanProperty solverProperty;
   private final ResultBoxFactory resultBoxFactory;
+  private final UiDataService uiDataService;
 
   @FXML
   @SuppressWarnings("unused")
@@ -67,10 +69,12 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   public Musterstudienplaene(final Inflater inflater,
                              final Delayed<Store> delayedStore,
                              final Delayed<SolverService> delayedSolverService,
+                             final UiDataService uiDataService,
                              final ResultBoxFactory resultBoxFactory) {
     this.delayedStore = delayedStore;
     this.delayedSolverService = delayedSolverService;
     this.resultBoxFactory = resultBoxFactory;
+    this.uiDataService = uiDataService;
 
     this.solverProperty = new SimpleBooleanProperty(false);
 
@@ -80,20 +84,13 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   }
 
   /**
-   * Function to handle generation of resultbox containing result for choosen major and minor.
+   * Function to handle generation of resultbox containing result for chosen major and minor.
    */
   @FXML
   @SuppressWarnings("unused")
   public void btGeneratePressed() {
-    final Course selectedMajorCourse
-        = courseSelection.getSelectedMajorCourse();
-    final Optional<Course> optionalMinorCourse
-        = courseSelection.getSelectedMinorCourse();
-
-    Course selectedMinorCourse = null;
-    if (optionalMinorCourse.isPresent()) {
-      selectedMinorCourse = optionalMinorCourse.get();
-    }
+    final Course selectedMajorCourse = courseSelection.getSelectedMajor();
+    final Course selectedMinorCourse = courseSelection.getSelectedMinor();
 
     final ResultBox rb
         = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse, resultBox);
@@ -106,14 +103,14 @@ public class Musterstudienplaene extends GridPane implements Initializable {
     btGenerate.setDefaultButton(true);
     btGenerate.disableProperty().bind(solverProperty.not());
 
-    IntegerBinding resultBoxChildren = Bindings.size(resultBox.getChildren());
+    final IntegerBinding resultBoxChildren = Bindings.size(resultBox.getChildren());
     scrollPane.visibleProperty().bind(resultBoxChildren.greaterThan(0));
 
     resultBox.setSpacing(10.0);
     resultBox.setPadding(new Insets(10.0, 10.0, 10.0, 10.0));
 
     delayedStore.whenAvailable(store ->
-        PdfRenderingHelper.initializeCourseSelection(store, courseSelection, delayedSolverService));
+        PdfRenderingHelper.initializeCourseSelection(store, uiDataService, courseSelection));
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
   }

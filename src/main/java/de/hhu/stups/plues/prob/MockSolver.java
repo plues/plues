@@ -1,6 +1,9 @@
 package de.hhu.stups.plues.prob;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,8 +61,44 @@ public class MockSolver implements Solver {
   }
 
   @Override
-  public List<Integer> unsatCore(final String... courses) throws SolverException {
-    return Collections.emptyList();
+  public Set<Integer> unsatCore(final String... courses) throws SolverException {
+    return new HashSet<>(Arrays.asList(76, 7, 50, 43));
+  }
+
+  @Override
+  public Set<Integer> unsatCoreModules(final String... courses) throws SolverException {
+    try {
+      TimeUnit.SECONDS.sleep(2);
+    } catch (final InterruptedException exception) {
+      exception.printStackTrace();
+    }
+    return new HashSet<>(Arrays.asList(1, 2, 3));
+  }
+
+  @Override
+  public Set<Integer> unsatCoreAbstractUnits(final List<Integer> modules) throws SolverException {
+    try {
+      TimeUnit.SECONDS.sleep(2);
+    } catch (final InterruptedException exception) {
+      exception.printStackTrace();
+    }
+    return new HashSet<>(Arrays.asList(1,2,5,6,11));
+  }
+
+  @Override
+  public Set<Integer> unsatCoreGroups(final List<Integer> abstractUnits,
+      final List<Integer> modules) throws SolverException {
+    return new HashSet<>(Arrays.asList(452, 455, 459, 456, 429, 426, 1527));
+  }
+
+  @Override
+  public Set<Integer> unsatCoreSessions(final List<Integer> groups) {
+    try {
+      TimeUnit.SECONDS.sleep(2);
+    } catch (final InterruptedException exception) {
+      exception.printStackTrace();
+    }
+    return new HashSet<>(Arrays.asList(1,100,1000));
   }
 
   @Override
@@ -80,7 +119,21 @@ public class MockSolver implements Solver {
 
   @Override
   public ReportData getReportingData() throws SolverException {
-    return new ReportData();
+    final ReportData reportData = new ReportData();
+    reportData.setImpossibleCourseModuleAbstractUnits(new HashMap<>());
+    reportData.setImpossibleCourses(new HashSet<>());
+    reportData.setImpossibleCoursesBecauseOfImpossibleModules(new HashSet<>());
+    reportData.setImpossibleCourseModuleAbstractUnitPairs(new HashMap<>());
+    reportData.setImpossibleAbstractUnitsInModule(new HashMap<>());
+    reportData.setIncompleteModules(new HashSet<>());
+    reportData.setMandatoryModules(new HashMap<>());
+    reportData.setQuasiMandatoryModuleAbstractUnits(new HashMap<>());
+    reportData.setRedundantUnitGroups(new HashMap<>());
+    reportData.setImpossibleModulesBecauseOfMissingElectiveAbstractUnits(new HashSet<>());
+    reportData.setImpossibleCoursesBecauseOfImpossibleModuleCombinations(new HashSet<>());
+    reportData.setModuleAbstractUnitUnitSemesterConflicts(new HashSet<>());
+
+    return reportData;
   }
 
   @Override

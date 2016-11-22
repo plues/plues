@@ -5,6 +5,10 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.be4.classicalb.core.parser.exceptions.BException;
+import de.hhu.stups.plues.data.entities.AbstractUnit;
+import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Group;
+import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.keys.OperationPredicateKey;
 import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.IEvalElement;
@@ -15,6 +19,7 @@ import de.prob.statespace.Transition;
 import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
+import de.tla2b.exceptions.NotImplementedException;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,6 +37,10 @@ public class ProBSolver implements Solver {
   private static final String MOVE = "move";
   private static final String IMPOSSIBLE_COURSES = "getImpossibleCourses";
   private static final String UNSAT_CORE = "unsatCore";
+  private static final String UNSAT_CORE_MODULES = "unsatCoreModules";
+  private static final String UNSAT_CORE_ABSTRACT_UNITS = "unsatCoreAbstractUnits";
+  private static final String UNSAT_CORE_GROUPS = "unsatCoreGroups";
+  private static final String UNSAT_CORE_SESSIONS = "unsatCoreSessions";
   private static final String LOCAL_ALTERNATIVES = "localAlternatives";
 
   private static final String DEFAULT_PREDICATE = "1=1";
@@ -50,7 +59,7 @@ public class ProBSolver implements Solver {
     logger.info("Loaded machine in " + TimeUnit.NANOSECONDS.toMillis(t2 - t1) + " ms");
     //
     this.stateSpace.getSubscribedFormulas()
-      .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
+        .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
 
     this.operationExecutionCache = new SolverCache<>(100);
 
@@ -124,6 +133,7 @@ public class ProBSolver implements Solver {
     synchronized (operationExecutionCache) {
       operationExecutionCache.put(key, solverResult);
     }
+
 
     logger.fine(String.format("RESULT %s %s = %s", op, predicate, solverResult));
 
@@ -295,12 +305,61 @@ public class ProBSolver implements Solver {
    *                         interrupt)
    */
   @Override
-  public final synchronized List<Integer> unsatCore(final String... courses)
+  public final synchronized java.util.Set<Integer> unsatCore(final String... courses)
       throws SolverException {
 
     final String predicate = getFeasibilityPredicate(courses);
     //
     final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE, predicate);
+    //
+    return Mappers.mapSessions(uc);
+  }
+
+  @Override
+  public final synchronized java.util.Set<Integer> unsatCoreModules(final String... courses)
+      throws SolverException {
+
+    final String predicate = getFeasibilityPredicate(courses);
+    logger.info(predicate);
+    //
+    final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_MODULES, predicate);
+    //
+    return Mappers.mapModules(uc);
+  }
+
+  @Override
+  public final synchronized java.util.Set<Integer> unsatCoreAbstractUnits(
+      final List<Integer> modules) throws SolverException {
+
+    final String predicate = "uc_modules={"
+        + Joiner.on(", ").join(Mappers.mapToModules(modules)) + "}";
+    //
+    final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_ABSTRACT_UNITS, predicate);
+    //
+    return Mappers.mapAbstractUnits(uc);
+  }
+
+  @Override
+  public final synchronized java.util.Set<Integer> unsatCoreGroups(
+      final List<Integer> abstractUnits, final List<Integer> modules) throws SolverException {
+
+    final String predicate = "uc_modules={" + Joiner.on(", ").join(Mappers.mapToModules(modules))
+        + "} & uc_abstract_units={"
+        + Joiner.on(", ").join(Mappers.mapToAbstractUnits(abstractUnits)) + "}";
+    //
+    final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_GROUPS, predicate);
+    //
+    return Mappers.mapGroups(uc);
+  }
+
+  @Override
+  public final synchronized  java.util.Set<Integer> unsatCoreSessions(final List<Integer> groups)
+      throws SolverException {
+
+    final String predicate = "uc_groups={"
+        + Joiner.on(", ").join(Mappers.mapToGroups(groups)) + "}";
+    //
+    final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_SESSIONS, predicate);
     //
     return Mappers.mapSessions(uc);
   }
@@ -373,27 +432,38 @@ public class ProBSolver implements Solver {
         Mappers.mapCourseModuleAbstractUnits((Set) data.get("impossible_course_abstract_units")));
 
     report.setImpossibleCourses(Mappers.mapCourseSet((Set) data.get("impossible_courses")));
-    report.setImpossibleCoursesBecauseofImpossibleModules(Mappers.mapCourseSet(
+    report.setImpossibleCoursesBecauseOfImpossibleModules(Mappers.mapCourseSet(
         (Set) data.get("impossible_courses_because_of_impossible_modules")));
 
     report.setImpossibleCourseModuleAbstractUnitPairs(
         Mappers.mapCourseModuleAbstractUnitPairs(
-          (Set) data.get("impossible_courses_module_combinations")));
+            (Set) data.get("impossible_courses_module_combinations")));
 
     report.setImpossibleAbstractUnitsInModule(
         Mappers.mapModuleAbstractUnitPairs((Set) data.get("impossible_module_abstract_unit")));
 
     report.setIncompleteModules(
-        Mappers.mapModules((Set) data.get("incomplete_modules")));
+        Mappers.extractModules((Set) data.get("incomplete_modules")));
 
     report.setMandatoryModules(Mappers.mapModuleChoice((Set) data.get("mandatory_modules")));
 
     report.setQuasiMandatoryModuleAbstractUnits(
         Mappers.mapQuasiMandatoryModuleAbstractUnits(
-          (Set) data.get("quasi_mandatory_module_abstract_units"))
-    );
+            (Set) data.get("quasi_mandatory_module_abstract_units")));
 
     report.setRedundantUnitGroups(Mappers.mapUnitGroups((Set) data.get("redundant_unit_groups")));
+
+    report.setImpossibleModulesBecauseOfMissingElectiveAbstractUnits(
+        Mappers.mapModules(
+            (Set) data.get("impossible_modules_because_of_missing_elective_abstract_units")));
+
+    report.setImpossibleCoursesBecauseOfImpossibleModuleCombinations(
+        Mappers.mapCourseSet(
+            (Set) data.get("impossible_courses_because_of_impossible_module_combinations")));
+
+    report.setModuleAbstractUnitUnitSemesterConflicts(
+        Mappers.mapModuleAbstractUnitUnitSemesterMismatch(
+            (Set) data.get("module_abstract_unit_unit_semester_mismatch")));
 
     return report;
   }

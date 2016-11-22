@@ -7,20 +7,8 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-
 <fx:root alignment="center" type="javafx.scene.layout.GridPane" vgap="10.0"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-        <MajorMinorCourseSelection fx:id="courseSelection" GridPane.columnIndex="0"
-                                   GridPane.halignment="CENTER" GridPane.rowIndex="0"/>
-        <Button fx:id="btGenerate" onAction="#btGeneratePressed" prefWidth="300" maxHeight="10000.0"
-                text="%generate" GridPane.halignment="CENTER" GridPane.columnIndex="0"
-                GridPane.rowIndex="1"/>
-        <ScrollPane fx:id="scrollPane" GridPane.columnIndex="0" maxWidth="10000.0"
-                    maxHeight="10000.0" GridPane.rowIndex="2">
-            <VBox fx:id="resultBox"/>
-        </ScrollPane>
-    </children>
     <columnConstraints>
         <ColumnConstraints percentWidth="80.0"/>
     </columnConstraints>
@@ -29,4 +17,13 @@
         <RowConstraints percentHeight="5.0"/>
         <RowConstraints percentHeight="60.0"/>
     </rowConstraints>
+    <MajorMinorCourseSelection fx:id="courseSelection" GridPane.columnIndex="0"
+                               GridPane.halignment="CENTER" GridPane.rowIndex="0"/>
+    <Button fx:id="btGenerate" onAction="#btGeneratePressed" prefWidth="300" maxHeight="10000.0"
+            text="%generate" GridPane.halignment="CENTER" GridPane.columnIndex="0"
+            GridPane.rowIndex="1"/>
+    <ScrollPane fx:id="scrollPane" GridPane.columnIndex="0" maxWidth="10000.0"
+                maxHeight="10000.0" GridPane.rowIndex="2">
+        <VBox fx:id="resultBox"/>
+    </ScrollPane>
 </fx:root>

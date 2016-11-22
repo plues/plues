@@ -7,7 +7,9 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.stage.Stage;
 
 import org.junit.Assert;
@@ -17,42 +19,51 @@ import org.junit.runners.JUnit4;
 import org.testfx.framework.junit.ApplicationTest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
-@RunWith(JUnit4.class)
 public class SetOfCourseSelectionTest extends ApplicationTest {
   private SetOfCourseSelection courseSelection;
   private List<Course> courseList;
 
   @Test
   public void selectionTest() {
-    TableView<SetOfCourseSelection.TableRowPair<Node, String>> tableViewMasterCourse;
-    TableView<SetOfCourseSelection.TableRowPair<Node, String>> tableViewBachelorCourse;
+    final TableView<?> tableViewMasterCourse;
+    final TableView<?> tableViewBachelorCourse;
 
     tableViewMasterCourse = courseSelection.getTableViewMasterCourse();
     tableViewBachelorCourse = courseSelection.getTableViewBachelorCourse();
+    final List<Node> masterCheckBoxes
+        = new ArrayList<>(tableViewMasterCourse.lookupAll(".check-box"));
+    final List<Node> bachelorCheckBoxes
+        = new ArrayList<>(tableViewBachelorCourse.lookupAll(".check-box"));
 
     Assert.assertTrue(courseSelection.getSelectedCourses().isEmpty());
 
-    clickOn(tableViewBachelorCourse.getItems().get(0).getFirst());
-    clickOn(tableViewBachelorCourse.getItems().get(1).getFirst());
 
-    clickOn(tableViewMasterCourse.getItems().get(0).getFirst());
+    clickOn(bachelorCheckBoxes.get(0));
+    clickOn(bachelorCheckBoxes.get(1));
 
-    Assert.assertTrue(courseSelection.getSelectedCourses().equals(
-        FXCollections.observableArrayList(courseList.get(0),courseList.get(1),courseList.get(3))));
+    clickOn(masterCheckBoxes.get(0));
 
-    clickOn(tableViewBachelorCourse.getItems().get(1).getFirst());
+    Assert.assertEquals(3, courseSelection.getSelectedCourses().size());
+    Assert.assertTrue(courseSelection.getSelectedCourses().contains(courseList.get(0)));
+    Assert.assertTrue(courseSelection.getSelectedCourses().contains(courseList.get(1)));
+    Assert.assertTrue(courseSelection.getSelectedCourses().contains(courseList.get(3)));
 
-    Assert.assertTrue(courseSelection.getSelectedCourses().equals(
-        FXCollections.observableArrayList(courseList.get(0),courseList.get(3))));
+    clickOn(bachelorCheckBoxes.get(1));
 
-    clickOn(tableViewBachelorCourse.getItems().get(0).getFirst());
-    clickOn(tableViewMasterCourse.getItems().get(0).getFirst());
+    Assert.assertEquals(2, courseSelection.getSelectedCourses().size());
+    Assert.assertTrue(courseSelection.getSelectedCourses().contains(courseList.get(0)));
+    Assert.assertTrue(courseSelection.getSelectedCourses().contains(courseList.get(3)));
+
+    clickOn(bachelorCheckBoxes.get(0));
+    clickOn(masterCheckBoxes.get(0));
     Assert.assertTrue(courseSelection.getSelectedCourses().isEmpty());
 
-    tableViewBachelorCourse.getItems().forEach(item -> clickOn(item.getFirst()));
-    tableViewMasterCourse.getItems().forEach(item -> clickOn(item.getFirst()));
+    masterCheckBoxes.forEach(item -> clickOn(item));
+    bachelorCheckBoxes.forEach(item -> clickOn(item));
     Assert.assertTrue(courseSelection.getSelectedCourses().equals(courseList));
   }
 

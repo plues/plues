@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.tasks;
+package de.hhu.stups.plues.services;
 
 import com.google.common.base.Joiner;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -8,6 +8,7 @@ import com.google.inject.name.Named;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
@@ -16,8 +17,8 @@ import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.Solver;
-
 import de.hhu.stups.plues.prob.SolverException;
+import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.beans.property.ReadOnlyMapProperty;
 import javafx.beans.property.ReadOnlyMapWrapper;
 import javafx.collections.FXCollections;
@@ -148,13 +149,72 @@ public class SolverService {
    * @return SolverTasks containing a list of integers representing the unsat core
    */
   @SuppressWarnings("unused")
-  public SolverTask<List<Integer>> unsatCore(final Course... courses) {
+  public SolverTask<Set<Integer>> unsatCore(final Course... courses) {
 
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     //
     return new SolverTask<>(resources.getString("unsat"), msg, solver,
         () -> solver.unsatCore(names));
+  }
+
+  /**
+   * Compute a set of modules in conflict for a given set of courses.
+   *
+   * @param courses Courses to compute modules in conflict
+   * @return SolverTask to compute the unsat core of modules
+   */
+  public SolverTask<Set<Integer>> unsatCoreModules(final Course... courses) {
+    final String[] names = getNames(courses);
+    final String msg = getMessage(names);
+    //
+    return new SolverTask<>(resources.getString("unsatCoreModules"), msg, solver,
+        () -> solver.unsatCoreModules(names));
+  }
+
+  /**
+   * For a given list of modules, compute a set of abstract unit IDs that are in conflict.
+   * @param modules List of Modules
+   * @return SolverTask to compute unsat core of abstract units
+   */
+  public SolverTask<Set<Integer>> unsatCoreAbstractUnits(final List<Module> modules) {
+    final String msg = "";
+    final List<Integer> moduleIds = modules.stream()
+        .map(Module::getId).collect(Collectors.toList());
+    //
+    return new SolverTask<>(resources.getString("unsatCoreAbstractUnits"), msg, solver,
+        () -> solver.unsatCoreAbstractUnits(moduleIds));
+  }
+
+  /**
+   * For a given list of abstract units and modules, compute the associated groups that are in
+   * conflict.
+   * @param abstractUnits List of abstract untis
+   * @param modules List of modules
+   * @return SolverTask to compute unsat core of groups
+   */
+  public SolverTask<Set<Integer>> unsatCoreGroups(final List<AbstractUnit> abstractUnits,
+                                                  final List<Module> modules) {
+    final String msg = "";
+    final List<Integer> abstractUnitIds = abstractUnits.stream().map(AbstractUnit::getId)
+        .collect(Collectors.toList());
+    final List<Integer> moduleIds = modules.stream()
+        .map(Module::getId).collect(Collectors.toList());
+    return new SolverTask<>(resources.getString("unsatCoreGroups"), msg, solver,
+        () -> solver.unsatCoreGroups(abstractUnitIds, moduleIds));
+  }
+
+  /**
+   * For a given list of group IDs compute the set of sessions in those groups that are in conflict.
+   * @param groups List of groups
+   * @return SolverTask to compute unsat core of sessions
+   */
+  public SolverTask<Set<Integer>> unsatCoreSessions(final List<Group> groups) {
+    final String msg = "";
+    final List<Integer> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
+    //
+    return new SolverTask<>(resources.getString("unsatCoreSessions"), msg, solver,
+        () -> solver.unsatCoreSessions(groupIds));
   }
 
   /**
@@ -191,7 +251,6 @@ public class SolverService {
   /**
    * Create a solver task to move a session to a new day/time and thus modifying the model's state.
    * Clears all caches as a side-effect.
-   * TODO: Adapt signature to requirements of consumers (once merged)
    * @param session Session to be moved
    * @param day String target day
    * @param time String target time slot
@@ -270,4 +329,5 @@ public class SolverService {
       return null;
     });
   }
+
 }

@@ -1,8 +1,12 @@
 package de.hhu.stups.plues.ui.components;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
+import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -10,6 +14,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.stage.Stage;
 
 import org.junit.Assert;
@@ -18,11 +23,15 @@ import org.testfx.framework.junit.ApplicationTest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 public class AbstractUnitFilterTest extends ApplicationTest {
 
   private final List<AbstractUnit> abstractUnits;
+  private final AbstractUnit a1;
+  private final Course course;
+  private AbstractUnitFilter filter;
 
   /**
    * Default constructor.
@@ -30,22 +39,29 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   public AbstractUnitFilterTest() {
     abstractUnits = new ArrayList<>();
 
-    final AbstractUnit a1 = new AbstractUnit();
+    course = new Course();
+    course.setKey("Course-1-1-1");
+    Module module = new Module();
+    module.setCourses(FXCollections.observableSet(course));
+
+    this.a1 = new AbstractUnit();
     a1.setTitle("Abstract Unit 1");
     a1.setKey("Key 1");
+    a1.setModules(new HashSet<>(FXCollections.observableSet(module)));
     final AbstractUnit a2 = new AbstractUnit();
     a2.setTitle("Abstract Unit 2");
     a2.setKey("Key 2");
+    a2.setModules(new HashSet<>());
 
     abstractUnits.addAll(Arrays.asList(a1, a2));
   }
 
   @Test
   public void testContent() {
-    final TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
-    for (AbstractUnitFilter.RowEntry entry : units.getItems()) {
+    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    for (final AbstractUnitFilter.SelectableAbstractUnit entry : units.getItems()) {
       boolean containsTitle = false;
-      for (AbstractUnit unit : abstractUnits) {
+      for (final AbstractUnit unit : abstractUnits) {
         if (unit.getTitle().equals(entry.getTitle())) {
           containsTitle = true;
           break;
@@ -57,8 +73,9 @@ public class AbstractUnitFilterTest extends ApplicationTest {
 
   @Test
   public void testSelection() {
-    TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
-    final CheckBox cb = units.getItems().get(0).getCheckbox();
+    TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    final CheckBoxTableCell cb = (CheckBoxTableCell) units.lookup(".table-row-cell .table-cell");
+
     clickOn(cb);
 
     // only selected units
@@ -75,18 +92,57 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   }
 
   @Test
-  public void testSearch() {
+  public void testSearchForTitle() {
     final TextField field = lookup("#query").query();
-    field.setText("1");
+    field.setText("Abstract Unit 1");
 
-    final TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
+    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
     Assert.assertEquals(1, units.getItems().size());
   }
 
   @Test
+  public void testSearchForKey() {
+    final TextField field = lookup("#query").query();
+    field.setText("Key 1");
+
+    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    Assert.assertEquals(1, units.getItems().size());
+  }
+
+  @Test
+  public void testLiveUpdate() {
+    TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    final CheckBoxTableCell cb = (CheckBoxTableCell) units.lookup(".table-row-cell .table-cell");
+
+    clickOn(cb); // click on checkbox
+    clickOn((RadioButton) lookup("#selected").query()); // filter by selected
+    clickOn(cb); // click on checkbox again
+    units = lookup("#units").query(); // collect units again
+
+    Assert.assertEquals(0, units.getItems().size());
+
+    clickOn((RadioButton) lookup("#notSelected").query());
+    units = lookup("#units").query();
+    Assert.assertEquals(2, units.getItems().size());
+  }
+
+  @Test
+  public void testCourseSelection() {
+    TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    Assert.assertEquals(2, units.getItems().size()); // all units present
+
+    final CheckBox cb = lookup("#selectedCoursesOnly").query();
+    clickOn(cb);
+
+    units = lookup("#units").query();
+    Assert.assertEquals(1, units.getItems().size()); // only one present
+    Assert.assertEquals(a1.getKey(), units.getItems().get(0).getKey());
+  }
+
+  @Test
   public void testClearingSelection() {
-    TableView<AbstractUnitFilter.RowEntry> units = lookup("#units").query();
-    final CheckBox cb = units.getItems().get(0).getCheckbox();
+    TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    final CheckBoxTableCell cb = (CheckBoxTableCell) units.lookup(".table-row-cell .table-cell");
     clickOn(cb);
     clickOn((RadioButton) lookup("#selected").query());
     clickOn((Button) lookup("#clearSelection").query());
@@ -95,12 +151,30 @@ public class AbstractUnitFilterTest extends ApplicationTest {
     Assert.assertTrue(((RadioButton) lookup("#all").query()).isSelected());
   }
 
+
+  @Test
+  public void testSelectedItems() {
+    Assert.assertEquals(0, filter.getSelectedAbstractUnits().size());
+
+    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    final CheckBoxTableCell cb = (CheckBoxTableCell) units.lookup(".table-row-cell .table-cell");
+    clickOn(cb);
+
+    final ObservableList<AbstractUnit> items = filter.getSelectedAbstractUnits();
+    Assert.assertEquals(1, filter.getSelectedAbstractUnits().size());
+
+    final AbstractUnit item = items.get(0);
+    Assert.assertEquals(a1, item);
+
+  }
+
   @Override
   @SuppressWarnings("unchecked")
   public void start(final Stage stage) throws Exception {
     final Inflater inflater = new Inflater(new FXMLLoader());
-    final AbstractUnitFilter filter = new AbstractUnitFilter(inflater);
+    this.filter = new AbstractUnitFilter(inflater);
     filter.setAbstractUnits(abstractUnits);
+    filter.setCourseFilter(FXCollections.observableArrayList(course));
 
     final Scene scene = new Scene(filter, 700, 500);
     stage.setScene(scene);

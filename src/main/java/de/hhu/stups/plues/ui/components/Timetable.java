@@ -9,8 +9,10 @@ import static java.time.DayOfWeek.WEDNESDAY;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -39,18 +41,22 @@ import java.util.stream.IntStream;
 
 public class Timetable extends BorderPane implements Initializable {
 
-  private final Delayed<Store> delayedStore;
+  private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
-
-  @FXML
-  private AbstractUnitFilter abstractUnitFilter;
+  private final Delayed<SolverService> delayedSolverService;
+  private final UiDataService uiDataService;
 
   @FXML
   private GridPane timeTable;
 
   @FXML
-  @SuppressWarnings("unused")
   private SetOfCourseSelection setOfCourseSelection;
+
+  @FXML
+  private AbstractUnitFilter abstractUnitFilter;
+
+  @FXML
+  private CheckCourseFeasibility checkCourseFeasibility;
 
   @FXML
   private ToggleGroup semesterToggle;
@@ -61,10 +67,14 @@ public class Timetable extends BorderPane implements Initializable {
    * Timetable component.
    */
   @Inject
-  public Timetable(final Inflater inflater, final Delayed<Store> delayedStore,
+  public Timetable(final Inflater inflater, final Delayed<ObservableStore> delayedStore,
+                   final Delayed<SolverService> delayedSolverService,
+                   final UiDataService uiDataService,
                    final SessionListViewFactory sessionListViewFactory) {
     this.delayedStore = delayedStore;
     this.sessionListViewFactory = sessionListViewFactory;
+    this.delayedSolverService = delayedSolverService;
+    this.uiDataService = uiDataService;
 
     // TODO: remove controller param if possible
     // TODO: currently not possible because of dependency circle
@@ -76,12 +86,21 @@ public class Timetable extends BorderPane implements Initializable {
     this.delayedStore.whenAvailable(store -> {
       this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
       setOfCourseSelection.setCourses(store.getCourses());
+      checkCourseFeasibility.setCourses(store.getCourses());
+      abstractUnitFilter.courseFilterProperty().bind(
+          setOfCourseSelection.selectedCoursesProperty());
 
       setSessions(store.getSessions()
           .parallelStream()
           .map(SessionFacade::new)
           .collect(Collectors.toList()));
     });
+
+    // if the component checkCourseFeasibility is included
+    checkCourseFeasibility.impossibleCoursesProperty().bind(
+        uiDataService.impossibleCoursesProperty());
+    delayedSolverService.whenAvailable(
+        solverService -> checkCourseFeasibility.setSolverProperty(true));
 
     initSessionBoxes();
   }
@@ -109,8 +128,8 @@ public class Timetable extends BorderPane implements Initializable {
   }
 
   private SessionFacade.Slot getSlot(final int index, final int widthX) {
-    final DayOfWeek[] days = { MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY };
-    final Integer[] times = { 1, 2, 3, 4, 5, 6, 7 };
+    final DayOfWeek[] days = {MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY};
+    final Integer[] times = {1, 2, 3, 4, 5, 6, 7};
 
     return new SessionFacade.Slot(days[index % widthX], times[index / widthX]);
   }
@@ -133,7 +152,7 @@ public class Timetable extends BorderPane implements Initializable {
         while (change.next()) {
           if (change.wasAdded()) {
             change.getAddedSubList()
-              .forEach(sessionFacade -> bind(sessionFacade.slotProperty()));
+                .forEach(sessionFacade -> bind(sessionFacade.slotProperty()));
           }
 
           if (change.wasRemoved()) {
@@ -148,7 +167,7 @@ public class Timetable extends BorderPane implements Initializable {
       final ToggleButton semesterButton = (ToggleButton) semesterToggle.getSelectedToggle();
 
       return sessions.filtered(session -> {
-        final Set<Integer> semesters = session.getSemesters();
+        final Set<Integer> semesters = session.getUnitSemesters();
 
         Integer semester = null;
         if (null != semesterButton) {
@@ -156,7 +175,7 @@ public class Timetable extends BorderPane implements Initializable {
         }
 
         return session.getSlot().equals(slot)
-          && (semester == null || semesters.contains(semester));
+            && (semester == null || semesters.contains(semester));
       });
     }
   }

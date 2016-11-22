@@ -3,17 +3,18 @@ package de.hhu.stups.plues.ui.controller;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -37,9 +38,10 @@ import javax.swing.SwingUtilities;
 public class PdfRenderingHelper {
 
   private static final String ICON_SIZE = "50";
-  private static final String WARNING_COLOR = "#FEEFB3";
-  private static final String FAILURE_COLOR = "#FFBABA";
-  private static final String SUCCESS_COLOR = "#DFF2BF";
+  public static final String WARNING_COLOR = "#FEEFB3";
+  public static final String FAILURE_COLOR = "#FFBABA";
+  public static final String SUCCESS_COLOR = "#DFF2BF";
+  public static final String WORKING_COLOR = "#BDE5F8";
   private static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
   private static final String MSG = "Error! Copying of temporary file into target file failed.";
 
@@ -142,12 +144,11 @@ public class PdfRenderingHelper {
    * @param minor Course object representing the chosen minor course
    * @return String representing the file name
    */
-  public static String getDocumentName(final Course major, final Course minor) {
+  static String getDocumentName(final Course major, final Course minor) {
     if (minor == null) {
       return getDocumentName(major);
     }
-    return "musterstudienplan_" + major.getName() + "_" + minor.getName()
-        + ".pdf";
+    return "musterstudienplan_" + major.getName() + "_" + minor.getName() + ".pdf";
   }
 
   /**
@@ -178,7 +179,7 @@ public class PdfRenderingHelper {
    * @return Object binding depending on the tasks state
    */
   public static ObjectBinding<Text> getIconBinding(final String iconSize,
-                                                   final PdfRenderingTask task) {
+                                                   final Task<?> task) {
     return Bindings.createObjectBinding(() -> {
       final FontAwesomeIcon symbol = getIcon(task);
       if (symbol == null) {
@@ -191,7 +192,7 @@ public class PdfRenderingHelper {
     }, task.stateProperty());
   }
 
-  private static FontAwesomeIcon getIcon(final PdfRenderingTask task) {
+  private static FontAwesomeIcon getIcon(final Task<?> task) {
     FontAwesomeIcon symbol = null;
 
     switch (task.getState()) {
@@ -208,6 +209,7 @@ public class PdfRenderingHelper {
       case SCHEDULED:
       case RUNNING:
       default:
+        symbol = FontAwesomeIcon.CLOCK_ALT;
         break;
     }
     return symbol;
@@ -219,7 +221,7 @@ public class PdfRenderingHelper {
    * @param task Given task
    * @return String binding depending on the tasks state
    */
-  public static StringBinding getStyleBinding(final PdfRenderingTask task) {
+  public static StringBinding getStyleBinding(final Task<?> task) {
     return Bindings.createStringBinding(() -> {
       final String color = getColor(task);
 
@@ -230,8 +232,8 @@ public class PdfRenderingHelper {
     }, task.stateProperty());
   }
 
-  private static String getColor(final PdfRenderingTask task) {
-    String color = null;
+  private static String getColor(final Task<?> task) {
+    final String color;
 
     switch (task.getState()) {
       case SUCCEEDED:
@@ -247,7 +249,7 @@ public class PdfRenderingHelper {
       case SCHEDULED:
       case RUNNING:
       default:
-        break;
+        return WORKING_COLOR;
     }
     return color;
   }
@@ -258,14 +260,14 @@ public class PdfRenderingHelper {
    * Initialize course selection object of each class using it.
    *
    * @param store                Store object to collect courses
+   * @param uiDataService        UiDataService instance
    * @param courseSelection      Object to save selection.
-   * @param delayedSolverService solverService to retrieve impossible courses
    */
   static void initializeCourseSelection(final Store store,
+                                        final UiDataService uiDataService,
                                         // TODO: this should not be parameter
                                         // but instead be constructed here and returned
-                                        final MajorMinorCourseSelection courseSelection,
-                                        final Delayed<SolverService> delayedSolverService) {
+                                        final MajorMinorCourseSelection courseSelection) {
     final List<Course> courses = store.getCourses();
 
     final List<Course> majorCourseList = courses.stream()
@@ -279,13 +281,7 @@ public class PdfRenderingHelper {
     courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
     courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
 
-    // register task to highlight impossible courses
-    delayedSolverService.whenAvailable(solverService -> {
-      final SolverTask<Set<String>> impossibleCoursesTask = solverService.impossibleCoursesTask();
-      impossibleCoursesTask.setOnSucceeded(event ->
-          courseSelection.highlightImpossibleCourses(impossibleCoursesTask.getValue()));
-      solverService.submit(impossibleCoursesTask);
-    });
+    courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
   }
 
 }
