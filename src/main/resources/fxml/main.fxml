@@ -32,13 +32,22 @@
                       mnemonicParsing="false" text="%export"/>
             <MenuItem fx:id="openChangeLog" onAction="#openChangeLog"
                       mnemonicParsing="false" text="%log"/>
-            <MenuItem fx:id="openReports" onAction="#openReports"
+            <MenuItem fx:id="openReportsMenuItem" onAction="#openReports"
                       mnemonicParsing="false" text="%reports"/>
             <MenuItem fx:id="close" onAction="#closeWindow"
                       mnemonicParsing="false" text="%close"/>
         </Menu>
         <Menu mnemonicParsing="false" text="%edit">
-            <MenuItem mnemonicParsing="false" text="%delete"/>
+            <Menu mnemonicParsing="false" text="%timeoutSelect">
+                <MenuItem fx:id="OneMinuteMenuItem" text="%oneMinute"
+                          mnemonicParsing="false" onAction="#setTimeoutOneMinute"/>
+                <MenuItem fx:id="ThreeMinutesMenuItem" text="%threeMinutes"
+                          mnemonicParsing="false" onAction="#setTimeoutThreeMinutes"/>
+                <MenuItem fx:id="FiveMinutesMenuItem" text="%fiveMinutes"
+                          mnemonicParsing="false" onAction="#setTimeoutFiveMinutes"/>
+                <MenuItem fx:id="setTimeoutMenuItem" text="%timeoutTitle"
+                          mnemonicParsing="false" onAction="#setTimeoutCustom"/>
+            </Menu>
         </Menu>
         <Menu mnemonicParsing="false" text="%view">
             <Menu mnemonicParsing="false" text="%timetableView">
