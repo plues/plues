@@ -80,7 +80,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     courses = new SimpleListProperty<>(FXCollections.emptyObservableList());
     selectableCourses = new SimpleListProperty<>(FXCollections.emptyObservableList());
 
-    inflater.inflate("components/SetOfCourseSelection", this, this, "filter");
+    inflater.inflate("components/SetOfCourseSelection", this, this, "filter", "Column");
   }
 
   @Override

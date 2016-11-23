@@ -33,9 +33,9 @@
                 <TableView fx:id="modulesTable" prefHeight="200">
                     <columns>
                         <TableColumn fx:id="modulePordnrColumn" minWidth="50" prefWidth="100"
-                                     text="%modulePordnrColumn"/>
+                                     text="%columnPordnr"/>
                         <TableColumn fx:id="moduleNameColumn" minWidth="200"
-                                     text="%moduleNameColumn"/>
+                                     text="%columnName"/>
                     </columns>
                 </TableView>
                 <HBox>
@@ -53,11 +53,11 @@
                 <TableView fx:id="abstractUnitsTable" prefHeight="200">
                     <columns>
                         <TableColumn fx:id="abstractUnitKeyColumn" minWidth="50" prefWidth="100"
-                                     text="%abstractUnitKeyColumn"/>
+                                     text="%columnKey"/>
                         <TableColumn fx:id="abstractUnitTitleColumn" minWidth="200"
-                                     text="%abstractUnitTitleColumn"/>
+                                     text="%columnTitle"/>
                         <TableColumn fx:id="abstractUnitModuleSemester" minWidth="200"
-                                     text="%abstractUnitModuleSemester"/>
+                                     text="%columnSemesters"/>
                     </columns>
                 </TableView>
                 <HBox>
@@ -74,13 +74,13 @@
                 <TableView fx:id="groupsTable" prefHeight="200">
                     <columns>
                         <TableColumn fx:id="groupUnitKeyColumn" minWidth="50" prefWidth="100"
-                                     text="%groupUnitKeyColumn"/>
+                                     text="%columnKey"/>
                         <TableColumn fx:id="groupUnitTitleColumn" minWidth="200"
-                                     text="%groupUnitTitleColumn"/>
+                                     text="%columnTitle"/>
                         <TableColumn fx:id="groupUnitSemestersColumn" minWidth="200"
                                      text="%groupUnitSemestersColumn"/>
                         <TableColumn fx:id="groupSessionsColumn" minWidth="200"
-                                     text="%groupSessionsColumn"/>
+                                     text="%columnGroup"/>
                         <TableColumn fx:id="groupAbstractUnits" minWidth="200"
                                      text="%groupAbstractUnits"/>
                     </columns>
@@ -99,13 +99,13 @@
                 <TableView fx:id="sessionsTable" prefHeight="200">
                     <columns>
                         <TableColumn fx:id="sessionDayColumn" minWidth="50" prefWidth="100"
-                                     text="%sessionDayColumn"/>
+                                     text="%columnDay"/>
                         <TableColumn fx:id="sessionTimeColumn" minWidth="200"
-                                     text="%sessionTimeColumn"/>
+                                     text="%columnTime"/>
                         <TableColumn fx:id="sessionUnitKeyColumn" minWidth="50" prefWidth="100"
-                                     text="%sessionUnitKeyColumn"/>
+                                     text="%columnKey"/>
                         <TableColumn fx:id="sessionUnitTitleColumn" minWidth="200"
-                                     text="%sessionUnitTitleColumn"/>
+                                     text="%columnTitle"/>
                     </columns>
                 </TableView>
             </VBox>

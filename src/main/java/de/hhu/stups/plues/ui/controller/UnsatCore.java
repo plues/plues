@@ -157,7 +157,7 @@ public class UnsatCore extends VBox implements Initializable {
     delayedStore.whenAvailable(this.store::set);
     delayedSolverService.whenAvailable(this.solverService::set);
 
-    inflater.inflate("UnsatCore", this, this, "unsatCore");
+    inflater.inflate("UnsatCore", this, this, "unsatCore", "Column");
   }
 
   /**

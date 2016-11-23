@@ -22,9 +22,6 @@ import java.util.Set;
 
 public class RedundantUnitGroups extends VBox implements Initializable {
 
-  private final Delayed<Store> delayedStore;
-  private Store store;
-
   @FXML
   @SuppressWarnings("unused")
   private TableView<Unit> tableViewRedundantUnitGroups;
@@ -36,18 +33,14 @@ public class RedundantUnitGroups extends VBox implements Initializable {
   private TableColumn<Unit, String> columnUnitTitle;
 
   @Inject
-  public RedundantUnitGroups(final Inflater inflater,
-                             final Delayed<Store> delayedStore) {
-    this.delayedStore = delayedStore;
-    inflater.inflate("/components/reports/RedundantUnitGroups", this, this, "reports");
+  public RedundantUnitGroups(final Inflater inflater) {
+    inflater.inflate("/components/reports/RedundantUnitGroups", this, this, "reports", "Column");
   }
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     columnUnitId.setCellValueFactory(new PropertyValueFactory<>("key"));
     columnUnitTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
-
-    delayedStore.whenAvailable(store -> this.store = store);
   }
 
   public void setData(Set<Unit> redundantUnitGroups) {
