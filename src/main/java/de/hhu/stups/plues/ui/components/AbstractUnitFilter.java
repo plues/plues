@@ -88,7 +88,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     selectableAbstractUnits = new SimpleListProperty<>(emptyObservableList());
     courseFilter = new SimpleListProperty<>(emptyObservableList());
 
-    inflater.inflate("components/AbstractUnitFilter", this, this, "filter");
+    inflater.inflate("components/AbstractUnitFilter", this, this, "filter", "Column");
   }
 
   private ObservableList<AbstractUnit> getAbstractUnits() {

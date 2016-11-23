@@ -16,7 +16,7 @@ public class IndexRoute implements Route {
 
   @Inject
   public IndexRoute(Inflater inflater, Stage stage) {
-    this.root = inflater.inflate("main", "main");
+    this.root = inflater.inflate("main", "MainController", "Days");
     this.stage = stage;
   }
 

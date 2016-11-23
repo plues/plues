@@ -47,7 +47,7 @@
               GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2">
             <Button fx:id="btCheckAll" onAction="#checkAllCombinations"
                     text="%checkAll"/>
-            <Button fx:id="btCancelCheckAll" onAction="#cancelCheckAll" text="%cancelCheckAll"/>
+            <Button fx:id="btCancelCheckAll" onAction="#cancelCheckAll" text="%cancel"/>
         </HBox>
     </children>
     <columnConstraints>

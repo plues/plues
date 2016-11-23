@@ -27,9 +27,9 @@
                 <TableColumn fx:id="checkboxColumn" prefWidth="30" sortable="false"
                              resizable="false"/>
                 <TableColumn fx:id="abstractUnitKeyColumn" minWidth="120" maxWidth="200"
-                             text="%key" editable="false"/>
+                             text="%columnKey" editable="false"/>
                 <TableColumn fx:id="abstractUnitTitleColumn" minWidth="350"
-                             text="%title" editable="false"/>
+                             text="%columnTitle" editable="false"/>
             </columns>
         </TableView>
     </children>

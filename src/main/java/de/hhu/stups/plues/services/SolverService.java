@@ -240,13 +240,13 @@ public class SolverService {
    */
   public SolverTask<Set<String>> impossibleCoursesTask() {
     return new SolverTask<>(resources.getString("impossible"),
-      resources.getString("impossibleMessage"), solver, solver::getImpossibleCourses,
+      resources.getString("message.impossible"), solver, solver::getImpossibleCourses,
       timeout);
   }
 
 
   public SolverTask<ReportData> collectReportDataTask() {
-    return new SolverTask<>(resources.getString("report"), resources.getString("reportMessage"),
+    return new SolverTask<>(resources.getString("report"), resources.getString("message.report"),
       solver, solver::getReportingData, timeout);
   }
 
@@ -261,7 +261,7 @@ public class SolverService {
   @SuppressWarnings("unused")
   public SolverTask<Void> moveTask(final Session session, final String day, final String time) {
     final String sessionId = String.valueOf(session.getId());
-    return new SolverTask<>(resources.getString("moving"), resources.getString("movingMessage"),
+    return new SolverTask<>(resources.getString("moving"), resources.getString("message.moving"),
       solver, () -> {
       solver.move(sessionId, day, time);
       courseCombinationResults.clear();

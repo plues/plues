@@ -24,7 +24,6 @@ import java.util.Set;
 public class CheckBoxGroupTest extends ApplicationTest {
   private final Course major;
 
-
   /**
    * Default constructor.
    */

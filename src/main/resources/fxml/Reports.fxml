@@ -4,11 +4,8 @@
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Accordion?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
 
 <?import de.hhu.stups.plues.ui.components.reports.ImpossibleModules?>
 <?import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses?>
@@ -28,22 +25,22 @@
             </padding>
             <Label text="%stats" style="-fx-font-weight: bold"/>
             <GridPane fx:id="gridPaneHeader" hgap="5.0" vgap="5.0" alignment="CENTER">
-                <Label text="%courseAmount" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Label text="%amount.course" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
                 <Label fx:id="lbCourseAmount" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                <Label text="%unitAmount" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Label text="%amount.unit" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
                 <Label fx:id="lbUnitAmount" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                <Label text="%groupAmount" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <Label text="%amount.group" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
                 <Label fx:id="lbGroupAmount" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
                 <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
                 <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
                 <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
-                <Label text="%abstractUnitAmount" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+                <Label text="%amount.abstractUnit" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
                 <Label fx:id="lbAbstractUnitAmount" GridPane.columnIndex="4" GridPane.rowIndex="0"/>
-                <Label text="%impossibleCoursesAmount" GridPane.columnIndex="3"
+                <Label text="%amount.impossibleCourses" GridPane.columnIndex="3"
                        GridPane.rowIndex="1"/>
                 <Label fx:id="lbImpossibleCoursesAmount" GridPane.columnIndex="4"
                        GridPane.rowIndex="1"/>
-                <Label text="%sessionAmount" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+                <Label text="%amount.session" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
                 <Label fx:id="lbSessionAmount" GridPane.columnIndex="4" GridPane.rowIndex="2"/>
                 <Label text="%modelVersion" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
                 <Label fx:id="lbModelVersion" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
@@ -51,33 +48,33 @@
         </VBox>
         <Accordion>
             <panes>
-                <TitledPane text="%titleImpossibleModules" collapsible="true">
+                <TitledPane text="%title.ImpossibleModules" collapsible="true">
                     <ImpossibleModules fx:id="impossibleModules"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleImpossibleCourses"
+                <TitledPane collapsible="true" text="%title.ImpossibleCourses"
                             fx:id="paneImpossibleCourses">
                     <ImpossibleCourses fx:id="impossibleCourses"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleAbstractUnits">
+                <TitledPane collapsible="true" text="%title.AbstractUnits">
                     <AbstractUnitsWithoutUnits fx:id="abstractUnitsWithoutUnits"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleAbstractUnitsWithUnits">
+                <TitledPane collapsible="true" text="%title.AbstractUnitsWithUnits">
                     <ModuleAbstractUnitUnitSemesterConflicts
                             fx:id="moduleAbstractUnitUnitSemesterConflicts"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleMandatoryModules">
+                <TitledPane collapsible="true" text="%title.MandatoryModules">
                     <MandatoryModules fx:id="mandatoryModules"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleQuasiMandatoryModules">
+                <TitledPane collapsible="true" text="%title.QuasiMandatoryModules">
                     <QuasiMandatoryModuleAbstractUnits fx:id="quasiMandatoryModuleAbstractUnits"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleRedundantUnitGroups">
+                <TitledPane collapsible="true" text="%title.RedundantUnitGroups">
                     <RedundantUnitGroups fx:id="redundantUnitGroups"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleImpossibleCourseModuleAbstractUnits">
+                <TitledPane collapsible="true" text="%title.ImpossibleCourseModuleAbstractUnits">
                     <ImpossibleCourseModuleAbstractUnits fx:id="impossibleCourseModuleAbstractUnits"/>
                 </TitledPane>
-                <TitledPane collapsible="true" text="%titleImpossibleCourseModuleAbstractUnitPairs">
+                <TitledPane collapsible="true" text="%title.ImpossibleCourseModuleAbstractUnitPairs">
                     <ImpossibleCourseModuleAbstractUnitPairs
                             fx:id="impossibleCourseModuleAbstractUnitPairs"/>
                 </TitledPane>

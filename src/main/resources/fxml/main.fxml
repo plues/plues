@@ -29,7 +29,7 @@
             <MenuItem fx:id="saveFileAsMenuItem" onAction="#saveFileAs" disable="true"
                       mnemonicParsing="false" text="%saveAs" accelerator="Shortcut+Shift+S"/>
             <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"  disable="true"
-                      mnemonicParsing="false" text="%export" accelerator="Shortcut+E"/>
+                      mnemonicParsing="false" text="%export.start" accelerator="Shortcut+E"/>
             <MenuItem fx:id="openChangeLog" onAction="#openChangeLog" disable="true"
                       mnemonicParsing="false" text="%log" accelerator="Shortcut+L"/>
             <MenuItem fx:id="openReportsMenuItem" onAction="#openReports" disable="true"
@@ -38,25 +38,25 @@
                       mnemonicParsing="false" text="%close"/>
         </Menu>
         <Menu mnemonicParsing="false" text="%edit">
-            <Menu mnemonicParsing="false" text="%timeoutSelect">
-                <MenuItem fx:id="oneMinuteMenuItem" text="%oneMinute" disable="true"
+            <Menu mnemonicParsing="false" text="%timeout.Select">
+                <MenuItem fx:id="oneMinuteMenuItem" text="%timeout.oneMinute" disable="true"
                           mnemonicParsing="false" onAction="#setTimeoutOneMinute"/>
-                <MenuItem fx:id="threeMinutesMenuItem" text="%threeMinutes" disable="true"
+                <MenuItem fx:id="threeMinutesMenuItem" text="%timeout.threeMinutes" disable="true"
                           mnemonicParsing="false" onAction="#setTimeoutThreeMinutes"/>
-                <MenuItem fx:id="fiveMinutesMenuItem" text="%fiveMinutes" disable="true"
+                <MenuItem fx:id="fiveMinutesMenuItem" text="%timeout.fiveMinutes" disable="true"
                           mnemonicParsing="false" onAction="#setTimeoutFiveMinutes"/>
-                <MenuItem fx:id="setTimeoutMenuItem" text="%timeoutTitle" disable="true"
+                <MenuItem fx:id="setTimeoutMenuItem" text="%timeout.Title" disable="true"
                           mnemonicParsing="false" onAction="#setTimeoutCustom"/>
             </Menu>
         </Menu>
         <Menu mnemonicParsing="false" text="%view">
             <Menu mnemonicParsing="false" text="%timetableView">
                 <RadioMenuItem fx:id="rbMenuItemSessionName" mnemonicParsing="false"
-                               text="%displaySessionName"/>
+                               text="%display.SessionName"/>
                 <RadioMenuItem fx:id="rbMenuItemSessionId" mnemonicParsing="false"
-                               text="%displaySessionId"/>
+                               text="%display.SessionId"/>
                 <RadioMenuItem fx:id="rbMenuItemSessionKey" mnemonicParsing="false"
-                               text="%displaySessionKey"/>
+                               text="%display.SessionKey"/>
             </Menu>
         </Menu>
         <Menu fx:id="windowMenu" mnemonicParsing="false" text="%window">

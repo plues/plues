@@ -563,9 +563,9 @@ public class MainController implements Initializable {
   @FXML
   private void setTimeoutCustom() {
     final TextInputDialog dialog = new TextInputDialog();
-    dialog.setTitle(resources.getString("timeoutTitle"));
-    dialog.setHeaderText(resources.getString("timeoutHeader"));
-    dialog.setContentText(resources.getString("timeoutContent"));
+    dialog.setTitle(resources.getString("timeout.Title"));
+    dialog.setHeaderText(resources.getString("timeout.Header"));
+    dialog.setContentText(resources.getString("timeout.Content"));
 
     final Optional<String> result = dialog.showAndWait();
     result.ifPresent(timeout -> {
@@ -583,7 +583,7 @@ public class MainController implements Initializable {
    */
   private void setTimeout(final int timeout) {
     solverService.setTimeout(timeout);
-    logger.log(Level.INFO, "Timeout set to " + timeout + "seconds");
+    logger.log(Level.INFO, "Timeout set to " + timeout + " seconds");
   }
 
   /**
