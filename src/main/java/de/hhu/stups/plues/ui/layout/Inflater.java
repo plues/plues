@@ -85,7 +85,7 @@ public class Inflater {
       loader.setController(controller);
     }
 
-    ResourceBundle[] bundles = new ResourceBundle[bundleNames.length + 1];
+    final ResourceBundle[] bundles = new ResourceBundle[bundleNames.length + 1];
     for (int i = 0;i < bundleNames.length; i++) {
       bundles[i] = ResourceBundle.getBundle("lang." + bundleNames[i], LOCALE);
     }
@@ -106,12 +106,12 @@ public class Inflater {
 
     private final ResourceBundle[] resourceBundles;
 
-    public CustomMultiResourceBundle(final ResourceBundle... resourceBundles) {
+    CustomMultiResourceBundle(final ResourceBundle... resourceBundles) {
       this.resourceBundles = resourceBundles;
     }
 
     @Override
-    protected Object handleGetObject(String key) {
+    protected Object handleGetObject(final String key) {
       for (ResourceBundle resourceBundle : resourceBundles) {
         if (!resourceBundle.containsKey(key)) {
           continue;
@@ -124,10 +124,9 @@ public class Inflater {
 
     @Override
     public Enumeration<String> getKeys() {
-      Set<String> allKeys = new HashSet<>();
-      Set<Set<String>> keySets =
-          Arrays.stream(resourceBundles).map(ResourceBundle::keySet).collect(Collectors.toSet());
-      keySets.forEach(allKeys::addAll);
+      Set<String> allKeys =
+          Arrays.stream(resourceBundles).flatMap(resourceBundle
+              -> resourceBundle.keySet().stream()).collect(Collectors.toSet());
 
       return Collections.enumeration(allKeys);
     }
