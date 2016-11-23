@@ -14,12 +14,12 @@
             <Insets left="20" right="20"/>
         </padding>
         <buttons>
-            <ToggleButton fx:id="buttonImpossibleCourses" text="%buttonMissingData"
+            <ToggleButton fx:id="buttonImpossibleCourses" text="%button.MissingData"
                           minWidth="150.0" selected="true"/>
             <ToggleButton fx:id="buttonImpossibleCoursesBecauseOfImpossibleModules" minWidth="150.0"
-                          text="%buttonImpossibleModules"/>
+                          text="%button.ImpossibleModules"/>
             <ToggleButton fx:id="buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations"
-                          text="%buttonImpossibleModuleCombinations"
+                          text="%button.ImpossibleModuleCombinations"
                           minWidth="200.0"/>
         </buttons>
     </SegmentedButton>
@@ -27,10 +27,10 @@
     <Label text="%courses" style="-fx-font-size: 20px"/>
     <TableView fx:id="tableViewImpossibleCourses">
         <columns>
-            <TableColumn fx:id="tableColumnCourseName" text="%columnCourseName"
+            <TableColumn fx:id="tableColumnCourseName" text="%columnKey"
                          minWidth="100.0" prefWidth="150.0"/>
             <TableColumn fx:id="tableColumnCourseFullName"
-                         text="%columnCourseFullName" minWidth="100.0" prefWidth="500.0"/>
+                         text="%columnName" minWidth="100.0" prefWidth="500.0"/>
         </columns>
     </TableView>
 </fx:root>
