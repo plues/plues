@@ -17,6 +17,7 @@ import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.ReportData;
+import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverException;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -37,8 +38,8 @@ public class SolverService {
   private final ExecutorService executor;
   private final Solver solver;
   private final ResourceBundle resources = ResourceBundle.getBundle("lang.solverTask");
-  private final ReadOnlyMapProperty<MajorMinorKey, Boolean> courseCombinationResults;
-  private final ReadOnlyMapProperty<CourseKey, Boolean> singleCourseResults;
+  private final ReadOnlyMapProperty<MajorMinorKey, ResultState> courseCombinationResults;
+  private final ReadOnlyMapProperty<CourseKey, ResultState> singleCourseResults;
 
   /**
    * Create an ew SolverService instance. Using executorService to run tasks executed by solver.
@@ -68,12 +69,20 @@ public class SolverService {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     //
-    return new SolverTask<>(resources.getString("check"), msg, this.solver,
-        () -> {
-          final Boolean result = this.solver.checkFeasibility(names);
-          this.addCourseResult(names, result);
-          return result;
-        });
+    final SolverTask<Boolean> checkFeasibilityTask =
+        new SolverTask<>(resources.getString("check"), msg, this.solver,
+            () -> {
+              final Boolean result = this.solver.checkFeasibility(names);
+              addCourseResult(names, result ? ResultState.SUCCEEDED : ResultState.FAILED);
+              return result;
+            });
+    checkFeasibilityTask.setOnCancelled(event -> {
+      if (ResourceBundle.getBundle("lang.tasks").getString("timeout")
+          .equals(checkFeasibilityTask.getReason())) {
+        addCourseResult(names, ResultState.TIMEOUT);
+      }
+    });
+    return checkFeasibilityTask;
   }
 
   /**
@@ -94,10 +103,10 @@ public class SolverService {
         () -> {
           try {
             final FeasibilityResult result = solver.computeFeasibility(names);
-            this.addCourseResult(names, true);
+            this.addCourseResult(names, ResultState.SUCCEEDED);
             return result;
           } catch (final SolverException exception) {
-            this.addCourseResult(names, false);
+            this.addCourseResult(names, ResultState.FAILED);
             throw exception;
           }
         });
@@ -141,10 +150,10 @@ public class SolverService {
         () -> {
           try {
             final FeasibilityResult result = solver.computePartialFeasibility(names, mc, auc);
-            this.addCourseResult(combination, true);
+            this.addCourseResult(combination, ResultState.SUCCEEDED);
             return result;
           } catch (final SolverException exception) {
-            this.addCourseResult(combination, false);
+            this.addCourseResult(combination, ResultState.FAILED);
             throw exception;
           }
         });
@@ -251,7 +260,7 @@ public class SolverService {
    *
    * @return SolverTask
    */
-  public SolverTask<Set<String>> impossibleCoursesTask() {
+  SolverTask<Set<String>> impossibleCoursesTask() {
     return new SolverTask<>(resources.getString("impossible"),
         resources.getString("impossibleMessage"), solver, solver::getImpossibleCourses);
   }
@@ -307,13 +316,14 @@ public class SolverService {
   }
 
   /**
-   * Add a boolean valued result to the cache {@link SolverService#courseCombinationResults}.
+   * Add a {@link ResultState result} to the cache {@link #courseCombinationResults}. A result is
+   * replaced if the existing one is {@link ResultState#FAILED failed}. A {@link ResultState#TIMEOUT
+   * timeout} is only replaced by a {@link ResultState#SUCCEEDED succeeded result}.
    *
    * @param courses The list of courses or a single standalone course.
-   * @param result  The boolean valued feasibility result.
+   * @param result  The {@link ResultState result} to be stored.
    */
-  private synchronized void addCourseResult(final String[] courses,
-                                            final boolean result) {
+  private synchronized void addCourseResult(final String[] courses, final ResultState result) {
     final MajorMinorKey key;
     if (courses.length == 1) {
       key = new MajorMinorKey(courses[0], null);
@@ -321,25 +331,36 @@ public class SolverService {
       key = new MajorMinorKey(courses[0], courses[1]);
       addSingleCourseResult(courses[1], result);
     }
-    // only replace if cache not contains key or the existing result is false
-    if (!courseCombinationResults.containsKey(key) || !courseCombinationResults.get(key)) {
+    if (!courseCombinationResults.containsKey(key)
+        || ResultState.FAILED.equals(courseCombinationResults.get(key))
+        || ResultState.SUCCEEDED.equals(result)) {
       courseCombinationResults.put(key, result);
     }
     addSingleCourseResult(courses[0], result);
   }
 
-  private void addSingleCourseResult(final String courseName, final Boolean result) {
+  /**
+   * Add a {@link ResultState result} to the cache {@link #singleCourseResults}. A result is
+   * replaced if the existing one is {@link ResultState#FAILED failed}. A {@link ResultState#TIMEOUT
+   * timeout} is only replaced by a {@link ResultState#SUCCEEDED succeeded result}.
+   *
+   * @param courseName The name of the single course.
+   * @param result     The {@link ResultState result} to be stored.
+   */
+  private void addSingleCourseResult(final String courseName, final ResultState result) {
     final CourseKey courseKey = new CourseKey(courseName);
-    if (!singleCourseResults.containsKey(courseKey) || !singleCourseResults.get(courseKey)) {
+    if (!singleCourseResults.containsKey(courseKey)
+        || ResultState.FAILED.equals(singleCourseResults.get(courseKey))
+        || ResultState.SUCCEEDED.equals(result)) {
       singleCourseResults.put(courseKey, result);
     }
   }
 
-  public final ReadOnlyMapProperty<MajorMinorKey, Boolean> getCourseCombinationResults() {
+  public final ReadOnlyMapProperty<MajorMinorKey, ResultState> getCourseCombinationResults() {
     return courseCombinationResults;
   }
 
-  public final ReadOnlyMapProperty<CourseKey, Boolean> getSingleCourseResults() {
+  public final ReadOnlyMapProperty<CourseKey, ResultState> getSingleCourseResults() {
     return singleCourseResults;
   }
 
