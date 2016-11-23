@@ -2,6 +2,7 @@ package de.hhu.stups.plues.ui.batchgeneration;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.keys.MajorMinorKey;
+import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 
@@ -22,7 +23,7 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
   private final List<Course> minorCourses;
   private final List<Course> standaloneCourses;
   private final Set<String> impossibleCourses;
-  private ObservableMap<MajorMinorKey, Boolean> courseCombinationResults;
+  private ObservableMap<MajorMinorKey, ResultState> courseCombinationResults;
 
   /**
    * Create tasks for each combination of major and minor course as well as for each standalone
@@ -33,7 +34,7 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
    */
   public CollectFeasibilityTasksTask(SolverService solverService, List<Course> majorCourses,
                                      List<Course> minorCourses, List<Course> standaloneCourses,
-                                     ObservableMap<MajorMinorKey, Boolean>
+                                     ObservableMap<MajorMinorKey, ResultState>
                                          courseCombinationResults,
                                      Set<String> impossibleCourses) {
     this.solverService = solverService;
@@ -42,7 +43,7 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
     this.standaloneCourses = standaloneCourses;
     this.courseCombinationResults = courseCombinationResults;
     this.impossibleCourses = impossibleCourses;
-    this.resources = ResourceBundle.getBundle("lang.conflictMatrix");
+    resources = ResourceBundle.getBundle("lang.conflictMatrix");
   }
 
   @Override
@@ -83,7 +84,7 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
    */
   private boolean notCheckedYet(MajorMinorKey majorMinorKey) {
     return (!courseCombinationResults.containsKey(majorMinorKey)
-        || !courseCombinationResults.get(majorMinorKey))
+        || ResultState.FAILED.equals(courseCombinationResults.get(majorMinorKey)))
         && !(impossibleCourses.contains(majorMinorKey.getMajor())
         || impossibleCourses.contains(majorMinorKey.getMinor()));
   }
