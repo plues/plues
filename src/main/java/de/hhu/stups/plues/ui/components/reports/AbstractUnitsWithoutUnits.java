@@ -31,7 +31,8 @@ public class AbstractUnitsWithoutUnits extends VBox implements Initializable {
 
   @Inject
   public AbstractUnitsWithoutUnits(final Inflater inflater) {
-    inflater.inflate("/components/reports/AbstractUnitsWithoutUnits", this, this, "reports", "Column");
+    inflater.inflate("/components/reports/AbstractUnitsWithoutUnits",
+        this, this, "reports", "Column");
   }
 
   @Override
