@@ -583,7 +583,7 @@ public class MainController implements Initializable {
    */
   private void setTimeout(final int timeout) {
     solverService.setTimeout(timeout);
-    logger.log(Level.INFO, "Timeout set to " + timeout + "seconds");
+    logger.log(Level.INFO, "Timeout set to " + timeout + " seconds");
   }
 
   /**
