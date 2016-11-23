@@ -24,7 +24,6 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.beans.property.ReadOnlyMapProperty;
 import javafx.beans.property.ReadOnlyMapWrapper;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableMap;
 
 import java.util.List;
 import java.util.Map;
