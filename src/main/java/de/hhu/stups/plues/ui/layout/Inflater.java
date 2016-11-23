@@ -102,7 +102,7 @@ public class Inflater {
     }
   }
 
-  private final class CustomMultiResourceBundle extends ResourceBundle {
+  private static final class CustomMultiResourceBundle extends ResourceBundle {
 
     private final ResourceBundle[] resourceBundles;
 
