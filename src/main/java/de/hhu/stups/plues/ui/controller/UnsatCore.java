@@ -193,16 +193,16 @@ public class UnsatCore extends VBox implements Initializable {
           msg = "";
           break;
         case CANCELLED:
-          msg = this.resources.getString("taskCancelled");
+          msg = this.resources.getString("task.Cancelled");
           break;
         case FAILED:
-          msg = this.resources.getString("taskFailed");
+          msg = this.resources.getString("task.Failed");
           break;
         case READY:
         case SCHEDULED:
         case RUNNING:
         default:
-          msg = this.resources.getString("taskRunning");
+          msg = this.resources.getString("task.Running");
           break;
       }
       return msg;

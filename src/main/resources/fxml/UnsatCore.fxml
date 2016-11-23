@@ -23,7 +23,7 @@
             <HBox>
                 <Button fx:id="unsatCoreModulesButton" disable="true"
                         onAction="#computeUnsatCoreModules"
-                        text="%unsatCoreModulesButton"/>
+                        text="%button.unsatCoreModules"/>
                 <Label fx:id="modulesTaskStateIcon"/>
                 <Label fx:id="modulesTaskStateLabel"/>
             </HBox>
@@ -41,7 +41,7 @@
                 <HBox>
                     <Button fx:id="unsatCoreAbstractUnitsButton" disable="true"
                             onAction="#computeUnsatCoreAbstractUnits"
-                            text="%unsatCoreAbstractUnitsButton"/>
+                            text="%button.unsatCoreAbstractUnits"/>
                     <Label fx:id="abstractUnitsTaskStateIcon"/>
                     <Label fx:id="abstractUnitsTaskStateLabel"/>
                 </HBox>
@@ -63,7 +63,7 @@
                 <HBox>
                     <Button fx:id="unsatCoreGroupsButton" disable="true"
                             onAction="#computeUnsatCoreGroups"
-                            text="%unsatCoreGroupsButton"/>
+                            text="%button.unsatCoreGroups"/>
                     <Label fx:id="groupsTaskStateIcon"/>
                     <Label fx:id="groupsTaskStateLabel"/>
                 </HBox>
@@ -88,7 +88,7 @@
                 <HBox>
                     <Button fx:id="unsatCoreSessionButton" disable="true"
                             onAction="#computeUnsatCoreSessions"
-                            text="%unsatCoreSessionButton"/>
+                            text="%button.unsatCoreSession"/>
                     <Label fx:id="sessionsTaskStateIcon"/>
                     <Label fx:id="sessionsTaskStateLabel"/>
                 </HBox>

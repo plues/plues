@@ -95,11 +95,11 @@ public class ImpossibleModules extends VBox implements Initializable {
       protected String computeValue() {
         final String string;
         if (buttonIncompleteModules.isSelected()) {
-          string = resources.getString("explainIncompleteModules");
+          string = resources.getString("explain.IncompleteModules");
         } else {
           if (buttonMissingElectiveAbstractUnits.isSelected()) {
             string = resources.getString(
-                "explainImpossibleModulesBecauseOfMissingElectiveAbstractUnits");
+              "explain.ImpossibleModulesBecauseOfMissingElectiveAbstractUnits");
           } else {
             string = null;
           }

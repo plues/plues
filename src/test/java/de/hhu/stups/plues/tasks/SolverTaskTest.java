@@ -43,7 +43,7 @@ public class SolverTaskTest extends ApplicationTest {
   private static final String TITLE =
       ResourceBundle.getBundle("lang.solverTask").getString("testTitle");
   private static final String MESSAGE =
-      ResourceBundle.getBundle("lang.solverTask").getString("testMessage");
+      ResourceBundle.getBundle("lang.solverTask").getString("message.test");
   private static final int TIMEOUT = 60;
 
   static {
