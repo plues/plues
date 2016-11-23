@@ -29,7 +29,7 @@
             <MenuItem fx:id="saveFileAsMenuItem" onAction="#saveFileAs" disable="true"
                       mnemonicParsing="false" text="%saveAs" accelerator="Shortcut+Shift+S"/>
             <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"  disable="true"
-                      mnemonicParsing="false" text="%export" accelerator="Shortcut+E"/>
+                      mnemonicParsing="false" text="%export.start" accelerator="Shortcut+E"/>
             <MenuItem fx:id="openChangeLog" onAction="#openChangeLog" disable="true"
                       mnemonicParsing="false" text="%log" accelerator="Shortcut+L"/>
             <MenuItem fx:id="openReportsMenuItem" onAction="#openReports" disable="true"
