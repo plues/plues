@@ -53,7 +53,7 @@ public class ConflictTree extends VBox implements Initializable {
     dayOfWeekStrings = new EnumMap<>(DayOfWeek.class);
     timeStrings = new HashMap<>();
 
-    inflater.inflate("components/ConflictTree", this, this, "conflictTree");
+    inflater.inflate("components/ConflictTree", this, this, "conflictTree", "Days");
   }
 
   @Override
