@@ -37,6 +37,7 @@ import javafx.scene.shape.Circle;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -160,7 +161,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
     delayedStore.whenAvailable(localStore -> {
       store = localStore;
-      courses.addAll(store.getCourses());
+      courses.addAll(store.getCourses().stream()
+          .sorted(Comparator.comparing(Course::getShortName)).collect(Collectors.toList()));
       combinableMajorCourses.addAll(courses.stream()
           .filter(c -> c.isMajor() && c.isCombinable()).collect(Collectors.toList()));
       combinableMinorCourses.addAll(courses.stream()
