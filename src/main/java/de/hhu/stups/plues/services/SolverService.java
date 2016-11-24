@@ -40,6 +40,7 @@ public class SolverService {
   private final ResourceBundle resources = ResourceBundle.getBundle("lang.solverTask");
   private final ReadOnlyMapProperty<MajorMinorKey, ResultState> courseCombinationResults;
   private final ReadOnlyMapProperty<CourseKey, ResultState> singleCourseResults;
+  private Boolean recentlyAddedResult = false;
 
   /**
    * Create an ew SolverService instance. Using executorService to run tasks executed by solver.
@@ -73,7 +74,10 @@ public class SolverService {
         new SolverTask<>(resources.getString("check"), msg, this.solver,
             () -> {
               final Boolean result = this.solver.checkFeasibility(names);
-              addCourseResult(names, result ? ResultState.SUCCEEDED : ResultState.FAILED);
+              if (!recentlyAddedResult) {
+                addCourseResult(names, result ? ResultState.SUCCEEDED : ResultState.FAILED);
+              }
+              recentlyAddedResult = false;
               return result;
             });
     addTimeoutListener(names, checkFeasibilityTask);
@@ -101,7 +105,10 @@ public class SolverService {
                 this.addCourseResult(names, ResultState.SUCCEEDED);
                 return result;
               } catch (final SolverException exception) {
-                this.addCourseResult(names, ResultState.FAILED);
+                if (!recentlyAddedResult) {
+                  this.addCourseResult(names, ResultState.FAILED);
+                }
+                recentlyAddedResult = false;
                 throw exception;
               }
             });
@@ -150,7 +157,10 @@ public class SolverService {
                 this.addCourseResult(combination, ResultState.SUCCEEDED);
                 return result;
               } catch (final SolverException exception) {
-                this.addCourseResult(combination, ResultState.FAILED);
+                if (!recentlyAddedResult) {
+                  this.addCourseResult(combination, ResultState.FAILED);
+                }
+                recentlyAddedResult = false;
                 throw exception;
               }
             });
@@ -316,8 +326,7 @@ public class SolverService {
 
   /**
    * Add a {@link ResultState result} to the cache {@link #courseCombinationResults}. A result is
-   * replaced if the existing one is {@link ResultState#FAILED failed}. A {@link ResultState#TIMEOUT
-   * timeout} is only replaced by a {@link ResultState#SUCCEEDED succeeded result}.
+   * replaced if the existing one is {@link ResultState#FAILED failed}.
    *
    * @param courses The list of courses or a single standalone course.
    * @param result  The {@link ResultState result} to be stored.
@@ -326,31 +335,32 @@ public class SolverService {
     final MajorMinorKey key;
     if (courses.length == 1) {
       key = new MajorMinorKey(courses[0], null);
+      addSingleCourseResult(courses[0], result);
     } else {
       key = new MajorMinorKey(courses[0], courses[1]);
-      addSingleCourseResult(courses[1], result);
+      if (ResultState.SUCCEEDED.equals(result)) {
+        addSingleCourseResult(courses[0], result);
+        addSingleCourseResult(courses[1], result);
+      }
     }
     if (!courseCombinationResults.containsKey(key)
-        || ResultState.FAILED.equals(courseCombinationResults.get(key))
-        || ResultState.SUCCEEDED.equals(result)) {
+        || !ResultState.SUCCEEDED.equals(courseCombinationResults.get(key))) {
       courseCombinationResults.put(key, result);
     }
-    addSingleCourseResult(courses[0], result);
   }
 
   /**
    * Add a {@link ResultState result} to the cache {@link #singleCourseResults}. A result is
-   * replaced if the existing one is {@link ResultState#FAILED failed}. A {@link ResultState#TIMEOUT
-   * timeout} is only replaced by a {@link ResultState#SUCCEEDED succeeded result}.
+   * replaced if the existing one is {@link ResultState#FAILED failed}.
    *
    * @param courseName The name of the single course.
    * @param result     The {@link ResultState result} to be stored.
    */
-  private void addSingleCourseResult(final String courseName, final ResultState result) {
+  private synchronized void addSingleCourseResult(final String courseName,
+                                                  final ResultState result) {
     final CourseKey courseKey = new CourseKey(courseName);
     if (!singleCourseResults.containsKey(courseKey)
-        || ResultState.FAILED.equals(singleCourseResults.get(courseKey))
-        || ResultState.SUCCEEDED.equals(result)) {
+        || !ResultState.SUCCEEDED.equals(singleCourseResults.get(courseKey))) {
       singleCourseResults.put(courseKey, result);
     }
   }
@@ -361,6 +371,7 @@ public class SolverService {
    */
   private void addTimeoutListener(final String[] names, final SolverTask<?> solverTask) {
     solverTask.setOnCancelled(event -> {
+      recentlyAddedResult = true;
       if (ResourceBundle.getBundle("lang.tasks").getString("timeout")
           .equals(solverTask.getReason())) {
         addCourseResult(names, ResultState.TIMEOUT);
@@ -385,7 +396,7 @@ public class SolverService {
    * @return SolverTask object for moving a session
    */
   public SolverTask<Void> moveSession(final int sessionId, final SessionFacade.Slot slot) {
-    return new SolverTask<>("Verschiebe a nach b", "Verschiebe es!!!", solver, () -> {
+    return new SolverTask<>("Verschiebe a nach recentlyAddedResult", "Verschiebe es!!!", solver, () -> {
       solver.move(
           String.valueOf(sessionId),
           slot.getDayString(),
