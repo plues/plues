@@ -227,15 +227,12 @@ public class ConflictMatrix extends GridPane implements Initializable {
    * Initialize and set the visibility of the grid panes according to the current data.
    */
   private void setInitialGridPaneVisibility() {
-    if (standaloneCourses.isEmpty()) {
-      initializeGridPaneCombinable();
-      accordionConflictMatrices.setExpandedPane(titledPaneCombinableCourses);
-    } else if (combinableMajorCourses.isEmpty() || combinableMinorCourses.isEmpty()) {
+    if (!standaloneCourses.isEmpty()) {
       initializeGridPaneStandalone();
       accordionConflictMatrices.setExpandedPane(titledPaneStandaloneCourses);
-    } else {
+    }
+    if (!combinableMajorCourses.isEmpty() && !combinableMinorCourses.isEmpty()) {
       initializeGridPaneCombinable();
-      initializeGridPaneStandalone();
       accordionConflictMatrices.setExpandedPane(titledPaneCombinableCourses);
     }
     initializeGridPaneSingleCourse();
