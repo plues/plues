@@ -396,7 +396,7 @@ public class SolverService {
    * @return SolverTask object for moving a session
    */
   public SolverTask<Void> moveSession(final int sessionId, final SessionFacade.Slot slot) {
-    return new SolverTask<>("Verschiebe a nach recentlyAddedResult", "Verschiebe es!!!", solver, () -> {
+    return new SolverTask<>("Verschiebe a nach b", "Verschiebe es!!!", solver, () -> {
       solver.move(
           String.valueOf(sessionId),
           slot.getDayString(),
