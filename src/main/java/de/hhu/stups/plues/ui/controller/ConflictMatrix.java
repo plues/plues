@@ -387,8 +387,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
   }
 
   /**
-   * Call {@link #getDefaultGridCell(String, String) getDefaultGridCell} with the
-   * default horizontal orientation.
+   * Call {@link #getDefaultGridCell(String, String) getDefaultGridCell} with the default horizontal
+   * orientation.
    */
   private Pane getDefaultGridCell(final String courseName) {
     return getDefaultGridCell(courseName, "");
@@ -525,12 +525,11 @@ public class ConflictMatrix extends GridPane implements Initializable {
    */
   private void gridPaneCombinableAddElm(final String majorName, final String minorName,
                                         final ResultState result) {
-    final int row = combinableMinorCourses.stream().map(Course::getName)
-        .collect(Collectors.toList()).indexOf(minorName) + 1;
-    final int col = combinableMajorCourses.stream().map(Course::getName)
-        .collect(Collectors.toList()).indexOf(majorName) + 1;
-
     if (!impossibleCourses.contains(majorName) && !impossibleCourses.contains(minorName)) {
+      final int row = combinableMinorCourses.stream().map(Course::getName)
+          .collect(Collectors.toList()).indexOf(minorName) + 1;
+      final int col = combinableMajorCourses.stream().map(Course::getName)
+          .collect(Collectors.toList()).indexOf(majorName) + 1;
       Platform.runLater(() -> gridPaneCombinable.add(
           getActiveGridCellPane(result, majorName, minorName), col, row));
     }
@@ -539,7 +538,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   /**
    * Add a result to the list of standalone courses for given key and result.
    *
-   * @param majorName The major course's name.
+   * @param majorName The major course name.
    * @param result    A {@link ResultState} object to distinguish between succeeded, failed and
    *                  timeouts.
    */
@@ -555,10 +554,20 @@ public class ConflictMatrix extends GridPane implements Initializable {
     }
   }
 
+  /**
+   * Add a result to the list of single courses. A course's feasibility is validated as true if
+   * there is any combination (or standalone course) that is feasible.
+   *
+   * @param courseName The course name.
+   * @param result     A {@link ResultState} object to distinguish between succeeded, failed and
+   *                   timeouts.
+   */
   private void gridPaneSingleCourseAddElm(final String courseName, final ResultState result) {
-    final int col = courses.stream().map(Course::getName)
-        .collect(Collectors.toList()).indexOf(courseName);
-    Platform.runLater(() -> gridPaneSingleCourses.add(getActiveGridCellPane(result), col, 1));
+    if (!impossibleCourses.contains(courseName)) {
+      final int col = courses.stream().map(Course::getName)
+          .collect(Collectors.toList()).indexOf(courseName);
+      Platform.runLater(() -> gridPaneSingleCourses.add(getActiveGridCellPane(result), col, 1));
+    }
   }
 
   private void restoreInitialState() {
