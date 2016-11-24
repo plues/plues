@@ -69,6 +69,11 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
             feasibilityTasks.add(solverService.checkFeasibilityTask(course));
           }
         });
+    // also check the results for all single courses
+    majorCourses.forEach(majorCourse ->
+        feasibilityTasks.add(solverService.checkFeasibilityTask(majorCourse)));
+    minorCourses.forEach(minorCourse ->
+        feasibilityTasks.add(solverService.checkFeasibilityTask(minorCourse)));
     return feasibilityTasks;
   }
 
@@ -84,7 +89,7 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
    */
   private boolean notCheckedYet(MajorMinorKey majorMinorKey) {
     return (!courseCombinationResults.containsKey(majorMinorKey)
-        || ResultState.FAILED.equals(courseCombinationResults.get(majorMinorKey)))
+        || !ResultState.SUCCEEDED.equals(courseCombinationResults.get(majorMinorKey)))
         && !(impossibleCourses.contains(majorMinorKey.getMajor())
         || impossibleCourses.contains(majorMinorKey.getMinor()));
   }
