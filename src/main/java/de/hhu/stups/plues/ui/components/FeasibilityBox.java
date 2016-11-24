@@ -9,7 +9,7 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
+import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
@@ -34,7 +34,6 @@ import javafx.scene.layout.VBox;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -146,7 +145,7 @@ public class FeasibilityBox extends VBox implements Initializable {
         feasibilityTask = solver.checkFeasibilityTask(cMajor);
       }
 
-      progressIndicator.setStyle("-fx-progress-color: " + PdfRenderingHelper.WORKING_COLOR);
+      progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
       progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
 
       executorService.submit(feasibilityTask);
@@ -161,24 +160,24 @@ public class FeasibilityBox extends VBox implements Initializable {
       lbIcon.setGraphic(FontAwesomeIconFactory.get().createIcon(feasibilityTask.getValue()
           ? FontAwesomeIcon.CHECK : FontAwesomeIcon.REMOVE, "50"));
       lbIcon.setStyle(bgColorCommand + (feasibilityTask.getValue()
-          ? PdfRenderingHelper.SUCCESS_COLOR : PdfRenderingHelper.FAILURE_COLOR));
+          ? TaskStateColor.SUCCESS : TaskStateColor.FAILURE).getColor());
     }));
 
     feasibilityTask.setOnFailed(event -> {
       cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
       cbAction.getSelectionModel().selectFirst();
       lbIcon.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.REMOVE, "50"));
-      lbIcon.setStyle(bgColorCommand + PdfRenderingHelper.FAILURE_COLOR);
+      lbIcon.setStyle(bgColorCommand + TaskStateColor.FAILURE.getColor());
     });
 
     feasibilityTask.setOnCancelled(event -> {
       cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
       cbAction.getSelectionModel().selectFirst();
       lbIcon.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.QUESTION, "50"));
-      lbIcon.setStyle(bgColorCommand + PdfRenderingHelper.WARNING_COLOR);
+      lbIcon.setStyle(bgColorCommand + TaskStateColor.WARNING.getColor());
     });
 
-    progressIndicator.setStyle("-fx-progress-color: " + PdfRenderingHelper.WORKING_COLOR);
+    progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
     progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
 
     cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancelString)));
