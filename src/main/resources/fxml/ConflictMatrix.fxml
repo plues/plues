@@ -98,10 +98,18 @@
                 </rowConstraints>
             </GridPane>
         </HBox>
+<<<<<<< HEAD
         <HBox prefHeight="Infinity" prefWidth="Infinity" alignment="CENTER" GridPane.columnIndex="0"
               GridPane.rowIndex="4">
             <Button fx:id="btCheckAll" onAction="#checkAll" text="%checkAll"/>
             <Button fx:id="btCancelCheckAll" onAction="#cancelCheckAll" text="%cancelCheckAll"/>
+=======
+        <HBox prefHeight="Infinity" prefWidth="Infinity" alignment="CENTER"
+              GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2">
+            <Button fx:id="btCheckAll" onAction="#checkAllCombinations"
+                    text="%checkAll"/>
+            <Button fx:id="btCancelCheckAll" onAction="#cancelCheckAll" text="%cancel"/>
+>>>>>>> 8b54288faa5da1204b80424f31d7f2f9ffda344d
         </HBox>
     </children>
     <columnConstraints>

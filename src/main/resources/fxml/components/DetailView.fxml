@@ -27,11 +27,11 @@
     <Label text="%course"/>
     <TableView fx:id="courseTable">
         <columns>
-            <TableColumn fx:id="courseKey"/>
-            <TableColumn fx:id="module"/>
-            <TableColumn fx:id="abstractUnit"/>
-            <TableColumn fx:id="courseSemesters"/>
-            <TableColumn fx:id="type"/>
+            <TableColumn fx:id="courseKey" text="%cell.course"/>
+            <TableColumn fx:id="module" text="%cell.module"/>
+            <TableColumn fx:id="abstractUnit" text="%cell.abstractUnit"/>
+            <TableColumn fx:id="courseSemesters" text="%cell.semester"/>
+            <TableColumn fx:id="type" text="%cell.type"/>
         </columns>
     </TableView>
 </fx:root>

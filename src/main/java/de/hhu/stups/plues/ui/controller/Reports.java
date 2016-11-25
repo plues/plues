@@ -138,7 +138,7 @@ class Reports extends VBox implements Initializable {
       });
     });
 
-    inflater.inflate("Reports", this, this, "reports");
+    inflater.inflate("Reports", this, this, "reports", "Column");
   }
 
   @Override

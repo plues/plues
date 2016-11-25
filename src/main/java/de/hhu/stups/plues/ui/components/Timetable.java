@@ -13,7 +13,6 @@ import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
-import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -27,7 +26,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
@@ -80,7 +78,7 @@ public class Timetable extends BorderPane implements Initializable {
 
     // TODO: remove controller param if possible
     // TODO: currently not possible because of dependency circle
-    inflater.inflate("components/Timetable", this, this, "timetable");
+    inflater.inflate("components/Timetable", this, this, "timetable", "Days", "Column");
   }
 
   @Override
@@ -89,6 +87,8 @@ public class Timetable extends BorderPane implements Initializable {
       this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
       setOfCourseSelection.setCourses(store.getCourses());
       checkCourseFeasibility.setCourses(store.getCourses());
+      abstractUnitFilter.courseFilterProperty().bind(
+          setOfCourseSelection.selectedCoursesProperty());
 
       setSessions(store.getSessions()
           .parallelStream()
@@ -167,7 +167,7 @@ public class Timetable extends BorderPane implements Initializable {
       final ToggleButton semesterButton = (ToggleButton) semesterToggle.getSelectedToggle();
 
       return sessions.filtered(session -> {
-        final Set<Integer> semesters = session.getSemesters();
+        final Set<Integer> semesters = session.getUnitSemesters();
 
         Integer semester = null;
         if (null != semesterButton) {

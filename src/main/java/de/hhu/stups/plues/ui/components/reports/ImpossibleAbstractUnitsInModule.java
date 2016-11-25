@@ -50,7 +50,8 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
     modules = new SimpleListProperty<>(FXCollections.observableArrayList());
     abstractUnits = new SimpleListProperty<>(FXCollections.observableArrayList());
 
-    inflater.inflate("/components/reports/ImpossibleAbstractUnitsInModule", this, this, "reports");
+    inflater.inflate("/components/reports/ImpossibleAbstractUnitsInModule",
+        this, this, "reports", "Column");
   }
 
   @Override

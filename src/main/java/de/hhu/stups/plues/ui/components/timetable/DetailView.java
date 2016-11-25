@@ -131,15 +131,10 @@ public class DetailView extends VBox implements Initializable {
     });
 
     courseKey.setCellValueFactory(new PropertyValueFactory<>("courseKey"));
-    courseKey.setText(resources.getString("courseCell"));
     module.setCellValueFactory(new PropertyValueFactory<>("module"));
-    module.setText(resources.getString("moduleCell"));
     abstractUnit.setCellValueFactory(new PropertyValueFactory<>("abstractUnit"));
-    abstractUnit.setText(resources.getString("abstractUnitCell"));
     courseSemesters.setCellValueFactory(new PropertyValueFactory<>("semesters"));
-    courseSemesters.setText(resources.getString("semesterCell"));
     type.setCellValueFactory(new PropertyValueFactory<>("type"));
-    type.setText(resources.getString("typeCell"));
   }
 
   public String getTitle() {

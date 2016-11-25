@@ -19,7 +19,6 @@ import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.prob.Solver;
-import de.hhu.stups.plues.prob.SolverException;
 import de.hhu.stups.plues.tasks.SolverTask;
 
 import javafx.beans.property.ReadOnlyMapProperty;
@@ -41,6 +40,7 @@ public class SolverService {
   private final ReadOnlyMapProperty<MajorMinorKey, ResultState> courseCombinationResults;
   private final ReadOnlyMapProperty<CourseKey, ResultState> singleCourseResults;
   private final String langTimeout = ResourceBundle.getBundle("lang.tasks").getString("timeout");
+  private int timeout = 60;
 
   /**
    * Create an ew SolverService instance. Using executorService to run tasks executed by solver.
@@ -49,6 +49,7 @@ public class SolverService {
    * @param solver          Solver object to execute operations on ProB instance.
    */
   @Inject
+
   public SolverService(@Named("prob") final ExecutorService executorService,
                        @Assisted final Solver solver) {
     this.executor = executorService;
@@ -72,7 +73,7 @@ public class SolverService {
     //
     final SolverTask<Boolean> checkFeasibilityTask =
         new SolverTask<>(resources.getString("check"), msg, this.solver,
-            () -> solver.checkFeasibility(names));
+            () -> solver.checkFeasibility(names), timeout);
     addOnCancelListener(names, checkFeasibilityTask);
     checkFeasibilityTask.setOnSucceeded(event -> {
       if (langTimeout.equals(checkFeasibilityTask.getReason())) {
@@ -104,7 +105,7 @@ public class SolverService {
               final FeasibilityResult result = solver.computeFeasibility(names);
               this.addCourseResult(names, ResultState.SUCCEEDED);
               return result;
-            });
+            }, timeout);
     addOnCancelListener(names, computeFeasibilityTask);
     computeFeasibilityTask.setOnFailed(event -> {
       if (langTimeout.equals(computeFeasibilityTask.getReason())) {
@@ -155,7 +156,7 @@ public class SolverService {
               final FeasibilityResult result = solver.computePartialFeasibility(names, mc, auc);
               addCourseResult(combination, ResultState.SUCCEEDED);
               return result;
-            });
+            }, timeout);
     addOnCancelListener(combination, computeFeasibilityTask);
     computeFeasibilityTask.setOnFailed(event -> {
       if (langTimeout.equals(computeFeasibilityTask.getReason())) {
@@ -180,7 +181,7 @@ public class SolverService {
     final String msg = getMessage(names);
     //
     return new SolverTask<>(resources.getString("unsat"), msg, solver,
-        () -> solver.unsatCore(names));
+        () -> solver.unsatCore(names), timeout);
   }
 
   /**
@@ -194,7 +195,7 @@ public class SolverService {
     final String msg = getMessage(names);
     //
     return new SolverTask<>(resources.getString("unsatCoreModules"), msg, solver,
-        () -> solver.unsatCoreModules(names));
+        () -> solver.unsatCoreModules(names), timeout);
   }
 
   /**
@@ -209,7 +210,7 @@ public class SolverService {
         .map(Module::getId).collect(Collectors.toList());
     //
     return new SolverTask<>(resources.getString("unsatCoreAbstractUnits"), msg, solver,
-        () -> solver.unsatCoreAbstractUnits(moduleIds));
+        () -> solver.unsatCoreAbstractUnits(moduleIds), timeout);
   }
 
   /**
@@ -228,7 +229,7 @@ public class SolverService {
     final List<Integer> moduleIds = modules.stream()
         .map(Module::getId).collect(Collectors.toList());
     return new SolverTask<>(resources.getString("unsatCoreGroups"), msg, solver,
-        () -> solver.unsatCoreGroups(abstractUnitIds, moduleIds));
+        () -> solver.unsatCoreGroups(abstractUnitIds, moduleIds), timeout);
   }
 
   /**
@@ -243,7 +244,7 @@ public class SolverService {
     final List<Integer> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
     //
     return new SolverTask<>(resources.getString("unsatCoreSessions"), msg, solver,
-        () -> solver.unsatCoreSessions(groupIds));
+        () -> solver.unsatCoreSessions(groupIds), timeout);
   }
 
   /**
@@ -259,7 +260,7 @@ public class SolverService {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
     return new SolverTask<>(resources.getString("alternatives"), msg, solver,
-        () -> solver.getLocalAlternatives(session.getId(), names));
+        () -> solver.getLocalAlternatives(session.getId(), names), timeout);
   }
 
 
@@ -270,13 +271,14 @@ public class SolverService {
    */
   SolverTask<Set<String>> impossibleCoursesTask() {
     return new SolverTask<>(resources.getString("impossible"),
-        resources.getString("impossibleMessage"), solver, solver::getImpossibleCourses);
+        resources.getString("message.impossible"), solver, solver::getImpossibleCourses,
+        timeout);
   }
 
 
   public SolverTask<ReportData> collectReportDataTask() {
-    return new SolverTask<>(resources.getString("report"), resources.getString("reportMessage"),
-        solver, solver::getReportingData);
+    return new SolverTask<>(resources.getString("report"), resources.getString("message.report"),
+        solver, solver::getReportingData, timeout);
   }
 
   /**
@@ -291,13 +293,14 @@ public class SolverService {
   @SuppressWarnings("unused")
   public SolverTask<Void> moveTask(final Session session, final String day, final String time) {
     final String sessionId = String.valueOf(session.getId());
-    return new SolverTask<>(resources.getString("moving"), resources.getString("movingMessage"),
+
+    return new SolverTask<>(resources.getString("moving"), resources.getString("message.moving"),
         solver, () -> {
       solver.move(sessionId, day, time);
       courseCombinationResults.clear();
       singleCourseResults.clear();
       return null;
-    });
+    }, timeout);
   }
 
   private String getMessage(final String[] names) {
@@ -400,9 +403,11 @@ public class SolverService {
           slot.getTime().toString());
       courseCombinationResults.clear();
       singleCourseResults.clear();
-      System.out.println("cleared:" + courseCombinationResults);
       return null;
-    });
+    }, timeout);
   }
 
+  public void setTimeout(int timeout) {
+    this.timeout = timeout;
+  }
 }

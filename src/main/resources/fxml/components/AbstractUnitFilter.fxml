@@ -8,6 +8,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.CheckBox?>
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
     <children>
@@ -19,15 +20,16 @@
             <RadioButton fx:id="notSelected" text="%notSelected"/>
             <RadioButton fx:id="all" text="%all" selected="true"/>
         </HBox>
+        <CheckBox fx:id="selectedCoursesOnly" text="%selectedCoursesOnly"/>
         <Button fx:id="clearSelection" text="%clear" onAction="#resetSelection"/>
         <TableView fx:id="units" editable="true">
             <columns>
                 <TableColumn fx:id="checkboxColumn" prefWidth="30" sortable="false"
                              resizable="false"/>
                 <TableColumn fx:id="abstractUnitKeyColumn" minWidth="120" maxWidth="200"
-                             text="%key" editable="false"/>
+                             text="%columnKey" editable="false"/>
                 <TableColumn fx:id="abstractUnitTitleColumn" minWidth="350"
-                             text="%title" editable="false"/>
+                             text="%columnTitle" editable="false"/>
             </columns>
         </TableView>
     </children>

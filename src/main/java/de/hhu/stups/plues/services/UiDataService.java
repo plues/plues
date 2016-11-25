@@ -27,7 +27,8 @@ import java.util.Set;
 
 @Singleton
 public class UiDataService {
-  private final ListProperty<Integer> conflictMarkedSessionsProperty = new SimpleListProperty<>();
+  private final ListProperty<Integer> conflictMarkedSessionsProperty =
+      new SimpleListProperty<>(FXCollections.emptyObservableList());
   private final StringProperty sessionDisplayFormatProperty = new SimpleStringProperty();
   private final SetProperty<String> impossibleCoursesProperty
       = new SimpleSetProperty<>(FXCollections.observableSet());

@@ -20,46 +20,54 @@
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="de.hhu.stups.plues.ui.controller.MainController">
-    <MenuBar useSystemMenuBar="true" BorderPane.alignment="CENTER">
+    <MenuBar useSystemMenuBar="true" fx:id="menuBar" BorderPane.alignment="CENTER">
         <Menu mnemonicParsing="false" text="%file">
             <MenuItem fx:id="openFileMenuItem" onAction="#openFile"
-                      mnemonicParsing="false" text="%open"/>
-            <MenuItem fx:id="saveFileMenuItem" onAction="#saveFile"
-                      mnemonicParsing="false" text="%save"/>
-            <MenuItem fx:id="saveFileAsMenuItem" onAction="#saveFileAs"
-                      mnemonicParsing="false" text="%saveAs"/>
-            <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"
-                      mnemonicParsing="false" text="%export"/>
-            <MenuItem fx:id="openChangeLog" onAction="#openChangeLog"
-                      mnemonicParsing="false" text="%log"/>
-            <MenuItem fx:id="openReports" onAction="#openReports"
-                      mnemonicParsing="false" text="%reports"/>
+                      mnemonicParsing="false" text="%open" accelerator="Shortcut+O"/>
+            <MenuItem fx:id="saveFileMenuItem" onAction="#saveFile" disable="true"
+                      mnemonicParsing="false" text="%save" accelerator="Shortcut+S"/>
+            <MenuItem fx:id="saveFileAsMenuItem" onAction="#saveFileAs" disable="true"
+                      mnemonicParsing="false" text="%saveAs" accelerator="Shortcut+Shift+S"/>
+            <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"  disable="true"
+                      mnemonicParsing="false" text="%export.start" accelerator="Shortcut+E"/>
+            <MenuItem fx:id="openChangeLog" onAction="#openChangeLog" disable="true"
+                      mnemonicParsing="false" text="%log" accelerator="Shortcut+L"/>
+            <MenuItem fx:id="openReportsMenuItem" onAction="#openReports" disable="true"
+                      mnemonicParsing="false" text="%reports" accelerator="Shortcut+R"/>
             <MenuItem fx:id="close" onAction="#closeWindow"
                       mnemonicParsing="false" text="%close"/>
         </Menu>
         <Menu mnemonicParsing="false" text="%edit">
-            <MenuItem mnemonicParsing="false" text="%delete"/>
+            <Menu mnemonicParsing="false" text="%timeout.Select">
+                <MenuItem fx:id="oneMinuteMenuItem" text="%timeout.oneMinute" disable="true"
+                          mnemonicParsing="false" onAction="#setTimeoutOneMinute"/>
+                <MenuItem fx:id="threeMinutesMenuItem" text="%timeout.threeMinutes" disable="true"
+                          mnemonicParsing="false" onAction="#setTimeoutThreeMinutes"/>
+                <MenuItem fx:id="fiveMinutesMenuItem" text="%timeout.fiveMinutes" disable="true"
+                          mnemonicParsing="false" onAction="#setTimeoutFiveMinutes"/>
+                <MenuItem fx:id="setTimeoutMenuItem" text="%timeout.Title" disable="true"
+                          mnemonicParsing="false" onAction="#setTimeoutCustom"/>
+            </Menu>
         </Menu>
         <Menu mnemonicParsing="false" text="%view">
             <Menu mnemonicParsing="false" text="%timetableView">
                 <RadioMenuItem fx:id="rbMenuItemSessionName" mnemonicParsing="false"
-                               text="%displaySessionName"/>
+                               text="%display.SessionName"/>
                 <RadioMenuItem fx:id="rbMenuItemSessionId" mnemonicParsing="false"
-                               text="%displaySessionId"/>
+                               text="%display.SessionId"/>
                 <RadioMenuItem fx:id="rbMenuItemSessionKey" mnemonicParsing="false"
-                               text="%displaySessionKey"/>
+                               text="%display.SessionKey"/>
             </Menu>
         </Menu>
+        <Menu fx:id="windowMenu" mnemonicParsing="false" text="%window">
+        </Menu>
         <Menu mnemonicParsing="false" text="%help">
-            <MenuItem fx:id="about" onAction="#about" mnemonicParsing="false" text="%about"/>
+            <MenuItem fx:id="aboutMenuItem" onAction="#about" mnemonicParsing="false" text="%about"/>
         </Menu>
     </MenuBar>
     <BorderPane>
         <center>
-            <TabPane>
-                <Tab text="Unsat Core" closable="false">
-                    <UnsatCore fx:id="unsatCore"/>
-                </Tab>
+            <TabPane fx:id="tabPane">
                 <Tab text="%timetable" closable="false">
                     <Timetable fx:id="timetable"/>
                 </Tab>
@@ -74,6 +82,9 @@
                 </Tab>
                 <Tab text="%conflictMatrix" closable="false">
                     <ConflictMatrix fx:id="conflictMatrix"/>
+                </Tab>
+                <Tab text="Unsat Core" closable="false">
+                    <UnsatCore fx:id="unsatCore"/>
                 </Tab>
             </TabPane>
         </center>

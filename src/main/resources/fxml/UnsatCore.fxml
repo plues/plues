@@ -23,7 +23,7 @@
             <HBox>
                 <Button fx:id="unsatCoreModulesButton" disable="true"
                         onAction="#computeUnsatCoreModules"
-                        text="%unsatCoreModulesButton"/>
+                        text="%button.unsatCoreModules"/>
                 <Label fx:id="modulesTaskStateIcon"/>
                 <Label fx:id="modulesTaskStateLabel"/>
             </HBox>
@@ -33,15 +33,15 @@
                 <TableView fx:id="modulesTable" prefHeight="200">
                     <columns>
                         <TableColumn fx:id="modulePordnrColumn" minWidth="50" prefWidth="100"
-                                     text="%modulePordnrColumn"/>
+                                     text="%columnPordnr"/>
                         <TableColumn fx:id="moduleNameColumn" minWidth="200"
-                                     text="%moduleNameColumn"/>
+                                     text="%columnName"/>
                     </columns>
                 </TableView>
                 <HBox>
                     <Button fx:id="unsatCoreAbstractUnitsButton" disable="true"
                             onAction="#computeUnsatCoreAbstractUnits"
-                            text="%unsatCoreAbstractUnitsButton"/>
+                            text="%button.unsatCoreAbstractUnits"/>
                     <Label fx:id="abstractUnitsTaskStateIcon"/>
                     <Label fx:id="abstractUnitsTaskStateLabel"/>
                 </HBox>
@@ -53,17 +53,17 @@
                 <TableView fx:id="abstractUnitsTable" prefHeight="200">
                     <columns>
                         <TableColumn fx:id="abstractUnitKeyColumn" minWidth="50" prefWidth="100"
-                                     text="%abstractUnitKeyColumn"/>
+                                     text="%columnKey"/>
                         <TableColumn fx:id="abstractUnitTitleColumn" minWidth="200"
-                                     text="%abstractUnitTitleColumn"/>
+                                     text="%columnTitle"/>
                         <TableColumn fx:id="abstractUnitModuleSemester" minWidth="200"
-                                     text="%abstractUnitModuleSemester"/>
+                                     text="%columnSemesters"/>
                     </columns>
                 </TableView>
                 <HBox>
                     <Button fx:id="unsatCoreGroupsButton" disable="true"
                             onAction="#computeUnsatCoreGroups"
-                            text="%unsatCoreGroupsButton"/>
+                            text="%button.unsatCoreGroups"/>
                     <Label fx:id="groupsTaskStateIcon"/>
                     <Label fx:id="groupsTaskStateLabel"/>
                 </HBox>
@@ -74,13 +74,13 @@
                 <TableView fx:id="groupsTable" prefHeight="200">
                     <columns>
                         <TableColumn fx:id="groupUnitKeyColumn" minWidth="50" prefWidth="100"
-                                     text="%groupUnitKeyColumn"/>
+                                     text="%columnKey"/>
                         <TableColumn fx:id="groupUnitTitleColumn" minWidth="200"
-                                     text="%groupUnitTitleColumn"/>
+                                     text="%columnTitle"/>
                         <TableColumn fx:id="groupUnitSemestersColumn" minWidth="200"
                                      text="%groupUnitSemestersColumn"/>
                         <TableColumn fx:id="groupSessionsColumn" minWidth="200"
-                                     text="%groupSessionsColumn"/>
+                                     text="%columnGroup"/>
                         <TableColumn fx:id="groupAbstractUnits" minWidth="200"
                                      text="%groupAbstractUnits"/>
                     </columns>
@@ -88,7 +88,7 @@
                 <HBox>
                     <Button fx:id="unsatCoreSessionButton" disable="true"
                             onAction="#computeUnsatCoreSessions"
-                            text="%unsatCoreSessionButton"/>
+                            text="%button.unsatCoreSession"/>
                     <Label fx:id="sessionsTaskStateIcon"/>
                     <Label fx:id="sessionsTaskStateLabel"/>
                 </HBox>
@@ -99,13 +99,13 @@
                 <TableView fx:id="sessionsTable" prefHeight="200">
                     <columns>
                         <TableColumn fx:id="sessionDayColumn" minWidth="50" prefWidth="100"
-                                     text="%sessionDayColumn"/>
+                                     text="%columnDay"/>
                         <TableColumn fx:id="sessionTimeColumn" minWidth="200"
-                                     text="%sessionTimeColumn"/>
+                                     text="%columnTime"/>
                         <TableColumn fx:id="sessionUnitKeyColumn" minWidth="50" prefWidth="100"
-                                     text="%sessionUnitKeyColumn"/>
+                                     text="%columnKey"/>
                         <TableColumn fx:id="sessionUnitTitleColumn" minWidth="200"
-                                     text="%sessionUnitTitleColumn"/>
+                                     text="%columnTitle"/>
                     </columns>
                 </TableView>
             </VBox>

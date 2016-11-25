@@ -1,12 +1,10 @@
 package de.hhu.stups.plues.ui.controller;
 
-import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
@@ -26,7 +24,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,10 +35,6 @@ import javax.swing.SwingUtilities;
 public class PdfRenderingHelper {
 
   private static final String ICON_SIZE = "50";
-  public static final String WARNING_COLOR = "#FEEFB3";
-  public static final String FAILURE_COLOR = "#FFBABA";
-  public static final String SUCCESS_COLOR = "#DFF2BF";
-  public static final String WORKING_COLOR = "#BDE5F8";
   private static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
   private static final String MSG = "Error! Copying of temporary file into target file failed.";
 
@@ -193,7 +186,7 @@ public class PdfRenderingHelper {
   }
 
   private static FontAwesomeIcon getIcon(final Task<?> task) {
-    FontAwesomeIcon symbol = null;
+    final FontAwesomeIcon symbol;
 
     switch (task.getState()) {
       case SUCCEEDED:
@@ -233,25 +226,25 @@ public class PdfRenderingHelper {
   }
 
   private static String getColor(final Task<?> task) {
-    final String color;
+    final TaskStateColor color;
 
     switch (task.getState()) {
       case SUCCEEDED:
-        color = SUCCESS_COLOR;
+        color = TaskStateColor.SUCCESS;
         break;
       case CANCELLED:
-        color = WARNING_COLOR;
+        color = TaskStateColor.WARNING;
         break;
       case FAILED:
-        color = FAILURE_COLOR;
+        color = TaskStateColor.FAILURE;
         break;
       case READY:
       case SCHEDULED:
       case RUNNING:
       default:
-        return WORKING_COLOR;
+        color = TaskStateColor.WORKING;
     }
-    return color;
+    return color.getColor();
   }
 
   // TODO: ggf. wieder woanders hin
