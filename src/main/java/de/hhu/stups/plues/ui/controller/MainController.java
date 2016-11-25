@@ -263,8 +263,8 @@ public class MainController implements Initializable {
           this.resourceManager.close();
         }
       } catch (final InterruptedException exception) {
-        final Logger logger = Logger.getAnonymousLogger();
-        logger.log(Level.SEVERE, "Closing resources", exception);
+        Logger.getAnonymousLogger().log(Level.SEVERE, "Closing resources", exception);
+        throw new RuntimeException(exception);
       }
     });
 

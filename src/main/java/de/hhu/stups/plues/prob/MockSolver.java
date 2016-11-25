@@ -70,7 +70,8 @@ public class MockSolver implements Solver {
     try {
       TimeUnit.SECONDS.sleep(2);
     } catch (final InterruptedException exception) {
-      exception.printStackTrace();
+      Logger.getAnonymousLogger().log(Level.SEVERE, "test", exception);
+      throw new RuntimeException(exception);
     }
     return new HashSet<>(Arrays.asList(1, 2, 3));
   }
@@ -80,7 +81,8 @@ public class MockSolver implements Solver {
     try {
       TimeUnit.SECONDS.sleep(2);
     } catch (final InterruptedException exception) {
-      exception.printStackTrace();
+      Logger.getAnonymousLogger().log(Level.SEVERE, "test", exception);
+      throw new RuntimeException(exception);
     }
     return new HashSet<>(Arrays.asList(1,2,5,6,11));
   }
@@ -96,7 +98,8 @@ public class MockSolver implements Solver {
     try {
       TimeUnit.SECONDS.sleep(2);
     } catch (final InterruptedException exception) {
-      exception.printStackTrace();
+      Logger.getAnonymousLogger().log(Level.SEVERE, "test", exception);
+      throw new RuntimeException(exception);
     }
     return new HashSet<>(Arrays.asList(1,100,1000));
   }
