@@ -40,14 +40,13 @@
                     </ScrollPane>
                 </TitledPane>
                 <TitledPane fx:id="titledPaneStandaloneCourses" text="%headStandalone">
-                    <ScrollPane fx:id="scrollPaneStandalone" prefHeight="600.0">
-                        <GridPane fx:id="gridPaneStandalone" prefHeight="600.0"/>
+                    <ScrollPane fx:id="scrollPaneStandalone">
+                        <GridPane fx:id="gridPaneStandalone"/>
                     </ScrollPane>
                 </TitledPane>
-                <TitledPane fx:id="titledPaneSingleCourses" prefHeight="600.0"
-                            text="%headSingleCourse">
-                    <ScrollPane fx:id="scrollPaneSingleCourses" prefHeight="600.0">
-                        <GridPane fx:id="gridPaneSingleCourses" prefHeight="600.0"/>
+                <TitledPane fx:id="titledPaneSingleCourses" text="%headSingleCourse">
+                    <ScrollPane fx:id="scrollPaneSingleCourses">
+                        <GridPane fx:id="gridPaneSingleCourses"/>
                     </ScrollPane>
                 </TitledPane>
             </panes>
@@ -81,7 +80,8 @@
                           minHeight="25.0"/>
                     <Label fx:id="lbLegendInfeasible" text="%legendInfeasible" wrapText="true"/>
                 </HBox>
-                <HBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="5.0">
+                <HBox GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="2"
+                      spacing="5.0">
                     <Pane fx:id="paneLegendImpossible" maxWidth="25.0" maxHeight="25.0"
                           minWidth="25.0"
                           minHeight="25.0"/>

@@ -280,13 +280,13 @@ public class ConflictMatrix extends GridPane implements Initializable {
             getStaticImpossibleGridCell(minorCourseNames.get(row - 1)), col + 1, row));
       }
       if (standaloneCourseNames.contains(course)) {
-        final int col = standaloneCourseNames.indexOf(course);
+        final int row = standaloneCourseNames.indexOf(course);
         gridPaneStandalone.add(getStaticImpossibleGridCell(
-            standaloneCourses.get(col).getName()), col, 1);
+            standaloneCourses.get(row).getName()), 1, row);
       }
-      final int col = courses.indexOf(courses.stream().filter(courseObj ->
+      final int row = courses.indexOf(courses.stream().filter(courseObj ->
           course.equals(courseObj.getName())).collect(Collectors.toList()).get(0));
-      gridPaneSingleCourses.add(getStaticImpossibleGridCell(courses.get(col).getName()), col, 1);
+      gridPaneSingleCourses.add(getStaticImpossibleGridCell(courses.get(row).getName()), 1, row);
     });
     highlightSameMajorMinorCourses();
   }
@@ -321,17 +321,17 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private void initializeGridPaneStandalone() {
     IntStream.range(0, standaloneCourses.size())
         .forEach(index -> gridPaneStandalone.add(
-            getDefaultGridCell(standaloneCourses.get(index).getName()), index, 0));
+            getDefaultGridCell(standaloneCourses.get(index).getName()), 0, index));
     IntStream.range(0, standaloneCourses.size())
-        .forEach(index -> gridPaneStandalone.add(getDefaultGridCell(""), index, 1));
+        .forEach(index -> gridPaneStandalone.add(getDefaultGridCell(""), 1, index));
   }
 
   private void initializeGridPaneSingleCourse() {
     IntStream.range(0, courses.size())
         .forEach(index -> gridPaneSingleCourses.add(
-            getDefaultGridCell(courses.get(index).getName()), index, 0));
+            getDefaultGridCell(courses.get(index).getName()), 0, index));
     IntStream.range(0, courses.size())
-        .forEach(index -> gridPaneSingleCourses.add(getDefaultGridCell(""), index, 1));
+        .forEach(index -> gridPaneSingleCourses.add(getDefaultGridCell(""), 1, index));
   }
 
   /**
@@ -423,9 +423,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
     final Pane pane = new Pane();
     pane.setId("conflictMatrixCellDefault");
 
-    final Label label;
     if (!courseName.isEmpty()) {
-      label = new Label("  " + courseName + "  ");
+      final Label label = new Label("  " + courseName + "  ");
       if (VERTICAL.equals(orientation)) {
         label.setRotate(270.0);
         label.setTranslateY(100.0);
@@ -436,12 +435,11 @@ public class ConflictMatrix extends GridPane implements Initializable {
       }
       final Tooltip tooltip = new Tooltip(store.getCourseByKey(courseName).getFullName());
       label.setTooltip(tooltip);
+      pane.getChildren().add(new Group(label));
     } else {
-      label = new Label();
       pane.setPrefHeight(25.0);
+      pane.setPrefWidth(40.0);
     }
-    pane.getChildren().add(new Group(label));
-
     return pane;
   }
 
@@ -561,14 +559,14 @@ public class ConflictMatrix extends GridPane implements Initializable {
    *                  timeouts.
    */
   private void gridPaneStandaloneAddElm(final String majorName, final ResultState result) {
-    final int col = standaloneCourses.stream().map(Course::getName)
+    final int row = standaloneCourses.stream().map(Course::getName)
         .collect(Collectors.toList()).indexOf(majorName);
 
     // In {@link de.hhu.stups.plues.ui.components.CheckCourseFeasibility} it is possible to check a
     // single subject's feasibility that is not a standalone course, therefore we check that col
     // does not equal -1 because we don't want to add those partial results to the conflict matrix.
-    if (!impossibleCourses.contains(majorName) && col != -1) {
-      Platform.runLater(() -> gridPaneStandalone.add(getActiveGridCellPane(result), col, 1));
+    if (!impossibleCourses.contains(majorName) && row != -1) {
+      Platform.runLater(() -> gridPaneStandalone.add(getActiveGridCellPane(result), 1, row));
     }
   }
 
@@ -582,9 +580,9 @@ public class ConflictMatrix extends GridPane implements Initializable {
    */
   private void gridPaneSingleCourseAddElm(final String courseName, final ResultState result) {
     if (!impossibleCourses.contains(courseName)) {
-      final int col = courses.stream().map(Course::getName)
+      final int row = courses.stream().map(Course::getName)
           .collect(Collectors.toList()).indexOf(courseName);
-      Platform.runLater(() -> gridPaneSingleCourses.add(getActiveGridCellPane(result), col, 1));
+      Platform.runLater(() -> gridPaneSingleCourses.add(getActiveGridCellPane(result), 1, row));
     }
   }
 
@@ -613,13 +611,13 @@ public class ConflictMatrix extends GridPane implements Initializable {
         } else {
           gridPaneStandaloneAddElm(key.getMajor(), change.getValueAdded());
         }
-        if (change.getValueAdded().equals(ResultState.SUCCEEDED)) {
-          feasibleCoursesAmount.setValue(feasibleCoursesAmount.add(1).getValue());
-        } else if (change.getValueAdded().equals(ResultState.FAILED)) {
-          infeasibleCoursesAmount.setValue(infeasibleCoursesAmount.add(1).getValue());
-        } else {
-          timeoutCoursesAmount.setValue(timeoutCoursesAmount.add(1).getValue());
-        }
+        feasibleCoursesAmount.setValue(courseCombinationResults.entrySet().stream()
+            .filter(entry -> entry.getValue().equals(ResultState.SUCCEEDED)).count());
+        infeasibleCoursesAmount.setValue(courseCombinationResults.entrySet().stream()
+            .filter(entry -> entry.getValue().equals(ResultState.FAILED)).count()
+            + impossibleCourses.size());
+        timeoutCoursesAmount.setValue(courseCombinationResults.entrySet().stream()
+            .filter(entry -> entry.getValue().equals(ResultState.TIMEOUT)).count());
       } else {
         // discard all if a session has been moved
         Platform.runLater(this::restoreInitialState);

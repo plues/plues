@@ -4,9 +4,15 @@ import de.prob.translator.types.BObject;
 
 import java.util.List;
 
+@SuppressWarnings("WeakerAccess")
 public class SolverResult {
   private ResultState state;
   private List<BObject> value;
+
+  @SuppressWarnings("unused")
+  ResultState getState() {
+    return state;
+  }
 
   void setState(final ResultState state) {
     this.state = state;
