@@ -90,6 +90,7 @@ public class ResultBox extends GridPane implements Initializable {
    * @param parent               The parent wrapper (VBox) to remove a single result box.
    */
   @Inject
+  @SuppressWarnings("WeakerAccess")
   public ResultBox(final Inflater inflater,
                    final Delayed<SolverService> delayedSolverService,
                    final PdfRenderingTaskFactory renderingTaskFactory,
