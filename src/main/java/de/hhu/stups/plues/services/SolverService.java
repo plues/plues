@@ -40,7 +40,7 @@ public class SolverService {
   private final ResourceBundle resources = ResourceBundle.getBundle("lang.solverTask");
   private final ReadOnlyMapProperty<MajorMinorKey, ResultState> courseCombinationResults;
   private final ReadOnlyMapProperty<CourseKey, ResultState> singleCourseResults;
-  private Boolean recentlyAddedResult = false;
+  private final String langTimeout = ResourceBundle.getBundle("lang.tasks").getString("timeout");
 
   /**
    * Create an ew SolverService instance. Using executorService to run tasks executed by solver.
@@ -58,7 +58,7 @@ public class SolverService {
   }
 
   /**
-   * Create SolverTaks for some courses in order to check the feasibility.
+   * Create a {@link SolverTask} for some courses in order to check the feasibility.
    *
    * @param courses Courses to be checked
    * @return SolverTasks to check
@@ -72,15 +72,16 @@ public class SolverService {
     //
     final SolverTask<Boolean> checkFeasibilityTask =
         new SolverTask<>(resources.getString("check"), msg, this.solver,
-            () -> {
-              final Boolean result = this.solver.checkFeasibility(names);
-              if (!recentlyAddedResult) {
-                addCourseResult(names, result ? ResultState.SUCCEEDED : ResultState.FAILED);
-              }
-              recentlyAddedResult = false;
-              return result;
-            });
-    addTimeoutListener(names, checkFeasibilityTask);
+            () -> solver.checkFeasibility(names));
+    addOnCancelListener(names, checkFeasibilityTask);
+    checkFeasibilityTask.setOnSucceeded(event -> {
+      if (langTimeout.equals(checkFeasibilityTask.getReason())) {
+        addCourseResult(names, ResultState.TIMEOUT);
+      } else {
+        addCourseResult(names, checkFeasibilityTask.getValue() ? ResultState.SUCCEEDED
+            : ResultState.FAILED);
+      }
+    });
     return checkFeasibilityTask;
   }
 
@@ -100,19 +101,18 @@ public class SolverService {
     final SolverTask<FeasibilityResult> computeFeasibilityTask =
         new SolverTask<>(resources.getString("compute"), msg, solver,
             () -> {
-              try {
-                final FeasibilityResult result = solver.computeFeasibility(names);
-                this.addCourseResult(names, ResultState.SUCCEEDED);
-                return result;
-              } catch (final SolverException exception) {
-                if (!recentlyAddedResult) {
-                  this.addCourseResult(names, ResultState.FAILED);
-                }
-                recentlyAddedResult = false;
-                throw exception;
-              }
+              final FeasibilityResult result = solver.computeFeasibility(names);
+              this.addCourseResult(names, ResultState.SUCCEEDED);
+              return result;
             });
-    addTimeoutListener(names, computeFeasibilityTask);
+    addOnCancelListener(names, computeFeasibilityTask);
+    computeFeasibilityTask.setOnFailed(event -> {
+      if (langTimeout.equals(computeFeasibilityTask.getReason())) {
+        addCourseResult(names, ResultState.TIMEOUT);
+      } else {
+        addCourseResult(names, ResultState.FAILED);
+      }
+    });
     return computeFeasibilityTask;
   }
 
@@ -152,19 +152,18 @@ public class SolverService {
     final SolverTask<FeasibilityResult> computeFeasibilityTask =
         new SolverTask<>(resources.getString("compute"), msg, solver,
             () -> {
-              try {
-                final FeasibilityResult result = solver.computePartialFeasibility(names, mc, auc);
-                this.addCourseResult(combination, ResultState.SUCCEEDED);
-                return result;
-              } catch (final SolverException exception) {
-                if (!recentlyAddedResult) {
-                  this.addCourseResult(combination, ResultState.FAILED);
-                }
-                recentlyAddedResult = false;
-                throw exception;
-              }
+              final FeasibilityResult result = solver.computePartialFeasibility(names, mc, auc);
+              addCourseResult(combination, ResultState.SUCCEEDED);
+              return result;
             });
-    addTimeoutListener(combination, computeFeasibilityTask);
+    addOnCancelListener(combination, computeFeasibilityTask);
+    computeFeasibilityTask.setOnFailed(event -> {
+      if (langTimeout.equals(computeFeasibilityTask.getReason())) {
+        addCourseResult(combination, ResultState.TIMEOUT);
+      } else {
+        addCourseResult(combination, ResultState.FAILED);
+      }
+    });
     return computeFeasibilityTask;
   }
 
@@ -369,11 +368,9 @@ public class SolverService {
    * Set the onCancelled() method of a task to catch and distinguish between timeouts and failed
    * computations.
    */
-  private void addTimeoutListener(final String[] names, final SolverTask<?> solverTask) {
+  private void addOnCancelListener(final String[] names, final SolverTask<?> solverTask) {
     solverTask.setOnCancelled(event -> {
-      recentlyAddedResult = true;
-      if (ResourceBundle.getBundle("lang.tasks").getString("timeout")
-          .equals(solverTask.getReason())) {
+      if (langTimeout.equals(solverTask.getReason())) {
         addCourseResult(names, ResultState.TIMEOUT);
       }
     });
@@ -403,6 +400,7 @@ public class SolverService {
           slot.getTime().toString());
       courseCombinationResults.clear();
       singleCourseResults.clear();
+      System.out.println("cleared:" + courseCombinationResults);
       return null;
     });
   }
