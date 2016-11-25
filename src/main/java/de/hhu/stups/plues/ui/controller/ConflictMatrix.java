@@ -16,9 +16,12 @@ import de.hhu.stups.plues.ui.batchgeneration.CollectFeasibilityTasksTask;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyMapProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.MapChangeListener;
 import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
@@ -60,6 +63,9 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private final List<Course> combinableMajorCourses;
   private final List<Course> combinableMinorCourses;
   private final List<Course> standaloneCourses;
+  private IntegerProperty feasibleCoursesAmount;
+  private IntegerProperty infeasibleCoursesAmount;
+  private IntegerProperty timeoutCoursesAmount;
 
   private final Set<SolverTask<Boolean>> checkFeasibilityTasks = new HashSet<>();
   private final Set<String> impossibleCourses;
@@ -118,6 +124,15 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private Label lbLegendImpossible;
   @FXML
   @SuppressWarnings("unused")
+  private Label lbFeasibleCourseAmount;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbInfeasibleCourseAmount;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbTimeoutCourseAmount;
+  @FXML
+  @SuppressWarnings("unused")
   private Button btCheckAll;
   @FXML
   @SuppressWarnings("unused")
@@ -157,6 +172,9 @@ public class ConflictMatrix extends GridPane implements Initializable {
     combinableMinorCourses = new ArrayList<>();
     standaloneCourses = new ArrayList<>();
     impossibleCourses = new HashSet<>();
+    feasibleCoursesAmount = new SimpleIntegerProperty(0);
+    infeasibleCoursesAmount = new SimpleIntegerProperty(0);
+    timeoutCoursesAmount = new SimpleIntegerProperty(0);
 
     delayedStore.whenAvailable(localStore -> {
       store = localStore;
@@ -174,6 +192,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
         (SetChangeListener<? super String>) change -> {
           impossibleCourses.addAll(change.getSet());
           highlightImpossibleCourses();
+          infeasibleCoursesAmount.setValue(impossibleCourses.size());
         });
 
     delayedSolverService.whenAvailable(solverService -> {
@@ -193,13 +212,13 @@ public class ConflictMatrix extends GridPane implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
 
-    titledPaneCombinableCourses.visibleProperty().bind(solverProperty);
-    titledPaneSingleCourses.visibleProperty().bind(solverProperty);
-    titledPaneStandaloneCourses.visibleProperty().bind(solverProperty);
-    gridPaneLegend.visibleProperty().bind(solverProperty);
-    lbHeader.visibleProperty().bind(solverProperty);
-    btCheckAll.visibleProperty().bind(solverProperty);
-    btCancelCheckAll.visibleProperty().bind(solverProperty);
+    lbFeasibleCourseAmount.textProperty().bind(Bindings.convert(feasibleCoursesAmount));
+    lbInfeasibleCourseAmount.textProperty().bind(Bindings.convert(infeasibleCoursesAmount));
+    lbTimeoutCourseAmount.textProperty().bind(Bindings.convert(timeoutCoursesAmount));
+
+    gridPaneLegend.setStyle("-fx-border-style: solid inside;"
+        + "-fx-border-width: 1;"
+        + "-fx-border-color: #bdbdbd;");
 
     btCheckAll.disableProperty().bind(feasibilityCheckRunning.or(solverProperty.not()));
     btCancelCheckAll.disableProperty().bind(feasibilityCheckRunning.not());
@@ -303,7 +322,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private void initializeGridPaneStandalone() {
     IntStream.range(0, standaloneCourses.size())
         .forEach(index -> gridPaneStandalone.add(
-            getDefaultGridCell(standaloneCourses.get(index).getName(), VERTICAL), index, 0));
+            getDefaultGridCell(standaloneCourses.get(index).getName()), index, 0));
     IntStream.range(0, standaloneCourses.size())
         .forEach(index -> gridPaneStandalone.add(getDefaultGridCell(""), index, 1));
   }
@@ -311,7 +330,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private void initializeGridPaneSingleCourse() {
     IntStream.range(0, courses.size())
         .forEach(index -> gridPaneSingleCourses.add(
-            getDefaultGridCell(courses.get(index).getName(), VERTICAL), index, 0));
+            getDefaultGridCell(courses.get(index).getName()), index, 0));
     IntStream.range(0, courses.size())
         .forEach(index -> gridPaneSingleCourses.add(getDefaultGridCell(""), index, 1));
   }
@@ -322,7 +341,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
    */
   @FXML
   @SuppressWarnings("unused")
-  public void checkAllCombinations() {
+  public void checkAll() {
     feasibilityCheckRunning.setValue(true);
     prepareFeasibilityCheck = new CollectFeasibilityTasksTask(
         delayedSolverService.get(), combinableMajorCourses,
@@ -574,11 +593,16 @@ public class ConflictMatrix extends GridPane implements Initializable {
     gridPaneCombinable.getChildren().clear();
     gridPaneStandalone.getChildren().clear();
     gridPaneSingleCourses.getChildren().clear();
+
     initializeGridPaneCombinable();
     initializeGridPaneStandalone();
     initializeGridPaneSingleCourse();
     highlightImpossibleCourses();
     highlightSameMajorMinorCourses();
+
+    feasibleCoursesAmount.setValue(0);
+    infeasibleCoursesAmount.setValue(impossibleCourses.size());
+    timeoutCoursesAmount.setValue(0);
   }
 
   private MapChangeListener<MajorMinorKey, ResultState> getCourseResultChangeListener() {
@@ -589,6 +613,13 @@ public class ConflictMatrix extends GridPane implements Initializable {
           gridPaneCombinableAddElm(key.getMajor(), key.getMinor(), change.getValueAdded());
         } else {
           gridPaneStandaloneAddElm(key.getMajor(), change.getValueAdded());
+        }
+        if (change.getValueAdded().equals(ResultState.SUCCEEDED)) {
+          feasibleCoursesAmount.setValue(feasibleCoursesAmount.add(1).getValue());
+        } else if (change.getValueAdded().equals(ResultState.FAILED)) {
+          infeasibleCoursesAmount.setValue(infeasibleCoursesAmount.add(1).getValue());
+        } else {
+          timeoutCoursesAmount.setValue(timeoutCoursesAmount.add(1).getValue());
         }
       } else {
         // discard all if a session has been moved

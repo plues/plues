@@ -11,13 +11,28 @@
 
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.geometry.Insets?>
 <fx:root prefWidth="800.0" prefHeight="700.0" type="javafx.scene.layout.GridPane"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <Label fx:id="lbHeader" text="%header" GridPane.columnIndex="0" GridPane.rowIndex="0"
                GridPane.halignment="CENTER"/>
+        <HBox spacing="20.0" GridPane.columnIndex="0" GridPane.rowIndex="1" alignment="CENTER">
+            <HBox spacing="10.0">
+                <Label text="%feasibleCourses"/>
+                <Label fx:id="lbFeasibleCourseAmount"/>
+            </HBox>
+            <HBox spacing="10.0">
+                <Label text="%infeasibleCourses"/>
+                <Label fx:id="lbInfeasibleCourseAmount"/>
+            </HBox>
+            <HBox spacing="10.0">
+                <Label text="%timeoutCourses"/>
+                <Label fx:id="lbTimeoutCourseAmount"/>
+            </HBox>
+        </HBox>
         <Accordion fx:id="accordionConflictMatrices" prefHeight="Infinity" prefWidth="Infinity"
-                   GridPane.columnIndex="0" GridPane.rowIndex="1">
+                   GridPane.columnIndex="0" GridPane.rowIndex="2">
             <panes>
                 <TitledPane fx:id="titledPaneCombinableCourses" text="%headCombinable">
                     <ScrollPane fx:id="scrollPaneCombinable">
@@ -37,45 +52,55 @@
                 </TitledPane>
             </panes>
         </Accordion>
-        <GridPane fx:id="gridPaneLegend" GridPane.columnIndex="0" GridPane.rowIndex="2">
-            <HBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="5.0">
-                <Pane fx:id="paneLegendSuccess" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
-                      minHeight="25.0"/>
-                <Label fx:id="lbLegendSuccess" text="%legendSuccess" wrapText="true"/>
-            </HBox>
-            <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="5.0">
-                <Pane fx:id="paneLegendFailure" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
-                      minHeight="25.0"/>
-                <Label fx:id="lbLegendFailure" text="%legendFailure" wrapText="true"/>
-            </HBox>
-            <HBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="5.0">
-                <Pane fx:id="paneLegendTimeout" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
-                      minHeight="25.0"/>
-                <Label fx:id="lbLegendTimeout" text="%legendTimeout" wrapText="true"/>
-            </HBox>
-            <HBox GridPane.columnIndex="0" GridPane.rowIndex="1" spacing="5.0">
-                <Pane fx:id="paneLegendInfeasible" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
-                      minHeight="25.0"/>
-                <Label fx:id="lbLegendInfeasible" text="%legendInfeasible" wrapText="true"/>
-            </HBox>
-            <HBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="5.0">
-                <Pane fx:id="paneLegendImpossible" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
-                      minHeight="25.0"/>
-                <Label fx:id="lbLegendImpossible" text="%legendImpossible" wrapText="true"/>
-            </HBox>
-            <columnConstraints>
-                <ColumnConstraints percentWidth="30.0"/>
-                <ColumnConstraints percentWidth="30.0"/>
-                <ColumnConstraints percentWidth="30.0"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints percentHeight="50.0"/>
-                <RowConstraints percentHeight="50.0"/>
-            </rowConstraints>
-        </GridPane>
+        <HBox GridPane.columnIndex="0" GridPane.rowIndex="3" alignment="CENTER">
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+            <GridPane fx:id="gridPaneLegend" alignment="CENTER">
+                <padding>
+                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                </padding>
+                <HBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="5.0">
+                    <Pane fx:id="paneLegendSuccess" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
+                          minHeight="25.0"/>
+                    <Label fx:id="lbLegendSuccess" text="%legendSuccess" wrapText="true"/>
+                </HBox>
+                <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="5.0">
+                    <Pane fx:id="paneLegendFailure" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
+                          minHeight="25.0"/>
+                    <Label fx:id="lbLegendFailure" text="%legendFailure" wrapText="true"/>
+                </HBox>
+                <HBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="5.0">
+                    <Pane fx:id="paneLegendTimeout" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
+                          minHeight="25.0"/>
+                    <Label fx:id="lbLegendTimeout" text="%legendTimeout" wrapText="true"/>
+                </HBox>
+                <HBox GridPane.columnIndex="0" GridPane.rowIndex="1" spacing="5.0">
+                    <Pane fx:id="paneLegendInfeasible" maxWidth="25.0" maxHeight="25.0"
+                          minWidth="25.0"
+                          minHeight="25.0"/>
+                    <Label fx:id="lbLegendInfeasible" text="%legendInfeasible" wrapText="true"/>
+                </HBox>
+                <HBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="5.0">
+                    <Pane fx:id="paneLegendImpossible" maxWidth="25.0" maxHeight="25.0"
+                          minWidth="25.0"
+                          minHeight="25.0"/>
+                    <Label fx:id="lbLegendImpossible" text="%legendImpossible" wrapText="true"/>
+                </HBox>
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="30.0"/>
+                    <ColumnConstraints percentWidth="30.0"/>
+                    <ColumnConstraints percentWidth="30.0"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints percentHeight="50.0"/>
+                    <RowConstraints percentHeight="50.0"/>
+                </rowConstraints>
+            </GridPane>
+        </HBox>
         <HBox prefHeight="Infinity" prefWidth="Infinity" alignment="CENTER" GridPane.columnIndex="0"
-              GridPane.rowIndex="3">
-            <Button fx:id="btCheckAll" onAction="#checkAllCombinations" text="%checkAll"/>
+              GridPane.rowIndex="4">
+            <Button fx:id="btCheckAll" onAction="#checkAll" text="%checkAll"/>
             <Button fx:id="btCancelCheckAll" onAction="#cancelCheckAll" text="%cancelCheckAll"/>
         </HBox>
     </children>
@@ -84,8 +109,9 @@
     </columnConstraints>
     <rowConstraints>
         <RowConstraints percentHeight="5.0"/>
-        <RowConstraints percentHeight="75.0"/>
-        <RowConstraints percentHeight="10.0"/>
+        <RowConstraints percentHeight="5.0"/>
+        <RowConstraints percentHeight="65.0"/>
+        <RowConstraints percentHeight="15.0"/>
         <RowConstraints percentHeight="10.0"/>
     </rowConstraints>
 </fx:root>
