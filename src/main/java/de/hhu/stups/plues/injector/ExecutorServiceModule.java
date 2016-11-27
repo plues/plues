@@ -12,12 +12,9 @@ import java.util.concurrent.Executors;
 
 class ExecutorServiceModule extends AbstractModule {
 
-  private final ObservableListeningExecutorService probExecutor;
   private final ObservableListeningExecutorService executorPool;
 
   ExecutorServiceModule() {
-    this.probExecutor = new ObservableListeningExecutorService(
-      MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor()));
     this.executorPool = new ObservableListeningExecutorService(
       MoreExecutors.listeningDecorator(Executors.newWorkStealingPool()));
 
@@ -25,17 +22,9 @@ class ExecutorServiceModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    bind(ExecutorService.class).annotatedWith(Names.named("prob"))
-      .toInstance(probExecutor);
-    bind(ObservableListeningExecutorService.class).annotatedWith(Names.named("prob"))
-      .toInstance(probExecutor);
-    bind(ListeningExecutorService.class).annotatedWith(Names.named("prob"))
-      .toInstance(probExecutor);
-
     bind(ExecutorService.class).toInstance(executorPool);
     bind(ObservableListeningExecutorService.class).toInstance(executorPool);
     bind(ListeningExecutorService.class).toInstance(executorPool);
-
   }
 
 }

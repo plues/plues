@@ -161,7 +161,6 @@ public class MainController implements Initializable {
                         final Provider<AboutWindow> aboutWindowProvider,
                         final Provider<Reports> reportsProvider,
                         final StoreLoaderTaskFactory storeLoaderTaskFactory,
-                        @Named("prob") final ObservableListeningExecutorService probExecutor,
                         final ObservableListeningExecutorService executorService,
                         final ResourceManager resourceManager,
                         final UiDataService uiDataService) {
@@ -187,7 +186,6 @@ public class MainController implements Initializable {
       fiveMinutesMenuItem.setDisable(false);
     });
 
-    probExecutor.addObserver((observable, arg) -> this.register(arg));
     executorService.addObserver((observable, arg) -> this.register(arg));
 
     logger.log(Level.INFO, "Starting PlÜS Version: " + properties.get("version"));

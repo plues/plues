@@ -50,7 +50,7 @@ public class SolverService {
    */
   @Inject
 
-  public SolverService(@Named("prob") final ExecutorService executorService,
+  public SolverService(final ExecutorService executorService,
                        @Assisted final Solver solver) {
     this.executor = executorService;
     this.solver = solver;
