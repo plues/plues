@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 
 
 public class SolverService {
-  private final ExecutorService executor;
   private final Solver solver;
   private final ResourceBundle resources = ResourceBundle.getBundle("lang.solverTask");
   private final ReadOnlyMapProperty<MajorMinorKey, ResultState> courseCombinationResults;
@@ -45,14 +44,9 @@ public class SolverService {
   /**
    * Create an ew SolverService instance. Using executorService to run tasks executed by solver.
    *
-   * @param executorService ExecutorService to run tasks
    * @param solver          Solver object to execute operations on ProB instance.
    */
-  @Inject
-
-  public SolverService(@Named("prob") final ExecutorService executorService,
-                       @Assisted final Solver solver) {
-    this.executor = executorService;
+  public SolverService(final Solver solver) {
     this.solver = solver;
     courseCombinationResults = new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
     singleCourseResults = new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
@@ -319,11 +313,6 @@ public class SolverService {
       names[i] = courses[i].getName();
     }
     return names;
-  }
-
-  @SuppressWarnings("unchecked")
-  public <T> ListenableFuture<T> submit(final SolverTask<T> command) {
-    return (ListenableFuture<T>) this.executor.submit(command);
   }
 
   /**

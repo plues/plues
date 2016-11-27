@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 public class ResourceManager {
   private final Delayed<Store> delayedStore;
   private final ExecutorService executorService;
-  private final ExecutorService probExecutor;
 
   private final Logger logger = Logger.getLogger(getClass().getSimpleName());
 
@@ -24,15 +23,12 @@ public class ResourceManager {
    *
    * @param delayedStore    Delayed store
    * @param executorService ExecutorService
-   * @param probExecutor    ExecutorService
    */
   @Inject
   public ResourceManager(final Delayed<Store> delayedStore,
-                         final ListeningExecutorService executorService,
-                         @Named("prob") final ExecutorService probExecutor) {
+                         final ListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
     this.executorService = executorService;
-    this.probExecutor = probExecutor;
   }
 
   /**
@@ -45,15 +41,12 @@ public class ResourceManager {
     logger.info("Store closed");
 
     this.executorService.shutdown();
-    this.probExecutor.shutdown();
     logger.info("shutdown");
 
     this.executorService.awaitTermination(10, TimeUnit.SECONDS);
-    this.probExecutor.awaitTermination(3, TimeUnit.SECONDS);
     logger.info("waited for termination");
 
     this.executorService.shutdownNow();
-    this.probExecutor.shutdownNow();
     logger.info("killed");
   }
 }

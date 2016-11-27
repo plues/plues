@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,6 +56,7 @@ public class UnsatCore extends VBox implements Initializable {
   private final ListProperty<Module> modules;
   private final ListProperty<Course> courses;
   private final UiDataService uiDataService;
+  private final ExecutorService executorService;
 
   @FXML
   private CombinationOrSingleCourseSelection courseSelection;
@@ -141,9 +143,11 @@ public class UnsatCore extends VBox implements Initializable {
   @Inject
   public UnsatCore(final Inflater inflater, final Delayed<Store> delayedStore,
                    final Delayed<SolverService> delayedSolverService,
+                   final ExecutorService executorService,
                    final UiDataService uiDataService) {
 
     this.uiDataService = uiDataService;
+    this.executorService = executorService;
     this.solverService = new SimpleObjectProperty<>();
     this.store = new SimpleObjectProperty<>();
 
@@ -176,7 +180,7 @@ public class UnsatCore extends VBox implements Initializable {
 
     });
     showTaskState(modulesTaskStateIcon, modulesTaskStateLabel, task);
-    getSolverService().submit(task);
+    executorService.submit(task);
   }
 
   private void showTaskState(final Label icon, final Label message, final Task<?> task) {
@@ -226,7 +230,7 @@ public class UnsatCore extends VBox implements Initializable {
 
     });
     showTaskState(abstractUnitsTaskStateIcon, abstractUnitsTaskStateLabel, task);
-    getSolverService().submit(task);
+    executorService.submit(task);
   }
 
   /**
@@ -248,7 +252,7 @@ public class UnsatCore extends VBox implements Initializable {
 
     });
     showTaskState(groupsTaskStateIcon, groupsTaskStateLabel, task);
-    getSolverService().submit(task);
+    executorService.submit(task);
   }
 
   /**
@@ -269,7 +273,7 @@ public class UnsatCore extends VBox implements Initializable {
 
     });
     showTaskState(sessionsTaskStateIcon, sessionsTaskStateLabel, task);
-    getSolverService().submit(task);
+    executorService.submit(task);
   }
 
   private Course[] getCoursesAsArray() {

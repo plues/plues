@@ -15,18 +15,15 @@ import java.util.concurrent.ExecutorService;
 public class SolverLoaderImpl implements SolverLoader {
   private final Delayed<SolverService> delayedSolverService;
   private final SolverLoaderTaskFactory solverLoaderTaskFactory;
-  private final SolverServiceFactory solverServiceFactory;
   private final ExecutorService executor;
 
   @Inject
   SolverLoaderImpl(final Delayed<SolverService> delayedSolverService,
                    final SolverLoaderTaskFactory solverLoaderTaskFactory,
-                   final SolverServiceFactory solverServiceFactory,
                    final ExecutorService executorService) {
 
     this.delayedSolverService = delayedSolverService;
     this.solverLoaderTaskFactory = solverLoaderTaskFactory;
-    this.solverServiceFactory = solverServiceFactory;
     this.executor = executorService;
   }
 
@@ -38,7 +35,7 @@ public class SolverLoaderImpl implements SolverLoader {
     solverLoader.setOnSucceeded(event -> {
       final Solver s = (Solver) event.getSource().getValue();
       // TODO: check if this needs to run on UI thread
-      this.delayedSolverService.set(solverServiceFactory.create(s));
+      this.delayedSolverService.set(new SolverService(s));
     });
     //
     solverLoader.setOnFailed(event -> Platform.runLater(() -> {
