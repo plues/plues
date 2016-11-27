@@ -322,6 +322,7 @@ public class SolverService {
   }
 
   @SuppressWarnings("unchecked")
+  @Deprecated
   public <T> ListenableFuture<T> submit(final SolverTask<T> command) {
     return (ListenableFuture<T>) this.executor.submit(command);
   }
