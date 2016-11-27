@@ -362,8 +362,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
       executor.submit(executeFeasibilityCheck);
     });
 
-    executeFeasibilityCheck = new BatchFeasibilityTask(delayedSolverService.get(),
-        checkFeasibilityTasks);
+    executeFeasibilityCheck = new BatchFeasibilityTask(executor, checkFeasibilityTasks);
 
     executeFeasibilityCheck.setOnCancelled(event -> {
       checkFeasibilityTasks.forEach(task -> {

@@ -12,7 +12,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> {
-  private final SolverService executor;
+  private final ExecutorService executor;
   private final ResourceBundle resources;
   private Collection<SolverTask<Boolean>> tasks;
 
@@ -21,7 +21,7 @@ public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> 
    * @param executor ExecutorService
    * @param tasks Collection of SolverTask objects.
    */
-  public BatchFeasibilityTask(final SolverService executor,
+  public BatchFeasibilityTask(final ExecutorService executor,
                               final Collection<SolverTask<Boolean>> tasks) {
     this.executor = executor;
     this.tasks = tasks;
