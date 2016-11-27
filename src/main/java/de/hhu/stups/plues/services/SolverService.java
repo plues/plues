@@ -46,8 +46,7 @@ public class SolverService {
    *
    * @param solver          Solver object to execute operations on ProB instance.
    */
-  @Inject
-  public SolverService(@Assisted final Solver solver) {
+  public SolverService(final Solver solver) {
     this.solver = solver;
     courseCombinationResults = new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
     singleCourseResults = new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
