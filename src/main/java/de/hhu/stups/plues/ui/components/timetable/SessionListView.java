@@ -132,7 +132,7 @@ public class SessionListView extends ListView<SessionFacade> {
 
       delayedSolverService.whenAvailable(solver -> {
         final SolverTask<Void> moveSession = solver.moveSession(sessionId, slot);
-        final ListenableFuture<Void> future
+        @SuppressWarnings("unchecked") final ListenableFuture<Void> future
             = (ListenableFuture<Void>) executorService.submit(moveSession);
         Futures.addCallback(future, new FutureCallback<Void>() {
           @Override
