@@ -18,6 +18,7 @@ import de.hhu.stups.plues.ui.components.reports.MandatoryModules;
 import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterConflicts;
 import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
+import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -95,6 +96,9 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private AbstractUnitsWithoutUnits abstractUnitsWithoutUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private UnitsWithoutAbstractUnits unitsWithoutAbstractUnits;
 
   /**
    * Reports view to present several reports and information about the loaded data, statistics,
@@ -132,6 +136,7 @@ class Reports extends VBox implements Initializable {
         displayImpossibleCourseModuleAbstractUnits(store, newValue);
         displayImpossibleCourseModuleAbstractUnitPairs(store, newValue);
         displayModuleAbstractUnitUnitSemesterConflicts(store, newValue);
+        displayUnitsWithoutAbstractUnits(store);
         displayAbstractUnitsWithoutUnits(store);
 
         lbImpossibleCoursesAmount.setText(String.valueOf(newValue.getImpossibleCourses().size()));
@@ -247,5 +252,10 @@ class Reports extends VBox implements Initializable {
         .stream().map(store::getModuleById).collect(Collectors.toList()),
         reportData.getImpossibleModulesBecauseOfMissingElectiveAbstractUnits()
         .stream().map(store::getModuleById).collect(Collectors.toList()));
+  }
+
+  private void displayUnitsWithoutAbstractUnits(final Store store) {
+    unitsWithoutAbstractUnits.setData(store.getUnits().stream()
+      .filter(unit -> unit.getAbstractUnits().size() == 0).collect(Collectors.toList()));
   }
 }
