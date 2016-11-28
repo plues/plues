@@ -106,8 +106,8 @@ public class FeasibilityBox extends VBox implements Initializable {
                         final Provider<ConflictTree> conflictTreeProvider,
                         @Assisted("major") final Course majorCourse,
                         @Nullable @Assisted("minor") final Course minorCourse,
-                        @Assisted("impossibleCourses") final Set<String> impossibleCourses,
-                        @Assisted("parent") final VBox parent) {
+                        @Assisted final Set<String> impossibleCourses,
+                        @Assisted final VBox parent) {
     super();
     this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
