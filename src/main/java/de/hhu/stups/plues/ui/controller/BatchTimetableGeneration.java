@@ -60,7 +60,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   private final ExecutorService executor;
 
   private final Set<PdfRenderingTask> pdfRenderingTasks;
-  private final Provider<CollectPdfRenderingTasksTask> provider;
+  private final Provider<CollectPdfRenderingTasksTask> collectPdfRenderingTasksTaskProvider;
 
   private Task<Set<PdfRenderingTask>> fillPoolTask;
   private BatchPdfRenderingTask executePoolTask;
@@ -90,10 +90,10 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   public BatchTimetableGeneration(final Inflater inflater,
                                   final Delayed<SolverService> delayedSolverService,
                                   final BatchResultBoxFactory batchResultBoxFactory,
-                                  final Provider<CollectPdfRenderingTasksTask> provider,
+                                  final Provider<CollectPdfRenderingTasksTask> taskProvider,
                                   final ExecutorService executorService) {
 
-    this.provider = provider;
+    this.collectPdfRenderingTasksTaskProvider = taskProvider;
     this.delayedSolverService = delayedSolverService;
 
     this.batchResultBoxFactory = batchResultBoxFactory;
@@ -136,7 +136,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     generationSucceeded.clear();
     listView.getItems().clear();
 
-    fillPoolTask = provider.get();
+    fillPoolTask = collectPdfRenderingTasksTaskProvider.get();
     fillPoolTask.setOnSucceeded(event -> {
       fillPoolTask.getValue().forEach(task -> {
         final BatchResultBox b = batchResultBoxFactory.create(task);
