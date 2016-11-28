@@ -611,13 +611,20 @@ public class ConflictMatrix extends GridPane implements Initializable {
         } else {
           gridPaneStandaloneAddElm(key.getMajor(), change.getValueAdded());
         }
-        feasibleCoursesAmount.setValue(courseCombinationResults.entrySet().stream()
-            .filter(entry -> entry.getValue().equals(ResultState.SUCCEEDED)).count());
-        infeasibleCoursesAmount.setValue(courseCombinationResults.entrySet().stream()
+
+        final long feasibleCoursesCount = courseCombinationResults.entrySet().stream()
+            .filter(entry -> entry.getValue().equals(ResultState.SUCCEEDED)).count();
+        final long infeasibleCoursesCount = courseCombinationResults.entrySet().stream()
             .filter(entry -> entry.getValue().equals(ResultState.FAILED)).count()
-            + impossibleCourses.size());
-        timeoutCoursesAmount.setValue(courseCombinationResults.entrySet().stream()
-            .filter(entry -> entry.getValue().equals(ResultState.TIMEOUT)).count());
+            + impossibleCourses.size();
+        final long timeoutCoursesCount = courseCombinationResults.entrySet().stream()
+            .filter(entry -> entry.getValue().equals(ResultState.TIMEOUT)).count();
+
+        Platform.runLater(() -> {
+          feasibleCoursesAmount.setValue(feasibleCoursesCount);
+          infeasibleCoursesAmount.setValue(infeasibleCoursesCount);
+          timeoutCoursesAmount.setValue(timeoutCoursesCount);
+        });
       } else {
         // discard all if a session has been moved
         Platform.runLater(this::restoreInitialState);
