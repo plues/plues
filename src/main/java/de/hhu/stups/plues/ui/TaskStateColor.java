@@ -3,7 +3,7 @@ package de.hhu.stups.plues.ui;
 // NOTE: Keep in Sync with index.css
 public enum TaskStateColor {
   WARNING("#FEEFB3"),
-  FAILURE("#FFBABA"), // IMPOSSIBLE("#FA9D9D")
+  FAILURE("#FFBABA"), // IMPOSSIBLE("#fa80aa")
   SUCCESS("#DFF2BF"),
   WORKING("#5386E4"),
   READY("#FCEFEF"), SCHEDULED("#FCEFEF");

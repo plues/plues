@@ -50,14 +50,14 @@
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, white;
 }
-/* TODO: remove these once and use color classes below, once we update the matrix cells directly */
+/* TODO: remove these and use color classes below, once we update the matrix cells directly */
 .matrix-cell-ignored {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, #BDBDBD;
 }
 .matrix-cell-impossible {
     -fx-background-insets: 0, 0 1 1 0;
-    -fx-background-color: black, #FA9D9D;
+    -fx-background-color: black, #FA80AA;
 }
 .matrix-cell-failure {
     -fx-background-insets: 0, 0 1 1 0;
@@ -85,7 +85,7 @@
 
 /* Task state colors */
 .impossible {
-    -fx-background-color: #FA9D9D;
+    -fx-background-color: #fa80aa;
 }
 .infeasible, .failure {
     -fx-background-color: #FFBABA;
