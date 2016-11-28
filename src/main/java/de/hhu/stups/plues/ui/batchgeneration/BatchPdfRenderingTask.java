@@ -17,7 +17,7 @@ public class BatchPdfRenderingTask extends Task<Collection<PdfRenderingTask>> {
   private final ResourceBundle resources;
 
   /**
-   * Constuctor to craete task for batch pdf rendering.
+   * Constructor to create task for batch pdf rendering.
    * @param executorService Executor service to submit task
    * @param tasks A collection of all single rendering tasks
    */
