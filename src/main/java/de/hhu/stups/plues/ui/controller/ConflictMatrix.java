@@ -64,9 +64,9 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private final List<Course> combinableMajorCourses;
   private final List<Course> combinableMinorCourses;
   private final List<Course> standaloneCourses;
-  private IntegerProperty feasibleCoursesAmount;
-  private IntegerProperty infeasibleCoursesAmount;
-  private IntegerProperty timeoutCoursesAmount;
+  private final IntegerProperty feasibleCoursesAmount;
+  private final IntegerProperty infeasibleCoursesAmount;
+  private final IntegerProperty timeoutCoursesAmount;
 
   private final Set<SolverTask<Boolean>> checkFeasibilityTasks = new HashSet<>();
   private final Set<String> impossibleCourses;
@@ -218,10 +218,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
     lbInfeasibleCourseAmount.textProperty().bind(Bindings.convert(infeasibleCoursesAmount));
     lbTimeoutCourseAmount.textProperty().bind(Bindings.convert(timeoutCoursesAmount));
 
-    gridPaneLegend.setStyle("-fx-border-style: solid inside;"
-        + "-fx-border-width: 1;"
-        + "-fx-border-color: #bdbdbd;");
-
     btCheckAll.disableProperty().bind(feasibilityCheckRunning.or(solverProperty.not()));
     btCancelCheckAll.disableProperty().bind(feasibilityCheckRunning.not());
 
@@ -235,11 +231,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
     paneLegendImpossible.getChildren().addAll(new Circle(5, 5, 2), new Circle(10, 5, 2),
         new Circle(5, 10, 2), new Circle(10, 10, 2), new Circle(5, 15, 2));
 
-    paneLegendSuccess.setId("conflictMatrixLegendSuccess");
-    paneLegendFailure.setId("conflictMatrixLegendFailed");
-    paneLegendTimeout.setId("conflictMatrixLegendTimeout");
-    paneLegendImpossible.setId("conflictMatrixLegendImpossible");
-    paneLegendInfeasible.setId("conflictMatrixLegendInfeasible");
   }
 
   /**
@@ -421,8 +412,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
    */
   private Pane getDefaultGridCell(final String courseName, final String orientation) {
     final Pane pane = new Pane();
-    pane.setId("conflictMatrixCellDefault");
-
+    pane.getStyleClass().add("matrix-cell");
     if (!courseName.isEmpty()) {
       final Label label = new Label("  " + courseName + "  ");
       if (VERTICAL.equals(orientation)) {
@@ -454,7 +444,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
     pane.getChildren().addAll(new Circle(5, 5, 2), new Circle(10, 5, 2), new Circle(5, 10, 2),
         new Circle(10, 10, 2), new Circle(5, 15, 2));
-    pane.setId("conflictMatrixCellImpossible");
+    pane.getStyleClass().add("matrix-cell-ignored");
     pane.setPrefHeight(25.0);
 
     final Label label = new Label();
@@ -477,7 +467,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
     pane.getChildren().addAll(new Circle(5, 5, 2), new Circle(10, 5, 2), new Circle(5, 10, 2),
         new Circle(10, 10, 2));
-    pane.setId("conflictMatrixCellInfeasible");
+    pane.getStyleClass().add("matrix-cell-impossible");
     pane.setPrefHeight(25.0);
 
     final Label label = new Label();
@@ -503,18 +493,19 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private Pane getActiveGridCellPane(final ResultState result, final String... courseNames) {
     final Pane pane = new Pane();
 
-    final String paneId;
+    final String cls;
     pane.getChildren().add(new Circle(5, 5, 2));
     if (ResultState.FAILED.equals(result)) {
       pane.getChildren().add(new Circle(10, 5, 2));
-      paneId = "conflictMatrixCellFailed";
+      cls = "failure";
     } else if (ResultState.TIMEOUT.equals(result)) {
       pane.getChildren().addAll(new Circle(10, 5, 2), new Circle(5, 10, 2));
-      paneId = "conflictMatrixCellTimeout";
+      cls = "timeout";
     } else {
-      paneId = "conflictMatrixCellSuccess";
+      cls = "success";
     }
-    pane.setId(paneId);
+    pane.getStyleClass().add("matrix-cell-" + cls);
+
     if (courseNames.length != 0) {
       final Label label = new Label();
       label.prefWidthProperty().bind(pane.widthProperty());
