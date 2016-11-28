@@ -1,8 +1,12 @@
 package de.hhu.stups.plues.ui;
 
+// NOTE: Keep in Sync with index.css
 public enum TaskStateColor {
-  WARNING("#FEEFB3"), FAILURE("#FFBABA"), SUCCESS("#DFF2BF"),
-  WORKING("#BDE5F8"), READY("#FFFCE6"), SCHEDULED("#FFFCE6");
+  WARNING("#FEEFB3"),
+  FAILURE("#FFBABA"), // IMPOSSIBLE("EA2B1F")
+  SUCCESS("#DFF2BF"),
+  WORKING("#5386E4"),
+  READY("#FCEFEF"), SCHEDULED("#FCEFEF");
 
   private final String color;
 
