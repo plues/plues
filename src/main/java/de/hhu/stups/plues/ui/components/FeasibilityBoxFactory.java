@@ -10,6 +10,5 @@ import java.util.Set;
 @FunctionalInterface
 public interface FeasibilityBoxFactory {
   FeasibilityBox create(@Assisted("major") Course major, @Assisted("minor") Course minor,
-                        @Assisted("impossibleCourses") Set<String> impossibleCourses,
-                        @Assisted("parent") VBox parent);
+                        Set<String> impossibleCourses, VBox parent);
 }
