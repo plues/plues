@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.ui.batchgeneration;
 
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 import java.util.Collection;
@@ -67,6 +68,6 @@ public class BatchPdfRenderingTask extends Task<Collection<PdfRenderingTask>> {
 
   @Override
   protected void cancelled() {
-    this.tasks.forEach(Task::cancel);
+    Platform.runLater(() -> this.tasks.forEach(Task::cancel));
   }
 }
