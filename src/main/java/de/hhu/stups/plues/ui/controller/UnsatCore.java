@@ -38,6 +38,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -348,8 +349,9 @@ public class UnsatCore extends VBox implements Initializable {
           setText(null);
           return;
         }
+        final String prefix = getPrefix(item);
         setText(item.stream()
-            .map(s -> String.format("• %s - %d\n", s.getDay(), s.getTime()))
+            .map(s -> String.format("%s%s - %d\n", prefix, s.getDay(), s.getTime()))
             .reduce(String::concat).orElse("??"));
       }
     });
@@ -368,10 +370,18 @@ public class UnsatCore extends VBox implements Initializable {
           setText(null);
           return;
         }
+        final String prefix = getPrefix(item);
         setText(item.stream()
-            .map(e -> String.format("• %s", e.getKey())).collect(Collectors.joining("\n")));
+            .map(e -> String.format("%s%s", prefix, e.getKey())).collect(Collectors.joining("\n")));
       }
     });
+  }
+
+  private String getPrefix(final Collection<?> item) {
+    if (item.size() > 1) {
+      return "• ";
+    }
+    return "";
   }
 
   private void initializeAbstractUnits() {
@@ -405,8 +415,10 @@ public class UnsatCore extends VBox implements Initializable {
                 setText(null);
                 return;
               }
+              final String prefix = getPrefix(item.entrySet());
               setText(item.entrySet().stream()
-                  .map(e -> String.format("• %s: %s",
+                  .map(e -> String.format("%s%s: %s",
+                    prefix,
                     e.getKey().getPordnr(),
                     e.getValue().stream()
                       .sorted()
