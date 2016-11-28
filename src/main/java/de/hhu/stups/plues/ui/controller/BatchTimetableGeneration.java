@@ -116,7 +116,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     btSaveToZip.disableProperty().bind(generationSucceeded.emptyProperty());
     btSaveToFolder.disableProperty().bind(generationSucceeded.emptyProperty());
 
-    listView.visibleProperty().bind(Bindings.size(listView.getItems()).greaterThan(0));
+    listView.setVisible(true);
     listView.setId("batchListView");
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
