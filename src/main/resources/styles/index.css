@@ -110,3 +110,8 @@
 .running {
     -fx-background-color: #5386E4;
 }
+
+.tentative {
+    -fx-font-family: sans-serif;
+    -fx-font-weight: bold;
+}

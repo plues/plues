@@ -8,30 +8,47 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 
+import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.StringBinding;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-class SessionCell extends ListCell<SessionFacade> {
+class SessionCell extends ListCell<SessionFacade> implements Initializable {
 
   private final Provider<DetailView> provider;
   private final Delayed<SolverService> delayedSolverService;
 
   private final UiDataService uiDataService;
 
+  private final HBox content = new HBox();
+
   private volatile boolean solverIsLoaded = false;
 
+  @FXML
+  private Label sessionCellText;
+
+  @FXML
+  private Text sessionCellIsTentative;
+
   @Inject
-  SessionCell(final Provider<DetailView> detailViewProvider,
+  SessionCell(final Inflater inflater,
+              final Provider<DetailView> detailViewProvider,
               final Delayed<SolverService> delayedSolverService,
               final UiDataService uiDataService) {
     super();
@@ -42,6 +59,11 @@ class SessionCell extends ListCell<SessionFacade> {
 
     waitForSolver();
 
+    inflater.inflate("components/SessionCell", content, this);
+  }
+
+  @Override
+  public void initialize(URL location, ResourceBundle resources) {
     setOnDragDetected(this::dragItem);
     setOnMousePressed(this::clickItem);
 
@@ -52,8 +74,14 @@ class SessionCell extends ListCell<SessionFacade> {
     uiDataService.conflictMarkedSessionsProperty()
         .addListener((observable, oldValue, newValue) -> setConflictedStyleClass(newValue));
 
+    itemProperty().addListener((observable, oldValue, newValue) -> {
+      sessionCellIsTentative.setText("");
+      if (newValue != null && newValue.isTentative()) {
+        sessionCellIsTentative.setText("T: ");
+      }
+    });
 
-    textProperty().bind(new StringBinding() {
+    sessionCellText.textProperty().bind(new StringBinding() {
       {
         bind(itemProperty());
         bind(uiDataService.sessionDisplayFormatProperty());
@@ -116,6 +144,9 @@ class SessionCell extends ListCell<SessionFacade> {
 
     if (!empty && item != null) {
       setConflictedStyleClass(uiDataService.getConflictMarkedSessions());
+      setGraphic(content);
+    } else {
+      setGraphic(null);
     }
   }
 
