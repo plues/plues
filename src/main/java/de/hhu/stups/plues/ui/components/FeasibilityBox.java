@@ -153,7 +153,6 @@ public class FeasibilityBox extends VBox implements Initializable {
       executorService.submit(feasibilityTask);
     });
 
-    final String bgColorCommand = "-fx-background-color:";
     feasibilityTask.setOnSucceeded(event -> Platform.runLater(() -> {
       cbAction.setItems(feasibilityTask.getValue()
           ? FXCollections.observableList(Collections.singletonList(removeString))
