@@ -189,7 +189,7 @@ public class UnsatCore extends VBox implements Initializable {
     icon.styleProperty().unbind();
     message.textProperty().unbind();
 
-    icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding("20", task));
+    icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding("25", task));
     icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
     message.textProperty().bind(Bindings.createStringBinding(() -> {
       final String msg;

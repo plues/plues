@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
@@ -9,103 +10,97 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+
 <?import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection?>
-<fx:root prefHeight="600.0" prefWidth="700.0" type="VBox"
-         xmlns="http://javafx.com/javafx/8.0.112-ea" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root prefHeight="600.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <ScrollPane fitToHeight="true" fitToWidth="true">
         <VBox>
             <Label text="%unsatCore">
                 <font>
-                    <Font size="30.0"/>
+                    <Font size="30.0" />
                 </font>
             </Label>
             <CombinationOrSingleCourseSelection fx:id="courseSelection"/>
             <HBox>
-                <Button fx:id="unsatCoreModulesButton" disable="true"
-                        onAction="#computeUnsatCoreModules"
-                        text="%button.unsatCoreModules"/>
-                <Label fx:id="modulesTaskStateIcon"/>
-                <Label fx:id="modulesTaskStateLabel"/>
+                <Button fx:id="unsatCoreModulesButton" disable="true" onAction="#computeUnsatCoreModules" text="%button.unsatCoreModules" />
+                <Label fx:id="modulesTaskStateLabel" />
+                <Label fx:id="modulesTaskStateIcon" />
             </HBox>
             <VBox fx:id="modulesPane" visible="false">
-                <Separator prefWidth="200.0"/>
-                <Label text="%modulesPaneTitle"/>
+                <Separator prefWidth="200.0">
+                    <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                    </padding>
+                </Separator>
+                <Label text="%modulesPaneTitle" />
                 <TableView fx:id="modulesTable" prefHeight="200">
                     <columns>
-                        <TableColumn fx:id="modulePordnrColumn" minWidth="50" prefWidth="100"
-                                     text="%columnPordnr"/>
-                        <TableColumn fx:id="moduleNameColumn" minWidth="200"
-                                     text="%columnName"/>
+                        <TableColumn fx:id="modulePordnrColumn" minWidth="50" prefWidth="100" text="%columnPordnr" />
+                        <TableColumn fx:id="moduleNameColumn" minWidth="200" text="%columnName" />
                     </columns>
                 </TableView>
                 <HBox>
-                    <Button fx:id="unsatCoreAbstractUnitsButton" disable="true"
-                            onAction="#computeUnsatCoreAbstractUnits"
-                            text="%button.unsatCoreAbstractUnits"/>
-                    <Label fx:id="abstractUnitsTaskStateIcon"/>
-                    <Label fx:id="abstractUnitsTaskStateLabel"/>
+                    <Button fx:id="unsatCoreAbstractUnitsButton" disable="true" onAction="#computeUnsatCoreAbstractUnits" text="%button.unsatCoreAbstractUnits" />
+                    <Label fx:id="abstractUnitsTaskStateLabel" />
+                    <Label fx:id="abstractUnitsTaskStateIcon" />
                 </HBox>
             </VBox>
             <VBox fx:id="abstractUnitsPane" visible="false">
-                <Separator prefWidth="200.0"/>
+                <Separator prefWidth="200.0">
+                    <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                    </padding>
+                </Separator>
 
-                <Label text="%abstractUnitsPaneTitle"/>
+                <Label text="%abstractUnitsPaneTitle" />
                 <TableView fx:id="abstractUnitsTable" prefHeight="200">
                     <columns>
-                        <TableColumn fx:id="abstractUnitKeyColumn" minWidth="50" prefWidth="100"
-                                     text="%columnKey"/>
-                        <TableColumn fx:id="abstractUnitTitleColumn" minWidth="200"
-                                     text="%columnTitle"/>
-                        <TableColumn fx:id="abstractUnitModuleSemester" minWidth="200"
-                                     text="%columnSemesters"/>
+                        <TableColumn fx:id="abstractUnitKeyColumn" minWidth="50" prefWidth="100" text="%columnKey" />
+                        <TableColumn fx:id="abstractUnitTitleColumn" minWidth="200" text="%columnTitle" />
+                        <TableColumn fx:id="abstractUnitModuleSemester" minWidth="200" text="%columnSemesters" />
                     </columns>
                 </TableView>
                 <HBox>
-                    <Button fx:id="unsatCoreGroupsButton" disable="true"
-                            onAction="#computeUnsatCoreGroups"
-                            text="%button.unsatCoreGroups"/>
-                    <Label fx:id="groupsTaskStateIcon"/>
-                    <Label fx:id="groupsTaskStateLabel"/>
+                    <Button fx:id="unsatCoreGroupsButton" disable="true" onAction="#computeUnsatCoreGroups" text="%button.unsatCoreGroups" />
+                    <Label fx:id="groupsTaskStateLabel" />
+                    <Label fx:id="groupsTaskStateIcon" />
                 </HBox>
             </VBox>
             <VBox fx:id="groupsPane" visible="false">
-                <Separator prefWidth="200.0"/>
-                <Label text="%groupsPaneTitle"/>
+                <Separator prefWidth="200.0">
+                    <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                    </padding>
+                </Separator>
+                <Label text="%groupsPaneTitle" />
                 <TableView fx:id="groupsTable" prefHeight="200">
                     <columns>
-                        <TableColumn fx:id="groupUnitKeyColumn" minWidth="50" prefWidth="100"
-                                     text="%columnKey"/>
-                        <TableColumn fx:id="groupUnitTitleColumn" minWidth="200"
-                                     text="%columnTitle"/>
-                        <TableColumn fx:id="groupUnitSemestersColumn" minWidth="200"
-                                     text="%groupUnitSemestersColumn"/>
-                        <TableColumn fx:id="groupSessionsColumn" minWidth="200"
-                                     text="%columnGroup"/>
-                        <TableColumn fx:id="groupAbstractUnits" minWidth="200"
-                                     text="%groupAbstractUnits"/>
+                        <TableColumn fx:id="groupUnitKeyColumn" minWidth="50" prefWidth="100" text="%columnKey" />
+                        <TableColumn fx:id="groupUnitTitleColumn" minWidth="200" text="%columnTitle" />
+                        <TableColumn fx:id="groupUnitSemestersColumn" minWidth="200" text="%groupUnitSemestersColumn" />
+                        <TableColumn fx:id="groupSessionsColumn" minWidth="200" text="%columnGroup" />
+                        <TableColumn fx:id="groupAbstractUnits" minWidth="200" text="%groupAbstractUnits" />
                     </columns>
                 </TableView>
                 <HBox>
-                    <Button fx:id="unsatCoreSessionButton" disable="true"
-                            onAction="#computeUnsatCoreSessions"
-                            text="%button.unsatCoreSession"/>
-                    <Label fx:id="sessionsTaskStateIcon"/>
-                    <Label fx:id="sessionsTaskStateLabel"/>
+                    <Button fx:id="unsatCoreSessionButton" disable="true" onAction="#computeUnsatCoreSessions" text="%button.unsatCoreSession" />
+                    <Label fx:id="sessionsTaskStateLabel" />
+                    <Label fx:id="sessionsTaskStateIcon" />
                 </HBox>
             </VBox>
             <VBox fx:id="sessionsPane" visible="false">
-                <Separator prefWidth="200.0"/>
-                <Label text="%sessionsPaneTitle"/>
+                <Separator prefWidth="200.0">
+                    <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                    </padding>
+                </Separator>
+                <Label text="%sessionsPaneTitle" />
                 <TableView fx:id="sessionsTable" prefHeight="200">
                     <columns>
-                        <TableColumn fx:id="sessionDayColumn" minWidth="50" prefWidth="100"
-                                     text="%columnDay"/>
-                        <TableColumn fx:id="sessionTimeColumn" minWidth="200"
-                                     text="%columnTime"/>
-                        <TableColumn fx:id="sessionUnitKeyColumn" minWidth="50" prefWidth="100"
-                                     text="%columnKey"/>
-                        <TableColumn fx:id="sessionUnitTitleColumn" minWidth="200"
-                                     text="%columnTitle"/>
+                        <TableColumn fx:id="sessionDayColumn" minWidth="50" prefWidth="100" text="%columnDay" />
+                        <TableColumn fx:id="sessionTimeColumn" minWidth="200" text="%columnTime" />
+                        <TableColumn fx:id="sessionUnitKeyColumn" minWidth="50" prefWidth="100" text="%columnKey" />
+                        <TableColumn fx:id="sessionUnitTitleColumn" minWidth="200" text="%columnTitle" />
                     </columns>
                 </TableView>
             </VBox>
