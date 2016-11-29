@@ -1,9 +1,12 @@
 package de.hhu.stups.plues.prob.report;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
-public class Pair<T> {
+public class Pair<T> implements Serializable {
+  private static final long serialVersionUID = 6459045002667850077L;
+
   private final T second;
   private final T first;
 

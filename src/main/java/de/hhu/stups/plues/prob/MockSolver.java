@@ -1,5 +1,8 @@
 package de.hhu.stups.plues.prob;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -122,6 +125,25 @@ public class MockSolver implements Solver {
 
   @Override
   public ReportData getReportingData() throws SolverException {
+    ReportData reportData;
+    try {
+      FileInputStream fileIn = new FileInputStream("/home/philip/Schreibtisch/SlotTool/report.ser");
+      ObjectInputStream in = new ObjectInputStream(fileIn);
+      reportData = (ReportData) in.readObject();
+      in.close();
+      fileIn.close();
+    } catch (IOException ioExc) {
+      ioExc.printStackTrace();
+      return null;
+    } catch (ClassNotFoundException cls) {
+      System.out.println("Reports class not found");
+      cls.printStackTrace();
+      return null;
+    }
+
+    return reportData;
+
+    /*
     final ReportData reportData = new ReportData();
     reportData.setImpossibleCourseModuleAbstractUnits(new HashMap<>());
     reportData.setImpossibleCourses(new HashSet<>());
@@ -137,6 +159,7 @@ public class MockSolver implements Solver {
     reportData.setModuleAbstractUnitUnitSemesterConflicts(new HashSet<>());
 
     return reportData;
+    */
   }
 
   @Override
