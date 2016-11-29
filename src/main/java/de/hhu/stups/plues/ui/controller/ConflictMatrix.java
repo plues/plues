@@ -329,8 +329,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
               final String minorCourseName = combinableMinorCourses.get(row).getName();
               final ResultGridCell gridCell = new ResultGridCell(null, majorCourseName,
                   minorCourseName);
-              combinableCoursesMap.put(new MajorMinorKey(majorCourseName, minorCourseName)
-                  , gridCell);
+              combinableCoursesMap.put(new MajorMinorKey(majorCourseName, minorCourseName),
+                  gridCell);
               gridPaneCombinable.add(gridCell, col + 1, row + 1);
             }));
     gridPaneCombinable.add(new CourseGridCell("", "", ""), 0, 0);
