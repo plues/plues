@@ -1,10 +1,10 @@
 package de.hhu.stups.plues.services;
 
+import static javafx.concurrent.WorkerStateEvent.WORKER_STATE_CANCELLED;
+import static javafx.concurrent.WorkerStateEvent.WORKER_STATE_FAILED;
+import static javafx.concurrent.WorkerStateEvent.WORKER_STATE_SUCCEEDED;
+
 import com.google.common.base.Joiner;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.name.Named;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
@@ -20,7 +20,6 @@ import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.SolverTask;
-
 import javafx.beans.property.ReadOnlyMapProperty;
 import javafx.beans.property.ReadOnlyMapWrapper;
 import javafx.collections.FXCollections;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 
@@ -69,7 +67,8 @@ public class SolverService {
         new SolverTask<>(resources.getString("check"), msg, this.solver,
             () -> solver.checkFeasibility(names), timeout);
     addOnCancelListener(names, checkFeasibilityTask);
-    checkFeasibilityTask.setOnSucceeded(event -> {
+
+    checkFeasibilityTask.addEventHandler(WORKER_STATE_SUCCEEDED, event -> {
       if (langTimeout.equals(checkFeasibilityTask.getReason())) {
         addCourseResult(names, ResultState.TIMEOUT);
       } else {
@@ -101,7 +100,8 @@ public class SolverService {
               return result;
             }, timeout);
     addOnCancelListener(names, computeFeasibilityTask);
-    computeFeasibilityTask.setOnFailed(event -> {
+
+    computeFeasibilityTask.addEventHandler(WORKER_STATE_FAILED, event -> {
       if (langTimeout.equals(computeFeasibilityTask.getReason())) {
         addCourseResult(names, ResultState.TIMEOUT);
       } else {
@@ -152,13 +152,15 @@ public class SolverService {
               return result;
             }, timeout);
     addOnCancelListener(combination, computeFeasibilityTask);
-    computeFeasibilityTask.setOnFailed(event -> {
+
+    computeFeasibilityTask.addEventHandler(WORKER_STATE_FAILED, event -> {
       if (langTimeout.equals(computeFeasibilityTask.getReason())) {
         addCourseResult(combination, ResultState.TIMEOUT);
       } else {
         addCourseResult(combination, ResultState.FAILED);
       }
     });
+
     return computeFeasibilityTask;
   }
 
@@ -361,7 +363,7 @@ public class SolverService {
    * computations.
    */
   private void addOnCancelListener(final String[] names, final SolverTask<?> solverTask) {
-    solverTask.setOnCancelled(event -> {
+    solverTask.addEventHandler(WORKER_STATE_CANCELLED, event -> {
       if (langTimeout.equals(solverTask.getReason())) {
         addCourseResult(names, ResultState.TIMEOUT);
       }
