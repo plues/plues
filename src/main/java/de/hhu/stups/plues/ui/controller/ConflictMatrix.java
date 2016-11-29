@@ -29,6 +29,7 @@ import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -335,35 +336,26 @@ public class ConflictMatrix extends GridPane implements Initializable {
   }
 
   private void initializeGridPaneStandalone() {
-    IntStream.range(0, standaloneCourses.size())
-        .forEach(index -> {
-          final Course course = standaloneCourses.get(index);
-          gridPaneStandalone.add(
-              new CourseGridCell(course.getKey(), course.getFullName(), ""), 0, index);
-        });
-    IntStream.range(0, standaloneCourses.size())
-        .forEach(index -> {
-          final String courseName = standaloneCourses.get(index).getName();
-          final ResultGridCell gridCell = new ResultGridCell(null, courseName);
-          standaloneCoursesMap.put(new CourseKey(courseName), gridCell);
-          gridPaneStandalone.add(gridCell, 1, index);
-        });
+    initGridPane(standaloneCourses, gridPaneStandalone, standaloneCoursesMap);
+  }
+
+  private void initGridPane(final List<Course> courses,
+                            final GridPane gridPane, final Map<CourseKey, ResultGridCell> cellMap) {
+    gridPane.addColumn(0, courses.stream()
+        .map(course -> new CourseGridCell(course.getKey(), course.getFullName(), ""))
+        .collect(Collectors.toList()).toArray(new Node[] {}));
+
+    IntStream.range(0, courses.size())
+      .forEach(index -> {
+        final String courseName = courses.get(index).getName();
+        final ResultGridCell gridCell = new ResultGridCell(null, courseName);
+        cellMap.put(new CourseKey(courseName), gridCell);
+        gridPane.add(gridCell, 1, index);
+      });
   }
 
   private void initializeGridPaneSingleCourse() {
-    IntStream.range(0, courses.size())
-        .forEach(index -> {
-          final Course course = courses.get(index);
-          gridPaneSingleCourses.add(
-              new CourseGridCell(course.getKey(), course.getFullName(), ""), 0, index);
-        });
-    IntStream.range(0, courses.size())
-        .forEach(index -> {
-          final String courseName = courses.get(index).getName();
-          final ResultGridCell gridCell = new ResultGridCell(null, courseName);
-          singleCoursesMap.put(new CourseKey(courseName), gridCell);
-          gridPaneSingleCourses.add(gridCell, 1, index);
-        });
+    initGridPane(courses, gridPaneSingleCourses,  singleCoursesMap);
   }
 
   /**
