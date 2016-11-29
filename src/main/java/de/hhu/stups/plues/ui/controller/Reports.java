@@ -4,7 +4,10 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.data.entities.AbstractUnit;
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.report.Pair;
 import de.hhu.stups.plues.services.SolverService;
@@ -20,33 +23,67 @@ import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnit
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.xmlgraphics.util.MimeConstants;
+import org.jtwig.JtwigModel;
+import org.jtwig.JtwigTemplate;
+import org.jtwig.environment.EnvironmentConfiguration;
+import org.jtwig.environment.EnvironmentConfigurationBuilder;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 class Reports extends VBox implements Initializable {
 
   private final ObjectProperty<ReportData> reportData = new SimpleObjectProperty<>();
+  private Logger logger = Logger.getLogger(getClass().getSimpleName());
   private final Properties properties;
   private int abstractUnitAmount;
   private int groupAmount;
   private int sessionAmount;
   private int courseAmount;
   private int unitAmount;
+  private Map<String, String> resources;
 
+  private RealReportData realReportData;
   @FXML
   @SuppressWarnings("unused")
   private Label lbCourseAmount;
@@ -65,10 +102,14 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Label lbSessionAmount;
+
   @FXML
   @SuppressWarnings("unused")
   private Label lbModelVersion;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private Button buttonPrint;
   @FXML
   @SuppressWarnings("unused")
   private ImpossibleModules impossibleModules;
@@ -111,6 +152,7 @@ class Reports extends VBox implements Initializable {
                  final Properties properties) {
 
     this.properties = properties;
+    resources = new HashMap<>();
 
     delayedStore.whenAvailable(store -> {
       groupAmount = store.getGroups().size();
@@ -126,22 +168,34 @@ class Reports extends VBox implements Initializable {
       executor.submit(reportDataTask);
     });
 
-    reportData.addListener((observable, oldValue, newValue) -> {
-      delayedStore.whenAvailable(store -> {
-        displayImpossibleModules(store, newValue);
-        displayImpossibleCourses(store, newValue);
-        displayMandatoryModules(store, newValue);
-        displayQuasiMandatoryModuleAbstractUnits(store, newValue);
-        displayRedundantUnitGroups(store, newValue);
-        displayImpossibleCourseModuleAbstractUnits(store, newValue);
-        displayImpossibleCourseModuleAbstractUnitPairs(store, newValue);
-        displayModuleAbstractUnitUnitSemesterConflicts(store, newValue);
-        displayUnitsWithoutAbstractUnits(store);
-        displayAbstractUnitsWithoutUnits(store);
+    reportData.addListener((observable, oldValue, newValue) ->
+        delayedStore.whenAvailable(store -> {
+          buttonPrint.setDisable(false);
 
-        lbImpossibleCoursesAmount.setText(String.valueOf(newValue.getImpossibleCourses().size()));
-      });
-    });
+          displayImpossibleModules(store, newValue);
+          displayImpossibleCourses(store, newValue);
+          Map<Course, Set<Module>> mandatoryModules = displayMandatoryModules(store, newValue);
+          Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits =
+              displayQuasiMandatoryModuleAbstractUnits(store, newValue);
+          Set<Unit> redundantUnitGroups = displayRedundantUnitGroups(store, newValue);
+          Map<Course, Map<Module, Set<AbstractUnit>>> impossibleCourseModuleAbstractUnits =
+              displayImpossibleCourseModuleAbstractUnits(store, newValue);
+          Map<Course, Map<Module, Set<Pair<AbstractUnit>>>> impossibleCourseModuleAbstractUnitPairs
+              = displayImpossibleCourseModuleAbstractUnitPairs(store, newValue);
+          HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
+              moduleAbstractUnitUnitSemesterConflicts =
+              displayModuleAbstractUnitUnitSemesterConflicts(store, newValue);
+          List<Unit> unitsWithoutAbstractUnits = displayUnitsWithoutAbstractUnits(store);
+          List<AbstractUnit> abstractUnitsWithoutUnits = displayAbstractUnitsWithoutUnits(store);
+
+          realReportData = new RealReportData(mandatoryModules, quasiMandatoryModuleAbstractUnits,
+              redundantUnitGroups, impossibleCourseModuleAbstractUnits,
+              impossibleCourseModuleAbstractUnitPairs, moduleAbstractUnitUnitSemesterConflicts,
+              unitsWithoutAbstractUnits, abstractUnitsWithoutUnits, store.getInfoByKey("name"),
+              resources);
+
+          lbImpossibleCoursesAmount.setText(String.valueOf(newValue.getImpossibleCourses().size()));
+        }));
 
     inflater.inflate("Reports", this, this, "reports", "Column");
   }
@@ -155,6 +209,14 @@ class Reports extends VBox implements Initializable {
     lbSessionAmount.setText(String.valueOf(sessionAmount));
     lbModelVersion.setText(String.valueOf(properties.get("model_version")));
 
+    this.resources = resources.keySet().stream()
+        .filter(s -> s.startsWith("title.") || s.startsWith("column")).collect(Collectors.toList())
+        .stream().collect(Collectors.toMap(o -> o, resources::getString));
+  }
+
+  @FXML
+  public void print() {
+    realReportData.print();
   }
 
   /**
@@ -165,12 +227,16 @@ class Reports extends VBox implements Initializable {
     this.reportData.set(reportData);
   }
 
-  private void displayAbstractUnitsWithoutUnits(final Store store) {
-    abstractUnitsWithoutUnits.setData(store.getAbstractUnitsWithoutUnits());
+  private List<AbstractUnit> displayAbstractUnitsWithoutUnits(final Store store) {
+    List<AbstractUnit> abstractUnitsWithoutUnits = store.getAbstractUnitsWithoutUnits();
+    this.abstractUnitsWithoutUnits.setData(abstractUnitsWithoutUnits);
+
+    return abstractUnitsWithoutUnits;
   }
 
-  private void displayModuleAbstractUnitUnitSemesterConflicts(final Store store,
-      final ReportData reportData) {
+  private HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
+      displayModuleAbstractUnitUnitSemesterConflicts(final Store store,
+                                                     final ReportData reportData) {
     final HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>> conflicts
         = new HashMap<>();
     reportData.getModuleAbstractUnitUnitSemesterConflicts().forEach(conflict -> {
@@ -190,52 +256,74 @@ class Reports extends VBox implements Initializable {
       }
     });
     moduleAbstractUnitUnitSemesterConflicts.setData(conflicts);
+
+    return conflicts;
   }
 
-  private void displayImpossibleCourseModuleAbstractUnitPairs(final Store store,
-      final ReportData reportData) {
-    impossibleCourseModuleAbstractUnitPairs.setData(
+  private Map<Course, Map<Module, Set<Pair<AbstractUnit>>>>
+      displayImpossibleCourseModuleAbstractUnitPairs(final Store store,
+                                                     final ReportData reportData) {
+    Map<Course, Map<Module, Set<Pair<AbstractUnit>>>> impossibleCourseModuleAbstractUnitPairs =
         reportData.getImpossibleCourseModuleAbstractUnitPairs()
         .entrySet().stream().collect(Collectors.toMap(
           entry -> store.getCourseByKey(entry.getKey()),
           entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
             innerEntry -> store.getModuleById(innerEntry.getKey()),
             innerEntry -> innerEntry.getValue().stream().map(
-                pair -> new Pair<>(store.getAbstractUnitById(pair.getFirst()),
-                  store.getAbstractUnitById(pair.getSecond()))).collect(Collectors.toSet()))))));
+              pair -> new Pair<>(store.getAbstractUnitById(pair.getFirst()),
+              store.getAbstractUnitById(pair.getSecond()))).collect(Collectors.toSet())))));
+    this.impossibleCourseModuleAbstractUnitPairs.setData(
+        impossibleCourseModuleAbstractUnitPairs);
+
+    return impossibleCourseModuleAbstractUnitPairs;
   }
 
-  private void displayImpossibleCourseModuleAbstractUnits(final Store store,
-      final ReportData reportData) {
-    impossibleCourseModuleAbstractUnits.setData(reportData.getImpossibleCourseModuleAbstractUnits()
+  private Map<Course, Map<Module, Set<AbstractUnit>>>
+      displayImpossibleCourseModuleAbstractUnits(final Store store, final ReportData reportData) {
+    Map<Course, Map<Module, Set<AbstractUnit>>> impossibleCourseModuleAbstractUnits =
+        reportData.getImpossibleCourseModuleAbstractUnits()
         .entrySet().stream().collect(Collectors.toMap(
           entry -> store.getCourseByKey(entry.getKey()),
           entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
             innerEntry -> store.getModuleById(innerEntry.getKey()),
             innerEntry -> innerEntry.getValue().stream().map(
-                store::getAbstractUnitById).collect(Collectors.toSet()))))));
+            store::getAbstractUnitById).collect(Collectors.toSet())))));
+    this.impossibleCourseModuleAbstractUnits.setData(impossibleCourseModuleAbstractUnits);
+
+    return impossibleCourseModuleAbstractUnits;
   }
 
-  private void displayRedundantUnitGroups(final Store store, final ReportData reportData) {
-    redundantUnitGroups.setData(reportData.getRedundantUnitGroups().keySet().stream()
-        .map(store::getUnitById).collect(Collectors.toSet()));
+  private Set<Unit> displayRedundantUnitGroups(final Store store, final ReportData reportData) {
+    Set<Unit> redundantUnitGroups = reportData.getRedundantUnitGroups().keySet().stream()
+        .map(store::getUnitById).collect(Collectors.toSet());
+    this.redundantUnitGroups.setData(redundantUnitGroups);
+
+    return redundantUnitGroups;
   }
 
-  private void displayQuasiMandatoryModuleAbstractUnits(final Store store,
-      final ReportData reportData) {
-    quasiMandatoryModuleAbstractUnits.setData(reportData.getQuasiMandatoryModuleAbstractUnits()
+  private Map<Module, Set<AbstractUnit>>
+      displayQuasiMandatoryModuleAbstractUnits(final Store store, final ReportData reportData) {
+    Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits =
+        reportData.getQuasiMandatoryModuleAbstractUnits()
         .entrySet().stream().collect(Collectors.toMap(
           entry -> store.getModuleById(entry.getKey()),
           entry -> entry.getValue().stream().map(
-              store::getAbstractUnitById).collect(Collectors.toSet()))));
+          store::getAbstractUnitById).collect(Collectors.toSet())));
+    this.quasiMandatoryModuleAbstractUnits.setData(quasiMandatoryModuleAbstractUnits);
+
+    return quasiMandatoryModuleAbstractUnits;
   }
 
-  private void displayMandatoryModules(final Store store, final ReportData reportData) {
-    mandatoryModules.setData(reportData.getMandatoryModules()
+  private Map<Course, Set<Module>> displayMandatoryModules(final Store store,
+                                                           final ReportData reportData) {
+    Map<Course, Set<Module>> mandatoryModules = reportData.getMandatoryModules()
         .entrySet().stream().collect(Collectors.toMap(
           entry -> store.getCourseByKey(entry.getKey()),
           entry -> entry.getValue().stream().map(
-              store::getModuleById).collect(Collectors.toSet()))));
+          store::getModuleById).collect(Collectors.toSet())));
+    this.mandatoryModules.setData(mandatoryModules);
+
+    return mandatoryModules;
   }
 
   private void displayImpossibleCourses(final Store store, final ReportData reportData) {
@@ -254,8 +342,111 @@ class Reports extends VBox implements Initializable {
         .stream().map(store::getModuleById).collect(Collectors.toList()));
   }
 
-  private void displayUnitsWithoutAbstractUnits(final Store store) {
-    unitsWithoutAbstractUnits.setData(store.getUnits().stream()
-      .filter(unit -> unit.getAbstractUnits().size() == 0).collect(Collectors.toList()));
+  private List<Unit> displayUnitsWithoutAbstractUnits(final Store store) {
+    List<Unit> unitsWithoutAbstractUnits = store.getUnits().stream()
+        .filter(unit -> unit.getAbstractUnits().size() == 0).collect(Collectors.toList());
+    this.unitsWithoutAbstractUnits.setData(unitsWithoutAbstractUnits);
+
+    return unitsWithoutAbstractUnits;
+  }
+
+  private static final class RealReportData {
+
+    private final Map<Course, Set<Module>> mandatoryModules;
+    private final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits;
+    private final Set<Unit> redundantUnitGroups;
+    private final Map<Course, Map<Module, Set<AbstractUnit>>>
+        impossibleCourseModuleAbstractUnits;
+    private final Map<Course, Map<Module, Set<Pair<AbstractUnit>>>>
+        impossibleCourseModuleAbstractUnitPairs;
+    private final HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
+        moduleAbstractUnitUnitSemesterConflicts;
+    private final List<Unit> unitsWithoutAbstractUnits;
+    private final List<AbstractUnit> abstractUnitsWithoutUnits;
+
+    private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+    private final String faculty;
+    private final Map<String, String> resources;
+
+    RealReportData(final Map<Course, Set<Module>> mandatoryModules,
+                   final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits,
+                   final Set<Unit> redundantUnitGroups,
+                   final Map<Course, Map<Module, Set<AbstractUnit>>>
+                     impossibleCourseModuleAbstractUnits,
+                   final Map<Course, Map<Module, Set<Pair<AbstractUnit>>>>
+                     impossibleCourseModuleAbstractUnitPairs,
+                   final HashMap<Module,
+                     List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
+                     moduleAbstractUnitUnitSemesterConflicts,
+                   final List<Unit> unitsWithoutAbstractUnits,
+                   final List<AbstractUnit> abstractUnitsWithoutUnits, String faculty,
+                   final Map<String, String> resources) {
+      this.mandatoryModules = mandatoryModules;
+      this.quasiMandatoryModuleAbstractUnits = quasiMandatoryModuleAbstractUnits;
+      this.redundantUnitGroups = redundantUnitGroups;
+      this.impossibleCourseModuleAbstractUnits = impossibleCourseModuleAbstractUnits;
+      this.impossibleCourseModuleAbstractUnitPairs = impossibleCourseModuleAbstractUnitPairs;
+      this.moduleAbstractUnitUnitSemesterConflicts = moduleAbstractUnitUnitSemesterConflicts;
+      this.unitsWithoutAbstractUnits = unitsWithoutAbstractUnits;
+      this.abstractUnitsWithoutUnits = abstractUnitsWithoutUnits;
+
+      this.faculty = faculty;
+      this.resources = resources;
+    }
+
+    void print() {
+      try {
+        final URL logo = getClass().getResource("/studienplaene/HHU_Logo.jpeg");
+        final EnvironmentConfiguration config = EnvironmentConfigurationBuilder.configuration()
+            .render().withOutputCharset(Charset.forName("utf8")).and().build();
+
+        final JtwigModel model = JtwigModel.newModel()
+            .with("date", new SimpleDateFormat("dd.MM.yyyy").format(new Date()))
+            .with("faculty", faculty)
+            .with("resources", resources)
+            .with("abstractUnitsWithoutUnits", abstractUnitsWithoutUnits)
+            .with("unitsWithoutAbstractUnits", unitsWithoutAbstractUnits)
+            .with("moduleAbstractUnitUnitSemesterConflicts", moduleAbstractUnitUnitSemesterConflicts)
+            .with("mandatoryModules", mandatoryModules)
+            .with("quasiMandatoryModuleAbstractUnits", quasiMandatoryModuleAbstractUnits)
+            .with("redundantUnitGroups", redundantUnitGroups)
+            .with("impossibleCourseModuleAbstractUnitPairs", impossibleCourseModuleAbstractUnitPairs)
+            .with("impossibleCourseModuleAbstractUnits", impossibleCourseModuleAbstractUnits)
+            .with("logo", logo);
+
+        // load template
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final JtwigTemplate template =
+            JtwigTemplate.classpathTemplate("/ui/controller/reportTemplate.twig", config);
+        template.render(model, out);
+
+        // write to file
+        final File file = File.createTempFile("report", ".pdf");
+        try (OutputStream stream = new FileOutputStream(file)) {
+          final ByteArrayOutputStream pdf = toPdf(out);
+          pdf.writeTo(stream);
+        }
+      } catch (final Exception exc) {
+        logger.log(Level.SEVERE, "Exception while rendering reports", exc);
+      }
+    }
+
+    private ByteArrayOutputStream toPdf(final ByteArrayOutputStream out)
+        throws SAXException, ParserConfigurationException, IOException {
+      final FopFactory fopFactory
+          = FopFactory.newInstance(new File(".").toURI());
+      final ByteArrayOutputStream pdf = new ByteArrayOutputStream();
+      final Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, pdf);
+      //
+      final SAXParserFactory spf = SAXParserFactory.newInstance();
+      spf.setNamespaceAware(true);
+      final SAXParser saxParser = spf.newSAXParser();
+
+      final XMLReader xmlReader = saxParser.getXMLReader();
+      xmlReader.setContentHandler(fop.getDefaultHandler());
+      xmlReader.parse(new InputSource(new ByteArrayInputStream(out.toByteArray())));
+      //
+      return pdf;
+    }
   }
 }

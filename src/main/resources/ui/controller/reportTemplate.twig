@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" font-family="sans-serif">
+    <fo:layout-master-set>
+        <fo:simple-page-master master-name="rest" page-width="21.0cm" page-height="29.7cm" margin="1cm">
+            <fo:region-body extent="1cm"/>
+        </fo:simple-page-master>
+        <fo:simple-page-master master-name="first" page-width="21.0cm" page-height="29.7cm" margin="1cm">
+            <fo:region-body extent="1cm"/>
+        </fo:simple-page-master>
+    </fo:layout-master-set>
+    <fo:page-sequence master-reference="first">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block text-align="right">
+                <fo:inline>
+                    <fo:external-graphic src="{{ logo }}"
+                                     content-height="5cm" content-width="7cm"/>
+                </fo:inline>
+            </fo:block>
+            <fo:block text-align="center" font-size="70pt" font-weight="bold">
+                Bericht von PlÜS
+            </fo:block>
+            <fo:block text-align="center" font-size="30pt" font-style="italic">
+                {{ faculty }}
+            </fo:block>
+            <fo:block text-align="center" font-size="30pt" font-style="italic">
+                {{ date }}
+            </fo:block>
+        </fo:flow>
+    </fo:page-sequence>
+    <fo:page-sequence master-reference="rest">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block font-size="18pt" text-align="center">
+                {{ resources.get("title.AbstractUnits") }}
+            </fo:block>
+            <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
+                <fo:table-column column-width="30%"/>
+                <fo:table-column column-width="70%"/>
+                <fo:table-header>
+                    <fo:table-row height="0.5cm" font-size="15pt">
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
+                        </fo:table-cell>
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
+                        </fo:table-cell>
+                    </fo:table-row>
+                </fo:table-header>
+                <fo:table-body>
+                    {% for abstractUnit in abstractUnitsWithoutUnits %}
+                        <fo:table-row height="0.5cm">
+                            <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                <fo:block text-align="center">{{ abstractUnit.getKey() }}</fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell border-style="solid" border-width="0.5pt" font-size="8pt">
+                                <fo:block text-align="center">{{ abstractUnit.getTitle() }}</fo:block>
+                            </fo:table-cell>
+                        </fo:table-row>
+                    {% endfor %}
+                </fo:table-body>
+            </fo:table>
+            <fo:block font-size="18pt" text-align="center">
+                {{ resources.get("title.UnitsWithoutAbstractUnits") }}
+            </fo:block>
+            <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
+                <fo:table-column column-width="30%"/>
+                <fo:table-column column-width="70%"/>
+                <fo:table-header>
+                    <fo:table-row height="0.5cm" font-size="15pt">
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
+                        </fo:table-cell>
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
+                        </fo:table-cell>
+                    </fo:table-row>
+                </fo:table-header>
+                <fo:table-body>
+                    {% for unit in unitsWithoutAbstractUnits %}
+                        <fo:table-row height="0.5cm">
+                            <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                <fo:block text-align="center">{{ unit.getKey() }}</fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell border-style="solid" border-width="0.5pt" font-size="8pt">
+                                <fo:block text-align="center">{{ unit.getTitle() }}</fo:block>
+                            </fo:table-cell>
+                        </fo:table-row>
+                    {% endfor %}
+                </fo:table-body>
+            </fo:table>
+            <fo:block font-size="18pt" text-align="center">
+                {{ resources.get("title.AbstractUnitsWithUnits") }}
+            </fo:block>
+            <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
+                <fo:table-column column-width="33.3%"/>
+                <fo:table-column column-width="33.3%"/>
+                <fo:table-column column-width="33.3%"/>
+                <fo:table-header>
+                    <fo:table-row height="0.5cm" font-size="15pt">
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnModule") }}</fo:block>
+                        </fo:table-cell>
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnAbstractUnit") }}</fo:block>
+                        </fo:table-cell>
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnExplicitUnit") }}</fo:block>
+                        </fo:table-cell>
+                    </fo:table-row>
+                </fo:table-header>
+                <fo:table-body>
+                    {% for module in moduleAbstractUnitUnitSemesterConflicts.entrySet() %}
+                        {% for conflict in module.value %}
+                            <fo:table-row height="0.5cm">
+                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                    <fo:block text-align="center">
+                                        {{ module.key.getPordnr() }}, {{ module.key.getTitle() }}
+                                    </fo:block>
+                                </fo:table-cell>
+                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                    <fo:block text-align="center">
+                                        {{ conflict.getAbstractUnitKey() }}, {{ conflict.getAbstractUnitTitle() }}, {{ conflict.getAbstractUnitSemesters() }}
+                                    </fo:block>
+                                </fo:table-cell>
+                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                    <fo:block text-align="center">
+                                        {{ conflict.getUnitKey() }}, {{ conflict.getUnitTitle() }}, {{ conflict.getUnitSemesters() }}
+                                    </fo:block>
+                                </fo:table-cell>
+                            </fo:table-row>
+                        {% endfor %}
+                    {% endfor %}
+                </fo:table-body>
+            </fo:table>
+            <fo:block font-size="18pt" text-align="center">
+                {{ resources.get("title.MandatoryModules") }}
+            </fo:block>
+            <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
+                <fo:table-column column-width="50.0%"/>
+                <fo:table-column column-width="50.0%"/>
+                <fo:table-header>
+                    <fo:table-row height="0.5cm" font-size="15pt">
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnCourse") }}</fo:block>
+                        </fo:table-cell>
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnModule") }}</fo:block>
+                        </fo:table-cell>
+                    </fo:table-row>
+                </fo:table-header>
+                <fo:table-body>
+                    {% for course in mandatoryModules.entrySet() %}
+                        {% for module in course.value %}
+                            <fo:table-row height="0.5cm">
+                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                    <fo:block text-align="center">
+                                        {{ course.key.getKey() }}, {{ course.key.getFullName() }}
+                                    </fo:block>
+                                </fo:table-cell>
+                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                    <fo:block text-align="center">
+                                        {{ module.getPordnr() }}, {{ module.getTitle() }}, {{ module.getMandatory() }}
+                                    </fo:block>
+                                </fo:table-cell>
+                            </fo:table-row>
+                        {% endfor %}
+                    {% endfor %}
+                </fo:table-body>
+            </fo:table>
+            <fo:block font-size="18pt" text-align="center">
+                {{ resources.get("title.QuasiMandatoryModules") }}
+            </fo:block>
+            <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
+                <fo:table-column column-width="50.0%"/>
+                <fo:table-column column-width="50.0%"/>
+                <fo:table-header>
+                    <fo:table-row height="0.5cm" font-size="15pt">
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnModule") }}</fo:block>
+                        </fo:table-cell>
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnAbstractUnit") }}</fo:block>
+                        </fo:table-cell>
+                    </fo:table-row>
+                </fo:table-header>
+                <fo:table-body>
+                    {% for module in quasiMandatoryModuleAbstractUnits.entrySet() %}
+                        {% for abstractUnit in module.value %}
+                            <fo:table-row height="0.5cm">
+                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                    <fo:block text-align="center">
+                                        {{ module.key.getPordnr() }}, {{ module.key.getTitle() }}
+                                    </fo:block>
+                                </fo:table-cell>
+                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                    <fo:block text-align="center">
+                                        {{ abstractUnit.getKey() }}, {{ abstractUnit.getTitle() }}
+                                    </fo:block>
+                                </fo:table-cell>
+                            </fo:table-row>
+                        {% endfor %}
+                    {% endfor %}
+                </fo:table-body>
+            </fo:table>
+            <fo:block font-size="18pt" text-align="center">
+                {{ resources.get("title.RedundantUnitGroups") }}
+            </fo:block>
+            <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
+                <fo:table-column column-width="30%"/>
+                <fo:table-column column-width="70%"/>
+                <fo:table-header>
+                    <fo:table-row height="0.5cm" font-size="15pt">
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
+                        </fo:table-cell>
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
+                        </fo:table-cell>
+                    </fo:table-row>
+                </fo:table-header>
+                <fo:table-body>
+                    {% for unit in redundantUnitGroups %}
+                        <fo:table-row height="0.5cm">
+                            <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                <fo:block text-align="center">{{ unit.getKey() }}</fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell border-style="solid" border-width="0.5pt" font-size="8pt">
+                                <fo:block text-align="center">{{ unit.getTitle() }}</fo:block>
+                            </fo:table-cell>
+                        </fo:table-row>
+                    {% endfor %}
+                </fo:table-body>
+            </fo:table>
+            <fo:block font-size="18pt" text-align="center">
+                {{ resources.get("title.ImpossibleCourseModuleAbstractUnits") }}
+            </fo:block>
+            <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
+                <fo:table-column column-width="33.3%"/>
+                <fo:table-column column-width="33.3%"/>
+                <fo:table-column column-width="33.3%"/>
+                <fo:table-header>
+                    <fo:table-row height="0.5cm" font-size="15pt">
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnCourse") }}</fo:block>
+                        </fo:table-cell>
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnModule") }}</fo:block>
+                        </fo:table-cell>
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnAbstractUnit") }}</fo:block>
+                        </fo:table-cell>
+                    </fo:table-row>
+                </fo:table-header>
+                <fo:table-body>
+                    {% for course in impossibleCourseModuleAbstractUnits.entrySet() %}
+                        {% for module in course.value.entrySet() %}
+                            {% for abstractUnit in module.value %}
+                                <fo:table-row height="0.5cm">
+                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                        <fo:block text-align="center">
+                                            {{ course.key.getKey() }}, {{ course.key.getFullName() }}
+                                        </fo:block>
+                                    </fo:table-cell>
+                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                        <fo:block text-align="center">
+                                            {{ module.key.getPordnr() }}, {{ module.key.getTitle() }}
+                                        </fo:block>
+                                    </fo:table-cell>
+                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                        <fo:block text-align="center">
+                                            {{ abstractUnit.getKey() }}, {{ abstractUnit.getTitle() }}
+                                        </fo:block>
+                                    </fo:table-cell>
+                                </fo:table-row>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor %}
+                </fo:table-body>
+            </fo:table>
+            <fo:block font-size="18pt" text-align="center">
+                {{ resources.get("title.ImpossibleCourseModuleAbstractUnitPairs") }}
+            </fo:block>
+            <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
+                <fo:table-column column-width="33.3%"/>
+                <fo:table-column column-width="33.3%"/>
+                <fo:table-column column-width="33.3%"/>
+                <fo:table-header>
+                    <fo:table-row height="0.5cm" font-size="15pt">
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnCourse") }}</fo:block>
+                        </fo:table-cell>
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnModule") }}</fo:block>
+                        </fo:table-cell>
+                        <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                            <fo:block text-align="center">{{ resources.get("columnAbstractUnit") }}</fo:block>
+                        </fo:table-cell>
+                    </fo:table-row>
+                </fo:table-header>
+                <fo:table-body>
+                    {% for course in impossibleCourseModuleAbstractUnitPairs.entrySet() %}
+                        {% for module in course.value.entrySet() %}
+                            {% for abstractUnits in module.value %}
+                                <fo:table-row height="0.5cm">
+                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                        <fo:block text-align="center">
+                                            {{ course.key.getKey() }}, {{ course.key.getFullName() }}
+                                        </fo:block>
+                                    </fo:table-cell>
+                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                        <fo:block text-align="center">
+                                            {{ module.key.getPordnr() }}, {{ module.key.getTitle() }}
+                                        </fo:block>
+                                    </fo:table-cell>
+                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt">
+                                        <fo:block text-align="center">
+                                            {{ abstractUnits.getFirst().getKey() }}, {{ abstractUnits.getFirst().getTitle() }};
+                                            {{ abstractUnits.getSecond().getKey() }}, {{ abstractUnits.getSecond().getTitle() }}
+                                        </fo:block>
+                                    </fo:table-cell>
+                                </fo:table-row>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor %}
+                </fo:table-body>
+            </fo:table>
+        </fo:flow>
+    </fo:page-sequence>
+</fo:root>
