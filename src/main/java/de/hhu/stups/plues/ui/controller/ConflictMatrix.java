@@ -345,13 +345,12 @@ public class ConflictMatrix extends GridPane implements Initializable {
         .map(course -> new CourseGridCell(course.getKey(), course.getFullName(), ""))
         .collect(Collectors.toList()).toArray(new Node[] {}));
 
-    IntStream.range(0, courses.size())
-      .forEach(index -> {
-        final String courseName = courses.get(index).getName();
-        final ResultGridCell gridCell = new ResultGridCell(null, courseName);
-        cellMap.put(new CourseKey(courseName), gridCell);
-        gridPane.add(gridCell, 1, index);
-      });
+    IntStream.range(0, courses.size()).forEach(index -> {
+      final String courseName = courses.get(index).getName();
+      final ResultGridCell gridCell = new ResultGridCell(null, courseName);
+      cellMap.put(new CourseKey(courseName), gridCell);
+      gridPane.add(gridCell, 1, index);
+    });
   }
 
   private void initializeGridPaneSingleCourse() {
