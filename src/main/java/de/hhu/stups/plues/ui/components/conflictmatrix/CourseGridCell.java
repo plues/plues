@@ -24,11 +24,11 @@ public class CourseGridCell extends Pane {
     this.courseName = courseName;
     this.orientation = orientation;
     Platform.runLater(this::initializeGridCell);
+    getStyleClass().add("matrix-cell");
   }
 
   @SuppressWarnings("unused")
   private void initializeGridCell() {
-    setId("conflictMatrixCellDefault");
 
     final Label label = new Label("  " + courseKey + "  ");
     if (VERTICAL.equals(orientation)) {

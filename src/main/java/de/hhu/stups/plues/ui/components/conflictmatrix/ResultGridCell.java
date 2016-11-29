@@ -24,7 +24,7 @@ public class ResultGridCell extends Pane {
     this.resultState = new SimpleObjectProperty<>(resultState);
     this.resultState.addListener((observable, oldValue, newValue) ->
         Platform.runLater(() -> updateResultGridCell(newValue, courseNames)));
-    setId("conflictMatrixCellDefault");
+    getStyleClass().add("matrix-cell");
     prefHeight(25.0);
     setMinWidth(40.0);
   }
@@ -44,7 +44,6 @@ public class ResultGridCell extends Pane {
         setImpossibleGridCell();
         break;
       default:
-        setId("conflictMatrixCellDefault");
         break;
     }
   }
@@ -56,8 +55,7 @@ public class ResultGridCell extends Pane {
   private void setImpossibleGridCell() {
     getChildren().addAll(new Circle(5, 5, 2), new Circle(10, 5, 2), new Circle(5, 10, 2),
         new Circle(10, 10, 2), new Circle(5, 15, 2));
-    setId("conflictMatrixCellImpossible");
-
+    getStyleClass().add("matrix-cell-ignored");
     final Label label = new Label();
     label.prefWidthProperty().bind(widthProperty());
     label.prefHeightProperty().bind(heightProperty());
@@ -72,8 +70,7 @@ public class ResultGridCell extends Pane {
   private void setStaticImpossibleGridCell(final String courseName) {
     getChildren().addAll(new Circle(5, 5, 2), new Circle(10, 5, 2), new Circle(5, 10, 2),
         new Circle(10, 10, 2));
-    setId("conflictMatrixCellInfeasible");
-
+    getStyleClass().add("matrix-cell-impossible");
     final Label label = new Label();
     label.prefWidthProperty().bind(widthProperty());
     label.prefHeightProperty().bind(heightProperty());
@@ -93,18 +90,18 @@ public class ResultGridCell extends Pane {
    * @param courseNames An optional array of the major and minor course names.
    */
   private void setActiveGridCellPane(final ResultState result, final String... courseNames) {
-    final String paneId;
+    final String styleClass;
     getChildren().add(new Circle(5, 5, 2));
     if (ResultState.FAILED.equals(result)) {
       getChildren().add(new Circle(10, 5, 2));
-      paneId = "conflictMatrixCellFailed";
+      styleClass = "matrix-cell-failure";
     } else if (ResultState.TIMEOUT.equals(result)) {
       getChildren().addAll(new Circle(10, 5, 2), new Circle(5, 10, 2));
-      paneId = "conflictMatrixCellTimeout";
+      styleClass = "matrix-cell-timeout";
     } else {
-      paneId = "conflictMatrixCellSuccess";
+      styleClass = "matrix-cell-success";
     }
-    setId(paneId);
+    getStyleClass().add(styleClass);
     if (courseNames.length == 2) {
       final Label label = new Label();
       label.prefWidthProperty().bind(widthProperty());
