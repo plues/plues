@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui.controller;
 
+
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
@@ -24,6 +25,7 @@ import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -74,7 +76,6 @@ import javax.xml.parsers.SAXParserFactory;
 class Reports extends VBox implements Initializable {
 
   private final ObjectProperty<ReportData> reportData = new SimpleObjectProperty<>();
-  private Logger logger = Logger.getLogger(getClass().getSimpleName());
   private final Properties properties;
   private int abstractUnitAmount;
   private int groupAmount;
@@ -394,6 +395,7 @@ class Reports extends VBox implements Initializable {
       this.resources = resources;
     }
 
+    @SuppressFBWarnings("OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE")
     void print() {
       try {
         final URL logo = getClass().getResource("/studienplaene/HHU_Logo.jpeg");
@@ -406,11 +408,13 @@ class Reports extends VBox implements Initializable {
             .with("resources", resources)
             .with("abstractUnitsWithoutUnits", abstractUnitsWithoutUnits)
             .with("unitsWithoutAbstractUnits", unitsWithoutAbstractUnits)
-            .with("moduleAbstractUnitUnitSemesterConflicts", moduleAbstractUnitUnitSemesterConflicts)
+            .with("moduleAbstractUnitUnitSemesterConflicts",
+                moduleAbstractUnitUnitSemesterConflicts)
             .with("mandatoryModules", mandatoryModules)
             .with("quasiMandatoryModuleAbstractUnits", quasiMandatoryModuleAbstractUnits)
             .with("redundantUnitGroups", redundantUnitGroups)
-            .with("impossibleCourseModuleAbstractUnitPairs", impossibleCourseModuleAbstractUnitPairs)
+            .with("impossibleCourseModuleAbstractUnitPairs",
+                impossibleCourseModuleAbstractUnitPairs)
             .with("impossibleCourseModuleAbstractUnits", impossibleCourseModuleAbstractUnits)
             .with("logo", logo);
 
@@ -422,10 +426,10 @@ class Reports extends VBox implements Initializable {
 
         // write to file
         final File file = File.createTempFile("report", ".pdf");
-        try (OutputStream stream = new FileOutputStream(file)) {
-          final ByteArrayOutputStream pdf = toPdf(out);
-          pdf.writeTo(stream);
-        }
+        OutputStream stream = new FileOutputStream(file);
+        final ByteArrayOutputStream pdf = toPdf(out);
+        pdf.writeTo(stream);
+        stream.close();
       } catch (final Exception exc) {
         logger.log(Level.SEVERE, "Exception while rendering reports", exc);
       }
