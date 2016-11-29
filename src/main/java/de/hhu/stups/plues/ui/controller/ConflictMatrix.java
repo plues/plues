@@ -69,9 +69,9 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private final List<Course> combinableMajorCourses;
   private final List<Course> combinableMinorCourses;
   private final List<Course> standaloneCourses;
-  private IntegerProperty feasibleCoursesAmount;
-  private IntegerProperty infeasibleCoursesAmount;
-  private IntegerProperty timeoutCoursesAmount;
+  private final IntegerProperty feasibleCoursesAmount;
+  private final IntegerProperty infeasibleCoursesAmount;
+  private final IntegerProperty timeoutCoursesAmount;
 
   private final Set<SolverTask<Boolean>> checkFeasibilityTasks = new HashSet<>();
   private final Set<String> impossibleCourses;
@@ -226,10 +226,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
     lbInfeasibleCourseAmount.textProperty().bind(Bindings.convert(infeasibleCoursesAmount));
     lbTimeoutCourseAmount.textProperty().bind(Bindings.convert(timeoutCoursesAmount));
 
-    gridPaneLegend.setStyle("-fx-border-style: solid inside;"
-        + "-fx-border-width: 1;"
-        + "-fx-border-color: #bdbdbd;");
-
     btCheckAll.disableProperty().bind(feasibilityCheckRunning.or(solverProperty.not()));
     btCancelCheckAll.disableProperty().bind(feasibilityCheckRunning.not());
 
@@ -243,11 +239,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
     paneLegendImpossible.getChildren().addAll(new Circle(5, 5, 2), new Circle(10, 5, 2),
         new Circle(5, 10, 2), new Circle(10, 10, 2), new Circle(5, 15, 2));
 
-    paneLegendSuccess.setId("conflictMatrixLegendSuccess");
-    paneLegendFailure.setId("conflictMatrixLegendFailed");
-    paneLegendTimeout.setId("conflictMatrixLegendTimeout");
-    paneLegendImpossible.setId("conflictMatrixLegendImpossible");
-    paneLegendInfeasible.setId("conflictMatrixLegendInfeasible");
   }
 
   /**
@@ -338,8 +329,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
               final String minorCourseName = combinableMinorCourses.get(row).getName();
               final ResultGridCell gridCell = new ResultGridCell(null, majorCourseName,
                   minorCourseName);
-              combinableCoursesMap.put(new MajorMinorKey(
-                  majorCourseName, minorCourseName), gridCell);
+              combinableCoursesMap.put(new MajorMinorKey(majorCourseName, minorCourseName)
+                  , gridCell);
               gridPaneCombinable.add(gridCell, col + 1, row + 1);
             }));
     gridPaneCombinable.add(new CourseGridCell("", "", ""), 0, 0);

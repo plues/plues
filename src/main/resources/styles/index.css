@@ -30,61 +30,6 @@
     -fx-control-inner-background: #F2F2F2;
 }
 
-#conflictMatrixCellDefault {
-    -fx-background-color: black, white;
-    -fx-background-insets: 0, 0 1 1 0;
-}
-
-#conflictMatrixCellImpossible {
-    -fx-background-color: black, #BDBDBD;
-    -fx-background-insets: 0, 0 1 1 0;
-}
-
-#conflictMatrixCellSuccess {
-    -fx-background-color: black, #DFF2BF;
-    -fx-background-insets: 0, 0 1 1 0;
-}
-
-#conflictMatrixCellFailed {
-    -fx-background-color: black, #FFBABA;
-    -fx-background-insets: 0, 0 1 1 0;
-}
-
-#conflictMatrixCellTimeout {
-    -fx-background-color: black, #FFCB70;
-    -fx-background-insets: 0, 0 1 1 0;
-}
-
-#conflictMatrixCellInfeasible {
-    -fx-background-color: black, #FA9D9D;
-    -fx-background-insets: 0, 0 1 1 0;
-}
-
-#conflictMatrixLegendImpossible {
-    -fx-background-color: black, #BDBDBD;
-    -fx-background-insets: 0, 1 1 1 1;
-}
-
-#conflictMatrixLegendSuccess {
-    -fx-background-color: black, #DFF2BF;
-    -fx-background-insets: 0, 1 1 1 1;
-}
-
-#conflictMatrixLegendFailed {
-    -fx-background-color: black, #FFBABA;
-    -fx-background-insets: 0, 1 1 1 1;
-}
-
-#conflictMatrixLegendTimeout {
-    -fx-background-color: black, #FFCB70;
-    -fx-background-insets: 0, 1 1 1 1;
-}
-
-#conflictMatrixLegendInfeasible {
-    -fx-background-color: black, #FA9D9D;
-    -fx-background-insets: 0, 1 1 1 1;
-}
-
 .conflicted-session {
     -fx-background-color: darkred;
     -fx-text-fill: aliceblue;
@@ -94,4 +39,79 @@
     -fx-border-color: red;
     -fx-border-width: 10;
     -fx-border-style: dotted;
+}
+
+/* Conflict Matrix */
+.legend-box {
+    -fx-border-color: black;
+    -fx-border-width: 1;
+}
+.matrix-cell {
+    -fx-background-insets: 0, 0 1 1 0;
+    -fx-background-color: black, white;
+}
+/* TODO: remove these and use color classes below, once we update the matrix cells directly */
+.matrix-cell-ignored {
+    -fx-background-insets: 0, 0 1 1 0;
+    -fx-background-color: black, #BDBDBD;
+}
+.matrix-cell-impossible {
+    -fx-background-insets: 0, 0 1 1 0;
+    -fx-background-color: black, #FA80AA;
+}
+.matrix-cell-failure {
+    -fx-background-insets: 0, 0 1 1 0;
+    -fx-background-color: black, #FFBABA;
+}
+.matrix-cell-timeout {
+    -fx-background-insets: 0, 0 1 1 0;
+    -fx-background-color: black, #FEEFB3;
+}
+.matrix-cell-success {
+    -fx-background-insets: 0, 0 1 1 0;
+    -fx-background-color: black, #DFF2BF;
+}
+
+
+#gridPaneLegend {
+    -fx-border-style: solid inside;
+    -fx-border-width: 1;
+    -fx-border-color: #bdbdbd;
+}
+
+.ignored {
+    -fx-background-color: #BDBDBD;
+}
+
+/* Task state colors */
+.impossible {
+    -fx-background-color: #fa80aa;
+}
+.infeasible, .failure {
+    -fx-background-color: #FFBABA;
+}
+
+.timeout, .warning {
+    -fx-background-color: #FEEFB3;
+}
+
+.feasible, .success {
+    -fx-background-color: #DFF2BF;
+}
+
+.scheduled {
+    -fx-background-color: #FCEFEF;
+}
+
+.ready {
+    -fx-background-color: #FCEFEF;
+}
+
+.running {
+    -fx-background-color: #5386E4;
+}
+
+.tentative {
+    -fx-font-family: sans-serif;
+    -fx-font-weight: bold;
 }

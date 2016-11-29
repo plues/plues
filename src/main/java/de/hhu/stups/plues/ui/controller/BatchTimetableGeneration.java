@@ -59,8 +59,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   private final BatchResultBoxFactory batchResultBoxFactory;
   private final ExecutorService executor;
 
-  private final Set<PdfRenderingTask> pdfRenderingTasks;
-  private final Provider<CollectPdfRenderingTasksTask> provider;
+  private final Provider<CollectPdfRenderingTasksTask> collectPdfRenderingTasksTaskProvider;
 
   private Task<Set<PdfRenderingTask>> fillPoolTask;
   private BatchPdfRenderingTask executePoolTask;
@@ -90,16 +89,15 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   public BatchTimetableGeneration(final Inflater inflater,
                                   final Delayed<SolverService> delayedSolverService,
                                   final BatchResultBoxFactory batchResultBoxFactory,
-                                  final Provider<CollectPdfRenderingTasksTask> provider,
+                                  final Provider<CollectPdfRenderingTasksTask> taskProvider,
                                   final ExecutorService executorService) {
 
-    this.provider = provider;
+    this.collectPdfRenderingTasksTaskProvider = taskProvider;
     this.delayedSolverService = delayedSolverService;
 
     this.batchResultBoxFactory = batchResultBoxFactory;
 
     this.executor = executorService;
-    this.pdfRenderingTasks = new HashSet<>();
 
     this.solverProperty = new SimpleBooleanProperty(false);
     this.generationStarted = new SimpleBooleanProperty(false);
@@ -118,7 +116,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     btSaveToZip.disableProperty().bind(generationSucceeded.emptyProperty());
     btSaveToFolder.disableProperty().bind(generationSucceeded.emptyProperty());
 
-    listView.visibleProperty().bind(Bindings.size(listView.getItems()).greaterThan(0));
+    listView.setVisible(true);
     listView.setId("batchListView");
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
@@ -136,14 +134,14 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     generationSucceeded.clear();
     listView.getItems().clear();
 
-    fillPoolTask = provider.get();
+    fillPoolTask = collectPdfRenderingTasksTaskProvider.get();
+
     fillPoolTask.setOnSucceeded(event -> {
       fillPoolTask.getValue().forEach(task -> {
         final BatchResultBox b = batchResultBoxFactory.create(task);
         listView.getItems().add(b);
       });
-      pdfRenderingTasks.clear();
-      pdfRenderingTasks.addAll(fillPoolTask.getValue());
+      executePoolTask = buildBatchPdfRenderingTask(fillPoolTask.getValue());
       executor.submit(executePoolTask);
     });
 
@@ -156,31 +154,33 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       generationStarted.setValue(false);
       generationSucceeded.clear();
     });
+    executor.submit(fillPoolTask);
+  }
 
+  private BatchPdfRenderingTask buildBatchPdfRenderingTask(final Set<PdfRenderingTask> tasks) {
+    final BatchPdfRenderingTask renderingTask = new BatchPdfRenderingTask(executor, tasks);
 
-    executePoolTask = new BatchPdfRenderingTask(executor, pdfRenderingTasks);
-
-    executePoolTask.setOnSucceeded(event -> {
-      final Collection<PdfRenderingTask> tasks = executePoolTask.getValue();
-      final List<PdfRenderingTask> result = getSuccessfulTasks(tasks);
+    renderingTask.setOnSucceeded(event -> {
+      final Collection<PdfRenderingTask> executedTasks = executePoolTask.getValue();
+      final List<PdfRenderingTask> result = getSuccessfulTasks(executedTasks);
 
       generationSucceeded.set(FXCollections.observableList(result));
       generationStarted.setValue(false);
     });
 
-    executePoolTask.setOnCancelled(event -> {
+    renderingTask.setOnCancelled(event -> {
       logger.info("PDF generation task cancelled.");
       generationStarted.setValue(false);
       generationSucceeded.clear();
     });
 
-    executePoolTask.setOnFailed(event -> {
+    renderingTask.setOnFailed(event -> {
       logger.info("PDF generation task failed.");
       generationStarted.setValue(false);
       generationSucceeded.clear();
     });
 
-    executor.submit(fillPoolTask);
+    return renderingTask;
   }
 
   private List<PdfRenderingTask> getSuccessfulTasks(final Collection<PdfRenderingTask> tasks) {

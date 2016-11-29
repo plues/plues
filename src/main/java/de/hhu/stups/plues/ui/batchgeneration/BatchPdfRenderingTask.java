@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.ui.batchgeneration;
 
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 import java.util.Collection;
@@ -17,7 +18,7 @@ public class BatchPdfRenderingTask extends Task<Collection<PdfRenderingTask>> {
   private final ResourceBundle resources;
 
   /**
-   * Constuctor to craete task for batch pdf rendering.
+   * Constructor to create task for batch pdf rendering.
    * @param executorService Executor service to submit task
    * @param tasks A collection of all single rendering tasks
    */
@@ -67,6 +68,6 @@ public class BatchPdfRenderingTask extends Task<Collection<PdfRenderingTask>> {
 
   @Override
   protected void cancelled() {
-    this.tasks.forEach(Task::cancel);
+    Platform.runLater(() -> this.tasks.forEach(Task::cancel));
   }
 }

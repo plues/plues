@@ -61,21 +61,25 @@
                 </padding>
                 <HBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="5.0">
                     <Pane fx:id="paneLegendSuccess" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
+                          styleClass="legend-box, feasible"
                           minHeight="25.0"/>
                     <Label fx:id="lbLegendSuccess" text="%legendSuccess" wrapText="true"/>
                 </HBox>
                 <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="5.0">
                     <Pane fx:id="paneLegendFailure" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
+                          styleClass="legend-box, infeasible"
                           minHeight="25.0"/>
                     <Label fx:id="lbLegendFailure" text="%legendFailure" wrapText="true"/>
                 </HBox>
                 <HBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="5.0">
                     <Pane fx:id="paneLegendTimeout" maxWidth="25.0" maxHeight="25.0" minWidth="25.0"
+                          styleClass="legend-box, warning"
                           minHeight="25.0"/>
                     <Label fx:id="lbLegendTimeout" text="%legendTimeout" wrapText="true"/>
                 </HBox>
                 <HBox GridPane.columnIndex="0" GridPane.rowIndex="1" spacing="5.0">
                     <Pane fx:id="paneLegendInfeasible" maxWidth="25.0" maxHeight="25.0"
+                          styleClass="legend-box, impossible"
                           minWidth="25.0"
                           minHeight="25.0"/>
                     <Label fx:id="lbLegendInfeasible" text="%legendInfeasible" wrapText="true"/>
@@ -83,6 +87,7 @@
                 <HBox GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="2"
                       spacing="5.0">
                     <Pane fx:id="paneLegendImpossible" maxWidth="25.0" maxHeight="25.0"
+                          styleClass="legend-box, ignored"
                           minWidth="25.0"
                           minHeight="25.0"/>
                     <Label fx:id="lbLegendImpossible" text="%legendImpossible" wrapText="true"/>
