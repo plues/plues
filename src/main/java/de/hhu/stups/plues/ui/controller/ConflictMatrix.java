@@ -77,7 +77,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private final Set<String> impossibleCourses;
   private Task<Set<SolverTask<Boolean>>> prepareFeasibilityCheck;
   private BatchFeasibilityTask executeFeasibilityCheck;
-  private Store store;
   private long impossibleCoursesAmount;
 
   @FXML
@@ -187,8 +186,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
     standaloneCoursesMap = new HashMap<>();
     singleCoursesMap = new HashMap<>();
 
-    delayedStore.whenAvailable(localStore -> {
-      store = localStore;
+    delayedStore.whenAvailable(store -> {
       courses.addAll(store.getCourses().stream()
           .sorted(Comparator.comparing(Course::getShortName)).collect(Collectors.toList()));
       combinableMajorCourses.addAll(courses.stream()
