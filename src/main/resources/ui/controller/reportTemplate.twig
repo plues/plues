@@ -36,66 +36,11 @@
                 1. {{ resources.get("title.ImpossibleModules") }}
             </fo:block>
             {% if incompleteModules|length > 0 %}
-                <fo:block font-size="16pt">
-                    1.1 {{ resources.get("title.IncompleteModules") }}
-                </fo:block>
-                <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                    <fo:table-column column-width="30%"/>
-                    <fo:table-column column-width="70%"/>
-                    <fo:table-header>
-                        <fo:table-row height="0.4cm" font-size="12pt">
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnPordnr") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                            </fo:table-cell>
-                        </fo:table-row>
-                    </fo:table-header>
-                    <fo:table-body>
-                        {% for module in incompleteModules %}
-                            <fo:table-row height="0.4cm">
-                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
-                                    <fo:block text-align="right">{{ module.getPordnr() }}</fo:block>
-                                </fo:table-cell>
-                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="8pt" padding-left="2pt">
-                                    <fo:block text-align="left">{{ module.getTitle() }}</fo:block>
-                                </fo:table-cell>
-                            </fo:table-row>
-                        {% endfor %}
-                    </fo:table-body>
-                </fo:table>
+                {% include '/ui/controller/IncompleteModules.twig' with { modules: incompleteModules, resources: resources } only  %}
             {% endif %}
             {% if impossibleModulesBecauseOfMissingElectiveAbstractUnits|length > 0 %}
-                <fo:block font-size="16pt">
-                    1.2 {{ resources.get("title.ImpossibleModulesBecauseOfMissingElectiveAbstractUnits") }}
-                </fo:block>
-                <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                   <fo:table-column column-width="30%"/>
-                    <fo:table-column column-width="70%"/>
-                    <fo:table-header>
-                        <fo:table-row height="0.4cm" font-size="12pt">
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnPordnr") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                            </fo:table-cell>
-                        </fo:table-row>
-                    </fo:table-header>
-                    <fo:table-body>
-                        {% for module in impossibleModulesBecauseOfMissingElectiveAbstractUnits %}
-                            <fo:table-row height="0.4cm">
-                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
-                                    <fo:block text-align="right">{{ module.getPordnr() }}</fo:block>
-                                </fo:table-cell>
-                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="8pt" padding-left="2pt">
-                                    <fo:block text-align="left">{{ module.getTitle() }}</fo:block>
-                                </fo:table-cell>
-                            </fo:table-row>
-                        {% endfor %}
-                    </fo:table-body>
-                </fo:table>
+                {% include '/ui/controller/ImpossibleModulesBecauseOfMissingElectiveAbstractUnits.twig' with
+                    { modules: impossibleModulesBecauseOfMissingElectiveAbstractUnits, resources: resources } only %}
             {% endif %}
         </fo:flow>
     </fo:page-sequence>
@@ -105,98 +50,17 @@
                 2. {{ resources.get("title.ImpossibleCourses") }}
             </fo:block>
             {% if impossibleCourses|length > 0 %}
-                <fo:block font-size="16pt">
-                    2.1 {{ resources.get("title.ImpossibleCourses") }}
-                </fo:block>
-               <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                   <fo:table-column column-width="30%"/>
-                   <fo:table-column column-width="70%"/>
-                   <fo:table-header>
-                       <fo:table-row height="0.4cm" font-size="12pt">
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnName") }}</fo:block>
-                           </fo:table-cell>
-                       </fo:table-row>
-                   </fo:table-header>
-                   <fo:table-body>
-                       {% for course in impossibleCourses %}
-                           <fo:table-row height="0.4cm">
-                               <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                   <fo:block text-align="left">{{ course.getKey() }}</fo:block>
-                               </fo:table-cell>
-                               <fo:table-cell border-style="solid" border-width="0.5pt" font-size="8pt" padding-left="2pt">
-                                   <fo:block text-align="left">{{ course.getFullName() }}</fo:block>
-                               </fo:table-cell>
-                           </fo:table-row>
-                       {% endfor %}
-                   </fo:table-body>
-               </fo:table>
+                {% include '/ui/controller/ImpossibleCourses.twig' with
+                    { courses: impossibleCourses, resources: resources } only %}
            {% endif %}
            {% if impossibleCoursesBecauseOfImpossibleModules|length > 0 %}
-                <fo:block font-size="16pt">
-                    2.2 {{ resources.get("title.ImpossibleCoursesBecauseOfImpossibleModules") }}
-                </fo:block>
-               <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                   <fo:table-column column-width="30%"/>
-                   <fo:table-column column-width="70%"/>
-                   <fo:table-header>
-                       <fo:table-row height="0.4cm" font-size="12pt">
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnName") }}</fo:block>
-                           </fo:table-cell>
-                       </fo:table-row>
-                   </fo:table-header>
-                   <fo:table-body>
-                       {% for course in impossibleCoursesBecauseOfImpossibleModules %}
-                           <fo:table-row height="0.4cm">
-                               <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                   <fo:block text-align="left">{{ course.getKey() }}</fo:block>
-                               </fo:table-cell>
-                               <fo:table-cell border-style="solid" border-width="0.5pt" font-size="8pt" padding-left="2pt">
-                                   <fo:block text-align="left">{{ course.getFullName() }}</fo:block>
-                               </fo:table-cell>
-                           </fo:table-row>
-                       {% endfor %}
-                   </fo:table-body>
-               </fo:table>
+                {% include '/ui/controller/ImpossibleCoursesBecauseOfImpossibleModules.twig' with
+                    { courses: impossibleCoursesBecauseOfImpossibleModules, resources: resources } only %}
            {% endif %}
            {% if impossibleCoursesBecauseOfImpossibleModuleCombinations|length > 0 %}
-                <fo:block font-size="16pt">
-                    2.3 {{ resources.get("title.ImpossibleCoursesBecauseOfImpossibleModuleCombinations") }}
-                </fo:block>
-                <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                    <fo:table-column column-width="30%"/>
-                    <fo:table-column column-width="70%"/>
-                    <fo:table-header>
-                        <fo:table-row height="0.4cm" font-size="12pt">
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnName") }}</fo:block>
-                            </fo:table-cell>
-                        </fo:table-row>
-                    </fo:table-header>
-                    <fo:table-body>
-                        {% for course in impossibleCoursesBecauseOfImpossibleModuleCombinations %}
-                            <fo:table-row height="0.4cm">
-                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                    <fo:block text-align="left">{{ course.getKey() }}</fo:block>
-                                </fo:table-cell>
-                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="8pt" padding-left="2pt">
-                                    <fo:block text-align="left">{{ course.getFullName() }}</fo:block>
-                                </fo:table-cell>
-                            </fo:table-row>
-                        {% endfor %}
-                    </fo:table-body>
-                </fo:table>
-            {% endif %}
+                {% include '/ui/controller/ImpossibleCoursesBecauseOfImpossibleModuleCombinations.twig' with
+                    { courses: impossibleCoursesBecauseOfImpossibleModuleCombinations, resources: resources } only %}
+           {% endif %}
         </fo:flow>
     </fo:page-sequence>
     <fo:page-sequence master-reference="hoch">
@@ -205,32 +69,8 @@
                 3. {{ resources.get("title.AbstractUnits") }}
             </fo:block>
             {% if abstractUnitsWithoutUnits|length > 0 %}
-               <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                   <fo:table-column column-width="30%"/>
-                   <fo:table-column column-width="70%"/>
-                   <fo:table-header>
-                       <fo:table-row height="0.4cm" font-size="12pt">
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                           </fo:table-cell>
-                       </fo:table-row>
-                   </fo:table-header>
-                   <fo:table-body>
-                       {% for abstractUnit in abstractUnitsWithoutUnits %}
-                           <fo:table-row height="0.4cm">
-                               <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                   <fo:block text-align="left">{{ abstractUnit.getKey() }}</fo:block>
-                               </fo:table-cell>
-                               <fo:table-cell border-style="solid" border-width="0.5pt" font-size="8pt" padding-left="2pt">
-                                   <fo:block text-align="left">{{ abstractUnit.getTitle() }}</fo:block>
-                               </fo:table-cell>
-                           </fo:table-row>
-                       {% endfor %}
-                   </fo:table-body>
-               </fo:table>
+                {% include '/ui/controller/AbstractUnitsWithoutUnits.twig' with
+                    { abstractUnits: abstractUnitsWithoutUnits, resources: resources } only %}
            {% endif %}
         </fo:flow>
     </fo:page-sequence>
@@ -240,32 +80,8 @@
                 4. {{ resources.get("title.UnitsWithoutAbstractUnits") }}
             </fo:block>
             {% if unitsWithoutAbstractUnits|length > 0 %}
-                <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                    <fo:table-column column-width="20%"/>
-                    <fo:table-column column-width="80%"/>
-                    <fo:table-header>
-                        <fo:table-row height="0.4cm" font-size="12pt">
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                            </fo:table-cell>
-                        </fo:table-row>
-                    </fo:table-header>
-                    <fo:table-body>
-                        {% for unit in unitsWithoutAbstractUnits %}
-                            <fo:table-row height="0.4cm">
-                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
-                                    <fo:block text-align="right">{{ unit.getKey() }}</fo:block>
-                                </fo:table-cell>
-                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="8pt" padding-left="2pt">
-                                    <fo:block text-align="left">{{ unit.getTitle() }}</fo:block>
-                                </fo:table-cell>
-                            </fo:table-row>
-                        {% endfor %}
-                    </fo:table-body>
-                </fo:table>
+                {% include '/ui/controller/UnitsWithoutAbstractUnits.twig' with
+                    { units: unitsWithoutAbstractUnits, resources: resources } only %}
             {% endif %}
         </fo:flow>
     </fo:page-sequence>
@@ -275,103 +91,8 @@
                 5. {{ resources.get("title.AbstractUnitsWithUnits") }}
             </fo:block>
             {% if moduleAbstractUnitUnitSemesterConflicts|length > 0 %}
-                <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                    <fo:table-column column-width="7.0%"/>
-                    <fo:table-column column-width="16.3%"/>
-                    <fo:table-column column-width="8.0%"/>
-                    <fo:table-column column-width="17.3%"/>
-                    <fo:table-column column-width="8.0%"/>
-                    <fo:table-column column-width="8.0%"/>
-                    <fo:table-column column-width="19.3%"/>
-                    <fo:table-column column-width="8.0%"/>
-                    <fo:table-header>
-                        <fo:table-row height="0.4cm" font-size="12pt">
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt" number-columns-spanned="2">
-                                <fo:block text-align="center">{{ resources.get("columnModule") }}</fo:block>
-                            </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt" number-columns-spanned="3">
-                                <fo:block text-align="center">{{ resources.get("columnAbstractUnit") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt" number-columns-spanned="3">
-                                <fo:block text-align="center">{{ resources.get("columnExplicitUnit") }}</fo:block>
-                            </fo:table-cell>
-                        </fo:table-row>
-                        <fo:table-row height="0.4cm" font-size="10pt">
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnPordnr") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnSemesters") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnSemesters") }}</fo:block>
-                            </fo:table-cell>
-                        </fo:table-row>
-                    </fo:table-header>
-                    <fo:table-body>
-                        {% for module in moduleAbstractUnitUnitSemesterConflicts.entrySet() %}
-                            {% for conflict in module.value %}
-                                <fo:table-row height="0.4cm">
-                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
-                                        <fo:block text-align="right">
-                                            {{ module.key.getPordnr() }}
-                                        </fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                        <fo:block text-align="left">
-                                            {{ module.key.getTitle() }}
-                                        </fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                        <fo:block text-align="left">
-                                            {{ conflict.getAbstractUnitKey() }}
-                                        </fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                        <fo:block text-align="left">
-                                            {{ conflict.getAbstractUnitTitle() }}
-                                        </fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
-                                        <fo:block text-align="right">
-                                            {{ conflict.getAbstractUnitSemesters() }}
-                                        </fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
-                                        <fo:block text-align="right">
-                                            {{ conflict.getUnitKey() }}
-                                        </fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                        <fo:block text-align="left">
-                                            {{ conflict.getUnitTitle() }},
-                                        </fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
-                                        <fo:block text-align="right">
-                                            {{ conflict.getUnitSemesters() }}
-                                        </fo:block>
-                                    </fo:table-cell>
-                                </fo:table-row>
-                            {% endfor %}
-                        {% endfor %}
-                    </fo:table-body>
-                </fo:table>
+                {% include '/ui/controller/ModuleAbstractUnitUnitSemesterConflicts.twig' with
+                    { modules: moduleAbstractUnitUnitSemesterConflicts, resources: resources } only %}
             {% endif %}
         </fo:flow>
     </fo:page-sequence>
@@ -381,73 +102,8 @@
                 6. {{ resources.get("title.MandatoryModules") }}
             </fo:block>
             {% if mandatoryModules|length > 0 %}
-                <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                    <fo:table-column column-width="10.0%"/>
-                    <fo:table-column column-width="40.0%"/>
-                    <fo:table-column column-width="10.0%"/>
-                    <fo:table-column column-width="30.0%"/>
-                    <fo:table-column column-width="10.0%"/>
-                    <fo:table-header>
-                        <fo:table-row height="0.4cm" font-size="12pt">
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt" number-columns-spanned="2">
-                                <fo:block text-align="center">{{ resources.get("columnCourse") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt" number-columns-spanned="3">
-                                <fo:block text-align="center">{{ resources.get("columnModule") }}</fo:block>
-                            </fo:table-cell>
-                        </fo:table-row>
-                        <fo:table-row height="0.4cm" font-size="10pt">
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnElectability") }}</fo:block>
-                            </fo:table-cell>
-                        </fo:table-row>
-                    </fo:table-header>
-                    <fo:table-body>
-                        {% for course in mandatoryModules.entrySet() %}
-                            {% for module in course.value %}
-                                <fo:table-row height="0.4cm">
-                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                        <fo:block text-align="left">
-                                            {{ course.key.getKey() }}
-                                        </fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                        <fo:block text-align="left">
-                                            {{ course.key.getFullName() }}
-                                        </fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
-                                        <fo:block text-align="right">
-                                            {{ module.getPordnr() }}
-                                        </fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                        <fo:block text-align="left">
-                                            {{ module.getTitle() }}
-                                        </fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                        <fo:block text-align="center">
-                                            {{ module.getMandatory() }}
-                                        </fo:block>
-                                    </fo:table-cell>
-                                </fo:table-row>
-                            {% endfor %}
-                        {% endfor %}
-                    </fo:table-body>
-                </fo:table>
+                {% include '/ui/controller/MandatoryModules.twig' with
+                    { modules: mandatoryModules, resources: resources } only %}
             {% endif %}
         </fo:flow>
     </fo:page-sequence>
@@ -457,64 +113,8 @@
                 7. {{ resources.get("title.QuasiMandatoryModules") }}
             </fo:block>
             {% if quasiMandatoryModuleAbstractUnits|length > 0 %}
-               <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                   <fo:table-column column-width="10.0%"/>
-                   <fo:table-column column-width="40.0%"/>
-                   <fo:table-column column-width="10.0%"/>
-                   <fo:table-column column-width="40.0%"/>
-                   <fo:table-header>
-                       <fo:table-row height="0.4cm" font-size="12pt">
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt" number-columns-spanned="2">
-                               <fo:block text-align="center">{{ resources.get("columnModule") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt" number-columns-spanned="2">
-                               <fo:block text-align="center">{{ resources.get("columnAbstractUnit") }}</fo:block>
-                           </fo:table-cell>
-                       </fo:table-row>
-                       <fo:table-row height="0.4cm" font-size="10pt">
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnPordnr") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                           </fo:table-cell>
-                       </fo:table-row>
-                   </fo:table-header>
-                   <fo:table-body>
-                       {% for module in quasiMandatoryModuleAbstractUnits.entrySet() %}
-                           {% for abstractUnit in module.value %}
-                               <fo:table-row height="0.4cm">
-                                   <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
-                                       <fo:block text-align="right">
-                                           {{ module.key.getPordnr() }}
-                                       </fo:block>
-                                   </fo:table-cell>
-                                   <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                       <fo:block text-align="left">
-                                           {{ module.key.getTitle() }}
-                                       </fo:block>
-                                   </fo:table-cell>
-                                   <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                       <fo:block text-align="left">
-                                           {{ abstractUnit.getKey() }}
-                                       </fo:block>
-                                   </fo:table-cell>
-                                   <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                       <fo:block text-align="left">
-                                           {{ abstractUnit.getTitle() }}
-                                       </fo:block>
-                                   </fo:table-cell>
-                               </fo:table-row>
-                           {% endfor %}
-                       {% endfor %}
-                   </fo:table-body>
-               </fo:table>
+                {% include '/ui/controller/QuasiMandatoryModuleAbstractUnits.twig' with
+                    { modules: quasiMandatoryModuleAbstractUnits, resources: resources } only %}
            {% endif %}
         </fo:flow>
     </fo:page-sequence>
@@ -524,36 +124,8 @@
                 8. {{ resources.get("title.RedundantUnitGroups") }}
             </fo:block>
             {% if redundantUnitGroups|length > 0 %}
-               <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                   <fo:table-column column-width="20%"/>
-                   <fo:table-column column-width="80%"/>
-                   <fo:table-header>
-                       <fo:table-row height="0.4cm" font-size="12pt">
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                           </fo:table-cell>
-                       </fo:table-row>
-                   </fo:table-header>
-                   <fo:table-body>
-                       {% for unit in redundantUnitGroups %}
-                           <fo:table-row height="0.4cm">
-                               <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
-                                   <fo:block text-align="right">
-                                       {{ unit.getKey() }}
-                                   </fo:block>
-                               </fo:table-cell>
-                               <fo:table-cell border-style="solid" border-width="0.5pt" font-size="8pt" padding-left="2pt">
-                                   <fo:block text-align="left">
-                                       {{ unit.getTitle() }}
-                                   </fo:block>
-                               </fo:table-cell>
-                           </fo:table-row>
-                       {% endfor %}
-                   </fo:table-body>
-               </fo:table>
+                {% include '/ui/controller/RedundantUnitGroups.twig' with
+                    { units: redundantUnitGroups, resources: resources } only %}
            {% endif %}
         </fo:flow>
     </fo:page-sequence>
@@ -563,87 +135,8 @@
                 9. {{ resources.get("title.ImpossibleCourseModuleAbstractUnits") }}
             </fo:block>
             {% if impossibleCourseModuleAbstractUnits|length > 0 %}
-                <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                    <fo:table-column column-width="10.0%"/>
-                    <fo:table-column column-width="23.3%"/>
-                    <fo:table-column column-width="7.0%"/>
-                    <fo:table-column column-width="26.3%"/>
-                    <fo:table-column column-width="10.0%"/>
-                    <fo:table-column column-width="23.3%"/>
-                    <fo:table-header>
-                        <fo:table-row height="0.4cm" font-size="12pt">
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt" number-columns-spanned="2">
-                                <fo:block text-align="center">{{ resources.get("columnCourse") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt" number-columns-spanned="2">
-                                <fo:block text-align="center">{{ resources.get("columnModule") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt" number-columns-spanned="2">
-                                <fo:block text-align="center">{{ resources.get("columnAbstractUnit") }}</fo:block>
-                            </fo:table-cell>
-                        </fo:table-row>
-                        <fo:table-row height="0.4cm" font-size="10pt">
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnName") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnPordnr") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                            </fo:table-cell>
-                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                                <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                            </fo:table-cell>
-                        </fo:table-row>
-                    </fo:table-header>
-                    <fo:table-body>
-                        {% for course in impossibleCourseModuleAbstractUnits.entrySet() %}
-                            {% for module in course.value.entrySet() %}
-                                {% for abstractUnit in module.value %}
-                                    <fo:table-row height="0.4cm">
-                                        <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                            <fo:block text-align="left">
-                                                {{ course.key.getKey() }}
-                                            </fo:block>
-                                        </fo:table-cell>
-                                        <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                            <fo:block text-align="left">
-                                                {{ course.key.getFullName() }}
-                                            </fo:block>
-                                        </fo:table-cell>
-                                        <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
-                                            <fo:block text-align="right">
-                                                {{ module.key.getPordnr() }}
-                                            </fo:block>
-                                        </fo:table-cell>
-                                        <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                            <fo:block text-align="left">
-                                                {{ module.key.getTitle() }}
-                                            </fo:block>
-                                        </fo:table-cell>
-                                        <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                            <fo:block text-align="left">
-                                                {{ abstractUnit.getKey() }}
-                                            </fo:block>
-                                        </fo:table-cell>
-                                        <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                            <fo:block text-align="left">
-                                                {{ abstractUnit.getTitle() }}
-                                            </fo:block>
-                                        </fo:table-cell>
-                                    </fo:table-row>
-                                {% endfor %}
-                            {% endfor %}
-                        {% endfor %}
-                    </fo:table-body>
-                </fo:table>
+                {% include '/ui/controller/ImpossibleCourseModuleAbstractUnits.twig' with
+                    { courses: impossibleCourseModuleAbstractUnits, resources: resources } only %}
             {% endif %}
         </fo:flow>
     </fo:page-sequence>
@@ -653,89 +146,8 @@
                 10. {{ resources.get("title.ImpossibleCourseModuleAbstractUnitPairs") }}
             </fo:block>
             {% if impossibleCourseModuleAbstractUnitPairs|length > 0 %}
-               <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                   <fo:table-column column-width="10.0%"/>
-                   <fo:table-column column-width="23.3%"/>
-                   <fo:table-column column-width="7.0%"/>
-                   <fo:table-column column-width="26.3%"/>
-                   <fo:table-column column-width="10.0%"/>
-                   <fo:table-column column-width="23.3%"/>
-                   <fo:table-header>
-                       <fo:table-row height="0.4cm" font-size="12pt">
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt" number-columns-spanned="2">
-                               <fo:block text-align="center">{{ resources.get("columnCourse") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt" number-columns-spanned="2">
-                               <fo:block text-align="center">{{ resources.get("columnModule") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt" number-columns-spanned="2">
-                               <fo:block text-align="center">{{ resources.get("columnAbstractUnit") }}</fo:block>
-                           </fo:table-cell>
-                       </fo:table-row>
-                       <fo:table-row height="0.4cm" font-size="10pt">
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnName") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnPordnr") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
-                           </fo:table-cell>
-                       </fo:table-row>
-                   </fo:table-header>
-                   <fo:table-body>
-                       {% for course in impossibleCourseModuleAbstractUnitPairs.entrySet() %}
-                           {% for module in course.value.entrySet() %}
-                               {% for abstractUnits in module.value %}
-                                   <fo:table-row height="0.4cm">
-                                       <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                           <fo:block text-align="left">
-                                               {{ course.key.getKey() }}
-                                           </fo:block>
-                                       </fo:table-cell>
-                                       <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                           <fo:block text-align="left">
-                                               {{ course.key.getFullName() }}
-                                           </fo:block>
-                                       </fo:table-cell>
-                                       <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
-                                           <fo:block text-align="right">
-                                               {{ module.key.getPordnr() }}
-                                           </fo:block>
-                                       </fo:table-cell>
-                                       <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                           <fo:block text-align="left">
-                                               {{ module.key.getTitle() }}
-                                           </fo:block>
-                                       </fo:table-cell>
-                                       <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                           <fo:block text-align="left">
-                                               {{ abstractUnits.getFirst().getKey() }}
-                                               {{ abstractUnits.getSecond().getKey() }}
-                                           </fo:block>
-                                       </fo:table-cell>
-                                       <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                           <fo:block text-align="left">
-                                               {{ abstractUnits.getFirst().getTitle() }};
-                                               {{ abstractUnits.getSecond().getTitle() }}
-                                           </fo:block>
-                                       </fo:table-cell>
-                                   </fo:table-row>
-                               {% endfor %}
-                           {% endfor %}
-                       {% endfor %}
-                   </fo:table-body>
-               </fo:table>
+                {% include '/ui/controller/ImpossibleCourseModuleAbstractUnitPairs.twig' with
+                    { courses: impossibleCourseModuleAbstractUnitPairs, resources: resources } only %}
            {% endif %}
         </fo:flow>
     </fo:page-sequence>

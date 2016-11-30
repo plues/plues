@@ -1,0 +1,29 @@
+<fo:block font-size="16pt">
+    2.3 {{ resources.get("title.ImpossibleCoursesBecauseOfImpossibleModuleCombinations") }}
+</fo:block>
+<fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
+    <fo:table-column column-width="30%"/>
+    <fo:table-column column-width="70%"/>
+    <fo:table-header>
+        <fo:table-row height="0.4cm" font-size="12pt">
+            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
+            </fo:table-cell>
+            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                <fo:block text-align="center">{{ resources.get("columnName") }}</fo:block>
+            </fo:table-cell>
+        </fo:table-row>
+    </fo:table-header>
+    <fo:table-body>
+        {% for course in courses %}
+            <fo:table-row height="0.4cm">
+                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
+                    <fo:block text-align="left">{{ course.getKey() }}</fo:block>
+                </fo:table-cell>
+                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="8pt" padding-left="2pt">
+                    <fo:block text-align="left">{{ course.getFullName() }}</fo:block>
+                </fo:table-cell>
+            </fo:table-row>
+        {% endfor %}
+    </fo:table-body>
+</fo:table>
