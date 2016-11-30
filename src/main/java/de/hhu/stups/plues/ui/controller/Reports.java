@@ -498,11 +498,11 @@ class Reports extends VBox implements Initializable {
 
         // write to file
         final File file = File.createTempFile("report", ".pdf");
-        OutputStream stream = new FileOutputStream(file);
-        final ByteArrayOutputStream pdf = toPdf(out);
-        pdf.writeTo(stream);
-        stream.close();
-      } catch (final Exception exc) {
+        try (OutputStream stream = new FileOutputStream(file)) {
+          final ByteArrayOutputStream pdf = toPdf(out);
+          pdf.writeTo(stream);
+        }
+      } catch (SAXException | ParserConfigurationException | IOException exc) {
         logger.log(Level.SEVERE, "Exception while rendering reports", exc);
       }
     }
