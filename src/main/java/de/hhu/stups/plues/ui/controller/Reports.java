@@ -173,8 +173,8 @@ class Reports extends VBox implements Initializable {
         delayedStore.whenAvailable(store -> {
           buttonPrint.setDisable(false);
 
-          displayImpossibleModules(store, newValue);
-          displayImpossibleCourses(store, newValue);
+          MultipleContent<List<Module>> modules = displayImpossibleModules(store, newValue);
+          MultipleContent<List<Course>> courses = displayImpossibleCourses(store, newValue);
           Map<Course, Set<Module>> mandatoryModules = displayMandatoryModules(store, newValue);
           Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits =
               displayQuasiMandatoryModuleAbstractUnits(store, newValue);
@@ -189,7 +189,9 @@ class Reports extends VBox implements Initializable {
           List<Unit> unitsWithoutAbstractUnits = displayUnitsWithoutAbstractUnits(store);
           List<AbstractUnit> abstractUnitsWithoutUnits = displayAbstractUnitsWithoutUnits(store);
 
-          realReportData = new RealReportData(mandatoryModules, quasiMandatoryModuleAbstractUnits,
+          realReportData = new RealReportData(modules.getFirst(), modules.getSecond(),
+              courses.getFirst(), courses.getSecond(), courses.getThird(),
+              mandatoryModules, quasiMandatoryModuleAbstractUnits,
               redundantUnitGroups, impossibleCourseModuleAbstractUnits,
               impossibleCourseModuleAbstractUnitPairs, moduleAbstractUnitUnitSemesterConflicts,
               unitsWithoutAbstractUnits, abstractUnitsWithoutUnits, store.getInfoByKey("name"),
@@ -327,20 +329,36 @@ class Reports extends VBox implements Initializable {
     return mandatoryModules;
   }
 
-  private void displayImpossibleCourses(final Store store, final ReportData reportData) {
-    impossibleCourses.setData(reportData.getImpossibleCourses()
-          .stream().map(store::getCourseByKey).collect(Collectors.toList()),
+  private MultipleContent<List<Course>> displayImpossibleCourses(final Store store,
+                                                                 final ReportData reportData) {
+    List<Course> impossibleCourses = reportData.getImpossibleCourses()
+        .stream().map(store::getCourseByKey).collect(Collectors.toList());
+    List<Course> impossibleCoursesBecauseOfImpossibleModules =
         reportData.getImpossibleCoursesBecauseofImpossibleModules()
-          .stream().map(store::getCourseByKey).collect(Collectors.toList()),
+          .stream().map(store::getCourseByKey).collect(Collectors.toList());
+    List<Course> impossibleCoursesBecauseOfImpossibleModuleCombinations =
         reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations()
-          .stream().map(store::getCourseByKey).collect(Collectors.toList()));
+          .stream().map(store::getCourseByKey).collect(Collectors.toList());
+    this.impossibleCourses.setData(impossibleCourses,
+        impossibleCoursesBecauseOfImpossibleModules,
+        impossibleCoursesBecauseOfImpossibleModuleCombinations);
+
+    return new MultipleContent<>(impossibleCourses, impossibleCoursesBecauseOfImpossibleModules,
+        impossibleCoursesBecauseOfImpossibleModuleCombinations);
   }
 
-  private void displayImpossibleModules(final Store store, final ReportData reportData) {
-    impossibleModules.setData(reportData.getIncompleteModules()
-        .stream().map(store::getModuleById).collect(Collectors.toList()),
+  private MultipleContent<List<Module>> displayImpossibleModules(final Store store,
+                                                                 final ReportData reportData) {
+    List<Module> incompleteModules = reportData.getIncompleteModules()
+        .stream().map(store::getModuleById).collect(Collectors.toList());
+    List<Module> impossibleModulesBecauseOfMissingElectiveAbstractUnits =
         reportData.getImpossibleModulesBecauseOfMissingElectiveAbstractUnits()
-        .stream().map(store::getModuleById).collect(Collectors.toList()));
+        .stream().map(store::getModuleById).collect(Collectors.toList());
+    impossibleModules.setData(incompleteModules,
+        impossibleModulesBecauseOfMissingElectiveAbstractUnits);
+
+    return new MultipleContent<>(incompleteModules,
+      impossibleModulesBecauseOfMissingElectiveAbstractUnits);
   }
 
   private List<Unit> displayUnitsWithoutAbstractUnits(final Store store) {
@@ -349,6 +367,36 @@ class Reports extends VBox implements Initializable {
     this.unitsWithoutAbstractUnits.setData(unitsWithoutAbstractUnits);
 
     return unitsWithoutAbstractUnits;
+  }
+
+  private static final class MultipleContent<T> {
+    private final T first;
+    private final T second;
+    private final T third;
+
+    public MultipleContent(final T first, final T second) {
+      this.first = first;
+      this.second = second;
+      this.third = null;
+    }
+
+    public MultipleContent(final T first, final T second, final T third) {
+      this.first = first;
+      this.second = second;
+      this.third = third;
+    }
+
+    public T getFirst() {
+      return first;
+    }
+
+    public T getSecond() {
+      return second;
+    }
+
+    public T getThird() {
+      return third;
+    }
   }
 
   private static final class RealReportData {
@@ -368,8 +416,18 @@ class Reports extends VBox implements Initializable {
     private final Logger logger = Logger.getLogger(getClass().getSimpleName());
     private final String faculty;
     private final Map<String, String> resources;
+    private final List<Module> incompleteModules;
+    private final List<Module> impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+    private final List<Course> impossibleCourses;
+    private final List<Course> impossibleCoursesBecauseOfImpossibleModules;
+    private final List<Course> impossibleCoursesBecauseOfImpossibleModuleCombinations;
 
-    RealReportData(final Map<Course, Set<Module>> mandatoryModules,
+    RealReportData(final List<Module> incompleteModules,
+                   final List<Module> impossibleModulesBecauseOfMissingElectiveAbstractUnits,
+                   final List<Course> impossibleCourses,
+                   final List<Course> impossibleCoursesBecauseOfImpossibleModules,
+                   final List<Course> impossibleCoursesBecauseOfImpossibleModuleCombinations,
+                   final Map<Course, Set<Module>> mandatoryModules,
                    final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits,
                    final Set<Unit> redundantUnitGroups,
                    final Map<Course, Map<Module, Set<AbstractUnit>>>
@@ -382,6 +440,14 @@ class Reports extends VBox implements Initializable {
                    final List<Unit> unitsWithoutAbstractUnits,
                    final List<AbstractUnit> abstractUnitsWithoutUnits, String faculty,
                    final Map<String, String> resources) {
+      this.incompleteModules = incompleteModules;
+      this.impossibleModulesBecauseOfMissingElectiveAbstractUnits =
+        impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+      this.impossibleCourses = impossibleCourses;
+      this.impossibleCoursesBecauseOfImpossibleModules =
+        impossibleCoursesBecauseOfImpossibleModules;
+      this.impossibleCoursesBecauseOfImpossibleModuleCombinations =
+        impossibleCoursesBecauseOfImpossibleModuleCombinations;
       this.mandatoryModules = mandatoryModules;
       this.quasiMandatoryModuleAbstractUnits = quasiMandatoryModuleAbstractUnits;
       this.redundantUnitGroups = redundantUnitGroups;
@@ -406,6 +472,14 @@ class Reports extends VBox implements Initializable {
             .with("date", new SimpleDateFormat("dd.MM.yyyy").format(new Date()))
             .with("faculty", faculty)
             .with("resources", resources)
+            .with("incompleteModules", incompleteModules)
+            .with("impossibleModulesBecauseOfMissingElectiveAbstractUnits",
+                impossibleModulesBecauseOfMissingElectiveAbstractUnits)
+            .with("impossibleCourses", impossibleCourses)
+            .with("impossibleCoursesBecauseOfImpossibleModules",
+                impossibleCoursesBecauseOfImpossibleModules)
+            .with("impossibleCoursesBecauseOfImpossibleModuleCombinations",
+                impossibleCoursesBecauseOfImpossibleModuleCombinations)
             .with("abstractUnitsWithoutUnits", abstractUnitsWithoutUnits)
             .with("unitsWithoutAbstractUnits", unitsWithoutAbstractUnits)
             .with("moduleAbstractUnitUnitSemesterConflicts",
