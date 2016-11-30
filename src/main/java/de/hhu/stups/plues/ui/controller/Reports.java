@@ -55,6 +55,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -172,24 +173,35 @@ class Reports extends VBox implements Initializable {
         delayedStore.whenAvailable(store -> {
           buttonPrint.setDisable(false);
 
-          MultipleContent<List<Module>> modules = displayImpossibleModules(store, newValue);
-          MultipleContent<List<Course>> courses = displayImpossibleCourses(store, newValue);
-          Map<Course, Set<Module>> mandatoryModules = displayMandatoryModules(store, newValue);
-          Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits =
-              displayQuasiMandatoryModuleAbstractUnits(store, newValue);
-          Set<Unit> redundantUnitGroups = displayRedundantUnitGroups(store, newValue);
-          Map<Course, Map<Module, Set<AbstractUnit>>> impossibleCourseModuleAbstractUnits =
-              displayImpossibleCourseModuleAbstractUnits(store, newValue);
-          Map<Course, Map<Module, Set<Pair<AbstractUnit>>>> impossibleCourseModuleAbstractUnitPairs
-              = displayImpossibleCourseModuleAbstractUnitPairs(store, newValue);
-          HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
-              moduleAbstractUnitUnitSemesterConflicts =
-              displayModuleAbstractUnitUnitSemesterConflicts(store, newValue);
-          List<Unit> unitsWithoutAbstractUnits = displayUnitsWithoutAbstractUnits(store);
-          List<AbstractUnit> abstractUnitsWithoutUnits = displayAbstractUnitsWithoutUnits(store);
+          final List<List<Module>> modules = displayImpossibleModules(store, newValue);
+          final List<List<Course>> courses = displayImpossibleCourses(store, newValue);
+          final Map<Course, Set<Module>> mandatoryModules
+              = displayMandatoryModules(store, newValue);
 
-          realReportData = new RealReportData(modules.getFirst(), modules.getSecond(),
-              courses.getFirst(), courses.getSecond(), courses.getThird(),
+          final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits =
+              displayQuasiMandatoryModuleAbstractUnits(store, newValue);
+
+          final Set<Unit> redundantUnitGroups
+              = displayRedundantUnitGroups(store, newValue);
+
+          final Map<Course, Map<Module, Set<AbstractUnit>>> impossibleCourseModuleAbstractUnits =
+              displayImpossibleCourseModuleAbstractUnits(store, newValue);
+
+          final Map<Course, Map<Module, Set<Pair<AbstractUnit>>>>
+              impossibleCourseModuleAbstractUnitPairs
+                  = displayImpossibleCourseModuleAbstractUnitPairs(store, newValue);
+
+          final HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
+              moduleAbstractUnitUnitSemesterConflicts =
+                  displayModuleAbstractUnitUnitSemesterConflicts(store, newValue);
+
+          final List<Unit> unitsWithoutAbstractUnits = displayUnitsWithoutAbstractUnits(store);
+
+          final List<AbstractUnit> abstractUnitsWithoutUnits
+              = displayAbstractUnitsWithoutUnits(store);
+
+          realReportData = new RealReportData(modules.get(0), modules.get(1),
+              courses.get(0), courses.get(1), courses.get(2),
               mandatoryModules, quasiMandatoryModuleAbstractUnits,
               redundantUnitGroups, impossibleCourseModuleAbstractUnits,
               impossibleCourseModuleAbstractUnitPairs, moduleAbstractUnitUnitSemesterConflicts,
@@ -328,7 +340,7 @@ class Reports extends VBox implements Initializable {
     return mandatoryModules;
   }
 
-  private MultipleContent<List<Course>> displayImpossibleCourses(final Store store,
+  private List<List<Course>> displayImpossibleCourses(final Store store,
                                                                  final ReportData reportData) {
     List<Course> impossibleCourses = reportData.getImpossibleCourses()
         .stream().map(store::getCourseByKey).collect(Collectors.toList());
@@ -342,11 +354,11 @@ class Reports extends VBox implements Initializable {
         impossibleCoursesBecauseOfImpossibleModules,
         impossibleCoursesBecauseOfImpossibleModuleCombinations);
 
-    return new MultipleContent<>(impossibleCourses, impossibleCoursesBecauseOfImpossibleModules,
+    return Arrays.asList(impossibleCourses, impossibleCoursesBecauseOfImpossibleModules,
         impossibleCoursesBecauseOfImpossibleModuleCombinations);
   }
 
-  private MultipleContent<List<Module>> displayImpossibleModules(final Store store,
+  private List<List<Module>> displayImpossibleModules(final Store store,
                                                                  final ReportData reportData) {
     List<Module> incompleteModules = reportData.getIncompleteModules()
         .stream().map(store::getModuleById).collect(Collectors.toList());
@@ -356,8 +368,8 @@ class Reports extends VBox implements Initializable {
     impossibleModules.setData(incompleteModules,
         impossibleModulesBecauseOfMissingElectiveAbstractUnits);
 
-    return new MultipleContent<>(incompleteModules,
-      impossibleModulesBecauseOfMissingElectiveAbstractUnits);
+    return Arrays.asList(incompleteModules,
+        impossibleModulesBecauseOfMissingElectiveAbstractUnits);
   }
 
   private List<Unit> displayUnitsWithoutAbstractUnits(final Store store) {
@@ -366,36 +378,6 @@ class Reports extends VBox implements Initializable {
     this.unitsWithoutAbstractUnits.setData(unitsWithoutAbstractUnits);
 
     return unitsWithoutAbstractUnits;
-  }
-
-  private static final class MultipleContent<T> {
-    private final T first;
-    private final T second;
-    private final T third;
-
-    public MultipleContent(final T first, final T second) {
-      this.first = first;
-      this.second = second;
-      this.third = null;
-    }
-
-    public MultipleContent(final T first, final T second, final T third) {
-      this.first = first;
-      this.second = second;
-      this.third = third;
-    }
-
-    public T getFirst() {
-      return first;
-    }
-
-    public T getSecond() {
-      return second;
-    }
-
-    public T getThird() {
-      return third;
-    }
   }
 
   private static final class RealReportData {
