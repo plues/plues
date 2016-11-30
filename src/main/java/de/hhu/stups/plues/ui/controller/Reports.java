@@ -25,7 +25,6 @@ import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -461,10 +460,9 @@ class Reports extends VBox implements Initializable {
       this.resources = resources;
     }
 
-    @SuppressFBWarnings("OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE")
     void print() {
       try {
-        final URL logo = getClass().getResource("/studienplaene/HHU_Logo.jpeg");
+        final URL logo = getClass().getResource("/images/HHU_Logo.jpeg");
         final EnvironmentConfiguration config = EnvironmentConfigurationBuilder.configuration()
             .render().withOutputCharset(Charset.forName("utf8")).and().build();
 
