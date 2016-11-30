@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class DetailViewTest extends ApplicationTest {
@@ -128,7 +129,8 @@ public class DetailViewTest extends ApplicationTest {
   @Test
   public void testSessionInfo() {
     final Label sessionLabel = lookup("#session").query();
-    Assert.assertEquals("MONDAY: 8", sessionLabel.getText());
+    String day = Locale.getDefault().equals(Locale.GERMANY) ? "Montag" : "Monday";
+    Assert.assertEquals(day + ", 00:00", sessionLabel.getText());
 
     final Label titleLabel = lookup("#title").query();
     Assert.assertEquals("Unit", titleLabel.getText());
