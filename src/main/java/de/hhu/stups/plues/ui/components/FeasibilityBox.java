@@ -10,6 +10,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.TaskStateColor;
+import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
@@ -45,6 +46,7 @@ import javax.annotation.Nullable;
 public class FeasibilityBox extends VBox implements Initializable {
 
   private final Provider<ConflictTree> conflictTreeProvider;
+  private static final String ICON_SIZE = "50";
 
   private String removeString;
   private String unsatCoreString;
@@ -104,8 +106,8 @@ public class FeasibilityBox extends VBox implements Initializable {
                         final Provider<ConflictTree> conflictTreeProvider,
                         @Assisted("major") final Course majorCourse,
                         @Nullable @Assisted("minor") final Course minorCourse,
-                        @Assisted("impossibleCourses") final Set<String> impossibleCourses,
-                        @Assisted("parent") final VBox parent) {
+                        @Assisted final Set<String> impossibleCourses,
+                        @Assisted final VBox parent) {
     super();
     this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
@@ -151,34 +153,30 @@ public class FeasibilityBox extends VBox implements Initializable {
       executorService.submit(feasibilityTask);
     });
 
-    final String bgColorCommand = "-fx-background-color:";
     feasibilityTask.setOnSucceeded(event -> Platform.runLater(() -> {
       cbAction.setItems(feasibilityTask.getValue()
           ? FXCollections.observableList(Collections.singletonList(removeString))
           : getActionsForInfeasibleCourse());
       cbAction.getSelectionModel().selectFirst();
-      lbIcon.setGraphic(FontAwesomeIconFactory.get().createIcon(feasibilityTask.getValue()
-          ? FontAwesomeIcon.CHECK : FontAwesomeIcon.REMOVE, "50"));
-      lbIcon.setStyle(bgColorCommand + (feasibilityTask.getValue()
-          ? TaskStateColor.SUCCESS : TaskStateColor.FAILURE).getColor());
     }));
 
     feasibilityTask.setOnFailed(event -> {
       cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
       cbAction.getSelectionModel().selectFirst();
-      lbIcon.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.REMOVE, "50"));
-      lbIcon.setStyle(bgColorCommand + TaskStateColor.FAILURE.getColor());
     });
 
     feasibilityTask.setOnCancelled(event -> {
       cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
       cbAction.getSelectionModel().selectFirst();
-      lbIcon.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.QUESTION, "50"));
-      lbIcon.setStyle(bgColorCommand + TaskStateColor.WARNING.getColor());
     });
 
     progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
     progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
+
+    lbIcon.visibleProperty().bind(feasibilityTask.runningProperty().not());
+    lbIcon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(ICON_SIZE, feasibilityTask));
+    lbIcon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(feasibilityTask));
+
 
     cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancelString)));
     cbAction.getSelectionModel().selectFirst();

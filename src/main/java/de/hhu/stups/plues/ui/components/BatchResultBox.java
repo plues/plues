@@ -72,6 +72,7 @@ public class BatchResultBox extends GridPane implements Initializable {
 
     this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
     this.progressIndicator.visibleProperty().bind(task.runningProperty());
+    this.icon.visibleProperty().bind(task.runningProperty().not());
     this.icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(ICON_SIZE, this.task));
     this.icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(this.task));
   }

@@ -200,6 +200,8 @@ public class PdfRenderingHelper {
         break;
       case READY:
       case SCHEDULED:
+        symbol = FontAwesomeIcon.DOT_CIRCLE_ALT;
+        break;
       case RUNNING:
       default:
         symbol = FontAwesomeIcon.CLOCK_ALT;
@@ -239,7 +241,11 @@ public class PdfRenderingHelper {
         color = TaskStateColor.FAILURE;
         break;
       case READY:
+        color = TaskStateColor.READY;
+        break;
       case SCHEDULED:
+        color = TaskStateColor.SCHEDULED;
+        break;
       case RUNNING:
       default:
         color = TaskStateColor.WORKING;

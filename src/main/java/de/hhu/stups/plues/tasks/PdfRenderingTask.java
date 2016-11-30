@@ -8,6 +8,7 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.studienplaene.Renderer;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.xml.sax.SAXException;
 
@@ -143,7 +144,7 @@ public class PdfRenderingTask extends Task<Path> {
   protected void cancelled() {
     super.cancelled();
     if (solverTask != null) {
-      solverTask.cancel(true);
+      Platform.runLater(() -> solverTask.cancel(true));
     }
   }
 
