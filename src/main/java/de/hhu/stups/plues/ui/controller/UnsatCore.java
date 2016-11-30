@@ -351,7 +351,7 @@ public class UnsatCore extends VBox implements Initializable {
         }
         final String prefix = getPrefix(item);
         setText(item.stream()
-            .map(s -> String.format("%s%s - %d\n", prefix, s.getDay(), s.getTime()))
+            .map(s -> String.format("%s%s - %s\n", prefix, s.getDayString(), s.getTimeString()))
             .reduce(String::concat).orElse("??"));
       }
     });
