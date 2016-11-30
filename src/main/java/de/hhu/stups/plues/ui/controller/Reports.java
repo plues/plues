@@ -437,7 +437,8 @@ class Reports extends VBox implements Initializable {
                      List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
                      moduleAbstractUnitUnitSemesterConflicts,
                    final List<Unit> unitsWithoutAbstractUnits,
-                   final List<AbstractUnit> abstractUnitsWithoutUnits, String faculty,
+                   final List<AbstractUnit> abstractUnitsWithoutUnits,
+                   final String faculty,
                    final Map<String, String> resources) {
       this.incompleteModules = incompleteModules;
       this.impossibleModulesBecauseOfMissingElectiveAbstractUnits =
