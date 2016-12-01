@@ -73,6 +73,7 @@ public class StoreLoaderTask extends Task<Store> {
 
     updateMessage(resources.getString("workLocation"));
     dbWorkingPath = Files.createTempFile(PLUES, EXTENSION);
+    dbWorkingPath.toFile().deleteOnExit();
     updateProgress(2, MAX_STEPS);
 
 

@@ -91,6 +91,8 @@ public class SolverLoaderTask extends Task<Solver> {
   private void copyModelsToTemp() throws IOException {
 
     final Path tmpDirectory = Files.createTempDirectory("slottool");
+    tmpDirectory.toFile().deleteOnExit();
+
     this.modelDirectory = tmpDirectory.resolve(MODEL_PATH);
 
     Files.createDirectory(this.modelDirectory);
