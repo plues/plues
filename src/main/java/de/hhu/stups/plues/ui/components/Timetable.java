@@ -10,7 +10,9 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.ui.controller.Activatable;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
@@ -39,7 +41,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Timetable extends BorderPane implements Initializable {
+public class Timetable extends BorderPane implements Initializable, Activatable {
 
   private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
@@ -137,6 +139,15 @@ public class Timetable extends BorderPane implements Initializable {
   private void setSessions(final List<SessionFacade> sessions) {
     sessions.forEach(SessionFacade::initSlotProperty);
     this.sessions.set(FXCollections.observableArrayList(sessions));
+  }
+
+  /**
+   * Highlight the given courses when the user navigates to the timetable via the {@link
+   * de.hhu.stups.plues.routes.ControllerRoute}.
+   */
+  @Override
+  public void activateController(Course... courses) {
+    // Todo: highlight courses
   }
 
   private class SessionFacadeListBinding extends ListBinding<SessionFacade> {

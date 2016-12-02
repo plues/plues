@@ -28,7 +28,7 @@
                       mnemonicParsing="false" text="%save" accelerator="Shortcut+S"/>
             <MenuItem fx:id="saveFileAsMenuItem" onAction="#saveFileAs" disable="true"
                       mnemonicParsing="false" text="%saveAs" accelerator="Shortcut+Shift+S"/>
-            <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"  disable="true"
+            <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState" disable="true"
                       mnemonicParsing="false" text="%export.start" accelerator="Shortcut+E"/>
             <MenuItem fx:id="openChangeLog" onAction="#openChangeLog" disable="true"
                       mnemonicParsing="false" text="%log" accelerator="Shortcut+L"/>
@@ -62,12 +62,13 @@
         <Menu fx:id="windowMenu" mnemonicParsing="false" text="%window">
         </Menu>
         <Menu mnemonicParsing="false" text="%help">
-            <MenuItem fx:id="aboutMenuItem" onAction="#about" mnemonicParsing="false" text="%about"/>
+            <MenuItem fx:id="aboutMenuItem" onAction="#about" mnemonicParsing="false"
+                      text="%about"/>
         </Menu>
     </MenuBar>
     <BorderPane>
         <center>
-            <TabPane fx:id="tabPane">
+            <TabPane id="tabPane" fx:id="tabPane">
                 <Tab text="%timetable" closable="false">
                     <Timetable fx:id="timetable"/>
                 </Tab>

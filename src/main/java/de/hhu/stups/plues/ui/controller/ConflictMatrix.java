@@ -8,6 +8,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.keys.CourseKey;
 import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.prob.ResultState;
+import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -58,7 +59,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
   private final Delayed<SolverService> delayedSolverService;
   private final ExecutorService executor;
-
+  private final RouterProvider routerProvider;
   private ReadOnlyMapProperty<MajorMinorKey, ResultState> courseCombinationResults;
   private ReadOnlyMapProperty<CourseKey, ResultState> singleCourseResults;
   private final Map<MajorMinorKey, ResultGridCell> combinableCoursesMap;
@@ -73,7 +74,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private final IntegerProperty feasibleCoursesAmount;
   private final IntegerProperty infeasibleCoursesAmount;
   private final IntegerProperty timeoutCoursesAmount;
-
   private final Set<SolverTask<Boolean>> checkFeasibilityTasks = new HashSet<>();
   private final Set<String> impossibleCourses;
   private Task<Set<SolverTask<Boolean>>> prepareFeasibilityCheck;
@@ -162,15 +162,19 @@ public class ConflictMatrix extends GridPane implements Initializable {
   /**
    * This view presents a matrix of all possible combinations of combinable major and minor courses
    * and if known their feasibility. Furthermore a list of all standalone courses as well as a list
-   * of all single courses and if known their feasibility is displayed.
+   * of all single courses and if known their feasibility is displayed. Each cell is represented by
+   * a {@link ResultGridCell}.
    */
   @Inject
   public ConflictMatrix(final Inflater inflater, final Delayed<Store> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final UiDataService uiDataService,
-                        final ExecutorService executorService) {
+                        final ExecutorService executorService,
+                        final RouterProvider routerProvider) {
     this.delayedSolverService = delayedSolverService;
     this.executor = executorService;
+    this.routerProvider = routerProvider;
+
     solverProperty = new SimpleBooleanProperty(false);
     feasibilityCheckRunning = new SimpleBooleanProperty(false);
     courses = new ArrayList<>();
@@ -324,12 +328,13 @@ public class ConflictMatrix extends GridPane implements Initializable {
     IntStream.range(0, combinableMajorCourses.size()).forEach(col ->
         IntStream.range(0, combinableMinorCourses.size())
             .forEach(row -> {
-              final String majorCourseName = combinableMajorCourses.get(col).getName();
-              final String minorCourseName = combinableMinorCourses.get(row).getName();
-              final ResultGridCell gridCell = new ResultGridCell(null, majorCourseName,
-                  minorCourseName);
-              combinableCoursesMap.put(new MajorMinorKey(majorCourseName, minorCourseName),
-                  gridCell);
+              final Course majorCourse = combinableMajorCourses.get(col);
+              final Course minorCourse = combinableMinorCourses.get(row);
+              final ResultGridCell gridCell = new ResultGridCell(null, majorCourse,
+                  minorCourse);
+              gridCell.setRouter(routerProvider.get());
+              combinableCoursesMap.put(
+                  new MajorMinorKey(majorCourse.getName(), minorCourse.getName()), gridCell);
               gridPaneCombinable.add(gridCell, col + 1, row + 1);
             }));
     gridPaneCombinable.add(new CourseGridCell("", "", ""), 0, 0);
@@ -346,15 +351,16 @@ public class ConflictMatrix extends GridPane implements Initializable {
         .collect(Collectors.toList()).toArray(new Node[] {}));
 
     IntStream.range(0, courses.size()).forEach(index -> {
-      final String courseName = courses.get(index).getName();
-      final ResultGridCell gridCell = new ResultGridCell(null, courseName);
-      cellMap.put(new CourseKey(courseName), gridCell);
+      final Course course = courses.get(index);
+      final ResultGridCell gridCell = new ResultGridCell(null, course);
+      gridCell.setRouter(routerProvider.get());
+      cellMap.put(new CourseKey(course.getName()), gridCell);
       gridPane.add(gridCell, 1, index);
     });
   }
 
   private void initializeGridPaneSingleCourse() {
-    initGridPane(courses, gridPaneSingleCourses,  singleCoursesMap);
+    initGridPane(courses, gridPaneSingleCourses, singleCoursesMap);
   }
 
   /**

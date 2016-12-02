@@ -16,6 +16,7 @@ import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -47,7 +48,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class UnsatCore extends VBox implements Initializable {
+public class UnsatCore extends VBox implements Initializable, Activatable {
   private final ObjectProperty<Store> store;
   private final ObjectProperty<SolverService> solverService;
 
@@ -227,7 +228,7 @@ public class UnsatCore extends VBox implements Initializable {
       final Set<Integer> abstractUnitIds = task.getValue();
       this.abstractUnits.set(abstractUnitIds.stream()
           .map(getStore()::getAbstractUnitById).collect(Collectors
-            .collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
+              .collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
 
     });
     showTaskState(abstractUnitsTaskStateIcon, abstractUnitsTaskStateLabel, task);
@@ -337,7 +338,7 @@ public class UnsatCore extends VBox implements Initializable {
         -> Bindings.selectString(param, "value", "unit", "title"));
     groupUnitSemestersColumn.setCellValueFactory(param
         -> new SimpleStringProperty(
-            Joiner.on(',').join(param.getValue().getUnit().getSemesters())));
+        Joiner.on(',').join(param.getValue().getUnit().getSemesters())));
 
     // display a bullet-list of sessions to represent the group
     groupSessionsColumn.setCellValueFactory(new PropertyValueFactory<>("sessions"));
@@ -359,7 +360,7 @@ public class UnsatCore extends VBox implements Initializable {
     // extract abstract units associated to group (through unit) in the current abstract unit core
     groupAbstractUnits.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
         param.getValue().getUnit().getAbstractUnits().stream()
-          .filter(this.abstractUnits::contains)
+            .filter(this.abstractUnits::contains)
             .collect(Collectors.toSet())));
 
     groupAbstractUnits.setCellFactory(param -> new TableCell<Group, Set<AbstractUnit>>() {
@@ -402,31 +403,31 @@ public class UnsatCore extends VBox implements Initializable {
       // group entries by module and map to the corresponding semesters as a list
       final Map<Module, List<Integer>> result = filtered.collect(
           Collectors.groupingBy(
-            ModuleAbstractUnitSemester::getModule,
-            Collectors.mapping(ModuleAbstractUnitSemester::getSemester, Collectors.toList())));
+              ModuleAbstractUnitSemester::getModule,
+              Collectors.mapping(ModuleAbstractUnitSemester::getSemester, Collectors.toList())));
       return new ReadOnlyObjectWrapper<>(result);
     });
-    abstractUnitModuleSemester.setCellFactory(param
-        -> new TableCell<AbstractUnit, Map<Module, List<Integer>>>() {
-            @Override
-            protected void updateItem(final Map<Module, List<Integer>> item, final boolean empty) {
-              super.updateItem(item, empty);
-              if (item == null || empty) {
-                setText(null);
-                return;
-              }
-              final String prefix = getPrefix(item.entrySet());
-              setText(item.entrySet().stream()
-                  .map(e -> String.format("%s%s: %s",
+    abstractUnitModuleSemester.setCellFactory(param ->
+        new TableCell<AbstractUnit, Map<Module, List<Integer>>>() {
+          @Override
+          protected void updateItem(final Map<Module, List<Integer>> item, final boolean empty) {
+            super.updateItem(item, empty);
+            if (item == null || empty) {
+              setText(null);
+              return;
+            }
+            final String prefix = getPrefix(item.entrySet());
+            setText(item.entrySet().stream()
+                .map(e -> String.format("%s%s: %s",
                     prefix,
                     e.getKey().getPordnr(),
                     e.getValue().stream()
-                      .sorted()
-                      .map(String::valueOf)
-                      .collect(Collectors.joining(","))))
-                  .collect(Collectors.joining("\n")));
-            }
-          });
+                        .sorted()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(","))))
+                .collect(Collectors.joining("\n")));
+          }
+        });
   }
 
   private void initializeModules() {
@@ -476,5 +477,14 @@ public class UnsatCore extends VBox implements Initializable {
 
   private ObservableList<Group> getGroups() {
     return this.groups.get();
+  }
+
+  /**
+   * Select the given courses within the {@link #courseSelection} when the user navigates to the
+   * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
+   */
+  @Override
+  public void activateController(final Course... courses) {
+    courseSelection.selectMajorMinorCourse(courses);
   }
 }
