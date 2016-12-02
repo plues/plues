@@ -55,7 +55,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -84,7 +83,7 @@ class Reports extends VBox implements Initializable {
   private int unitAmount;
   private Map<String, String> resources;
 
-  private RealReportData realReportData;
+  private PrintReportData printReportData;
   @FXML
   @SuppressWarnings("unused")
   private Label lbCourseAmount;
@@ -172,41 +171,25 @@ class Reports extends VBox implements Initializable {
     reportData.addListener((observable, oldValue, newValue) ->
         delayedStore.whenAvailable(store -> {
           buttonPrint.setDisable(false);
+          printReportData = new PrintReportData(store, newValue, resources);
 
-          final List<List<Module>> modules = displayImpossibleModules(store, newValue);
-          final List<List<Course>> courses = displayImpossibleCourses(store, newValue);
-          final Map<Course, Set<Module>> mandatoryModules
-              = displayMandatoryModules(store, newValue);
-
-          final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits =
-              displayQuasiMandatoryModuleAbstractUnits(store, newValue);
-
-          final Set<Unit> redundantUnitGroups
-              = displayRedundantUnitGroups(store, newValue);
-
-          final Map<Course, Map<Module, Set<AbstractUnit>>> impossibleCourseModuleAbstractUnits =
-              displayImpossibleCourseModuleAbstractUnits(store, newValue);
-
-          final Map<Course, Map<Module, Set<Pair<AbstractUnit>>>>
-              impossibleCourseModuleAbstractUnitPairs
-                  = displayImpossibleCourseModuleAbstractUnitPairs(store, newValue);
-
-          final HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
-              moduleAbstractUnitUnitSemesterConflicts =
-                  displayModuleAbstractUnitUnitSemesterConflicts(store, newValue);
-
-          final List<Unit> unitsWithoutAbstractUnits = displayUnitsWithoutAbstractUnits(store);
-
-          final List<AbstractUnit> abstractUnitsWithoutUnits
-              = displayAbstractUnitsWithoutUnits(store);
-
-          realReportData = new RealReportData(modules.get(0), modules.get(1),
-              courses.get(0), courses.get(1), courses.get(2),
-              mandatoryModules, quasiMandatoryModuleAbstractUnits,
-              redundantUnitGroups, impossibleCourseModuleAbstractUnits,
-              impossibleCourseModuleAbstractUnitPairs, moduleAbstractUnitUnitSemesterConflicts,
-              unitsWithoutAbstractUnits, abstractUnitsWithoutUnits, store.getInfoByKey("name"),
-              resources);
+          this.mandatoryModules.setData(printReportData.getMandatoryModules());
+          this.abstractUnitsWithoutUnits.setData(printReportData.getAbstractUnitsWithoutUnits());
+          this.impossibleCourseModuleAbstractUnitPairs.setData(
+              printReportData.getImpossibleCourseModuleAbstractUnitPairs());
+          this.impossibleCourseModuleAbstractUnits.setData(
+              printReportData.getImpossibleCourseModuleAbstractUnits());
+          this.quasiMandatoryModuleAbstractUnits.setData(
+              printReportData.getQuasiMandatoryModuleAbstractUnits());
+          this.impossibleModules.setData(printReportData.getIncompleteModules(),
+              printReportData.getImpossibleModulesBecauseOfMissingElectiveAbstractUnits());
+          this.impossibleCourses.setData(printReportData.getImpossibleCourses(),
+              printReportData.getImpossibleCoursesBecauseOfImpossibleModules(),
+              printReportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations());
+          this.redundantUnitGroups.setData(printReportData.getRedundantUnitGroups());
+          this.unitsWithoutAbstractUnits.setData(printReportData.getUnitsWithoutAbstractUnits());
+          this.moduleAbstractUnitUnitSemesterConflicts.setData(
+              printReportData.getModuleAbstractUnitUnitSemesterConflicts());
 
           lbImpossibleCoursesAmount.setText(String.valueOf(newValue.getImpossibleCourses().size()));
         }));
@@ -229,8 +212,9 @@ class Reports extends VBox implements Initializable {
   }
 
   @FXML
+  @SuppressWarnings("unused")
   public void print() {
-    realReportData.print();
+    printReportData.print();
   }
 
   /**
@@ -241,206 +225,201 @@ class Reports extends VBox implements Initializable {
     this.reportData.set(reportData);
   }
 
-  private List<AbstractUnit> displayAbstractUnitsWithoutUnits(final Store store) {
-    List<AbstractUnit> abstractUnitsWithoutUnits = store.getAbstractUnitsWithoutUnits();
-    this.abstractUnitsWithoutUnits.setData(abstractUnitsWithoutUnits);
+  private static final class PrintReportData {
 
-    return abstractUnitsWithoutUnits;
-  }
-
-  private HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
-      displayModuleAbstractUnitUnitSemesterConflicts(final Store store,
-                                                     final ReportData reportData) {
-    final HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>> conflicts
-        = new HashMap<>();
-    reportData.getModuleAbstractUnitUnitSemesterConflicts().forEach(conflict -> {
-      final Module module = store.getModuleById(conflict.getModuleId());
-      if (conflicts.containsKey(module)) {
-        conflicts.get(module).add(new ModuleAbstractUnitUnitSemesterConflicts.Conflict(
-            store.getAbstractUnitById(conflict.getAbstractUnitId()),
-            store.getUnitById(conflict.getUnitId()),
-            conflict.getAbstractUnitSemesters()));
-      } else {
-        conflicts.put(module,
-            new ArrayList<>(Collections.singletonList(
-              new ModuleAbstractUnitUnitSemesterConflicts.Conflict(
-                store.getAbstractUnitById(conflict.getAbstractUnitId()),
-                store.getUnitById(conflict.getUnitId()),
-                conflict.getAbstractUnitSemesters()))));
-      }
-    });
-    moduleAbstractUnitUnitSemesterConflicts.setData(conflicts);
-
-    return conflicts;
-  }
-
-  private Map<Course, Map<Module, Set<Pair<AbstractUnit>>>>
-      displayImpossibleCourseModuleAbstractUnitPairs(final Store store,
-                                                     final ReportData reportData) {
-    Map<Course, Map<Module, Set<Pair<AbstractUnit>>>> impossibleCourseModuleAbstractUnitPairs =
-        reportData.getImpossibleCourseModuleAbstractUnitPairs()
-        .entrySet().stream().collect(Collectors.toMap(
-          entry -> store.getCourseByKey(entry.getKey()),
-          entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
-            innerEntry -> store.getModuleById(innerEntry.getKey()),
-            innerEntry -> innerEntry.getValue().stream().map(
-              pair -> new Pair<>(store.getAbstractUnitById(pair.getFirst()),
-              store.getAbstractUnitById(pair.getSecond()))).collect(Collectors.toSet())))));
-    this.impossibleCourseModuleAbstractUnitPairs.setData(
-        impossibleCourseModuleAbstractUnitPairs);
-
-    return impossibleCourseModuleAbstractUnitPairs;
-  }
-
-  private Map<Course, Map<Module, Set<AbstractUnit>>>
-      displayImpossibleCourseModuleAbstractUnits(final Store store, final ReportData reportData) {
-    Map<Course, Map<Module, Set<AbstractUnit>>> impossibleCourseModuleAbstractUnits =
-        reportData.getImpossibleCourseModuleAbstractUnits()
-        .entrySet().stream().collect(Collectors.toMap(
-          entry -> store.getCourseByKey(entry.getKey()),
-          entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
-            innerEntry -> store.getModuleById(innerEntry.getKey()),
-            innerEntry -> innerEntry.getValue().stream().map(
-            store::getAbstractUnitById).collect(Collectors.toSet())))));
-    this.impossibleCourseModuleAbstractUnits.setData(impossibleCourseModuleAbstractUnits);
-
-    return impossibleCourseModuleAbstractUnits;
-  }
-
-  private Set<Unit> displayRedundantUnitGroups(final Store store, final ReportData reportData) {
-    Set<Unit> redundantUnitGroups = reportData.getRedundantUnitGroups().keySet().stream()
-        .map(store::getUnitById).collect(Collectors.toSet());
-    this.redundantUnitGroups.setData(redundantUnitGroups);
-
-    return redundantUnitGroups;
-  }
-
-  private Map<Module, Set<AbstractUnit>>
-      displayQuasiMandatoryModuleAbstractUnits(final Store store, final ReportData reportData) {
-    Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits =
-        reportData.getQuasiMandatoryModuleAbstractUnits()
-        .entrySet().stream().collect(Collectors.toMap(
-          entry -> store.getModuleById(entry.getKey()),
-          entry -> entry.getValue().stream().map(
-          store::getAbstractUnitById).collect(Collectors.toSet())));
-    this.quasiMandatoryModuleAbstractUnits.setData(quasiMandatoryModuleAbstractUnits);
-
-    return quasiMandatoryModuleAbstractUnits;
-  }
-
-  private Map<Course, Set<Module>> displayMandatoryModules(final Store store,
-                                                           final ReportData reportData) {
-    Map<Course, Set<Module>> mandatoryModules = reportData.getMandatoryModules()
-        .entrySet().stream().collect(Collectors.toMap(
-          entry -> store.getCourseByKey(entry.getKey()),
-          entry -> entry.getValue().stream().map(
-          store::getModuleById).collect(Collectors.toSet())));
-    this.mandatoryModules.setData(mandatoryModules);
-
-    return mandatoryModules;
-  }
-
-  private List<List<Course>> displayImpossibleCourses(final Store store,
-                                                                 final ReportData reportData) {
-    List<Course> impossibleCourses = reportData.getImpossibleCourses()
-        .stream().map(store::getCourseByKey).collect(Collectors.toList());
-    List<Course> impossibleCoursesBecauseOfImpossibleModules =
-        reportData.getImpossibleCoursesBecauseofImpossibleModules()
-          .stream().map(store::getCourseByKey).collect(Collectors.toList());
-    List<Course> impossibleCoursesBecauseOfImpossibleModuleCombinations =
-        reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations()
-          .stream().map(store::getCourseByKey).collect(Collectors.toList());
-    this.impossibleCourses.setData(impossibleCourses,
-        impossibleCoursesBecauseOfImpossibleModules,
-        impossibleCoursesBecauseOfImpossibleModuleCombinations);
-
-    return Arrays.asList(impossibleCourses, impossibleCoursesBecauseOfImpossibleModules,
-        impossibleCoursesBecauseOfImpossibleModuleCombinations);
-  }
-
-  private List<List<Module>> displayImpossibleModules(final Store store,
-                                                                 final ReportData reportData) {
-    List<Module> incompleteModules = reportData.getIncompleteModules()
-        .stream().map(store::getModuleById).collect(Collectors.toList());
-    List<Module> impossibleModulesBecauseOfMissingElectiveAbstractUnits =
-        reportData.getImpossibleModulesBecauseOfMissingElectiveAbstractUnits()
-        .stream().map(store::getModuleById).collect(Collectors.toList());
-    impossibleModules.setData(incompleteModules,
-        impossibleModulesBecauseOfMissingElectiveAbstractUnits);
-
-    return Arrays.asList(incompleteModules,
-        impossibleModulesBecauseOfMissingElectiveAbstractUnits);
-  }
-
-  private List<Unit> displayUnitsWithoutAbstractUnits(final Store store) {
-    List<Unit> unitsWithoutAbstractUnits = store.getUnits().stream()
-        .filter(unit -> unit.getAbstractUnits().size() == 0).collect(Collectors.toList());
-    this.unitsWithoutAbstractUnits.setData(unitsWithoutAbstractUnits);
-
-    return unitsWithoutAbstractUnits;
-  }
-
-  private static final class RealReportData {
-
-    private final Map<Course, Set<Module>> mandatoryModules;
-    private final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits;
-    private final Set<Unit> redundantUnitGroups;
-    private final Map<Course, Map<Module, Set<AbstractUnit>>>
+    private Map<Course, Set<Module>> mandatoryModules;
+    private Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits;
+    private Set<Unit> redundantUnitGroups;
+    private Map<Course, Map<Module, Set<AbstractUnit>>>
         impossibleCourseModuleAbstractUnits;
-    private final Map<Course, Map<Module, Set<Pair<AbstractUnit>>>>
+    private Map<Course, Map<Module, Set<Pair<AbstractUnit>>>>
         impossibleCourseModuleAbstractUnitPairs;
-    private final HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
+    private Map<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
         moduleAbstractUnitUnitSemesterConflicts;
-    private final List<Unit> unitsWithoutAbstractUnits;
-    private final List<AbstractUnit> abstractUnitsWithoutUnits;
+    private List<Unit> unitsWithoutAbstractUnits;
+    private List<Module> incompleteModules;
+    private List<Module> impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+    private List<Course> impossibleCourses;
+    private List<Course> impossibleCoursesBecauseOfImpossibleModules;
+    private List<Course> impossibleCoursesBecauseOfImpossibleModuleCombinations;
+    private List<AbstractUnit> abstractUnitsWithoutUnits;
 
     private final Logger logger = Logger.getLogger(getClass().getSimpleName());
     private final String faculty;
     private final Map<String, String> resources;
-    private final List<Module> incompleteModules;
-    private final List<Module> impossibleModulesBecauseOfMissingElectiveAbstractUnits;
-    private final List<Course> impossibleCourses;
-    private final List<Course> impossibleCoursesBecauseOfImpossibleModules;
-    private final List<Course> impossibleCoursesBecauseOfImpossibleModuleCombinations;
 
-    RealReportData(final List<Module> incompleteModules,
-                   final List<Module> impossibleModulesBecauseOfMissingElectiveAbstractUnits,
-                   final List<Course> impossibleCourses,
-                   final List<Course> impossibleCoursesBecauseOfImpossibleModules,
-                   final List<Course> impossibleCoursesBecauseOfImpossibleModuleCombinations,
-                   final Map<Course, Set<Module>> mandatoryModules,
-                   final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits,
-                   final Set<Unit> redundantUnitGroups,
-                   final Map<Course, Map<Module, Set<AbstractUnit>>>
-                     impossibleCourseModuleAbstractUnits,
-                   final Map<Course, Map<Module, Set<Pair<AbstractUnit>>>>
-                     impossibleCourseModuleAbstractUnitPairs,
-                   final HashMap<Module,
-                     List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
-                     moduleAbstractUnitUnitSemesterConflicts,
-                   final List<Unit> unitsWithoutAbstractUnits,
-                   final List<AbstractUnit> abstractUnitsWithoutUnits,
-                   final String faculty,
-                   final Map<String, String> resources) {
-      this.incompleteModules = incompleteModules;
-      this.impossibleModulesBecauseOfMissingElectiveAbstractUnits =
-        impossibleModulesBecauseOfMissingElectiveAbstractUnits;
-      this.impossibleCourses = impossibleCourses;
-      this.impossibleCoursesBecauseOfImpossibleModules =
-        impossibleCoursesBecauseOfImpossibleModules;
-      this.impossibleCoursesBecauseOfImpossibleModuleCombinations =
-        impossibleCoursesBecauseOfImpossibleModuleCombinations;
-      this.mandatoryModules = mandatoryModules;
-      this.quasiMandatoryModuleAbstractUnits = quasiMandatoryModuleAbstractUnits;
-      this.redundantUnitGroups = redundantUnitGroups;
-      this.impossibleCourseModuleAbstractUnits = impossibleCourseModuleAbstractUnits;
-      this.impossibleCourseModuleAbstractUnitPairs = impossibleCourseModuleAbstractUnitPairs;
-      this.moduleAbstractUnitUnitSemesterConflicts = moduleAbstractUnitUnitSemesterConflicts;
-      this.unitsWithoutAbstractUnits = unitsWithoutAbstractUnits;
-      this.abstractUnitsWithoutUnits = abstractUnitsWithoutUnits;
+    PrintReportData(final Store store, final ReportData reportData,
+                    final Map<String, String> resources) {
+      calculateAbstractUnitsWithoutUnits(store);
+      calculateImpossibleCourseModuleAbstractUnitPairs(store, reportData);
+      calculateImpossibleCourseModuleAbstractUnits(store, reportData);
+      calculateImpossibleCourses(store, reportData);
+      calculateImpossibleModules(store, reportData);
+      calculateModuleAbstractUnitUnitSemesterConflicts(store, reportData);
+      calculateMandatoryModules(store, reportData);
+      calculateAbstractUnitsWithoutUnits(store);
+      calculateRedundantUnitGroups(store, reportData);
+      calculateUnitsWithoutAbstractUnits(store);
+      calculateQuasiMandatoryModuleAbstractUnits(store, reportData);
 
-      this.faculty = faculty;
+      this.faculty = store.getInfoByKey("name");
       this.resources = resources;
+    }
+
+    private void calculateAbstractUnitsWithoutUnits(final Store store) {
+      this.abstractUnitsWithoutUnits = store.getAbstractUnitsWithoutUnits();
+    }
+
+    private void calculateModuleAbstractUnitUnitSemesterConflicts(final Store store,
+                                                                  final ReportData reportData) {
+      final HashMap<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>> conflicts
+          = new HashMap<>();
+      reportData.getModuleAbstractUnitUnitSemesterConflicts().forEach(conflict -> {
+        final Module module = store.getModuleById(conflict.getModuleId());
+        if (conflicts.containsKey(module)) {
+          conflicts.get(module).add(new ModuleAbstractUnitUnitSemesterConflicts.Conflict(
+              store.getAbstractUnitById(conflict.getAbstractUnitId()),
+              store.getUnitById(conflict.getUnitId()),
+              conflict.getAbstractUnitSemesters()));
+        } else {
+          conflicts.put(module,
+              new ArrayList<>(Collections.singletonList(
+                new ModuleAbstractUnitUnitSemesterConflicts.Conflict(
+                  store.getAbstractUnitById(conflict.getAbstractUnitId()),
+                  store.getUnitById(conflict.getUnitId()),
+                  conflict.getAbstractUnitSemesters()))));
+        }
+      });
+      this.moduleAbstractUnitUnitSemesterConflicts = conflicts;
+    }
+
+    private void calculateImpossibleCourseModuleAbstractUnitPairs(final Store store,
+                                                                  final ReportData reportData) {
+      this.impossibleCourseModuleAbstractUnitPairs =
+        reportData.getImpossibleCourseModuleAbstractUnitPairs()
+          .entrySet().stream().collect(Collectors.toMap(
+            entry -> store.getCourseByKey(entry.getKey()),
+            entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
+              innerEntry -> store.getModuleById(innerEntry.getKey()),
+              innerEntry -> innerEntry.getValue().stream().map(
+                pair -> new Pair<>(store.getAbstractUnitById(pair.getFirst()),
+                  store.getAbstractUnitById(pair.getSecond()))).collect(Collectors.toSet())))));
+    }
+
+    private void calculateImpossibleCourseModuleAbstractUnits(final Store store,
+                                                              final ReportData reportData) {
+      this.impossibleCourseModuleAbstractUnits =
+        reportData.getImpossibleCourseModuleAbstractUnits()
+          .entrySet().stream().collect(Collectors.toMap(
+            entry -> store.getCourseByKey(entry.getKey()),
+            entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
+              innerEntry -> store.getModuleById(innerEntry.getKey()),
+              innerEntry -> innerEntry.getValue().stream().map(
+                store::getAbstractUnitById).collect(Collectors.toSet())))));
+    }
+
+    private void calculateRedundantUnitGroups(final Store store,
+                                              final ReportData reportData) {
+      this.redundantUnitGroups = reportData.getRedundantUnitGroups().keySet().stream()
+        .map(store::getUnitById).collect(Collectors.toSet());
+    }
+
+    private void calculateQuasiMandatoryModuleAbstractUnits(final Store store,
+                                                            final ReportData reportData) {
+      this.quasiMandatoryModuleAbstractUnits =
+        reportData.getQuasiMandatoryModuleAbstractUnits()
+          .entrySet().stream().collect(Collectors.toMap(
+            entry -> store.getModuleById(entry.getKey()),
+            entry -> entry.getValue().stream().map(
+              store::getAbstractUnitById).collect(Collectors.toSet())));
+    }
+
+    private void calculateMandatoryModules(final Store store,
+                                           final ReportData reportData) {
+      this.mandatoryModules = reportData.getMandatoryModules()
+        .entrySet().stream().collect(Collectors.toMap(
+          entry -> store.getCourseByKey(entry.getKey()),
+          entry -> entry.getValue().stream().map(
+            store::getModuleById).collect(Collectors.toSet())));
+    }
+
+    private void calculateImpossibleCourses(final Store store,
+                                            final ReportData reportData) {
+      this.impossibleCourses = reportData.getImpossibleCourses()
+        .stream().map(store::getCourseByKey).collect(Collectors.toList());
+      this.impossibleCoursesBecauseOfImpossibleModules =
+        reportData.getImpossibleCoursesBecauseofImpossibleModules()
+          .stream().map(store::getCourseByKey).collect(Collectors.toList());
+      this.impossibleCoursesBecauseOfImpossibleModuleCombinations =
+        reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations()
+          .stream().map(store::getCourseByKey).collect(Collectors.toList());
+    }
+
+    private void calculateImpossibleModules(final Store store,
+                                            final ReportData reportData) {
+      this.incompleteModules = reportData.getIncompleteModules()
+        .stream().map(store::getModuleById).collect(Collectors.toList());
+      this.impossibleModulesBecauseOfMissingElectiveAbstractUnits =
+        reportData.getImpossibleModulesBecauseOfMissingElectiveAbstractUnits()
+          .stream().map(store::getModuleById).collect(Collectors.toList());
+    }
+
+    private void calculateUnitsWithoutAbstractUnits(final Store store) {
+      this.unitsWithoutAbstractUnits = store.getUnits().stream()
+        .filter(unit -> unit.getAbstractUnits().size() == 0).collect(Collectors.toList());
+    }
+
+    Map<Course, Set<Module>> getMandatoryModules() {
+      return mandatoryModules;
+    }
+
+    Map<Module, Set<AbstractUnit>> getQuasiMandatoryModuleAbstractUnits() {
+      return quasiMandatoryModuleAbstractUnits;
+    }
+
+    Map<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
+        getModuleAbstractUnitUnitSemesterConflicts() {
+      return moduleAbstractUnitUnitSemesterConflicts;
+    }
+
+    List<AbstractUnit> getAbstractUnitsWithoutUnits() {
+      return abstractUnitsWithoutUnits;
+    }
+
+    List<Course> getImpossibleCourses() {
+      return impossibleCourses;
+    }
+
+    List<Course> getImpossibleCoursesBecauseOfImpossibleModuleCombinations() {
+      return impossibleCoursesBecauseOfImpossibleModuleCombinations;
+    }
+
+    List<Course> getImpossibleCoursesBecauseOfImpossibleModules() {
+      return impossibleCoursesBecauseOfImpossibleModules;
+    }
+
+    List<Module> getImpossibleModulesBecauseOfMissingElectiveAbstractUnits() {
+      return impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+    }
+
+    List<Module> getIncompleteModules() {
+      return incompleteModules;
+    }
+
+    List<Unit> getUnitsWithoutAbstractUnits() {
+      return unitsWithoutAbstractUnits;
+    }
+
+    Map<Course, Map<Module, Set<AbstractUnit>>> getImpossibleCourseModuleAbstractUnits() {
+      return impossibleCourseModuleAbstractUnits;
+    }
+
+    Set<Unit> getRedundantUnitGroups() {
+      return redundantUnitGroups;
+    }
+
+    Map<Course, Map<Module, Set<Pair<AbstractUnit>>>> getImpossibleCourseModuleAbstractUnitPairs() {
+      return impossibleCourseModuleAbstractUnitPairs;
     }
 
     void print() {
