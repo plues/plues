@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
@@ -76,7 +77,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   }
 
   @SuppressWarnings("unused")
-  public ReadOnlyObjectProperty<Course> selectedMajorProperty() {
+  public ObjectProperty<Course> selectedMajorProperty() {
     return selectedMajor;
   }
 
@@ -86,7 +87,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   }
 
   @SuppressWarnings("unused")
-  public ReadOnlyObjectProperty<Course> selectedMinorProperty() {
+  public ObjectProperty<Course> selectedMinorProperty() {
     return selectedMinor;
   }
 
@@ -197,6 +198,14 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     return this.cbMinor;
   }
 
+  public void selectMajorCourse(final Course majorCourse) {
+    cbMajor.getSelectionModel().select(majorCourse);
+  }
+
+  public void selectMinorCourse(final Course minorCourse) {
+    cbMinor.getSelectionModel().select(minorCourse);
+  }
+
   private void fireListenerEvents() {
     for (final InvalidationListener listener : listeners) {
       listener.invalidated(this);
@@ -228,7 +237,6 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   public void setImpossibleCourses(final ObservableSet<String> impossibleCourses) {
     this.impossibleCoursesProperty.set(impossibleCourses);
   }
-
 
 
   @SuppressWarnings("WeakerAccess")
