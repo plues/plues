@@ -8,7 +8,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.keys.CourseKey;
 import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.prob.ResultState;
-import de.hhu.stups.plues.provider.RouterProvider;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -59,7 +59,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
   private final Delayed<SolverService> delayedSolverService;
   private final ExecutorService executor;
-  private final RouterProvider routerProvider;
+  private final Router router;
   private ReadOnlyMapProperty<MajorMinorKey, ResultState> courseCombinationResults;
   private ReadOnlyMapProperty<CourseKey, ResultState> singleCourseResults;
   private final Map<MajorMinorKey, ResultGridCell> combinableCoursesMap;
@@ -170,10 +170,10 @@ public class ConflictMatrix extends GridPane implements Initializable {
                         final Delayed<SolverService> delayedSolverService,
                         final UiDataService uiDataService,
                         final ExecutorService executorService,
-                        final RouterProvider routerProvider) {
+                        final Router router) {
     this.delayedSolverService = delayedSolverService;
     this.executor = executorService;
-    this.routerProvider = routerProvider;
+    this.router = router;
 
     solverProperty = new SimpleBooleanProperty(false);
     feasibilityCheckRunning = new SimpleBooleanProperty(false);
@@ -332,7 +332,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
               final Course minorCourse = combinableMinorCourses.get(row);
               final ResultGridCell gridCell = new ResultGridCell(null, majorCourse,
                   minorCourse);
-              gridCell.setRouter(routerProvider.get());
+              gridCell.setRouter(router);
               combinableCoursesMap.put(
                   new MajorMinorKey(majorCourse.getName(), minorCourse.getName()), gridCell);
               gridPaneCombinable.add(gridCell, col + 1, row + 1);
@@ -353,7 +353,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
     IntStream.range(0, courses.size()).forEach(index -> {
       final Course course = courses.get(index);
       final ResultGridCell gridCell = new ResultGridCell(null, course);
-      gridCell.setRouter(routerProvider.get());
+      gridCell.setRouter(router);
       cellMap.put(new CourseKey(course.getName()), gridCell);
       gridPane.add(gridCell, 1, index);
     });
