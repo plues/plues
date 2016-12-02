@@ -2,6 +2,8 @@ package de.hhu.stups.plues.routes;
 
 import com.google.inject.Singleton;
 
+import de.hhu.stups.plues.data.entities.Course;
+
 import java.util.HashMap;
 
 /**
@@ -9,7 +11,7 @@ import java.util.HashMap;
  */
 @Singleton
 public class Router extends HashMap<String, Route> {
-  public void transitionTo(String routeName) {
-    this.get(routeName).transition();
+  public void transitionTo(String routeName, Course... courses) {
+    this.get(routeName).transition(courses);
   }
 }
