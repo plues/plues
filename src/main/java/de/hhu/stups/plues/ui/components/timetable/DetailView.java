@@ -110,11 +110,11 @@ public class DetailView extends VBox implements Initializable {
     this.tentative.textProperty().bind(Bindings.createStringBinding(() -> {
       SessionFacade sessionFacade = sessionProperty.get();
       if (sessionFacade == null) {
-          return "?";
+        return "?";
       }
 
       return sessionFacade.isTentative() ? "✔︎" : "✗";
-      }, sessionProperty));
+    }, sessionProperty));
 
     courseTable.itemsProperty().bind(new ListBinding<CourseTableEntry>() {
       {
