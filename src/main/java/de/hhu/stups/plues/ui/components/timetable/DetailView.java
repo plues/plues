@@ -44,6 +44,9 @@ public class DetailView extends VBox implements Initializable {
   private Label semesters;
   @FXML
   @SuppressWarnings("unused")
+  private Label tentative;
+  @FXML
+  @SuppressWarnings("unused")
   private TableView<CourseTableEntry> courseTable;
   @FXML
   @SuppressWarnings("unused")
@@ -103,6 +106,8 @@ public class DetailView extends VBox implements Initializable {
         return Joiner.on(", ").join(sessionFacade.getSession().getGroup().getUnit().getSemesters());
       }
     });
+    this.tentative.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
+        Bindings.selectString(sessionProperty, "session", "tentative")).otherwise(""));
 
     courseTable.itemsProperty().bind(new ListBinding<CourseTableEntry>() {
       {
