@@ -116,8 +116,10 @@ public class DetailViewTest extends ApplicationTest {
     store.getCourses().forEach(course ->
         courseMap.put(course, store.getModuleAbstractUnitSemester()));
 
+    doReturn(false).when(sessionFacade).isTentative();
     doReturn(session).when(sessionFacade).getSession();
     doReturn(slot).when(sessionFacade).slotProperty();
+
   }
 
   @Test
@@ -139,6 +141,9 @@ public class DetailViewTest extends ApplicationTest {
 
     final Label semesterLabel = lookup("#semesters").query();
     Assert.assertEquals("1, 2", semesterLabel.getText());
+
+    final Label tentativeLabel = lookup("#tentative").query();
+    Assert.assertEquals("✗", tentativeLabel.getText());
   }
 
   @Test
