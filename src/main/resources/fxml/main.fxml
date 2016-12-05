@@ -63,6 +63,7 @@
         </Menu>
         <Menu mnemonicParsing="false" text="%help">
             <MenuItem fx:id="aboutMenuItem" onAction="#about" mnemonicParsing="false" text="%about"/>
+            <MenuItem fx:id="handbookMenuItem" onAction="#showHandbook" mnemonicParsing="false" text="%handbook" />
         </Menu>
     </MenuBar>
     <BorderPane>
