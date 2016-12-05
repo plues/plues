@@ -13,6 +13,7 @@ import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -106,8 +107,14 @@ public class DetailView extends VBox implements Initializable {
         return Joiner.on(", ").join(sessionFacade.getSession().getGroup().getUnit().getSemesters());
       }
     });
-    this.tentative.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
-        Bindings.selectString(sessionProperty, "session", "tentative")).otherwise(""));
+    this.tentative.textProperty().bind(Bindings.createStringBinding(() -> {
+      SessionFacade sessionFacade = sessionProperty.get();
+      if (sessionFacade == null) {
+          return "?";
+      }
+
+      return sessionFacade.isTentative() ? "✔︎" : "✗";
+      }, sessionProperty));
 
     courseTable.itemsProperty().bind(new ListBinding<CourseTableEntry>() {
       {
