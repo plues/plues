@@ -83,7 +83,7 @@
                 <Tab text="%conflictMatrix" closable="false">
                     <ConflictMatrix fx:id="conflictMatrix"/>
                 </Tab>
-                <Tab text="Unsat Core" closable="false">
+                <Tab text="%tab.unsatCore" closable="false">
                     <UnsatCore fx:id="unsatCore"/>
                 </Tab>
             </TabPane>
