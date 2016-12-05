@@ -8,16 +8,27 @@ import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
+
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.xmlgraphics.util.MimeConstants;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
 import java.awt.Desktop;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,6 +42,9 @@ import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 public class PdfRenderingHelper {
 
@@ -252,6 +266,33 @@ public class PdfRenderingHelper {
     }
     return color.getColor();
   }
+
+  /**
+   * Convert OutputStream to pdf using sax.
+   * @param out The output stream to be converted.
+   * @return Finished pdf
+   * @throws SAXException Thrown if problems with sax rendering
+   * @throws ParserConfigurationException  Thrown in cases of parsing problems
+   * @throws IOException IOException
+   */
+  public static ByteArrayOutputStream toPdf(final ByteArrayOutputStream out)
+      throws SAXException, ParserConfigurationException, IOException {
+    final FopFactory fopFactory
+        = FopFactory.newInstance(new File(".").toURI());
+    final ByteArrayOutputStream pdf = new ByteArrayOutputStream();
+    final Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, pdf);
+    //
+    final SAXParserFactory spf = SAXParserFactory.newInstance();
+    spf.setNamespaceAware(true);
+    final SAXParser saxParser = spf.newSAXParser();
+
+    final XMLReader xmlReader = saxParser.getXMLReader();
+    xmlReader.setContentHandler(fop.getDefaultHandler());
+    xmlReader.parse(new InputSource(new ByteArrayInputStream(out.toByteArray())));
+    //
+    return pdf;
+  }
+
 
   // TODO: ggf. wieder woanders hin
 

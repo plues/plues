@@ -162,7 +162,7 @@ public class UnsatCore extends VBox implements Initializable {
     delayedStore.whenAvailable(this.store::set);
     delayedSolverService.whenAvailable(this.solverService::set);
 
-    inflater.inflate("UnsatCore", this, this, "unsatCore", "Column");
+    inflater.inflate("UnsatCore", this, this, "unsatCore", "Column", "Days");
   }
 
   /**
@@ -304,7 +304,7 @@ public class UnsatCore extends VBox implements Initializable {
     initializeCourses();
     initializeModules();
     initializeAbstractUnits();
-    initializeGroups();
+    initializeGroups(resources);
     initializeSessions();
     // buttons
     unsatCoreModulesButton.disableProperty().bind(
@@ -328,7 +328,7 @@ public class UnsatCore extends VBox implements Initializable {
         -> Bindings.selectString(param, "value", "group", "unit", "title"));
   }
 
-  private void initializeGroups() {
+  private void initializeGroups(final ResourceBundle resources) {
     groupsPane.visibleProperty().bind(groups.emptyProperty().not());
     groupsTable.itemsProperty().bind(groups);
     groupUnitKeyColumn.setCellValueFactory(param
@@ -351,7 +351,12 @@ public class UnsatCore extends VBox implements Initializable {
         }
         final String prefix = getPrefix(item);
         setText(item.stream()
-            .map(s -> String.format("%s%s - %s\n", prefix, s.getDayString(), s.getTimeString()))
+            .map(s -> {
+              String dayString = resources.getString(s.getDay());
+              String timeString = String.valueOf(6 + s.getTime() * 2) + ":30";
+
+              return String.format("%s%s - %s\n", prefix, dayString, timeString);
+            })
             .reduce(String::concat).orElse("??"));
       }
     });

@@ -122,6 +122,24 @@ public class MockSolver implements Solver {
 
   @Override
   public ReportData getReportingData() throws SolverException {
+    /*
+    ReportData reportData;
+    try {
+      FileInputStream fileIn = new FileInputStream("/home/philip/Schreibtisch/SlotTool/report.ser");
+      ObjectInputStream in = new ObjectInputStream(fileIn);
+      reportData = (ReportData) in.readObject();
+      in.close();
+      fileIn.close();
+    } catch (IOException ioExc) {
+      ioExc.printStackTrace();
+      return null;
+    } catch (ClassNotFoundException cls) {
+      System.out.println("Reports class not found");
+      cls.printStackTrace();
+      return null;
+    }
+    */
+
     final ReportData reportData = new ReportData();
     reportData.setImpossibleCourseModuleAbstractUnits(new HashMap<>());
     reportData.setImpossibleCourses(new HashSet<>());

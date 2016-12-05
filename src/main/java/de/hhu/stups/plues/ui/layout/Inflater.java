@@ -37,7 +37,8 @@ public class Inflater {
    * Inflate a fxml resource as a layout from <tt>/fxml/</tt>.
    *
    * @param name The name of the xml file without the <tt>.fxml</tt> extension.
-   * @param bundleNames The name of the used bundles
+   * @param bundleNames The name of the used bundles. Order of bundles comparable to MRO: First
+   *                    specific bundles and later common ones.
    * @return {@link Parent}
    */
   public Parent inflate(final String name, final String... bundleNames) {
@@ -70,7 +71,8 @@ public class Inflater {
    * @param name The name of the fxml file without the <tt>.fxml</tt> extension.
    * @param root optional root node to inflate this layout into
    * @param controller controller for the fxml file
-   * @param bundleNames Name of the i18n resources to bind
+   * @param bundleNames Name of the i18n resources to bind. Order of bundles comparable to MRO:
+   *                    First specific bundles and later common ones.
    */
   public Parent inflate(final String name, final Parent root,
                         final Object controller, final String... bundleNames) {

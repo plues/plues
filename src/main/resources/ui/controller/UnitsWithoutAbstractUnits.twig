@@ -1,0 +1,26 @@
+<fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
+    <fo:table-column column-width="15%"/>
+    <fo:table-column column-width="85%"/>
+    <fo:table-header>
+        <fo:table-row height="0.4cm" font-size="12pt">
+            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                <fo:block text-align="center">{{ resources.get("columnKey") }}</fo:block>
+            </fo:table-cell>
+            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
+            </fo:table-cell>
+        </fo:table-row>
+    </fo:table-header>
+    <fo:table-body>
+        {% for unit in units %}
+            <fo:table-row height="0.4cm">
+                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
+                    <fo:block text-align="right">{{ unit.getKey() }}</fo:block>
+                </fo:table-cell>
+                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
+                    <fo:block text-align="left">{{ unit.getTitle() }}</fo:block>
+                </fo:table-cell>
+            </fo:table-row>
+        {% endfor %}
+    </fo:table-body>
+</fo:table>
