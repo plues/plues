@@ -1,12 +1,8 @@
 package de.hhu.stups.plues.prob;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -124,9 +120,9 @@ public class MockSolver implements Solver {
     return Collections.emptyList();
   }
 
-  @SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
   @Override
   public ReportData getReportingData() throws SolverException {
+    /*
     ReportData reportData;
     try {
       FileInputStream fileIn = new FileInputStream("/home/philip/Schreibtisch/SlotTool/report.ser");
@@ -142,10 +138,8 @@ public class MockSolver implements Solver {
       cls.printStackTrace();
       return null;
     }
+    */
 
-    return reportData;
-
-    /*
     final ReportData reportData = new ReportData();
     reportData.setImpossibleCourseModuleAbstractUnits(new HashMap<>());
     reportData.setImpossibleCourses(new HashSet<>());
@@ -161,7 +155,6 @@ public class MockSolver implements Solver {
     reportData.setModuleAbstractUnitUnitSemesterConflicts(new HashSet<>());
 
     return reportData;
-    */
   }
 
   @Override
