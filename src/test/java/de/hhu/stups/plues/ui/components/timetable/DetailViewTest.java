@@ -128,7 +128,7 @@ public class DetailViewTest extends ApplicationTest {
   @Test
   public void testSessionInfo() {
     final Label sessionLabel = lookup("#session").query();
-    Assert.assertEquals("MONDAY: 8", sessionLabel.getText());
+    Assert.assertEquals("mon, 22:30", sessionLabel.getText());
 
     final Label titleLabel = lookup("#title").query();
     Assert.assertEquals("Unit", titleLabel.getText());
