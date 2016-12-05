@@ -463,7 +463,7 @@ class Reports extends VBox implements Initializable {
         // write to file
         final File file = File.createTempFile("report", ".pdf");
         try (OutputStream stream = new FileOutputStream(file)) {
-          final ByteArrayOutputStream pdf = toPdf(out);
+          final ByteArrayOutputStream pdf = PdfRenderingHelper.toPdf(out);
           pdf.writeTo(stream);
 
           SwingUtilities.invokeLater(() -> {
@@ -477,24 +477,6 @@ class Reports extends VBox implements Initializable {
       } catch (SAXException | ParserConfigurationException | IOException exc) {
         logger.log(Level.SEVERE, "Exception while rendering reports", exc);
       }
-    }
-
-    private ByteArrayOutputStream toPdf(final ByteArrayOutputStream out)
-        throws SAXException, ParserConfigurationException, IOException {
-      final FopFactory fopFactory
-          = FopFactory.newInstance(new File(".").toURI());
-      final ByteArrayOutputStream pdf = new ByteArrayOutputStream();
-      final Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, pdf);
-      //
-      final SAXParserFactory spf = SAXParserFactory.newInstance();
-      spf.setNamespaceAware(true);
-      final SAXParser saxParser = spf.newSAXParser();
-
-      final XMLReader xmlReader = saxParser.getXMLReader();
-      xmlReader.setContentHandler(fop.getDefaultHandler());
-      xmlReader.parse(new InputSource(new ByteArrayInputStream(out.toByteArray())));
-      //
-      return pdf;
     }
   }
 }
