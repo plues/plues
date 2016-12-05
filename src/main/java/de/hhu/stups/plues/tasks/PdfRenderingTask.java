@@ -7,11 +7,9 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
-import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.studienplaene.Renderer;
-
+import javafx.application.Platform;
 import javafx.concurrent.Task;
-
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -21,6 +19,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,11 +32,11 @@ public class PdfRenderingTask extends Task<Path> {
   private final Delayed<Store> delayedStore;
   private final Course major;
   private final Course minor;
-  private final Delayed<SolverService> delayedSolverService;
   private final SolverTask<FeasibilityResult> solverTask;
 
   private final Logger logger = Logger.getLogger(getClass().getSimpleName());
   private final ResourceBundle resources;
+  private final ExecutorService executorService;
 
 
   /**
@@ -49,12 +48,12 @@ public class PdfRenderingTask extends Task<Path> {
    */
   @Inject
   protected PdfRenderingTask(final Delayed<Store> delayedStore,
-                             final Delayed<SolverService> delayedSolverService,
+                             final ExecutorService executorService,
                              @Assisted("major") final Course major,
                              @Assisted("minor") @Nullable final Course minor,
                              @Assisted final SolverTask<FeasibilityResult> solverTask) {
     this.delayedStore = delayedStore;
-    this.delayedSolverService = delayedSolverService;
+    this.executorService = executorService;
     this.resources = ResourceBundle.getBundle("lang.tasks");
     this.major = major;
     this.minor = minor;
@@ -64,9 +63,6 @@ public class PdfRenderingTask extends Task<Path> {
   @Override
   protected Path call() throws Exception {
     updateTitle(resources.getString("rendering"));
-    // we have to read from the task here, the future does not provide a result.
-    final SolverService solver = delayedSolverService.get();
-    assert solver != null;
 
     updateMessage(resources.getString("submit"));
     updateProgress(20, 100);
@@ -74,7 +70,7 @@ public class PdfRenderingTask extends Task<Path> {
     if (this.isCancelled()) {
       return null;
     }
-    solver.submit(solverTask);
+    executorService.submit(solverTask);
 
     updateMessage(resources.getString("waiting"));
     updateProgress(40, 100);
@@ -148,7 +144,7 @@ public class PdfRenderingTask extends Task<Path> {
   protected void cancelled() {
     super.cancelled();
     if (solverTask != null) {
-      solverTask.cancel(true);
+      Platform.runLater(() -> solverTask.cancel(true));
     }
   }
 
@@ -169,6 +165,7 @@ public class PdfRenderingTask extends Task<Path> {
       throws IOException, ParserConfigurationException, SAXException {
 
     final File temp = File.createTempFile("timetable", ".pdf");
+    temp.deleteOnExit();
     try (OutputStream out = new FileOutputStream(temp)) {
       renderer.getResult().writeTo(out);
     } catch (final IOException | ParserConfigurationException | SAXException exc) {

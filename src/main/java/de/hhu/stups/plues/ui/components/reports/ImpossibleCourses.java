@@ -70,7 +70,7 @@ public class ImpossibleCourses extends VBox implements Initializable {
     impossibleCoursesBecauseOfImpossibleModuleCombinationsList =
         new SimpleListProperty<>(FXCollections.observableArrayList());
 
-    inflater.inflate("/components/reports/ImpossibleCourses", this, this, "reports");
+    inflater.inflate("/components/reports/ImpossibleCourses", this, this, "reports", "Column");
   }
 
   @Override
@@ -118,14 +118,14 @@ public class ImpossibleCourses extends VBox implements Initializable {
       protected String computeValue() {
         final String string;
         if (buttonImpossibleCourses.isSelected()) {
-          string = resources.getString("explainImpossibleCourses");
+          string = resources.getString("explain.ImpossibleCourses");
         } else {
           if (buttonImpossibleCoursesBecauseOfImpossibleModules.isSelected()) {
-            string = resources.getString("explainImpossibleCoursesBecauseOfImpossibleModules");
+            string = resources.getString("explain.ImpossibleCoursesBecauseOfImpossibleModules");
           } else {
             if (buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations.isSelected()) {
               string = resources.getString(
-                  "explainImpossibleCoursesBecauseOfImpossibleModuleCombinations");
+                "explain.ImpossibleCoursesBecauseOfImpossibleModuleCombinations");
             } else {
               string = null;
             }

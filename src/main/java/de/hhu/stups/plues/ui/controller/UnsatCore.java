@@ -10,6 +10,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
+import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
@@ -17,6 +18,7 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -38,10 +40,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,6 +59,7 @@ public class UnsatCore extends VBox implements Initializable {
   private final ListProperty<Module> modules;
   private final ListProperty<Course> courses;
   private final UiDataService uiDataService;
+  private final ExecutorService executorService;
 
   @FXML
   private CombinationOrSingleCourseSelection courseSelection;
@@ -97,11 +102,15 @@ public class UnsatCore extends VBox implements Initializable {
   @FXML
   private TableColumn<Module, String> moduleNameColumn;
   @FXML
+  private TableColumn<Module, Boolean> moduleTypeColumn;
+  @FXML
   private TableColumn<AbstractUnit, String> abstractUnitKeyColumn;
   @FXML
   private TableColumn<AbstractUnit, String> abstractUnitTitleColumn;
   @FXML
   private TableColumn<AbstractUnit, Map<Module, List<Integer>>> abstractUnitModuleSemester;
+  @FXML
+  private TableColumn<AbstractUnit, Map<Module, Character>> abstractUnitModuleType;
   @FXML
   private TableColumn<Group, String> groupUnitKeyColumn;
   @FXML
@@ -141,9 +150,11 @@ public class UnsatCore extends VBox implements Initializable {
   @Inject
   public UnsatCore(final Inflater inflater, final Delayed<Store> delayedStore,
                    final Delayed<SolverService> delayedSolverService,
+                   final ExecutorService executorService,
                    final UiDataService uiDataService) {
 
     this.uiDataService = uiDataService;
+    this.executorService = executorService;
     this.solverService = new SimpleObjectProperty<>();
     this.store = new SimpleObjectProperty<>();
 
@@ -157,7 +168,7 @@ public class UnsatCore extends VBox implements Initializable {
     delayedStore.whenAvailable(this.store::set);
     delayedSolverService.whenAvailable(this.solverService::set);
 
-    inflater.inflate("UnsatCore", this, this, "unsatCore");
+    inflater.inflate("UnsatCore", this, this, "unsatCore", "Column", "Days");
   }
 
   /**
@@ -176,7 +187,7 @@ public class UnsatCore extends VBox implements Initializable {
 
     });
     showTaskState(modulesTaskStateIcon, modulesTaskStateLabel, task);
-    getSolverService().submit(task);
+    executorService.submit(task);
   }
 
   private void showTaskState(final Label icon, final Label message, final Task<?> task) {
@@ -184,7 +195,7 @@ public class UnsatCore extends VBox implements Initializable {
     icon.styleProperty().unbind();
     message.textProperty().unbind();
 
-    icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding("20", task));
+    icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding("25", task));
     icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
     message.textProperty().bind(Bindings.createStringBinding(() -> {
       final String msg;
@@ -193,16 +204,16 @@ public class UnsatCore extends VBox implements Initializable {
           msg = "";
           break;
         case CANCELLED:
-          msg = this.resources.getString("taskCancelled");
+          msg = this.resources.getString("task.Cancelled");
           break;
         case FAILED:
-          msg = this.resources.getString("taskFailed");
+          msg = this.resources.getString("task.Failed");
           break;
         case READY:
         case SCHEDULED:
         case RUNNING:
         default:
-          msg = this.resources.getString("taskRunning");
+          msg = this.resources.getString("task.Running");
           break;
       }
       return msg;
@@ -226,7 +237,7 @@ public class UnsatCore extends VBox implements Initializable {
 
     });
     showTaskState(abstractUnitsTaskStateIcon, abstractUnitsTaskStateLabel, task);
-    getSolverService().submit(task);
+    executorService.submit(task);
   }
 
   /**
@@ -248,7 +259,7 @@ public class UnsatCore extends VBox implements Initializable {
 
     });
     showTaskState(groupsTaskStateIcon, groupsTaskStateLabel, task);
-    getSolverService().submit(task);
+    executorService.submit(task);
   }
 
   /**
@@ -269,7 +280,7 @@ public class UnsatCore extends VBox implements Initializable {
 
     });
     showTaskState(sessionsTaskStateIcon, sessionsTaskStateLabel, task);
-    getSolverService().submit(task);
+    executorService.submit(task);
   }
 
   private Course[] getCoursesAsArray() {
@@ -299,7 +310,7 @@ public class UnsatCore extends VBox implements Initializable {
     initializeCourses();
     initializeModules();
     initializeAbstractUnits();
-    initializeGroups();
+    initializeGroups(resources);
     initializeSessions();
     // buttons
     unsatCoreModulesButton.disableProperty().bind(
@@ -323,7 +334,7 @@ public class UnsatCore extends VBox implements Initializable {
         -> Bindings.selectString(param, "value", "group", "unit", "title"));
   }
 
-  private void initializeGroups() {
+  private void initializeGroups(final ResourceBundle resources) {
     groupsPane.visibleProperty().bind(groups.emptyProperty().not());
     groupsTable.itemsProperty().bind(groups);
     groupUnitKeyColumn.setCellValueFactory(param
@@ -344,8 +355,14 @@ public class UnsatCore extends VBox implements Initializable {
           setText(null);
           return;
         }
+        final String prefix = getPrefix(item);
         setText(item.stream()
-            .map(s -> String.format("• %s - %d\n", s.getDay(), s.getTime()))
+            .map(s -> {
+              String dayString = resources.getString(s.getDay());
+              String timeString = String.valueOf(6 + s.getTime() * 2) + ":30";
+
+              return String.format("%s%s - %s\n", prefix, dayString, timeString);
+            })
             .reduce(String::concat).orElse("??"));
       }
     });
@@ -364,10 +381,18 @@ public class UnsatCore extends VBox implements Initializable {
           setText(null);
           return;
         }
+        final String prefix = getPrefix(item);
         setText(item.stream()
-            .map(e -> String.format("• %s", e.getKey())).collect(Collectors.joining("\n")));
+            .map(e -> String.format("%s%s", prefix, e.getKey())).collect(Collectors.joining("\n")));
       }
     });
+  }
+
+  private String getPrefix(final Collection<?> item) {
+    if (item.size() > 1) {
+      return "• ";
+    }
+    return "";
   }
 
   private void initializeAbstractUnits() {
@@ -401,8 +426,10 @@ public class UnsatCore extends VBox implements Initializable {
                 setText(null);
                 return;
               }
+              final String prefix = getPrefix(item.entrySet());
               setText(item.entrySet().stream()
-                  .map(e -> String.format("• %s: %s",
+                  .map(e -> String.format("%s%s: %s",
+                    prefix,
                     e.getKey().getPordnr(),
                     e.getValue().stream()
                       .sorted()
@@ -411,6 +438,39 @@ public class UnsatCore extends VBox implements Initializable {
                   .collect(Collectors.joining("\n")));
             }
           });
+
+    abstractUnitModuleType.setCellValueFactory(param -> {
+      final Set<ModuleAbstractUnitType> maus
+          = param.getValue().getModuleAbstractUnitTypes();
+
+      // filter ModuleAbstractUnitSemester by those modules in the current unsat core
+      final Stream<ModuleAbstractUnitType> filtered = maus.stream().filter(
+          moduleAbstractUnitType
+              -> this.modules.contains(moduleAbstractUnitType.getModule()));
+
+      // group entries by module and map to the corresponding semesters as a list
+      final Map<Module, Character> result = filtered.collect(
+          Collectors.toMap(o -> o.getModule() , o -> o.getType()));
+      return new ReadOnlyObjectWrapper<>(result);
+    });
+    abstractUnitModuleType.setCellFactory(param
+        -> new TableCell<AbstractUnit, Map<Module, Character>>() {
+          @Override
+          protected void updateItem(final Map<Module, Character> item, final boolean empty) {
+            super.updateItem(item, empty);
+            if (item == null || empty) {
+              setText(null);
+              return;
+            }
+            final String prefix = getPrefix(item.entrySet());
+            setText(item.entrySet().stream()
+                .map(e -> String.format("%s%s: %s",
+                  prefix,
+                  e.getKey().getPordnr(),
+                  e.getValue()))
+                .collect(Collectors.joining("\n")));
+          }
+        });
   }
 
   private void initializeModules() {
@@ -418,6 +478,18 @@ public class UnsatCore extends VBox implements Initializable {
     modulesTable.itemsProperty().bind(modules);
     modulePordnrColumn.setCellValueFactory(new PropertyValueFactory<>("pordnr"));
     moduleNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+    moduleTypeColumn.setCellValueFactory(new PropertyValueFactory<>("mandatory"));
+    moduleTypeColumn.setCellFactory(param -> new TableCell<Module, Boolean>() {
+      @Override
+      protected void updateItem(final Boolean item, final boolean empty) {
+        super.updateItem(item, empty);
+        if (item == null || empty) {
+          setText(null);
+          return;
+        }
+        setText(item ? "✔︎" : "✗");
+      }
+    });
   }
 
   private void initializeCourses() {

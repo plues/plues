@@ -2,6 +2,8 @@ package de.hhu.stups.plues.ui.components.timetable;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
@@ -21,12 +23,16 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
 import javax.annotation.Nullable;
 
 public class SessionListView extends ListView<SessionFacade> {
   private final SessionFacade.Slot slot;
   private final Delayed<ObservableStore> delayedStore;
-  private final Delayed<SolverService> delayedSolver;
+  private final Delayed<SolverService> delayedSolverService;
+  private final ListeningExecutorService executorService;
   private ListProperty<SessionFacade> sessions;
 
   private final UiDataService uiDataService;
@@ -35,20 +41,22 @@ public class SessionListView extends ListView<SessionFacade> {
    * Custom implementation of ListView for sessions.
    * @param slot the time slot identifying this session list
    * @param delayedStore Store to save new session info after moving
-   * @param delayedSolver Solver to find out if moving a session is valid
+   * @param delayedSolverService Solver to find out if moving a session is valid
    * @param uiDataService a stupid data container to dump any kind of data in it
    */
   @Inject
   public SessionListView(@Assisted final SessionFacade.Slot slot,
                          final Delayed<ObservableStore> delayedStore,
-                         final Delayed<SolverService> delayedSolver,
+                         final Delayed<SolverService> delayedSolverService,
+                         final ListeningExecutorService executorService,
                          final Provider<SessionCell> cellProvider,
                          final UiDataService uiDataService) {
     super();
 
     this.slot = slot;
     this.delayedStore = delayedStore;
-    this.delayedSolver = delayedSolver;
+    this.executorService = executorService;
+    this.delayedSolverService = delayedSolverService;
     this.uiDataService = uiDataService;
 
     setCellFactory(param -> cellProvider.get());
@@ -122,9 +130,11 @@ public class SessionListView extends ListView<SessionFacade> {
       success = true;
       final int sessionId = Integer.parseInt(dragboard.getString());
 
-      delayedSolver.whenAvailable(solver -> {
+      delayedSolverService.whenAvailable(solver -> {
         final SolverTask<Void> moveSession = solver.moveSession(sessionId, slot);
-        Futures.addCallback(solver.submit(moveSession), new FutureCallback<Void>() {
+        @SuppressWarnings("unchecked") final ListenableFuture<Void> future
+            = (ListenableFuture<Void>) executorService.submit(moveSession);
+        Futures.addCallback(future, new FutureCallback<Void>() {
           @Override
           public void onSuccess(@Nullable final Void result) {
             delayedStore.whenAvailable(store -> {

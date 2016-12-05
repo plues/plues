@@ -42,17 +42,18 @@ public class SolverTask<T> extends Task<T> {
 
   private final Logger logger = Logger.getLogger(getClass().getSimpleName());
   private final Callable<T> function;
-  private final Solver solver;
   private final TimeUnit timeUnit;
   private final int timeout;
   private final ResourceBundle resources;
+  private final Solver solver;
+
   private ListenableFuture<T> future;
   private ListenableScheduledFuture<?> timer;
   private String reason;
 
   public SolverTask(final String title, final String message, final Solver solver,
-                    final Callable<T> func) {
-    this(title, message, solver, func, 1, TimeUnit.MINUTES);
+                    final Callable<T> func, final Integer timeout) {
+    this(title, message, solver, func, timeout, TimeUnit.SECONDS);
   }
 
   SolverTask(final String title, final String message, final Solver solver,
@@ -83,32 +84,32 @@ public class SolverTask<T> extends Task<T> {
 
   @Override
   protected T call() throws InterruptedException, ExecutionException {
+    synchronized (SolverTask.class) {
+      timer = SCHEDULED_EXECUTOR_SERVICE.schedule(this::timeOut, this.timeout, this.timeUnit);
+      future = EXECUTOR_SERVICE.submit(function);
 
-    updateProgress(10, 100);
-    timer = SCHEDULED_EXECUTOR_SERVICE.schedule(this::timeOut, this.timeout, this.timeUnit);
-    future = EXECUTOR_SERVICE.submit(function);
+      Futures.addCallback(future, new TaskCallback<>());
+      updateProgress(10, 100);
 
-    Futures.addCallback(future, new TaskCallback<>());
+      int percentage = 10;
+      while (!future.isDone()) {
+        percentage = (percentage + 2) % 95;
+        updateProgress(percentage, 100);
+        if (this.isCancelled()) {
+          logger.info("cancelled");
+          return null;
+        }
+        if (future.isCancelled()) {
+          logger.info("future cancelled");
+          updateMessage(resources.getString("probExit"));
+          this.cancel();
+          return null;
+        }
 
-    int percentage = 10;
-    while (!future.isDone()) {
-      percentage = (percentage + 2) % 95;
-      updateProgress(percentage, 100);
-      if (this.isCancelled()) {
-        logger.info("cancelled");
-        return null;
+        sleep();
       }
-      if (future.isCancelled()) {
-        logger.info("future cancelled");
-        updateMessage(resources.getString("probExit"));
-        this.cancel();
-        return null;
-      }
-
-      sleep();
     }
     updateProgress(100, 100);
-
     return future.get();
   }
 

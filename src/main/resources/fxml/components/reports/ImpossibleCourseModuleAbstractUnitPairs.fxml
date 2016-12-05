@@ -5,7 +5,7 @@
 <?import javafx.scene.control.TreeView?>
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
-    <Label text="%explainImpossibleCourseModuleAbstractUnitPairs" wrapText="true"/>
+    <Label text="%explain.ImpossibleCourseModuleAbstractUnitPairs" wrapText="true"/>
     <VBox spacing="5.0">
         <Label text="%courses" style="-fx-font-size: 20px"/>
         <TreeView fx:id="treeViewCourseModuleAbstractUnitPairs" showRoot="fal"/>

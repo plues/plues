@@ -7,17 +7,16 @@ import static org.junit.Assert.fail;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-import de.hhu.stups.plues.keys.MajorMinorKey;
 import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverException;
+
 import javafx.application.Platform;
-import javafx.collections.ObservableMap;
 import javafx.concurrent.Worker;
 import javafx.stage.Stage;
-import org.junit.Ignore;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.testfx.framework.junit.ApplicationTest;
@@ -43,7 +42,8 @@ public class SolverTaskTest extends ApplicationTest {
   private static final String TITLE =
       ResourceBundle.getBundle("lang.solverTask").getString("testTitle");
   private static final String MESSAGE =
-      ResourceBundle.getBundle("lang.solverTask").getString("testMessage");
+      ResourceBundle.getBundle("lang.solverTask").getString("message.test");
+  private static final int TIMEOUT = 60;
 
   static {
     final ThreadFactory threadFactory
@@ -55,7 +55,7 @@ public class SolverTaskTest extends ApplicationTest {
   public void testCallableIsSuccessful() throws ExecutionException, InterruptedException {
     final CountDownLatch latch = new CountDownLatch(1);
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), () -> 1);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), () -> 1, TIMEOUT);
     final TaskProperties taskProperties = new TaskProperties();
 
     Platform.runLater(() -> {
@@ -89,7 +89,7 @@ public class SolverTaskTest extends ApplicationTest {
       throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c, TIMEOUT);
 
     executor.submit(solverTask);
 
@@ -125,7 +125,7 @@ public class SolverTaskTest extends ApplicationTest {
       throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c);
+        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c, TIMEOUT);
 
     Platform.runLater(() -> {
       executor.submit(solverTask);
@@ -223,7 +223,9 @@ public class SolverTaskTest extends ApplicationTest {
 
     @Override
     public FeasibilityResult computePartialFeasibility(final List<String> courses,
-        final Map<String, List<Integer>> moduleChoice, final List<Integer> abstractUnitChoice) {
+                                                       final Map<String, List<Integer>>
+                                                           moduleChoice,
+                                                       final List<Integer> abstractUnitChoice) {
       return null;
     }
 
@@ -244,7 +246,7 @@ public class SolverTaskTest extends ApplicationTest {
 
     @Override
     public Set<Integer> unsatCoreGroups(final List<Integer> abstractUnits,
-        final List<Integer> modules) throws SolverException {
+                                        final List<Integer> modules) throws SolverException {
       return null;
     }
 
@@ -264,7 +266,7 @@ public class SolverTaskTest extends ApplicationTest {
     }
 
     @Override
-      public List<Alternative> getLocalAlternatives(final int session, final String... courses) {
+    public List<Alternative> getLocalAlternatives(final int session, final String... courses) {
       return Collections.emptyList();
     }
 

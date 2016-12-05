@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui.batchgeneration;
 
+import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.concurrent.Task;
 

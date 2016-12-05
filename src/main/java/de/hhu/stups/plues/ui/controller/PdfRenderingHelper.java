@@ -1,32 +1,40 @@
 package de.hhu.stups.plues.ui.controller;
 
-import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
+
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.xmlgraphics.util.MimeConstants;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
 import java.awt.Desktop;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,14 +42,13 @@ import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 public class PdfRenderingHelper {
 
   private static final String ICON_SIZE = "50";
-  public static final String WARNING_COLOR = "#FEEFB3";
-  public static final String FAILURE_COLOR = "#FFBABA";
-  public static final String SUCCESS_COLOR = "#DFF2BF";
-  public static final String WORKING_COLOR = "#BDE5F8";
   private static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
   private static final String MSG = "Error! Copying of temporary file into target file failed.";
 
@@ -193,7 +200,7 @@ public class PdfRenderingHelper {
   }
 
   private static FontAwesomeIcon getIcon(final Task<?> task) {
-    FontAwesomeIcon symbol = null;
+    final FontAwesomeIcon symbol;
 
     switch (task.getState()) {
       case SUCCEEDED:
@@ -207,6 +214,8 @@ public class PdfRenderingHelper {
         break;
       case READY:
       case SCHEDULED:
+        symbol = FontAwesomeIcon.DOT_CIRCLE_ALT;
+        break;
       case RUNNING:
       default:
         symbol = FontAwesomeIcon.CLOCK_ALT;
@@ -233,26 +242,57 @@ public class PdfRenderingHelper {
   }
 
   private static String getColor(final Task<?> task) {
-    final String color;
+    final TaskStateColor color;
 
     switch (task.getState()) {
       case SUCCEEDED:
-        color = SUCCESS_COLOR;
+        color = TaskStateColor.SUCCESS;
         break;
       case CANCELLED:
-        color = WARNING_COLOR;
+        color = TaskStateColor.WARNING;
         break;
       case FAILED:
-        color = FAILURE_COLOR;
+        color = TaskStateColor.FAILURE;
         break;
       case READY:
+        color = TaskStateColor.READY;
+        break;
       case SCHEDULED:
+        color = TaskStateColor.SCHEDULED;
+        break;
       case RUNNING:
       default:
-        return WORKING_COLOR;
+        color = TaskStateColor.WORKING;
     }
-    return color;
+    return color.getColor();
   }
+
+  /**
+   * Convert OutputStream to pdf using sax.
+   * @param out The output stream to be converted.
+   * @return Finished pdf
+   * @throws SAXException Thrown if problems with sax rendering
+   * @throws ParserConfigurationException  Thrown in cases of parsing problems
+   * @throws IOException IOException
+   */
+  public static ByteArrayOutputStream toPdf(final ByteArrayOutputStream out)
+      throws SAXException, ParserConfigurationException, IOException {
+    final FopFactory fopFactory
+        = FopFactory.newInstance(new File(".").toURI());
+    final ByteArrayOutputStream pdf = new ByteArrayOutputStream();
+    final Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, pdf);
+    //
+    final SAXParserFactory spf = SAXParserFactory.newInstance();
+    spf.setNamespaceAware(true);
+    final SAXParser saxParser = spf.newSAXParser();
+
+    final XMLReader xmlReader = saxParser.getXMLReader();
+    xmlReader.setContentHandler(fop.getDefaultHandler());
+    xmlReader.parse(new InputSource(new ByteArrayInputStream(out.toByteArray())));
+    //
+    return pdf;
+  }
+
 
   // TODO: ggf. wieder woanders hin
 

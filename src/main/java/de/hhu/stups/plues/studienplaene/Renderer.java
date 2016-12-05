@@ -3,6 +3,7 @@ package de.hhu.stups.plues.studienplaene;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
+import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
@@ -104,7 +105,7 @@ public class Renderer {
 
   private ByteArrayOutputStream render()
       throws SAXException, ParserConfigurationException, IOException {
-    final URL logo = this.getClass().getResource("/studienplaene/HHU_Logo.jpeg");
+    final URL logo = this.getClass().getResource("/images/HHU_Logo.jpeg");
 
     final JtwigModel model = JtwigModel.newModel()
         .with("major", major)
@@ -118,29 +119,10 @@ public class Renderer {
 
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     final JtwigTemplate template = JtwigTemplate
-        .classpathTemplate("/studienplaene/templates/XslTemplate.twig", config);
+        .classpathTemplate("/studienplaene/templates/timetableTemplate.twig", config);
     template.render(model, out);
 
-    return toPdf(out);
-  }
-
-  private ByteArrayOutputStream toPdf(final ByteArrayOutputStream out)
-      throws ParserConfigurationException, SAXException, IOException {
-
-    final FopFactory fopFactory
-        = FopFactory.newInstance(new File(".").toURI());
-    final ByteArrayOutputStream pdf = new ByteArrayOutputStream();
-    final Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, pdf);
-    //
-    final SAXParserFactory spf = SAXParserFactory.newInstance();
-    spf.setNamespaceAware(true);
-    final SAXParser saxParser = spf.newSAXParser();
-
-    final XMLReader xmlReader = saxParser.getXMLReader();
-    xmlReader.setContentHandler(fop.getDefaultHandler());
-    xmlReader.parse(new InputSource(new ByteArrayInputStream(out.toByteArray())));
-    //
-    return pdf;
+    return PdfRenderingHelper.toPdf(out);
   }
 
   public final ByteArrayOutputStream getResult()

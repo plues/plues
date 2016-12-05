@@ -70,7 +70,8 @@ public class MockSolver implements Solver {
     try {
       TimeUnit.SECONDS.sleep(2);
     } catch (final InterruptedException exception) {
-      exception.printStackTrace();
+      Logger.getAnonymousLogger().log(Level.SEVERE, "test", exception);
+      throw new RuntimeException(exception);
     }
     return new HashSet<>(Arrays.asList(1, 2, 3));
   }
@@ -80,7 +81,8 @@ public class MockSolver implements Solver {
     try {
       TimeUnit.SECONDS.sleep(2);
     } catch (final InterruptedException exception) {
-      exception.printStackTrace();
+      Logger.getAnonymousLogger().log(Level.SEVERE, "test", exception);
+      throw new RuntimeException(exception);
     }
     return new HashSet<>(Arrays.asList(1,2,5,6,11));
   }
@@ -96,7 +98,8 @@ public class MockSolver implements Solver {
     try {
       TimeUnit.SECONDS.sleep(2);
     } catch (final InterruptedException exception) {
-      exception.printStackTrace();
+      Logger.getAnonymousLogger().log(Level.SEVERE, "test", exception);
+      throw new RuntimeException(exception);
     }
     return new HashSet<>(Arrays.asList(1,100,1000));
   }
@@ -119,6 +122,24 @@ public class MockSolver implements Solver {
 
   @Override
   public ReportData getReportingData() throws SolverException {
+    /*
+    ReportData reportData;
+    try {
+      FileInputStream fileIn = new FileInputStream("/home/philip/Schreibtisch/SlotTool/report.ser");
+      ObjectInputStream in = new ObjectInputStream(fileIn);
+      reportData = (ReportData) in.readObject();
+      in.close();
+      fileIn.close();
+    } catch (IOException ioExc) {
+      ioExc.printStackTrace();
+      return null;
+    } catch (ClassNotFoundException cls) {
+      System.out.println("Reports class not found");
+      cls.printStackTrace();
+      return null;
+    }
+    */
+
     final ReportData reportData = new ReportData();
     reportData.setImpossibleCourseModuleAbstractUnits(new HashMap<>());
     reportData.setImpossibleCourses(new HashSet<>());

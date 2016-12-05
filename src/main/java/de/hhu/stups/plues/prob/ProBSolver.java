@@ -5,10 +5,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.be4.classicalb.core.parser.exceptions.BException;
-import de.hhu.stups.plues.data.entities.AbstractUnit;
-import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.data.entities.Group;
-import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.keys.OperationPredicateKey;
 import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.IEvalElement;
@@ -19,7 +15,6 @@ import de.prob.statespace.Transition;
 import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
-import de.tla2b.exceptions.NotImplementedException;
 
 import java.io.IOException;
 import java.util.Arrays;

@@ -13,6 +13,7 @@ import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -42,6 +43,9 @@ public class DetailView extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Label semesters;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label tentative;
   @FXML
   @SuppressWarnings("unused")
   private TableView<CourseTableEntry> courseTable;
@@ -103,6 +107,14 @@ public class DetailView extends VBox implements Initializable {
         return Joiner.on(", ").join(sessionFacade.getSession().getGroup().getUnit().getSemesters());
       }
     });
+    this.tentative.textProperty().bind(Bindings.createStringBinding(() -> {
+      SessionFacade sessionFacade = sessionProperty.get();
+      if (sessionFacade == null) {
+        return "?";
+      }
+
+      return sessionFacade.isTentative() ? "✔︎" : "✗";
+    }, sessionProperty));
 
     courseTable.itemsProperty().bind(new ListBinding<CourseTableEntry>() {
       {
@@ -131,15 +143,10 @@ public class DetailView extends VBox implements Initializable {
     });
 
     courseKey.setCellValueFactory(new PropertyValueFactory<>("courseKey"));
-    courseKey.setText(resources.getString("courseCell"));
     module.setCellValueFactory(new PropertyValueFactory<>("module"));
-    module.setText(resources.getString("moduleCell"));
     abstractUnit.setCellValueFactory(new PropertyValueFactory<>("abstractUnit"));
-    abstractUnit.setText(resources.getString("abstractUnitCell"));
     courseSemesters.setCellValueFactory(new PropertyValueFactory<>("semesters"));
-    courseSemesters.setText(resources.getString("semesterCell"));
     type.setCellValueFactory(new PropertyValueFactory<>("type"));
-    type.setText(resources.getString("typeCell"));
   }
 
   public String getTitle() {

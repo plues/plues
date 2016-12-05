@@ -14,10 +14,10 @@
             <Insets left="20" right="20"/>
         </padding>
         <buttons>
-            <ToggleButton fx:id="buttonIncompleteModules" text="%buttonIncompleteModules"
+            <ToggleButton fx:id="buttonIncompleteModules" text="%button.IncompleteModules"
                           minWidth="150.0" selected="true"/>
             <ToggleButton fx:id="buttonMissingElectiveAbstractUnits"
-                          text="%buttonMissingElectiveAbstractUnits" minWidth="200.0"/>
+                          text="%button.MissingElectiveAbstractUnits" minWidth="200.0"/>
         </buttons>
     </SegmentedButton>
     <Label fx:id="explanation"/>

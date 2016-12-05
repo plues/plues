@@ -65,7 +65,7 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
     moduleAbstractUnitUnitSemesterConflicts = FXCollections.observableHashMap();
 
     inflater.inflate("/components/reports/ModuleAbstractUnitUnitSemesterConflicts",
-        this, this, "reports");
+        this, this, "reports", "Column");
   }
 
   @Override

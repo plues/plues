@@ -20,6 +20,7 @@ import javafx.collections.ObservableSet;
 import java.lang.management.ManagementFactory;
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Stupid data container that can be injected and used by all UI components to store global data.
@@ -35,8 +36,12 @@ public class UiDataService {
   private final ObjectProperty<Date> lastSavedDate
       = new SimpleObjectProperty<>(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
 
+  private final ExecutorService executorService;
+
   @Inject
-  public UiDataService(final Delayed<SolverService> solverServiceDelayed) {
+  public UiDataService(final Delayed<SolverService> solverServiceDelayed,
+      final ExecutorService executorService) {
+    this.executorService = executorService;
     solverServiceDelayed.whenAvailable(this::loadImpossibleCourses);
   }
 
@@ -66,7 +71,7 @@ public class UiDataService {
 
   private void loadImpossibleCourses(final SolverService solverService) {
     final SolverTask<Set<String>> t = solverService.impossibleCoursesTask();
-    solverService.submit(t);
+    executorService.submit(t);
     t.setOnSucceeded(event -> this.setImpossibleCourses(t.getValue()));
   }
 

@@ -55,7 +55,7 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
     modules = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     inflater.inflate("/components/reports/QuasiMandatoryModuleAbstractUnits",
-        this, this, "reports");
+        this, this, "reports", "Column");
   }
 
   @Override

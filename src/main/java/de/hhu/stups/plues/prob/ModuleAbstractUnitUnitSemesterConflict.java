@@ -1,8 +1,11 @@
 package de.hhu.stups.plues.prob;
 
+import java.io.Serializable;
 import java.util.Set;
 
-public class ModuleAbstractUnitUnitSemesterConflict {
+public class ModuleAbstractUnitUnitSemesterConflict implements Serializable {
+  private static final long serialVersionUID = 6459045002667850077L;
+
   private final Integer moduleId;
   private final Integer abstractUnitId;
   private final Set<Integer> abstractUnitSemesters;

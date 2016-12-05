@@ -6,13 +6,13 @@ public final class MajorMinorKey {
   private final String major;
   private final String minor;
 
-  public MajorMinorKey(String major, String minor) {
+  public MajorMinorKey(final String major, final String minor) {
     this.major = major;
     this.minor = minor;
   }
 
   @Override
-  public final boolean equals(Object obj) {
+  public final boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }

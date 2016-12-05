@@ -1,0 +1,29 @@
+<fo:block font-size="16pt">
+    1.2 {{ resources.get("title.ImpossibleModulesBecauseOfMissingElectiveAbstractUnits") }}
+</fo:block>
+<fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
+    <fo:table-column column-width="10%"/>
+    <fo:table-column column-width="90%"/>
+    <fo:table-header>
+        <fo:table-row height="0.4cm" font-size="12pt">
+            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                <fo:block text-align="center">{{ resources.get("columnPordnr") }}</fo:block>
+            </fo:table-cell>
+            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                <fo:block text-align="center">{{ resources.get("columnTitle") }}</fo:block>
+            </fo:table-cell>
+        </fo:table-row>
+    </fo:table-header>
+    <fo:table-body>
+        {% for module in modules %}
+            <fo:table-row height="0.4cm">
+                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-right="2pt">
+                    <fo:block text-align="right">{{ module.getPordnr() }}</fo:block>
+                </fo:table-cell>
+                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
+                    <fo:block text-align="left">{{ module.getTitle() }}</fo:block>
+                </fo:table-cell>
+            </fo:table-row>
+        {% endfor %}
+    </fo:table-body>
+</fo:table>

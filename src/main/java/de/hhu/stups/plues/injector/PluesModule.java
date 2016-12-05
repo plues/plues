@@ -21,7 +21,6 @@ import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverLoader;
 import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
-import de.hhu.stups.plues.tasks.SolverServiceFactory;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
@@ -30,13 +29,9 @@ import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 
-import java.lang.management.ManagementFactory;
-import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -80,7 +75,6 @@ public class PluesModule extends AbstractModule {
     install(new ExecutorServiceModule());
 
     install(new FactoryModuleBuilder().build(SolverLoaderTaskFactory.class));
-    install(new FactoryModuleBuilder().build(SolverServiceFactory.class));
     install(new FactoryModuleBuilder().build(PdfRenderingTaskFactory.class));
     install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
     install(new FactoryModuleBuilder().build(FeasibilityBoxFactory.class));
