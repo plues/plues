@@ -165,6 +165,7 @@ public class PdfRenderingTask extends Task<Path> {
       throws IOException, ParserConfigurationException, SAXException {
 
     final File temp = File.createTempFile("timetable", ".pdf");
+    temp.deleteOnExit();
     try (OutputStream out = new FileOutputStream(temp)) {
       renderer.getResult().writeTo(out);
     } catch (final IOException | ParserConfigurationException | SAXException exc) {
