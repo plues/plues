@@ -85,6 +85,11 @@ public class SolverTask<T> extends Task<T> {
   @Override
   protected T call() throws InterruptedException, ExecutionException {
     synchronized (SolverTask.class) {
+      if (this.isCancelled()) {
+        logger.info("cancelled");
+        return null;
+      }
+
       timer = SCHEDULED_EXECUTOR_SERVICE.schedule(this::timeOut, this.timeout, this.timeUnit);
       future = EXECUTOR_SERVICE.submit(function);
 
