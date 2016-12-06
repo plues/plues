@@ -13,19 +13,19 @@
         <Label fx:id="session" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
         <Label text="%title" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
         <Label fx:id="title" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        <Label text="%group" GridPane.columnIndex="0" GridPane.rowIndex="2">
-            <padding>
-                <Insets right="10"/>
-            </padding>
-        </Label>
+        <Label text="%group" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
         <Label fx:id="group" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
         <Label text="%semesters" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
         <Label fx:id="semesters" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-        <Label text="%tentative" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+        <Label text="%tentative" GridPane.columnIndex="0" GridPane.rowIndex="4">
+            <padding>
+                <Insets right="20"/>
+            </padding>
+        </Label>
         <Label fx:id="tentative" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
     </GridPane>
     <Label/>
-    <Label text="%course"/>
+    <Label text="%course" styleClass="h2"/>
     <TableView fx:id="courseTable">
         <columns>
             <TableColumn fx:id="courseKey" text="%cell.course"/>
