@@ -11,7 +11,10 @@ import de.hhu.stups.plues.ui.components.ConflictTree;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
-import de.hhu.stups.plues.ui.components.detailView.SessionDetailView;
+import de.hhu.stups.plues.ui.components.detailview.AbstractUnitDetailView;
+import de.hhu.stups.plues.ui.components.detailview.ModuleDetailView;
+import de.hhu.stups.plues.ui.components.detailview.SessionDetailView;
+import de.hhu.stups.plues.ui.components.detailview.UnitDetailView;
 import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
@@ -58,5 +61,8 @@ class ComponentsModule extends AbstractModule {
     bind(UnitsWithoutAbstractUnits.class);
     bind(ConflictTree.class);
     bind(UnsatCore.class);
+    bind(AbstractUnitDetailView.class);
+    bind(ModuleDetailView.class);
+    bind(UnitDetailView.class);
   }
 }
