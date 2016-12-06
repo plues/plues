@@ -75,7 +75,7 @@ public class SessionDetailView extends VBox implements Initializable {
   public SessionDetailView(final Inflater inflater) {
     sessionProperty = new SimpleObjectProperty<>();
     sessionFacadeProperty = new SimpleObjectProperty<>();
-    inflater.inflate("components/SessionDetailView", this, this, "detailView");
+    inflater.inflate("components/detailView/SessionDetailView", this, this, "detailView");
   }
 
   /**
