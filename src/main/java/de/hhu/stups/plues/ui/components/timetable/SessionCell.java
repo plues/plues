@@ -8,7 +8,7 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 
-import de.hhu.stups.plues.ui.components.detailView.SessionDetailView;
+import de.hhu.stups.plues.ui.components.detailview.SessionDetailView;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.StringBinding;
 import javafx.fxml.FXML;

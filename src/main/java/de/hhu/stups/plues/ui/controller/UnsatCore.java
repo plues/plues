@@ -2,6 +2,7 @@ package de.hhu.stups.plues.ui.controller;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
@@ -16,9 +17,13 @@ import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
+import de.hhu.stups.plues.ui.components.detailview.AbstractUnitDetailView;
+import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
+import de.hhu.stups.plues.ui.components.detailview.ModuleDetailView;
+import de.hhu.stups.plues.ui.components.detailview.SessionDetailView;
+import de.hhu.stups.plues.ui.components.detailview.UnitDetailView;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -60,6 +65,11 @@ public class UnsatCore extends VBox implements Initializable {
   private final ListProperty<Course> courses;
   private final UiDataService uiDataService;
   private final ExecutorService executorService;
+  private final Provider<AbstractUnitDetailView> abstractUnitDetailViewProvider;
+  private final Provider<ModuleDetailView> moduleDetailViewProvider;
+  private final Provider<UnitDetailView> unitDetailViewProvider;
+  private final Provider<SessionDetailView> sessionDetailViewProvider;
+  private ResourceBundle resources;
 
   @FXML
   private CombinationOrSingleCourseSelection courseSelection;
@@ -137,7 +147,6 @@ public class UnsatCore extends VBox implements Initializable {
   private Pane groupsPane;
   @FXML
   private Pane sessionsPane;
-  private ResourceBundle resources;
 
   /**
    * Constructor.
@@ -151,7 +160,11 @@ public class UnsatCore extends VBox implements Initializable {
   public UnsatCore(final Inflater inflater, final Delayed<Store> delayedStore,
                    final Delayed<SolverService> delayedSolverService,
                    final ExecutorService executorService,
-                   final UiDataService uiDataService) {
+                   final UiDataService uiDataService,
+                   final Provider<AbstractUnitDetailView> abstractUnitDetailViewProvider,
+                   final Provider<ModuleDetailView> moduleDetailViewProvider,
+                   final Provider<UnitDetailView> unitDetailViewProvider,
+                   final Provider<SessionDetailView> sessionDetailViewProvider) {
 
     this.uiDataService = uiDataService;
     this.executorService = executorService;
@@ -164,6 +177,10 @@ public class UnsatCore extends VBox implements Initializable {
     this.modules = new SimpleListProperty<>(FXCollections.emptyObservableList());
     this.courses = new SimpleListProperty<>(FXCollections.emptyObservableList());
 
+    this.abstractUnitDetailViewProvider = abstractUnitDetailViewProvider;
+    this.moduleDetailViewProvider = moduleDetailViewProvider;
+    this.unitDetailViewProvider = unitDetailViewProvider;
+    this.sessionDetailViewProvider = sessionDetailViewProvider;
 
     delayedStore.whenAvailable(this.store::set);
     delayedSolverService.whenAvailable(this.solverService::set);
@@ -326,6 +343,8 @@ public class UnsatCore extends VBox implements Initializable {
   private void initializeSessions() {
     sessionsPane.visibleProperty().bind(sessions.emptyProperty().not());
     sessionsTable.itemsProperty().bind(sessions);
+    sessionsTable.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
+        sessionsTable, sessionDetailViewProvider));
     sessionDayColumn.setCellValueFactory(new PropertyValueFactory<>("day"));
     sessionTimeColumn.setCellValueFactory(new PropertyValueFactory<>("time"));
     sessionUnitKeyColumn.setCellValueFactory(param
@@ -398,6 +417,8 @@ public class UnsatCore extends VBox implements Initializable {
   private void initializeAbstractUnits() {
     abstractUnitsPane.visibleProperty().bind(abstractUnits.emptyProperty().not());
     abstractUnitsTable.itemsProperty().bind(abstractUnits);
+    abstractUnitsTable.setOnMouseClicked(DetailViewHelper.getAbstractUnitMouseHandler(
+        abstractUnitsTable, abstractUnitDetailViewProvider));
     abstractUnitKeyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
     abstractUnitTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
 
@@ -476,6 +497,8 @@ public class UnsatCore extends VBox implements Initializable {
   private void initializeModules() {
     modulesPane.visibleProperty().bind(modules.emptyProperty().not());
     modulesTable.itemsProperty().bind(modules);
+    modulesTable.setOnMouseClicked(DetailViewHelper.getModuleMouseHandler(
+        modulesTable, moduleDetailViewProvider));
     modulePordnrColumn.setCellValueFactory(new PropertyValueFactory<>("pordnr"));
     moduleNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
     moduleTypeColumn.setCellValueFactory(new PropertyValueFactory<>("mandatory"));

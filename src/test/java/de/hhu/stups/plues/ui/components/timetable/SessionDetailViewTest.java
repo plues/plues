@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.components.detailView;
+package de.hhu.stups.plues.ui.components.detailview;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertThat;
@@ -15,8 +15,7 @@ import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
-import de.hhu.stups.plues.ui.components.detailView.SessionDetailView;
-import de.hhu.stups.plues.ui.components.detailView.SessionDetailView.CourseTableEntry;
+import de.hhu.stups.plues.ui.components.detailview.SessionDetailView.CourseTableEntry;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.ObjectProperty;
