@@ -57,7 +57,7 @@ public class ImpossibleModules extends VBox implements Initializable {
     impossibleModulesBecauseOfMissingElectiveAbstractUnits = new SimpleListProperty<>(
       FXCollections.observableArrayList());
 
-    inflater.inflate("/components/reports/ImpossibleModules", this, this, "reports", "Column");
+    inflater.inflate("components/reports/ImpossibleModules", this, this, "reports", "Column");
   }
 
   @Override

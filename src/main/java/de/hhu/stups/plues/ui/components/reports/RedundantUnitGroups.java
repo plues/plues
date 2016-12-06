@@ -34,7 +34,7 @@ public class RedundantUnitGroups extends VBox implements Initializable {
 
   @Inject
   public RedundantUnitGroups(final Inflater inflater) {
-    inflater.inflate("/components/reports/RedundantUnitGroups", this, this, "reports", "Column");
+    inflater.inflate("components/reports/RedundantUnitGroups", this, this, "reports", "Column");
   }
 
   @Override

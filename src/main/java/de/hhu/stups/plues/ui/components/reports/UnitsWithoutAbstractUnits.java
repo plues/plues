@@ -31,7 +31,7 @@ public class UnitsWithoutAbstractUnits extends VBox implements Initializable {
 
   @Inject
   public UnitsWithoutAbstractUnits(final Inflater inflater) {
-    inflater.inflate("/components/reports/UnitsWithoutAbstractUnits",
+    inflater.inflate("components/reports/UnitsWithoutAbstractUnits",
         this, this, "reports", "Column");
   }
 
