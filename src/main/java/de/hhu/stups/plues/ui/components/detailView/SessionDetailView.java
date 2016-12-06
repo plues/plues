@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.components.timetable;
+package de.hhu.stups.plues.ui.components.detailView;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
@@ -28,9 +29,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class DetailView extends VBox implements Initializable {
+public class SessionDetailView extends VBox implements Initializable {
 
-  private final ObjectProperty<SessionFacade> sessionProperty;
+  private final ObjectProperty<Session> sessionProperty;
   @FXML
   @SuppressWarnings("unused")
   private Label session;
@@ -70,9 +71,9 @@ public class DetailView extends VBox implements Initializable {
    * @param inflater Inflater instance to load FXMl
    */
   @Inject
-  public DetailView(final Inflater inflater) {
+  public SessionDetailView(final Inflater inflater) {
     sessionProperty = new SimpleObjectProperty<>();
-    inflater.inflate("components/DetailView", this, this, "detailView");
+    inflater.inflate("components/SessionDetailView", this, this, "detailView");
   }
 
   /**
@@ -81,18 +82,18 @@ public class DetailView extends VBox implements Initializable {
    * @param session SessionFacade to build content for
    */
   @SuppressWarnings("WeakerAccess")
-  public void setSession(final SessionFacade session) {
+  public void setSession(final Session session) {
     this.sessionProperty.set(session);
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.title.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
-        Bindings.selectString(sessionProperty, "session", "group", "unit", "title")).otherwise(""));
+        Bindings.selectString(sessionProperty, "group", "unit", "title")).otherwise(""));
     this.session.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
-        Bindings.selectString(sessionProperty, "slot")).otherwise(""));
+        Bindings.selectString(sessionProperty, "slot")).otherwise("")); // TODO: Slot existiert nicht in Session
     this.group.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
-        Bindings.selectString(sessionProperty, "session", "group", "id")).otherwise(""));
+        Bindings.selectString(sessionProperty, "group", "id")).otherwise(""));
     this.semesters.textProperty().bind(new StringBinding() {
       {
         bind(sessionProperty);
@@ -100,15 +101,15 @@ public class DetailView extends VBox implements Initializable {
 
       @Override
       protected String computeValue() {
-        final SessionFacade sessionFacade = sessionProperty.get();
+        final Session sessionFacade = sessionProperty.get();
         if (sessionFacade == null) {
           return "";
         }
-        return Joiner.on(", ").join(sessionFacade.getSession().getGroup().getUnit().getSemesters());
+        return Joiner.on(", ").join(sessionFacade.getGroup().getUnit().getSemesters());
       }
     });
     this.tentative.textProperty().bind(Bindings.createStringBinding(() -> {
-      SessionFacade sessionFacade = sessionProperty.get();
+      Session sessionFacade = sessionProperty.get();
       if (sessionFacade == null) {
         return "?";
       }
@@ -123,12 +124,12 @@ public class DetailView extends VBox implements Initializable {
 
       @Override
       protected ObservableList<CourseTableEntry> computeValue() {
-        final SessionFacade sessionFacade = sessionProperty.get();
+        final Session sessionFacade = sessionProperty.get();
         if (sessionFacade == null) {
           return FXCollections.observableArrayList();
         }
         final Set<AbstractUnit> abstractUnits
-            = sessionFacade.getSession().getGroup().getUnit().getAbstractUnits();
+            = sessionFacade.getGroup().getUnit().getAbstractUnits();
         final ObservableList<CourseTableEntry> result = FXCollections.observableArrayList();
         abstractUnits.forEach(au ->
             au.getModuleAbstractUnitTypes().forEach(entry ->

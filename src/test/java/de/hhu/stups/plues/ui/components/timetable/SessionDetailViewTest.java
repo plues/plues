@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.components.timetable;
+package de.hhu.stups.plues.ui.components.detailView;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertThat;
@@ -15,7 +15,8 @@ import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
-import de.hhu.stups.plues.ui.components.timetable.DetailView.CourseTableEntry;
+import de.hhu.stups.plues.ui.components.detailView.SessionDetailView;
+import de.hhu.stups.plues.ui.components.detailView.SessionDetailView.CourseTableEntry;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.ObjectProperty;
@@ -35,10 +36,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-public class DetailViewTest extends ApplicationTest {
+public class SessionDetailViewTest extends ApplicationTest {
 
   private final Store store;
   private final Map<Course, List<ModuleAbstractUnitSemester>> courseMap;
@@ -51,7 +51,7 @@ public class DetailViewTest extends ApplicationTest {
    * Test constructor.
    */
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
-  public DetailViewTest() {
+  public SessionDetailViewTest() {
     store = mock(Store.class);
 
     final ObjectProperty<SessionFacade.Slot> slot = new SimpleObjectProperty<>(
@@ -172,10 +172,10 @@ public class DetailViewTest extends ApplicationTest {
   public void start(final Stage stage) throws Exception {
     final Inflater inflater = new Inflater(new FXMLLoader());
 
-    final DetailView detailView = new DetailView(inflater);
-    detailView.setSession(sessionFacade);
+    final SessionDetailView sessionDetailView = new SessionDetailView(inflater);
+    sessionDetailView.setSession(sessionFacade);
 
-    final Scene scene = new Scene(detailView, 400, 250);
+    final Scene scene = new Scene(sessionDetailView, 400, 250);
     stage.setScene(scene);
     stage.show();
   }

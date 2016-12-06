@@ -11,6 +11,7 @@ import de.hhu.stups.plues.ui.components.ConflictTree;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
+import de.hhu.stups.plues.ui.components.detailView.SessionDetailView;
 import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
@@ -22,7 +23,6 @@ import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterCo
 import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
-import de.hhu.stups.plues.ui.components.timetable.DetailView;
 import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration;
 import de.hhu.stups.plues.ui.controller.ConflictMatrix;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
@@ -43,7 +43,7 @@ class ComponentsModule extends AbstractModule {
     bind(SetOfCourseSelection.class);
     bind(CombinationOrSingleCourseSelection.class);
     bind(CheckCourseFeasibility.class);
-    bind(DetailView.class);
+    bind(SessionDetailView.class);
     bind(AboutWindow.class);
     bind(ImpossibleModules.class);
     bind(ImpossibleAbstractUnitsInModule.class);

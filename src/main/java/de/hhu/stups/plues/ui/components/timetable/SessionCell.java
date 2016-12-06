@@ -8,6 +8,7 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 
+import de.hhu.stups.plues.ui.components.detailView.SessionDetailView;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.StringBinding;
 import javafx.fxml.FXML;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 
 class SessionCell extends ListCell<SessionFacade> implements Initializable {
 
-  private final Provider<DetailView> provider;
+  private final Provider<SessionDetailView> sessionDetailViewProvider;
   private final Delayed<SolverService> delayedSolverService;
 
   private final UiDataService uiDataService;
@@ -48,12 +49,12 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
 
   @Inject
   SessionCell(final Inflater inflater,
-              final Provider<DetailView> detailViewProvider,
+              final Provider<SessionDetailView> sessionDetailViewProvider,
               final Delayed<SolverService> delayedSolverService,
               final UiDataService uiDataService) {
     super();
 
-    this.provider = detailViewProvider;
+    this.sessionDetailViewProvider = sessionDetailViewProvider;
     this.delayedSolverService = delayedSolverService;
     this.uiDataService = uiDataService;
 
@@ -129,12 +130,12 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
       return;
     }
 
-    final DetailView detailView = provider.get();
-    detailView.setSession(getItem());
+    final SessionDetailView sessionDetailView = sessionDetailViewProvider.get();
+    sessionDetailView.setSession(getItem().getSession());
 
     final Stage stage = new Stage();
-    stage.setTitle(detailView.getTitle());
-    stage.setScene(new Scene(detailView));
+    stage.setTitle(sessionDetailView.getTitle());
+    stage.setScene(new Scene(sessionDetailView));
     stage.show();
   }
 
