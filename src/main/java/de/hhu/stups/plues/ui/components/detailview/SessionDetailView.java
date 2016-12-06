@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.components.detailView;
+package de.hhu.stups.plues.ui.components.detailview;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
@@ -75,7 +75,7 @@ public class SessionDetailView extends VBox implements Initializable {
   public SessionDetailView(final Inflater inflater) {
     sessionProperty = new SimpleObjectProperty<>();
     sessionFacadeProperty = new SimpleObjectProperty<>();
-    inflater.inflate("components/detailView/SessionDetailView", this, this, "detailView");
+    inflater.inflate("components/detailview/SessionDetailView", this, this, "detailView");
   }
 
   /**
