@@ -1,11 +1,8 @@
 package de.hhu.stups.plues.prob;
 
-import java.io.Serializable;
 import java.util.Objects;
 
-public class Pair<T> implements Serializable {
-  private static final long serialVersionUID = 6459045002667850077L;
-
+public class Pair<T> {
   private final T second;
   private final T first;
 

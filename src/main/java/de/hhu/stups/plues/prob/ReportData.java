@@ -1,13 +1,10 @@
 package de.hhu.stups.plues.prob;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings("unused")
-public class ReportData implements Serializable {
-  private static final long serialVersionUID = 6459045002667850077L;
-
+public class ReportData {
   private Map<String, Map<Integer, Set<Integer>>> impossibleCourseModuleAbstractUnits;
   private Set<String> impossibleCourses;
   private Set<String> impossibleCoursesBecauseOfImpossibleModules;
