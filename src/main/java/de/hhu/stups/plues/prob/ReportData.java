@@ -1,7 +1,5 @@
 package de.hhu.stups.plues.prob;
 
-import de.hhu.stups.plues.prob.report.Pair;
-
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;

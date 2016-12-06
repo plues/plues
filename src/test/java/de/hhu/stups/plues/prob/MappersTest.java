@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import de.be4.classicalb.core.parser.exceptions.BException;
-import de.hhu.stups.plues.prob.report.Pair;
 import de.prob.translator.Translator;
 import de.prob.translator.types.BObject;
 import de.prob.translator.types.Set;

@@ -10,9 +10,9 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.prob.ReportData;
-import de.hhu.stups.plues.prob.report.Pair;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.components.reports.AbstractUnitPair;
 import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnits;
@@ -226,7 +226,7 @@ class Reports extends VBox implements Initializable {
     private Set<Unit> redundantUnitGroups;
     private Map<Course, Map<Module, Set<AbstractUnit>>>
         impossibleCourseModuleAbstractUnits;
-    private Map<Course, Map<Module, Set<Pair<AbstractUnit>>>>
+    private Map<Course, Map<Module, Set<AbstractUnitPair>>>
         impossibleCourseModuleAbstractUnitPairs;
     private Map<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
         moduleAbstractUnitUnitSemesterConflicts;
@@ -296,7 +296,7 @@ class Reports extends VBox implements Initializable {
             entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
               innerEntry -> store.getModuleById(innerEntry.getKey()),
               innerEntry -> innerEntry.getValue().stream().map(
-                pair -> new Pair<>(store.getAbstractUnitById(pair.getFirst()),
+                pair -> new AbstractUnitPair(store.getAbstractUnitById(pair.getFirst()),
                   store.getAbstractUnitById(pair.getSecond()))).collect(Collectors.toSet())))));
     }
 
@@ -412,7 +412,7 @@ class Reports extends VBox implements Initializable {
       return redundantUnitGroups;
     }
 
-    Map<Course, Map<Module, Set<Pair<AbstractUnit>>>> getImpossibleCourseModuleAbstractUnitPairs() {
+    Map<Course, Map<Module, Set<AbstractUnitPair>>> getImpossibleCourseModuleAbstractUnitPairs() {
       return impossibleCourseModuleAbstractUnitPairs;
     }
 

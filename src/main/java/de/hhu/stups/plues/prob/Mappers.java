@@ -1,14 +1,8 @@
 package de.hhu.stups.plues.prob;
 
-import com.google.common.base.Functions;
-import com.google.common.base.Joiner;
-
-import de.hhu.stups.plues.prob.report.Pair;
-import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
 import de.prob.translator.types.Tuple;
-import javafx.collections.FXCollections;
 
 import java.util.Collections;
 import java.util.HashMap;
