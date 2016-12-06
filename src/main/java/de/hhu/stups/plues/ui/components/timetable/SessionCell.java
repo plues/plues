@@ -131,7 +131,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
     }
 
     final SessionDetailView sessionDetailView = sessionDetailViewProvider.get();
-    sessionDetailView.setSession(getItem().getSession());
+    sessionDetailView.setSession(getItem());
 
     final Stage stage = new Stage();
     stage.setTitle(sessionDetailView.getTitle());

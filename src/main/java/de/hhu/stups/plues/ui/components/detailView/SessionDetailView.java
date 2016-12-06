@@ -14,7 +14,6 @@ import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -32,6 +31,8 @@ import java.util.Set;
 public class SessionDetailView extends VBox implements Initializable {
 
   private final ObjectProperty<Session> sessionProperty;
+  private final ObjectProperty<SessionFacade> sessionFacadeProperty;
+
   @FXML
   @SuppressWarnings("unused")
   private Label session;
@@ -73,17 +74,19 @@ public class SessionDetailView extends VBox implements Initializable {
   @Inject
   public SessionDetailView(final Inflater inflater) {
     sessionProperty = new SimpleObjectProperty<>();
+    sessionFacadeProperty = new SimpleObjectProperty<>();
     inflater.inflate("components/SessionDetailView", this, this, "detailView");
   }
 
   /**
    * Set content for detail view.
    *
-   * @param session SessionFacade to build content for
+   * @param sessionFacade SessionFacade to build content for
    */
   @SuppressWarnings("WeakerAccess")
-  public void setSession(final Session session) {
-    this.sessionProperty.set(session);
+  public void setSession(final SessionFacade sessionFacade) {
+    this.sessionProperty.set(sessionFacade.getSession());
+    this.sessionFacadeProperty.set(sessionFacade);
   }
 
   @Override
@@ -91,7 +94,7 @@ public class SessionDetailView extends VBox implements Initializable {
     this.title.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
         Bindings.selectString(sessionProperty, "group", "unit", "title")).otherwise(""));
     this.session.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
-        Bindings.selectString(sessionProperty, "slot")).otherwise("")); // TODO: Slot existiert nicht in Session
+        Bindings.selectString(sessionFacadeProperty, "slot")).otherwise(""));
     this.group.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
         Bindings.selectString(sessionProperty, "group", "id")).otherwise(""));
     this.semesters.textProperty().bind(new StringBinding() {
