@@ -115,7 +115,7 @@ public class SessionDetailViewTest extends ApplicationTest {
     store.getCourses().forEach(course ->
         courseMap.put(course, store.getModuleAbstractUnitSemester()));
 
-    doReturn(false).when(sessionFacade).isTentative();
+    doReturn(false).when(session).isTentative();
     doReturn(session).when(sessionFacade).getSession();
     doReturn(slot).when(sessionFacade).slotProperty();
 

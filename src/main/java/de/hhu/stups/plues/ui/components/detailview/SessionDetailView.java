@@ -104,20 +104,20 @@ public class SessionDetailView extends VBox implements Initializable {
 
       @Override
       protected String computeValue() {
-        final Session sessionFacade = sessionProperty.get();
-        if (sessionFacade == null) {
+        final Session session = sessionProperty.get();
+        if (session == null) {
           return "";
         }
-        return Joiner.on(", ").join(sessionFacade.getGroup().getUnit().getSemesters());
+        return Joiner.on(", ").join(session.getGroup().getUnit().getSemesters());
       }
     });
     this.tentative.textProperty().bind(Bindings.createStringBinding(() -> {
-      Session sessionFacade = sessionProperty.get();
-      if (sessionFacade == null) {
+      Session session = sessionProperty.get();
+      if (session == null) {
         return "?";
       }
 
-      return sessionFacade.isTentative() ? "✔︎" : "✗";
+      return session.isTentative() ? "✔︎" : "✗";
     }, sessionProperty));
 
     courseTable.itemsProperty().bind(new ListBinding<CourseTableEntry>() {
@@ -127,12 +127,12 @@ public class SessionDetailView extends VBox implements Initializable {
 
       @Override
       protected ObservableList<CourseTableEntry> computeValue() {
-        final Session sessionFacade = sessionProperty.get();
-        if (sessionFacade == null) {
+        final Session session = sessionProperty.get();
+        if (session == null) {
           return FXCollections.observableArrayList();
         }
         final Set<AbstractUnit> abstractUnits
-            = sessionFacade.getGroup().getUnit().getAbstractUnits();
+            = session.getGroup().getUnit().getAbstractUnits();
         final ObservableList<CourseTableEntry> result = FXCollections.observableArrayList();
         abstractUnits.forEach(au ->
             au.getModuleAbstractUnitTypes().forEach(entry ->
