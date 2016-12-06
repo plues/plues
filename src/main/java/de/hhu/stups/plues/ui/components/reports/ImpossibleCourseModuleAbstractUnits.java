@@ -28,7 +28,7 @@ public class ImpossibleCourseModuleAbstractUnits extends VBox implements Initial
 
   @Inject
   public ImpossibleCourseModuleAbstractUnits(final Inflater inflater) {
-    inflater.inflate("/components/reports/ImpossibleCourseModuleAbstractUnits",
+    inflater.inflate("components/reports/ImpossibleCourseModuleAbstractUnits",
         this, this, "reports");
   }
 
