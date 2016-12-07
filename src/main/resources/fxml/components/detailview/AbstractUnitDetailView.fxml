@@ -8,7 +8,7 @@
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.geometry.Insets?>
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1" maxWidth="400" maxHeight="250">
+         xmlns:fx="http://javafx.com/fxml/1" prefWidth="500" prefHeight="500">
     <GridPane>
         <Label text="%key" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
         <Label fx:id="key" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
