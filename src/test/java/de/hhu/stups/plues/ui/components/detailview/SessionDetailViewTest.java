@@ -15,6 +15,7 @@ import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.detailview.SessionDetailView.CourseTableEntry;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -103,8 +104,10 @@ public class SessionDetailViewTest extends ApplicationTest {
 
     doReturn(1).when(au1).getId();
     doReturn("AU-1").when(au1).getKey();
+    doReturn("AU 1").when(au1).getTitle();
     doReturn(2).when(au2).getId();
     doReturn("AU-2").when(au2).getKey();
+    doReturn("AU 2").when(au2).getTitle();
 
     doReturn(new HashSet<>(Arrays.asList(au1, au2))).when(unit).getAbstractUnits();
 
@@ -170,8 +173,9 @@ public class SessionDetailViewTest extends ApplicationTest {
   @Override
   public void start(final Stage stage) throws Exception {
     final Inflater inflater = new Inflater(new FXMLLoader());
+    final Router router = new Router();
 
-    final SessionDetailView sessionDetailView = new SessionDetailView(inflater);
+    final SessionDetailView sessionDetailView = new SessionDetailView(inflater, router);
     sessionDetailView.setSession(sessionFacade);
 
     final Scene scene = new Scene(sessionDetailView, 400, 250);
