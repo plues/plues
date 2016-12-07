@@ -158,22 +158,22 @@ public class SessionDetailView extends VBox implements Initializable {
     type.setCellValueFactory(new PropertyValueFactory<>("type"));
 
     courseTable.getSelectionModel().selectedItemProperty().addListener(
-      (observable, oldValue, newValue) -> courseTable.setOnMouseClicked(event -> {
-        if (event.getClickCount() < 2) {
-          return;
-        }
-
-        String rowText = courseTable.getSelectionModel().getSelectedCells().get(0)
-          .getTableColumn().getText();
-
-        if (rowText.equals(resources.getString("cell.module"))) {
-          router.transitionTo("moduleDetailView", newValue.getModule());
-        } else {
-          if (rowText.equals(resources.getString("cell.abstractUnit"))) {
-            router.transitionTo("abstractUnitDetailView", newValue.getAbstractUnit());
+        (observable, oldValue, newValue) -> courseTable.setOnMouseClicked(event -> {
+          if (event.getClickCount() < 2) {
+            return;
           }
-        }
-      }));
+
+          String rowText = courseTable.getSelectionModel().getSelectedCells().get(0)
+              .getTableColumn().getText();
+
+          if (rowText.equals(resources.getString("cell.module"))) {
+            router.transitionTo("moduleDetailView", newValue.getModule());
+          } else {
+            if (rowText.equals(resources.getString("cell.abstractUnit"))) {
+              router.transitionTo("abstractUnitDetailView", newValue.getAbstractUnit());
+            }
+          }
+        }));
   }
 
   public String getTitle() {
