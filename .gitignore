@@ -129,3 +129,4 @@ gradle-app.setting
 
 .idea/
 src/main/resources/models.zip
+plues*.log
