@@ -20,15 +20,18 @@ public class RouterProvider implements Provider<Router> {
   private Provider<UnitDetailViewRoute> unitDetailViewProvider;
   private Provider<SessionDetailViewRoute> sessionDetailViewProvider;
 
+  /**
+   * Constructor for routerProvider.
+   */
   @Inject
   public RouterProvider(final Provider<IndexRoute> indexRouteProvider,
-                        final Provider<ModuleDetailViewRoute> moduleDetailViewProvider,
+                        final Provider<ModuleDetailViewRoute> moduleDetailViewRouteProvider,
                         final Provider<AbstractUnitDetailViewRoute>
                             abstractUnitDetailViewRouteProvider,
                         final Provider<UnitDetailViewRoute> unitDetailViewRouteProvider,
                         final Provider<SessionDetailViewRoute> sessionDetailViewRouteProvider) {
     this.indexRouteProvider = indexRouteProvider;
-    this.moduleDetailViewProvider = moduleDetailViewProvider;
+    this.moduleDetailViewProvider = moduleDetailViewRouteProvider;
     this.abstractUnitDetailViewProvider = abstractUnitDetailViewRouteProvider;
     this.unitDetailViewProvider = unitDetailViewRouteProvider;
     this.sessionDetailViewProvider = sessionDetailViewRouteProvider;
