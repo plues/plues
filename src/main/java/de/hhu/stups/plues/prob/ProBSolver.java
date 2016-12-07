@@ -15,6 +15,8 @@ import de.prob.statespace.Transition;
 import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,8 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ProBSolver implements Solver {
   private static final String CHECK = "check";
@@ -41,7 +41,7 @@ public class ProBSolver implements Solver {
   private static final String DEFAULT_PREDICATE = "1=1";
   private final StateSpace stateSpace;
   private final SolverCache<SolverResult> operationExecutionCache;
-  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
   private Trace trace;
 
   @Inject
@@ -110,12 +110,12 @@ public class ProBSolver implements Solver {
     if (cmd.isInterrupted() || !cmd.isCompleted()) {
       solverResult.setState(ResultState.INTERRUPTED);
 
-      logger.fine(String.format("RESULT %s %s = TIMEOUT/CANCEL // interrupted %s completed %s",
+      logger.debug(String.format("RESULT %s %s = TIMEOUT/CANCEL // interrupted %s completed %s",
           op, predicate, cmd.isInterrupted(), cmd.isCompleted()));
       return solverResult;
     } else if (cmd.hasErrors()) {
       solverResult.setState(ResultState.FAILED);
-      cmd.getErrors().forEach(logger::severe);
+      cmd.getErrors().forEach(logger::error);
     } else {
       solverResult.setState(ResultState.SUCCEEDED);
 
@@ -130,7 +130,7 @@ public class ProBSolver implements Solver {
     }
 
 
-    logger.fine(String.format("RESULT %s %s = %s", op, predicate, solverResult));
+    logger.debug(String.format("RESULT %s %s = %s", op, predicate, solverResult));
 
     return solverResult;
   }
@@ -140,7 +140,7 @@ public class ProBSolver implements Solver {
     try {
       return trans.getTranslatedReturnValues();
     } catch (final BException exception) {
-      logger.log(Level.SEVERE, "Translator Exception", exception);
+      logger.error("Translator Exception", exception);
       return Collections.emptyList();
     }
   }
@@ -386,6 +386,7 @@ public class ProBSolver implements Solver {
 
     final Record result = (Record) this.executeOperationWithOneResult(IMPOSSIBLE_COURSES);
 
+    logger.debug(result.toString());
     return Mappers.mapCourseSet((Set) result.get("courses"));
   }
 
