@@ -1,11 +1,11 @@
 package de.hhu.stups.plues.ui.components.detailview;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
@@ -26,7 +26,7 @@ import java.util.ResourceBundle;
 public class ModuleDetailView extends VBox implements Initializable {
 
   private final ObjectProperty<Module> moduleProperty;
-  private final Provider<AbstractUnitDetailView> abstractUnitDetailViewProvider;
+  private final Router router;
 
   @FXML
   @SuppressWarnings("unused")
@@ -56,13 +56,12 @@ public class ModuleDetailView extends VBox implements Initializable {
   /**
    * Constructor for ModuleDetailView.
    * @param inflater Inflater to handle fxml and lang files
-   * @param abstractUnitDetailViewProvider Provider for abstractUnitDetailView to handle navigation
    */
   @Inject
   public ModuleDetailView(final Inflater inflater,
-                          final Provider<AbstractUnitDetailView> abstractUnitDetailViewProvider) {
+                          final Router router) {
     moduleProperty = new SimpleObjectProperty<>();
-    this.abstractUnitDetailViewProvider = abstractUnitDetailViewProvider;
+    this.router = router;
 
     inflater.inflate("/components/detailview/ModuleDetailView", this, this, "detailView", "Column");
   }
@@ -120,7 +119,7 @@ public class ModuleDetailView extends VBox implements Initializable {
     });
 
     abstractUnitTableView.setOnMouseClicked(DetailViewHelper.getAbstractUnitMouseHandler(
-        abstractUnitTableView, abstractUnitDetailViewProvider));
+        abstractUnitTableView, router));
   }
 
   public void setModule(Module module) {

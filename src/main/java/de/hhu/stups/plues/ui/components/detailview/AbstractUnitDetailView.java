@@ -1,11 +1,11 @@
 package de.hhu.stups.plues.ui.components.detailview;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Unit;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
@@ -26,8 +26,7 @@ import java.util.ResourceBundle;
 public class AbstractUnitDetailView extends VBox implements Initializable {
 
   private final ObjectProperty<AbstractUnit> abstractUnitProperty;
-  private final Provider<UnitDetailView> unitDetailViewProvider;
-  private final Provider<ModuleDetailView> moduleDetailViewProvider;
+  private final Router router;
 
   @FXML
   @SuppressWarnings("unused")
@@ -48,11 +47,9 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
    */
   @Inject
   public AbstractUnitDetailView(final Inflater inflater,
-                                final Provider<UnitDetailView> unitDetailViewProvider,
-                                final Provider<ModuleDetailView> moduleDetailViewProvider) {
+                                final Router router) {
     abstractUnitProperty = new SimpleObjectProperty<>();
-    this.unitDetailViewProvider = unitDetailViewProvider;
-    this.moduleDetailViewProvider = moduleDetailViewProvider;
+    this.router = router;
 
     inflater.inflate("components/detailview/AbstractUnitDetailView", this, this,
         "detailView", "Column");
@@ -108,8 +105,8 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
     });
 
     tableViewUnits.setOnMouseClicked(DetailViewHelper.getUnitMouseHandler(
-        tableViewUnits, unitDetailViewProvider));
+        tableViewUnits, router));
     tableViewModules.setOnMouseClicked(DetailViewHelper.getModuleMouseHandler(
-        tableViewModules, moduleDetailViewProvider));
+        tableViewModules, router));
   }
 }

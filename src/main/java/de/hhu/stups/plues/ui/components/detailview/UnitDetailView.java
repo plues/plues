@@ -7,6 +7,7 @@ import com.google.inject.Provider;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
@@ -30,8 +31,7 @@ import java.util.stream.Collectors;
 public class UnitDetailView extends VBox implements Initializable {
 
   private final ObjectProperty<Unit> unitProperty;
-  private final Provider<AbstractUnitDetailView> abstractUnitDetailViewProvider;
-  private Provider<SessionDetailView> sessionDetailViewProvider;
+  private final Router router;
 
   @FXML
   @SuppressWarnings("unused")
@@ -52,16 +52,13 @@ public class UnitDetailView extends VBox implements Initializable {
   /**
    * Constructor to create unitDetailView.
    * @param inflater Inflater to handle fxml and lang files.
-   * @param abstractUnitDetailViewProvider Provider for abstractUnitDetailView for navigation
-   * @param sessionDetailViewProvider Provider for sessionDetailView for navigation
+   * @param router Router to open window
    */
   @Inject
   public UnitDetailView(final Inflater inflater,
-                        final Provider<AbstractUnitDetailView> abstractUnitDetailViewProvider,
-                        final Provider<SessionDetailView> sessionDetailViewProvider) {
+                        final Router router) {
     this.unitProperty = new SimpleObjectProperty<>();
-    this.abstractUnitDetailViewProvider = abstractUnitDetailViewProvider;
-    this.sessionDetailViewProvider = sessionDetailViewProvider;
+    this.router = router;
 
     inflater.inflate("components/detailview/UnitDetailView", this, this, "detailView", "Column");
   }
@@ -130,8 +127,8 @@ public class UnitDetailView extends VBox implements Initializable {
     });
 
     abstractUnitTableView.setOnMouseClicked(DetailViewHelper.getAbstractUnitMouseHandler(
-        abstractUnitTableView, abstractUnitDetailViewProvider));
+        abstractUnitTableView, router));
     sessionTableView.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
-        sessionTableView, sessionDetailViewProvider));
+        sessionTableView, router));
   }
 }
