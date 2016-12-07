@@ -10,18 +10,19 @@ import javafx.stage.Stage;
 
 public class IndexRoute implements Route {
 
-  private final Parent root;
   private final Stage stage;
+  private final Inflater inflater;
   private Scene scene;
 
   @Inject
-  public IndexRoute(Inflater inflater, Stage stage) {
-    this.root = inflater.inflate("main", "MainController", "Days");
+  public IndexRoute(final Inflater inflater, Stage stage) {
+    this.inflater = inflater;
     this.stage = stage;
   }
 
   @Override
-  public void transition() {
+  public void transition(Object... args) {
+    Parent root = inflater.inflate("main", "MainController", "Days");
     scene = new Scene(root, 800, 600);
 
     scene.getStylesheets().add("/styles/index.css");
