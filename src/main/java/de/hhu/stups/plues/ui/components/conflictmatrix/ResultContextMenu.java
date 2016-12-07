@@ -2,6 +2,7 @@ package de.hhu.stups.plues.ui.components.conflictmatrix;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.ResultState;
+import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 
 import javafx.beans.property.ObjectProperty;
@@ -38,11 +39,11 @@ class ResultContextMenu extends ContextMenu {
     resultState.addListener((observable, oldValue, newValue) -> updateMenu(newValue));
 
     itemGeneratePdf.setOnAction(event ->
-        router.transitionTo("pdfTimetables", (Object[]) courses));
+        router.transitionTo(RouteNames.PDF_TIMETABLES.getRouteName(), (Object[]) courses));
     itemComputeConflict.setOnAction(event ->
-        router.transitionTo("unsatCore", (Object[]) courses));
+        router.transitionTo(RouteNames.UNSAT_CORE.getRouteName(), (Object[]) courses));
     itemGeneratePartialTimetable.setOnAction(event ->
-        router.transitionTo("partialTimetables", (Object[]) courses));
+        router.transitionTo(RouteNames.PARTIAL_TIMETABLES.getRouteName(), (Object[]) courses));
   }
 
   private void updateMenu(final ResultState resultState) {
@@ -51,17 +52,20 @@ class ResultContextMenu extends ContextMenu {
       case SUCCEEDED:
         getItems().addAll(itemShowInTimetable, itemGeneratePartialTimetable, itemGeneratePdf);
         itemShowInTimetable.setOnAction(event ->
-            router.transitionTo("timetableView", courses, ResultState.SUCCEEDED));
+            router.transitionTo(RouteNames.TIMETABLE.getRouteName(),
+                courses, ResultState.SUCCEEDED));
         break;
       case IMPOSSIBLE:
         getItems().addAll(itemShowInTimetable);
         itemShowInTimetable.setOnAction(event ->
-            router.transitionTo("timetableView", courses, ResultState.IMPOSSIBLE));
+            router.transitionTo(RouteNames.TIMETABLE.getRouteName(),
+                courses, ResultState.IMPOSSIBLE));
         break;
       case FAILED:
         getItems().addAll(itemShowInTimetable, itemComputeConflict);
         itemShowInTimetable.setOnAction(event ->
-            router.transitionTo("timetableView", courses, ResultState.FAILED));
+            router.transitionTo(RouteNames.TIMETABLE.getRouteName(),
+                courses, ResultState.FAILED));
         break;
       default:
         break;

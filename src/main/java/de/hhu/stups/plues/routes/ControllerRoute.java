@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.routes;
 
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.ui.controller.Activatable;
 
@@ -21,11 +22,10 @@ public class ControllerRoute implements Route {
    * de.hhu.stups.plues.ui.controller.MainController#tabPane}. Each tab is accessed via its css
    * selector defined in {@link de.hhu.stups.plues.ui.controller.MainController}.
    *
-   * @param stage The application's stage.
-   * @param tabId The controller's tab id within the tab pane.
+   * @param tabId The controller's tab id (css selector) within the tab pane.
    */
   @Inject
-  public ControllerRoute(final Stage stage, final String tabId) {
+  public ControllerRoute(final Stage stage, @Assisted final String tabId) {
     this.stage = stage;
     this.tabId = tabId;
   }
