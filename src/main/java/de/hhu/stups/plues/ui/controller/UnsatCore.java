@@ -333,7 +333,31 @@ public class UnsatCore extends VBox implements Initializable {
     sessionsTable.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
         sessionsTable, router));
     sessionDayColumn.setCellValueFactory(new PropertyValueFactory<>("day"));
+    sessionDayColumn.setCellFactory(param -> new TableCell<Session, String>() {
+      @Override
+      protected void updateItem(String item, boolean empty) {
+        super.updateItem(item, empty);
+        if (empty) {
+          setText("");
+          return;
+        }
+
+        setText(resources.getString(item));
+      }
+    });
     sessionTimeColumn.setCellValueFactory(new PropertyValueFactory<>("time"));
+    sessionTimeColumn.setCellFactory(param -> new TableCell<Session, Integer>() {
+      @Override
+      protected void updateItem(Integer item, boolean empty) {
+        super.updateItem(item, empty);
+        if (empty) {
+          setText("");
+          return;
+        }
+
+        setText(String.valueOf(6 + item * 2) + ":30");
+      }
+    });
     sessionUnitKeyColumn.setCellValueFactory(param
         -> Bindings.selectString(param, "value", "group", "unit", "key"));
     sessionUnitTitleColumn.setCellValueFactory(param
