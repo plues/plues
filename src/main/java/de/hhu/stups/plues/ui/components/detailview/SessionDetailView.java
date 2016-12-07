@@ -8,6 +8,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
@@ -20,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
@@ -32,6 +34,7 @@ public class SessionDetailView extends VBox implements Initializable {
 
   private final ObjectProperty<Session> sessionProperty;
   private final ObjectProperty<SessionFacade> sessionFacadeProperty;
+  private final Router router;
 
   @FXML
   @SuppressWarnings("unused")
@@ -72,9 +75,11 @@ public class SessionDetailView extends VBox implements Initializable {
    * @param inflater Inflater instance to load FXMl
    */
   @Inject
-  public SessionDetailView(final Inflater inflater) {
+  public SessionDetailView(final Inflater inflater, final Router router) {
     sessionProperty = new SimpleObjectProperty<>();
     sessionFacadeProperty = new SimpleObjectProperty<>();
+    this.router = router;
+
     inflater.inflate("components/detailview/SessionDetailView", this, this, "detailView");
   }
 
@@ -147,10 +152,24 @@ public class SessionDetailView extends VBox implements Initializable {
     });
 
     courseKey.setCellValueFactory(new PropertyValueFactory<>("courseKey"));
-    module.setCellValueFactory(new PropertyValueFactory<>("module"));
-    abstractUnit.setCellValueFactory(new PropertyValueFactory<>("abstractUnit"));
+    module.setCellValueFactory(new PropertyValueFactory<>("moduleTitle"));
+    abstractUnit.setCellValueFactory(new PropertyValueFactory<>("abstractUnitTitle"));
     courseSemesters.setCellValueFactory(new PropertyValueFactory<>("semesters"));
     type.setCellValueFactory(new PropertyValueFactory<>("type"));
+
+    courseTable.getSelectionModel().selectedItemProperty().addListener(
+        (observable, oldValue, newValue) -> {
+          String rowText = courseTable.getSelectionModel().getSelectedCells().get(0)
+              .getTableColumn().getText();
+
+          if (rowText.equals(resources.getString("cell.module"))) {
+            router.transitionTo("moduleDetailView", newValue.getModule());
+          } else {
+            if (rowText.equals(resources.getString("cell.abstractUnit"))) {
+              router.transitionTo("abstractUnitDetailView", newValue.getAbstractUnit());
+            }
+          }
+        });
   }
 
   public String getTitle() {
@@ -160,20 +179,14 @@ public class SessionDetailView extends VBox implements Initializable {
   @SuppressWarnings("WeakerAccess")
   public static final class CourseTableEntry {
     private final String courseKey;
-    private final String module;
-    private final String abstractUnit;
+    private final Module module;
+    private final AbstractUnit abstractUnit;
     private final Set<Integer> semesters;
     private final Character type;
 
 
     /**
      * Constructor for course table.
-     *
-     * @param course       Course key
-     * @param module       Module title
-     * @param abstractUnit Abstract Unit title
-     * @param semesters    Semester
-     * @param type         Type
      */
     CourseTableEntry(final Course course,
                      final Module module,
@@ -181,8 +194,8 @@ public class SessionDetailView extends VBox implements Initializable {
                      final Set<Integer> semesters,
                      final Character type) {
       this.courseKey = course.getKey();
-      this.module = module.getTitle();
-      this.abstractUnit = abstractUnit.getKey();
+      this.module = module;
+      this.abstractUnit = abstractUnit;
       this.semesters = semesters;
       this.type = type;
     }
@@ -202,10 +215,10 @@ public class SessionDetailView extends VBox implements Initializable {
       if (!courseKey.equals(that.courseKey)) {
         return false;
       }
-      if (!module.equals(that.module)) {
+      if (!module.getTitle().equals(that.module.getTitle())) {
         return false;
       }
-      if (!abstractUnit.equals(that.abstractUnit)) {
+      if (!abstractUnit.getTitle().equals(that.abstractUnit.getTitle())) {
         return false;
       }
       if (!semesters.equals(that.semesters)) {
@@ -242,12 +255,22 @@ public class SessionDetailView extends VBox implements Initializable {
     }
 
     @SuppressWarnings("unused")
-    public String getModule() {
+    public String getModuleTitle() {
+      return module.getTitle();
+    }
+
+    @SuppressWarnings("unused")
+    public String getAbstractUnitTitle() {
+      return abstractUnit.getTitle();
+    }
+
+    @SuppressWarnings("unused")
+    public Module getModule() {
       return module;
     }
 
     @SuppressWarnings("unused")
-    public String getAbstractUnit() {
+    public AbstractUnit getAbstractUnit() {
       return abstractUnit;
     }
 
