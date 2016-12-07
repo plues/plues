@@ -14,6 +14,8 @@ import de.hhu.stups.plues.prob.SolverException;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import javafx.concurrent.Task;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,8 +28,6 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -40,7 +40,7 @@ public class SolverLoaderTask extends Task<Solver> {
   private final Properties properties;
   private final SolverFactory solverFactory;
   private final Store store;
-  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+  private final Logger logger = LoggerFactory.logger(getClass());
   private final ResourceBundle resources;
   private Path modelDirectory;
 
@@ -64,9 +64,9 @@ public class SolverLoaderTask extends Task<Solver> {
     this.properties.putIfAbsent("solver", "prob");
     this.updateTitle(resources.getString("solverTitle"));
     this.progressProperty().addListener((observable, oldValue, newValue)
-        -> logger.fine(newValue.toString()));
+        -> logger.trace(newValue.toString()));
 
-    this.messageProperty().addListener((observable, oldValue, newValue) -> logger.fine(newValue));
+    this.messageProperty().addListener((observable, oldValue, newValue) -> logger.trace(newValue));
 
   }
 
@@ -78,11 +78,11 @@ public class SolverLoaderTask extends Task<Solver> {
     } else {
       final Path p = Helpers.expandPath(modelBase);
       if (!new File(p.toString()).exists()) {
-        logger.severe("Path does not exist");
+        logger.fatal("Path does not exist");
         throw new IllegalArgumentException("Path does not exist");
       }
 
-      logger.fine("Using models from " + p);
+      logger.info("Using models from " + p);
       this.modelDirectory = p;
     }
   }
@@ -120,18 +120,18 @@ public class SolverLoaderTask extends Task<Solver> {
       final String name = entry.getName();
 
       if ("".equals(name)) {
-        logger.fine("Empty File");
+        logger.trace("Empty File");
         continue;
       }
 
       final InputStream stream = zipFile.getInputStream(entry);
       final Path modelPath = Paths.get(MODEL_PATH).resolve(name);
 
-      logger.fine("Exporting " + modelPath);
+      logger.info("Exporting " + modelPath);
       Files.copy(stream, tmpDirectory.resolve(modelPath));
     }
     zipFile.close();
-    logger.fine("Done exporting model files.");
+    logger.trace("Done exporting model files.");
   }
 
   @Override
@@ -186,20 +186,20 @@ public class SolverLoaderTask extends Task<Solver> {
   protected final void succeeded() {
     super.succeeded();
     this.updateMessage(resources.getString("finished"));
-    logger.fine("loading Solver succeeded");
+    logger.info("loading Solver succeeded");
   }
 
   @Override
   protected final void cancelled() {
     this.store.close();
-    logger.warning("Loading solver cancelled");
+    logger.warn("Loading solver cancelled");
   }
 
   @Override
   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
   protected final void failed() {
     this.store.close();
-    logger.log(Level.SEVERE, "Loading solver failed", this.getException());
+    logger.error("Loading solver failed", this.getException());
   }
 
   private ProBSolver initSolver() throws IOException, BException {

@@ -22,6 +22,8 @@ import javafx.stage.FileChooser;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.xmlgraphics.util.MimeConstants;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -36,8 +38,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
@@ -52,7 +52,7 @@ public class PdfRenderingHelper {
   private static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
   private static final String MSG = "Error! Copying of temporary file into target file failed.";
 
-  private static final Logger logger = Logger.getLogger(PdfRenderingHelper.class.getSimpleName());
+  private static final Logger logger = LoggerFactory.logger(PdfRenderingHelper.class);
 
   private PdfRenderingHelper() {}
 
@@ -67,7 +67,7 @@ public class PdfRenderingHelper {
       try {
         Desktop.getDesktop().open(file.toFile());
       } catch (final IOException exc) {
-        logger.log(Level.INFO, MSG, exc);
+        logger.error(MSG, exc);
         if (callback != null) {
           callback.accept(exc);
         }
@@ -101,7 +101,7 @@ public class PdfRenderingHelper {
       try {
         Files.copy(pdf, Paths.get(file.getAbsolutePath()));
       } catch (final IOException exc) {
-        logger.log(Level.SEVERE, MSG, exc);
+        logger.error(MSG, exc);
 
         if (lbErrorMsg != null) {
           lbErrorMsg.setText(MSG);

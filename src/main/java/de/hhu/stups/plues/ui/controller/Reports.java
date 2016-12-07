@@ -34,6 +34,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import org.jtwig.environment.EnvironmentConfiguration;
@@ -59,8 +61,6 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
@@ -238,7 +238,7 @@ class Reports extends VBox implements Initializable {
     private List<Course> impossibleCoursesBecauseOfImpossibleModuleCombinations;
     private List<AbstractUnit> abstractUnitsWithoutUnits;
 
-    private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+    private final Logger logger = LoggerFactory.logger(getClass());
     private final String faculty;
     private final Map<String, String> resources;
 
@@ -462,12 +462,12 @@ class Reports extends VBox implements Initializable {
             try {
               Desktop.getDesktop().open(file);
             } catch (IOException exc) {
-              logger.log(Level.SEVERE, "Exception while opening pdf", exc);
+              logger.error("Exception while opening pdf", exc);
             }
           });
         }
       } catch (SAXException | ParserConfigurationException | IOException exc) {
-        logger.log(Level.SEVERE, "Exception while rendering reports", exc);
+        logger.error("Exception while rendering reports", exc);
       }
     }
   }

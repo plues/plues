@@ -11,17 +11,17 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.StoreException;
 
 import javafx.concurrent.Task;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class StoreLoaderTask extends Task<Store> {
-  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+  private final Logger logger = LoggerFactory.logger(getClass());
 
   private static final long MAX_STEPS = 3;
   private static final String PLUES = "plues";
@@ -50,7 +50,7 @@ public class StoreLoaderTask extends Task<Store> {
     try {
       return new ObservableStore(new SqliteStore(dbWorkingPath.toString()));
     } catch (IncompatibleSchemaError | StoreException exception) {
-      logger.log(Level.SEVERE, "An exception was thrown opening the store", exception);
+      logger.error("An exception was thrown opening the store", exception);
       updateMessage(exception.getMessage());
       throw exception;
     }
@@ -58,12 +58,12 @@ public class StoreLoaderTask extends Task<Store> {
 
   @Override
   protected final void failed() {
-    logger.severe("Loading store Failed");
+    logger.error("Loading store Failed");
   }
 
   @Override
   protected final void cancelled() {
-    logger.severe("Loading store Failed");
+    logger.error("Loading store Failed");
   }
 
   private void checkExportDatabase() throws IOException {
@@ -85,7 +85,7 @@ public class StoreLoaderTask extends Task<Store> {
           java.nio.file.StandardCopyOption.REPLACE_EXISTING);
     } catch (final IOException exception) {
       updateMessage(exception.getMessage());
-      logger.log(Level.SEVERE, "An exception was thrown copying files", exception);
+      logger.error("An exception was thrown copying files", exception);
       throw exception;
     }
     properties.put("tempDBpath", dbWorkingPath);

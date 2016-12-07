@@ -11,6 +11,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import de.hhu.stups.plues.prob.Solver;
 import javafx.concurrent.Task;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
@@ -18,7 +20,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
@@ -40,7 +41,7 @@ public class SolverTask<T> extends Task<T> {
 
   }
 
-  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+  private final Logger logger = LoggerFactory.logger(getClass());
   private final Callable<T> function;
   private final TimeUnit timeUnit;
   private final int timeout;
