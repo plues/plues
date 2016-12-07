@@ -10,6 +10,7 @@ import de.prob.translator.types.Set;
 import de.prob.translator.types.Tuple;
 import javafx.collections.FXCollections;
 
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -102,7 +103,9 @@ final class Mappers {
   }
 
   static String mapString(final String str) {
-    return str.substring(1, str.length() - 1);
+    // XXX Temporary fix, until ProB 2.0 socket encoding has been fixed.
+    return new String(str.substring(1, str.length() - 1).getBytes(Charset.defaultCharset()),
+        Charset.forName("utf8"));
   }
 
   static Map<String, Map<Integer, java.util.Set<Integer>>> mapCourseModuleAbstractUnits(
