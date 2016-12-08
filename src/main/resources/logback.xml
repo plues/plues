@@ -19,10 +19,10 @@
 
     <appender name="FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>./plues.log</file>
+        <file>${user.home}/.plues/plues.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>plues-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${user.home}/.plues/plues-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
             <!-- keep 7 days' worth of history -->
             <maxHistory>7</maxHistory>
         </rollingPolicy>
