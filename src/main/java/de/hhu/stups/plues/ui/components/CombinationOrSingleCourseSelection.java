@@ -131,15 +131,22 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
   }
 
   /**
-   * Select courses within the {@link #majorMinorCourseSelection}.
+   * Select courses within the {@link #majorMinorCourseSelection} if two combinable courses or a
+   * standalone course is given. If only one combinable course is given use the {@link
+   * #singleCourseSelection}.
    */
-  public void selectMajorMinorCourse(Course... courses) {
-    rbCombination.setSelected(true);
-    if (courses.length > 0) {
-      majorMinorCourseSelection.selectMajorCourse(courses[0]);
-    }
-    if (courses.length > 1) {
-      majorMinorCourseSelection.selectMinorCourse(courses[1]);
+  public void selectCourses(Course... courses) {
+    if (courses.length == 1 && courses[0].isCombinable()) {
+      rbSingleSelection.setSelected(true);
+      singleCourseSelection.getSelectionModel().select(courses[0]);
+    } else {
+      rbCombination.setSelected(true);
+      if (courses.length > 0) {
+        majorMinorCourseSelection.selectMajorCourse(courses[0]);
+      }
+      if (courses.length > 1) {
+        majorMinorCourseSelection.selectMinorCourse(courses[1]);
+      }
     }
   }
 

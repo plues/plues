@@ -12,6 +12,8 @@ import java.util.ResourceBundle;
 
 class ResultContextMenu extends ContextMenu {
 
+  private final Router router;
+  private final Course[] courses;
   private final MenuItem itemShowInTimetable;
   private final MenuItem itemGeneratePartialTimetable;
   private final MenuItem itemComputeConflict;
@@ -24,6 +26,8 @@ class ResultContextMenu extends ContextMenu {
 
   ResultContextMenu(final Router router, final ObjectProperty<ResultState> resultState,
                     final Course... courses) {
+    this.router = router;
+    this.courses = courses;
     final ResourceBundle resources = ResourceBundle.getBundle("lang.conflictMatrixContextMenu");
 
     itemShowInTimetable = new MenuItem(resources.getString("showInTimetable"));
@@ -33,11 +37,12 @@ class ResultContextMenu extends ContextMenu {
 
     resultState.addListener((observable, oldValue, newValue) -> updateMenu(newValue));
 
-    itemShowInTimetable.setOnAction(event -> router.transitionTo("timetableView", courses));
-    itemGeneratePdf.setOnAction(event -> router.transitionTo("pdfTimetables", courses));
-    itemComputeConflict.setOnAction(event -> router.transitionTo("unsatCore", courses));
-    itemGeneratePartialTimetable.setOnAction(
-        event -> router.transitionTo("partialTimetables", courses));
+    itemGeneratePdf.setOnAction(event ->
+        router.transitionTo("pdfTimetables", (Object[]) courses));
+    itemComputeConflict.setOnAction(event ->
+        router.transitionTo("unsatCore", (Object[]) courses));
+    itemGeneratePartialTimetable.setOnAction(event ->
+        router.transitionTo("partialTimetables", (Object[]) courses));
   }
 
   private void updateMenu(final ResultState resultState) {
@@ -45,12 +50,18 @@ class ResultContextMenu extends ContextMenu {
     switch (resultState) {
       case SUCCEEDED:
         getItems().addAll(itemShowInTimetable, itemGeneratePartialTimetable, itemGeneratePdf);
+        itemShowInTimetable.setOnAction(event ->
+            router.transitionTo("timetableView", courses, ResultState.SUCCEEDED));
         break;
       case IMPOSSIBLE:
         getItems().addAll(itemShowInTimetable);
+        itemShowInTimetable.setOnAction(event ->
+            router.transitionTo("timetableView", courses, ResultState.IMPOSSIBLE));
         break;
       case FAILED:
         getItems().addAll(itemShowInTimetable, itemComputeConflict);
+        itemShowInTimetable.setOnAction(event ->
+            router.transitionTo("timetableView", courses, ResultState.FAILED));
         break;
       default:
         break;

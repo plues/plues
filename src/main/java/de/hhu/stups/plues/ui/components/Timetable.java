@@ -12,6 +12,7 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
@@ -28,6 +29,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
@@ -36,6 +39,7 @@ import javafx.scene.layout.GridPane;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,6 +52,8 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
   private final Delayed<SolverService> delayedSolverService;
   private final UiDataService uiDataService;
 
+  @FXML
+  private TabPane tabPaneSide;
   @FXML
   private GridPane timeTable;
 
@@ -146,8 +152,24 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
    * de.hhu.stups.plues.routes.ControllerRoute}.
    */
   @Override
-  public void activateController(Course... courses) {
-    // Todo: highlight courses
+  public void activateController(Object... args) {
+    final Course[] courses = (Course[]) args[0];
+    final ResultState resultState = (ResultState) args[1];
+    if (resultState.equals(ResultState.FAILED)) {
+      selectTabById("tabConflict");
+      checkCourseFeasibility.selectCourses(courses);
+    } else {
+      selectTabById("tabFilters");
+    }
+    // Todo: highlight courses in the timetable
+  }
+
+  private void selectTabById(final String tabId) {
+    final Optional<Tab> tabConflict = tabPaneSide.getTabs().stream()
+        .filter(tab -> tabId.equals(tab.getId())).findFirst();
+    if (tabConflict.isPresent()) {
+      tabPaneSide.getSelectionModel().select(tabConflict.get());
+    }
   }
 
   private class SessionFacadeListBinding extends ListBinding<SessionFacade> {

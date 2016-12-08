@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.BooleanProperty;
@@ -42,6 +43,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private VBox resultBoxWrapper;
   @FXML
+  @SuppressWarnings("unused")
   private Button btUnhighlightAllConflicts;
 
   /**
@@ -49,9 +51,9 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
    * CombinationOrSingleCourseSelection} and check its feasibility. The results are displayed in
    * {@link FeasibilityBox result boxes} within {@link #resultBoxWrapper a VBox}. When using the
    * component we need to initialize the courses via {@link #setCourses(List)} and optionally
-   * highlight the impossible courses with the use of {@link #impossibleCoursesProperty()}. As
-   * soon as the solver is available the {@link #solverProperty} need to be set to true to enable
-   * computations like {@link #btCheckFeasibility}.
+   * highlight the impossible courses with the use of {@link #impossibleCoursesProperty()}. As soon
+   * as the solver is available the {@link #solverProperty} is set to true to enable computations
+   * like {@link #btCheckFeasibility}.
    */
   @Inject
   public CheckCourseFeasibility(final Inflater inflater,
@@ -104,6 +106,10 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
 
   public void setCourses(final List<Course> courses) {
     combinationOrSingleCourseSelection.setCourses(courses);
+  }
+
+  void selectCourses(Course... courses) {
+    combinationOrSingleCourseSelection.selectCourses(courses);
   }
 
   void setSolverProperty(final Boolean value) {
