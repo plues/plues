@@ -3,7 +3,6 @@ package de.hhu.stups.plues.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import de.hhu.stups.plues.routes.ControllerRoute;
 import de.hhu.stups.plues.routes.ControllerRouteFactory;
 import de.hhu.stups.plues.routes.IndexRoute;
 import de.hhu.stups.plues.routes.RouteNames;
@@ -16,7 +15,7 @@ public class RouterProvider implements Provider<Router> {
   private Router cache;
 
   /**
-   *
+   * The {@link Router} provider.
    */
   @Inject
   public RouterProvider(final Provider<IndexRoute> indexRouteProvider,

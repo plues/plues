@@ -2,8 +2,6 @@ package de.hhu.stups.plues.routes;
 
 import com.google.inject.Singleton;
 
-import de.hhu.stups.plues.data.entities.Course;
-
 import java.util.HashMap;
 
 /**
