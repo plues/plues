@@ -254,12 +254,12 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
    * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
    */
   @Override
-  public void activateController(Course... courses) {
+  public void activateController(Object... courses) {
     if (courses.length > 0) {
-      courseSelection.selectMajorCourse(courses[0]);
+      courseSelection.selectMajorCourse((Course) courses[0]);
     }
     if (courses.length > 1) {
-      courseSelection.selectMinorCourse(courses[1]);
+      courseSelection.selectMinorCourse((Course) courses[1]);
     }
   }
 }

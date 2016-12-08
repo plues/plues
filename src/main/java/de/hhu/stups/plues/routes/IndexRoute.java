@@ -21,7 +21,7 @@ public class IndexRoute implements Route {
   }
 
   @Override
-  public void transition(Course... courses) {
+  public void transition(Object... courses) {
     final Parent root = inflater.inflate("main", "MainController", "Days");
     final Scene scene = new Scene(root, 800, 600);
 

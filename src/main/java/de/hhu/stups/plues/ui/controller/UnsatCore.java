@@ -484,7 +484,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
    * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
    */
   @Override
-  public void activateController(final Course... courses) {
-    courseSelection.selectMajorMinorCourse(courses);
+  public void activateController(final Object... courses) {
+    courseSelection.selectCourses((Course[]) courses);
   }
 }

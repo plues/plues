@@ -9,5 +9,5 @@ import de.hhu.stups.plues.routes.Router;
  */
 @FunctionalInterface
 public interface Activatable {
-  void activateController(Course... courses);
+  void activateController(Object... args);
 }
