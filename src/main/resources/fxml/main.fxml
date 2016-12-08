@@ -69,22 +69,22 @@
     <BorderPane>
         <center>
             <TabPane id="tabPane" fx:id="tabPane">
-                <Tab text="%timetable" closable="false">
+                <Tab id="tabTimetable" text="%timetable" closable="false">
                     <Timetable fx:id="timetable"/>
                 </Tab>
-                <Tab text="%musterstudienplaene" closable="false">
+                <Tab id="tabPdfTimetables" text="%musterstudienplaene" closable="false">
                     <Musterstudienplaene fx:id="musterstudienplaene"/>
                 </Tab>
-                <Tab text="%partial" closable="false">
+                <Tab id="tabPartialTimetables" text="%partial" closable="false">
                     <PartialTimeTables fx:id="partialTimetables"/>
                 </Tab>
-                <Tab text="%batch" closable="false">
+                <Tab id="tabBatchGeneration" text="%batch" closable="false">
                     <BatchTimetableGeneration fx:id="batchTimetableGeneration"/>
                 </Tab>
-                <Tab text="%conflictMatrix" closable="false">
+                <Tab id="tabConflictMatrix" text="%conflictMatrix" closable="false">
                     <ConflictMatrix fx:id="conflictMatrix"/>
                 </Tab>
-                <Tab text="Unsat Core" closable="false">
+                <Tab id="tabUnsatCore" text="Unsat Core" closable="false">
                     <UnsatCore fx:id="unsatCore"/>
                 </Tab>
             </TabPane>

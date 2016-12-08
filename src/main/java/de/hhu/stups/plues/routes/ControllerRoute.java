@@ -2,37 +2,42 @@ package de.hhu.stups.plues.routes;
 
 import com.google.inject.Inject;
 
-import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.controller.Activatable;
 
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
+
+import java.util.Optional;
+
 
 public class ControllerRoute implements Route {
 
   private final Stage stage;
-  private final int tabPaneIndex;
+  private final String tabId;
 
   /**
    * Defines the {@link Route} to navigate to a controller managed by the {@link
-   * de.hhu.stups.plues.ui.controller.MainController#tabPane}. We use the indices within the tab
-   * pane to address a specific tab. (We can't use css selectors in combination with a lookup for a
-   * tab because {@link javafx.scene.control.Tab} does not inherit from {@link javafx.scene.Node}
-   * which is the return type of the lookup)
+   * de.hhu.stups.plues.ui.controller.MainController#tabPane}. Each tab is accessed via its css
+   * selector defined in {@link de.hhu.stups.plues.ui.controller.MainController}.
    *
-   * @param stage        The application's stage.
-   * @param tabPaneIndex The controller's index in the tab pane's navigation.
+   * @param stage The application's stage.
+   * @param tabId The controller's tab id within the tab pane.
    */
   @Inject
-  public ControllerRoute(final Stage stage, final int tabPaneIndex) {
+  public ControllerRoute(final Stage stage, final String tabId) {
     this.stage = stage;
-    this.tabPaneIndex = tabPaneIndex;
+    this.tabId = tabId;
   }
 
   @Override
-  public void transition(final Course... courses) {
+  public void transition(final Object... args) {
     final TabPane tabPane = (TabPane) stage.getScene().lookup("#tabPane");
-    tabPane.getSelectionModel().select(tabPaneIndex);
-    ((Activatable) tabPane.getTabs().get(tabPaneIndex).getContent()).activateController(courses);
+    final Optional<Tab> optionalTab = tabPane.getTabs().stream()
+        .filter(tab -> tabId.equals(tab.getId())).findFirst();
+    if (optionalTab.isPresent()) {
+      tabPane.getSelectionModel().select(optionalTab.get());
+      ((Activatable) optionalTab.get().getContent()).activateController(args);
+    }
   }
 }

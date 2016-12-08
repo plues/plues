@@ -28,10 +28,10 @@ public class RouterProvider implements Provider<Router> {
       cache = new Router();
 
       cache.put("index", new IndexRoute(inflater, stage));
-      cache.put("timetableView", new ControllerRoute(stage, 0));
-      cache.put("pdfTimetables", new ControllerRoute(stage, 1));
-      cache.put("partialTimetables", new ControllerRoute(stage, 2));
-      cache.put("unsatCore", new ControllerRoute(stage, 5));
+      cache.put("timetableView", new ControllerRoute(stage, "tabTimetable"));
+      cache.put("pdfTimetables", new ControllerRoute(stage, "tabPdfTimetables"));
+      cache.put("partialTimetables", new ControllerRoute(stage, "tabPartialTimetables"));
+      cache.put("unsatCore", new ControllerRoute(stage, "tabUnsatCore"));
     }
 
     return cache;
