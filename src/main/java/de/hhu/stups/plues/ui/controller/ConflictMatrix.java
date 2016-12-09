@@ -251,10 +251,15 @@ public class ConflictMatrix extends GridPane implements Initializable {
     if (!standaloneCourses.isEmpty()) {
       initializeGridPaneStandalone();
       accordionConflictMatrices.setExpandedPane(titledPaneStandaloneCourses);
+    } else {
+      titledPaneStandaloneCourses.setVisible(false);
     }
     if (!combinableMajorCourses.isEmpty() && !combinableMinorCourses.isEmpty()) {
       initializeGridPaneCombinable();
       accordionConflictMatrices.setExpandedPane(titledPaneCombinableCourses);
+    } else {
+      titledPaneCombinableCourses.setVisible(false);
+      titledPaneSingleCourses.visibleProperty().bind(titledPaneCombinableCourses.visibleProperty());
     }
     initializeGridPaneSingleCourse();
     highlightImpossibleCombinations();

@@ -9,7 +9,8 @@
     <CombinationOrSingleCourseSelection fx:id="combinationOrSingleCourseSelection"/>
     <HBox>
         <Button fx:id="btCheckFeasibility" onAction="#checkFeasibility" text="%checkFeasibility"/>
-        <Button fx:id="btUnhighlightAllConflicts" text="%unhighlightConflicts" visible="false" onAction="#unhighlightConflicts"/>
+        <Button fx:id="btUnhighlightAllConflicts" text="%unhighlightConflicts" visible="false"
+                onAction="#unhighlightConflicts"/>
     </HBox>
     <ScrollPane fx:id="scrollPaneResults" prefHeight="400.0">
         <VBox fx:id="resultBoxWrapper"/>

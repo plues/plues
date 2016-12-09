@@ -12,8 +12,6 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
