@@ -38,6 +38,8 @@ import javafx.scene.layout.GridPane;
 
 import java.net.URL;
 import java.time.DayOfWeek;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -158,10 +160,11 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
     if (resultState.equals(ResultState.FAILED)) {
       selectTabById("tabConflict");
       checkCourseFeasibility.selectCourses(courses);
+      setOfCourseSelection.setSelectedCourses(Collections.emptyList());
     } else {
       selectTabById("tabFilters");
+      setOfCourseSelection.setSelectedCourses(Arrays.asList(courses));
     }
-    // Todo: highlight courses in the timetable
   }
 
   private void selectTabById(final String tabId) {
