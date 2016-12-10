@@ -21,13 +21,13 @@
         <left>
             <VBox spacing="20">
                 <TabPane fx:id="tabPaneSide" side="LEFT">
-                    <Tab id="tabFilters" text="Filters" closable="false" >
+                    <Tab id="tabCourseFilters" text="Filters" closable="false" >
                         <VBox>
                             <SetOfCourseSelection fx:id="setOfCourseSelection"/>
                             <AbstractUnitFilter fx:id="abstractUnitFilter" />
                         </VBox>
                     </Tab>
-                    <Tab id="tabConflict" text="Check" closable="false">
+                    <Tab id="tabCheckFeasibility" text="Check" closable="false">
                         <CheckCourseFeasibility fx:id="checkCourseFeasibility"/>
                     </Tab>
                 </TabPane>

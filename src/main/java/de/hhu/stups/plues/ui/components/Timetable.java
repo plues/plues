@@ -157,13 +157,19 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
   public void activateController(Object... args) {
     final Course[] courses = (Course[]) args[0];
     final ResultState resultState = (ResultState) args[1];
-    if (resultState.equals(ResultState.FAILED)) {
-      selectTabById("tabConflict");
-      checkCourseFeasibility.selectCourses(courses);
-      setOfCourseSelection.setSelectedCourses(Collections.emptyList());
-    } else {
-      selectTabById("tabFilters");
-      setOfCourseSelection.setSelectedCourses(Arrays.asList(courses));
+    setOfCourseSelection.setSelectedCourses(Arrays.asList(courses));
+    switch (resultState) {
+      case FAILED:
+        selectTabById("tabCheckFeasibility");
+        checkCourseFeasibility.selectCourses(courses);
+        break;
+      case TIMEOUT:
+        selectTabById("tabCheckFeasibility");
+        checkCourseFeasibility.selectCourses(courses);
+        checkCourseFeasibility.checkFeasibility();
+        break;
+      default:
+        selectTabById("tabCourseFilters");
     }
   }
 

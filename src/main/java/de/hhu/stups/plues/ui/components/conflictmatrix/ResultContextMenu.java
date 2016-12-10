@@ -19,9 +19,10 @@ class ResultContextMenu extends ContextMenu {
   private final MenuItem itemGeneratePartialTimetable;
   private final MenuItem itemComputeConflict;
   private final MenuItem itemGeneratePdf;
+  private final MenuItem itemRecomputeFeasibility;
 
   /**
-   * The contex menu for a {@link ResultGridCell} in the {@link de.hhu.stups.plues.ui.controller
+   * The context menu for a {@link ResultGridCell} in the {@link de.hhu.stups.plues.ui.controller
    * .ConflictMatrix}.
    */
 
@@ -35,6 +36,7 @@ class ResultContextMenu extends ContextMenu {
     itemGeneratePartialTimetable = new MenuItem(resources.getString("generatePartialTimetable"));
     itemComputeConflict = new MenuItem(resources.getString("computeConflict"));
     itemGeneratePdf = new MenuItem(resources.getString("generatePdf"));
+    itemRecomputeFeasibility = new MenuItem(resources.getString("recomputeFeasibility"));
 
     resultState.addListener((observable, oldValue, newValue) -> updateMenu(newValue));
 
@@ -44,6 +46,8 @@ class ResultContextMenu extends ContextMenu {
         router.transitionTo(RouteNames.UNSAT_CORE.getRouteName(), (Object[]) courses));
     itemGeneratePartialTimetable.setOnAction(event ->
         router.transitionTo(RouteNames.PARTIAL_TIMETABLES.getRouteName(), (Object[]) courses));
+    itemRecomputeFeasibility.setOnAction(event ->
+        router.transitionTo(RouteNames.TIMETABLE.getRouteName(), courses, ResultState.TIMEOUT));
   }
 
   private void updateMenu(final ResultState resultState) {
@@ -66,6 +70,9 @@ class ResultContextMenu extends ContextMenu {
         itemShowInTimetable.setOnAction(event ->
             router.transitionTo(RouteNames.TIMETABLE.getRouteName(),
                 courses, ResultState.FAILED));
+        break;
+      case TIMEOUT:
+        getItems().add(itemRecomputeFeasibility);
         break;
       default:
         break;

@@ -486,5 +486,6 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   @Override
   public void activateController(final Object... courses) {
     courseSelection.selectCourses((Course[]) courses);
+    computeUnsatCoreModules();
   }
 }
