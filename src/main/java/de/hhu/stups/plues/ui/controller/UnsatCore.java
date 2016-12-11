@@ -433,12 +433,12 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
                     prefix,
                     e.getKey().getPordnr(),
                     e.getValue().stream()
-                      .sorted()
-                      .map(String::valueOf)
-                      .collect(Collectors.joining(","))))
-                  .collect(Collectors.joining("\n")));
-            }
-          });
+                        .sorted()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(","))))
+                .collect(Collectors.joining("\n")));
+          }
+        });
 
     abstractUnitModuleType.setCellValueFactory(param -> {
       final Set<ModuleAbstractUnitType> maus
@@ -451,11 +451,11 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
 
       // group entries by module and map to the corresponding semesters as a list
       final Map<Module, Character> result = filtered.collect(
-          Collectors.toMap(o -> o.getModule() , o -> o.getType()));
+          Collectors.toMap(ModuleAbstractUnitType::getModule, ModuleAbstractUnitType::getType));
       return new ReadOnlyObjectWrapper<>(result);
     });
-    abstractUnitModuleType.setCellFactory(param
-        -> new TableCell<AbstractUnit, Map<Module, Character>>() {
+    abstractUnitModuleType.setCellFactory(param ->
+        new TableCell<AbstractUnit, Map<Module, Character>>() {
           @Override
           protected void updateItem(final Map<Module, Character> item, final boolean empty) {
             super.updateItem(item, empty);
@@ -466,9 +466,9 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
             final String prefix = getPrefix(item.entrySet());
             setText(item.entrySet().stream()
                 .map(e -> String.format("%s%s: %s",
-                  prefix,
-                  e.getKey().getPordnr(),
-                  e.getValue()))
+                    prefix,
+                    e.getKey().getPordnr(),
+                    e.getValue()))
                 .collect(Collectors.joining("\n")));
           }
         });
