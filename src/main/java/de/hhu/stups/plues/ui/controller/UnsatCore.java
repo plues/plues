@@ -15,10 +15,10 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -195,8 +195,8 @@ public class UnsatCore extends VBox implements Initializable {
     icon.styleProperty().unbind();
     message.textProperty().unbind();
 
-    icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding("25", task));
-    icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
+    icon.graphicProperty().bind(TaskBindings.getIconBinding("25", task));
+    icon.styleProperty().bind(TaskBindings.getStyleBinding(task));
     message.textProperty().bind(Bindings.createStringBinding(() -> {
       final String msg;
       switch (task.getState()) {

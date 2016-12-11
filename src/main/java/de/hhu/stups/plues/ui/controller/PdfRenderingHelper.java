@@ -48,7 +48,6 @@ import javax.xml.parsers.SAXParserFactory;
 
 public class PdfRenderingHelper {
 
-  private static final String ICON_SIZE = "50";
   private static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
   private static final String MSG = "Error! Copying of temporary file into target file failed.";
 
@@ -166,105 +165,6 @@ public class PdfRenderingHelper {
    */
   private static String getDocumentName(final Course course) {
     return "musterstudienplan_" + course.getName() + ".pdf";
-  }
-
-  /**
-   * Wrapper for collecting the icon binding for a given task that uses the default icon size.
-   *
-   * @param task Given task
-   * @return Object binding depending on the tasks state
-   */
-  public static ObjectBinding<Text> getIconBinding(final PdfRenderingTask task) {
-    return getIconBinding(ICON_SIZE, task);
-  }
-
-  /**
-   * Collect icon binding for a given task and given icon size. Depends on how the task behaves.
-   *
-   * @param task      Given task
-   * @param iconSize The given icon size.
-   * @return Object binding depending on the tasks state
-   */
-  public static ObjectBinding<Text> getIconBinding(final String iconSize,
-                                                   final Task<?> task) {
-    return Bindings.createObjectBinding(() -> {
-      final FontAwesomeIcon symbol = getIcon(task);
-      if (symbol == null) {
-        return null;
-      }
-
-      final FontAwesomeIconFactory iconFactory = FontAwesomeIconFactory.get();
-      return iconFactory.createIcon(symbol, iconSize);
-
-    }, task.stateProperty());
-  }
-
-  private static FontAwesomeIcon getIcon(final Task<?> task) {
-    final FontAwesomeIcon symbol;
-
-    switch (task.getState()) {
-      case SUCCEEDED:
-        symbol = FontAwesomeIcon.CHECK;
-        break;
-      case CANCELLED:
-        symbol = FontAwesomeIcon.QUESTION;
-        break;
-      case FAILED:
-        symbol = FontAwesomeIcon.REMOVE;
-        break;
-      case READY:
-      case SCHEDULED:
-        symbol = FontAwesomeIcon.DOT_CIRCLE_ALT;
-        break;
-      case RUNNING:
-      default:
-        symbol = FontAwesomeIcon.CLOCK_ALT;
-        break;
-    }
-    return symbol;
-  }
-
-  /**
-   * Collect string binding for given task.
-   *
-   * @param task Given task
-   * @return String binding depending on the tasks state
-   */
-  public static StringBinding getStyleBinding(final Task<?> task) {
-    return Bindings.createStringBinding(() -> {
-      final String color = getColor(task);
-
-      if (color == null) {
-        return "";
-      }
-      return "-fx-background-color: " + color;
-    }, task.stateProperty());
-  }
-
-  private static String getColor(final Task<?> task) {
-    final TaskStateColor color;
-
-    switch (task.getState()) {
-      case SUCCEEDED:
-        color = TaskStateColor.SUCCESS;
-        break;
-      case CANCELLED:
-        color = TaskStateColor.WARNING;
-        break;
-      case FAILED:
-        color = TaskStateColor.FAILURE;
-        break;
-      case READY:
-        color = TaskStateColor.READY;
-        break;
-      case SCHEDULED:
-        color = TaskStateColor.SCHEDULED;
-        break;
-      case RUNNING:
-      default:
-        color = TaskStateColor.WORKING;
-    }
-    return color.getColor();
   }
 
   /**

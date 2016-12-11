@@ -13,6 +13,7 @@ import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
@@ -203,8 +204,8 @@ public class PartialTimeTables extends GridPane implements Initializable {
 
       task.setOnCancelled(event -> checkStarted.set(false));
 
-      icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
-      icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(task));
+      icon.styleProperty().bind(TaskBindings.getStyleBinding(task));
+      icon.graphicProperty().bind(TaskBindings.getIconBinding(task));
 
 
       executor.submit(task);
