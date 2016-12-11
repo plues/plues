@@ -8,6 +8,7 @@ import de.be4.classicalb.core.parser.exceptions.BException;
 import de.hhu.stups.plues.keys.OperationPredicateKey;
 import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.IEvalElement;
+import de.prob.exception.ProBError;
 import de.prob.scripting.Api;
 import de.prob.statespace.StateSpace;
 import de.prob.statespace.Trace;
@@ -87,7 +88,8 @@ public class ProBSolver implements Solver {
     return tracefromSpace;
   }
 
-  private SolverResult executeOperation(final String op, final String predicate) {
+  private SolverResult executeOperation(final String op, final String predicate)
+      throws SolverException {
 
     final OperationPredicateKey key = new OperationPredicateKey(op, predicate);
     synchronized (operationExecutionCache) {
@@ -105,28 +107,32 @@ public class ProBSolver implements Solver {
     //
     final SolverResult solverResult = new SolverResult();
 
-    stateSpace.execute(cmd);
+    try {
+      stateSpace.execute(cmd);
+      if (cmd.isInterrupted() || !cmd.isCompleted()) {
+        solverResult.setState(ResultState.INTERRUPTED);
 
-    if (cmd.isInterrupted() || !cmd.isCompleted()) {
-      solverResult.setState(ResultState.INTERRUPTED);
+        logger.debug(String.format("RESULT %s %s = TIMEOUT/CANCEL // interrupted %s completed %s",
+            op, predicate, cmd.isInterrupted(), cmd.isCompleted()));
+        return solverResult;
+      } else if (cmd.hasErrors()) {
+        solverResult.setState(ResultState.FAILED);
+        cmd.getErrors().forEach(logger::error);
+      } else {
+        solverResult.setState(ResultState.SUCCEEDED);
 
-      logger.debug(String.format("RESULT %s %s = TIMEOUT/CANCEL // interrupted %s completed %s",
-          op, predicate, cmd.isInterrupted(), cmd.isCompleted()));
-      return solverResult;
-    } else if (cmd.hasErrors()) {
-      solverResult.setState(ResultState.FAILED);
-      cmd.getErrors().forEach(logger::error);
-    } else {
-      solverResult.setState(ResultState.SUCCEEDED);
+        trace = trace.addTransitions(cmd.getNewTransitions());
 
-      trace = trace.addTransitions(cmd.getNewTransitions());
+        final List<BObject> res = getOperationReturnValue();
+        solverResult.setValue(res);
+      }
 
-      final List<BObject> res = getOperationReturnValue();
-      solverResult.setValue(res);
-    }
-
-    synchronized (operationExecutionCache) {
-      operationExecutionCache.put(key, solverResult);
+      synchronized (operationExecutionCache) {
+        operationExecutionCache.put(key, solverResult);
+      }
+    } catch (final ProBError error) {
+      logger.error("Error in ProB", error);
+      throw new SolverException(error.getMessage());
     }
 
 
@@ -205,10 +211,12 @@ public class ProBSolver implements Solver {
    * @return Return true if the combination is feasible otherwise false.
    */
   @Override
-  public final synchronized Boolean checkFeasibility(final String... courses) {
+  public final synchronized Boolean checkFeasibility(final String... courses)
+      throws SolverException {
 
     final String predicate = getFeasibilityPredicate(courses);
     final SolverResult result = executeOperation(CHECK, predicate);
+
     return result.succeeded();
   }
 
@@ -369,7 +377,7 @@ public class ProBSolver implements Solver {
    */
   @Override
   public final synchronized void move(final String sessionId,
-                                      final String day, final String slot) {
+                                      final String day, final String slot) throws SolverException {
     final String predicate
         = "session=session" + sessionId + " & dow=" + day + " & slot=slot" + slot;
     executeOperation(MOVE, predicate);
