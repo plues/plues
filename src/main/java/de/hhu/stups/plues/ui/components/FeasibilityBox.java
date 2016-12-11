@@ -153,7 +153,7 @@ public class FeasibilityBox extends VBox implements Initializable {
       }));
 
       feasibilityTask.setOnFailed(event -> {
-        cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
+        cbAction.setItems(getActionsForInfeasibleCourse());
         cbAction.getSelectionModel().selectFirst();
       });
 

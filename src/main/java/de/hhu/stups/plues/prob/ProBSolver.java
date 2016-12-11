@@ -217,7 +217,11 @@ public class ProBSolver implements Solver {
     final String predicate = getFeasibilityPredicate(courses);
     final SolverResult result = executeOperation(CHECK, predicate);
 
-    return result.succeeded();
+    if (!result.succeeded()) {
+      throw new SolverException("Could not execute operation " + CHECK + " - " + predicate);
+    }
+
+    return true;
   }
 
   /**

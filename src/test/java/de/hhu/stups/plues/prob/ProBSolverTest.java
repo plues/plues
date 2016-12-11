@@ -154,13 +154,24 @@ public class ProBSolverTest {
     assertTrue(solver.getOperationExecutionCache().containsKey(key));
   }
 
-  @Test
+  @Test(expected = SolverException.class)
   public void checkFeasibilityInfeasibleCourse() throws Exception {
     setupOperationCannotBeExecuted("check", "ccss={\"NoFoo\", \"NoBar\"}");
-    assertFalse(solver.checkFeasibility("NoFoo", "NoBar"));
-    final OperationPredicateKey key
-        = new OperationPredicateKey("check", "ccss={\"NoFoo\", \"NoBar\"}");
-    assertTrue(solver.getOperationExecutionCache().containsKey(key));
+    solver.checkFeasibility("NoFoo", "NoBar");
+  }
+
+  @Test
+  public void checkFeasibilityInfeasibleCourseCache() throws Exception {
+    setupOperationCannotBeExecuted("check", "ccss={\"NoFoo\", \"NoBar\"}");
+    try {
+      solver.checkFeasibility("NoFoo", "NoBar");
+    } catch (final SolverException ignored) {
+      // ignored
+    } finally {
+      final OperationPredicateKey key
+          = new OperationPredicateKey("check", "ccss={\"NoFoo\", \"NoBar\"}");
+      assertTrue(solver.getOperationExecutionCache().containsKey(key));
+    }
   }
 
 

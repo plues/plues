@@ -76,6 +76,13 @@ public class SolverService {
             : ResultState.FAILED);
       }
     });
+    checkFeasibilityTask.addEventHandler(WORKER_STATE_FAILED, event -> {
+      if (langTimeout.equals(checkFeasibilityTask.getReason())) {
+        addCourseResult(names, ResultState.TIMEOUT);
+      } else {
+        addCourseResult(names, ResultState.FAILED);
+      }
+    });
     return checkFeasibilityTask;
   }
 
