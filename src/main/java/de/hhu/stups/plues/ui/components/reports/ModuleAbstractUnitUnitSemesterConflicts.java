@@ -64,7 +64,7 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
     modules = new SimpleListProperty<>(FXCollections.observableArrayList());
     moduleAbstractUnitUnitSemesterConflicts = FXCollections.observableHashMap();
 
-    inflater.inflate("/components/reports/ModuleAbstractUnitUnitSemesterConflicts",
+    inflater.inflate("components/reports/ModuleAbstractUnitUnitSemesterConflicts",
         this, this, "reports", "Column");
   }
 

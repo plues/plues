@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" font-family="sans-serif">
+    <fo:layout-master-set>
+        <fo:simple-page-master master-name="hoch" page-width="21.0cm" page-height="29.7cm" margin="1cm">
+            <fo:region-body extent="1cm"/>
+        </fo:simple-page-master>
+        <fo:simple-page-master master-name="quer" page-width="29.7cm" page-height="21.0cm" margin="1cm">
+            <fo:region-body extent="1cm"/>
+        </fo:simple-page-master>
+        <fo:simple-page-master master-name="first" page-width="21.0cm" page-height="29.7cm" margin="1cm">
+            <fo:region-body extent="1cm"/>
+        </fo:simple-page-master>
+    </fo:layout-master-set>
+    <fo:page-sequence master-reference="first">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block text-align="right">
+                <fo:inline>
+                    <fo:external-graphic src="{{ logo }}"
+                                     content-height="5cm" content-width="7cm"/>
+                </fo:inline>
+            </fo:block>
+            <fo:block text-align="center" font-size="50pt" font-weight="bold">
+                Bericht von PlÜS
+            </fo:block>
+            <fo:block text-align="center" font-size="30pt" font-style="italic">
+                {{ faculty }}
+            </fo:block>
+            <fo:block text-align="center" font-size="30pt" font-style="italic">
+                {{ date }}
+            </fo:block>
+        </fo:flow>
+    </fo:page-sequence>
+    <fo:page-sequence master-reference="hoch">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block font-size="18pt">
+                1. {{ resources.get("title.ImpossibleModules") }}
+            </fo:block>
+            {% if incompleteModules|length > 0 %}
+                {% include '/ui/controller/IncompleteModules.twig' with { modules: incompleteModules, resources: resources } only  %}
+            {% endif %}
+            {% if impossibleModulesBecauseOfMissingElectiveAbstractUnits|length > 0 %}
+                {% include '/ui/controller/ImpossibleModulesBecauseOfMissingElectiveAbstractUnits.twig' with
+                    { modules: impossibleModulesBecauseOfMissingElectiveAbstractUnits, resources: resources } only %}
+            {% endif %}
+        </fo:flow>
+    </fo:page-sequence>
+    <fo:page-sequence master-reference="hoch">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block font-size="18pt">
+                2. {{ resources.get("title.ImpossibleCourses") }}
+            </fo:block>
+            {% if impossibleCourses|length > 0 %}
+                {% include '/ui/controller/ImpossibleCourses.twig' with
+                    { courses: impossibleCourses, resources: resources } only %}
+           {% endif %}
+           {% if impossibleCoursesBecauseOfImpossibleModules|length > 0 %}
+                {% include '/ui/controller/ImpossibleCoursesBecauseOfImpossibleModules.twig' with
+                    { courses: impossibleCoursesBecauseOfImpossibleModules, resources: resources } only %}
+           {% endif %}
+           {% if impossibleCoursesBecauseOfImpossibleModuleCombinations|length > 0 %}
+                {% include '/ui/controller/ImpossibleCoursesBecauseOfImpossibleModuleCombinations.twig' with
+                    { courses: impossibleCoursesBecauseOfImpossibleModuleCombinations, resources: resources } only %}
+           {% endif %}
+        </fo:flow>
+    </fo:page-sequence>
+    <fo:page-sequence master-reference="hoch">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block font-size="18pt">
+                3. {{ resources.get("title.AbstractUnits") }}
+            </fo:block>
+            {% if abstractUnitsWithoutUnits|length > 0 %}
+                {% include '/ui/controller/AbstractUnitsWithoutUnits.twig' with
+                    { abstractUnits: abstractUnitsWithoutUnits, resources: resources } only %}
+           {% endif %}
+        </fo:flow>
+    </fo:page-sequence>
+    <fo:page-sequence master-reference="hoch">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block font-size="18pt">
+                4. {{ resources.get("title.UnitsWithoutAbstractUnits") }}
+            </fo:block>
+            {% if unitsWithoutAbstractUnits|length > 0 %}
+                {% include '/ui/controller/UnitsWithoutAbstractUnits.twig' with
+                    { units: unitsWithoutAbstractUnits, resources: resources } only %}
+            {% endif %}
+        </fo:flow>
+    </fo:page-sequence>
+    <fo:page-sequence master-reference="quer">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block font-size="18pt">
+                5. {{ resources.get("title.AbstractUnitsWithUnits") }}
+            </fo:block>
+            {% if moduleAbstractUnitUnitSemesterConflicts|length > 0 %}
+                {% include '/ui/controller/ModuleAbstractUnitUnitSemesterConflicts.twig' with
+                    { modules: moduleAbstractUnitUnitSemesterConflicts, resources: resources } only %}
+            {% endif %}
+        </fo:flow>
+    </fo:page-sequence>
+    <fo:page-sequence master-reference="quer">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block font-size="18pt">
+                6. {{ resources.get("title.MandatoryModules") }}
+            </fo:block>
+            {% if mandatoryModules|length > 0 %}
+                {% include '/ui/controller/MandatoryModules.twig' with
+                    { modules: mandatoryModules, resources: resources } only %}
+            {% endif %}
+        </fo:flow>
+    </fo:page-sequence>
+    <fo:page-sequence master-reference="quer">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block font-size="18pt">
+                7. {{ resources.get("title.QuasiMandatoryModules") }}
+            </fo:block>
+            {% if quasiMandatoryModuleAbstractUnits|length > 0 %}
+                {% include '/ui/controller/QuasiMandatoryModuleAbstractUnits.twig' with
+                    { modules: quasiMandatoryModuleAbstractUnits, resources: resources } only %}
+           {% endif %}
+        </fo:flow>
+    </fo:page-sequence>
+    <fo:page-sequence master-reference="hoch">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block font-size="18pt">
+                8. {{ resources.get("title.RedundantUnitGroups") }}
+            </fo:block>
+            {% if redundantUnitGroups|length > 0 %}
+                {% include '/ui/controller/RedundantUnitGroups.twig' with
+                    { units: redundantUnitGroups, resources: resources } only %}
+           {% endif %}
+        </fo:flow>
+    </fo:page-sequence>
+    <fo:page-sequence master-reference="quer">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block font-size="18pt">
+                9. {{ resources.get("title.ImpossibleCourseModuleAbstractUnits") }}
+            </fo:block>
+            {% if impossibleCourseModuleAbstractUnits|length > 0 %}
+                {% include '/ui/controller/ImpossibleCourseModuleAbstractUnits.twig' with
+                    { courses: impossibleCourseModuleAbstractUnits, resources: resources } only %}
+            {% endif %}
+        </fo:flow>
+    </fo:page-sequence>
+    <fo:page-sequence master-reference="quer">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block font-size="18pt">
+                10. {{ resources.get("title.ImpossibleCourseModuleAbstractUnitPairs") }}
+            </fo:block>
+            {% if impossibleCourseModuleAbstractUnitPairs|length > 0 %}
+                {% include '/ui/controller/ImpossibleCourseModuleAbstractUnitPairs.twig' with
+                    { courses: impossibleCourseModuleAbstractUnitPairs, resources: resources } only %}
+           {% endif %}
+        </fo:flow>
+    </fo:page-sequence>
+</fo:root>

@@ -1,13 +1,12 @@
-package de.hhu.stups.plues.prob.report;
+package de.hhu.stups.plues.prob;
 
 import java.util.Objects;
 
-@SuppressWarnings("unused")
 public class Pair<T> {
   private final T second;
   private final T first;
 
-  public Pair(final T first, final T second) {
+  Pair(final T first, final T second) {
     this.first = first;
     this.second = second;
   }

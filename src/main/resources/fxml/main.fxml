@@ -64,6 +64,8 @@
         <Menu mnemonicParsing="false" text="%help">
             <MenuItem fx:id="aboutMenuItem" onAction="#about" mnemonicParsing="false"
                       text="%about"/>
+            <MenuItem fx:id="handbookMenuItem" onAction="#showHandbook" mnemonicParsing="false"
+                      text="%handbook"/>
         </Menu>
     </MenuBar>
     <BorderPane>
@@ -84,7 +86,7 @@
                 <Tab id="tabConflictMatrix" text="%conflictMatrix" closable="false">
                     <ConflictMatrix fx:id="conflictMatrix"/>
                 </Tab>
-                <Tab id="tabUnsatCore" text="Unsat Core" closable="false">
+                <Tab id="tabUnsatCore" text="%tab.unsatCore" closable="false">
                     <UnsatCore fx:id="unsatCore"/>
                 </Tab>
             </TabPane>

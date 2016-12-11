@@ -3,7 +3,6 @@ package de.hhu.stups.plues.ui.controller;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 
 import de.codecentric.centerdevice.MenuToolkit;
 import de.hhu.stups.plues.Delayed;
@@ -24,7 +23,6 @@ import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -47,14 +45,19 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 import org.controlsfx.control.TaskProgressView;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 
+import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -69,9 +72,9 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+
+import javax.swing.SwingUtilities;
 
 
 @Singleton
@@ -91,7 +94,7 @@ public class MainController implements Initializable {
     iconMap.put(PdfRenderingTask.class, FontAwesomeIcon.FILE_PDF_ALT);
   }
 
-  private final Logger logger = Logger.getLogger(getClass().getName());
+  private final Logger logger = LoggerFactory.logger(getClass());
   private final Delayed<ObservableStore> delayedStore;
   private final Properties properties;
   private final Stage stage;
@@ -188,15 +191,15 @@ public class MainController implements Initializable {
 
     executorService.addObserver((observable, arg) -> this.register(arg));
 
-    logger.log(Level.INFO, "Starting PlÜS Version: " + properties.get("version"));
+    logger.info("Starting PlÜS Version: " + properties.get("version"));
   }
 
   private void register(final Object task) {
     if (task instanceof Task<?>) {
-      logger.log(Level.FINE, "registering task for taskview");
+      logger.trace("registering task for taskview");
       Platform.runLater(() -> this.taskProgress.getTasks().add((Task<?>) task));
     } else {
-      logger.log(Level.FINE, "ignoring task for taskview");
+      logger.trace("ignoring task for taskview");
     }
   }
 
@@ -261,7 +264,7 @@ public class MainController implements Initializable {
           this.resourceManager.close();
         }
       } catch (final InterruptedException exception) {
-        Logger.getAnonymousLogger().log(Level.SEVERE, "Closing resources", exception);
+        logger.error("Closing resources", exception);
         throw new RuntimeException(exception);
       }
     });
@@ -370,9 +373,9 @@ public class MainController implements Initializable {
       Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
           StandardCopyOption.REPLACE_EXISTING);
       uiDataService.setLastSavedDate(new Date());
-      logger.log(Level.INFO, "File saving finished!");
+      logger.info("File saving finished!");
     } catch (final IOException exc) {
-      logger.log(Level.SEVERE, "File saving failed!", exc);
+      logger.error("File saving failed!", exc);
     }
   }
 
@@ -390,9 +393,9 @@ public class MainController implements Initializable {
     if (file != null) {
       try {
         Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(file.getAbsolutePath()));
-        logger.log(Level.INFO, "File saving finished!");
+        logger.info("File saving finished!");
       } catch (final IOException exception) {
-        logger.log(Level.SEVERE, "File saving failed!", exception);
+        logger.error("File saving failed!", exception);
       }
     }
   }
@@ -476,20 +479,20 @@ public class MainController implements Initializable {
     final StoreLoaderTask storeLoader = storeLoaderTaskFactory.create(path);
     //
     storeLoader.progressProperty().addListener(
-        (observable, oldValue, newValue) -> logger.log(Level.FINE, "STORE progress " + newValue));
+        (observable, oldValue, newValue) -> logger.trace("STORE progress " + newValue));
     //
     storeLoader.messageProperty().addListener(
-        (observable, oldValue, newValue) -> logger.log(Level.FINE, "STORE message " + newValue));
+        (observable, oldValue, newValue) -> logger.trace("STORE message " + newValue));
     //
     storeLoader.setOnFailed(event -> {
       final Throwable ex = event.getSource().getException();
-      logger.log(Level.SEVERE, "Database could not be loaded");
+      logger.fatal("Database could not be loaded", ex);
       showCriticalExceptionDialog(ex, "Database could not be loaded");
       Platform.exit();
     });
     //
     storeLoader.setOnSucceeded(
-        value -> logger.log(Level.FINE, "STORE: loading Store succeeded"));
+        value -> logger.trace("STORE: loading Store succeeded"));
 
     storeLoader.setOnSucceeded(event -> Platform.runLater(() -> {
       final ObservableStore s = (ObservableStore) event.getSource().getValue();
@@ -570,7 +573,7 @@ public class MainController implements Initializable {
       try {
         setTimeout(Integer.parseInt(timeout));
       } catch (final NumberFormatException exception) {
-        logger.log(Level.SEVERE, "Incorrect input: " + timeout);
+        logger.error("Incorrect input: " + timeout);
       }
     });
   }
@@ -581,7 +584,7 @@ public class MainController implements Initializable {
    */
   private void setTimeout(final int timeout) {
     solverService.setTimeout(timeout);
-    logger.log(Level.INFO, "Timeout set to " + timeout + " seconds");
+    logger.info("Timeout set to " + timeout + " seconds");
   }
 
   /**
@@ -634,6 +637,44 @@ public class MainController implements Initializable {
     aboutStage.setScene(new Scene(aboutWindow, 550, 400));
     aboutStage.setResizable(false);
     aboutStage.show();
+  }
+
+  @FXML
+  private void showHandbook(final ActionEvent actionEvent) {
+    final String handbook = "doc/handbook.html";
+    final ClassLoader classLoader = MainController.class.getClassLoader();
+
+    try (final InputStream stream = classLoader.getResourceAsStream(handbook)) {
+      // if we didn't find the handbook in the resources try opening online version
+      if (stream == null) {
+        final String url = this.properties.getProperty("handbook-url");
+
+        // open url in browser
+        SwingUtilities.invokeLater(() -> {
+          try {
+            Desktop.getDesktop().browse(new URI(url));
+          } catch (IOException | URISyntaxException exception) {
+            logger.error("browsing to handbook" + handbook, exception);
+          }
+        });
+        return;
+      }
+      //
+      // if we found the handbook, move it to a temporary location and open it from there
+      final Path output = Files.createTempFile("Handbook", ".html");
+      output.toFile().deleteOnExit();
+      Files.copy(stream, output, StandardCopyOption.REPLACE_EXISTING);
+
+      SwingUtilities.invokeLater(() -> {
+        try {
+          Desktop.getDesktop().open(output.toFile());
+        } catch (final IOException exception) {
+          logger.error("showing " + handbook, exception);
+        }
+      });
+    } catch (final IOException exception) {
+      logger.error("showHandbook", exception);
+    }
   }
 
   private class ExportXmlTask extends Task<Void> {

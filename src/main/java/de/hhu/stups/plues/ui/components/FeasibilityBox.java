@@ -9,8 +9,8 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.TaskStateColor;
-import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -145,36 +145,33 @@ public class FeasibilityBox extends VBox implements Initializable {
         feasibilityTask = solver.checkFeasibilityTask(cMajor);
       }
 
+      feasibilityTask.setOnSucceeded(event -> Platform.runLater(() -> {
+        cbAction.setItems(feasibilityTask.getValue()
+            ? FXCollections.observableList(Collections.singletonList(removeString))
+            : getActionsForInfeasibleCourse());
+        cbAction.getSelectionModel().selectFirst();
+      }));
+
+      feasibilityTask.setOnFailed(event -> {
+        cbAction.setItems(getActionsForInfeasibleCourse());
+        cbAction.getSelectionModel().selectFirst();
+      });
+
+      feasibilityTask.setOnCancelled(event -> {
+        cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
+        cbAction.getSelectionModel().selectFirst();
+      });
+
       progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
       progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
+      //
+      lbIcon.visibleProperty().bind(feasibilityTask.runningProperty().not());
+      lbIcon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, feasibilityTask));
+      lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(feasibilityTask));
+
 
       executorService.submit(feasibilityTask);
     });
-
-    feasibilityTask.setOnSucceeded(event -> Platform.runLater(() -> {
-      cbAction.setItems(feasibilityTask.getValue()
-          ? FXCollections.observableList(Collections.singletonList(removeString))
-          : getActionsForInfeasibleCourse());
-      cbAction.getSelectionModel().selectFirst();
-    }));
-
-    feasibilityTask.setOnFailed(event -> {
-      cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
-      cbAction.getSelectionModel().selectFirst();
-    });
-
-    feasibilityTask.setOnCancelled(event -> {
-      cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
-      cbAction.getSelectionModel().selectFirst();
-    });
-
-    progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
-    progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
-
-    lbIcon.visibleProperty().bind(feasibilityTask.runningProperty().not());
-    lbIcon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(ICON_SIZE, feasibilityTask));
-    lbIcon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(feasibilityTask));
-
 
     cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancelString)));
     cbAction.getSelectionModel().selectFirst();

@@ -21,6 +21,8 @@
         <Label fx:id="group" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
         <Label text="%semesters" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
         <Label fx:id="semesters" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        <Label text="%tentative" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+        <Label fx:id="tentative" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
     </GridPane>
     <Label/>
     <Label text="%course"/>

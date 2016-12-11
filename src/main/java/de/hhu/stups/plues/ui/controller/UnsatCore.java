@@ -10,10 +10,12 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
+import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -101,11 +103,15 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   @FXML
   private TableColumn<Module, String> moduleNameColumn;
   @FXML
+  private TableColumn<Module, Boolean> moduleTypeColumn;
+  @FXML
   private TableColumn<AbstractUnit, String> abstractUnitKeyColumn;
   @FXML
   private TableColumn<AbstractUnit, String> abstractUnitTitleColumn;
   @FXML
   private TableColumn<AbstractUnit, Map<Module, List<Integer>>> abstractUnitModuleSemester;
+  @FXML
+  private TableColumn<AbstractUnit, Map<Module, Character>> abstractUnitModuleType;
   @FXML
   private TableColumn<Group, String> groupUnitKeyColumn;
   @FXML
@@ -163,7 +169,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     delayedStore.whenAvailable(this.store::set);
     delayedSolverService.whenAvailable(this.solverService::set);
 
-    inflater.inflate("UnsatCore", this, this, "unsatCore", "Column");
+    inflater.inflate("UnsatCore", this, this, "unsatCore", "Column", "Days");
   }
 
   /**
@@ -190,8 +196,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     icon.styleProperty().unbind();
     message.textProperty().unbind();
 
-    icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding("25", task));
-    icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
+    icon.graphicProperty().bind(TaskBindings.getIconBinding("25", task));
+    icon.styleProperty().bind(TaskBindings.getStyleBinding(task));
     message.textProperty().bind(Bindings.createStringBinding(() -> {
       final String msg;
       switch (task.getState()) {
@@ -305,7 +311,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     initializeCourses();
     initializeModules();
     initializeAbstractUnits();
-    initializeGroups();
+    initializeGroups(resources);
     initializeSessions();
     // buttons
     unsatCoreModulesButton.disableProperty().bind(
@@ -329,7 +335,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
         -> Bindings.selectString(param, "value", "group", "unit", "title"));
   }
 
-  private void initializeGroups() {
+  private void initializeGroups(final ResourceBundle resources) {
     groupsPane.visibleProperty().bind(groups.emptyProperty().not());
     groupsTable.itemsProperty().bind(groups);
     groupUnitKeyColumn.setCellValueFactory(param
@@ -352,7 +358,12 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
         }
         final String prefix = getPrefix(item);
         setText(item.stream()
-            .map(s -> String.format("%s%s - %d\n", prefix, s.getDay(), s.getTime()))
+            .map(s -> {
+              String dayString = resources.getString(s.getDay());
+              String timeString = String.valueOf(6 + s.getTime() * 2) + ":30";
+
+              return String.format("%s%s - %s\n", prefix, dayString, timeString);
+            })
             .reduce(String::concat).orElse("??"));
       }
     });
@@ -422,9 +433,42 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
                     prefix,
                     e.getKey().getPordnr(),
                     e.getValue().stream()
-                        .sorted()
-                        .map(String::valueOf)
-                        .collect(Collectors.joining(","))))
+                      .sorted()
+                      .map(String::valueOf)
+                      .collect(Collectors.joining(","))))
+                  .collect(Collectors.joining("\n")));
+            }
+          });
+
+    abstractUnitModuleType.setCellValueFactory(param -> {
+      final Set<ModuleAbstractUnitType> maus
+          = param.getValue().getModuleAbstractUnitTypes();
+
+      // filter ModuleAbstractUnitSemester by those modules in the current unsat core
+      final Stream<ModuleAbstractUnitType> filtered = maus.stream().filter(
+          moduleAbstractUnitType
+              -> this.modules.contains(moduleAbstractUnitType.getModule()));
+
+      // group entries by module and map to the corresponding semesters as a list
+      final Map<Module, Character> result = filtered.collect(
+          Collectors.toMap(o -> o.getModule() , o -> o.getType()));
+      return new ReadOnlyObjectWrapper<>(result);
+    });
+    abstractUnitModuleType.setCellFactory(param
+        -> new TableCell<AbstractUnit, Map<Module, Character>>() {
+          @Override
+          protected void updateItem(final Map<Module, Character> item, final boolean empty) {
+            super.updateItem(item, empty);
+            if (item == null || empty) {
+              setText(null);
+              return;
+            }
+            final String prefix = getPrefix(item.entrySet());
+            setText(item.entrySet().stream()
+                .map(e -> String.format("%s%s: %s",
+                  prefix,
+                  e.getKey().getPordnr(),
+                  e.getValue()))
                 .collect(Collectors.joining("\n")));
           }
         });
@@ -435,6 +479,18 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     modulesTable.itemsProperty().bind(modules);
     modulePordnrColumn.setCellValueFactory(new PropertyValueFactory<>("pordnr"));
     moduleNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+    moduleTypeColumn.setCellValueFactory(new PropertyValueFactory<>("mandatory"));
+    moduleTypeColumn.setCellFactory(param -> new TableCell<Module, Boolean>() {
+      @Override
+      protected void updateItem(final Boolean item, final boolean empty) {
+        super.updateItem(item, empty);
+        if (item == null || empty) {
+          setText(null);
+          return;
+        }
+        setText(item ? "✔︎" : "✗");
+      }
+    });
   }
 
   private void initializeCourses() {

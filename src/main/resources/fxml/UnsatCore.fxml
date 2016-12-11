@@ -9,17 +9,19 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
 <?import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection?>
-<fx:root prefHeight="600.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-    <ScrollPane fitToHeight="true" fitToWidth="true">
+<fx:root prefHeight="600.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1">
+    <ScrollPane fitToHeight="false" fitToWidth="true" hbarPolicy="NEVER" pannable="true" vbarPolicy="ALWAYS">
         <VBox>
-            <Label text="%unsatCore">
-                <font>
-                    <Font size="30.0" />
-                </font>
-            </Label>
+            <Label styleClass="h1" text="%unsatCore" />
+            <Label text="%unsatCoreExplanation" wrapText="true" />
+            <Separator prefWidth="200.0">
+                <padding>
+                    <Insets bottom="10.0" top="10.0" />
+                </padding>
+            </Separator>
             <CombinationOrSingleCourseSelection fx:id="courseSelection"/>
             <HBox>
                 <Button fx:id="unsatCoreModulesButton" disable="true" onAction="#computeUnsatCoreModules" text="%button.unsatCoreModules" />
@@ -32,11 +34,16 @@
                         <Insets bottom="10.0" top="10.0" />
                     </padding>
                 </Separator>
-                <Label text="%modulesPaneTitle" />
-                <TableView fx:id="modulesTable" prefHeight="200">
+                <Label styleClass="h2" text="%modulesPaneTitle" />
+                <Label text="%modulesPaneExplanation" wrapText="true" />
+                <TableView fx:id="modulesTable" minHeight="400.0" VBox.vgrow="NEVER">
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
                     <columns>
-                        <TableColumn fx:id="modulePordnrColumn" minWidth="50" prefWidth="100" text="%columnPordnr" />
-                        <TableColumn fx:id="moduleNameColumn" minWidth="200" text="%columnName" />
+                        <TableColumn fx:id="modulePordnrColumn" maxWidth="300" minWidth="100" prefWidth="-1.0" text="%columnPordnr" />
+                        <TableColumn fx:id="moduleNameColumn" maxWidth="1.7976931348623157E308" minWidth="200" prefWidth="-1.0" text="%columnName" />
+                        <TableColumn fx:id="moduleTypeColumn" maxWidth="200" minWidth="100" text="%columnElectability" />
                     </columns>
                 </TableView>
                 <HBox>
@@ -52,12 +59,18 @@
                     </padding>
                 </Separator>
 
-                <Label text="%abstractUnitsPaneTitle" />
-                <TableView fx:id="abstractUnitsTable" prefHeight="200">
+                <Label styleClass="h2" text="%abstractUnitsPaneTitle" />
+                <Text text="%abstractUnitsPaneExplanation" />
+
+                <TableView fx:id="abstractUnitsTable" minHeight="400" VBox.vgrow="NEVER">
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
                     <columns>
-                        <TableColumn fx:id="abstractUnitKeyColumn" minWidth="50" prefWidth="100" text="%columnKey" />
-                        <TableColumn fx:id="abstractUnitTitleColumn" minWidth="200" text="%columnTitle" />
-                        <TableColumn fx:id="abstractUnitModuleSemester" minWidth="200" text="%columnSemesters" />
+                        <TableColumn fx:id="abstractUnitKeyColumn" maxWidth="-1.0" minWidth="200.0" prefWidth="-1.0" resizable="false" text="%columnKey" />
+                        <TableColumn fx:id="abstractUnitTitleColumn" maxWidth="1.7976931348623157E308" minWidth="200" prefWidth="-1.0" text="%columnTitle" />
+                        <TableColumn fx:id="abstractUnitModuleSemester" maxWidth="-1.0" minWidth="200.0" prefWidth="-1.0" resizable="false" text="%columnSemesters" />
+                        <TableColumn fx:id="abstractUnitModuleType" maxWidth="-1.0" minWidth="200.0" prefWidth="-1.0" resizable="false" text="%columnType" />
                     </columns>
                 </TableView>
                 <HBox>
@@ -72,14 +85,18 @@
                         <Insets bottom="10.0" top="10.0" />
                     </padding>
                 </Separator>
-                <Label text="%groupsPaneTitle" />
-                <TableView fx:id="groupsTable" prefHeight="200">
+                <Label styleClass="h2" text="%groupsPaneTitle" />
+                <Text text="%groupsPaneExplanation" />
+                <TableView fx:id="groupsTable" minHeight="400.0" VBox.vgrow="NEVER">
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
                     <columns>
-                        <TableColumn fx:id="groupUnitKeyColumn" minWidth="50" prefWidth="100" text="%columnKey" />
-                        <TableColumn fx:id="groupUnitTitleColumn" minWidth="200" text="%columnTitle" />
-                        <TableColumn fx:id="groupUnitSemestersColumn" minWidth="200" text="%groupUnitSemestersColumn" />
-                        <TableColumn fx:id="groupSessionsColumn" minWidth="200" text="%columnGroup" />
-                        <TableColumn fx:id="groupAbstractUnits" minWidth="200" text="%groupAbstractUnits" />
+                        <TableColumn fx:id="groupUnitKeyColumn" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" text="%columnKey" />
+                        <TableColumn fx:id="groupUnitTitleColumn" maxWidth="1.7976931348623157E308" minWidth="200" prefWidth="-1.0" text="%columnTitle" />
+                        <TableColumn fx:id="groupUnitSemestersColumn" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" text="%groupUnitSemestersColumn" />
+                        <TableColumn fx:id="groupSessionsColumn" maxWidth="-1.0" minWidth="200" prefWidth="-1.0" text="%columnGroup" />
+                        <TableColumn fx:id="groupAbstractUnits" maxWidth="-1.0" minWidth="200.0" prefWidth="-1.0" text="%groupAbstractUnits" />
                     </columns>
                 </TableView>
                 <HBox>
@@ -94,13 +111,14 @@
                         <Insets bottom="10.0" top="10.0" />
                     </padding>
                 </Separator>
-                <Label text="%sessionsPaneTitle" />
-                <TableView fx:id="sessionsTable" prefHeight="200">
+                <Label styleClass="h2" text="%sessionsPaneTitle" />
+                <Label text="%sessionsPaneExplanation" wrapText="true" />
+                <TableView fx:id="sessionsTable" minHeight="400.0" VBox.vgrow="NEVER">
                     <columns>
-                        <TableColumn fx:id="sessionDayColumn" minWidth="50" prefWidth="100" text="%columnDay" />
-                        <TableColumn fx:id="sessionTimeColumn" minWidth="200" text="%columnTime" />
-                        <TableColumn fx:id="sessionUnitKeyColumn" minWidth="50" prefWidth="100" text="%columnKey" />
-                        <TableColumn fx:id="sessionUnitTitleColumn" minWidth="200" text="%columnTitle" />
+                        <TableColumn fx:id="sessionDayColumn" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" text="%columnDay" />
+                        <TableColumn fx:id="sessionTimeColumn" maxWidth="-1.0" minWidth="-1.0" prefWidth="50.0" text="%columnTime" />
+                        <TableColumn fx:id="sessionUnitKeyColumn" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" text="%columnKey" />
+                        <TableColumn fx:id="sessionUnitTitleColumn" maxWidth="1.7976931348623157E308" minWidth="200" prefWidth="-1.0" text="%columnTitle" />
                     </columns>
                 </TableView>
             </VBox>

@@ -8,6 +8,7 @@ import de.be4.classicalb.core.parser.exceptions.BException;
 import de.hhu.stups.plues.keys.OperationPredicateKey;
 import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.IEvalElement;
+import de.prob.exception.ProBError;
 import de.prob.scripting.Api;
 import de.prob.statespace.StateSpace;
 import de.prob.statespace.Trace;
@@ -15,6 +16,8 @@ import de.prob.statespace.Transition;
 import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,8 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ProBSolver implements Solver {
   private static final String CHECK = "check";
@@ -41,7 +42,7 @@ public class ProBSolver implements Solver {
   private static final String DEFAULT_PREDICATE = "1=1";
   private final StateSpace stateSpace;
   private final SolverCache<SolverResult> operationExecutionCache;
-  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
   private Trace trace;
 
   @Inject
@@ -87,7 +88,8 @@ public class ProBSolver implements Solver {
     return tracefromSpace;
   }
 
-  private SolverResult executeOperation(final String op, final String predicate) {
+  private SolverResult executeOperation(final String op, final String predicate)
+      throws SolverException {
 
     final OperationPredicateKey key = new OperationPredicateKey(op, predicate);
     synchronized (operationExecutionCache) {
@@ -105,32 +107,36 @@ public class ProBSolver implements Solver {
     //
     final SolverResult solverResult = new SolverResult();
 
-    stateSpace.execute(cmd);
+    try {
+      stateSpace.execute(cmd);
+      if (cmd.isInterrupted() || !cmd.isCompleted()) {
+        solverResult.setState(ResultState.INTERRUPTED);
 
-    if (cmd.isInterrupted() || !cmd.isCompleted()) {
-      solverResult.setState(ResultState.INTERRUPTED);
+        logger.debug(String.format("RESULT %s %s = TIMEOUT/CANCEL // interrupted %s completed %s",
+            op, predicate, cmd.isInterrupted(), cmd.isCompleted()));
+        return solverResult;
+      } else if (cmd.hasErrors()) {
+        solverResult.setState(ResultState.FAILED);
+        cmd.getErrors().forEach(logger::error);
+      } else {
+        solverResult.setState(ResultState.SUCCEEDED);
 
-      logger.fine(String.format("RESULT %s %s = TIMEOUT/CANCEL // interrupted %s completed %s",
-          op, predicate, cmd.isInterrupted(), cmd.isCompleted()));
-      return solverResult;
-    } else if (cmd.hasErrors()) {
-      solverResult.setState(ResultState.FAILED);
-      cmd.getErrors().forEach(logger::severe);
-    } else {
-      solverResult.setState(ResultState.SUCCEEDED);
+        trace = trace.addTransitions(cmd.getNewTransitions());
 
-      trace = trace.addTransitions(cmd.getNewTransitions());
+        final List<BObject> res = getOperationReturnValue();
+        solverResult.setValue(res);
+      }
 
-      final List<BObject> res = getOperationReturnValue();
-      solverResult.setValue(res);
+      synchronized (operationExecutionCache) {
+        operationExecutionCache.put(key, solverResult);
+      }
+    } catch (final ProBError error) {
+      logger.error("Error in ProB", error);
+      throw new SolverException(error.getMessage());
     }
 
-    synchronized (operationExecutionCache) {
-      operationExecutionCache.put(key, solverResult);
-    }
 
-
-    logger.fine(String.format("RESULT %s %s = %s", op, predicate, solverResult));
+    logger.debug(String.format("RESULT %s %s = %s", op, predicate, solverResult));
 
     return solverResult;
   }
@@ -140,7 +146,7 @@ public class ProBSolver implements Solver {
     try {
       return trans.getTranslatedReturnValues();
     } catch (final BException exception) {
-      logger.log(Level.SEVERE, "Translator Exception", exception);
+      logger.error("Translator Exception", exception);
       return Collections.emptyList();
     }
   }
@@ -205,11 +211,17 @@ public class ProBSolver implements Solver {
    * @return Return true if the combination is feasible otherwise false.
    */
   @Override
-  public final synchronized Boolean checkFeasibility(final String... courses) {
+  public final synchronized Boolean checkFeasibility(final String... courses)
+      throws SolverException {
 
     final String predicate = getFeasibilityPredicate(courses);
     final SolverResult result = executeOperation(CHECK, predicate);
-    return result.succeeded();
+
+    if (!result.succeeded()) {
+      throw new SolverException("Could not execute operation " + CHECK + " - " + predicate);
+    }
+
+    return true;
   }
 
   /**
@@ -369,7 +381,7 @@ public class ProBSolver implements Solver {
    */
   @Override
   public final synchronized void move(final String sessionId,
-                                      final String day, final String slot) {
+                                      final String day, final String slot) throws SolverException {
     final String predicate
         = "session=session" + sessionId + " & dow=" + day + " & slot=slot" + slot;
     executeOperation(MOVE, predicate);
@@ -386,6 +398,7 @@ public class ProBSolver implements Solver {
 
     final Record result = (Record) this.executeOperationWithOneResult(IMPOSSIBLE_COURSES);
 
+    logger.debug(result.toString());
     return Mappers.mapCourseSet((Set) result.get("courses"));
   }
 

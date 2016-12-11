@@ -8,16 +8,29 @@ import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
+
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.xmlgraphics.util.MimeConstants;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
 import java.awt.Desktop;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,20 +38,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 public class PdfRenderingHelper {
 
-  private static final String ICON_SIZE = "50";
   private static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
   private static final String MSG = "Error! Copying of temporary file into target file failed.";
 
-  private static final Logger logger = Logger.getLogger(PdfRenderingHelper.class.getSimpleName());
+  private static final Logger logger = LoggerFactory.logger(PdfRenderingHelper.class);
 
   private PdfRenderingHelper() {}
 
@@ -53,7 +66,7 @@ public class PdfRenderingHelper {
       try {
         Desktop.getDesktop().open(file.toFile());
       } catch (final IOException exc) {
-        logger.log(Level.INFO, MSG, exc);
+        logger.error(MSG, exc);
         if (callback != null) {
           callback.accept(exc);
         }
@@ -87,7 +100,7 @@ public class PdfRenderingHelper {
       try {
         Files.copy(pdf, Paths.get(file.getAbsolutePath()));
       } catch (final IOException exc) {
-        logger.log(Level.SEVERE, MSG, exc);
+        logger.error(MSG, exc);
 
         if (lbErrorMsg != null) {
           lbErrorMsg.setText(MSG);
@@ -155,103 +168,31 @@ public class PdfRenderingHelper {
   }
 
   /**
-   * Wrapper for collecting the icon binding for a given task that uses the default icon size.
-   *
-   * @param task Given task
-   * @return Object binding depending on the tasks state
+   * Convert OutputStream to pdf using sax.
+   * @param out The output stream to be converted.
+   * @return Finished pdf
+   * @throws SAXException Thrown if problems with sax rendering
+   * @throws ParserConfigurationException  Thrown in cases of parsing problems
+   * @throws IOException IOException
    */
-  public static ObjectBinding<Text> getIconBinding(final PdfRenderingTask task) {
-    return getIconBinding(ICON_SIZE, task);
+  public static ByteArrayOutputStream toPdf(final ByteArrayOutputStream out)
+      throws SAXException, ParserConfigurationException, IOException {
+    final FopFactory fopFactory
+        = FopFactory.newInstance(new File(".").toURI());
+    final ByteArrayOutputStream pdf = new ByteArrayOutputStream();
+    final Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, pdf);
+    //
+    final SAXParserFactory spf = SAXParserFactory.newInstance();
+    spf.setNamespaceAware(true);
+    final SAXParser saxParser = spf.newSAXParser();
+
+    final XMLReader xmlReader = saxParser.getXMLReader();
+    xmlReader.setContentHandler(fop.getDefaultHandler());
+    xmlReader.parse(new InputSource(new ByteArrayInputStream(out.toByteArray())));
+    //
+    return pdf;
   }
 
-  /**
-   * Collect icon binding for a given task and given icon size. Depends on how the task behaves.
-   *
-   * @param task      Given task
-   * @param iconSize The given icon size.
-   * @return Object binding depending on the tasks state
-   */
-  public static ObjectBinding<Text> getIconBinding(final String iconSize,
-                                                   final Task<?> task) {
-    return Bindings.createObjectBinding(() -> {
-      final FontAwesomeIcon symbol = getIcon(task);
-      if (symbol == null) {
-        return null;
-      }
-
-      final FontAwesomeIconFactory iconFactory = FontAwesomeIconFactory.get();
-      return iconFactory.createIcon(symbol, iconSize);
-
-    }, task.stateProperty());
-  }
-
-  private static FontAwesomeIcon getIcon(final Task<?> task) {
-    final FontAwesomeIcon symbol;
-
-    switch (task.getState()) {
-      case SUCCEEDED:
-        symbol = FontAwesomeIcon.CHECK;
-        break;
-      case CANCELLED:
-        symbol = FontAwesomeIcon.QUESTION;
-        break;
-      case FAILED:
-        symbol = FontAwesomeIcon.REMOVE;
-        break;
-      case READY:
-      case SCHEDULED:
-        symbol = FontAwesomeIcon.DOT_CIRCLE_ALT;
-        break;
-      case RUNNING:
-      default:
-        symbol = FontAwesomeIcon.CLOCK_ALT;
-        break;
-    }
-    return symbol;
-  }
-
-  /**
-   * Collect string binding for given task.
-   *
-   * @param task Given task
-   * @return String binding depending on the tasks state
-   */
-  public static StringBinding getStyleBinding(final Task<?> task) {
-    return Bindings.createStringBinding(() -> {
-      final String color = getColor(task);
-
-      if (color == null) {
-        return "";
-      }
-      return "-fx-background-color: " + color;
-    }, task.stateProperty());
-  }
-
-  private static String getColor(final Task<?> task) {
-    final TaskStateColor color;
-
-    switch (task.getState()) {
-      case SUCCEEDED:
-        color = TaskStateColor.SUCCESS;
-        break;
-      case CANCELLED:
-        color = TaskStateColor.WARNING;
-        break;
-      case FAILED:
-        color = TaskStateColor.FAILURE;
-        break;
-      case READY:
-        color = TaskStateColor.READY;
-        break;
-      case SCHEDULED:
-        color = TaskStateColor.SCHEDULED;
-        break;
-      case RUNNING:
-      default:
-        color = TaskStateColor.WORKING;
-    }
-    return color.getColor();
-  }
 
   // TODO: ggf. wieder woanders hin
 

@@ -10,6 +10,7 @@ import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.application.Platform;
@@ -135,33 +136,28 @@ public class ResultBox extends GridPane implements Initializable {
         solverTask = solver.computeFeasibilityTask(cMajor);
       }
       task = renderingTaskFactory.create(cMajor, cMinor, solverTask);
+      task.setOnSucceeded(event -> Platform.runLater(() -> {
+        pdf.set((Path) event.getSource().getValue());
+        cbAction.setItems(FXCollections.observableList(Arrays.asList(show, save, remove)));
+        cbAction.getSelectionModel().selectFirst();
+      }));
+
+      task.setOnFailed(event -> {
+        this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(remove)));
+        this.cbAction.getSelectionModel().selectFirst();
+        this.lbErrorMsg.setText(resources.getString("error_gen"));
+      });
       //
       this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
       this.progressIndicator.visibleProperty()
           .bind(task.runningProperty());
       //
-      lbIcon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(task));
-      lbIcon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(task));
+      lbIcon.graphicProperty().bind(TaskBindings.getIconBinding(task));
+      lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
       //
       executor.submit(task);
     });
     this.lbErrorMsg.visibleProperty().bind(this.pdf.isNull());
-
-    task.setOnSucceeded(event -> Platform.runLater(() -> {
-      pdf.set((Path) event.getSource().getValue());
-      cbAction.setItems(FXCollections.observableList(Arrays.asList(show, save, remove)));
-      cbAction.getSelectionModel().selectFirst();
-    }));
-
-    task.setOnFailed(event -> {
-      this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(remove)));
-      this.cbAction.getSelectionModel().selectFirst();
-      this.lbErrorMsg.setText(resources.getString("error_gen"));
-    });
-    //
-    this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
-    this.progressIndicator.visibleProperty()
-        .bind(task.runningProperty());
 
     this.cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancel)));
     this.cbAction.getSelectionModel().selectFirst();

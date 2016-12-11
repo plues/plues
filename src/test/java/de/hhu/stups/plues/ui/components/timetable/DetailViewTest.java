@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class DetailViewTest extends ApplicationTest {
@@ -115,8 +116,10 @@ public class DetailViewTest extends ApplicationTest {
     store.getCourses().forEach(course ->
         courseMap.put(course, store.getModuleAbstractUnitSemester()));
 
+    doReturn(false).when(sessionFacade).isTentative();
     doReturn(session).when(sessionFacade).getSession();
     doReturn(slot).when(sessionFacade).slotProperty();
+
   }
 
   @Test
@@ -128,7 +131,7 @@ public class DetailViewTest extends ApplicationTest {
   @Test
   public void testSessionInfo() {
     final Label sessionLabel = lookup("#session").query();
-    Assert.assertEquals("MONDAY: 8", sessionLabel.getText());
+    Assert.assertEquals("mon, 22:30", sessionLabel.getText());
 
     final Label titleLabel = lookup("#title").query();
     Assert.assertEquals("Unit", titleLabel.getText());
@@ -138,6 +141,9 @@ public class DetailViewTest extends ApplicationTest {
 
     final Label semesterLabel = lookup("#semesters").query();
     Assert.assertEquals("1, 2", semesterLabel.getText());
+
+    final Label tentativeLabel = lookup("#tentative").query();
+    Assert.assertEquals("✗", tentativeLabel.getText());
   }
 
   @Test
