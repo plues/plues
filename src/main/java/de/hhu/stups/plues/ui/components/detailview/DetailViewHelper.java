@@ -5,12 +5,16 @@ import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.routes.Router;
-
 import javafx.event.EventHandler;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
 
 public class DetailViewHelper {
+
+  private DetailViewHelper() {
+    // static helper class
+    throw new IllegalAccessError("Utility Class");
+  }
 
   /**
    * Create handler for onClick event for abstract units.
