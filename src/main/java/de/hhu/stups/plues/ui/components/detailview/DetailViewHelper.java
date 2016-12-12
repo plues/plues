@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.ui.components.detailview;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
+import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
@@ -14,8 +15,6 @@ public class DetailViewHelper {
 
   /**
    * Create handler for onClick event for abstract units.
-   * @param abstractUnitTableView TableView to get abstract unit from
-   * @return Handler
    */
   public static EventHandler<MouseEvent> getAbstractUnitMouseHandler(
       final TableView<AbstractUnit> abstractUnitTableView,
@@ -30,9 +29,22 @@ public class DetailViewHelper {
   }
 
   /**
+   * Create handler for onClick event for units in group table.
+   */
+  public static EventHandler<MouseEvent> getGroupMouseHandler(
+      final TableView<Group> groupTableView,
+      final Router router) {
+    return event -> {
+      if (event.getClickCount() < 2) {
+        return;
+      }
+      Unit unit = groupTableView.getSelectionModel().getSelectedItem().getUnit();
+      router.transitionTo("unitDetailView", unit);
+    };
+  }
+
+  /**
    * Create handler for onClick event for units.
-   * @param unitTableView TableView to get unit from
-   * @return Handler
    */
   public static EventHandler<MouseEvent> getUnitMouseHandler(
       final TableView<Unit> unitTableView,
@@ -48,8 +60,6 @@ public class DetailViewHelper {
 
   /**
    * Create handler for onClick event for modules.
-   * @param moduleTableView TableView to get module from
-   * @return Handler
    */
   public static EventHandler<MouseEvent> getModuleMouseHandler(
       final TableView<Module> moduleTableView,
@@ -65,8 +75,6 @@ public class DetailViewHelper {
 
   /**
    * Create handler for onClick event for session.
-   * @param sessionTableView TableView to get module from
-   * @return Handler
    */
   public static EventHandler<MouseEvent> getSessionMouseHandler(
       final TableView<Session> sessionTableView,

@@ -367,6 +367,8 @@ public class UnsatCore extends VBox implements Initializable {
   private void initializeGroups(final ResourceBundle resources) {
     groupsPane.visibleProperty().bind(groups.emptyProperty().not());
     groupsTable.itemsProperty().bind(groups);
+    groupsTable.setOnMouseClicked(DetailViewHelper.getGroupMouseHandler(
+        groupsTable, router));
     groupUnitKeyColumn.setCellValueFactory(param
         -> Bindings.selectString(param, "value", "unit", "key"));
     groupUnitTitleColumn.setCellValueFactory(param
