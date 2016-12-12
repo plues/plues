@@ -6,6 +6,8 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+
 <fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
     <Label text="%search"/>
@@ -16,9 +18,17 @@
                    editable="true">
             <columns>
                 <TableColumn fx:id="tableColumnMasterCheckBox" prefWidth="30" sortable="false"
-                             resizable="false"/>
-                <TableColumn fx:id="tableColumnMasterCourse" prefWidth="470.0"
-                             minWidth="470.0" text="%course"/>
+                             resizable="false">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="selected"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="tableColumnMasterCourse" prefWidth="470.0" resizable="false"
+                             sortable="false" minWidth="470.0" text="%course">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="name"/>
+                    </cellValueFactory>
+                </TableColumn>
             </columns>
         </TableView>
     </TitledPane>
@@ -28,10 +38,18 @@
         <TableView fx:id="tableViewBachelorCourse" prefWidth="500.0" maxHeight="300.0"
                    editable="true">
             <columns>
-                <TableColumn fx:id="tableColumnBachelorCheckBox" sortable="false"
-                             prefWidth="30.0"/>
-                <TableColumn fx:id="tableColumnBachelorCourse" prefWidth="470.0"
-                             minWidth="470.0" text="%course"/>
+                <TableColumn fx:id="tableColumnBachelorCheckBox" sortable="false" resizable="false"
+                             prefWidth="30.0">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="selected"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="tableColumnBachelorCourse" prefWidth="470.0" resizable="false"
+                             sortable="false" minWidth="470.0" text="%course">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="name"/>
+                    </cellValueFactory>
+                </TableColumn>
             </columns>
         </TableView>
     </TitledPane>
