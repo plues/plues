@@ -431,10 +431,6 @@ public class MainController implements Initializable {
    */
   @FXML
   private void exportCurrentDbState() {
-    // TODO: should we have a modal progress window to avoid confusion, since the export takes
-    // a few instants to finish
-    // TODO: consider generating the file to a temporary location and moving it to the final
-    // location after the generation finished successfully.
     final File selectedFile = getXmlExportFile();
 
     if (selectedFile != null) {
@@ -505,13 +501,15 @@ public class MainController implements Initializable {
   }
 
   private void showCriticalExceptionDialog(final Throwable ex, final String message) {
-    final ExceptionDialog ed = new ExceptionDialog();
+    Platform.runLater(() -> {
+      final ExceptionDialog ed = new ExceptionDialog();
 
-    ed.setTitle(resources.getString("edTitle"));
-    ed.setHeaderText(message);
-    ed.setException(ex);
+      ed.setTitle(resources.getString("edTitle"));
+      ed.setHeaderText(message);
+      ed.setException(ex);
 
-    ed.showAndWait();
+      ed.showAndWait();
+    });
   }
 
   private void submitTask(final Task<?> task, final ExecutorService exec) {
