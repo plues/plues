@@ -28,7 +28,7 @@ public class DetailViewHelper {
       if (event.getClickCount() < 2) {
         return;
       }
-      AbstractUnit abstractUnit = abstractUnitTableView.getSelectionModel().getSelectedItem();
+      final AbstractUnit abstractUnit = abstractUnitTableView.getSelectionModel().getSelectedItem();
       router.transitionTo("abstractUnitDetailView", abstractUnit);
     };
   }
@@ -45,7 +45,7 @@ public class DetailViewHelper {
       if (event.getClickCount() < 2) {
         return;
       }
-      Unit unit = unitTableView.getSelectionModel().getSelectedItem();
+      final Unit unit = unitTableView.getSelectionModel().getSelectedItem();
       router.transitionTo("unitDetailView", unit);
     };
   }
@@ -62,7 +62,7 @@ public class DetailViewHelper {
       if (event.getClickCount() < 2) {
         return;
       }
-      Module module = moduleTableView.getSelectionModel().getSelectedItem();
+      final Module module = moduleTableView.getSelectionModel().getSelectedItem();
       router.transitionTo("moduleDetailView", module);
     };
   }
@@ -79,7 +79,7 @@ public class DetailViewHelper {
       if (event.getClickCount() < 2) {
         return;
       }
-      Session session = sessionTableView.getSelectionModel().getSelectedItem();
+      final Session session = sessionTableView.getSelectionModel().getSelectedItem();
       router.transitionTo("sessionDetailView", session);
     };
   }
