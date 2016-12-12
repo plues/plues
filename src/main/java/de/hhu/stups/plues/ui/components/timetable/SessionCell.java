@@ -1,19 +1,17 @@
 package de.hhu.stups.plues.ui.components.timetable;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 
-import de.hhu.stups.plues.ui.components.detailview.SessionDetailView;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.StringBinding;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.input.ClipboardContent;
@@ -22,7 +20,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -32,7 +29,7 @@ import java.util.stream.Collectors;
 
 class SessionCell extends ListCell<SessionFacade> implements Initializable {
 
-  private final Provider<SessionDetailView> sessionDetailViewProvider;
+  private final Router router;
   private final Delayed<SolverService> delayedSolverService;
 
   private final UiDataService uiDataService;
@@ -49,12 +46,12 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
 
   @Inject
   SessionCell(final Inflater inflater,
-              final Provider<SessionDetailView> sessionDetailViewProvider,
+              final Router router,
               final Delayed<SolverService> delayedSolverService,
               final UiDataService uiDataService) {
     super();
 
-    this.sessionDetailViewProvider = sessionDetailViewProvider;
+    this.router = router;
     this.delayedSolverService = delayedSolverService;
     this.uiDataService = uiDataService;
 
@@ -130,13 +127,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
       return;
     }
 
-    final SessionDetailView sessionDetailView = sessionDetailViewProvider.get();
-    sessionDetailView.setSession(getItem());
-
-    final Stage stage = new Stage();
-    stage.setTitle(sessionDetailView.getTitle());
-    stage.setScene(new Scene(sessionDetailView));
-    stage.show();
+    router.transitionTo("sessionDetailView", getItem().getSession());
   }
 
   @Override
