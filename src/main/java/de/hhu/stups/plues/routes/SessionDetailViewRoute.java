@@ -27,6 +27,7 @@ public class SessionDetailViewRoute implements Route {
     Scene scene = new Scene(sessionDetailView, 500, 500);
 
     final Stage stage = new Stage();
+    scene.getStylesheets().add("/styles/index.css");
     stage.setTitle(sessionDetailView.getTitle());
     stage.show();
 

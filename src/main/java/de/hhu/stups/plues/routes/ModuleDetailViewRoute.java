@@ -28,6 +28,7 @@ public class ModuleDetailViewRoute implements Route {
     Scene scene = new Scene(moduleDetailView, 500, 500);
 
     final Stage stage = new Stage();
+    scene.getStylesheets().add("/styles/index.css");
     stage.setTitle(moduleDetailView.getTitle());
     stage.show();
 

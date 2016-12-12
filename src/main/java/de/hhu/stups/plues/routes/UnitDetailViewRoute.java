@@ -26,6 +26,7 @@ public class UnitDetailViewRoute implements Route {
     Scene scene = new Scene(unitDetailView, 500, 500);
 
     final Stage stage = new Stage();
+    scene.getStylesheets().add("/styles/index.css");
     stage.setTitle(unitDetailView.getTitle());
     stage.show();
 
