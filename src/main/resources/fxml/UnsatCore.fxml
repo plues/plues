@@ -60,7 +60,7 @@
                 </Separator>
 
                 <Label styleClass="h2" text="%abstractUnitsPaneTitle" />
-                <Text text="%abstractUnitsPaneExplanation" />
+                <Label text="%abstractUnitsPaneExplanation" />
 
                 <TableView fx:id="abstractUnitsTable" minHeight="400" VBox.vgrow="NEVER">
                     <columnResizePolicy>
@@ -86,7 +86,7 @@
                     </padding>
                 </Separator>
                 <Label styleClass="h2" text="%groupsPaneTitle" />
-                <Text text="%groupsPaneExplanation" />
+                <Label text="%groupsPaneExplanation" />
                 <TableView fx:id="groupsTable" minHeight="400.0" VBox.vgrow="NEVER">
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
