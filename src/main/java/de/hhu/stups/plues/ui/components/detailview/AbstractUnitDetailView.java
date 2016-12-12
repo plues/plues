@@ -133,18 +133,7 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
 
       return new ReadOnlyObjectWrapper<>(Joiner.on(",").join(semesters));
     });
-    this.semesters.setCellFactory(param -> new TableCell<Module, String>() {
-      @Override
-      protected void updateItem(String item, boolean empty) {
-        super.updateItem(item, empty);
-        if (item == null || empty) {
-          setText(null);
-          return;
-        }
-
-        setText(item);
-      }
-    });
+    this.semesters.setCellFactory(param -> DetailViewHelper.createTableCell());
 
     this.type.setCellValueFactory(param -> {
       if (param.getValue().getMandatory()) {
@@ -153,18 +142,7 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
 
       return new ReadOnlyObjectWrapper<>("e");
     });
-    this.type.setCellFactory(param -> new TableCell<Module, String>() {
-      @Override
-      protected void updateItem(String item, boolean empty) {
-        super.updateItem(item, empty);
-        if (item == null || empty) {
-          setText(null);
-          return;
-        }
-
-        setText(item);
-      }
-    });
+    this.type.setCellFactory(param -> DetailViewHelper.createTableCell());
 
     tableViewUnits.setOnMouseClicked(DetailViewHelper.getUnitMouseHandler(
         tableViewUnits, router));

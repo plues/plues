@@ -108,4 +108,22 @@ public class DetailViewHelper {
       router.transitionTo("sessionDetailView", session);
     };
   }
+
+  /**
+   * Create table cell.
+   */
+  public static TableCell<Module, String> createTableCell() {
+    return new TableCell<Module, String>() {
+      @Override
+      protected void updateItem(String item, boolean empty) {
+        super.updateItem(item, empty);
+        if (item == null || empty) {
+          setText(null);
+          return;
+        }
+
+        setText(item);
+      }
+    };
+  }
 }
