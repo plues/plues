@@ -43,6 +43,7 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.controlsfx.control.TaskProgressView;
@@ -209,6 +210,31 @@ public class MainController implements Initializable {
     return FontAwesomeIconFactory.get().createIcon(icon, "2em");
   }
 
+  private void handleKeyPressed(final KeyEvent event) {
+    switch (event.getCode()) {
+      case DIGIT1:
+        tabPane.getSelectionModel().select(0);
+        break;
+      case DIGIT2:
+        tabPane.getSelectionModel().select(1);
+        break;
+      case DIGIT3:
+        tabPane.getSelectionModel().select(2);
+        break;
+      case DIGIT4:
+        tabPane.getSelectionModel().select(3);
+        break;
+      case DIGIT5:
+        tabPane.getSelectionModel().select(4);
+        break;
+      case DIGIT6:
+        tabPane.getSelectionModel().select(5);
+        break;
+      default:
+        break;
+    }
+  }
+
   @Override
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
@@ -216,30 +242,7 @@ public class MainController implements Initializable {
 
     this.taskProgress.setGraphicFactory(this::getGraphicForTask);
 
-    tabPane.setOnKeyPressed(event -> {
-      switch (event.getCode()) {
-        case DIGIT1:
-          tabPane.getSelectionModel().select(0);
-          break;
-        case DIGIT2:
-          tabPane.getSelectionModel().select(1);
-          break;
-        case DIGIT3:
-          tabPane.getSelectionModel().select(2);
-          break;
-        case DIGIT4:
-          tabPane.getSelectionModel().select(3);
-          break;
-        case DIGIT5:
-          tabPane.getSelectionModel().select(4);
-          break;
-        case DIGIT6:
-          tabPane.getSelectionModel().select(5);
-          break;
-        default:
-          break;
-      }
-    });
+    tabPane.setOnKeyPressed(this::handleKeyPressed);
 
     initializeMenu();
 
