@@ -6,12 +6,16 @@ import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.routes.Router;
-
 import javafx.event.EventHandler;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
 
 public class DetailViewHelper {
+
+  private DetailViewHelper() {
+    // static helper class
+    throw new IllegalAccessError("Utility Class");
+  }
 
   /**
    * Create handler for onClick event for abstract units.
@@ -23,7 +27,7 @@ public class DetailViewHelper {
       if (event.getClickCount() < 2) {
         return;
       }
-      AbstractUnit abstractUnit = abstractUnitTableView.getSelectionModel().getSelectedItem();
+      final AbstractUnit abstractUnit = abstractUnitTableView.getSelectionModel().getSelectedItem();
       router.transitionTo("abstractUnitDetailView", abstractUnit);
     };
   }
@@ -53,7 +57,7 @@ public class DetailViewHelper {
       if (event.getClickCount() < 2) {
         return;
       }
-      Unit unit = unitTableView.getSelectionModel().getSelectedItem();
+      final Unit unit = unitTableView.getSelectionModel().getSelectedItem();
       router.transitionTo("unitDetailView", unit);
     };
   }
@@ -68,7 +72,7 @@ public class DetailViewHelper {
       if (event.getClickCount() < 2) {
         return;
       }
-      Module module = moduleTableView.getSelectionModel().getSelectedItem();
+      final Module module = moduleTableView.getSelectionModel().getSelectedItem();
       router.transitionTo("moduleDetailView", module);
     };
   }
@@ -83,7 +87,7 @@ public class DetailViewHelper {
       if (event.getClickCount() < 2) {
         return;
       }
-      Session session = sessionTableView.getSelectionModel().getSelectedItem();
+      final Session session = sessionTableView.getSelectionModel().getSelectedItem();
       router.transitionTo("sessionDetailView", session);
     };
   }
