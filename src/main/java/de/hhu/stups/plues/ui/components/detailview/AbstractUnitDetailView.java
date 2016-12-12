@@ -1,9 +1,11 @@
 package de.hhu.stups.plues.ui.components.detailview;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -11,17 +13,22 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AbstractUnitDetailView extends VBox implements Initializable {
 
@@ -40,6 +47,9 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableView<Module> tableViewModules;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> semesters;
 
   /**
    * Default constructor.
@@ -101,6 +111,35 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
         }
 
         return FXCollections.observableArrayList(abstractUnit.getModules());
+      }
+    });
+
+    this.semesters.setCellValueFactory(param -> {
+      Set<ModuleAbstractUnitSemester> filteredByAbstractUnit =
+          param.getValue().getModuleAbstractUnitSemesters()
+          .stream().filter(moduleAbstractUnitSemester ->
+            this.abstractUnitProperty.get().equals(moduleAbstractUnitSemester.getAbstractUnit()))
+          .collect(Collectors.toSet());
+      Set<ModuleAbstractUnitSemester> filteredByBoth =
+          filteredByAbstractUnit.stream().filter(moduleAbstractUnitSemester ->
+            this.tableViewModules.getItems().contains(moduleAbstractUnitSemester.getModule()))
+            .collect(Collectors.toSet());
+
+      Set<Integer> semesters = filteredByBoth.stream()
+          .map(ModuleAbstractUnitSemester::getSemester).collect(Collectors.toSet());
+
+      return new ReadOnlyObjectWrapper<>(Joiner.on(",").join(semesters));
+    });
+    this.semesters.setCellFactory(param -> new TableCell<Module, String>() {
+      @Override
+      protected void updateItem(String item, boolean empty) {
+        super.updateItem(item, empty);
+        if (item == null || empty) {
+          setText(null);
+          return;
+        }
+
+        setText(item);
       }
     });
 

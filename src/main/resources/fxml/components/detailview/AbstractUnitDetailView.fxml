@@ -48,6 +48,7 @@
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
             </TableColumn>
+            <TableColumn fx:id="semesters" text="%columnSemesters"/>
             <TableColumn text="%columnType">
                 <cellValueFactory>
                     <PropertyValueFactory property="mandatory"/>
