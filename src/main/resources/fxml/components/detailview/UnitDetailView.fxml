@@ -45,16 +45,8 @@
                     <PropertyValueFactory property="id"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn text="%columnDay">
-                <cellValueFactory>
-                    <PropertyValueFactory property="day"/>
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn text="%columnTime">
-                <cellValueFactory>
-                    <PropertyValueFactory property="time"/>
-                </cellValueFactory>
-            </TableColumn>
+            <TableColumn text="%columnDay" fx:id="columnDay"/>
+            <TableColumn text="%columnTime" fx:id="columnTime"/>
         </columns>
     </TableView>
 </fx:root>

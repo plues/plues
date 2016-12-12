@@ -14,12 +14,15 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 
@@ -48,6 +51,12 @@ public class UnitDetailView extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableView<Session> sessionTableView;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Session, String> columnDay;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Session, String> columnTime;
 
   /**
    * Constructor to create unitDetailView.
@@ -60,7 +69,8 @@ public class UnitDetailView extends VBox implements Initializable {
     this.unitProperty = new SimpleObjectProperty<>();
     this.router = router;
 
-    inflater.inflate("components/detailview/UnitDetailView", this, this, "detailView", "Column");
+    inflater.inflate("components/detailview/UnitDetailView", this, this,
+        "detailView", "Column", "Days");
   }
 
   public void setUnit(Unit unit) {
@@ -90,6 +100,36 @@ public class UnitDetailView extends VBox implements Initializable {
         }
 
         return Joiner.on(", ").join(unit.getSemesters());
+      }
+    });
+
+    columnDay.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
+        resources.getString(param.getValue().getDay())));
+    columnDay.setCellFactory(param -> new TableCell<Session, String>() {
+      @Override
+      protected void updateItem(String day, boolean empty) {
+        super.updateItem(day, empty);
+        if (day == null || empty) {
+          setText(null);
+          return;
+        }
+
+        setText(day);
+      }
+    });
+    columnTime.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
+        String.valueOf(6 + param.getValue().getTime() * 2) + ":30"
+    ));
+    columnTime.setCellFactory(param -> new TableCell<Session, String>() {
+      @Override
+      protected void updateItem(String time, boolean empty) {
+        super.updateItem(time, empty);
+        if (time == null || empty) {
+          setText(null);
+          return;
+        }
+
+        setText(time);
       }
     });
 
