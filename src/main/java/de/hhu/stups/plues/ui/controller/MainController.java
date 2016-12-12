@@ -106,7 +106,6 @@ public class MainController implements Initializable {
   private final SolverLoaderImpl solverLoader;
   private final Provider<Reports> reportsProvider;
   private final StoreLoaderTaskFactory storeLoaderTaskFactory;
-  private final ChangeLog changeLog;
   private final Provider<AboutWindow> aboutWindowProvider;
   private final ResourceManager resourceManager;
   private SolverService solverService;
@@ -151,6 +150,7 @@ public class MainController implements Initializable {
   private Menu windowMenu;
   @FXML
   private MenuItem aboutMenuItem;
+  private Provider<ChangeLog> changeLogProvider;
 
   /**
    * MainController component.
@@ -171,7 +171,7 @@ public class MainController implements Initializable {
     this.solverLoader = solverLoader;
     this.properties = properties;
     this.stage = stage;
-    this.changeLog = changeLogProvider.get();
+    this.changeLogProvider = changeLogProvider;
     this.aboutWindowProvider = aboutWindowProvider;
     this.reportsProvider = reportsProvider;
     this.storeLoaderTaskFactory = storeLoaderTaskFactory;
@@ -526,12 +526,12 @@ public class MainController implements Initializable {
   @FXML
   private void openChangeLog() {
     final Stage logStage = new Stage();
+    final ChangeLog changeLog = changeLogProvider.get();
     logStage.setTitle(resources.getString("logTitle"));
     logStage.setScene(new Scene(changeLog, 800, 600));
     logStage.setResizable(false);
     logStage.show();
-
-    // TODO delete observer
+    logStage.setOnCloseRequest(event -> changeLog.dispose());
   }
 
   /**
