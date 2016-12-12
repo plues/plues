@@ -148,7 +148,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
    * Function to generate checkboxes for modules and units.
    */
   @FXML
-  @SuppressWarnings("unused")
+  @SuppressWarnings( {"unused", "WeakerAccess"})
   public void btChoosePressed() {
     checkStarted.set(false);
     modulesUnits.getChildren().clear();
@@ -264,5 +264,6 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     if (courses.length > 1) {
       courseSelection.selectMinorCourse((Course) courses[1]);
     }
+    btChoosePressed();
   }
 }

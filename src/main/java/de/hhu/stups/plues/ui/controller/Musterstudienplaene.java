@@ -86,7 +86,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
    * Function to handle generation of resultbox containing result for chosen major and minor.
    */
   @FXML
-  @SuppressWarnings("unused")
+  @SuppressWarnings({"unused,WeakerAccess"})
   public void btGeneratePressed() {
     final Course selectedMajorCourse = courseSelection.getSelectedMajor();
     final Course selectedMinorCourse = courseSelection.getSelectedMinor();
@@ -126,5 +126,6 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
     if (courses.length > 1) {
       courseSelection.selectMinorCourse((Course) courses[1]);
     }
+    btGeneratePressed();
   }
 }
