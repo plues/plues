@@ -50,6 +50,9 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Module, String> semesters;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> type;
 
   /**
    * Default constructor.
@@ -131,6 +134,26 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
       return new ReadOnlyObjectWrapper<>(Joiner.on(",").join(semesters));
     });
     this.semesters.setCellFactory(param -> new TableCell<Module, String>() {
+      @Override
+      protected void updateItem(String item, boolean empty) {
+        super.updateItem(item, empty);
+        if (item == null || empty) {
+          setText(null);
+          return;
+        }
+
+        setText(item);
+      }
+    });
+
+    this.type.setCellValueFactory(param -> {
+      if (param.getValue().getMandatory()) {
+        return new ReadOnlyObjectWrapper<>("m");
+      }
+
+      return new ReadOnlyObjectWrapper<>("e");
+    });
+    this.type.setCellFactory(param -> new TableCell<Module, String>() {
       @Override
       protected void updateItem(String item, boolean empty) {
         super.updateItem(item, empty);
