@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import de.hhu.stups.plues.routes.AbstractUnitDetailViewRoute;
+import de.hhu.stups.plues.routes.CourseDetailViewRoute;
 import de.hhu.stups.plues.routes.IndexRoute;
 import de.hhu.stups.plues.routes.ModuleDetailViewRoute;
 import de.hhu.stups.plues.routes.RouteNames;
@@ -15,10 +16,11 @@ public class RouterProvider implements Provider<Router> {
   private final Provider<IndexRoute> indexRouteProvider;
   private Router cache;
 
-  private final Provider<ModuleDetailViewRoute> moduleDetailViewProvider;
-  private Provider<AbstractUnitDetailViewRoute> abstractUnitDetailViewProvider;
-  private Provider<UnitDetailViewRoute> unitDetailViewProvider;
-  private Provider<SessionDetailViewRoute> sessionDetailViewProvider;
+  private final Provider<ModuleDetailViewRoute> moduleDetailViewRouteProvider;
+  private final Provider<AbstractUnitDetailViewRoute> abstractUnitDetailViewRouteProvider;
+  private final Provider<UnitDetailViewRoute> unitDetailViewRouteProvider;
+  private final Provider<SessionDetailViewRoute> sessionDetailViewRouteProvider;
+  private final Provider<CourseDetailViewRoute> courseDetailViewRouteProvider;
 
   /**
    * Constructor for routerProvider.
@@ -29,12 +31,14 @@ public class RouterProvider implements Provider<Router> {
                         final Provider<AbstractUnitDetailViewRoute>
                             abstractUnitDetailViewRouteProvider,
                         final Provider<UnitDetailViewRoute> unitDetailViewRouteProvider,
-                        final Provider<SessionDetailViewRoute> sessionDetailViewRouteProvider) {
+                        final Provider<SessionDetailViewRoute> sessionDetailViewRouteProvider,
+                        final Provider<CourseDetailViewRoute> courseDetailViewRouteProvider) {
     this.indexRouteProvider = indexRouteProvider;
-    this.moduleDetailViewProvider = moduleDetailViewRouteProvider;
-    this.abstractUnitDetailViewProvider = abstractUnitDetailViewRouteProvider;
-    this.unitDetailViewProvider = unitDetailViewRouteProvider;
-    this.sessionDetailViewProvider = sessionDetailViewRouteProvider;
+    this.moduleDetailViewRouteProvider = moduleDetailViewRouteProvider;
+    this.abstractUnitDetailViewRouteProvider = abstractUnitDetailViewRouteProvider;
+    this.unitDetailViewRouteProvider = unitDetailViewRouteProvider;
+    this.sessionDetailViewRouteProvider = sessionDetailViewRouteProvider;
+    this.courseDetailViewRouteProvider = courseDetailViewRouteProvider;
   }
 
   @Override
@@ -43,11 +47,12 @@ public class RouterProvider implements Provider<Router> {
       cache = new Router();
 
       cache.put(RouteNames.INDEX.getRouteName(), indexRouteProvider.get());
-      cache.put(RouteNames.MODULE_DETAIL_VIEW.getRouteName(), moduleDetailViewProvider.get());
-      cache.put(RouteNames.SESSION_DETAIL_VIEW.getRouteName(), sessionDetailViewProvider.get());
+      cache.put(RouteNames.MODULE_DETAIL_VIEW.getRouteName(), moduleDetailViewRouteProvider.get());
+      cache.put(RouteNames.SESSION_DETAIL_VIEW.getRouteName(), sessionDetailViewRouteProvider.get());
       cache.put(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW.getRouteName(),
-          abstractUnitDetailViewProvider.get());
-      cache.put(RouteNames.UNIT_DETAIL_VIEW.getRouteName(), unitDetailViewProvider.get());
+          abstractUnitDetailViewRouteProvider.get());
+      cache.put(RouteNames.UNIT_DETAIL_VIEW.getRouteName(), unitDetailViewRouteProvider.get());
+      cache.put(RouteNames.COURSE.getRouteName(), courseDetailViewRouteProvider.get());
     }
 
     return cache;

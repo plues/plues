@@ -12,6 +12,7 @@ import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
 import de.hhu.stups.plues.ui.components.detailview.AbstractUnitDetailView;
+import de.hhu.stups.plues.ui.components.detailview.CourseDetailView;
 import de.hhu.stups.plues.ui.components.detailview.ModuleDetailView;
 import de.hhu.stups.plues.ui.components.detailview.SessionDetailView;
 import de.hhu.stups.plues.ui.components.detailview.UnitDetailView;
@@ -64,5 +65,6 @@ class ComponentsModule extends AbstractModule {
     bind(AbstractUnitDetailView.class);
     bind(ModuleDetailView.class);
     bind(UnitDetailView.class);
+    bind(CourseDetailView.class);
   }
 }

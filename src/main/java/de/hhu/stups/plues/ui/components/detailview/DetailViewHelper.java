@@ -1,12 +1,14 @@
 package de.hhu.stups.plues.ui.components.detailview;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.routes.Router;
 import javafx.event.EventHandler;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
 
@@ -29,6 +31,21 @@ public class DetailViewHelper {
       }
       final AbstractUnit abstractUnit = abstractUnitTableView.getSelectionModel().getSelectedItem();
       router.transitionTo("abstractUnitDetailView", abstractUnit);
+    };
+  }
+
+  /**
+   * Create handler for onClick event for abstract units.
+   */
+  public static EventHandler<MouseEvent> getCourseMouseHandler(
+      final TableView<Course> courseTableView,
+      final Router router) {
+    return event -> {
+      if (event.getClickCount() < 2) {
+        return;
+      }
+      final Course course = courseTableView.getSelectionModel().getSelectedItem();
+      router.transitionTo("courseDetailView", course);
     };
   }
 

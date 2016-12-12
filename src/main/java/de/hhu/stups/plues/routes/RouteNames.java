@@ -5,7 +5,8 @@ public enum RouteNames {
   MODULE_DETAIL_VIEW("moduleDetailView"),
   SESSION_DETAIL_VIEW("sessionDetailView"),
   ABSTRACT_UNIT_DETAIL_VIEW("abstractUnitDetailView"),
-  UNIT_DETAIL_VIEW("unitDetailView");
+  UNIT_DETAIL_VIEW("unitDetailView"),
+  COURSE("courseDetailView");
 
   private final String routeName;
 

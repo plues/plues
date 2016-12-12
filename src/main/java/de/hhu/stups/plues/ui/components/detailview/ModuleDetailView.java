@@ -118,6 +118,9 @@ public class ModuleDetailView extends VBox implements Initializable {
       }
     });
 
+    courseTableView.setOnMouseClicked(DetailViewHelper.getCourseMouseHandler(
+        courseTableView, router));
+
     abstractUnitTableView.setOnMouseClicked(DetailViewHelper.getAbstractUnitMouseHandler(
         abstractUnitTableView, router));
   }

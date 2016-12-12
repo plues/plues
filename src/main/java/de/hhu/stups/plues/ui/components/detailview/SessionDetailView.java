@@ -171,6 +171,10 @@ public class SessionDetailView extends VBox implements Initializable {
           } else {
             if (rowText.equals(resources.getString("cell.abstractUnit"))) {
               router.transitionTo("abstractUnitDetailView", newValue.getAbstractUnit());
+            } else {
+              if (rowText.equals(resources.getString("cell.course"))) {
+                router.transitionTo("courseDetailView", newValue.getCourse());
+              }
             }
           }
         }));
@@ -183,6 +187,7 @@ public class SessionDetailView extends VBox implements Initializable {
   @SuppressWarnings("WeakerAccess")
   public static final class CourseTableEntry {
     private final String courseKey;
+    private final Course course;
     private final Module module;
     private final AbstractUnit abstractUnit;
     private final Set<Integer> semesters;
@@ -197,6 +202,7 @@ public class SessionDetailView extends VBox implements Initializable {
                      final AbstractUnit abstractUnit,
                      final Set<Integer> semesters,
                      final Character type) {
+      this.course = course;
       this.courseKey = course.getKey();
       this.module = module;
       this.abstractUnit = abstractUnit;
@@ -289,6 +295,10 @@ public class SessionDetailView extends VBox implements Initializable {
 
     public Character getType() {
       return type;
+    }
+
+    public Course getCourse() {
+      return course;
     }
   }
 }
