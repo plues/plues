@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
@@ -35,10 +36,9 @@ import java.util.stream.Collectors;
 @SuppressWarnings("WeakerAccess")
 public class SetOfCourseSelection extends VBox implements Initializable {
 
-  private final ListProperty<Course> selectedCourses;
-
   private final ListProperty<Course> courses;
   private final ListProperty<SelectableCourse> selectableCourses;
+  private final UiDataService uiDataService;
 
   @FXML
   @SuppressWarnings("unused")
@@ -71,15 +71,15 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   /**
    * Component that allows the user to select one or more courses. The courses need to be
    * instantiated via the {@link this#coursesProperty()}. Those are used to highlight all events in
-   * the timetable view associated with the courses. Selected courses are stored in the readonly
-   * list property {@link this#selectedCoursesProperty()}.
+   * the timetable view associated with the courses. Selected courses are stored in
+   * {@link UiDataService#selectedCoursesProperty()}
    */
   @Inject
-  public SetOfCourseSelection(final Inflater inflater) {
-    selectedCourses = new ReadOnlyListWrapper<>(FXCollections.emptyObservableList());
-
+  public SetOfCourseSelection(final Inflater inflater, UiDataService uiDataService) {
     courses = new SimpleListProperty<>(FXCollections.emptyObservableList());
     selectableCourses = new SimpleListProperty<>(FXCollections.emptyObservableList());
+
+    this.uiDataService = uiDataService;
 
     inflater.inflate("components/SetOfCourseSelection", this, this, "filter", "Column");
   }
@@ -131,7 +131,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         (observable, oldValue, newValue)
             -> titledPaneBachelorCourse.setExpanded(!newValue.isEmpty()));
 
-    selectedCourses.bind(new ListBinding<Course>() {
+    uiDataService.selectedCoursesProperty().bind(new ListBinding<Course>() {
       {
         bind(selectableCourses);
       }
@@ -193,18 +193,9 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     return courses;
   }
 
-  public ObservableList<Course> getSelectedCourses() {
-    return selectedCourses.get();
-  }
-
   public void setSelectedCourses(final List<Course> courses) {
     final HashSet<Course> courseSet = new HashSet<>(courses);
     selectableCourses.forEach(course -> course.setSelected(courseSet.contains(course.getCourse())));
-  }
-
-  @SuppressWarnings("unused")
-  public ReadOnlyListProperty<Course> selectedCoursesProperty() {
-    return selectedCourses;
   }
 
   TableView<SelectableCourse> getTableViewMasterCourse() {

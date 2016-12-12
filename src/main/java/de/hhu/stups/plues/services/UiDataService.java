@@ -44,6 +44,8 @@ public class UiDataService {
 
   private final ObjectProperty<Date> lastSavedDate
       = new SimpleObjectProperty<>(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
+  private final ListProperty<Course> selectedCourses =
+      new SimpleListProperty<>(FXCollections.emptyObservableList());
 
   private final ExecutorService executorService;
 
@@ -145,5 +147,18 @@ public class UiDataService {
 
   public SetProperty<Course> impossibleCoursesPropertyProperty() {
     return impossibleCoursesProperty;
+  }
+
+  public ObservableList<Course> getSelectedCourses() {
+    return selectedCourses.get();
+  }
+
+  public ListProperty<Course> selectedCoursesProperty() {
+    return selectedCourses;
+  }
+
+  public void setSelectedCourses(
+      ObservableList<Course> selectedCourses) {
+    this.selectedCourses.set(selectedCourses);
   }
 }
