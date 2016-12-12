@@ -9,7 +9,7 @@ import java.util.HashMap;
  */
 @Singleton
 public class Router extends HashMap<String, Route> {
-  public void transitionTo(String routeName) {
-    this.get(routeName).transition();
+  public void transitionTo(String routeName, Object... args) {
+    this.get(routeName).transition(args);
   }
 }

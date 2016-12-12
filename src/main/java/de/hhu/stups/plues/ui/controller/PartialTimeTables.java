@@ -18,6 +18,7 @@ import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -44,7 +45,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
-public class PartialTimeTables extends GridPane implements Initializable {
+public class PartialTimeTables extends GridPane implements Initializable, Activatable {
 
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
@@ -61,24 +62,25 @@ public class PartialTimeTables extends GridPane implements Initializable {
   private final ObjectProperty<Path> pdf;
 
   @FXML
+  @SuppressWarnings("unused")
   private MajorMinorCourseSelection courseSelection;
-
   @FXML
+  @SuppressWarnings("unused")
   private Button btChoose;
-
   @FXML
+  @SuppressWarnings("unused")
   private ScrollPane scrollPane;
-
   @FXML
+  @SuppressWarnings("unused")
   private VBox modulesUnits;
-
   @FXML
+  @SuppressWarnings("unused")
   private Button btCheck;
-
   @FXML
+  @SuppressWarnings("unused")
   private Label icon;
-
   @FXML
+  @SuppressWarnings("unused")
   private HBox buttons;
 
   /**
@@ -112,6 +114,34 @@ public class PartialTimeTables extends GridPane implements Initializable {
     this.setVgap(10.0);
 
     inflater.inflate("PartialTimeTables", this, this, "musterstudienplaene");
+  }
+
+  @Override
+  public final void initialize(final URL location, final ResourceBundle resources) {
+    final BooleanBinding selectionBinding = storeProperty.isNull().or(checkStarted);
+
+    btChoose.setDefaultButton(true);
+    btChoose.disableProperty().bind(selectionBinding);
+    courseSelection.disableProperty().bind(selectionBinding);
+
+    scrollPane.setVisible(false);
+    btCheck.setVisible(false);
+    //
+    courseSelection.addListener(observable -> {
+      scrollPane.setVisible(false);
+      btCheck.setVisible(false);
+    });
+    btCheck.disableProperty().bind(solverProperty.not().or(checkStarted));
+
+    buttons.visibleProperty().bind(btCheck.visibleProperty());
+    buttons.disableProperty().bind(pdf.isNull());
+
+    delayedStore.whenAvailable(s -> {
+      PdfRenderingHelper.initializeCourseSelection(s, uiDataService, courseSelection);
+      this.storeProperty.set(s);
+    });
+
+    delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
   }
 
   /**
@@ -189,55 +219,22 @@ public class PartialTimeTables extends GridPane implements Initializable {
     delayedSolverService.whenAvailable(solverService -> {
       final SolverTask<FeasibilityResult> solverTask =
           solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
-
       final PdfRenderingTask task = renderingTaskFactory.create(major, minor, solverTask);
-
       task.setOnSucceeded(event -> {
         pdf.set((Path) event.getSource().getValue());
         checkStarted.set(false);
       });
-
       task.setOnFailed(event -> {
         pdf.set(null);
         checkStarted.set(false);
       });
-
       task.setOnCancelled(event -> checkStarted.set(false));
 
       icon.styleProperty().bind(TaskBindings.getStyleBinding(task));
       icon.graphicProperty().bind(TaskBindings.getIconBinding(task));
 
-
       executor.submit(task);
     });
-  }
-
-  @Override
-  public final void initialize(final URL location, final ResourceBundle resources) {
-    final BooleanBinding selectionBinding = storeProperty.isNull().or(checkStarted);
-
-    btChoose.setDefaultButton(true);
-    btChoose.disableProperty().bind(selectionBinding);
-    courseSelection.disableProperty().bind(selectionBinding);
-
-    scrollPane.setVisible(false);
-    btCheck.setVisible(false);
-    //
-    courseSelection.addListener(observable -> {
-      scrollPane.setVisible(false);
-      btCheck.setVisible(false);
-    });
-    btCheck.disableProperty().bind(solverProperty.not().or(checkStarted));
-
-    buttons.visibleProperty().bind(btCheck.visibleProperty());
-    buttons.disableProperty().bind(pdf.isNull());
-
-    delayedStore.whenAvailable(s -> {
-      PdfRenderingHelper.initializeCourseSelection(s, uiDataService, courseSelection);
-      this.storeProperty.set(s);
-    });
-
-    delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
   }
 
   @SuppressWarnings("unused")
@@ -253,5 +250,19 @@ public class PartialTimeTables extends GridPane implements Initializable {
     final Course minor = courseSelection.getSelectedMinor();
 
     PdfRenderingHelper.savePdf(pdf.get(), major, minor, null);
+  }
+
+  /**
+   * Select the given courses within the {@link #courseSelection} when the user navigates to the
+   * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
+   */
+  @Override
+  public void activateController(Object... courses) {
+    if (courses.length > 0) {
+      courseSelection.selectMajorCourse((Course) courses[0]);
+    }
+    if (courses.length > 1) {
+      courseSelection.selectMinorCourse((Course) courses[1]);
+    }
   }
 }

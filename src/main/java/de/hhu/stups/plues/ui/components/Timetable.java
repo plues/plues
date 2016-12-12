@@ -10,11 +10,14 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
+import de.hhu.stups.plues.ui.controller.Activatable;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.ListBinding;
@@ -26,6 +29,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
@@ -33,19 +38,24 @@ import javafx.scene.layout.GridPane;
 
 import java.net.URL;
 import java.time.DayOfWeek;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Timetable extends BorderPane implements Initializable {
+public class Timetable extends BorderPane implements Initializable, Activatable {
 
   private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
   private final Delayed<SolverService> delayedSolverService;
   private final UiDataService uiDataService;
 
+  @FXML
+  private TabPane tabPaneSide;
   @FXML
   private GridPane timeTable;
 
@@ -137,6 +147,38 @@ public class Timetable extends BorderPane implements Initializable {
   private void setSessions(final List<SessionFacade> sessions) {
     sessions.forEach(SessionFacade::initSlotProperty);
     this.sessions.set(FXCollections.observableArrayList(sessions));
+  }
+
+  /**
+   * Highlight the given courses when the user navigates to the timetable via the {@link
+   * de.hhu.stups.plues.routes.ControllerRoute}.
+   */
+  @Override
+  public void activateController(Object... args) {
+    final Course[] courses = (Course[]) args[0];
+    final ResultState resultState = (ResultState) args[1];
+    setOfCourseSelection.setSelectedCourses(Arrays.asList(courses));
+    switch (resultState) {
+      case FAILED:
+        selectTabById("tabCheckFeasibility");
+        checkCourseFeasibility.selectCourses(courses);
+        break;
+      case TIMEOUT:
+        selectTabById("tabCheckFeasibility");
+        checkCourseFeasibility.selectCourses(courses);
+        checkCourseFeasibility.checkFeasibility();
+        break;
+      default:
+        selectTabById("tabCourseFilters");
+    }
+  }
+
+  private void selectTabById(final String tabId) {
+    final Optional<Tab> tabConflict = tabPaneSide.getTabs().stream()
+        .filter(tab -> tabId.equals(tab.getId())).findFirst();
+    if (tabConflict.isPresent()) {
+      tabPaneSide.getSelectionModel().select(tabConflict.get());
+    }
   }
 
   private class SessionFacadeListBinding extends ListBinding<SessionFacade> {
