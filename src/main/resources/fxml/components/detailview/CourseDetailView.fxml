@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.geometry.Insets?>
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
+         xmlns:fx="http://javafx.com/fxml/1" prefWidth="500" prefHeight="500">
+    <Label text="%course" styleClass="h1"/>
+    <GridPane>
+        <Label text="%key" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <Label fx:id="key" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <Label text="%name" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <padding>
+                <Insets right="20"/>
+            </padding>
+        </Label>
+        <Label fx:id="name" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+    </GridPane>
+    <Label/>
+    <Label text="%modules" styleClass="h2"/>
+    <TableView fx:id="tableViewModules">
+        <columns>
+            <TableColumn text="%columnPordnr">
+                <cellValueFactory>
+                    <PropertyValueFactory property="pordnr"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="%columnTitle">
+                <cellValueFactory>
+                    <PropertyValueFactory property="title"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="semesters" text="%columnSemesters"/>
+            <TableColumn fx:id="type" text="%columnType"/>
+        </columns>
+    </TableView>
+</fx:root>
