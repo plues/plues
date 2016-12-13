@@ -6,6 +6,7 @@ import com.google.inject.Provider;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.components.detailview.ModuleDetailView;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import de.hhu.stups.plues.ui.layout.SceneFactory;
 
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -25,10 +26,9 @@ public class ModuleDetailViewRoute implements Route {
     final ModuleDetailView moduleDetailView = moduleDetailViewProvider.get();
     moduleDetailView.setModule((Module) args[0]);
 
-    Scene scene = new Scene(moduleDetailView, 500, 500);
+    Scene scene = SceneFactory.create(moduleDetailView);
 
     final Stage stage = new Stage();
-    scene.getStylesheets().add("/styles/index.css");
     stage.setTitle(moduleDetailView.getTitle());
     stage.show();
 
