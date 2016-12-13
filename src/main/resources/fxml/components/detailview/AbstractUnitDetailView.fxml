@@ -11,20 +11,20 @@
          xmlns:fx="http://javafx.com/fxml/1" prefWidth="500" prefHeight="500">
     <Label text="%abstractUnit" styleClass="h1"/>
     <GridPane>
-        <Label text="%key" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <Label fx:id="key" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-        <Label text="%title" GridPane.columnIndex="0" GridPane.rowIndex="1">
+        <Label text="%key" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <padding>
                 <Insets right="20"/>
             </padding>
         </Label>
+        <Label fx:id="key" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <Label text="%title" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
         <Label fx:id="title" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
     </GridPane>
     <Label/>
     <Label text="%units" styleClass="h2"/>
     <TableView fx:id="tableViewUnits">
         <columns>
-            <TableColumn text="%columnKey">
+            <TableColumn text="%columnKey" minWidth="100" maxWidth="100">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
@@ -35,11 +35,14 @@
                 </cellValueFactory>
             </TableColumn>
         </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
     </TableView>
     <Label text="%modules" styleClass="h2"/>
     <TableView fx:id="tableViewModules">
         <columns>
-            <TableColumn text="%columnPordnr">
+            <TableColumn text="%columnPordnr" minWidth="80" maxWidth="80">
                 <cellValueFactory>
                     <PropertyValueFactory property="pordnr"/>
                 </cellValueFactory>
@@ -49,8 +52,11 @@
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="semesters" text="%columnSemesters"/>
-            <TableColumn fx:id="type" text="%columnType"/>
+            <TableColumn fx:id="semesters" text="%columnSemesters" minWidth="80" maxWidth="80"/>
+            <TableColumn fx:id="type" text="%columnType" minWidth="50" maxWidth="50"/>
         </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
     </TableView>
 </fx:root>
