@@ -6,7 +6,8 @@ public enum RouteNames {
   SESSION_DETAIL_VIEW("sessionDetailView"),
   ABSTRACT_UNIT_DETAIL_VIEW("abstractUnitDetailView"),
   UNIT_DETAIL_VIEW("unitDetailView"),
-  COURSE("courseDetailView");
+  COURSE("courseDetailView"),
+  ABOUT_WINDOW("aboutWindow");
 
   private final String routeName;
 
