@@ -539,11 +539,7 @@ public class MainController implements Initializable {
    */
   @FXML
   private void openReports() {
-    final Reports reports = reportsProvider.get();
-    final Stage reportStage = new Stage();
-    reportStage.setTitle(resources.getString("reportsTitle"));
-    reportStage.setScene(SceneFactory.create(reports));
-    reportStage.show();
+    router.transitionTo("Reports", resources.getString("reportsTitle"));
   }
 
   @FXML
