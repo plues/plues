@@ -7,6 +7,7 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.components.detailview.AbstractUnitDetailView;
 import de.hhu.stups.plues.ui.components.detailview.CourseDetailView;
+import de.hhu.stups.plues.ui.layout.SceneFactory;
 
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -26,13 +27,10 @@ public class CourseDetailViewRoute implements Route {
     final CourseDetailView courseDetailView = courseDetailViewProvider.get();
     courseDetailView.setCourse((Course) args[0]);
 
-    Scene scene = new Scene(courseDetailView, 500, 500);
-
     final Stage stage = new Stage();
-    scene.getStylesheets().add("/styles/index.css");
     stage.setTitle(courseDetailView.getTitle());
+    stage.setScene(SceneFactory.create(courseDetailView));
     stage.show();
 
-    stage.setScene(scene);
   }
 }

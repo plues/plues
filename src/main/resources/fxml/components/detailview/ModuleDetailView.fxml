@@ -30,7 +30,7 @@
         </columnConstraints>
     </GridPane>
     <Label/>
-    <Label text="%course" styleClass="h2"/>
+    <Label text="%courseAssignment" styleClass="h2"/>
     <TableView fx:id="courseTableView">
         <columns>
             <TableColumn text="%columnCourseName" minWidth="150" maxWidth="150">

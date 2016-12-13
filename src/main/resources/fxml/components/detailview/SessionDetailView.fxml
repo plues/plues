@@ -27,7 +27,7 @@
         </columnConstraints>
     </GridPane>
     <Label/>
-    <Label text="%course" styleClass="h2"/>
+    <Label text="%courseAssignment" styleClass="h2"/>
     <TableView fx:id="courseTable">
         <columns>
             <TableColumn fx:id="courseKey" text="%cell.course" minWidth="100" maxWidth="100"/>
