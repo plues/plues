@@ -21,6 +21,7 @@ import de.hhu.stups.plues.ui.ResourceManager;
 import de.hhu.stups.plues.ui.components.AboutWindow;
 import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
+import de.hhu.stups.plues.ui.layout.SceneFactory;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.application.Platform;
@@ -527,8 +528,7 @@ public class MainController implements Initializable {
   private void openChangeLog() {
     final Stage logStage = new Stage();
     logStage.setTitle(resources.getString("logTitle"));
-    logStage.setScene(new Scene(changeLog, 800, 600));
-    logStage.setResizable(false);
+    logStage.setScene(SceneFactory.create(changeLog));
     logStage.show();
 
     // TODO delete observer
@@ -542,7 +542,7 @@ public class MainController implements Initializable {
     final Reports reports = reportsProvider.get();
     final Stage reportStage = new Stage();
     reportStage.setTitle(resources.getString("reportsTitle"));
-    reportStage.setScene(new Scene(reports, 700, 620));
+    reportStage.setScene(SceneFactory.create(reports));
     reportStage.show();
   }
 
