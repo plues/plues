@@ -24,13 +24,10 @@ public class UnitDetailViewRoute implements Route {
     final UnitDetailView unitDetailView = unitDetailViewProvider.get();
     unitDetailView.setUnit((Unit) args[0]);
 
-    Scene scene = SceneFactory.create(unitDetailView);
-
     final Stage stage = new Stage();
-    scene.getStylesheets().add("/styles/index.css");
+    stage.setScene(SceneFactory.create(unitDetailView));
     stage.setTitle(unitDetailView.getTitle());
     stage.show();
 
-    stage.setScene(scene);
   }
 }

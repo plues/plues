@@ -25,12 +25,10 @@ public class AbstractUnitDetailViewRoute implements Route {
     final AbstractUnitDetailView abstractUnitDetailView = abstractUnitDetailViewProvider.get();
     abstractUnitDetailView.setAbstractUnit((AbstractUnit) args[0]);
 
-    Scene scene = SceneFactory.create(abstractUnitDetailView);
-
     final Stage stage = new Stage();
     stage.setTitle(abstractUnitDetailView.getTitle());
+    stage.setScene(SceneFactory.create(abstractUnitDetailView));
     stage.show();
 
-    stage.setScene(scene);
   }
 }

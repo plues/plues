@@ -26,12 +26,10 @@ public class ModuleDetailViewRoute implements Route {
     final ModuleDetailView moduleDetailView = moduleDetailViewProvider.get();
     moduleDetailView.setModule((Module) args[0]);
 
-    Scene scene = SceneFactory.create(moduleDetailView);
-
     final Stage stage = new Stage();
     stage.setTitle(moduleDetailView.getTitle());
+    stage.setScene(SceneFactory.create(moduleDetailView));
     stage.show();
 
-    stage.setScene(scene);
   }
 }

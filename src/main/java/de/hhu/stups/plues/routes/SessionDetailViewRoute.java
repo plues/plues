@@ -25,12 +25,10 @@ public class SessionDetailViewRoute implements Route {
     final SessionDetailView sessionDetailView = sessionDetailViewProvider.get();
     sessionDetailView.setSession(new SessionFacade((Session) args[0]));
 
-    Scene scene = SceneFactory.create(sessionDetailView);
-
     final Stage stage = new Stage();
     stage.setTitle(sessionDetailView.getTitle());
+    stage.setScene(SceneFactory.create(sessionDetailView));
     stage.show();
 
-    stage.setScene(scene);
   }
 }
