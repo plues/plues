@@ -28,6 +28,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
@@ -153,6 +154,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     selected.setToggleGroup(filterGroup);
     notSelected.setToggleGroup(filterGroup);
     all.setToggleGroup(filterGroup);
+
+    VBox.setVgrow(units, Priority.ALWAYS);
+    VBox.setVgrow(this, Priority.ALWAYS);
 
     checkboxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(checkboxColumn));
     checkboxColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));

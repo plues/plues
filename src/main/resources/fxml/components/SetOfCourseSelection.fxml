@@ -10,28 +10,23 @@
          xmlns:fx="http://javafx.com/fxml/1">
     <Label text="%search"/>
     <TextField fx:id="txtQuery"/>
-    <TitledPane fx:id="titledPaneMasterCourse" expanded="false" text="%master"
-                maxHeight="300.0">
-        <TableView fx:id="tableViewMasterCourse" prefWidth="500.0" maxHeight="300.0"
-                   editable="true">
+    <TitledPane fx:id="titledPaneMasterCourse" expanded="false" text="%master">
+        <TableView fx:id="tableViewMasterCourse" prefWidth="500.0" editable="true">
             <columns>
                 <TableColumn fx:id="tableColumnMasterCheckBox" prefWidth="30" sortable="false"
                              resizable="false"/>
-                <TableColumn fx:id="tableColumnMasterCourse" prefWidth="470.0"
-                             minWidth="470.0" text="%course"/>
+                <TableColumn fx:id="tableColumnMasterCourse" prefWidth="470.0" minWidth="470.0"
+                             text="%course"/>
             </columns>
         </TableView>
     </TitledPane>
     <TitledPane fx:id="titledPaneBachelorCourse" expanded="false" text="%bachelor"
-                prefWidth="400.0"
-                maxHeight="300.0">
-        <TableView fx:id="tableViewBachelorCourse" prefWidth="500.0" maxHeight="300.0"
-                   editable="true">
+                prefWidth="400.0">
+        <TableView fx:id="tableViewBachelorCourse" prefWidth="500.0" editable="true">
             <columns>
-                <TableColumn fx:id="tableColumnBachelorCheckBox" sortable="false"
-                             prefWidth="30.0"/>
-                <TableColumn fx:id="tableColumnBachelorCourse" prefWidth="470.0"
-                             minWidth="470.0" text="%course"/>
+                <TableColumn fx:id="tableColumnBachelorCheckBox" sortable="false" prefWidth="30.0"/>
+                <TableColumn fx:id="tableColumnBachelorCourse" prefWidth="470.0" minWidth="470.0"
+                             text="%course"/>
             </columns>
         </TableView>
     </TitledPane>

@@ -16,6 +16,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -65,14 +66,14 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
 
     solverProperty = new SimpleBooleanProperty(false);
 
-    setSpacing(10.0);
-
     inflater.inflate("components/CheckCourseFeasibility", this, this, "checkCourseFeasibility");
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     resultBoxWrapper.setSpacing(5.0);
+
+    VBox.setVgrow(scrollPaneResults, Priority.ALWAYS);
 
     final IntegerBinding resultBoxChildren = Bindings.size(resultBoxWrapper.getChildren());
     scrollPaneResults.visibleProperty().bind(resultBoxChildren.greaterThan(0));
