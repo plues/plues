@@ -69,12 +69,14 @@ public class AbstractUnitDetailViewTest extends ApplicationTest {
 
     doReturn(1).when(mod1).getPordnr();
     doReturn("Module 1").when(mod1).getTitle();
-    doReturn(new HashSet<>(Arrays.asList(maus1, maus2))).when(mod1).getModuleAbstractUnitSemesters();
+    doReturn(new HashSet<>(Arrays.asList(maus1, maus2)))
+        .when(mod1).getModuleAbstractUnitSemesters();
     doReturn(true).when(mod1).getMandatory();
 
     doReturn(2).when(mod2).getPordnr();
     doReturn("Module 2").when(mod2).getTitle();
-    doReturn(new HashSet<>(Arrays.asList(maus1, maus2))).when(mod2).getModuleAbstractUnitSemesters();
+    doReturn(new HashSet<>(Arrays.asList(maus1, maus2)))
+        .when(mod2).getModuleAbstractUnitSemesters();
     doReturn(false).when(mod2).getMandatory();
 
     doReturn(KEY).when(abstractUnit).getKey();
