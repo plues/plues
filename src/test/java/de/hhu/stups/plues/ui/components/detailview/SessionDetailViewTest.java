@@ -18,6 +18,8 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.detailview.SessionDetailView.CourseTableEntry;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import de.hhu.stups.plues.ui.layout.SceneFactory;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -178,8 +180,7 @@ public class SessionDetailViewTest extends ApplicationTest {
     final SessionDetailView sessionDetailView = new SessionDetailView(inflater, router);
     sessionDetailView.setSession(sessionFacade);
 
-    final Scene scene = new Scene(sessionDetailView, 400, 250);
-    stage.setScene(scene);
+    stage.setScene(SceneFactory.create(sessionDetailView));
     stage.show();
   }
 }
