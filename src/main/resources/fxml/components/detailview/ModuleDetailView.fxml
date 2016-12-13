@@ -6,10 +6,11 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1" prefWidth="500" prefHeight="500">
     <Label text="%module" styleClass="h1"/>
+    <Label/>
     <GridPane>
         <Label text="%pordnr" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
         <Label fx:id="pordnr" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
@@ -21,12 +22,12 @@
         <Label fx:id="mandatory" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
         <Label text="%creditPoints" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
         <Label fx:id="creditPoints" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-        <Label text="%electiveUnits" GridPane.columnIndex="0" GridPane.rowIndex="5">
-            <padding>
-                <Insets right="20"/>
-            </padding>
-        </Label>
+        <Label text="%electiveUnits" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
         <Label fx:id="electiveUnits" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50"/>
+            <ColumnConstraints percentWidth="50"/>
+        </columnConstraints>
     </GridPane>
     <Label/>
     <Label text="%course" styleClass="h2"/>
