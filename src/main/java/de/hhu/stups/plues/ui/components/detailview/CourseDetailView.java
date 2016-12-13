@@ -58,14 +58,14 @@ public class CourseDetailView extends VBox implements Initializable {
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     this.key.textProperty().bind(Bindings.when(courseProperty.isNotNull()).then(
-      Bindings.selectString(courseProperty, "key")).otherwise(""));
+        Bindings.selectString(courseProperty, "key")).otherwise(""));
     this.name.textProperty().bind(Bindings.when(courseProperty.isNotNull()).then(
-      Bindings.selectString(courseProperty, "fullName")).otherwise(""));
+        Bindings.selectString(courseProperty, "fullName")).otherwise(""));
     this.po.textProperty().bind(Bindings.when(courseProperty.isNotNull()).then(
-      Bindings.selectString(courseProperty, "po")).otherwise(""));
+        Bindings.selectString(courseProperty, "po")).otherwise(""));
     this.kzfa.textProperty().bind(Bindings.when(courseProperty.isNotNull()).then(
-      Bindings.selectString(courseProperty, "kzfa")).otherwise(""));
+        Bindings.selectString(courseProperty, "kzfa")).otherwise(""));
     this.degree.textProperty().bind(Bindings.when(courseProperty.isNotNull()).then(
-      Bindings.selectString(courseProperty, "degree")).otherwise(""));
+        Bindings.selectString(courseProperty, "degree")).otherwise(""));
   }
 }
