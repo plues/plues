@@ -19,6 +19,8 @@ import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.controller.Activatable;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
@@ -29,17 +31,19 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -47,28 +51,36 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Timetable extends BorderPane implements Initializable, Activatable {
+public class Timetable extends SplitPane implements Initializable, Activatable {
 
   private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
   private final Delayed<SolverService> delayedSolverService;
   private final UiDataService uiDataService;
+  private double userDefinedDividerPos = 0.65;
 
   @FXML
+  @SuppressWarnings("unused")
   private TabPane tabPaneSide;
   @FXML
+  @SuppressWarnings("unused")
+  private Tab tabHideSideBar;
+  @FXML
+  @SuppressWarnings("unused")
   private GridPane timeTable;
-
   @FXML
+  @SuppressWarnings("unused")
   private SetOfCourseSelection setOfCourseSelection;
-
   @FXML
+  @SuppressWarnings("unused")
   private AbstractUnitFilter abstractUnitFilter;
 
   @FXML
+  @SuppressWarnings("unused")
   private CheckCourseFeasibility checkCourseFeasibility;
 
   @FXML
+  @SuppressWarnings("unused")
   private ToggleGroup semesterToggle;
 
   private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
@@ -106,13 +118,54 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
           .collect(Collectors.toList()));
     });
 
-    // if the component checkCourseFeasibility is included
+    VBox.setVgrow(tabPaneSide, Priority.ALWAYS);
+
+    tabHideSideBar.setGraphic(FontAwesomeIconFactory.get()
+        .createIcon(FontAwesomeIcon.ANGLE_DOUBLE_LEFT));
+
+    tabPaneSide.getSelectionModel().selectedItemProperty().addListener(
+        (observable, oldValue, newValue) -> {
+          setTabPaneButtonHeight();
+          if (newValue.equals(tabHideSideBar)) {
+            getDividers().get(0).setPosition(tabPaneSide.getMinHeight() / 1000.0);
+            tabPaneSide.getTabs().remove(tabHideSideBar);
+            disableDivider(true);
+          } else {
+            if (oldValue.equals(tabHideSideBar)) {
+              getDividers().get(0).setPosition(userDefinedDividerPos);
+            }
+            disableDivider(false);
+            if (!tabPaneSide.getTabs().contains(tabHideSideBar)) {
+              tabPaneSide.getTabs().add(tabHideSideBar);
+            }
+          }
+        });
+
+    getDividers().get(0).positionProperty().addListener((observable, oldValue, newValue) -> {
+      setTabPaneButtonHeight();
+      // don't store too small divider positions
+      if (Math.abs(newValue.doubleValue() - tabPaneSide.getMinHeight() / 1000.0) > 0.3) {
+        userDefinedDividerPos = newValue.doubleValue();
+      }
+    });
+
+    // initialize checkCourseFeasibility component
     checkCourseFeasibility.impossibleCoursesProperty().bind(
         uiDataService.impossibleCoursesProperty());
     delayedSolverService.whenAvailable(
         solverService -> checkCourseFeasibility.setSolverProperty(true));
 
     initSessionBoxes();
+  }
+
+  private void disableDivider(final boolean bool) {
+    lookup(".split-pane-divider").setDisable(bool);
+  }
+
+  private void setTabPaneButtonHeight() {
+    final StackPane tabPaneHeader = (StackPane) tabPaneSide.lookup(".tab-header-area");
+    tabPaneHeader.setPrefHeight(35.0);
+    tabPaneSide.setMinWidth(35.0);
   }
 
   private void initSessionBoxes() {
