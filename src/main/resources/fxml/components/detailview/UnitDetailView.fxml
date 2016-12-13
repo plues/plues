@@ -26,7 +26,7 @@
     <Label text="%abstractUnits" styleClass="h2"/>
     <TableView fx:id="abstractUnitTableView">
         <columns>
-            <TableColumn text="%key">
+            <TableColumn text="%key" minWidth="150" maxWidth="150">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
@@ -37,6 +37,9 @@
                 </cellValueFactory>
             </TableColumn>
         </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
     </TableView>
     <Label text="%sessions" styleClass="h2"/>
     <TableView fx:id="sessionTableView">

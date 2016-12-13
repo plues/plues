@@ -5,6 +5,7 @@ import com.google.inject.Provider;
 
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.ui.components.detailview.UnitDetailView;
+import de.hhu.stups.plues.ui.layout.SceneFactory;
 
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -23,7 +24,7 @@ public class UnitDetailViewRoute implements Route {
     final UnitDetailView unitDetailView = unitDetailViewProvider.get();
     unitDetailView.setUnit((Unit) args[0]);
 
-    Scene scene = new Scene(unitDetailView, 500, 500);
+    Scene scene = SceneFactory.create(unitDetailView);
 
     final Stage stage = new Stage();
     scene.getStylesheets().add("/styles/index.css");
