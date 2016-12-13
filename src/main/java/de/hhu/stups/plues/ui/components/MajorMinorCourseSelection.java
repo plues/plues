@@ -198,12 +198,16 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     return this.cbMinor;
   }
 
-  public void selectMajorCourse(final Course majorCourse) {
-    cbMajor.getSelectionModel().select(majorCourse);
-  }
-
-  public void selectMinorCourse(final Course minorCourse) {
-    cbMinor.getSelectionModel().select(minorCourse);
+  /**
+   * Select the given course either in the {@link #cbMajor major} or the {@link #cbMinor minor}
+   * course selection.
+   */
+  public void selectCourse(final Course course) {
+    if (course.isMajor()) {
+      cbMajor.getSelectionModel().select(course);
+    } else {
+      cbMinor.getSelectionModel().select(course);
+    }
   }
 
   private void fireListenerEvents() {

@@ -54,7 +54,11 @@ class ResultContextMenu extends ContextMenu {
     getItems().clear();
     switch (resultState) {
       case SUCCEEDED:
-        getItems().addAll(itemShowInTimetable, itemGeneratePartialTimetable, itemGeneratePdf);
+        if (courses.length == 1 && courses[0].isCombinable()) {
+          getItems().add(itemShowInTimetable);
+        } else {
+          getItems().addAll(itemShowInTimetable, itemGeneratePartialTimetable, itemGeneratePdf);
+        }
         itemShowInTimetable.setOnAction(event ->
             router.transitionTo(RouteNames.TIMETABLE.getRouteName(),
                 courses, ResultState.SUCCEEDED));

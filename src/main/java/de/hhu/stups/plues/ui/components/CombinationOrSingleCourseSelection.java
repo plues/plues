@@ -142,10 +142,10 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
     } else {
       rbCombination.setSelected(true);
       if (courses.length > 0) {
-        majorMinorCourseSelection.selectMajorCourse(courses[0]);
+        majorMinorCourseSelection.selectCourse(courses[0]);
       }
       if (courses.length > 1) {
-        majorMinorCourseSelection.selectMinorCourse(courses[1]);
+        majorMinorCourseSelection.selectCourse(courses[1]);
       }
     }
   }

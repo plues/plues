@@ -259,10 +259,10 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   @Override
   public void activateController(Object... courses) {
     if (courses.length > 0) {
-      courseSelection.selectMajorCourse((Course) courses[0]);
+      courseSelection.selectCourse((Course) courses[0]);
     }
     if (courses.length > 1) {
-      courseSelection.selectMinorCourse((Course) courses[1]);
+      courseSelection.selectCourse((Course) courses[1]);
     }
     btChoosePressed();
   }
