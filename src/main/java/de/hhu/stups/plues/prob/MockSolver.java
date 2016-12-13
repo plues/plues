@@ -36,8 +36,8 @@ public class MockSolver implements Solver {
   }
 
   @Override
-  public Boolean checkFeasibility(final String... courses) {
-    return false;
+  public Boolean checkFeasibility(final String... courses) throws SolverException {
+    throw new SolverException("failed");
   }
 
   @Override
