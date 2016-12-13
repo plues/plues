@@ -41,6 +41,7 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
         </columnResizePolicy>
     </TableView>
+    <Label/>
     <Label text="%sessions" styleClass="h2"/>
     <TableView fx:id="sessionTableView">
         <columns>
