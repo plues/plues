@@ -35,6 +35,7 @@
         <HBox spacing="10.0">
             <Label text="%infeasibleCourses"/>
             <Label fx:id="lbInfeasibleCourseAmount"/>
+            <Label fx:id="lblImpossibleCoursesAmount" />
         </HBox>
         <HBox spacing="10.0">
             <Label text="%timeoutCourses"/>
