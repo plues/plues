@@ -48,7 +48,8 @@ public class RouterProvider implements Provider<Router> {
 
       cache.put(RouteNames.INDEX.getRouteName(), indexRouteProvider.get());
       cache.put(RouteNames.MODULE_DETAIL_VIEW.getRouteName(), moduleDetailViewRouteProvider.get());
-      cache.put(RouteNames.SESSION_DETAIL_VIEW.getRouteName(), sessionDetailViewRouteProvider.get());
+      cache.put(RouteNames.SESSION_DETAIL_VIEW.getRouteName(),
+          sessionDetailViewRouteProvider.get());
       cache.put(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW.getRouteName(),
           abstractUnitDetailViewRouteProvider.get());
       cache.put(RouteNames.UNIT_DETAIL_VIEW.getRouteName(), unitDetailViewRouteProvider.get());
