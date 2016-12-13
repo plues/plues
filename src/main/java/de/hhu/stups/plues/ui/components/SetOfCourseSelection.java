@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.BooleanProperty;
@@ -125,6 +124,9 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         unbind(courses);
       }
 
+
+      // NOTE: A change to the courses list, this binding is bound to, will recreate all
+      // SelectableCourses objects. This behaviour will loose the state of all selectedProperties.
       @Override
       protected ObservableList<SelectableCourse> computeValue() {
         return FXCollections.observableList(
@@ -159,9 +161,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         return selectableCourses.parallelStream()
             .filter(SelectableCourse::isSelected)
             .map(SelectableCourse::getCourse)
-            .collect(
-                Collectors.collectingAndThen(Collectors.toList(),
-                    FXCollections::observableArrayList));
+            .collect(Collectors.collectingAndThen(Collectors.toList(),
+              FXCollections::observableArrayList));
       }
     });
   }
