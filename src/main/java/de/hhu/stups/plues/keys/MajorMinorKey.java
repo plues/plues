@@ -19,14 +19,19 @@ public final class MajorMinorKey {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    MajorMinorKey that = (MajorMinorKey) obj;
+    final MajorMinorKey that = (MajorMinorKey) obj;
     return Objects.equals(major, that.major)
-        && Objects.equals(minor, that.minor);
+      && Objects.equals(minor, that.minor);
   }
 
   @Override
   public final int hashCode() {
     return Objects.hash(major, minor);
+  }
+
+  @Override
+  public String toString() {
+    return this.getMajor() + "<>" + this.getMinor();
   }
 
   public final String getMajor() {
