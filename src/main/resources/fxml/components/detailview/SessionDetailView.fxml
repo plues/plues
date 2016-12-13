@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.geometry.Insets?>
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1" prefWidth="750" prefHeight="400">
+         xmlns:fx="http://javafx.com/fxml/1" prefWidth="500" prefHeight="500">
     <Label text="%session" styleClass="h1"/>
     <GridPane>
         <Label text="%session" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
@@ -29,11 +29,14 @@
     <Label text="%course" styleClass="h2"/>
     <TableView fx:id="courseTable">
         <columns>
-            <TableColumn fx:id="courseKey" text="%cell.course"/>
+            <TableColumn fx:id="courseKey" text="%cell.course" minWidth="100" maxWidth="100"/>
             <TableColumn fx:id="module" text="%cell.module"/>
             <TableColumn fx:id="abstractUnit" text="%cell.abstractUnit"/>
-            <TableColumn fx:id="courseSemesters" text="%cell.semester"/>
-            <TableColumn fx:id="type" text="%cell.type"/>
+            <TableColumn fx:id="courseSemesters" text="%cell.semester" minWidth="80" maxWidth="80"/>
+            <TableColumn fx:id="type" text="%cell.type" minWidth="50" maxWidth="50"/>
         </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
     </TableView>
 </fx:root>
