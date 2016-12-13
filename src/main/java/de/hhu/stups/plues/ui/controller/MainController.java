@@ -634,7 +634,7 @@ public class MainController implements Initializable {
     final Stage aboutStage = new Stage();
     aboutWindow.setPadding(new Insets(10.0, 10.0, 10.0, 10.0));
     aboutStage.setTitle(resources.getString("about"));
-    aboutStage.setScene(new Scene(aboutWindow, 550, 400));
+    aboutStage.setScene(SceneFactory.create(aboutWindow));
     aboutStage.setResizable(false);
     aboutStage.show();
   }
