@@ -178,9 +178,7 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
   private void selectTabById(final String tabId) {
     final Optional<Tab> tabConflict = tabPaneSide.getTabs().stream()
         .filter(tab -> tabId.equals(tab.getId())).findFirst();
-    if (tabConflict.isPresent()) {
-      tabPaneSide.getSelectionModel().select(tabConflict.get());
-    }
+    tabConflict.ifPresent(tabPaneSide.getSelectionModel()::select);
   }
 
   private class SessionFacadeListBinding extends ListBinding<SessionFacade> {
