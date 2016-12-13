@@ -526,12 +526,7 @@ public class MainController implements Initializable {
    */
   @FXML
   private void openChangeLog() {
-    final Stage logStage = new Stage();
-    logStage.setTitle(resources.getString("logTitle"));
-    logStage.setScene(SceneFactory.create(changeLog));
-    logStage.show();
-
-    // TODO delete observer
+    router.transitionTo("changelog", resources.getString("logTitle"));
   }
 
   /**

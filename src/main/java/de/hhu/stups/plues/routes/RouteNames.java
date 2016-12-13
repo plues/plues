@@ -8,7 +8,8 @@ public enum RouteNames {
   UNIT_DETAIL_VIEW("unitDetailView"),
   COURSE("courseDetailView"),
   ABOUT_WINDOW("aboutWindow"),
-  REPORTS("Reports");
+  REPORTS("Reports"),
+  CHANGELOG("changelog");
 
   private final String routeName;
 

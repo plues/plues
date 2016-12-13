@@ -5,6 +5,7 @@ import com.google.inject.Provider;
 
 import de.hhu.stups.plues.routes.AboutWindowRoute;
 import de.hhu.stups.plues.routes.AbstractUnitDetailViewRoute;
+import de.hhu.stups.plues.routes.ChangelogRoute;
 import de.hhu.stups.plues.routes.CourseDetailViewRoute;
 import de.hhu.stups.plues.routes.IndexRoute;
 import de.hhu.stups.plues.routes.ModuleDetailViewRoute;
@@ -16,8 +17,8 @@ import de.hhu.stups.plues.routes.UnitDetailViewRoute;
 
 public class RouterProvider implements Provider<Router> {
   private Router cache;
-  private final Provider<IndexRoute> indexRouteProvider;
 
+  private final Provider<ChangelogRoute> changelogRouteProvider;
   private final Provider<AboutWindowRoute> aboutWindowRouteProvider;
   private final Provider<ModuleDetailViewRoute> moduleDetailViewRouteProvider;
   private final Provider<AbstractUnitDetailViewRoute> abstractUnitDetailViewRouteProvider;
@@ -25,6 +26,7 @@ public class RouterProvider implements Provider<Router> {
   private final Provider<SessionDetailViewRoute> sessionDetailViewRouteProvider;
   private final Provider<CourseDetailViewRoute> courseDetailViewRouteProvider;
   private final Provider<ReportsRoute> reportsRouteProvider;
+  private final Provider<IndexRoute> indexRouteProvider;
 
   /**
    * Constructor for routerProvider.
@@ -38,7 +40,8 @@ public class RouterProvider implements Provider<Router> {
                         final Provider<SessionDetailViewRoute> sessionDetailViewRouteProvider,
                         final Provider<CourseDetailViewRoute> courseDetailViewRouteProvider,
                         final Provider<AboutWindowRoute> aboutWindowRouteProvider,
-                        final Provider<ReportsRoute> reportsRouteProvider) {
+                        final Provider<ReportsRoute> reportsRouteProvider,
+                        final Provider<ChangelogRoute> changelogRouteProvider) {
     this.indexRouteProvider = indexRouteProvider;
     this.moduleDetailViewRouteProvider = moduleDetailViewRouteProvider;
     this.abstractUnitDetailViewRouteProvider = abstractUnitDetailViewRouteProvider;
@@ -47,6 +50,7 @@ public class RouterProvider implements Provider<Router> {
     this.courseDetailViewRouteProvider = courseDetailViewRouteProvider;
     this.aboutWindowRouteProvider = aboutWindowRouteProvider;
     this.reportsRouteProvider = reportsRouteProvider;
+    this.changelogRouteProvider = changelogRouteProvider;
   }
 
   @Override
@@ -64,6 +68,7 @@ public class RouterProvider implements Provider<Router> {
       cache.put(RouteNames.COURSE.getRouteName(), courseDetailViewRouteProvider.get());
       cache.put(RouteNames.ABOUT_WINDOW.getRouteName(), aboutWindowRouteProvider.get());
       cache.put(RouteNames.REPORTS.getRouteName(), reportsRouteProvider.get());
+      cache.put(RouteNames.CHANGELOG.getRouteName(), changelogRouteProvider.get());
     }
 
     return cache;
