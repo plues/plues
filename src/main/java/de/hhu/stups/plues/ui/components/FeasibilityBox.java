@@ -218,9 +218,10 @@ public class FeasibilityBox extends VBox implements Initializable {
     unsatCoreTask.setOnSucceeded(unsatCore -> {
       unsatCoreProperty.set(FXCollections.observableArrayList(unsatCoreTask.getValue()));
       final ConflictTree conflictTree = conflictTreeProvider.get();
-      conflictTree.setConflictSessions(delayedStore.get().getSessions()
-          .stream().filter(session -> unsatCoreProperty.get().contains(session.getId()))
-          .collect(Collectors.toList()));
+      conflictTree.setConflictSessions(
+          unsatCoreProperty.get()
+            .stream().map(i -> delayedStore.get().getSessionById(i))
+            .collect(Collectors.toList()));
       conflictTree.setUnsatCoreProperty(unsatCoreProperty);
       getChildren().add(conflictTree);
       cbAction.setItems(FXCollections.singletonObservableList(removeString));
