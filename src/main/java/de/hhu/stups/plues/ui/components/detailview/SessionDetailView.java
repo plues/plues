@@ -8,6 +8,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
@@ -21,7 +22,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
@@ -167,13 +167,13 @@ public class SessionDetailView extends VBox implements Initializable {
               .getTableColumn().getText();
 
           if (rowText.equals(resources.getString("cell.module"))) {
-            router.transitionTo("moduleDetailView", newValue.getModule());
+            router.transitionTo(RouteNames.MODULE_DETAIL_VIEW, newValue.getModule());
           } else {
             if (rowText.equals(resources.getString("cell.abstractUnit"))) {
-              router.transitionTo("abstractUnitDetailView", newValue.getAbstractUnit());
+              router.transitionTo(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW, newValue.getAbstractUnit());
             } else {
               if (rowText.equals(resources.getString("cell.course"))) {
-                router.transitionTo("courseDetailView", newValue.getCourse());
+                router.transitionTo(RouteNames.COURSE_DETAIL_VIEW, newValue.getCourse());
               }
             }
           }

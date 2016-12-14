@@ -21,7 +21,7 @@ public class AbstractUnitDetailViewRoute implements Route {
   }
 
   @Override
-  public void transition(Object... args) {
+  public void transition(final Object... args) {
     final AbstractUnitDetailView abstractUnitDetailView = abstractUnitDetailViewProvider.get();
     abstractUnitDetailView.setAbstractUnit((AbstractUnit) args[0]);
 

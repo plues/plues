@@ -8,6 +8,7 @@ import de.codecentric.centerdevice.MenuToolkit;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.modelgenerator.XmlExporter;
+import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
@@ -517,7 +518,7 @@ public class MainController implements Initializable {
    */
   @FXML
   private void openChangeLog() {
-    router.transitionTo("changelog", resources.getString("logTitle"));
+    router.transitionTo(RouteNames.CHANGELOG, resources.getString("logTitle"));
   }
 
   /**
@@ -525,7 +526,7 @@ public class MainController implements Initializable {
    */
   @FXML
   private void openReports() {
-    router.transitionTo("Reports", resources.getString("reportsTitle"));
+    router.transitionTo(RouteNames.REPORTS, resources.getString("reportsTitle"));
   }
 
   @FXML
@@ -612,7 +613,7 @@ public class MainController implements Initializable {
    */
   @FXML
   private void about() {
-    router.transitionTo("aboutWindow", resources.getString("about"));
+    router.transitionTo(RouteNames.ABOUT_WINDOW, resources.getString("about"));
   }
 
   @FXML

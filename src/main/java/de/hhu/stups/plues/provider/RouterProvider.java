@@ -63,24 +63,24 @@ public class RouterProvider implements Provider<Router> {
     if (cache == null) {
       cache = new Router();
 
-      cache.put(RouteNames.INDEX.getRouteName(), indexRouteProvider.get());
-      cache.put(RouteNames.MODULE_DETAIL_VIEW.getRouteName(), moduleDetailViewRouteProvider.get());
-      cache.put(RouteNames.SESSION_DETAIL_VIEW.getRouteName(),
+      cache.put(RouteNames.INDEX, indexRouteProvider.get());
+      cache.put(RouteNames.MODULE_DETAIL_VIEW, moduleDetailViewRouteProvider.get());
+      cache.put(RouteNames.SESSION_DETAIL_VIEW,
           sessionDetailViewRouteProvider.get());
-      cache.put(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW.getRouteName(),
+      cache.put(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW,
           abstractUnitDetailViewRouteProvider.get());
-      cache.put(RouteNames.UNIT_DETAIL_VIEW.getRouteName(), unitDetailViewRouteProvider.get());
-      cache.put(RouteNames.COURSE.getRouteName(), courseDetailViewRouteProvider.get());
-      cache.put(RouteNames.ABOUT_WINDOW.getRouteName(), aboutWindowRouteProvider.get());
-      cache.put(RouteNames.REPORTS.getRouteName(), reportsRouteProvider.get());
-      cache.put(RouteNames.CHANGELOG.getRouteName(), changelogRouteProvider.get());
-      cache.put(RouteNames.TIMETABLE.getRouteName(),
+      cache.put(RouteNames.UNIT_DETAIL_VIEW, unitDetailViewRouteProvider.get());
+      cache.put(RouteNames.COURSE_DETAIL_VIEW, courseDetailViewRouteProvider.get());
+      cache.put(RouteNames.ABOUT_WINDOW, aboutWindowRouteProvider.get());
+      cache.put(RouteNames.REPORTS, reportsRouteProvider.get());
+      cache.put(RouteNames.CHANGELOG, changelogRouteProvider.get());
+      cache.put(RouteNames.TIMETABLE,
           controllerRouteFactory.create("tabTimetable"));
-      cache.put(RouteNames.PDF_TIMETABLES.getRouteName(),
+      cache.put(RouteNames.PDF_TIMETABLES,
           controllerRouteFactory.create("tabPdfTimetables"));
-      cache.put(RouteNames.PARTIAL_TIMETABLES.getRouteName(),
+      cache.put(RouteNames.PARTIAL_TIMETABLES,
           controllerRouteFactory.create("tabPartialTimetables"));
-      cache.put(RouteNames.UNSAT_CORE.getRouteName(),
+      cache.put(RouteNames.UNSAT_CORE,
           controllerRouteFactory.create("tabUnsatCore"));
     }
 

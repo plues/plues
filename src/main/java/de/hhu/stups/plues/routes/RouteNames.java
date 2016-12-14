@@ -4,7 +4,7 @@ public enum RouteNames {
   ABOUT_WINDOW("aboutWindow"),
   ABSTRACT_UNIT_DETAIL_VIEW("abstractUnitDetailView"),
   CHANGELOG("changelog"),
-  COURSE("courseDetailView"),
+  COURSE_DETAIL_VIEW("courseDetailView"),
   INDEX("index"),
   MODULE_DETAIL_VIEW("moduleDetailView"),
   PARTIAL_TIMETABLES("partialTimetables"),

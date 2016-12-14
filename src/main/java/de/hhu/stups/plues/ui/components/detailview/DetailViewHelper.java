@@ -6,6 +6,7 @@ import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
+import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import javafx.event.EventHandler;
 import javafx.scene.control.TableCell;
@@ -30,7 +31,7 @@ public class DetailViewHelper {
         return;
       }
       final AbstractUnit abstractUnit = abstractUnitTableView.getSelectionModel().getSelectedItem();
-      router.transitionTo("abstractUnitDetailView", abstractUnit);
+      router.transitionTo(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW, abstractUnit);
     };
   }
 
@@ -45,7 +46,7 @@ public class DetailViewHelper {
         return;
       }
       final Course course = courseTableView.getSelectionModel().getSelectedItem();
-      router.transitionTo("courseDetailView", course);
+      router.transitionTo(RouteNames.COURSE_DETAIL_VIEW, course);
     };
   }
 
@@ -60,7 +61,7 @@ public class DetailViewHelper {
         return;
       }
       Unit unit = groupTableView.getSelectionModel().getSelectedItem().getUnit();
-      router.transitionTo("unitDetailView", unit);
+      router.transitionTo(RouteNames.UNIT_DETAIL_VIEW, unit);
     };
   }
 
@@ -75,7 +76,7 @@ public class DetailViewHelper {
         return;
       }
       final Unit unit = unitTableView.getSelectionModel().getSelectedItem();
-      router.transitionTo("unitDetailView", unit);
+      router.transitionTo(RouteNames.UNIT_DETAIL_VIEW, unit);
     };
   }
 
@@ -90,7 +91,7 @@ public class DetailViewHelper {
         return;
       }
       final Module module = moduleTableView.getSelectionModel().getSelectedItem();
-      router.transitionTo("moduleDetailView", module);
+      router.transitionTo(RouteNames.MODULE_DETAIL_VIEW, module);
     };
   }
 
@@ -105,7 +106,7 @@ public class DetailViewHelper {
         return;
       }
       final Session session = sessionTableView.getSelectionModel().getSelectedItem();
-      router.transitionTo("sessionDetailView", session);
+      router.transitionTo(RouteNames.SESSION_DETAIL_VIEW, session);
     };
   }
 

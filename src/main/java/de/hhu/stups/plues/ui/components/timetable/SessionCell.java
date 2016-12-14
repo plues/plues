@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
@@ -127,7 +128,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
       return;
     }
 
-    router.transitionTo("sessionDetailView", getItem().getSession());
+    router.transitionTo(RouteNames.SESSION_DETAIL_VIEW, getItem().getSession());
   }
 
   @Override
