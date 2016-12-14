@@ -12,8 +12,7 @@ import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
-import de.hhu.stups.plues.keys.CourseKey;
-import de.hhu.stups.plues.keys.MajorMinorKey;
+import de.hhu.stups.plues.keys.CourseSelection;
 import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.ReportData;
@@ -34,8 +33,7 @@ import java.util.stream.Collectors;
 public class SolverService {
   private final Solver solver;
   private final ResourceBundle resources = ResourceBundle.getBundle("lang.solverTask");
-  private final ReadOnlyMapProperty<MajorMinorKey, ResultState> courseCombinationResults;
-  private final ReadOnlyMapProperty<CourseKey, ResultState> singleCourseResults;
+  private final ReadOnlyMapProperty<CourseSelection, ResultState> courseSelectionResults;
   private final String langTimeout = ResourceBundle.getBundle("lang.tasks").getString("timeout");
   private int timeout = 60;
 
@@ -46,8 +44,7 @@ public class SolverService {
    */
   public SolverService(final Solver solver) {
     this.solver = solver;
-    courseCombinationResults = new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
-    singleCourseResults = new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
+    courseSelectionResults = new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
   }
 
   /**
@@ -66,21 +63,21 @@ public class SolverService {
     final SolverTask<Boolean> checkFeasibilityTask =
         new SolverTask<>(resources.getString("check"), msg, this.solver,
             () -> solver.checkFeasibility(names), timeout);
-    addOnCancelListener(names, checkFeasibilityTask);
+    addOnCancelListener(courses, checkFeasibilityTask);
 
     checkFeasibilityTask.addEventHandler(WORKER_STATE_SUCCEEDED, event -> {
       if (langTimeout.equals(checkFeasibilityTask.getReason())) {
-        addCourseResult(names, ResultState.TIMEOUT);
+        addCourseResult(courses, ResultState.TIMEOUT);
       } else {
-        addCourseResult(names, checkFeasibilityTask.getValue() ? ResultState.SUCCEEDED
+        addCourseResult(courses, checkFeasibilityTask.getValue() ? ResultState.SUCCEEDED
             : ResultState.FAILED);
       }
     });
     checkFeasibilityTask.addEventHandler(WORKER_STATE_FAILED, event -> {
       if (langTimeout.equals(checkFeasibilityTask.getReason())) {
-        addCourseResult(names, ResultState.TIMEOUT);
+        addCourseResult(courses, ResultState.TIMEOUT);
       } else {
-        addCourseResult(names, ResultState.FAILED);
+        addCourseResult(courses, ResultState.FAILED);
       }
     });
     return checkFeasibilityTask;
@@ -103,16 +100,16 @@ public class SolverService {
         new SolverTask<>(resources.getString("compute"), msg, solver,
             () -> {
               final FeasibilityResult result = solver.computeFeasibility(names);
-              this.addCourseResult(names, ResultState.SUCCEEDED);
+              this.addCourseResult(courses, ResultState.SUCCEEDED);
               return result;
             }, timeout);
-    addOnCancelListener(names, computeFeasibilityTask);
+    addOnCancelListener(courses, computeFeasibilityTask);
 
     computeFeasibilityTask.addEventHandler(WORKER_STATE_FAILED, event -> {
       if (langTimeout.equals(computeFeasibilityTask.getReason())) {
-        addCourseResult(names, ResultState.TIMEOUT);
+        addCourseResult(courses, ResultState.TIMEOUT);
       } else {
-        addCourseResult(names, ResultState.FAILED);
+        addCourseResult(courses, ResultState.FAILED);
       }
     });
     return computeFeasibilityTask;
@@ -136,7 +133,7 @@ public class SolverService {
     final List<String> names = courses.stream()
         .map(Course::getName)
         .collect(Collectors.toList());
-    final String[] combination = names.toArray(new String[] {});
+    final Course[] coursesArray = courses.toArray(new Course[]{});
 
     final Map<String, List<Integer>> mc = moduleChoice.entrySet().stream()
         .collect(Collectors.toMap(
@@ -155,16 +152,16 @@ public class SolverService {
         new SolverTask<>(resources.getString("compute"), msg, solver,
             () -> {
               final FeasibilityResult result = solver.computePartialFeasibility(names, mc, auc);
-              addCourseResult(combination, ResultState.SUCCEEDED);
+              addCourseResult(coursesArray, ResultState.SUCCEEDED);
               return result;
             }, timeout);
-    addOnCancelListener(combination, computeFeasibilityTask);
+    addOnCancelListener(coursesArray, computeFeasibilityTask);
 
     computeFeasibilityTask.addEventHandler(WORKER_STATE_FAILED, event -> {
       if (langTimeout.equals(computeFeasibilityTask.getReason())) {
-        addCourseResult(combination, ResultState.TIMEOUT);
+        addCourseResult(coursesArray, ResultState.TIMEOUT);
       } else {
-        addCourseResult(combination, ResultState.FAILED);
+        addCourseResult(coursesArray, ResultState.FAILED);
       }
     });
 
@@ -303,43 +300,24 @@ public class SolverService {
   }
 
   /**
-   * Add a {@link ResultState result} to the cache {@link #courseCombinationResults}. A result is
+   * Add a {@link ResultState result} to the cache {@link #courseSelectionResults}. A result is
    * replaced if the existing one is {@link ResultState#FAILED failed}.
-   *
-   * @param courses The list of courses or a single standalone course.
+   *  @param courses The list of courses or a single standalone course.
    * @param result  The {@link ResultState result} to be stored.
    */
-  private synchronized void addCourseResult(final String[] courses, final ResultState result) {
-    final MajorMinorKey key;
-    if (courses.length == 1) {
-      key = new MajorMinorKey(courses[0], null);
-      addSingleCourseResult(courses[0], result);
-    } else {
-      key = new MajorMinorKey(courses[0], courses[1]);
-      if (ResultState.SUCCEEDED.equals(result)) {
-        addSingleCourseResult(courses[0], result);
-        addSingleCourseResult(courses[1], result);
+  private synchronized void addCourseResult(final Course[] courses, final ResultState result) {
+    final CourseSelection key = new CourseSelection(courses);
+    //
+    if (!courseSelectionResults.containsKey(key)
+        || !ResultState.SUCCEEDED.equals(courseSelectionResults.get(key))) {
+      courseSelectionResults.put(key, result);
+    }
+    // if we checked a pair of courses and the result is SUCCEEDED we know each course is feasible
+    // and can add that information to the cache
+    if (courses.length == 2 && ResultState.SUCCEEDED.equals(result)) {
+      for (final Course course : courses) {
+        courseSelectionResults.put(new CourseSelection(course), result);
       }
-    }
-    if (!courseCombinationResults.containsKey(key)
-        || !ResultState.SUCCEEDED.equals(courseCombinationResults.get(key))) {
-      courseCombinationResults.put(key, result);
-    }
-  }
-
-  /**
-   * Add a {@link ResultState result} to the cache {@link #singleCourseResults}. A result is
-   * replaced if the existing one is {@link ResultState#FAILED failed}.
-   *
-   * @param courseName The name of the single course.
-   * @param result     The {@link ResultState result} to be stored.
-   */
-  private synchronized void addSingleCourseResult(final String courseName,
-                                                  final ResultState result) {
-    final CourseKey courseKey = new CourseKey(courseName);
-    if (!singleCourseResults.containsKey(courseKey)
-        || !ResultState.SUCCEEDED.equals(singleCourseResults.get(courseKey))) {
-      singleCourseResults.put(courseKey, result);
     }
   }
 
@@ -347,7 +325,7 @@ public class SolverService {
    * Set the onCancelled() method of a task to catch and distinguish between timeouts and failed
    * computations.
    */
-  private void addOnCancelListener(final String[] names, final SolverTask<?> solverTask) {
+  private void addOnCancelListener(final Course[] names, final SolverTask<?> solverTask) {
     solverTask.addEventHandler(WORKER_STATE_CANCELLED, event -> {
       if (langTimeout.equals(solverTask.getReason())) {
         addCourseResult(names, ResultState.TIMEOUT);
@@ -355,12 +333,8 @@ public class SolverService {
     });
   }
 
-  public final ReadOnlyMapProperty<MajorMinorKey, ResultState> getCourseCombinationResults() {
-    return courseCombinationResults;
-  }
-
-  public final ReadOnlyMapProperty<CourseKey, ResultState> getSingleCourseResults() {
-    return singleCourseResults;
+  public final ReadOnlyMapProperty<CourseSelection, ResultState> courseSelectionResultsProperty() {
+    return courseSelectionResults;
   }
 
   /**
@@ -383,7 +357,7 @@ public class SolverService {
     }, timeout);
   }
 
-  public void setTimeout(int timeout) {
+  public void setTimeout(final int timeout) {
     this.timeout = timeout;
   }
 }
