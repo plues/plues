@@ -284,28 +284,6 @@ public class SolverService {
         solver, solver::getReportingData, timeout);
   }
 
-  /**
-   * Create a solver task to move a session to a new day/time and thus modifying the model's state.
-   * Clears all caches as a side-effect.
-   *
-   * @param session Session to be moved
-   * @param day     String target day
-   * @param time    String target time slot
-   * @return SolverTask
-   */
-  @SuppressWarnings("unused")
-  public SolverTask<Void> moveTask(final Session session, final String day, final String time) {
-    final String sessionId = String.valueOf(session.getId());
-
-    return new SolverTask<>(resources.getString("moving"), resources.getString("message.moving"),
-        solver, () -> {
-      solver.move(sessionId, day, time);
-      courseCombinationResults.clear();
-      singleCourseResults.clear();
-      return null;
-    }, timeout);
-  }
-
   private String getMessage(final String[] names) {
     return Joiner.on(", ").join(names);
   }
@@ -385,22 +363,22 @@ public class SolverService {
     return singleCourseResults;
   }
 
-
   /**
-   * Move a session to a new day/time slot.
+   * Create a solver task to move a session to a new day/time and thus modifying the model's state.
+   * Clears all caches as a side-effect.
    *
    * @param sessionId The id of the session to be moved
    * @param slot      the target slot (tay time)
    * @return SolverTask object for moving a session
    */
-  public SolverTask<Void> moveSession(final int sessionId, final SessionFacade.Slot slot) {
-    return new SolverTask<>("Verschiebe a nach b", "Verschiebe es!!!", solver, () -> {
+  public SolverTask<Void> moveSessionTask(final int sessionId, final SessionFacade.Slot slot) {
+    return new SolverTask<>(resources.getString("moving"), resources.getString("message.moving"),
+      solver, () -> {
       solver.move(
-          String.valueOf(sessionId),
-          slot.getDayString(),
-          slot.getTime().toString());
-      courseCombinationResults.clear();
-      singleCourseResults.clear();
+            String.valueOf(sessionId),
+            slot.getDayString(),
+            slot.getTime().toString());
+      courseSelectionResults.clear();
       return null;
     }, timeout);
   }

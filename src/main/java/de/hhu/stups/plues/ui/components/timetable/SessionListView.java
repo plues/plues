@@ -23,8 +23,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import javax.annotation.Nullable;
 
@@ -131,7 +129,7 @@ public class SessionListView extends ListView<SessionFacade> {
       final int sessionId = Integer.parseInt(dragboard.getString());
 
       delayedSolverService.whenAvailable(solver -> {
-        final SolverTask<Void> moveSession = solver.moveSession(sessionId, slot);
+        final SolverTask<Void> moveSession = solver.moveSessionTask(sessionId, slot);
         @SuppressWarnings("unchecked") final ListenableFuture<Void> future
             = (ListenableFuture<Void>) executorService.submit(moveSession);
         Futures.addCallback(future, new FutureCallback<Void>() {
