@@ -34,7 +34,7 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
 
   private final ListProperty<Course> selectedCourses;
   private final ToggleGroup toggleGroup;
-  private final SetProperty<String> impossibleCoursesProperty;
+  private final SetProperty<Course> impossibleCoursesProperty;
   private final ListProperty<Course> coursesProperty;
   @FXML
   @SuppressWarnings("unused")
@@ -170,15 +170,15 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
   }
 
 
-  public ObservableSet<String> getImpossibleCourses() {
+  public ObservableSet<Course> getImpossibleCourses() {
     return impossibleCoursesProperty.get();
   }
 
-  public void setImpossibleCourses(final ObservableSet<String> impossibleCourses) {
+  public void setImpossibleCourses(final ObservableSet<Course> impossibleCourses) {
     this.impossibleCoursesProperty.set(impossibleCourses);
   }
 
-  public SetProperty<String> impossibleCoursesProperty() {
+  public SetProperty<Course> impossibleCoursesProperty() {
     return this.impossibleCoursesProperty;
   }
 }

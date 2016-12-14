@@ -4,6 +4,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -21,6 +23,7 @@ import java.lang.management.ManagementFactory;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 /**
  * Stupid data container that can be injected and used by all UI components to store global data.
@@ -31,18 +34,34 @@ public class UiDataService {
   private final ListProperty<Integer> conflictMarkedSessionsProperty =
       new SimpleListProperty<>(FXCollections.emptyObservableList());
   private final StringProperty sessionDisplayFormatProperty = new SimpleStringProperty();
-  private final SetProperty<String> impossibleCoursesProperty
+
+  // TODO: remove
+  @Deprecated
+  private final SetProperty<String> impossibleCourseNamesProperty
       = new SimpleSetProperty<>(FXCollections.observableSet());
+  private final SetProperty<Course> impossibleCoursesProperty
+      = new SimpleSetProperty<>(FXCollections.observableSet());
+
   private final ObjectProperty<Date> lastSavedDate
       = new SimpleObjectProperty<>(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
 
   private final ExecutorService executorService;
 
+  /**
+   * Service to provide properties for UI relevant data.
+   *
+   * @param solverServiceDelayed Delayed SolverService
+   * @param delayedStore Delayed Store
+   * @param executorService ExecutorService
+   */
   @Inject
   public UiDataService(final Delayed<SolverService> solverServiceDelayed,
-      final ExecutorService executorService) {
+                       final Delayed<Store> delayedStore,
+                       final ExecutorService executorService) {
     this.executorService = executorService;
-    solverServiceDelayed.whenAvailable(this::loadImpossibleCourses);
+    delayedStore.whenAvailable(store ->
+        solverServiceDelayed.whenAvailable(solverService ->
+            this.loadImpossibleCourses(solverService, store)));
   }
 
   public Date getLastSavedDate() {
@@ -57,22 +76,43 @@ public class UiDataService {
     return lastSavedDate;
   }
 
-  public ObservableSet<String> getImpossibleCourses() {
-    return impossibleCoursesProperty.get();
+  @Deprecated
+  public ObservableSet<String> getImpossibleCourseNames() {
+    return impossibleCourseNamesProperty.get();
   }
 
-  private void setImpossibleCourses(final Set<String> value) {
-    this.impossibleCoursesProperty.set(FXCollections.observableSet(value));
+  private void setImpossibleCourseNames(final Set<String> value) {
+    this.impossibleCourseNamesProperty.set(FXCollections.observableSet(value));
   }
 
-  public SetProperty<String> impossibleCoursesProperty() {
-    return impossibleCoursesProperty;
+  @Deprecated
+  public SetProperty<String> impossibleCourseNamesProperty() {
+    return impossibleCourseNamesProperty;
   }
 
-  private void loadImpossibleCourses(final SolverService solverService) {
+  public ObservableSet<Course> getImpossibleCoures() {
+    return this.impossibleCoursesProperty.get();
+  }
+
+  public SetProperty<Course> impossibleCoursesProperty() {
+    return this.impossibleCoursesProperty;
+  }
+
+  private void setImpossibleCourses(final ObservableSet<Course> courses) {
+    this.impossibleCoursesProperty.set(courses);
+  }
+
+
+  private void loadImpossibleCourses(final SolverService solverService, final Store store) {
     final SolverTask<Set<String>> t = solverService.impossibleCoursesTask();
     executorService.submit(t);
-    t.setOnSucceeded(event -> this.setImpossibleCourses(t.getValue()));
+    t.setOnSucceeded(event -> {
+      final Set<String> names = t.getValue();
+      this.setImpossibleCourseNames(names);
+      this.setImpossibleCourses(t.getValue().stream()
+          .map(store::getCourseByKey)
+          .collect(Collectors.collectingAndThen(Collectors.toSet(), FXCollections::observableSet)));
+    });
   }
 
   public String getSessionDisplayFormatProperty() {
@@ -97,5 +137,13 @@ public class UiDataService {
 
   public ListProperty<Integer> conflictMarkedSessionsProperty() {
     return conflictMarkedSessionsProperty;
+  }
+
+  private ObservableSet<Course> getImpossibleCoursesProperty() {
+    return impossibleCoursesProperty.get();
+  }
+
+  public SetProperty<Course> impossibleCoursesPropertyProperty() {
+    return impossibleCoursesProperty;
   }
 }
