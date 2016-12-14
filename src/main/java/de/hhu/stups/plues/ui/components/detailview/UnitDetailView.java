@@ -37,25 +37,18 @@ public class UnitDetailView extends VBox implements Initializable {
   private final Router router;
 
   @FXML
-  @SuppressWarnings("unused")
   private Label key;
   @FXML
-  @SuppressWarnings("unused")
   private Label title;
   @FXML
-  @SuppressWarnings("unused")
   private Label semesters;
   @FXML
-  @SuppressWarnings("unused")
   private TableView<AbstractUnit> abstractUnitTableView;
   @FXML
-  @SuppressWarnings("unused")
   private TableView<Session> sessionTableView;
   @FXML
-  @SuppressWarnings("unused")
   private TableColumn<Session, String> columnDay;
   @FXML
-  @SuppressWarnings("unused")
   private TableColumn<Session, String> columnTime;
 
   /**
@@ -73,7 +66,7 @@ public class UnitDetailView extends VBox implements Initializable {
         "detailView", "Column", "Days");
   }
 
-  public void setUnit(Unit unit) {
+  public void setUnit(final Unit unit) {
     this.unitProperty.set(unit);
   }
 
@@ -82,7 +75,7 @@ public class UnitDetailView extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     key.textProperty().bind(Bindings.when(unitProperty.isNotNull()).then(
         Bindings.selectString(unitProperty, "key")).otherwise(""));
     title.textProperty().bind(Bindings.when(unitProperty.isNotNull()).then(
@@ -94,7 +87,7 @@ public class UnitDetailView extends VBox implements Initializable {
 
       @Override
       protected String computeValue() {
-        Unit unit = unitProperty.get();
+        final Unit unit = unitProperty.get();
         if (unit == null) {
           return "";
         }
@@ -105,33 +98,11 @@ public class UnitDetailView extends VBox implements Initializable {
 
     columnDay.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
         resources.getString(param.getValue().getDay())));
-    columnDay.setCellFactory(param -> new TableCell<Session, String>() {
-      @Override
-      protected void updateItem(String day, boolean empty) {
-        super.updateItem(day, empty);
-        if (day == null || empty) {
-          setText(null);
-          return;
-        }
+    columnDay.setCellFactory(param -> new SessionStringTableCell());
 
-        setText(day);
-      }
-    });
     columnTime.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
-        String.valueOf(6 + param.getValue().getTime() * 2) + ":30"
-    ));
-    columnTime.setCellFactory(param -> new TableCell<Session, String>() {
-      @Override
-      protected void updateItem(String time, boolean empty) {
-        super.updateItem(time, empty);
-        if (time == null || empty) {
-          setText(null);
-          return;
-        }
-
-        setText(time);
-      }
-    });
+        String.valueOf(6 + param.getValue().getTime() * 2) + ":30"));
+    columnTime.setCellFactory(param -> new SessionStringTableCell());
 
     abstractUnitTableView.itemsProperty().bind(new ListBinding<AbstractUnit>() {
       {
@@ -160,7 +131,7 @@ public class UnitDetailView extends VBox implements Initializable {
           return FXCollections.emptyObservableList();
         }
 
-        Set<Session> sessions = unit.getGroups().stream()
+        final Set<Session> sessions = unit.getGroups().stream()
             .flatMap(group -> group.getSessions().stream()).collect(Collectors.toSet());
         return FXCollections.observableArrayList(sessions);
       }
@@ -170,5 +141,18 @@ public class UnitDetailView extends VBox implements Initializable {
         abstractUnitTableView, router));
     sessionTableView.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
         sessionTableView, router));
+  }
+
+  private static class SessionStringTableCell extends TableCell<Session, String> {
+    @Override
+    protected void updateItem(String day, boolean empty) {
+      super.updateItem(day, empty);
+      if (day == null || empty) {
+        setText(null);
+        return;
+      }
+
+      setText(day);
+    }
   }
 }

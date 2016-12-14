@@ -60,7 +60,7 @@ public class DetailViewHelper {
       if (event.getClickCount() < 2) {
         return;
       }
-      Unit unit = groupTableView.getSelectionModel().getSelectedItem().getUnit();
+      final Unit unit = groupTableView.getSelectionModel().getSelectedItem().getUnit();
       router.transitionTo(RouteNames.UNIT_DETAIL_VIEW, unit);
     };
   }
@@ -116,7 +116,7 @@ public class DetailViewHelper {
   public static TableCell<Module, String> createTableCell() {
     return new TableCell<Module, String>() {
       @Override
-      protected void updateItem(String item, boolean empty) {
+      protected void updateItem(final String item, final boolean empty) {
         super.updateItem(item, empty);
         if (item == null || empty) {
           setText(null);

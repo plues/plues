@@ -29,28 +29,20 @@ public class ModuleDetailView extends VBox implements Initializable {
   private final Router router;
 
   @FXML
-  @SuppressWarnings("unused")
   private Label pordnr;
   @FXML
-  @SuppressWarnings("unused")
   private Label title;
   @FXML
-  @SuppressWarnings("unused")
   private Label name;
   @FXML
-  @SuppressWarnings("unused")
   private Label mandatory;
   @FXML
-  @SuppressWarnings("unused")
   private Label creditPoints;
   @FXML
-  @SuppressWarnings("unused")
   private Label electiveUnits;
   @FXML
-  @SuppressWarnings("unused")
   private TableView<Course> courseTableView;
   @FXML
-  @SuppressWarnings("unused")
   private TableView<AbstractUnit> abstractUnitTableView;
 
   /**
@@ -67,7 +59,7 @@ public class ModuleDetailView extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     pordnr.textProperty().bind(Bindings.when(moduleProperty.isNotNull()).then(
         Bindings.selectString(moduleProperty, "pordnr")).otherwise(""));
     title.textProperty().bind(Bindings.when(moduleProperty.isNotNull()).then(
@@ -75,7 +67,7 @@ public class ModuleDetailView extends VBox implements Initializable {
     name.textProperty().bind(Bindings.when(moduleProperty.isNotNull()).then(
         Bindings.selectString(moduleProperty, "name")).otherwise(""));
     mandatory.textProperty().bind(Bindings.createStringBinding(() -> {
-      Module module = moduleProperty.get();
+      final Module module = moduleProperty.get();
       if (module == null) {
         return "?";
       }
@@ -94,7 +86,7 @@ public class ModuleDetailView extends VBox implements Initializable {
 
       @Override
       protected ObservableList<Course> computeValue() {
-        Module module = moduleProperty.get();
+        final Module module = moduleProperty.get();
         if (module == null) {
           return FXCollections.emptyObservableList();
         }
@@ -109,7 +101,7 @@ public class ModuleDetailView extends VBox implements Initializable {
 
       @Override
       protected ObservableList<AbstractUnit> computeValue() {
-        Module module = moduleProperty.get();
+        final Module module = moduleProperty.get();
         if (module == null) {
           return FXCollections.emptyObservableList();
         }
@@ -125,7 +117,7 @@ public class ModuleDetailView extends VBox implements Initializable {
         abstractUnitTableView, router));
   }
 
-  public void setModule(Module module) {
+  public void setModule(final Module module) {
     this.moduleProperty.set(module);
   }
 

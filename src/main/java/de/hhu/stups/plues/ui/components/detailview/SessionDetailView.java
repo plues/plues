@@ -117,7 +117,7 @@ public class SessionDetailView extends VBox implements Initializable {
       }
     });
     this.tentative.textProperty().bind(Bindings.createStringBinding(() -> {
-      Session session = sessionProperty.get();
+      final Session session = sessionProperty.get();
       if (session == null) {
         return "?";
       }
@@ -163,19 +163,16 @@ public class SessionDetailView extends VBox implements Initializable {
             return;
           }
 
-          String rowText = courseTable.getSelectionModel().getSelectedCells().get(0)
-              .getTableColumn().getText();
+          final TableColumn column
+              = courseTable.getSelectionModel().getSelectedCells().get(0).getTableColumn();
 
-          if (rowText.equals(resources.getString("cell.module"))) {
+
+          if (column.equals(module)) {
             router.transitionTo(RouteNames.MODULE_DETAIL_VIEW, newValue.getModule());
-          } else {
-            if (rowText.equals(resources.getString("cell.abstractUnit"))) {
-              router.transitionTo(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW, newValue.getAbstractUnit());
-            } else {
-              if (rowText.equals(resources.getString("cell.course"))) {
-                router.transitionTo(RouteNames.COURSE_DETAIL_VIEW, newValue.getCourse());
-              }
-            }
+          } else if (column.equals(abstractUnit)) {
+            router.transitionTo(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW, newValue.getAbstractUnit());
+          } else if (column.equals(courseKey)) {
+            router.transitionTo(RouteNames.COURSE_DETAIL_VIEW, newValue.getCourse());
           }
         }));
   }

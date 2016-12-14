@@ -36,22 +36,16 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
   private final Router router;
 
   @FXML
-  @SuppressWarnings("unused")
   private Label key;
   @FXML
-  @SuppressWarnings("unused")
   private Label title;
   @FXML
-  @SuppressWarnings("unused")
   private TableView<Unit> tableViewUnits;
   @FXML
-  @SuppressWarnings("unused")
   private TableView<Module> tableViewModules;
   @FXML
-  @SuppressWarnings("unused")
   private TableColumn<Module, String> semesters;
   @FXML
-  @SuppressWarnings("unused")
   private TableColumn<Module, String> type;
 
   /**
@@ -81,7 +75,7 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     this.key.textProperty().bind(Bindings.when(abstractUnitProperty.isNotNull()).then(
         Bindings.selectString(abstractUnitProperty, "key")).otherwise(""));
     this.title.textProperty().bind(Bindings.when(abstractUnitProperty.isNotNull()).then(
@@ -108,7 +102,7 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
 
       @Override
       protected ObservableList<Module> computeValue() {
-        AbstractUnit abstractUnit = abstractUnitProperty.get();
+        final AbstractUnit abstractUnit = abstractUnitProperty.get();
         if (abstractUnit == null) {
           return FXCollections.emptyObservableList();
         }
@@ -118,17 +112,17 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
     });
 
     this.semesters.setCellValueFactory(param -> {
-      Set<ModuleAbstractUnitSemester> filteredByAbstractUnit =
+      final Set<ModuleAbstractUnitSemester> filteredByAbstractUnit =
           param.getValue().getModuleAbstractUnitSemesters()
           .stream().filter(moduleAbstractUnitSemester ->
             this.abstractUnitProperty.get().equals(moduleAbstractUnitSemester.getAbstractUnit()))
           .collect(Collectors.toSet());
-      Set<ModuleAbstractUnitSemester> filteredByBoth =
+      final Set<ModuleAbstractUnitSemester> filteredByBoth =
           filteredByAbstractUnit.stream().filter(moduleAbstractUnitSemester ->
             this.tableViewModules.getItems().contains(moduleAbstractUnitSemester.getModule()))
             .collect(Collectors.toSet());
 
-      Set<Integer> semesters = filteredByBoth.stream()
+      final Set<Integer> semesters = filteredByBoth.stream()
           .map(ModuleAbstractUnitSemester::getSemester).collect(Collectors.toSet());
 
       return new ReadOnlyObjectWrapper<>(Joiner.on(",").join(semesters));
