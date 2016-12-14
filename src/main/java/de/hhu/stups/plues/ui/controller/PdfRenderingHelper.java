@@ -3,20 +3,10 @@ package de.hhu.stups.plues.ui.controller;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.UiDataService;
-import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.binding.StringBinding;
 
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.scene.control.Label;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 
 import org.apache.fop.apps.Fop;
@@ -221,7 +211,7 @@ public class PdfRenderingHelper {
     courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
     courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
 
-    courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
+    courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCourseNamesProperty());
   }
 
 }

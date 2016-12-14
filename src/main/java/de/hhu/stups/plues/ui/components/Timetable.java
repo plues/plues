@@ -39,7 +39,6 @@ import javafx.scene.layout.GridPane;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -108,7 +107,7 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
 
     // if the component checkCourseFeasibility is included
     checkCourseFeasibility.impossibleCoursesProperty().bind(
-        uiDataService.impossibleCoursesProperty());
+        uiDataService.impossibleCourseNamesProperty());
     delayedSolverService.whenAvailable(
         solverService -> checkCourseFeasibility.setSolverProperty(true));
 
