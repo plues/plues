@@ -20,6 +20,7 @@ import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.controller.Activatable;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -145,7 +146,8 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
 
   private void setSessions(final List<SessionFacade> sessions) {
     sessions.forEach(SessionFacade::initSlotProperty);
-    this.sessions.set(FXCollections.observableArrayList(sessions));
+    this.sessions.set(FXCollections.observableList(sessions,
+        (SessionFacade session) -> new Observable[] { session.slotProperty() }));
   }
 
   /**
@@ -175,9 +177,7 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
   private void selectTabById(final String tabId) {
     final Optional<Tab> tabConflict = tabPaneSide.getTabs().stream()
         .filter(tab -> tabId.equals(tab.getId())).findFirst();
-    if (tabConflict.isPresent()) {
-      tabPaneSide.getSelectionModel().select(tabConflict.get());
-    }
+    tabConflict.ifPresent(tabPaneSide.getSelectionModel()::select);
   }
 
   private class SessionFacadeListBinding extends ListBinding<SessionFacade> {
@@ -187,20 +187,6 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
     SessionFacadeListBinding(final SessionFacade.Slot slot) {
       this.slot = slot;
       bind(sessions, semesterToggle.selectedToggleProperty());
-
-      // http://stackoverflow.com/questions/32536096/javafx-bindings-not-working-as-expected
-      sessions.addListener((Change<? extends SessionFacade> change) -> {
-        while (change.next()) {
-          if (change.wasAdded()) {
-            change.getAddedSubList()
-                .forEach(sessionFacade -> bind(sessionFacade.slotProperty()));
-          }
-
-          if (change.wasRemoved()) {
-            change.getRemoved().forEach(sessionFacade -> unbind(sessionFacade.slotProperty()));
-          }
-        }
-      });
     }
 
     @Override
