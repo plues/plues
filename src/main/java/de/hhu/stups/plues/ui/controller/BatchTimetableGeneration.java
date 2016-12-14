@@ -11,7 +11,6 @@ import de.hhu.stups.plues.ui.batchgeneration.CollectPdfRenderingTasksTask;
 import de.hhu.stups.plues.ui.components.BatchResultBox;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -25,6 +24,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,13 +35,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -48,7 +46,7 @@ import java.util.zip.ZipOutputStream;
 
 public class BatchTimetableGeneration extends GridPane implements Initializable {
 
-  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+  private final Logger logger = LoggerFactory.logger(getClass());
 
   private final Delayed<SolverService> delayedSolverService;
 
@@ -250,7 +248,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       try {
         Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
       } catch (final IOException exception) {
-        logger.log(Level.SEVERE, "Could not save pdf file to the selected folder.", exception);
+        logger.error("Could not save pdf file to the selected folder.", exception);
       }
     });
   }
@@ -265,7 +263,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(target))) {
       this.generationSucceeded.forEach(task -> addEntryToZip(zipOutputStream, task));
     } catch (final IOException exception) {
-      logger.log(Level.SEVERE, "Could not save the zip archive to the selected location.",
+      logger.error("Could not save the zip archive to the selected location.",
           exception);
     }
   }
@@ -281,7 +279,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       zipOutputStream.write(Files.readAllBytes(source));
       zipOutputStream.closeEntry();
     } catch (final IOException exception) {
-      logger.log(Level.SEVERE, "Could not add file to zip archive", exception);
+      logger.error("Could not add file to zip archive", exception);
     }
   }
 }

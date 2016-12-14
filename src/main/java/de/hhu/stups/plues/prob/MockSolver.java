@@ -1,5 +1,8 @@
 package de.hhu.stups.plues.prob;
 
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,19 +11,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class MockSolver implements Solver {
 
+  private final Logger logger = LoggerFactory.logger(getClass());
 
   MockSolver() {
     try {
       TimeUnit.SECONDS.sleep(3);
     } catch (final InterruptedException exception) {
-      final Logger logger = Logger.getLogger(getClass().getSimpleName());
-      logger.log(Level.INFO, "sleep interrupted", exception);
+      logger.info("sleep interrupted", exception);
     }
   }
 
@@ -35,8 +36,8 @@ public class MockSolver implements Solver {
   }
 
   @Override
-  public Boolean checkFeasibility(final String... courses) {
-    return false;
+  public Boolean checkFeasibility(final String... courses) throws SolverException {
+    throw new SolverException("failed");
   }
 
   @Override
@@ -70,7 +71,7 @@ public class MockSolver implements Solver {
     try {
       TimeUnit.SECONDS.sleep(2);
     } catch (final InterruptedException exception) {
-      Logger.getAnonymousLogger().log(Level.SEVERE, "test", exception);
+      logger.error("test", exception);
       throw new RuntimeException(exception);
     }
     return new HashSet<>(Arrays.asList(1, 2, 3));
@@ -81,7 +82,7 @@ public class MockSolver implements Solver {
     try {
       TimeUnit.SECONDS.sleep(2);
     } catch (final InterruptedException exception) {
-      Logger.getAnonymousLogger().log(Level.SEVERE, "test", exception);
+      logger.error("test", exception);
       throw new RuntimeException(exception);
     }
     return new HashSet<>(Arrays.asList(1,2,5,6,11));
@@ -98,7 +99,7 @@ public class MockSolver implements Solver {
     try {
       TimeUnit.SECONDS.sleep(2);
     } catch (final InterruptedException exception) {
-      Logger.getAnonymousLogger().log(Level.SEVERE, "test", exception);
+      logger.error("test", exception);
       throw new RuntimeException(exception);
     }
     return new HashSet<>(Arrays.asList(1,100,1000));
@@ -122,24 +123,6 @@ public class MockSolver implements Solver {
 
   @Override
   public ReportData getReportingData() throws SolverException {
-    /*
-    ReportData reportData;
-    try {
-      FileInputStream fileIn = new FileInputStream("/home/philip/Schreibtisch/SlotTool/report.ser");
-      ObjectInputStream in = new ObjectInputStream(fileIn);
-      reportData = (ReportData) in.readObject();
-      in.close();
-      fileIn.close();
-    } catch (IOException ioExc) {
-      ioExc.printStackTrace();
-      return null;
-    } catch (ClassNotFoundException cls) {
-      System.out.println("Reports class not found");
-      cls.printStackTrace();
-      return null;
-    }
-    */
-
     final ReportData reportData = new ReportData();
     reportData.setImpossibleCourseModuleAbstractUnits(new HashMap<>());
     reportData.setImpossibleCourses(new HashSet<>());

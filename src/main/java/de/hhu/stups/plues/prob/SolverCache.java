@@ -1,7 +1,5 @@
 package de.hhu.stups.plues.prob;
 
-import de.hhu.stups.plues.keys.OperationPredicateKey;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;

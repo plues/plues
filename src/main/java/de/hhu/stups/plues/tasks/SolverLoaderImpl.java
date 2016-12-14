@@ -34,8 +34,7 @@ public class SolverLoaderImpl implements SolverLoader {
 
     solverLoader.setOnSucceeded(event -> {
       final Solver s = (Solver) event.getSource().getValue();
-      // TODO: check if this needs to run on UI thread
-      this.delayedSolverService.set(new SolverService(s));
+      Platform.runLater(() -> this.delayedSolverService.set(new SolverService(s)));
     });
     //
     solverLoader.setOnFailed(event -> Platform.runLater(() -> {

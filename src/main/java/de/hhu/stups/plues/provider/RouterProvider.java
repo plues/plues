@@ -6,6 +6,7 @@ import com.google.inject.Provider;
 import de.hhu.stups.plues.routes.AboutWindowRoute;
 import de.hhu.stups.plues.routes.AbstractUnitDetailViewRoute;
 import de.hhu.stups.plues.routes.ChangelogRoute;
+import de.hhu.stups.plues.routes.ControllerRouteFactory;
 import de.hhu.stups.plues.routes.CourseDetailViewRoute;
 import de.hhu.stups.plues.routes.IndexRoute;
 import de.hhu.stups.plues.routes.ModuleDetailViewRoute;
@@ -16,6 +17,8 @@ import de.hhu.stups.plues.routes.SessionDetailViewRoute;
 import de.hhu.stups.plues.routes.UnitDetailViewRoute;
 
 public class RouterProvider implements Provider<Router> {
+
+  private final ControllerRouteFactory controllerRouteFactory;
   private Router cache;
 
   private final Provider<ChangelogRoute> changelogRouteProvider;
@@ -41,7 +44,8 @@ public class RouterProvider implements Provider<Router> {
                         final Provider<CourseDetailViewRoute> courseDetailViewRouteProvider,
                         final Provider<AboutWindowRoute> aboutWindowRouteProvider,
                         final Provider<ReportsRoute> reportsRouteProvider,
-                        final Provider<ChangelogRoute> changelogRouteProvider) {
+                        final Provider<ChangelogRoute> changelogRouteProvider,
+                        final ControllerRouteFactory controllerRouteFactory) {
     this.indexRouteProvider = indexRouteProvider;
     this.moduleDetailViewRouteProvider = moduleDetailViewRouteProvider;
     this.abstractUnitDetailViewRouteProvider = abstractUnitDetailViewRouteProvider;
@@ -51,6 +55,7 @@ public class RouterProvider implements Provider<Router> {
     this.aboutWindowRouteProvider = aboutWindowRouteProvider;
     this.reportsRouteProvider = reportsRouteProvider;
     this.changelogRouteProvider = changelogRouteProvider;
+    this.controllerRouteFactory = controllerRouteFactory;
   }
 
   @Override
@@ -69,6 +74,14 @@ public class RouterProvider implements Provider<Router> {
       cache.put(RouteNames.ABOUT_WINDOW.getRouteName(), aboutWindowRouteProvider.get());
       cache.put(RouteNames.REPORTS.getRouteName(), reportsRouteProvider.get());
       cache.put(RouteNames.CHANGELOG.getRouteName(), changelogRouteProvider.get());
+      cache.put(RouteNames.TIMETABLE.getRouteName(),
+          controllerRouteFactory.create("tabTimetable"));
+      cache.put(RouteNames.PDF_TIMETABLES.getRouteName(),
+          controllerRouteFactory.create("tabPdfTimetables"));
+      cache.put(RouteNames.PARTIAL_TIMETABLES.getRouteName(),
+          controllerRouteFactory.create("tabPartialTimetables"));
+      cache.put(RouteNames.UNSAT_CORE.getRouteName(),
+          controllerRouteFactory.create("tabUnsatCore"));
     }
 
     return cache;

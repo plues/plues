@@ -2,20 +2,20 @@ package de.hhu.stups.plues.ui;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 public class ResourceManager {
   private final Delayed<Store> delayedStore;
   private final ExecutorService executorService;
 
-  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+  private final Logger logger = LoggerFactory.logger(getClass());
 
   /**
    * ResourceManager class used to manage resources that need to be closed when shutting down the

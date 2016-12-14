@@ -177,6 +177,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       final Callback<SelectableAbstractUnit, Observable[]> extractor
           = (SelectableAbstractUnit param) -> new Observable[] {param.selectedProperty()};
 
+      // NOTE: A change to the abstractUnits list, this binding is bound to, will recreate all
+      // SelectableAbstractUnit objects. This behaviour will loose the state of all
+      // selectedProperties.
       @Override
       protected ObservableList<SelectableAbstractUnit> computeValue() {
         return FXCollections.observableList(

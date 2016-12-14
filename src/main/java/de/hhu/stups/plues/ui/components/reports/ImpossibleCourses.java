@@ -70,7 +70,7 @@ public class ImpossibleCourses extends VBox implements Initializable {
     impossibleCoursesBecauseOfImpossibleModuleCombinationsList =
         new SimpleListProperty<>(FXCollections.observableArrayList());
 
-    inflater.inflate("/components/reports/ImpossibleCourses", this, this, "reports", "Column");
+    inflater.inflate("components/reports/ImpossibleCourses", this, this, "reports", "Column");
   }
 
   @Override

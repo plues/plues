@@ -52,7 +52,7 @@ public class MandatoryModules extends VBox implements Initializable {
   public MandatoryModules(final Inflater inflater) {
     courses = new SimpleListProperty<>(FXCollections.observableArrayList());
     mandatoryModules = FXCollections.observableHashMap();
-    inflater.inflate("/components/reports/MandatoryModules", this, this, "reports", "Column");
+    inflater.inflate("components/reports/MandatoryModules", this, this, "reports", "Column");
   }
 
   @Override

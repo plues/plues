@@ -3,9 +3,10 @@ package de.hhu.stups.plues.ui.layout;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.ui.exceptions.InflaterException;
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -14,8 +15,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -26,6 +25,7 @@ public class Inflater {
   private final FXMLLoader loader;
   private static final Locale LOCALE = Locale.getDefault();
   private static final ResourceBundle MAIN_BUNDLE = ResourceBundle.getBundle("lang.main", LOCALE);
+  private final Logger logger = LoggerFactory.logger(getClass());
 
   @Inject
   public Inflater(final FXMLLoader loader) {
@@ -97,8 +97,7 @@ public class Inflater {
     try {
       return loader.load();
     } catch (final IOException ignored) {
-      final Logger logger = Logger.getLogger(getClass().getSimpleName());
-      logger.log(Level.SEVERE, "Exception in FXML Loader", ignored);
+      logger.error("Exception in FXML Loader", ignored);
       throw new InflaterException(ignored);
     }
   }

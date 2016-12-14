@@ -1,12 +1,12 @@
-package de.hhu.stups.plues.keys;
+package de.hhu.stups.plues.prob;
 
 import java.util.Objects;
 
-public final class OperationPredicateKey {
+final class OperationPredicateKey {
   private final String operation;
   private final String predicate;
 
-  public OperationPredicateKey(final String operation, final String predicate) {
+  OperationPredicateKey(final String operation, final String predicate) {
     this.operation = operation;
     this.predicate = predicate;
   }

@@ -26,10 +26,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class Musterstudienplaene extends GridPane implements Initializable {
+public class Musterstudienplaene extends GridPane implements Initializable, Activatable {
 
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
@@ -87,7 +86,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
    * Function to handle generation of resultbox containing result for chosen major and minor.
    */
   @FXML
-  @SuppressWarnings("unused")
+  @SuppressWarnings({"unused,WeakerAccess"})
   public void btGeneratePressed() {
     final Course selectedMajorCourse = courseSelection.getSelectedMajor();
     final Course selectedMinorCourse = courseSelection.getSelectedMinor();
@@ -113,5 +112,20 @@ public class Musterstudienplaene extends GridPane implements Initializable {
         PdfRenderingHelper.initializeCourseSelection(store, uiDataService, courseSelection));
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
+  }
+
+  /**
+   * Select the given courses within the {@link #courseSelection} when the user navigates to the
+   * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
+   */
+  @Override
+  public void activateController(Object... courses) {
+    if (courses.length > 0) {
+      courseSelection.selectCourse((Course) courses[0]);
+    }
+    if (courses.length > 1) {
+      courseSelection.selectCourse((Course) courses[1]);
+    }
+    btGeneratePressed();
   }
 }

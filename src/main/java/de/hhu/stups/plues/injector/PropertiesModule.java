@@ -4,11 +4,11 @@ import static java.lang.Thread.currentThread;
 
 import com.google.inject.AbstractModule;
 
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 class PropertiesModule extends AbstractModule {
 
@@ -29,7 +29,7 @@ class PropertiesModule extends AbstractModule {
 
   private static Properties loadProperties(final Properties properties,
                                            final String... propertyFiles) {
-    final Logger logger = Logger.getLogger(PropertiesModule.class.getSimpleName());
+    final org.jboss.logging.Logger logger = LoggerFactory.logger(PropertiesModule.class);
     for (final String propertyFile : propertyFiles) {
       try {
         final ClassLoader classLoader = currentThread().getContextClassLoader();
@@ -41,7 +41,7 @@ class PropertiesModule extends AbstractModule {
 
         properties.load(p);
       } catch (final IOException exception) {
-        logger.log(Level.SEVERE, propertyFile + ".properties produced IO Error!", exception);
+        logger.error(propertyFile + ".properties produced IO Error!", exception);
       }
     }
     return properties;

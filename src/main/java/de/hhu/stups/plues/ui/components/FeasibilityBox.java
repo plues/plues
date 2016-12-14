@@ -8,12 +8,11 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.TaskStateColor;
-import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
@@ -61,7 +60,7 @@ public class FeasibilityBox extends VBox implements Initializable {
   private final ExecutorService executorService;
   private final Delayed<SolverService> delayedSolverService;
   private final Delayed<Store> delayedStore;
-  private final Set<String> impossibleCourses;
+  private final Set<Course> impossibleCourses;
   private final VBox parent;
 
   private final ListProperty<Integer> unsatCoreProperty = new SimpleListProperty<>();
@@ -104,16 +103,16 @@ public class FeasibilityBox extends VBox implements Initializable {
                         final Delayed<SolverService> delayedSolverService,
                         final ExecutorService executorService,
                         final Provider<ConflictTree> conflictTreeProvider,
+                        final UiDataService uiDataService,
                         @Assisted("major") final Course majorCourse,
                         @Nullable @Assisted("minor") final Course minorCourse,
-                        @Assisted final Set<String> impossibleCourses,
                         @Assisted final VBox parent) {
     super();
     this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
     this.executorService = executorService;
     this.conflictTreeProvider = conflictTreeProvider;
-    this.impossibleCourses = impossibleCourses;
+    this.impossibleCourses = uiDataService.getImpossibleCoures();
     this.parent = parent;
 
     majorCourseProperty = new SimpleObjectProperty<>(majorCourse);
@@ -147,36 +146,33 @@ public class FeasibilityBox extends VBox implements Initializable {
         feasibilityTask = solver.checkFeasibilityTask(cMajor);
       }
 
+      feasibilityTask.setOnSucceeded(event -> Platform.runLater(() -> {
+        cbAction.setItems(feasibilityTask.getValue()
+            ? FXCollections.observableList(Collections.singletonList(removeString))
+            : getActionsForInfeasibleCourse());
+        cbAction.getSelectionModel().selectFirst();
+      }));
+
+      feasibilityTask.setOnFailed(event -> {
+        cbAction.setItems(getActionsForInfeasibleCourse());
+        cbAction.getSelectionModel().selectFirst();
+      });
+
+      feasibilityTask.setOnCancelled(event -> {
+        cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
+        cbAction.getSelectionModel().selectFirst();
+      });
+
       progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
       progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
+      //
+      lbIcon.visibleProperty().bind(feasibilityTask.runningProperty().not());
+      lbIcon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, feasibilityTask));
+      lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(feasibilityTask));
+
 
       executorService.submit(feasibilityTask);
     });
-
-    feasibilityTask.setOnSucceeded(event -> Platform.runLater(() -> {
-      cbAction.setItems(feasibilityTask.getValue()
-          ? FXCollections.observableList(Collections.singletonList(removeString))
-          : getActionsForInfeasibleCourse());
-      cbAction.getSelectionModel().selectFirst();
-    }));
-
-    feasibilityTask.setOnFailed(event -> {
-      cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
-      cbAction.getSelectionModel().selectFirst();
-    });
-
-    feasibilityTask.setOnCancelled(event -> {
-      cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
-      cbAction.getSelectionModel().selectFirst();
-    });
-
-    progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
-    progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
-
-    lbIcon.visibleProperty().bind(feasibilityTask.runningProperty().not());
-    lbIcon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(ICON_SIZE, feasibilityTask));
-    lbIcon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(feasibilityTask));
-
 
     cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancelString)));
     cbAction.getSelectionModel().selectFirst();
@@ -223,9 +219,11 @@ public class FeasibilityBox extends VBox implements Initializable {
     unsatCoreTask.setOnSucceeded(unsatCore -> {
       unsatCoreProperty.set(FXCollections.observableArrayList(unsatCoreTask.getValue()));
       final ConflictTree conflictTree = conflictTreeProvider.get();
-      conflictTree.setConflictSessions(delayedStore.get().getSessions()
-          .stream().filter(session -> unsatCoreProperty.get().contains(session.getId()))
-          .collect(Collectors.toList()));
+      // TODO: move to conflict tree
+      conflictTree.setConflictSessions(
+          unsatCoreProperty.get()
+            .stream().map(i -> delayedStore.get().getSessionById(i))
+            .collect(Collectors.toList()));
       conflictTree.setUnsatCoreProperty(unsatCoreProperty);
       getChildren().add(conflictTree);
       cbAction.setItems(FXCollections.singletonObservableList(removeString));
@@ -265,9 +263,9 @@ public class FeasibilityBox extends VBox implements Initializable {
    * course. Otherwise just offer the possibility to remove the feasibility box.
    */
   private ObservableList<String> getActionsForInfeasibleCourse() {
-    if (impossibleCourses.contains(majorCourseProperty.get().getName())
+    if (impossibleCourses.contains(majorCourseProperty.get())
         || (minorCourseProperty.get() != null
-        && impossibleCourses.contains(minorCourseProperty.get().getName()))) {
+        && impossibleCourses.contains(minorCourseProperty.get()))) {
       lbErrorMsg.setText(impossibleCourseString);
       return FXCollections.observableList(Collections.singletonList(removeString));
     } else {

@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.be4.classicalb.core.parser.exceptions.BException;
-import de.hhu.stups.plues.keys.OperationPredicateKey;
 import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.ClassicalB;
 import de.prob.animator.domainobjects.EvalElementType;
@@ -154,13 +153,24 @@ public class ProBSolverTest {
     assertTrue(solver.getOperationExecutionCache().containsKey(key));
   }
 
-  @Test
+  @Test(expected = SolverException.class)
   public void checkFeasibilityInfeasibleCourse() throws Exception {
     setupOperationCannotBeExecuted("check", "ccss={\"NoFoo\", \"NoBar\"}");
-    assertFalse(solver.checkFeasibility("NoFoo", "NoBar"));
-    final OperationPredicateKey key
-        = new OperationPredicateKey("check", "ccss={\"NoFoo\", \"NoBar\"}");
-    assertTrue(solver.getOperationExecutionCache().containsKey(key));
+    solver.checkFeasibility("NoFoo", "NoBar");
+  }
+
+  @Test
+  public void checkFeasibilityInfeasibleCourseCache() throws Exception {
+    setupOperationCannotBeExecuted("check", "ccss={\"NoFoo\", \"NoBar\"}");
+    try {
+      solver.checkFeasibility("NoFoo", "NoBar");
+    } catch (final SolverException ignored) {
+      // ignored
+    } finally {
+      final OperationPredicateKey key
+          = new OperationPredicateKey("check", "ccss={\"NoFoo\", \"NoBar\"}");
+      assertTrue(solver.getOperationExecutionCache().containsKey(key));
+    }
   }
 
 

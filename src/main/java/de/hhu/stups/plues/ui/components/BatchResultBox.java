@@ -5,7 +5,7 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
+import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -73,7 +73,7 @@ public class BatchResultBox extends GridPane implements Initializable {
     this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
     this.progressIndicator.visibleProperty().bind(task.runningProperty());
     this.icon.visibleProperty().bind(task.runningProperty().not());
-    this.icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(ICON_SIZE, this.task));
-    this.icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(this.task));
+    this.icon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, this.task));
+    this.icon.styleProperty().bind(TaskBindings.getStyleBinding(this.task));
   }
 }

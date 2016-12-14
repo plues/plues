@@ -1,7 +1,7 @@
 package de.hhu.stups.plues.ui.batchgeneration;
 
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.keys.MajorMinorKey;
+import de.hhu.stups.plues.keys.CourseSelection;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -18,30 +18,31 @@ import java.util.Set;
 public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> {
 
   private final ResourceBundle resources;
-  private SolverService solverService;
+  private final SolverService solverService;
   private final List<Course> majorCourses;
   private final List<Course> minorCourses;
   private final List<Course> standaloneCourses;
-  private final Set<String> impossibleCourses;
-  private ObservableMap<MajorMinorKey, ResultState> courseCombinationResults;
+  private final Set<Course> impossibleCourses;
+  private final ObservableMap<CourseSelection, ResultState> results;
 
   /**
    * Create tasks for each combination of major and minor course as well as for each standalone
    * course to check their feasibility. Return a set of check feasibility solver tasks. To increase
    * the performance a task is only added to the set if the observable map {@link
-   * SolverService#courseCombinationResults} does not contain a result evaluated as true for the
+   * SolverService#courseSelectionResults} does not contain a result evaluated as true for the
    * combination and there is no impossible course given.
    */
-  public CollectFeasibilityTasksTask(SolverService solverService, List<Course> majorCourses,
-                                     List<Course> minorCourses, List<Course> standaloneCourses,
-                                     ObservableMap<MajorMinorKey, ResultState>
-                                         courseCombinationResults,
-                                     Set<String> impossibleCourses) {
+  public CollectFeasibilityTasksTask(final SolverService solverService,
+                                     final List<Course> majorCourses,
+                                     final List<Course> minorCourses,
+                                     final List<Course> standaloneCourses,
+                                     final ObservableMap<CourseSelection, ResultState> results,
+                                     final Set<Course> impossibleCourses) {
     this.solverService = solverService;
     this.majorCourses = majorCourses;
     this.minorCourses = minorCourses;
     this.standaloneCourses = standaloneCourses;
-    this.courseCombinationResults = courseCombinationResults;
+    this.results = results;
     this.impossibleCourses = impossibleCourses;
     resources = ResourceBundle.getBundle("lang.conflictMatrix");
   }
@@ -52,12 +53,12 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
     final Set<SolverTask<Boolean>> feasibilityTasks = new HashSet<>();
     for (final Course majorCourse : majorCourses) {
       if (!majorCourse.isCombinable() && notCheckedYet(
-          new MajorMinorKey(majorCourse.getName(), null))) {
+          new CourseSelection(majorCourse))) {
         feasibilityTasks.add(solverService.checkFeasibilityTask(majorCourse));
       } else {
         minorCourses.forEach(minorCourse -> {
           if (!majorCourse.getShortName().equals(minorCourse.getShortName())
-              && notCheckedYet(new MajorMinorKey(majorCourse.getName(), minorCourse.getName()))) {
+              && notCheckedYet(new CourseSelection(majorCourse, minorCourse))) {
             feasibilityTasks.add(solverService.checkFeasibilityTask(majorCourse, minorCourse));
           }
         });
@@ -65,7 +66,7 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
     }
     standaloneCourses.forEach(
         course -> {
-          if (notCheckedYet(new MajorMinorKey(course.getName(), null))) {
+          if (notCheckedYet(new CourseSelection(course))) {
             feasibilityTasks.add(solverService.checkFeasibilityTask(course));
           }
         });
@@ -80,18 +81,28 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
   /**
    * Check if the feasibility of a combination of courses or a standalone course has already been
    * computed or contains an impossible course. The results are stored in {@link
-   * SolverService#courseCombinationResults}. Furthermore, check that the computed result in the
+   * SolverService#courseSelectionResults}. Furthermore, check that the computed result in the
    * cache is true, because the user could have cancelled a task that is feasible normally.
    *
-   * @param majorMinorKey The key of the courses.
-   * @return Return false if {@link SolverService#courseCombinationResults} contains the key and the
+   * @param courseSelection The key of the courses.
+   * @return Return false if {@link SolverService#courseSelectionResults} contains the key and the
    *         stored result is true or the key contains an impossible course, otherwise return true.
    */
-  private boolean notCheckedYet(MajorMinorKey majorMinorKey) {
-    return (!courseCombinationResults.containsKey(majorMinorKey)
-        || !ResultState.SUCCEEDED.equals(courseCombinationResults.get(majorMinorKey)))
-        && !(impossibleCourses.contains(majorMinorKey.getMajor())
-        || impossibleCourses.contains(majorMinorKey.getMinor()));
+  private boolean notCheckedYet(final CourseSelection courseSelection) {
+    // if course has been successfully checked we do not want to check it again
+    if (results.containsKey(courseSelection)
+        && !ResultState.SUCCEEDED.equals(results.get(courseSelection))) {
+      return false;
+    }
+    // if the selection is a pair of courses we check if any is impossible, in that case we
+    // do not need to check the combination
+    if (!courseSelection.isSingle()) {
+      for (final Course course : courseSelection.getCourses()) {
+        if (impossibleCourses.contains(course)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
-
 }

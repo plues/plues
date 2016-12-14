@@ -1,12 +1,17 @@
 package de.hhu.stups.plues.ui.components.conflictmatrix;
 
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.ResultState;
+import de.hhu.stups.plues.routes.Router;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 
@@ -16,29 +21,38 @@ public class ResultGridCell extends Pane {
 
   private final ResourceBundle resources = ResourceBundle.getBundle("lang.conflictMatrix");
   private final ObjectProperty<ResultState> resultState;
+  private ContextMenu contextMenu;
+  private final Course[] courses;
 
   /**
    * A grid cell of the conflict matrix describing a specific result or an empty cell.
    */
-  public ResultGridCell(final ResultState resultState, final String... courseNames) {
+  public ResultGridCell(final ResultState resultState, final Course... courses) {
     this.resultState = new SimpleObjectProperty<>(resultState);
     this.resultState.addListener((observable, oldValue, newValue) ->
-        Platform.runLater(() -> updateResultGridCell(newValue, courseNames)));
+        Platform.runLater(() -> updateResultGridCell(newValue, courses)));
+    this.courses = courses;
+
     getStyleClass().add("matrix-cell");
     prefHeight(25.0);
     setMinWidth(40.0);
   }
 
-  private void updateResultGridCell(final ResultState resultState, final String... courseNames) {
+  @SuppressWarnings("unused")
+  private void showContextMenu(final MouseEvent event) {
+    contextMenu.show(this, event.getScreenX(), event.getScreenY());
+  }
+
+  private void updateResultGridCell(final ResultState resultState, final Course... courses) {
     getChildren().clear();
     switch (resultState) {
       case SUCCEEDED:
       case FAILED:
       case TIMEOUT:
-        setActiveGridCellPane(resultState, courseNames);
+        setActiveGridCellPane(resultState, courses);
         break;
       case IMPOSSIBLE:
-        setStaticImpossibleGridCell(courseNames[0]);
+        setStaticImpossibleGridCell(courses[0].getName());
         break;
       case IMPOSSIBLE_COMBINATION:
         setImpossibleGridCell();
@@ -89,7 +103,7 @@ public class ResultGridCell extends Pane {
    *                    timeouts.
    * @param courseNames An optional array of the major and minor course names.
    */
-  private void setActiveGridCellPane(final ResultState result, final String... courseNames) {
+  private void setActiveGridCellPane(final ResultState result, final Course... courseNames) {
     final String styleClass;
     getChildren().add(new Circle(5, 5, 2));
     if (ResultState.FAILED.equals(result)) {
@@ -106,8 +120,9 @@ public class ResultGridCell extends Pane {
       final Label label = new Label();
       label.prefWidthProperty().bind(widthProperty());
       label.prefHeightProperty().bind(heightProperty());
-      final Tooltip tooltip = new Tooltip(resources.getString("major") + " " + courseNames[0] + "\n"
-          + resources.getString("minor") + " " + courseNames[1]);
+      final Tooltip tooltip = new Tooltip(resources.getString("major") + " "
+          + courseNames[0].getName() + "\n" + resources.getString("minor") + " "
+          + courseNames[1].getName());
       label.setTooltip(tooltip);
       getChildren().add(label);
     }
@@ -129,5 +144,18 @@ public class ResultGridCell extends Pane {
     if (this.resultState.getValue() != ResultState.IMPOSSIBLE_COMBINATION) {
       this.resultState.set(resultState);
     }
+  }
+
+  /**
+   * Create the {@link ResultContextMenu context menu} with the given {@link Router} and set the
+   * cell's mouse event.
+   */
+  public void setRouter(final Router router) {
+    contextMenu = new ResultContextMenu(router, resultState, courses);
+    setOnMouseClicked(event -> {
+      if (event.getButton().equals(MouseButton.PRIMARY)) {
+        showContextMenu(event);
+      }
+    });
   }
 }

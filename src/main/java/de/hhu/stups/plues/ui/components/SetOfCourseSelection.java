@@ -26,6 +26,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
@@ -69,8 +70,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
   /**
    * Component that allows the user to select one or more courses. The courses need to be
-   * instantiated via the {@link this#coursesProperty()}. Those are used to highlight all events
-   * in the timetable view associated with the courses. Selected courses are stored in the readonly
+   * instantiated via the {@link this#coursesProperty()}. Those are used to highlight all events in
+   * the timetable view associated with the courses. Selected courses are stored in the readonly
    * list property {@link this#selectedCoursesProperty()}.
    */
   @Inject
@@ -123,11 +124,14 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         unbind(courses);
       }
 
+
+      // NOTE: A change to the courses list, this binding is bound to, will recreate all
+      // SelectableCourses objects. This behaviour will loose the state of all selectedProperties.
       @Override
       protected ObservableList<SelectableCourse> computeValue() {
         return FXCollections.observableList(
-          courses.parallelStream().map(SelectableCourse::new)
-            .collect(Collectors.toList()), SelectableCourse.getExtractor());
+            courses.parallelStream().map(SelectableCourse::new)
+                .collect(Collectors.toList()), SelectableCourse.getExtractor());
       }
     });
 
@@ -157,9 +161,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         return selectableCourses.parallelStream()
             .filter(SelectableCourse::isSelected)
             .map(SelectableCourse::getCourse)
-            .collect(
-                Collectors.collectingAndThen(Collectors.toList(),
-                    FXCollections::observableArrayList));
+            .collect(Collectors.collectingAndThen(Collectors.toList(),
+              FXCollections::observableArrayList));
       }
     });
   }
@@ -189,8 +192,6 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
   /**
    * Initialize the lists of bachelor and master courses and the table views.
-   *
-   * @param courses The list of courses.
    */
   public void setCourses(final List<Course> courses) {
     this.courses.set(FXCollections.observableList(courses));
@@ -208,6 +209,11 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
   public ObservableList<Course> getSelectedCourses() {
     return selectedCourses.get();
+  }
+
+  public void setSelectedCourses(final List<Course> courses) {
+    final HashSet<Course> courseSet = new HashSet<>(courses);
+    selectableCourses.forEach(course -> course.setSelected(courseSet.contains(course.getCourse())));
   }
 
   @SuppressWarnings("unused")
@@ -232,7 +238,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     }
 
     private static Callback<SelectableCourse, Observable[]> getExtractor() {
-      return  (SelectableCourse param) -> new Observable[] {param.selectedProperty()};
+      return (SelectableCourse param) -> new Observable[] {param.selectedProperty()};
     }
 
     private boolean isSelected() {

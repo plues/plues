@@ -28,7 +28,7 @@
                       mnemonicParsing="false" text="%save" accelerator="Shortcut+S"/>
             <MenuItem fx:id="saveFileAsMenuItem" onAction="#saveFileAs" disable="true"
                       mnemonicParsing="false" text="%saveAs" accelerator="Shortcut+Shift+S"/>
-            <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState"  disable="true"
+            <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState" disable="true"
                       mnemonicParsing="false" text="%export.start" accelerator="Shortcut+E"/>
             <MenuItem fx:id="openChangeLog" onAction="#openChangeLog" disable="true"
                       mnemonicParsing="false" text="%log" accelerator="Shortcut+L"/>
@@ -62,29 +62,31 @@
         <Menu fx:id="windowMenu" mnemonicParsing="false" text="%window">
         </Menu>
         <Menu mnemonicParsing="false" text="%help">
-            <MenuItem fx:id="aboutMenuItem" onAction="#about" mnemonicParsing="false" text="%about"/>
-            <MenuItem fx:id="handbookMenuItem" onAction="#showHandbook" mnemonicParsing="false" text="%handbook" />
+            <MenuItem fx:id="aboutMenuItem" onAction="#about" mnemonicParsing="false"
+                      text="%about"/>
+            <MenuItem fx:id="handbookMenuItem" onAction="#showHandbook" mnemonicParsing="false"
+                      text="%handbook"/>
         </Menu>
     </MenuBar>
     <BorderPane>
         <center>
-            <TabPane fx:id="tabPane">
-                <Tab text="%timetable" closable="false">
+            <TabPane id="tabPane" fx:id="tabPane">
+                <Tab id="tabTimetable" text="%timetable" closable="false">
                     <Timetable fx:id="timetable"/>
                 </Tab>
-                <Tab text="%musterstudienplaene" closable="false">
+                <Tab id="tabPdfTimetables" text="%musterstudienplaene" closable="false">
                     <Musterstudienplaene fx:id="musterstudienplaene"/>
                 </Tab>
-                <Tab text="%partial" closable="false">
+                <Tab id="tabPartialTimetables" text="%partial" closable="false">
                     <PartialTimeTables fx:id="partialTimetables"/>
                 </Tab>
-                <Tab text="%batch" closable="false">
+                <Tab id="tabBatchGeneration" text="%batch" closable="false">
                     <BatchTimetableGeneration fx:id="batchTimetableGeneration"/>
                 </Tab>
-                <Tab text="%conflictMatrix" closable="false">
+                <Tab id="tabConflictMatrix" text="%conflictMatrix" closable="false">
                     <ConflictMatrix fx:id="conflictMatrix"/>
                 </Tab>
-                <Tab text="%tab.unsatCore" closable="false">
+                <Tab id="tabUnsatCore" text="%tab.unsatCore" closable="false">
                     <UnsatCore fx:id="unsatCore"/>
                 </Tab>
             </TabPane>

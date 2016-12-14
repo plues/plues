@@ -17,7 +17,7 @@ public interface Solver {
    * @param courses The combination of major and minor courses.
    * @return Return true if the combination is feasible otherwise false.
    */
-  Boolean checkFeasibility(final String... courses);
+  Boolean checkFeasibility(final String... courses) throws SolverException;
 
   /**
    * Compute the {@link FeasibilityResult feasibility result} for a given combination of major and
@@ -101,7 +101,7 @@ public interface Solver {
    * @param day       String day, valid values are "1".."7"
    * @param slot      Sting representing the selected time slot, valid values are "1".."8".
    */
-  void move(final String sessionId, final String day, final String slot);
+  void move(final String sessionId, final String day, final String slot) throws SolverException;
 
   /**
    * A course is impossible if it is statically known to be infeasible.
