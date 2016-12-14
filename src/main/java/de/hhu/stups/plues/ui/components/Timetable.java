@@ -10,6 +10,7 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.prob.ResultState;
@@ -188,7 +189,7 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
       this.slot = slot;
 
       bind(sessions, semesterToggle.selectedToggleProperty(),
-          uiDataService.selectedCoursesProperty());
+          uiDataService.selectedCoursesProperty(), uiDataService.selectedAbstractUnitsProperty());
     }
 
     @Override
@@ -205,6 +206,7 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
 
         return session.getSlot().equals(slot)
             && !sessionIsExcludedByCourse(session)
+            && !sessionIsExcludedByAbstractUnit(session)
             && (semester == null || semesters.contains(semester));
       });
     }
@@ -217,6 +219,17 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
       sessionCourses.retainAll(filteredCourses);
 
       return !filteredCourses.isEmpty() && sessionCourses.isEmpty();
+    }
+
+    private boolean sessionIsExcludedByAbstractUnit(SessionFacade session) {
+      final Set<AbstractUnit> filteredAbstractUnits =
+          new HashSet<>(uiDataService.getSelectedAbstractUnits());
+
+      Set<AbstractUnit> sessionAbstractUnits = session.getIntendedAbstractUnits();
+
+      sessionAbstractUnits.retainAll(filteredAbstractUnits);
+
+      return !filteredAbstractUnits.isEmpty() && sessionAbstractUnits.isEmpty();
     }
   }
 }

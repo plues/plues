@@ -5,6 +5,7 @@ import com.google.inject.Singleton;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.beans.property.ListProperty;
@@ -46,6 +47,8 @@ public class UiDataService {
       = new SimpleObjectProperty<>(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
   private final ListProperty<Course> selectedCourses =
       new SimpleListProperty<>(FXCollections.emptyObservableList());
+
+  private final ListProperty<AbstractUnit> selectedAbstractUnits = new SimpleListProperty<>();
 
   private final ExecutorService executorService;
 
@@ -157,8 +160,19 @@ public class UiDataService {
     return selectedCourses;
   }
 
-  public void setSelectedCourses(
-      ObservableList<Course> selectedCourses) {
+  public void setSelectedCourses(ObservableList<Course> selectedCourses) {
     this.selectedCourses.set(selectedCourses);
+  }
+
+  public ObservableList<AbstractUnit> getSelectedAbstractUnits() {
+    return selectedAbstractUnits.get();
+  }
+
+  public ListProperty<AbstractUnit> selectedAbstractUnitsProperty() {
+    return selectedAbstractUnits;
+  }
+
+  public void setSelectedAbstractUnits(ObservableList<AbstractUnit> selectedAbstractUnits) {
+    this.selectedAbstractUnits.set(selectedAbstractUnits);
   }
 }
