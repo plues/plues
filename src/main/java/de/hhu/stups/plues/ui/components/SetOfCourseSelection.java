@@ -87,25 +87,11 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
 
-    tableColumnMasterCheckBox.setResizable(false);
-    tableColumnMasterCheckBox.setSortable(false);
-    tableColumnMasterCourse.setSortable(false);
-
     tableColumnMasterCheckBox.setCellFactory(
         CheckBoxTableCell.forTableColumn(tableColumnMasterCheckBox));
-    tableColumnMasterCheckBox.setCellValueFactory(new PropertyValueFactory<>("selected"));
-    tableColumnMasterCourse.setCellValueFactory(new PropertyValueFactory<>("name"));
-
-
-    tableColumnBachelorCheckBox.setResizable(false);
-    tableColumnBachelorCheckBox.setSortable(false);
-    tableColumnBachelorCourse.setSortable(false);
 
     tableColumnBachelorCheckBox.setCellFactory(
         CheckBoxTableCell.forTableColumn(tableColumnBachelorCheckBox));
-    tableColumnBachelorCheckBox.setCellValueFactory(new PropertyValueFactory<>("selected"));
-
-    tableColumnBachelorCourse.setCellValueFactory(new PropertyValueFactory<>("name"));
 
     tableViewMasterCourse.setSelectionModel(null);
     tableViewBachelorCourse.setSelectionModel(null);
@@ -162,7 +148,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
             .filter(SelectableCourse::isSelected)
             .map(SelectableCourse::getCourse)
             .collect(Collectors.collectingAndThen(Collectors.toList(),
-              FXCollections::observableArrayList));
+                FXCollections::observableArrayList));
       }
     });
   }

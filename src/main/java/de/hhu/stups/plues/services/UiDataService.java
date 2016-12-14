@@ -5,6 +5,7 @@ import com.google.inject.Singleton;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.beans.property.ListProperty;

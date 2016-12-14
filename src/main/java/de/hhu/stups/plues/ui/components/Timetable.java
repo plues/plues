@@ -10,6 +10,7 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.prob.ResultState;
@@ -40,6 +41,7 @@ import javafx.scene.layout.GridPane;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -186,7 +188,10 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
 
     SessionFacadeListBinding(final SessionFacade.Slot slot) {
       this.slot = slot;
-      bind(sessions, semesterToggle.selectedToggleProperty());
+
+      bind(sessions, semesterToggle.selectedToggleProperty(),
+          setOfCourseSelection.selectedCoursesProperty(),
+          abstractUnitFilter.selectedAbstractUnitsProperty());
     }
 
     @Override
@@ -202,8 +207,31 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
         }
 
         return session.getSlot().equals(slot)
+            && !sessionIsExcludedByCourse(session)
+            && !sessionIsExcludedByAbstractUnit(session)
             && (semester == null || semesters.contains(semester));
       });
+    }
+
+    private boolean sessionIsExcludedByCourse(SessionFacade session) {
+      final Set<Course> filteredCourses = new HashSet<>(setOfCourseSelection.getSelectedCourses());
+
+      Set<Course> sessionCourses = session.getIntendedCourses();
+
+      sessionCourses.retainAll(filteredCourses);
+
+      return !filteredCourses.isEmpty() && sessionCourses.isEmpty();
+    }
+
+    private boolean sessionIsExcludedByAbstractUnit(SessionFacade session) {
+      final Set<AbstractUnit> filteredAbstractUnits =
+          new HashSet<>(abstractUnitFilter.getSelectedAbstractUnits());
+
+      Set<AbstractUnit> sessionAbstractUnits = session.getIntendedAbstractUnits();
+
+      sessionAbstractUnits.retainAll(filteredAbstractUnits);
+
+      return !filteredAbstractUnits.isEmpty() && sessionAbstractUnits.isEmpty();
     }
   }
 }
