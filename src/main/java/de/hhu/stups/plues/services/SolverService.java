@@ -19,6 +19,7 @@ import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.SolverTask;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyMapProperty;
 import javafx.beans.property.ReadOnlyMapWrapper;
 import javafx.collections.FXCollections;
@@ -352,7 +353,7 @@ public class SolverService {
             String.valueOf(sessionId),
             slot.getDayString(),
             slot.getTime().toString());
-      courseSelectionResults.clear();
+      Platform.runLater(courseSelectionResults::clear);
       return null;
     }, timeout);
   }
