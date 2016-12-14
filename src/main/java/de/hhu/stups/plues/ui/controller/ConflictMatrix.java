@@ -72,9 +72,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private final List<Course> combinableMajorCourses;
   private final List<Course> combinableMinorCourses;
   private final List<Course> standaloneCourses;
-  private final IntegerProperty feasibleCoursesAmount;
-  private final IntegerProperty infeasibleCoursesAmount;
-  private final IntegerProperty timeoutCoursesAmount;
   private final Set<SolverTask<Boolean>> checkFeasibilityTasks = new HashSet<>();
   private final Set<Course> impossibleCourses;
   private Task<Set<SolverTask<Boolean>>> prepareFeasibilityCheck;
@@ -162,9 +159,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
     standaloneCourses = new ArrayList<>();
     impossibleCourses = new HashSet<>();
 
-    feasibleCoursesAmount = new SimpleIntegerProperty(0);
-    infeasibleCoursesAmount = new SimpleIntegerProperty(0);
-    timeoutCoursesAmount = new SimpleIntegerProperty(0);
     impossibleCoursesAmount = new SimpleLongProperty(0L);
 
     cellMap = new HashMap<>();
@@ -200,28 +194,22 @@ public class ConflictMatrix extends GridPane implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     // for counting we only consider results for course combinations and standalone courses
     // single courses are ignored.
-    infeasibleCoursesAmount.bind(Bindings.createLongBinding(() ->
-        impossibleCoursesAmount.intValue()
-        + results.entrySet().stream().filter(entry ->
-          !entry.getKey().isSingle() &&  entry.getValue().equals(ResultState.FAILED)).count(),
-        impossibleCoursesAmount, results));
-
-    feasibleCoursesAmount.bind(Bindings.createLongBinding(() -> results.entrySet().stream()
-          .filter(entry -> !entry.getKey().isSingle()
-            &&  entry.getValue().equals(ResultState.SUCCEEDED)).count(), results));
-
-    timeoutCoursesAmount.bind(Bindings.createLongBinding(() ->
-        results.entrySet().stream()
-          .filter(entry -> !entry.getKey().isSingle()
-            &&  entry.getValue().equals(ResultState.TIMEOUT)).count(), results));
-
-    lbFeasibleCourseAmount.textProperty().bind(Bindings.convert(feasibleCoursesAmount));
-    lbInfeasibleCourseAmount.textProperty().bind(Bindings.convert(infeasibleCoursesAmount));
-    lblImpossibleCoursesAmount.textProperty().bind(Bindings.createStringBinding(() -> {
-      final String msg = resources.getString("impossibleCourses");
-      return String.format(msg, impossibleCoursesAmount.get());
-    }, impossibleCoursesAmount));
-    lbTimeoutCourseAmount.textProperty().bind(Bindings.convert(timeoutCoursesAmount));
+    lbTimeoutCourseAmount.textProperty().bind(
+        Bindings.createStringBinding(() -> String.valueOf(
+          results.entrySet().stream()
+            .filter(entry -> !entry.getKey().isSingle()
+              &&  entry.getValue().equals(ResultState.TIMEOUT)).count()), results));
+    lbFeasibleCourseAmount.textProperty().bind(
+        Bindings.createStringBinding(() -> String.valueOf(
+          results.entrySet().stream()
+            .filter(entry -> !entry.getKey().isSingle()
+              &&  entry.getValue().equals(ResultState.SUCCEEDED)).count()), results));
+    lbInfeasibleCourseAmount.textProperty().bind(
+        Bindings.createStringBinding( () -> String.valueOf(
+          results.entrySet().stream()
+            .filter(entry -> !entry.getKey().isSingle()
+              &&  entry.getValue().equals(ResultState.FAILED)).count()), results));
+    lblImpossibleCoursesAmount.textProperty().bind(Bindings.convert(impossibleCoursesAmount));
 
     btCheckAll.disableProperty().bind(feasibilityCheckRunning.or(solverProperty.not()));
     btCancelCheckAll.disableProperty().bind(feasibilityCheckRunning.not());
@@ -268,8 +256,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
     final Set<Course> minorCourses = new HashSet<>(combinableMinorCourses);
 
     impossibleCourses.forEach(impossibleCourse -> {
-      final String impossibleCourseName = impossibleCourse.getName();
-
       if (majorCourses.contains(impossibleCourse)) {
         combinableMinorCourses.forEach(minorCourse -> cellMap
             .get(new CourseSelection(impossibleCourse, minorCourse))
@@ -448,10 +434,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
     initializeGridPaneSingleCourse();
     highlightImpossibleCombinations();
     highlightImpossibleCourses();
-
-    feasibleCoursesAmount.setValue(0);
-    infeasibleCoursesAmount.setValue(impossibleCoursesAmount.longValue());
-    timeoutCoursesAmount.setValue(0);
   }
 
   private MapChangeListener<CourseSelection, ResultState> getCourseResultChangeListener() {
