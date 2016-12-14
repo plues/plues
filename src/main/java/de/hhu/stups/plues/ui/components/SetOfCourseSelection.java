@@ -194,8 +194,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   }
 
   public void setSelectedCourses(final List<Course> courses) {
-    final HashSet<Course> courseSet = new HashSet<>(courses);
-    selectableCourses.forEach(course -> course.setSelected(courseSet.contains(course.getCourse())));
+    selectableCourses.forEach(course -> course.setSelected(courses.contains(course.getCourse())));
   }
 
   TableView<SelectableCourse> getTableViewMasterCourse() {
