@@ -8,7 +8,6 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
@@ -42,10 +41,10 @@ import java.util.stream.Collectors;
 public class AbstractUnitFilter extends VBox implements Initializable {
 
   private final ToggleGroup filterGroup;
+  private final ListProperty<AbstractUnit> selectedAbstractUnits;
   private final ListProperty<AbstractUnit> abstractUnits;
   private final SimpleListProperty<SelectableAbstractUnit> selectableAbstractUnits;
   private final SimpleListProperty<Course> courseFilter;
-  private final UiDataService uiDataService;
 
   @FXML
   @SuppressWarnings("unused")
@@ -82,9 +81,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
    * @param inflater Inflater
    */
   @Inject
-  public AbstractUnitFilter(final Inflater inflater, UiDataService uiDataService) {
-    this.uiDataService = uiDataService;
+  public AbstractUnitFilter(final Inflater inflater) {
     abstractUnits = new SimpleListProperty<>(observableArrayList());
+    selectedAbstractUnits = new SimpleListProperty<>();
     filterGroup = new ToggleGroup();
     selectableAbstractUnits = new SimpleListProperty<>(emptyObservableList());
     courseFilter = new SimpleListProperty<>(emptyObservableList());
@@ -107,6 +106,14 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
   public ListProperty<AbstractUnit> abstractUnitsProperty() {
     return abstractUnits;
+  }
+
+  public ObservableList<AbstractUnit> getSelectedAbstractUnits() {
+    return selectedAbstractUnits.get();
+  }
+
+  public ReadOnlyListProperty<AbstractUnit> selectedAbstractUnitsProperty() {
+    return selectedAbstractUnits;
   }
 
   public ObservableList<Course> getCourseFilter() {
@@ -133,7 +140,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   public void resetSelection() {
     selectableAbstractUnits.forEach(selectableAbstractUnit
         -> selectableAbstractUnit.setSelected(false));
-    uiDataService.selectedAbstractUnitsProperty().clear();
+    selectedAbstractUnits.clear();
     query.clear();
 
     selected.setSelected(false);
@@ -200,18 +207,19 @@ public class AbstractUnitFilter extends VBox implements Initializable {
         };
     units.itemsProperty().bind(tableViewBinding);
 
-    uiDataService.selectedAbstractUnitsProperty().bind(new ListBinding<AbstractUnit>() {
+    selectedAbstractUnits.bind(new ListBinding<AbstractUnit>() {
       {
         bind(selectableAbstractUnits);
       }
 
       @Override
       protected ObservableList<AbstractUnit> computeValue() {
-        return selectableAbstractUnits.parallelStream()
-            .filter(SelectableAbstractUnit::isSelected)
+        return
+          selectableAbstractUnits.filtered(SelectableAbstractUnit::isSelected).parallelStream()
             .map(SelectableAbstractUnit::getAbstractUnit)
             .collect(
-                Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
+              Collectors.collectingAndThen(
+                Collectors.toList(), FXCollections::observableList));
       }
     });
   }

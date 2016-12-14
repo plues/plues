@@ -99,7 +99,8 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
       this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
       setOfCourseSelection.setCourses(store.getCourses());
       checkCourseFeasibility.setCourses(store.getCourses());
-      abstractUnitFilter.courseFilterProperty().bind(uiDataService.selectedCoursesProperty());
+      abstractUnitFilter.courseFilterProperty().bind(
+          setOfCourseSelection.selectedCoursesProperty());
 
       setSessions(store.getSessions()
           .parallelStream()
@@ -189,7 +190,8 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
       this.slot = slot;
 
       bind(sessions, semesterToggle.selectedToggleProperty(),
-          uiDataService.selectedCoursesProperty(), uiDataService.selectedAbstractUnitsProperty());
+          setOfCourseSelection.selectedCoursesProperty(),
+          abstractUnitFilter.selectedAbstractUnitsProperty());
     }
 
     @Override
@@ -212,7 +214,7 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
     }
 
     private boolean sessionIsExcludedByCourse(SessionFacade session) {
-      final Set<Course> filteredCourses = new HashSet<>(uiDataService.getSelectedCourses());
+      final Set<Course> filteredCourses = new HashSet<>(setOfCourseSelection.getSelectedCourses());
 
       Set<Course> sessionCourses = session.getIntendedCourses();
 
@@ -223,7 +225,7 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
 
     private boolean sessionIsExcludedByAbstractUnit(SessionFacade session) {
       final Set<AbstractUnit> filteredAbstractUnits =
-          new HashSet<>(uiDataService.getSelectedAbstractUnits());
+          new HashSet<>(abstractUnitFilter.getSelectedAbstractUnits());
 
       Set<AbstractUnit> sessionAbstractUnits = session.getIntendedAbstractUnits();
 
