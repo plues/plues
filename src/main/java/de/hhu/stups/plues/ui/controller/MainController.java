@@ -8,6 +8,8 @@ import de.codecentric.centerdevice.MenuToolkit;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.modelgenerator.XmlExporter;
+import de.hhu.stups.plues.routes.RouteNames;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
@@ -18,8 +20,6 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
 import de.hhu.stups.plues.ui.ResourceManager;
-import de.hhu.stups.plues.ui.components.AboutWindow;
-import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
@@ -29,9 +29,7 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -47,8 +45,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.controlsfx.control.TaskProgressView;
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
@@ -95,7 +93,7 @@ public class MainController implements Initializable {
     iconMap.put(PdfRenderingTask.class, FontAwesomeIcon.FILE_PDF_ALT);
   }
 
-  private final Logger logger = LoggerFactory.logger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
   private final Delayed<ObservableStore> delayedStore;
   private final Properties properties;
   private final Stage stage;
@@ -105,9 +103,8 @@ public class MainController implements Initializable {
 
   private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
   private final SolverLoaderImpl solverLoader;
-  private final Provider<Reports> reportsProvider;
   private final StoreLoaderTaskFactory storeLoaderTaskFactory;
-  private final Provider<AboutWindow> aboutWindowProvider;
+  private final Router router;
   private final ResourceManager resourceManager;
   private SolverService solverService;
   private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
@@ -151,7 +148,6 @@ public class MainController implements Initializable {
   private Menu windowMenu;
   @FXML
   private MenuItem aboutMenuItem;
-  private Provider<ChangeLog> changeLogProvider;
 
   /**
    * MainController component.
@@ -161,9 +157,7 @@ public class MainController implements Initializable {
                         final Delayed<SolverService> delayedSolverService,
                         final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
-                        final Provider<ChangeLog> changeLogProvider,
-                        final Provider<AboutWindow> aboutWindowProvider,
-                        final Provider<Reports> reportsProvider,
+                        final Router router,
                         final StoreLoaderTaskFactory storeLoaderTaskFactory,
                         final ObservableListeningExecutorService executorService,
                         final ResourceManager resourceManager,
@@ -172,9 +166,7 @@ public class MainController implements Initializable {
     this.solverLoader = solverLoader;
     this.properties = properties;
     this.stage = stage;
-    this.changeLogProvider = changeLogProvider;
-    this.aboutWindowProvider = aboutWindowProvider;
-    this.reportsProvider = reportsProvider;
+    this.router = router;
     this.storeLoaderTaskFactory = storeLoaderTaskFactory;
     this.executor = executorService;
     this.resourceManager = resourceManager;
@@ -485,7 +477,7 @@ public class MainController implements Initializable {
     //
     storeLoader.setOnFailed(event -> {
       final Throwable ex = event.getSource().getException();
-      logger.fatal("Database could not be loaded", ex);
+      logger.error("Database could not be loaded", ex);
       showCriticalExceptionDialog(ex, "Database could not be loaded");
       Platform.exit();
     });
@@ -526,13 +518,7 @@ public class MainController implements Initializable {
    */
   @FXML
   private void openChangeLog() {
-    final Stage logStage = new Stage();
-    final ChangeLog changeLog = changeLogProvider.get();
-    logStage.setTitle(resources.getString("logTitle"));
-    logStage.setScene(new Scene(changeLog, 800, 600));
-    logStage.setResizable(false);
-    logStage.show();
-    logStage.setOnCloseRequest(event -> changeLog.dispose());
+    router.transitionTo(RouteNames.CHANGELOG, resources.getString("logTitle"));
   }
 
   /**
@@ -540,11 +526,7 @@ public class MainController implements Initializable {
    */
   @FXML
   private void openReports() {
-    final Reports reports = reportsProvider.get();
-    final Stage reportStage = new Stage();
-    reportStage.setTitle(resources.getString("reportsTitle"));
-    reportStage.setScene(new Scene(reports, 700, 620));
-    reportStage.show();
+    router.transitionTo(RouteNames.REPORTS, resources.getString("reportsTitle"));
   }
 
   @FXML
@@ -631,13 +613,7 @@ public class MainController implements Initializable {
    */
   @FXML
   private void about() {
-    final AboutWindow aboutWindow = aboutWindowProvider.get();
-    final Stage aboutStage = new Stage();
-    aboutWindow.setPadding(new Insets(10.0, 10.0, 10.0, 10.0));
-    aboutStage.setTitle(resources.getString("about"));
-    aboutStage.setScene(new Scene(aboutWindow, 550, 400));
-    aboutStage.setResizable(false);
-    aboutStage.show();
+    router.transitionTo(RouteNames.ABOUT_WINDOW, resources.getString("about"));
   }
 
   @FXML

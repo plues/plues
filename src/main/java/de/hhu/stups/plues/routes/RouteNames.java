@@ -1,15 +1,18 @@
 package de.hhu.stups.plues.routes;
 
-@SuppressWarnings("unused")
 public enum RouteNames {
+  ABOUT_WINDOW("aboutWindow"),
+  ABSTRACT_UNIT_DETAIL_VIEW("abstractUnitDetailView"),
+  CHANGELOG("changelog"),
+  COURSE_DETAIL_VIEW("courseDetailView"),
   INDEX("index"),
   MODULE_DETAIL_VIEW("moduleDetailView"),
-  SESSION_DETAIL_VIEW("sessionDetailView"),
-  ABSTRACT_UNIT_DETAIL_VIEW("abstractUnitDetailView"),
-  UNIT_DETAIL_VIEW("unitDetailView"),
-  TIMETABLE("timetable"),
   PARTIAL_TIMETABLES("partialTimetables"),
   PDF_TIMETABLES("pdfTimetables"),
+  REPORTS("Reports"),
+  SESSION_DETAIL_VIEW("sessionDetailView"),
+  TIMETABLE("timetable"),
+  UNIT_DETAIL_VIEW("unitDetailView"),
   UNSAT_CORE("unsatCore");
 
   private final String routeName;

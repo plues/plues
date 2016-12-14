@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
 import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
 
-class Reports extends VBox implements Initializable {
+public class Reports extends VBox implements Initializable {
 
   private final ObjectProperty<ReportData> reportData = new SimpleObjectProperty<>();
   private final Properties properties;

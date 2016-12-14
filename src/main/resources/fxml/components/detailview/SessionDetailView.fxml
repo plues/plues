@@ -5,34 +5,39 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1" maxWidth="400" maxHeight="250">
+         xmlns:fx="http://javafx.com/fxml/1" prefWidth="500" prefHeight="500">
+    <Label text="%session" styleClass="h1"/>
+    <Label/>
     <GridPane>
         <Label text="%session" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
         <Label fx:id="session" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
         <Label text="%title" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
         <Label fx:id="title" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        <Label text="%group" GridPane.columnIndex="0" GridPane.rowIndex="2">
-            <padding>
-                <Insets right="10"/>
-            </padding>
-        </Label>
+        <Label text="%group" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
         <Label fx:id="group" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
         <Label text="%semesters" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
         <Label fx:id="semesters" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
         <Label text="%tentative" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
         <Label fx:id="tentative" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50"/>
+            <ColumnConstraints percentWidth="50"/>
+        </columnConstraints>
     </GridPane>
     <Label/>
-    <Label text="%course"/>
+    <Label text="%courseAssignment" styleClass="h2"/>
     <TableView fx:id="courseTable">
         <columns>
-            <TableColumn fx:id="courseKey" text="%cell.course"/>
+            <TableColumn fx:id="courseKey" text="%cell.course" minWidth="100" maxWidth="100"/>
             <TableColumn fx:id="module" text="%cell.module"/>
             <TableColumn fx:id="abstractUnit" text="%cell.abstractUnit"/>
-            <TableColumn fx:id="courseSemesters" text="%cell.semester"/>
-            <TableColumn fx:id="type" text="%cell.type"/>
+            <TableColumn fx:id="courseSemesters" text="%cell.semester" minWidth="80" maxWidth="80"/>
+            <TableColumn fx:id="type" text="%cell.type" minWidth="50" maxWidth="50"/>
         </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
     </TableView>
 </fx:root>
