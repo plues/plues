@@ -107,7 +107,7 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
 
     // if the component checkCourseFeasibility is included
     checkCourseFeasibility.impossibleCoursesProperty().bind(
-        uiDataService.impossibleCourseNamesProperty());
+        uiDataService.impossibleCoursesProperty());
     delayedSolverService.whenAvailable(
         solverService -> checkCourseFeasibility.setSolverProperty(true));
 

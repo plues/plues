@@ -211,7 +211,7 @@ public class PdfRenderingHelper {
     courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
     courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
 
-    courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCourseNamesProperty());
+    courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
   }
 
 }

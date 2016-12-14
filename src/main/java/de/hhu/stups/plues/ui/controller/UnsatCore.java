@@ -495,7 +495,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
 
   private void initializeCourses() {
     courseSelection.disableProperty().bind(store.isNull());
-    courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCourseNamesProperty());
+    courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
     courses.bind(courseSelection.selectedCoursesProperty());
     courses.addListener((observable, oldValue, newValue) -> {
       // reset computed collections
