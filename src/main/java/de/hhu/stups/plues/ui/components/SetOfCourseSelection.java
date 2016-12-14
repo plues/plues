@@ -198,7 +198,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   }
 
   public void setSelectedCourses(final List<Course> courses) {
-    selectableCourses.forEach(course -> course.setSelected(courses.contains(course.getCourse())));
+    final HashSet<Course> courseSet = new HashSet<>(courses);
+    selectableCourses.forEach(course -> course.setSelected(courseSet.contains(course.getCourse())));
   }
 
   @SuppressWarnings("unused")
