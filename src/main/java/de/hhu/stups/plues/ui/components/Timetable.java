@@ -22,24 +22,35 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
+import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.event.EventTarget;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.time.DayOfWeek;
@@ -57,14 +68,19 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   private final SessionListViewFactory sessionListViewFactory;
   private final Delayed<SolverService> delayedSolverService;
   private final UiDataService uiDataService;
+  private Divider splitPaneDivider;
   private double userDefinedDividerPos = 0.65;
+  private Tab selectedSubTab;
 
   @FXML
   @SuppressWarnings("unused")
   private TabPane tabPaneSide;
   @FXML
   @SuppressWarnings("unused")
-  private Tab tabHideSideBar;
+  private Tab tabCourseFilters;
+  @FXML
+  @SuppressWarnings("unused")
+  private Tab tabCheckFeasibility;
   @FXML
   @SuppressWarnings("unused")
   private GridPane timeTable;
@@ -120,32 +136,31 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     VBox.setVgrow(tabPaneSide, Priority.ALWAYS);
 
-    tabHideSideBar.setGraphic(FontAwesomeIconFactory.get()
-        .createIcon(FontAwesomeIcon.ANGLE_DOUBLE_LEFT));
+    splitPaneDivider = getDividers().get(0);
+    selectedSubTab = tabPaneSide.getSelectionModel().getSelectedItem();
 
-    tabPaneSide.getSelectionModel().selectedItemProperty().addListener(
-        (observable, oldValue, newValue) -> {
-          setTabPaneButtonHeight();
-          if (newValue.equals(tabHideSideBar)) {
-            getDividers().get(0).setPosition(tabPaneSide.getMinHeight() / 1000.0);
-            tabPaneSide.getTabs().remove(tabHideSideBar);
-            disableDivider(true);
-          } else {
-            if (oldValue.equals(tabHideSideBar)) {
-              getDividers().get(0).setPosition(userDefinedDividerPos);
-            }
-            disableDivider(false);
-            if (!tabPaneSide.getTabs().contains(tabHideSideBar)) {
-              tabPaneSide.getTabs().add(tabHideSideBar);
-            }
-          }
-        });
+    tabPaneSide.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+      EventTarget eventTarget = mouseEvent.getTarget();
+      if (eventTarget instanceof Text) {
+        handleSideBarTabs((Text) eventTarget);
+      }
+    });
 
-    getDividers().get(0).positionProperty().addListener((observable, oldValue, newValue) -> {
+    splitPaneDivider.positionProperty().addListener((observable, oldValue, newValue) -> {
       setTabPaneButtonHeight();
       // don't store too small divider positions
-      if (Math.abs(newValue.doubleValue() - tabPaneSide.getMinHeight() / 1000.0) > 0.3) {
+      if (Math.abs(newValue.doubleValue() - tabPaneSide.getMinWidth() / getWidth()) > 0.3) {
         userDefinedDividerPos = newValue.doubleValue();
+      }
+      if ((newValue.doubleValue() > tabPaneSide.getMinWidth() / getWidth())
+          && selectedSubTab != null) {
+        disableDivider(false);
+      }
+    });
+
+    widthProperty().addListener((observable, oldValue, newValue) -> {
+      if (selectedSubTab == null) {
+        splitPaneDivider.setPosition(tabPaneSide.getMinWidth() / getWidth());
       }
     });
 
@@ -158,14 +173,54 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     initSessionBoxes();
   }
 
+  /**
+   * Identify each tab by its text and handle the visibility of the side bar according to the
+   * selected tab's state.
+   */
+  private void handleSideBarTabs(final Text tabText) {
+    if (tabText.getText().equals(tabCourseFilters.getText())) {
+      showOrHideSideBar(tabCourseFilters);
+      tabPaneSide.getSelectionModel()
+          .clearAndSelect(tabPaneSide.getTabs().indexOf(tabCourseFilters));
+    }
+    if (tabText.getText().equals(tabCheckFeasibility.getText())) {
+      showOrHideSideBar(tabCheckFeasibility);
+      tabPaneSide.getSelectionModel()
+          .clearAndSelect(tabPaneSide.getTabs().indexOf(tabCheckFeasibility));
+    }
+  }
+
+  /**
+   * Either show or hide the {@link #tabPaneSide tab pane's} content by moving the split pane's
+   * slider. The content is hidden if a selected tab is clicked again.
+   */
+  private void showOrHideSideBar(final Tab tab) {
+    if (tab.equals(selectedSubTab)) {
+      splitPaneDivider.setPosition(tabPaneSide.getMinWidth() / getWidth());
+      tabPaneSide.getSelectionModel().clearSelection();
+      selectedSubTab = null;
+      disableDivider(true);
+    } else {
+      tabPaneSide.getSelectionModel().clearAndSelect(tabPaneSide.getTabs().indexOf(tab));
+      if (selectedSubTab == null) {
+        selectedSubTab = tab;
+        splitPaneDivider.setPosition(userDefinedDividerPos);
+      }
+      selectedSubTab = tab;
+    }
+  }
+
   private void disableDivider(final boolean bool) {
     lookup(".split-pane-divider").setDisable(bool);
   }
 
+  /**
+   * Set the minimum width of the {@link #tabPaneSide tab pane} according to its header, so that the
+   * header, i.e. the tabs, is always visible even if the side bar is hidden.
+   */
   private void setTabPaneButtonHeight() {
     final StackPane tabPaneHeader = (StackPane) tabPaneSide.lookup(".tab-header-area");
-    tabPaneHeader.setPrefHeight(35.0);
-    tabPaneSide.setMinWidth(35.0);
+    tabPaneSide.setMinWidth(tabPaneHeader.getHeight());
   }
 
   private void initSessionBoxes() {
