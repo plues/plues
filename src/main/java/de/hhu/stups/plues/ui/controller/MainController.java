@@ -23,6 +23,7 @@ import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -45,6 +46,8 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
+import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
 import org.hibernate.annotations.common.util.impl.LoggerFactory;
 import org.jboss.logging.Logger;
@@ -112,8 +115,10 @@ public class MainController implements Initializable {
   private SolverService solverService;
   private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
   private boolean databaseChanged = false;
-
   private ResourceBundle resources;
+
+  @FXML
+  private StatusBar mainStatusBar;
   @FXML
   private MenuBar menuBar;
   @FXML
@@ -142,7 +147,6 @@ public class MainController implements Initializable {
   private RadioMenuItem rbMenuItemSessionId;
   @FXML
   private TabPane tabPane;
-
   @FXML
   private TaskProgressView<Task<?>> taskProgress;
   @FXML
@@ -301,8 +305,8 @@ public class MainController implements Initializable {
 
       // Add Mac-style items to Window menu
       windowMenu.getItems().addAll(tk.createMinimizeMenuItem(), tk.createZoomMenuItem(),
-              tk.createCycleWindowsItem(), new SeparatorMenuItem(), tk.createBringAllToFrontItem(),
-              new SeparatorMenuItem());
+          tk.createCycleWindowsItem(), new SeparatorMenuItem(), tk.createBringAllToFrontItem(),
+          new SeparatorMenuItem());
       tk.autoAddWindowMenuItems(windowMenu);
       tk.setGlobalMenuBar(menuBar);
     }
@@ -580,6 +584,7 @@ public class MainController implements Initializable {
 
   /**
    * Set timeout for solver tasks.
+   *
    * @param timeout New timeout
    */
   private void setTimeout(final int timeout) {

@@ -17,6 +17,7 @@
 <?import de.hhu.stups.plues.ui.controller.UnsatCore?>
 
 <?import javafx.scene.control.RadioMenuItem?>
+<?import org.controlsfx.control.StatusBar?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="de.hhu.stups.plues.ui.controller.MainController">
@@ -97,4 +98,5 @@
             </ScrollPane>
         </right>
     </BorderPane>
+    <StatusBar fx:id="mainStatusBar"/>
 </VBox>
