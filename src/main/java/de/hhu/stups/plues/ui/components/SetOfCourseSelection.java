@@ -197,7 +197,12 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     return selectedCourses.get();
   }
 
+  /**
+   * Set the list of currently selected courses (checkobx in the UI is selected).
+   */
   public void setSelectedCourses(final List<Course> courses) {
+    // We put the courses in a HashSet here to avoid the linear scan of the list in the membership
+    // check bellow
     final HashSet<Course> courseSet = new HashSet<>(courses);
     selectableCourses.forEach(course -> course.setSelected(courseSet.contains(course.getCourse())));
   }
