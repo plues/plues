@@ -23,7 +23,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -63,12 +62,6 @@ public class SessionDetailView extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<CourseTableEntry, Integer> abstractUnit;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<CourseTableEntry, String> courseSemesters;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<CourseTableEntry, Character> type;
 
   /**
    * Constructor.
@@ -150,12 +143,6 @@ public class SessionDetailView extends VBox implements Initializable {
         return result;
       }
     });
-
-    courseKey.setCellValueFactory(new PropertyValueFactory<>("courseKey"));
-    module.setCellValueFactory(new PropertyValueFactory<>("moduleTitle"));
-    abstractUnit.setCellValueFactory(new PropertyValueFactory<>("abstractUnitTitle"));
-    courseSemesters.setCellValueFactory(new PropertyValueFactory<>("semesters"));
-    type.setCellValueFactory(new PropertyValueFactory<>("type"));
 
     courseTable.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldValue, newValue) -> courseTable.setOnMouseClicked(event -> {
