@@ -103,15 +103,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   @FXML
   private TableView<Session> sessionsTable;
   @FXML
-  private TableColumn<Module, String> modulePordnrColumn;
-  @FXML
-  private TableColumn<Module, String> moduleNameColumn;
-  @FXML
   private TableColumn<Module, Boolean> moduleTypeColumn;
-  @FXML
-  private TableColumn<AbstractUnit, String> abstractUnitKeyColumn;
-  @FXML
-  private TableColumn<AbstractUnit, String> abstractUnitTitleColumn;
   @FXML
   private TableColumn<AbstractUnit, Map<Module, List<Integer>>> abstractUnitModuleSemester;
   @FXML
@@ -334,7 +326,6 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     sessionsTable.itemsProperty().bind(sessions);
     sessionsTable.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
         sessionsTable, router));
-    sessionDayColumn.setCellValueFactory(new PropertyValueFactory<>("day"));
     sessionDayColumn.setCellFactory(param -> new TableCell<Session, String>() {
       @Override
       protected void updateItem(String item, boolean empty) {
@@ -347,7 +338,6 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
         setText(resources.getString(item));
       }
     });
-    sessionTimeColumn.setCellValueFactory(new PropertyValueFactory<>("time"));
     sessionTimeColumn.setCellFactory(param -> new TableCell<Session, Integer>() {
       @Override
       protected void updateItem(Integer item, boolean empty) {
@@ -380,7 +370,6 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
         Joiner.on(',').join(param.getValue().getUnit().getSemesters())));
 
     // display a bullet-list of sessions to represent the group
-    groupSessionsColumn.setCellValueFactory(new PropertyValueFactory<>("sessions"));
     groupSessionsColumn.setCellFactory(param -> new TableCell<Group, Set<Session>>() {
       @Override
       protected void updateItem(final Set<Session> item, final boolean empty) {
@@ -434,8 +423,6 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     abstractUnitsTable.itemsProperty().bind(abstractUnits);
     abstractUnitsTable.setOnMouseClicked(DetailViewHelper.getAbstractUnitMouseHandler(
         abstractUnitsTable, router));
-    abstractUnitKeyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
-    abstractUnitTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
 
     abstractUnitModuleSemester.setCellValueFactory(param -> {
       final Set<ModuleAbstractUnitSemester> maus
@@ -514,9 +501,6 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     modulesTable.itemsProperty().bind(modules);
     modulesTable.setOnMouseClicked(DetailViewHelper.getModuleMouseHandler(
         modulesTable, router));
-    modulePordnrColumn.setCellValueFactory(new PropertyValueFactory<>("pordnr"));
-    moduleNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-    moduleTypeColumn.setCellValueFactory(new PropertyValueFactory<>("mandatory"));
     moduleTypeColumn.setCellFactory(param -> new TableCell<Module, Boolean>() {
       @Override
       protected void updateItem(final Boolean item, final boolean empty) {

@@ -12,9 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -34,12 +32,6 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
   @FXML
   @SuppressWarnings("unused")
   private TableView<AbstractUnit> tableViewAbstractUnits;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<AbstractUnit, String> columnAbstractUnitKey;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<AbstractUnit, String> columnAbstractUnitTitle;
 
   /**
    * Default constructor
@@ -57,8 +49,6 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     tableViewAbstractUnits.itemsProperty().bind(abstractUnits);
-    columnAbstractUnitKey.setCellValueFactory(new PropertyValueFactory<>("key"));
-    columnAbstractUnitTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
 
     listViewModules.itemsProperty().bind(modules);
     listViewModules.setCellFactory(param -> new ListCell<Module>() {

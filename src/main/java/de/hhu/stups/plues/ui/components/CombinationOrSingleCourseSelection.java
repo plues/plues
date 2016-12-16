@@ -97,7 +97,6 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
       singleCourseSelection.getSelectionModel().selectFirst();
     });
 
-    rbCombination.setSelected(true);
     rbCombination.disableProperty().bind(coursesProperty.emptyProperty());
     rbSingleSelection.disableProperty().bind(coursesProperty.emptyProperty());
 

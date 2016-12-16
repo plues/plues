@@ -20,12 +20,10 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -58,9 +56,6 @@ public class ResultBox extends GridPane implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private StackPane statePane;
-  @FXML
-  @SuppressWarnings("unused")
   private ProgressIndicator progressIndicator;
   @FXML
   @SuppressWarnings("unused")
@@ -77,9 +72,6 @@ public class ResultBox extends GridPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<String> cbAction;
-  @FXML
-  @SuppressWarnings("unused")
-  private Button btSubmit;
 
   /**
    * Constructor for ResultBox.

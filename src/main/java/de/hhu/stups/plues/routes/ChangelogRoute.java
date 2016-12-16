@@ -26,6 +26,7 @@ public class ChangelogRoute implements Route {
     final Stage logStage = new Stage();
     logStage.setTitle(title);
     logStage.setScene(SceneFactory.create(changeLog));
+    logStage.setOnCloseRequest(event -> changeLog.dispose());
     logStage.show();
   }
 }

@@ -67,12 +67,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<SelectableAbstractUnit, Boolean> checkboxColumn;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<SelectableAbstractUnit, String> abstractUnitTitleColumn;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<SelectableAbstractUnit, String> abstractUnitKeyColumn;
 
   /**
    * AbstractUnitFilter component.
@@ -155,10 +149,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     all.setToggleGroup(filterGroup);
 
     checkboxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(checkboxColumn));
-    checkboxColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
-
-    abstractUnitTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
-    abstractUnitKeyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
 
     selectableAbstractUnits.bind(new ListBinding<SelectableAbstractUnit>() {
       {

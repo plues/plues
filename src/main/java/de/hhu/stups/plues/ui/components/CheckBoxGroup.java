@@ -14,7 +14,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.VBox;
@@ -81,10 +80,6 @@ public class CheckBoxGroup extends VBox implements Initializable {
 
     moduleBox.setOnAction(e ->
         children.forEach(box -> ((CheckBox) box).setSelected(moduleBox.isSelected())));
-
-    for (final Node b : unitsBox.getChildren()) {
-      setMargin(b, new Insets(0,0,0,20));
-    }
   }
 
   /**

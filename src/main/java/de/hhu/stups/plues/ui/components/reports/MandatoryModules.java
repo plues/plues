@@ -12,9 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -31,17 +29,7 @@ public class MandatoryModules extends VBox implements Initializable {
   @FXML
   private TableView<Course> tableViewcourses;
   @FXML
-  private TableColumn<Course, String> tableColumnCourseName;
-  @FXML
-  private TableColumn<Course, String> tableColumnCourseFullName;
-  @FXML
   private TableView<Module> tableViewMandatoryModules;
-  @FXML
-  private TableColumn<Module, String> columnModuleTitle;
-  @FXML
-  private TableColumn<Module, Boolean> columnModuleElectability;
-  @FXML
-  private TableColumn<Module, String> columnModulePordnr;
 
   /**
    * Default constructor.
@@ -57,13 +45,6 @@ public class MandatoryModules extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    tableColumnCourseName.setCellValueFactory(new PropertyValueFactory<>("key"));
-    tableColumnCourseFullName.setCellValueFactory(new PropertyValueFactory<>("fullName"));
-
-    columnModuleTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
-    columnModuleElectability.setCellValueFactory(new PropertyValueFactory<>("mandatory"));
-    columnModulePordnr.setCellValueFactory(new PropertyValueFactory<>("pordnr"));
-
     tableViewcourses.itemsProperty().bind(courses);
     tableViewMandatoryModules.itemsProperty().bind(new ListBinding<Module>() {
       {

@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
     <Label text="%explain.MandatoryModules" wrapText="true"/>
@@ -11,21 +12,36 @@
         <Label text="%courses" style="-fx-font-size: 20px"/>
         <TableView fx:id="tableViewcourses">
             <columns>
-                <TableColumn fx:id="tableColumnCourseName" text="%columnKey"
-                             minWidth="100.0" prefWidth="150.0"/>
-                <TableColumn fx:id="tableColumnCourseFullName"
-                             text="%columnName" minWidth="100.0" prefWidth="500.0"/>
+                <TableColumn text="%columnKey" minWidth="100.0" prefWidth="150.0">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="key"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn text="%columnName" minWidth="100.0" prefWidth="500.0">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="fullName"/>
+                    </cellValueFactory>
+                </TableColumn>
             </columns>
         </TableView>
         <Label text="%modules" style="-fx-font-size: 20px"/>
         <TableView fx:id="tableViewMandatoryModules">
             <columns>
-                <TableColumn fx:id="columnModulePordnr" text="%columnPordnr"
-                             prefWidth="300.0" minWidth="100.0"/>
-                <TableColumn fx:id="columnModuleTitle" text="%columnTitle"
-                             prefWidth="300.0" minWidth="100.0"/>
-                <TableColumn fx:id="columnModuleElectability" text="%columnElectability"
-                             prefWidth="50.0" minWidth="20.0"/>
+                <TableColumn text="%columnPordnr" prefWidth="300.0" minWidth="100.0">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="pordnr"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn text="%columnTitle" prefWidth="300.0" minWidth="100.0">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="title"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn text="%columnElectability" prefWidth="50.0" minWidth="20.0">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="mandatory"/>
+                    </cellValueFactory>
+                </TableColumn>
             </columns>
         </TableView>
     </VBox>

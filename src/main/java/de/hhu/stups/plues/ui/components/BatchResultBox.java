@@ -13,7 +13,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -25,9 +24,6 @@ public class BatchResultBox extends GridPane implements Initializable {
 
   private final PdfRenderingTask task;
 
-  @FXML
-  @SuppressWarnings("unused")
-  private StackPane statePane;
   @FXML
   @SuppressWarnings("unused")
   private ProgressIndicator progressIndicator;

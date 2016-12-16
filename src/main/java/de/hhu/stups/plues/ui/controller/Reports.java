@@ -96,11 +96,9 @@ public class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Label lbSessionAmount;
-
   @FXML
   @SuppressWarnings("unused")
   private Label lbModelVersion;
-
   @FXML
   @SuppressWarnings("unused")
   private Button buttonPrint;

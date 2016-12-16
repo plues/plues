@@ -65,8 +65,6 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
 
     solverProperty = new SimpleBooleanProperty(false);
 
-    setSpacing(10.0);
-
     inflater.inflate("components/CheckCourseFeasibility", this, this, "checkCourseFeasibility");
   }
 

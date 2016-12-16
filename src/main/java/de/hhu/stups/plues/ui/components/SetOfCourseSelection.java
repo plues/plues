@@ -21,7 +21,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
@@ -57,13 +56,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   private TableView<SelectableCourse> tableViewBachelorCourse;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<SelectableCourse, String> tableColumnMasterCourse;
-  @FXML
-  @SuppressWarnings("unused")
   private TableColumn<SelectableCourse, Boolean> tableColumnMasterCheckBox;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<SelectableCourse, String> tableColumnBachelorCourse;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<SelectableCourse, Boolean> tableColumnBachelorCheckBox;

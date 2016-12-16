@@ -23,12 +23,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -66,12 +63,6 @@ public class FeasibilityBox extends VBox implements Initializable {
   private final ListProperty<Integer> unsatCoreProperty = new SimpleListProperty<>();
   @FXML
   @SuppressWarnings("unused")
-  private GridPane gridPaneResults;
-  @FXML
-  @SuppressWarnings("unused")
-  private StackPane statePane;
-  @FXML
-  @SuppressWarnings("unused")
   private ProgressIndicator progressIndicator;
   @FXML
   @SuppressWarnings("unused")
@@ -88,9 +79,6 @@ public class FeasibilityBox extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<String> cbAction;
-  @FXML
-  @SuppressWarnings("unused")
-  private Button btSubmit;
 
   /**
    * A container to display the feasibility of a combination of courses or a single one. For
@@ -128,8 +116,6 @@ public class FeasibilityBox extends VBox implements Initializable {
     cancelString = resources.getString("cancel");
     impossibleCourseString = resources.getString("impossibleCourse");
     noConflictString = resources.getString("noConflict");
-
-    gridPaneResults.setHgap(5.0);
 
     lbMajor.textProperty()
         .bind(Bindings.selectString(majorCourseProperty, "fullName"));
