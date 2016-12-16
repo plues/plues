@@ -31,14 +31,12 @@
                         <PropertyValueFactory property="selected"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn fx:id="abstractUnitKeyColumn" minWidth="120" maxWidth="200"
-                             text="%columnKey" editable="false">
+                <TableColumn minWidth="120" maxWidth="200" text="%columnKey" editable="false">
                     <cellValueFactory>
                         <PropertyValueFactory property="key"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn fx:id="abstractUnitTitleColumn" minWidth="350"
-                             text="%columnTitle" editable="false">
+                <TableColumn minWidth="350" text="%columnTitle" editable="false">
                     <cellValueFactory>
                         <PropertyValueFactory property="title"/>
                     </cellValueFactory>

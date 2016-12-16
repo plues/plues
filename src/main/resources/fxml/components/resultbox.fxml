@@ -12,7 +12,7 @@
 
 <fx:root prefHeight="30.0" prefWidth="600.0" type="GridPane"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
-    <StackPane fx:id="statePane" prefWidth="Infinity" GridPane.columnIndex="0"
+    <StackPane prefWidth="Infinity" GridPane.columnIndex="0"
                GridPane.rowIndex="0" GridPane.rowSpan="4">
         <ProgressIndicator fx:id="progressIndicator"/>
         <Label fx:id="lbIcon" prefHeight="Infinity" prefWidth="70.0" alignment="CENTER"
@@ -21,7 +21,7 @@
     <HBox alignment="BOTTOM_RIGHT" prefWidth="170.0" GridPane.columnIndex="1"
           GridPane.rowIndex="0">
         <ComboBox fx:id="cbAction" prefWidth="120.0"/>
-        <Button fx:id="btSubmit" onAction="#submitAction" minWidth="50.0" prefWidth="50.0"
+        <Button onAction="#submitAction" minWidth="50.0" prefWidth="50.0"
                 text="%go"/>
     </HBox>
     <Label fx:id="lbMajor" prefWidth="Infinity" prefHeight="Infinity" text="%major" wrapText="true"

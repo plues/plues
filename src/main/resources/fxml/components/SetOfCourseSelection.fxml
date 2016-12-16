@@ -23,7 +23,7 @@
                         <PropertyValueFactory property="selected"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn fx:id="tableColumnMasterCourse" prefWidth="470.0" resizable="false"
+                <TableColumn prefWidth="470.0" resizable="false"
                              sortable="false" minWidth="470.0" text="%course">
                     <cellValueFactory>
                         <PropertyValueFactory property="name"/>
@@ -44,7 +44,7 @@
                         <PropertyValueFactory property="selected"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn fx:id="tableColumnBachelorCourse" prefWidth="470.0" resizable="false"
+                <TableColumn prefWidth="470.0" resizable="false"
                              sortable="false" minWidth="470.0" text="%course">
                     <cellValueFactory>
                         <PropertyValueFactory property="name"/>
