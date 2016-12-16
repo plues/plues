@@ -10,7 +10,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 
-<fx:root alignment="center" type="javafx.scene.layout.GridPane"
+<fx:root alignment="center" type="javafx.scene.layout.GridPane" vgap="10.0"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <columnConstraints>
         <ColumnConstraints percentWidth="30.0"/>
@@ -26,15 +26,15 @@
                                GridPane.columnSpan="2"/>
     <Button fx:id="btChoose" onAction="#btChoosePressed" prefWidth="300" maxHeight="10000.0"
             text="%choose" GridPane.halignment="CENTER" GridPane.columnIndex="0"
-            GridPane.rowIndex="1" GridPane.columnSpan="2"/>
+            GridPane.rowIndex="1" GridPane.columnSpan="2" defaultButton="true"/>
     <ScrollPane fx:id="scrollPane" GridPane.columnIndex="0" GridPane.columnSpan="2"
-                GridPane.rowIndex="2"
+                GridPane.rowIndex="2" visible="false"
                 maxHeight="10000.0" maxWidth="10000.0">
         <VBox fx:id="modulesUnits" spacing="25"/>
     </ScrollPane>
     <Button fx:id="btCheck" onAction="#btCheckPressed" prefWidth="300" maxHeight="10000.0"
             text="%check" GridPane.halignment="CENTER" GridPane.columnIndex="0"
-            GridPane.rowIndex="3" GridPane.columnSpan="2"/>
+            GridPane.rowIndex="3" GridPane.columnSpan="2" visible="false"/>
     <HBox fx:id="buttons" prefWidth="250" maxWidth="250"
           spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="4"
           GridPane.columnSpan="2" GridPane.halignment="CENTER">
