@@ -109,8 +109,8 @@ public class MainController implements Initializable {
   private SolverService solverService;
   private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
   private boolean databaseChanged = false;
-
   private ResourceBundle resources;
+
   @FXML
   private MenuBar menuBar;
   @FXML
@@ -139,7 +139,6 @@ public class MainController implements Initializable {
   private RadioMenuItem rbMenuItemSessionId;
   @FXML
   private TabPane tabPane;
-
   @FXML
   private TaskProgressView<Task<?>> taskProgress;
   @FXML
@@ -317,11 +316,8 @@ public class MainController implements Initializable {
     }
 
     rbMenuItemSessionName.setToggleGroup(sessionPreferenceToggle);
-    rbMenuItemSessionName.setUserData(sessionName);
     rbMenuItemSessionId.setToggleGroup(sessionPreferenceToggle);
-    rbMenuItemSessionId.setUserData("sessionId");
     rbMenuItemSessionKey.setToggleGroup(sessionPreferenceToggle);
-    rbMenuItemSessionKey.setUserData("sessionKey");
 
     sessionPreferenceToggle.selectedToggleProperty().addListener(
         (observable, oldValue, newValue) -> {
