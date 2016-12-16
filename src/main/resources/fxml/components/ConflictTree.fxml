@@ -13,7 +13,7 @@
          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
       </padding></Label>
     <TreeView fx:id="conflictTreeView">
-        <TreeItem fx:id="conflictTreeRootItem" value="%conflictPaneTitle" />
+        <TreeItem fx:id="conflictTreeRootItem" value="%conflictPaneTitle" expanded="true"/>
     </TreeView>
     <Button fx:id="btHighlightAllConflicts" onAction="#highlightConflicts" text="%highlightConflicts" />
 </fx:root>
