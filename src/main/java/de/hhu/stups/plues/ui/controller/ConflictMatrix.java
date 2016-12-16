@@ -19,11 +19,9 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.MapProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.collections.FXCollections;
@@ -36,7 +34,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -92,24 +89,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private GridPane gridPaneStandalone;
   @FXML
   private GridPane gridPaneSingleCourses;
-  @FXML
-  private GridPane gridPaneLegend;
-  @FXML
-  private ScrollPane scrollPaneCombinable;
-  @FXML
-  private ScrollPane scrollPaneStandalone;
-  @FXML
-  private Label lbHeader;
-  @FXML
-  private Label lbLegendSuccess;
-  @FXML
-  private Label lbLegendFailure;
-  @FXML
-  private Label lbLegendTimeout;
-  @FXML
-  private Label lbLegendInfeasible;
-  @FXML
-  private Label lbLegendImpossible;
   @FXML
   private Label lbFeasibleCourseAmount;
   @FXML

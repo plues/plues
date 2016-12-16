@@ -26,7 +26,7 @@
         <RowConstraints percentHeight="15.0"/>
         <RowConstraints percentHeight="10.0"/>
     </rowConstraints>
-    <Label fx:id="lbHeader" styleClass="h2" text="%header" GridPane.columnIndex="0"
+    <Label styleClass="h2" text="%header" GridPane.columnIndex="0"
            GridPane.halignment="CENTER" GridPane.rowIndex="0"/>
     <Label text="%explanationStats" GridPane.columnIndex="0" GridPane.halignment="CENTER"
            GridPane.rowIndex="1"/>
@@ -52,7 +52,7 @@
                GridPane.columnIndex="0" GridPane.rowIndex="3">
         <panes>
             <TitledPane fx:id="titledPaneCombinableCourses" text="%headCombinable">
-                <ScrollPane fx:id="scrollPaneCombinable">
+                <ScrollPane>
                     <VBox>
                         <Label text="%explanationCombinable">
                             <padding>
@@ -65,7 +65,7 @@
                 </ScrollPane>
             </TitledPane>
             <TitledPane fx:id="titledPaneStandaloneCourses" text="%headStandalone">
-                <ScrollPane fx:id="scrollPaneStandalone">
+                <ScrollPane>
                     <VBox>
                         <Label text="%explanationStandalone">
                             <padding>
@@ -96,35 +96,35 @@
         <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </padding>
-        <GridPane fx:id="gridPaneLegend" alignment="CENTER" hgap="5.0" vgap="5.0">
+        <GridPane alignment="CENTER" hgap="5.0" vgap="5.0">
             <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </padding>
             <HBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
                 <Pane fx:id="paneLegendSuccess" maxHeight="25.0" maxWidth="25.0" minHeight="25.0"
                       minWidth="25.0" styleClass="legend-box, feasible"/>
-                <Label fx:id="lbLegendSuccess" text="%legendSuccess" wrapText="true"/>
+                <Label text="%legendSuccess" wrapText="true"/>
             </HBox>
             <HBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
                 <Pane fx:id="paneLegendFailure" maxHeight="25.0" maxWidth="25.0" minHeight="25.0"
                       minWidth="25.0" styleClass="legend-box, infeasible"/>
-                <Label fx:id="lbLegendFailure" text="%legendFailure" wrapText="true"/>
+                <Label text="%legendFailure" wrapText="true"/>
             </HBox>
             <HBox spacing="5.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
                 <Pane fx:id="paneLegendTimeout" maxHeight="25.0" maxWidth="25.0" minHeight="25.0"
                       minWidth="25.0" styleClass="legend-box, warning"/>
-                <Label fx:id="lbLegendTimeout" text="%legendTimeout" wrapText="true"/>
+                <Label text="%legendTimeout" wrapText="true"/>
             </HBox>
             <HBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
                 <Pane fx:id="paneLegendInfeasible" maxHeight="25.0" maxWidth="25.0" minHeight="25.0"
                       minWidth="25.0" styleClass="legend-box, impossible"/>
-                <Label fx:id="lbLegendInfeasible" text="%legendInfeasible" wrapText="true"/>
+                <Label text="%legendInfeasible" wrapText="true"/>
             </HBox>
             <HBox spacing="5.0" GridPane.columnIndex="1" GridPane.columnSpan="2"
                   GridPane.rowIndex="1">
                 <Pane fx:id="paneLegendImpossible" maxHeight="25.0" maxWidth="25.0" minHeight="25.0"
                       minWidth="25.0" styleClass="legend-box, ignored"/>
-                <Label fx:id="lbLegendImpossible" text="%legendImpossible" wrapText="true"/>
+                <Label text="%legendImpossible" wrapText="true"/>
             </HBox>
             <columnConstraints>
                 <ColumnConstraints percentWidth="30.0"/>
