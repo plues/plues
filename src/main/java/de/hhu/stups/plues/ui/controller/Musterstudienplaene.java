@@ -18,9 +18,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -43,9 +41,6 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
   @FXML
   @SuppressWarnings("unused")
   private Button btGenerate;
-  @FXML
-  @SuppressWarnings("unused")
-  private ProgressBar progressGenerate;
   @FXML
   @SuppressWarnings("unused")
   private VBox resultBox;
@@ -99,14 +94,10 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
-    btGenerate.setDefaultButton(true);
     btGenerate.disableProperty().bind(solverProperty.not());
 
     final IntegerBinding resultBoxChildren = Bindings.size(resultBox.getChildren());
     scrollPane.visibleProperty().bind(resultBoxChildren.greaterThan(0));
-
-    resultBox.setSpacing(10.0);
-    resultBox.setPadding(new Insets(10.0, 10.0, 10.0, 10.0));
 
     delayedStore.whenAvailable(store ->
         PdfRenderingHelper.initializeCourseSelection(store, uiDataService, courseSelection));
