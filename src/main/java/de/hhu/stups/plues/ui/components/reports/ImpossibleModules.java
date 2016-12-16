@@ -40,12 +40,6 @@ public class ImpossibleModules extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableView<Module> tableViewModules;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<Module, Integer> columnModulePordnr;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<Module, String> columnModuleTitle;
 
   /**
    * Default constructor for incomplete modules component.
@@ -109,9 +103,6 @@ public class ImpossibleModules extends VBox implements Initializable {
       }
     };
     explanation.textProperty().bind(stringBinding);
-
-    columnModulePordnr.setCellValueFactory(new PropertyValueFactory<>("pordnr"));
-    columnModuleTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
   }
 
   /**

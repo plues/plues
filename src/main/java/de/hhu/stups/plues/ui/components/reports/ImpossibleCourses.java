@@ -33,27 +33,15 @@ public class ImpossibleCourses extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Label explanation;
-
   @FXML
   @SuppressWarnings("unused")
   private TableView<Course> tableViewImpossibleCourses;
-
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<Course, String> tableColumnCourseName;
-
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<Course, String> tableColumnCourseFullName;
-
   @FXML
   @SuppressWarnings("unused")
   private ToggleButton buttonImpossibleCourses;
-
   @FXML
   @SuppressWarnings("unused")
   private ToggleButton buttonImpossibleCoursesBecauseOfImpossibleModules;
-
   @FXML
   @SuppressWarnings("unused")
   private ToggleButton buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations;
@@ -103,9 +91,6 @@ public class ImpossibleCourses extends VBox implements Initializable {
       }
     };
     tableViewImpossibleCourses.itemsProperty().bind(binding);
-
-    tableColumnCourseName.setCellValueFactory(new PropertyValueFactory<>("key"));
-    tableColumnCourseFullName.setCellValueFactory(new PropertyValueFactory<>("fullName"));
 
     final StringBinding stringBinding = new StringBinding() {
       {
