@@ -4,11 +4,13 @@ import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import de.be4.classicalb.core.parser.exceptions.BCompoundException;
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.exception.ProBError;
 import de.prob.scripting.Api;
+import de.prob.scripting.ModelTranslationError;
 import de.prob.statespace.StateSpace;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
@@ -46,7 +48,7 @@ public class ProBSolver implements Solver {
 
   @Inject
   ProBSolver(final Api api, @Assisted final String modelPath)
-      throws IOException, BException {
+      throws IOException, BException, ModelTranslationError {
 
     final long t1 = System.nanoTime();
     this.stateSpace = api.b_load(modelPath);
@@ -144,8 +146,8 @@ public class ProBSolver implements Solver {
     final Transition trans = trace.getCurrentTransition();
     try {
       return trans.getTranslatedReturnValues();
-    } catch (final BException exception) {
-      logger.error("Translator Exception", exception);
+    } catch (final BCompoundException exception) {
+      logger.error("Compound Exception", exception.getCause());
       return Collections.emptyList();
     }
   }
