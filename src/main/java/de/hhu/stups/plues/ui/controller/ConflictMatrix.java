@@ -171,24 +171,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    // for counting we only consider results for course combinations and standalone courses
-    // single courses are ignored.
-    lbTimeoutCourseAmount.textProperty().bind(
-        Bindings.createStringBinding(() -> String.valueOf(
-          results.entrySet().stream()
-            .filter(entry -> !entry.getKey().isSingle()
-              &&  entry.getValue().equals(ResultState.TIMEOUT)).count()), results));
-    lbFeasibleCourseAmount.textProperty().bind(
-        Bindings.createStringBinding(() -> String.valueOf(
-          results.entrySet().stream()
-            .filter(entry -> !entry.getKey().isSingle()
-              &&  entry.getValue().equals(ResultState.SUCCEEDED)).count()), results));
-    lbInfeasibleCourseAmount.textProperty().bind(
-        Bindings.createStringBinding( () -> String.valueOf(
-          results.entrySet().stream()
-            .filter(entry -> !entry.getKey().isSingle()
-              &&  entry.getValue().equals(ResultState.FAILED)).count()), results));
-    lblImpossibleCoursesAmount.textProperty().bind(Bindings.convert(impossibleCoursesAmount));
+    initializeStats();
 
     btCheckAll.disableProperty().bind(feasibilityCheckRunning.or(solverProperty.not()));
     btCancelCheckAll.disableProperty().bind(feasibilityCheckRunning.not());
@@ -205,6 +188,27 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
   }
 
+  private void initializeStats() {
+    // for counting we only consider results for course combinations and standalone courses
+    // single courses are ignored.
+    lbTimeoutCourseAmount.textProperty().bind(
+        Bindings.createStringBinding(() -> String.valueOf(
+          results.entrySet().stream()
+            .filter(entry -> entry.getKey().isCurriculum()
+              && entry.getValue().timedOut()).count()), results));
+    lbFeasibleCourseAmount.textProperty().bind(
+        Bindings.createStringBinding(() -> String.valueOf(
+          results.entrySet().stream()
+            .filter(entry -> entry.getKey().isCurriculum()
+              &&  entry.getValue().succeeded()).count()), results));
+    lbInfeasibleCourseAmount.textProperty().bind(
+        Bindings.createStringBinding( () -> String.valueOf(
+          results.entrySet().stream()
+            .filter(entry -> entry.getKey().isCurriculum()
+              &&  entry.getValue().failed()).count()), results));
+    lblImpossibleCoursesAmount.textProperty().bind(Bindings.convert(impossibleCoursesAmount));
+  }
+
   /**
    * Initialize and set the visibility of the grid panes according to the current data.
    */
@@ -215,6 +219,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
     } else {
       titledPaneStandaloneCourses.setVisible(false);
     }
+
     if (!combinableMajorCourses.isEmpty() && !combinableMinorCourses.isEmpty()) {
       initializeGridPaneCombinable();
       accordionConflictMatrices.setExpandedPane(titledPaneCombinableCourses);
@@ -222,6 +227,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
       titledPaneCombinableCourses.setVisible(false);
       titledPaneSingleCourses.visibleProperty().bind(titledPaneCombinableCourses.visibleProperty());
     }
+
     initializeGridPaneSingleCourse();
     highlightImpossibleCombinations();
   }
@@ -252,9 +258,9 @@ public class ConflictMatrix extends GridPane implements Initializable {
     });
 
     impossibleCoursesAmount.set(cellMap.entrySet().stream().filter(entry ->
-        !entry.getKey().isSingle()
+        entry.getKey().isCurriculum()
           && entry.getValue().getResultState() != null
-          && entry.getValue().getResultState().equals(ResultState.IMPOSSIBLE)).count());
+          && entry.getValue().getResultState().isImpossible()).count());
   }
 
   /**
