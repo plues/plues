@@ -73,6 +73,9 @@ dependencies {
     testCompile "org.powermock:powermock-api-mockito:1.6.6"
     testCompile "org.powermock:powermock-classloading-xstream:1.6.6"
 
+    // experimenting with JMockit
+    testCompile 'org.jmockit:jmockit:1.29'
+
     // provides org.testfx.api, org.testfx.matcher to the test source set.
     testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.4-alpha")
     // provides org.testfx.framework.junit to the test source set.
