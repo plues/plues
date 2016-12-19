@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> {
@@ -64,12 +65,11 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
         });
       }
     }
-    standaloneCourses.forEach(
-        course -> {
-          if (notCheckedYet(new CourseSelection(course))) {
-            feasibilityTasks.add(solverService.checkFeasibilityTask(course));
-          }
-        });
+    feasibilityTasks.addAll(standaloneCourses.parallelStream()
+        .filter(course -> notCheckedYet(new CourseSelection(course)))
+        .map(solverService::checkFeasibilityTask)
+        .collect(Collectors.toList()));
+
     // also check the results for all single courses
     majorCourses.forEach(majorCourse ->
         feasibilityTasks.add(solverService.checkFeasibilityTask(majorCourse)));
