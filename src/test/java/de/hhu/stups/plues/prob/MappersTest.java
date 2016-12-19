@@ -3,6 +3,7 @@ package de.hhu.stups.plues.prob;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import de.be4.classicalb.core.parser.exceptions.BCompoundException;
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.prob.translator.Translator;
 import de.prob.translator.types.BObject;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 public class MappersTest {
 
   @Test
-  public void mapSemesterChoice() throws BException {
+  public void mapSemesterChoice() throws BException, BCompoundException {
     final String sc = "{(au1|->sem1),(au2|->sem1),(au3|->sem1),(au4|->sem1),(au5|->sem1),"
         + "(au6|->sem4),(au7|->sem1),(au8|->sem1),(au9|->sem2)}";
     final Set semesterChoice = (Set) Translator.translate(sc);
@@ -37,7 +38,7 @@ public class MappersTest {
   }
 
   @Test
-  public void mapGroupChoice() throws BException {
+  public void mapGroupChoice() throws BException, BCompoundException {
     final String gc = "{(au1|->group1),(au2|->group12),(au3|->group3),(au4|->group4),"
         + "(au5|->group11),(au6|->group6),(au7|->group7),(au8|->group10),(au9|->group9)}";
     final Set groupChoice = (Set) Translator.translate(gc);
@@ -55,7 +56,7 @@ public class MappersTest {
   }
 
   @Test
-  public void mapModuleChoice() throws BException {
+  public void mapModuleChoice() throws BCompoundException {
     final String mc = "{\"foo\" |-> {mod1, mod200}}";
     final Set moduleChoice = (Set) Translator.translate(mc);
 
@@ -83,7 +84,8 @@ public class MappersTest {
 
 
   @Test
-  public void testMapImpossibleCoursesBecauseOfImpossibleModuleCombinations() throws BException {
+  public void testMapImpossibleCoursesBecauseOfImpossibleModuleCombinations()
+      throws BCompoundException {
     final String raw = "{(((mod39|->au58)|->{sem6})|->unit577),"
         + "(((mod37|->au5)|->{sem1})|->unit578),"
         + "(((mod560|->au88)|->{sem3})|->unit579)}";
@@ -105,7 +107,7 @@ public class MappersTest {
   }
 
   @Test
-  public void testMapModules() throws  BException {
+  public void testMapModules() throws BCompoundException {
     final String raw = "{mod1, mod200}";
     final Set input = (Set) Translator.translate(raw);
     final java.util.Set<Integer> result = Mappers.mapModules(input);
@@ -122,7 +124,7 @@ public class MappersTest {
   }
 
   @Test
-  public void testMapAbstractUnits() throws BException {
+  public void testMapAbstractUnits() throws BCompoundException {
     Assert.assertEquals(
         new HashSet<>(Arrays.asList(1, 11)),
         new HashSet<>(Mappers.mapAbstractUnits((Set) Translator.translate("{au1, au11}"))));
@@ -135,7 +137,7 @@ public class MappersTest {
   }
 
   @Test
-  public void testMapGroups() throws BException {
+  public void testMapGroups() throws BCompoundException {
     Assert.assertEquals(
         new HashSet<>(Arrays.asList(22, 234)),
         new HashSet<>(Mappers.mapGroups((Set) Translator.translate("{group234, group22}"))));
@@ -148,7 +150,7 @@ public class MappersTest {
   }
 
   @Test
-  public void testMapSessions() throws BException {
+  public void testMapSessions() throws BCompoundException {
     Assert.assertEquals(
         new HashSet<>(Arrays.asList(222, 23423)),
         new HashSet<>(Mappers.mapSessions(
@@ -156,7 +158,7 @@ public class MappersTest {
   }
 
   @Test
-  public void testRedundantUnitGroups() throws BException {
+  public void testRedundantUnitGroups() throws BCompoundException {
     final String input = "{((unit254|->group269)|->group270),((unit254|->group277)|->group280),"
         + "((unit493|->group542)|->group543)}";
     final BObject translated = Translator.translate(input);
@@ -170,7 +172,7 @@ public class MappersTest {
   }
 
   @Test
-  public void testMapQuasiMandatoryModuleAbstractUnits() throws BException {
+  public void testMapQuasiMandatoryModuleAbstractUnits() throws BCompoundException {
     final String input = "{(mod1|->au1),(mod1|->au2),(mod286|->au568),(mod286|->au569)}";
     final BObject translated = Translator.translate(input);
     final Map<Integer, java.util.Set<Integer>> result
@@ -186,7 +188,7 @@ public class MappersTest {
 
 
   @Test
-  public void testMapModuleAbstractUnitPairs() throws BException {
+  public void testMapModuleAbstractUnitPairs() throws BCompoundException {
     final String input = "{((mod235|->au329)|->{sem1,sem3}),((mod235|->au425)|->{sem1,sem3}),"
         + "((mod235|->au426)|->{sem1,sem3}),((mod236|->au429)|->{sem1,sem3}),"
         + "((mod236|->au430)|->{sem1,sem3})}";
@@ -202,7 +204,7 @@ public class MappersTest {
   }
 
   @Test
-  public void testMapCourseSet() throws BException {
+  public void testMapCourseSet() throws BCompoundException {
     final String input = "{\"BA-IWS-H-2013\",\"BA-KUL-H-2013\",\"BA-LIN-COM-H-2013\","
         + "\"BA-LIN-GRU-H-2013\",\"BA-LIN-PSY-H-2013\"}";
     final BObject translated = Translator.translate(input);
@@ -216,7 +218,7 @@ public class MappersTest {
   }
 
   @Test
-  public void testMapCourseModuleAbstractUnitPairs() throws BException {
+  public void testMapCourseModuleAbstractUnitPairs() throws BCompoundException {
     final String input = "{(((\"BA-KUL-H-2013\"|->mod273)|->au530)|->au531)}";
     final BObject translated = Translator.translate(input);
     final Map<String, Map<Integer, java.util.Set<Pair<Integer>>>> result

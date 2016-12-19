@@ -12,6 +12,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import de.be4.classicalb.core.parser.exceptions.BCompoundException;
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.hhu.stups.plues.keys.OperationPredicateKey;
 import de.prob.animator.command.GetOperationByPredicateCommand;
@@ -20,6 +21,7 @@ import de.prob.animator.domainobjects.EvalElementType;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.model.classicalb.ClassicalBModel;
 import de.prob.scripting.Api;
+import de.prob.scripting.ModelTranslationError;
 import de.prob.statespace.State;
 import de.prob.statespace.StateSpace;
 import de.prob.statespace.Trace;
@@ -110,7 +112,7 @@ public class ProBSolverTest {
    * Setup state for test.
    */
   @Before
-  public void setUp() throws IOException, BException {
+  public void setUp() throws IOException, ModelTranslationError, BException {
     this.stateSpace = mock(StateSpace.class);
     this.trace = mock(Trace.class);
 
@@ -353,7 +355,7 @@ public class ProBSolverTest {
         Arrays.stream(modelReturnValues).map(s -> {
           try {
             return Translator.translate(s);
-          } catch (BException exception) {
+          } catch (BCompoundException exception) {
             return null;
           }
         }).collect(Collectors.toList()));
