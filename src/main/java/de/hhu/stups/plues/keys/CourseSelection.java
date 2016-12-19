@@ -32,7 +32,7 @@ public class CourseSelection {
   public CourseSelection(final Course... courses) {
     this.courses = Arrays.asList(courses);
     this.courses.sort(Comparator.comparingInt(Course::getId));
-    isSingle = (courses.length == 1);
+    isSingle = courses.length == 1;
 
     if (isSingle()) {
       isStandalone = !courses[0].isCombinable();
@@ -90,5 +90,14 @@ public class CourseSelection {
 
   public boolean isCombination() {
     return courses.size() > 1;
+  }
+
+  /**
+   * Check if the current key represents a valid curriculum. I.e. a combinations of major and minor
+   * or a standalone course. Single course keys aren't considered valid curricula.
+   * @return boolean
+   */
+  public boolean isCurriculum() {
+    return isCombination() || isStandalone();
   }
 }
