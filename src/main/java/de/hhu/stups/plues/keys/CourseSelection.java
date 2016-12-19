@@ -35,7 +35,7 @@ public class CourseSelection {
     isSingle = (courses.length == 1);
 
     if (isSingle()) {
-      isStandalone = courses[0].isCombinable();
+      isStandalone = !courses[0].isCombinable();
     } else {
       isStandalone = false;
       if (courses.length != 2) {
