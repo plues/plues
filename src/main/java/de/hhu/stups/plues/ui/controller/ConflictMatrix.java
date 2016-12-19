@@ -205,9 +205,16 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
     lbInfeasibleCourseAmount.textProperty().bind(
         Bindings.createStringBinding( () -> String.valueOf(
-          results.entrySet().stream()
-            .filter(entry -> entry.getKey().isCurriculum()
-              &&  entry.getValue().failed()).count()), results));
+          results.entrySet().parallelStream()
+            .filter(entry -> {
+              CourseSelection cs = entry.getKey();
+              ResultState result = entry.getValue();
+
+              return cs.isCurriculum()
+                  && cs.getCourses().stream().noneMatch(impossibleCourses::contains)
+                  && result.failed();
+            }).count()), results));
+
     lblImpossibleCoursesAmount.textProperty().bind(Bindings.convert(impossibleCoursesAmount));
   }
 
