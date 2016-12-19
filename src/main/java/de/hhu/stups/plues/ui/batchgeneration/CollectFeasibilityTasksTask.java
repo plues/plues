@@ -52,30 +52,32 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
   protected Set<SolverTask<Boolean>> call() throws Exception {
     updateTitle(resources.getString("preparing"));
     final Set<SolverTask<Boolean>> feasibilityTasks = new HashSet<>();
-    for (final Course majorCourse : majorCourses) {
-      if (!majorCourse.isCombinable() && notCheckedYet(
-          new CourseSelection(majorCourse))) {
+    majorCourses.forEach(majorCourse -> {
+      if (!majorCourse.isCombinable() && shouldBeChecked(majorCourse)) {
         feasibilityTasks.add(solverService.checkFeasibilityTask(majorCourse));
       } else {
-        minorCourses.forEach(minorCourse -> {
-          if (!majorCourse.getShortName().equals(minorCourse.getShortName())
-              && notCheckedYet(new CourseSelection(majorCourse, minorCourse))) {
-            feasibilityTasks.add(solverService.checkFeasibilityTask(majorCourse, minorCourse));
-          }
-        });
+        feasibilityTasks.addAll(minorCourses.parallelStream()
+            .filter(majorCourse::isCombinableWith)
+            .filter(minorCourse -> shouldBeChecked(majorCourse, minorCourse))
+            .map(minorCourse -> solverService.checkFeasibilityTask(majorCourse, minorCourse))
+            .collect(Collectors.toList()));
       }
-    }
-    feasibilityTasks.addAll(standaloneCourses.parallelStream()
-        .filter(course -> notCheckedYet(new CourseSelection(course)))
-        .map(solverService::checkFeasibilityTask)
-        .collect(Collectors.toList()));
+    });
+
+    feasibilityTasks.addAll(collectTasks(standaloneCourses));
 
     // also check the results for all single courses
-    majorCourses.forEach(majorCourse ->
-        feasibilityTasks.add(solverService.checkFeasibilityTask(majorCourse)));
-    minorCourses.forEach(minorCourse ->
-        feasibilityTasks.add(solverService.checkFeasibilityTask(minorCourse)));
+    feasibilityTasks.addAll(collectTasks(majorCourses));
+    feasibilityTasks.addAll(collectTasks(minorCourses));
+
     return feasibilityTasks;
+  }
+
+  private List<SolverTask<Boolean>> collectTasks(final List<Course> courses) {
+    return courses.parallelStream()
+        .filter(this::shouldBeChecked)
+        .map(solverService::checkFeasibilityTask)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -84,20 +86,19 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
    * SolverService#courseSelectionResults}. Furthermore, check that the computed result in the
    * cache is true, because the user could have cancelled a task that is feasible normally.
    *
-   * @param courseSelection The key of the courses.
+   * @param courses The key of the courses.
    * @return Return false if {@link SolverService#courseSelectionResults} contains the key and the
    *         stored result is true or the key contains an impossible course, otherwise return true.
    */
-  private boolean notCheckedYet(final CourseSelection courseSelection) {
+  private boolean shouldBeChecked(final Course ... courses) {
+    final CourseSelection courseSelection = new CourseSelection(courses);
     // if course has been successfully checked we do not want to check it again
-    if (results.containsKey(courseSelection)
-        && !ResultState.SUCCEEDED.equals(results.get(courseSelection))) {
-      return false;
-    }
-    return shouldBeChecked(courseSelection);
+    return !results.getOrDefault(courseSelection, ResultState.FAILED).succeeded()
+        && canBeChecked(courseSelection);
+
   }
 
-  private boolean shouldBeChecked(final CourseSelection courseSelection) {
+  private boolean canBeChecked(final CourseSelection courseSelection) {
     // if the given selection contains impossible courses we do not bother to check it.
     for (final Course course : courseSelection.getCourses()) {
       if (!impossibleCourses.contains(course)) {
