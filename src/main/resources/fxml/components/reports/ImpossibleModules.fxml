@@ -10,7 +10,7 @@
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
-    <SegmentedButton>
+    <SegmentedButton fx:id="segmentedButtons">
         <padding>
             <Insets left="20" right="20"/>
         </padding>

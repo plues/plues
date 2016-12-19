@@ -13,11 +13,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+
+import org.controlsfx.control.SegmentedButton;
 
 import java.net.URL;
 import java.util.List;
@@ -30,6 +30,9 @@ public class ImpossibleCourses extends VBox implements Initializable {
   private final SimpleListProperty<Course>
       impossibleCoursesBecauseOfImpossibleModuleCombinationsList;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private SegmentedButton segmentedButtons;
   @FXML
   @SuppressWarnings("unused")
   private Label explanation;
@@ -63,6 +66,7 @@ public class ImpossibleCourses extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    segmentedButtons.setToggleGroup(new PersistentToggleGroup());
     final ListBinding<Course> binding = new ListBinding<Course>() {
       {
         bind(buttonImpossibleCourses.selectedProperty());
