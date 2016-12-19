@@ -94,14 +94,16 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
         && !ResultState.SUCCEEDED.equals(results.get(courseSelection))) {
       return false;
     }
-    // if the selection is a pair of courses we check if any is impossible, in that case we
-    // do not need to check the combination
-    if (!courseSelection.isSingle()) {
-      for (final Course course : courseSelection.getCourses()) {
-        if (impossibleCourses.contains(course)) {
-          return false;
-        }
+    return shouldBeChecked(courseSelection);
+  }
+
+  private boolean shouldBeChecked(final CourseSelection courseSelection) {
+    // if the given selection contains impossible courses we do not bother to check it.
+    for (final Course course : courseSelection.getCourses()) {
+      if (!impossibleCourses.contains(course)) {
+        continue;
       }
+      return false;
     }
     return true;
   }
