@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.routes;
 
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,21 +21,23 @@ import javax.swing.SwingUtilities;
 public class HandbookRoute implements Route {
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final Properties properties;
+  private final Format format;
 
   @Inject
-  HandbookRoute(final Properties properties) {
+  HandbookRoute(final Properties properties, @Assisted final Format format) {
     this.properties = properties;
+    this.format = format;
   }
 
   @Override
   public void transition(final Object... args) {
-    final String handbook = "doc/handbook.html";
+    final String handbook = this.format.getFileName();
     final ClassLoader classLoader = this.getClass().getClassLoader();
 
     try (final InputStream stream = classLoader.getResourceAsStream(handbook)) {
       // if we didn't find the handbook in the resources try opening online version
       if (stream == null) {
-        final String url = this.properties.getProperty("handbook-url");
+        final String url = this.properties.getProperty(this.format.getPropertyName());
 
         // open url in browser
         SwingUtilities.invokeLater(() -> {
@@ -48,7 +51,7 @@ public class HandbookRoute implements Route {
       }
       //
       // if we found the handbook, move it to a temporary location and open it from there
-      final Path output = Files.createTempFile("Handbook", ".html");
+      final Path output = Files.createTempFile("Handbook", this.format.getExtension());
       output.toFile().deleteOnExit();
       Files.copy(stream, output, StandardCopyOption.REPLACE_EXISTING);
 
@@ -63,5 +66,34 @@ public class HandbookRoute implements Route {
       logger.error("showHandbook", exception);
     }
 
+  }
+
+  public enum Format {
+    HTML(".html"), PDF(".pdf");
+
+    private final String extension;
+
+    Format(final String extension) {
+      this.extension = extension;
+    }
+
+    String getExtension() {
+      return extension;
+    }
+
+    String getFileName() {
+      return "doc/handbook" + this.getExtension();
+    }
+
+
+    private String getPropertyName() {
+      switch (this) {
+        case HTML:
+          return "handbook-url-html";
+        case PDF:
+        default:
+          return "handbook-url-pdf";
+      }
+    }
   }
 }

@@ -605,8 +605,13 @@ public class MainController implements Initializable {
   }
 
   @FXML
-  private void showHandbook(final ActionEvent actionEvent) {
-    router.transitionTo(RouteNames.HANDBOOK);
+  private void showHtmlHandbook(final ActionEvent actionEvent) {
+    router.transitionTo(RouteNames.HANDBOOK_HTML);
+  }
+
+  @FXML
+  public void showPdfHandbook(final ActionEvent actionEvent) {
+    router.transitionTo(RouteNames.HANDBOOK_PDF);
   }
 
   private class ExportXmlTask extends Task<Void> {

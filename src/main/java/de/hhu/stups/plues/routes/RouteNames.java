@@ -14,5 +14,6 @@ public enum RouteNames {
   TIMETABLE,
   UNIT_DETAIL_VIEW,
   UNSAT_CORE,
-  HANDBOOK;
+  HANDBOOK_HTML,
+  HANDBOOK_PDF;
 }
