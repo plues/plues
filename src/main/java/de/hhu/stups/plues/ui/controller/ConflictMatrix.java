@@ -193,14 +193,16 @@ public class ConflictMatrix extends GridPane implements Initializable {
     // single courses are ignored.
     lbTimeoutCourseAmount.textProperty().bind(
         Bindings.createStringBinding(() -> String.valueOf(
-          results.entrySet().stream()
+          results.entrySet().parallelStream()
             .filter(entry -> entry.getKey().isCurriculum()
               && entry.getValue().timedOut()).count()), results));
+
     lbFeasibleCourseAmount.textProperty().bind(
         Bindings.createStringBinding(() -> String.valueOf(
-          results.entrySet().stream()
+          results.entrySet().parallelStream()
             .filter(entry -> entry.getKey().isCurriculum()
               &&  entry.getValue().succeeded()).count()), results));
+
     lbInfeasibleCourseAmount.textProperty().bind(
         Bindings.createStringBinding( () -> String.valueOf(
           results.entrySet().stream()
