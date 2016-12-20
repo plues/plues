@@ -14,7 +14,7 @@
 <?import de.hhu.stups.plues.ui.controller.PartialTimeTables?>
 <?import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration?>
 <?import de.hhu.stups.plues.ui.controller.ConflictMatrix?>
-<?import de.hhu.stups.plues.ui.controller.UnsatCore?>
+<?import de.hhu.stups.plues.ui.controller.unsatcore.CourseUnsatCore?>
 
 <?import javafx.scene.control.RadioMenuItem?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
@@ -89,7 +89,7 @@
                     <ConflictMatrix fx:id="conflictMatrix"/>
                 </Tab>
                 <Tab id="tabUnsatCore" text="%tab.unsatCore" closable="false">
-                    <UnsatCore fx:id="unsatCore"/>
+                    <CourseUnsatCore fx:id="unsatCore"/>
                 </Tab>
             </TabPane>
         </center>
