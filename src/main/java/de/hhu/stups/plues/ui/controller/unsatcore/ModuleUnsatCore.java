@@ -57,7 +57,7 @@ public class ModuleUnsatCore extends VBox implements Initializable {
     this.visibleProperty().bind(modules.emptyProperty().not());
 
     unsatCoreButtonBar.configureButton(resources.getString("button.unsatCoreAbstractUnits"),
-      modules, abstractUnitUnsatCore);
+        modules, abstractUnitUnsatCore);
 
     modulesTable.itemsProperty().bind(modules);
     modulesTable.setOnMouseClicked(DetailViewHelper.getModuleMouseHandler(

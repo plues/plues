@@ -86,6 +86,6 @@ public class CourseUnsatCore extends VBox implements Initializable, Activatable 
   public void activateController(final Object... courses) {
     courseSelection.selectCourses((Course[]) courses);
     unsatCoreButtonBar.configureButton(resources.getString("button.unsatCoreModules"),
-      this.courses, moduleUnsatCore);
+        this.courses, moduleUnsatCore);
   }
 }
