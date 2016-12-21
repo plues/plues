@@ -36,6 +36,7 @@ import de.hhu.stups.plues.ui.controller.unsatcore.CourseUnsatCore;
 import de.hhu.stups.plues.ui.controller.unsatcore.GroupUnsatCore;
 import de.hhu.stups.plues.ui.controller.unsatcore.ModuleUnsatCore;
 import de.hhu.stups.plues.ui.controller.unsatcore.SessionUnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.UnsatCore;
 import de.hhu.stups.plues.ui.controller.unsatcore.UnsatCoreButtonBar;
 
 class ComponentsModule extends AbstractModule {
@@ -76,5 +77,6 @@ class ComponentsModule extends AbstractModule {
     bind(GroupUnsatCore.class);
     bind(SessionUnsatCore.class);
     bind(UnsatCoreButtonBar.class);
+    bind(UnsatCore.class);
   }
 }

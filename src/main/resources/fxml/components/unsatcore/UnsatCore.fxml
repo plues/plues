@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.hhu.stups.plues.ui.controller.unsatcore.AbstractUnitUnsatCore?>
+<?import de.hhu.stups.plues.ui.controller.unsatcore.CourseUnsatCore?>
+<?import de.hhu.stups.plues.ui.controller.unsatcore.GroupUnsatCore?>
+<?import de.hhu.stups.plues.ui.controller.unsatcore.ModuleUnsatCore?>
+<?import de.hhu.stups.plues.ui.controller.unsatcore.SessionUnsatCore?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+<fx:root prefHeight="400.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1">
+    <ScrollPane fitToHeight="false" fitToWidth="true" hbarPolicy="NEVER" pannable="true" vbarPolicy="ALWAYS">
+        <VBox>
+            <CourseUnsatCore fx:id="courseUnsatCore"/>
+            <ModuleUnsatCore fx:id="moduleUnsatCore"/>
+            <AbstractUnitUnsatCore fx:id="abstractUnitUnsatCore"/>
+            <GroupUnsatCore fx:id="groupUnsatCore"/>
+            <SessionUnsatCore fx:id="sessionUnsatCore"/>
+        </VBox>
+    </ScrollPane>
+</fx:root>
