@@ -19,13 +19,13 @@
          xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <VBox spacing="20.0">
         <TabPane fx:id="tabPaneSide" side="LEFT">
-            <Tab fx:id="tabCourseFilters" id="tabCourseFilters" text="Filters" closable="false">
+            <Tab fx:id="tabCourseFilters" id="sideBarTab" text="Filters" closable="false">
                 <VBox spacing="20.0">
                     <SetOfCourseSelection fx:id="setOfCourseSelection"/>
                     <AbstractUnitFilter fx:id="abstractUnitFilter"/>
                 </VBox>
             </Tab>
-            <Tab fx:id="tabCheckFeasibility" id="tabCheckFeasibility" text="Check" closable="false">
+            <Tab fx:id="tabCheckFeasibility" id="sideBarTab" text="Check" closable="false">
                 <CheckCourseFeasibility fx:id="checkCourseFeasibility"/>
             </Tab>
         </TabPane>

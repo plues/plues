@@ -19,26 +19,19 @@ import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.controller.Activatable;
 import de.hhu.stups.plues.ui.layout.Inflater;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
-import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.event.EventTarget;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -46,7 +39,6 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -136,13 +128,27 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     VBox.setVgrow(tabPaneSide, Priority.ALWAYS);
 
+    tabPaneSide.getTabs().forEach(sideTab -> {
+      sideTab.getStyleClass().clear();
+      sideTab.getStyleClass().add("sideBarTab");
+    });
+
     splitPaneDivider = getDividers().get(0);
     selectedSubTab = tabPaneSide.getSelectionModel().getSelectedItem();
 
     tabPaneSide.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
-      EventTarget eventTarget = mouseEvent.getTarget();
+      final EventTarget eventTarget = mouseEvent.getTarget();
       if (eventTarget instanceof Text) {
-        handleSideBarTabs((Text) eventTarget);
+        handleSideBarTabs(((Text) eventTarget).getText());
+      } else if (eventTarget instanceof StackPane) {
+        final ObservableList<String> styleClasses = ((StackPane) eventTarget).getStyleClass();
+        styleClasses.stream().filter("tab-container"::equals).forEach(styleClass -> {
+          final Optional<Node> optionalLabel = ((StackPane) eventTarget).getChildren().stream()
+              .filter(node -> node instanceof Label).findFirst();
+          if (optionalLabel.isPresent()) {
+            handleSideBarTabs(((Label) optionalLabel.get()).getText());
+          }
+        });
       }
     });
 
@@ -177,16 +183,12 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
    * Identify each tab by its text and handle the visibility of the side bar according to the
    * selected tab's state.
    */
-  private void handleSideBarTabs(final Text tabText) {
-    if (tabText.getText().equals(tabCourseFilters.getText())) {
-      showOrHideSideBar(tabCourseFilters);
-      tabPaneSide.getSelectionModel()
-          .clearAndSelect(tabPaneSide.getTabs().indexOf(tabCourseFilters));
-    }
-    if (tabText.getText().equals(tabCheckFeasibility.getText())) {
-      showOrHideSideBar(tabCheckFeasibility);
-      tabPaneSide.getSelectionModel()
-          .clearAndSelect(tabPaneSide.getTabs().indexOf(tabCheckFeasibility));
+  @SuppressWarnings("unused")
+  private void handleSideBarTabs(final String tabText) {
+    final Optional<Tab> optionalTab = tabPaneSide.getTabs().stream()
+        .filter(tab -> tab.getText().equals(tabText)).findFirst();
+    if (optionalTab.isPresent()) {
+      showOrHideSideBar(optionalTab.get());
     }
   }
 
@@ -197,17 +199,29 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   private void showOrHideSideBar(final Tab tab) {
     if (tab.equals(selectedSubTab)) {
       splitPaneDivider.setPosition(tabPaneSide.getMinWidth() / getWidth());
-      tabPaneSide.getSelectionModel().clearSelection();
       selectedSubTab = null;
       disableDivider(true);
+      tab.getStyleClass().clear();
+      tabPaneSide.getTabs().forEach(sideTab -> {
+        sideTab.getStyleClass().clear();
+        sideTab.getStyleClass().add("sideBarHiddenTab");
+      });
     } else {
-      tabPaneSide.getSelectionModel().clearAndSelect(tabPaneSide.getTabs().indexOf(tab));
-      if (selectedSubTab == null) {
-        selectedSubTab = tab;
-        splitPaneDivider.setPosition(userDefinedDividerPos);
-      }
-      selectedSubTab = tab;
+      showSideBar(tab);
     }
+  }
+
+  private void showSideBar(final Tab tab) {
+    tabPaneSide.getSelectionModel().select(tabPaneSide.getTabs().indexOf(tab));
+    if (selectedSubTab == null) {
+      splitPaneDivider.setPosition(userDefinedDividerPos);
+    }
+    disableDivider(false);
+    selectedSubTab = tab;
+    tabPaneSide.getTabs().forEach(sideTab -> {
+      sideTab.getStyleClass().clear();
+      sideTab.getStyleClass().add("sideBarTab");
+    });
   }
 
   private void disableDivider(final boolean bool) {
@@ -262,31 +276,28 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
    * de.hhu.stups.plues.routes.ControllerRoute}.
    */
   @Override
-  public void activateController(Object... args) {
+  public void activateController(final Object... args) {
     final Course[] courses = (Course[]) args[0];
     final ResultState resultState = (ResultState) args[1];
     setOfCourseSelection.setSelectedCourses(Arrays.asList(courses));
     switch (resultState) {
       case FAILED:
-        selectTabById("tabCheckFeasibility");
+        selectSideBarTab(tabCheckFeasibility);
         checkCourseFeasibility.selectCourses(courses);
         break;
       case TIMEOUT:
-        selectTabById("tabCheckFeasibility");
+        selectSideBarTab(tabCheckFeasibility);
         checkCourseFeasibility.selectCourses(courses);
         checkCourseFeasibility.checkFeasibility();
         break;
       default:
-        selectTabById("tabCourseFilters");
+        selectSideBarTab(tabCourseFilters);
     }
   }
 
-  private void selectTabById(final String tabId) {
-    final Optional<Tab> tabConflict = tabPaneSide.getTabs().stream()
-        .filter(tab -> tabId.equals(tab.getId())).findFirst();
-    if (tabConflict.isPresent()) {
-      tabPaneSide.getSelectionModel().select(tabConflict.get());
-    }
+  private void selectSideBarTab(final Tab tab) {
+    tabPaneSide.getSelectionModel().select(tabPaneSide.getTabs().indexOf(tab));
+    showSideBar(tab);
   }
 
   private class SessionFacadeListBinding extends ListBinding<SessionFacade> {
