@@ -57,7 +57,6 @@ public class CheckBoxGroupTest extends ApplicationTest {
     final CheckBox module = lookup("#moduleBox").query();
     final VBox units = lookup("#unitsBox").query();
     units.getChildren().forEach(node -> clickOn(node));
-    clickOn(module);
     Assert.assertTrue(module.isSelected());
   }
 
