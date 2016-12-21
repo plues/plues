@@ -25,6 +25,8 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -36,14 +38,21 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -118,8 +127,6 @@ public class MainController implements Initializable {
   private ResourceBundle resources;
 
   @FXML
-  private StatusBar mainStatusBar;
-  @FXML
   private MenuBar menuBar;
   @FXML
   private MenuItem saveFileMenuItem;
@@ -155,6 +162,18 @@ public class MainController implements Initializable {
   private Menu windowMenu;
   @FXML
   private MenuItem aboutMenuItem;
+  @FXML
+  private ScrollPane scrollPaneTaskProgress;
+  @FXML
+  private VBox boxTaskProgress;
+  @FXML
+  private SplitPane mainSplitPane;
+  @FXML
+  private StatusBar mainStatusBar;
+  @FXML
+  private ProgressBar mainProgressBar;
+  @FXML
+  private Label lbRunningTasks;
 
   /**
    * MainController component.
@@ -220,6 +239,23 @@ public class MainController implements Initializable {
 
     this.taskProgress.setGraphicFactory(this::getGraphicForTask);
 
+    VBox.setVgrow(scrollPaneTaskProgress, Priority.ALWAYS);
+
+    scrollPaneTaskProgress.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+    taskProgress.prefWidthProperty().bind(scrollPaneTaskProgress.widthProperty());
+    taskProgress.prefHeightProperty().bind(scrollPaneTaskProgress.heightProperty());
+
+    boxTaskProgress.prefWidth(mainSplitPane.getWidth() / 3.0);
+    boxTaskProgress.maxWidthProperty().bind(mainSplitPane.widthProperty().divide(3.0));
+    boxTaskProgress.minWidthProperty().bind(mainSplitPane.widthProperty().divide(5.0));
+
+    // don't show tasks on startup
+    mainSplitPane.getItems().remove(boxTaskProgress);
+    mainStatusBar.setText("");
+
+    initializeTaskProgressListener();
+
     tabPane.setOnKeyPressed(event -> {
       switch (event.getCode()) {
         case DIGIT1:
@@ -269,7 +305,7 @@ public class MainController implements Initializable {
         }
       } catch (final InterruptedException exception) {
         logger.error("Closing resources", exception);
-        throw new RuntimeException(exception);
+        Thread.currentThread().interrupt();
       }
     });
 
@@ -277,6 +313,58 @@ public class MainController implements Initializable {
     uiDataService.lastSavedDateProperty().addListener(
         (observable, oldValue, newValue) -> this.databaseChanged = false);
 
+  }
+
+  private void initializeTaskProgressListener() {
+    final ObservableList<Task<?>> runningTasks = taskProgress.getTasks();
+    final String tasksSingular = resources.getString("tasksSingular");
+    final String tasksPlural = resources.getString("tasksPlural");
+
+    runningTasks.addListener((ListChangeListener.Change<? extends Task<?>> change) -> {
+          if (runningTasks.isEmpty()) {
+            removeTaskProgressBox();
+          } else {
+            mainProgressBar.progressProperty().bind(runningTasks.get(0).progressProperty());
+            if (!mainStatusBar.getRightItems().contains(mainProgressBar)) {
+              mainStatusBar.getRightItems().addAll(lbRunningTasks, mainProgressBar);
+            }
+          }
+          lbRunningTasks.setText(runningTasks.size() + " " + ((runningTasks.size() == 1)
+              ? tasksSingular : tasksPlural));
+        }
+    );
+
+    mainProgressBar.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+      final ObservableList<Node> splitPaneItems = mainSplitPane.getItems();
+      if (splitPaneItems.contains(boxTaskProgress)) {
+        splitPaneItems.remove(boxTaskProgress);
+      } else {
+        splitPaneItems.add(boxTaskProgress);
+      }
+    });
+  }
+
+  /**
+   * Wait some time and hide the {@link #taskProgress task progress view} if there are no
+   * running tasks anymore.
+   */
+  private void removeTaskProgressBox() {
+    mainProgressBar.progressProperty().unbind();
+    mainStatusBar.getRightItems().remove(lbRunningTasks);
+    mainStatusBar.getRightItems().remove(mainProgressBar);
+    new Thread(() -> {
+      try {
+        Thread.sleep(1500);
+      } catch (final InterruptedException exception) {
+        logger.error(exception);
+        Thread.currentThread().interrupt();
+      }
+      Platform.runLater(() -> {
+        if (taskProgress.getTasks().isEmpty()) {
+          mainSplitPane.getItems().remove(boxTaskProgress);
+        }
+      });
+    }).start();
   }
 
   private void initializeMenu() {

@@ -18,6 +18,10 @@
 
 <?import javafx.scene.control.RadioMenuItem?>
 <?import org.controlsfx.control.StatusBar?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.geometry.Insets?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="de.hhu.stups.plues.ui.controller.MainController">
@@ -69,8 +73,8 @@
                       text="%handbook"/>
         </Menu>
     </MenuBar>
-    <BorderPane>
-        <center>
+    <SplitPane fx:id="mainSplitPane">
+        <VBox>
             <TabPane id="tabPane" fx:id="tabPane">
                 <Tab id="tabTimetable" text="%timetable" closable="false">
                     <Timetable fx:id="timetable"/>
@@ -91,12 +95,20 @@
                     <UnsatCore fx:id="unsatCore"/>
                 </Tab>
             </TabPane>
-        </center>
-        <right>
-            <ScrollPane prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
-                <TaskProgressView fx:id="taskProgress" prefWidth="300"/>
+        </VBox>
+        <VBox fx:id="boxTaskProgress">
+            <ScrollPane fx:id="scrollPaneTaskProgress" fitToHeight="true" fitToWidth="true">
+                <TaskProgressView fx:id="taskProgress" minWidth="200.0"/>
             </ScrollPane>
-        </right>
-    </BorderPane>
-    <StatusBar fx:id="mainStatusBar"/>
+        </VBox>
+    </SplitPane>
+    <StatusBar fx:id="mainStatusBar">
+        <padding>
+            <Insets top="0.0" right="10.0" bottom="0.0" left="0.0"/>
+        </padding>
+        <rightItems>
+            <Label fx:id="lbRunningTasks"/>
+            <ProgressBar fx:id="mainProgressBar"/>
+        </rightItems>
+    </StatusBar>
 </VBox>
