@@ -7,19 +7,23 @@ import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -49,9 +53,6 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private UnsatCoreButtonBar unsatCoreButtonBar;
-  @FXML
-  @SuppressWarnings("unused")
-  private GroupUnsatCore groupUnsatCore;
 
   /**
    * Default constructor.
@@ -71,9 +72,6 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     this.visibleProperty().bind(abstractUnits.emptyProperty().not());
-
-    unsatCoreButtonBar.configureButton(resources.getString("button.unsatCoreGroups"),
-        modules, abstractUnits, groupUnsatCore);
 
     abstractUnitsTable.itemsProperty().bind(abstractUnits);
     abstractUnitsTable.setOnMouseClicked(DetailViewHelper.getAbstractUnitMouseHandler(
@@ -149,10 +147,6 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
               .collect(Collectors.joining("\n")));
         }
       });
-    abstractUnits.addListener((observable, oldValue, newValue) -> {
-      groupUnsatCore.setGroups(FXCollections.emptyObservableList());
-      groupUnsatCore.resetTaskState();
-    });
   }
 
   private String getPrefix(final Collection<?> item) {
@@ -162,7 +156,6 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
     return "";
   }
 
-
   void resetTaskState() {
     unsatCoreButtonBar.resetTaskState();
   }
@@ -171,11 +164,17 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
     this.abstractUnits.set(abstractUnits);
   }
 
-  public ObservableList<AbstractUnit> getAbstractUnits() {
-    return abstractUnits.get();
+  ListProperty<AbstractUnit> getAbstractUnits() {
+    return abstractUnits;
   }
 
-  ListProperty<AbstractUnit> getAbstractUnitProperty() {
-    return abstractUnits;
+  void configureButton(final String text,
+                       final BooleanBinding binding,
+                       final EventHandler<MouseEvent> eventHandler) {
+    unsatCoreButtonBar.configureButton(text, binding, eventHandler);
+  }
+
+  void showTaskState(final SolverTask task, final ResourceBundle resources) {
+    unsatCoreButtonBar.showTaskState(task, resources);
   }
 }

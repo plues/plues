@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import de.hhu.stups.plues.ui.components.Timetable?>
+<?import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration?>
+<?import de.hhu.stups.plues.ui.controller.ConflictMatrix?>
 <?import de.hhu.stups.plues.ui.controller.Musterstudienplaene?>
+<?import de.hhu.stups.plues.ui.controller.PartialTimeTables?>
+<?import de.hhu.stups.plues.ui.controller.unsatcore.UnsatCore?>
+<?import org.controlsfx.control.TaskProgressView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
-<?import org.controlsfx.control.TaskProgressView?>
-<?import de.hhu.stups.plues.ui.controller.PartialTimeTables?>
-<?import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration?>
-<?import de.hhu.stups.plues.ui.controller.ConflictMatrix?>
-<?import de.hhu.stups.plues.ui.controller.unsatcore.CourseUnsatCore?>
-
-<?import javafx.scene.control.RadioMenuItem?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="de.hhu.stups.plues.ui.controller.MainController">
@@ -89,7 +88,7 @@
                     <ConflictMatrix fx:id="conflictMatrix"/>
                 </Tab>
                 <Tab id="tabUnsatCore" text="%tab.unsatCore" closable="false">
-                    <CourseUnsatCore fx:id="unsatCore"/>
+                    <UnsatCore fx:id="unsatCore"/>
                 </Tab>
             </TabPane>
         </center>

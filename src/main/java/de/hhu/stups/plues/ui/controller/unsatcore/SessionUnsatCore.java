@@ -101,7 +101,7 @@ public class SessionUnsatCore extends VBox implements Initializable {
     return sessions.get();
   }
 
-  public ListProperty<Session> getSessionProperty() {
+  ListProperty<Session> getSessionProperty() {
     return sessions;
   }
 }

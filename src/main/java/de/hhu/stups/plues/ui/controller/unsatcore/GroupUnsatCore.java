@@ -7,21 +7,25 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -57,9 +61,6 @@ public class GroupUnsatCore extends VBox implements Initializable  {
   @FXML
   @SuppressWarnings("unused")
   private UnsatCoreButtonBar unsatCoreButtonBar;
-  @FXML
-  @SuppressWarnings("unused")
-  private SessionUnsatCore sessionUnsatCore;
 
   /**
    * Default constructor.
@@ -78,9 +79,6 @@ public class GroupUnsatCore extends VBox implements Initializable  {
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     this.visibleProperty().bind(groups.emptyProperty().not());
-
-    unsatCoreButtonBar.configureButton(resources.getString("button.unsatCoreSession"),
-        groups, sessionUnsatCore);
 
     groupsTable.itemsProperty().bind(groups);
     groupsTable.setOnMouseClicked(DetailViewHelper.getGroupMouseHandler(
@@ -133,8 +131,6 @@ public class GroupUnsatCore extends VBox implements Initializable  {
             .map(e -> String.format("%s%s", prefix, e.getKey())).collect(Collectors.joining("\n")));
       }
     });
-    groups.addListener((observable, oldValue, newValue) ->
-        sessionUnsatCore.setSessions(FXCollections.emptyObservableList()));
   }
 
   private String getPrefix(final Collection<?> item) {
@@ -162,5 +158,15 @@ public class GroupUnsatCore extends VBox implements Initializable  {
 
   ListProperty<Group> getGroupProperty() {
     return groups;
+  }
+
+  void configureButton(final String text,
+                       final BooleanBinding binding,
+                       final EventHandler<MouseEvent> eventHandler) {
+    unsatCoreButtonBar.configureButton(text, binding, eventHandler);
+  }
+
+  void showTaskState(final SolverTask task, final ResourceBundle resources) {
+    unsatCoreButtonBar.showTaskState(task, resources);
   }
 }

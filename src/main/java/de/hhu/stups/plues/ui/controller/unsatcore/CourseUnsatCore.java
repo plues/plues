@@ -6,29 +6,30 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
-import de.hhu.stups.plues.ui.controller.Activatable;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class CourseUnsatCore extends VBox implements Initializable, Activatable {
+public class CourseUnsatCore extends VBox implements Initializable {
   private final ObjectProperty<Store> store;
 
   private final ListProperty<Course> courses;
   private final UiDataService uiDataService;
-  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -36,9 +37,6 @@ public class CourseUnsatCore extends VBox implements Initializable, Activatable 
   @FXML
   @SuppressWarnings("unused")
   private UnsatCoreButtonBar unsatCoreButtonBar;
-  @FXML
-  @SuppressWarnings("unused")
-  private ModuleUnsatCore moduleUnsatCore;
 
   /**
    * Constructor.
@@ -62,30 +60,29 @@ public class CourseUnsatCore extends VBox implements Initializable, Activatable 
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
-
-    unsatCoreButtonBar.configureButton(resources.getString("button.unsatCoreModules"),
-        courses, moduleUnsatCore);
     store.addListener((observable, oldValue, store)
         -> courseSelection.setCourses(store.getCourses()));
 
     courseSelection.disableProperty().bind(store.isNull());
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
     courses.bind(courseSelection.selectedCoursesProperty());
-    courses.addListener((observable, oldValue, newValue) -> {
-      moduleUnsatCore.setModules(FXCollections.emptyObservableList());
-      moduleUnsatCore.resetTaskState();
-    });
   }
 
-  /**
-   * Select the given courses within the {@link #courseSelection} when the user navigates to the
-   * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
-   */
-  @Override
-  public void activateController(final Object... courses) {
-    courseSelection.selectCourses((Course[]) courses);
-    unsatCoreButtonBar.configureButton(resources.getString("button.unsatCoreModules"),
-        this.courses, moduleUnsatCore);
+  ListProperty<Course> courseProperty() {
+    return this.courses;
+  }
+
+  void selectCourses(final Course... courses) {
+    this.courseSelection.selectCourses(courses);
+  }
+
+  void configureButton(final String text,
+                       final BooleanBinding binding,
+                       final EventHandler<MouseEvent> eventHandler) {
+    unsatCoreButtonBar.configureButton(text, binding, eventHandler);
+  }
+
+  void showTaskState(final SolverTask task, final ResourceBundle resources) {
+    unsatCoreButtonBar.showTaskState(task, resources);
   }
 }
