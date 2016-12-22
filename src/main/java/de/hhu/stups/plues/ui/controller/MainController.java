@@ -33,6 +33,7 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -254,6 +255,9 @@ public class MainController implements Initializable {
     // don't show tasks on startup
     mainSplitPane.getItems().remove(boxTaskProgress);
     mainStatusBar.setText("");
+
+    mainProgressBar.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
+    mainProgressBar.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
 
     initializeTaskProgressListener();
 
