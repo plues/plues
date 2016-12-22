@@ -109,12 +109,8 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     combinationOrSingleCourseSelection.setCourses(courses);
   }
 
-  void selectCourses(Course... courses) {
+  public void selectCourses(Course... courses) {
     combinationOrSingleCourseSelection.selectCourses(courses);
-  }
-
-  void setSolverProperty(final Boolean value) {
-    solverProperty.setValue(value);
   }
 
   @FXML
@@ -130,5 +126,9 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
 
   public Set<String> getImpossibleCourses() {
     return combinationOrSingleCourseSelection.getImpossibleCourses();
+  }
+
+  public BooleanProperty getSolverProperty() {
+    return solverProperty;
   }
 }

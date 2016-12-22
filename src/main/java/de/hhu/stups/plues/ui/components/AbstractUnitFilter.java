@@ -101,7 +101,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
    *
    * @param abstractUnits List of abstract units to be displayed in TableView
    */
-  void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
+  public void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
     this.abstractUnits.setAll(abstractUnits);
   }
 
