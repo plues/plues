@@ -50,6 +50,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -203,8 +204,8 @@ public class MainController implements Initializable {
     this.uiDataService = uiDataService;
     userPreferences = Preferences.userRoot().node("Plues");
 
-    delayedSolverService.whenAvailable(solverService -> {
-      this.solverService = solverService;
+    delayedSolverService.whenAvailable(solverService1 -> {
+      solverService = solverService1;
       openReportsMenuItem.setDisable(false);
       setTimeoutMenuItem.setDisable(false);
       oneMinuteMenuItem.setDisable(false);
@@ -256,30 +257,7 @@ public class MainController implements Initializable {
 
     initializeTaskProgressListener();
 
-    tabPane.setOnKeyPressed(event -> {
-      switch (event.getCode()) {
-        case DIGIT1:
-          tabPane.getSelectionModel().select(0);
-          break;
-        case DIGIT2:
-          tabPane.getSelectionModel().select(1);
-          break;
-        case DIGIT3:
-          tabPane.getSelectionModel().select(2);
-          break;
-        case DIGIT4:
-          tabPane.getSelectionModel().select(3);
-          break;
-        case DIGIT5:
-          tabPane.getSelectionModel().select(4);
-          break;
-        case DIGIT6:
-          tabPane.getSelectionModel().select(5);
-          break;
-        default:
-          break;
-      }
-    });
+    tabPane.setOnKeyPressed(event -> selectTabByKey(event.getCode()));
 
     initializeMenu();
 
@@ -315,6 +293,31 @@ public class MainController implements Initializable {
 
   }
 
+  private void selectTabByKey(final KeyCode code) {
+    switch (code) {
+      case DIGIT1:
+        tabPane.getSelectionModel().select(0);
+        break;
+      case DIGIT2:
+        tabPane.getSelectionModel().select(1);
+        break;
+      case DIGIT3:
+        tabPane.getSelectionModel().select(2);
+        break;
+      case DIGIT4:
+        tabPane.getSelectionModel().select(3);
+        break;
+      case DIGIT5:
+        tabPane.getSelectionModel().select(4);
+        break;
+      case DIGIT6:
+        tabPane.getSelectionModel().select(5);
+        break;
+      default:
+        break;
+    }
+  }
+
   private void initializeTaskProgressListener() {
     final ObservableList<Task<?>> runningTasks = taskProgress.getTasks();
     final String tasksSingular = resources.getString("tasksSingular");
@@ -345,8 +348,8 @@ public class MainController implements Initializable {
   }
 
   /**
-   * Wait some time and hide the {@link #taskProgress task progress view} if there are no
-   * running tasks anymore.
+   * Wait some time and hide the {@link #taskProgress task progress view} if there are no running
+   * tasks anymore.
    */
   private void removeTaskProgressBox() {
     mainProgressBar.progressProperty().unbind();
@@ -519,6 +522,7 @@ public class MainController implements Initializable {
    * xml files.
    */
   @FXML
+  @SuppressWarnings("unused")
   private void exportCurrentDbState() {
     // TODO: should we have a modal progress window to avoid confusion, since the export takes
     // a few instants to finish
@@ -616,6 +620,7 @@ public class MainController implements Initializable {
    * Method to open ChangeLog by clicking on menu item.
    */
   @FXML
+  @SuppressWarnings("unused")
   private void openChangeLog() {
     final Stage logStage = new Stage();
     logStage.setTitle(resources.getString("logTitle"));
@@ -630,6 +635,7 @@ public class MainController implements Initializable {
    * Open the reports view in a new stage.
    */
   @FXML
+  @SuppressWarnings("unused")
   private void openReports() {
     final Reports reports = reportsProvider.get();
     final Stage reportStage = new Stage();
@@ -639,21 +645,25 @@ public class MainController implements Initializable {
   }
 
   @FXML
+  @SuppressWarnings("unused")
   private void setTimeoutOneMinute() {
     setTimeout(60);
   }
 
   @FXML
+  @SuppressWarnings("unused")
   private void setTimeoutThreeMinutes() {
     setTimeout(180);
   }
 
   @FXML
+  @SuppressWarnings("unused")
   private void setTimeoutFiveMinutes() {
     setTimeout(300);
   }
 
   @FXML
+  @SuppressWarnings("unused")
   private void setTimeoutCustom() {
     final TextInputDialog dialog = new TextInputDialog();
     dialog.setTitle(resources.getString("timeout.Title"));
@@ -722,6 +732,7 @@ public class MainController implements Initializable {
    * Show credits.
    */
   @FXML
+  @SuppressWarnings("unused")
   private void about() {
     final AboutWindow aboutWindow = aboutWindowProvider.get();
     final Stage aboutStage = new Stage();
@@ -733,6 +744,7 @@ public class MainController implements Initializable {
   }
 
   @FXML
+  @SuppressWarnings("unused")
   private void showHandbook(final ActionEvent actionEvent) {
     final String handbook = "doc/handbook.html";
     final ClassLoader classLoader = MainController.class.getClassLoader();
@@ -741,15 +753,7 @@ public class MainController implements Initializable {
       // if we didn't find the handbook in the resources try opening online version
       if (stream == null) {
         final String url = this.properties.getProperty("handbook-url");
-
-        // open url in browser
-        SwingUtilities.invokeLater(() -> {
-          try {
-            Desktop.getDesktop().browse(new URI(url));
-          } catch (IOException | URISyntaxException exception) {
-            logger.error("browsing to handbook" + handbook, exception);
-          }
-        });
+        openUrlInBrowser(url, handbook);
         return;
       }
       //
@@ -757,17 +761,30 @@ public class MainController implements Initializable {
       final Path output = Files.createTempFile("Handbook", ".html");
       output.toFile().deleteOnExit();
       Files.copy(stream, output, StandardCopyOption.REPLACE_EXISTING);
-
-      SwingUtilities.invokeLater(() -> {
-        try {
-          Desktop.getDesktop().open(output.toFile());
-        } catch (final IOException exception) {
-          logger.error("showing " + handbook, exception);
-        }
-      });
+      openFileInBrowser(output, handbook);
     } catch (final IOException exception) {
       logger.error("showHandbook", exception);
     }
+  }
+
+  private void openUrlInBrowser(final String url, final String handbook) {
+    SwingUtilities.invokeLater(() -> {
+      try {
+        Desktop.getDesktop().browse(new URI(url));
+      } catch (IOException | URISyntaxException exception) {
+        logger.error("browsing to handbook" + handbook, exception);
+      }
+    });
+  }
+
+  private void openFileInBrowser(final Path file, final String handbook) {
+    SwingUtilities.invokeLater(() -> {
+      try {
+        Desktop.getDesktop().open(file.toFile());
+      } catch (final IOException exception) {
+        logger.error("showing " + handbook, exception);
+      }
+    });
   }
 
   private class ExportXmlTask extends Task<Void> {
