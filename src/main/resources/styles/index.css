@@ -134,39 +134,28 @@
     -fx-faint-focus-color: transparent;
 }
 
-.sideBarTab {
+.sideBarTabLayout {
     -fx-background-color: #DFDFDF;
-    -fx-border-width: 1px;
+    -fx-border-width: 1 1 0 1;
     -fx-border-color: #BDBDBD;
     -fx-padding: 5 5 5 5;
     -fx-tab-width: 100px;
-    -fx-tab-height: 30px;
+    -fx-tab-height: 20px;
 }
 
-.sideBarTab:selected, .sideBarTab:hover {
+.sideBarTabVisible:selected, .sideBarTabVisible:hover {
     -fx-background-color: #F4F4F4;
-    -fx-border-width: 1px;
-    -fx-border-color: #BDBDBD;
-    -fx-padding: 5 5 5 5;
-    -fx-tab-width: 100px;
-    -fx-tab-height: 30px;
 }
 
-.sideBarHiddenTab, .sideBarHiddenTab:selected {
+.sideBarTabHidden:selected {
     -fx-background-color: #DFDFDF;
-    -fx-border-width: 1px;
-    -fx-border-color: #BDBDBD;
-    -fx-padding: 5 5 5 5;
-    -fx-tab-width: 100px;
-    -fx-tab-height: 30px;
 }
 
-.sideBarHiddenTab:hover {
+.sideBarTabHidden:hover {
     -fx-background-color: #F4F4F4;
-    -fx-border-width: 1px;
-    -fx-border-color: #BDBDBD;
-    -fx-padding: 5 5 5 5;
-    -fx-tab-width: 100px;
-    -fx-tab-height: 30px;
 }
 
+#statusBarLabel {
+    -fx-font-size: 9pt;
+    -fx-padding: 2 10 0 0;
+}
