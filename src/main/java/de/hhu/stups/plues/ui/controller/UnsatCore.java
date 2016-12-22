@@ -12,11 +12,13 @@ import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
+import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
@@ -61,6 +63,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   private final ListProperty<Course> courses;
   private final UiDataService uiDataService;
   private final ExecutorService executorService;
+  private final Router router;
+  private ResourceBundle resources;
 
   @FXML
   private CombinationOrSingleCourseSelection courseSelection;
@@ -99,15 +103,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   @FXML
   private TableView<Session> sessionsTable;
   @FXML
-  private TableColumn<Module, String> modulePordnrColumn;
-  @FXML
-  private TableColumn<Module, String> moduleNameColumn;
-  @FXML
   private TableColumn<Module, Boolean> moduleTypeColumn;
-  @FXML
-  private TableColumn<AbstractUnit, String> abstractUnitKeyColumn;
-  @FXML
-  private TableColumn<AbstractUnit, String> abstractUnitTitleColumn;
   @FXML
   private TableColumn<AbstractUnit, Map<Module, List<Integer>>> abstractUnitModuleSemester;
   @FXML
@@ -138,7 +134,6 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   private Pane groupsPane;
   @FXML
   private Pane sessionsPane;
-  private ResourceBundle resources;
 
   /**
    * Constructor.
@@ -152,7 +147,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   public UnsatCore(final Inflater inflater, final Delayed<Store> delayedStore,
                    final Delayed<SolverService> delayedSolverService,
                    final ExecutorService executorService,
-                   final UiDataService uiDataService) {
+                   final UiDataService uiDataService,
+                   final Router router) {
 
     this.uiDataService = uiDataService;
     this.executorService = executorService;
@@ -165,6 +161,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     this.modules = new SimpleListProperty<>(FXCollections.emptyObservableList());
     this.courses = new SimpleListProperty<>(FXCollections.emptyObservableList());
 
+    this.router = router;
 
     delayedStore.whenAvailable(this.store::set);
     delayedSolverService.whenAvailable(this.solverService::set);
@@ -327,8 +324,32 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   private void initializeSessions() {
     sessionsPane.visibleProperty().bind(sessions.emptyProperty().not());
     sessionsTable.itemsProperty().bind(sessions);
-    sessionDayColumn.setCellValueFactory(new PropertyValueFactory<>("day"));
-    sessionTimeColumn.setCellValueFactory(new PropertyValueFactory<>("time"));
+    sessionsTable.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
+        sessionsTable, router));
+    sessionDayColumn.setCellFactory(param -> new TableCell<Session, String>() {
+      @Override
+      protected void updateItem(String item, boolean empty) {
+        super.updateItem(item, empty);
+        if (empty) {
+          setText("");
+          return;
+        }
+
+        setText(resources.getString(item));
+      }
+    });
+    sessionTimeColumn.setCellFactory(param -> new TableCell<Session, Integer>() {
+      @Override
+      protected void updateItem(Integer item, boolean empty) {
+        super.updateItem(item, empty);
+        if (empty) {
+          setText("");
+          return;
+        }
+
+        setText(String.valueOf(6 + item * 2) + ":30");
+      }
+    });
     sessionUnitKeyColumn.setCellValueFactory(param
         -> Bindings.selectString(param, "value", "group", "unit", "key"));
     sessionUnitTitleColumn.setCellValueFactory(param
@@ -338,6 +359,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   private void initializeGroups(final ResourceBundle resources) {
     groupsPane.visibleProperty().bind(groups.emptyProperty().not());
     groupsTable.itemsProperty().bind(groups);
+    groupsTable.setOnMouseClicked(DetailViewHelper.getGroupMouseHandler(
+        groupsTable, router));
     groupUnitKeyColumn.setCellValueFactory(param
         -> Bindings.selectString(param, "value", "unit", "key"));
     groupUnitTitleColumn.setCellValueFactory(param
@@ -347,7 +370,6 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
         Joiner.on(',').join(param.getValue().getUnit().getSemesters())));
 
     // display a bullet-list of sessions to represent the group
-    groupSessionsColumn.setCellValueFactory(new PropertyValueFactory<>("sessions"));
     groupSessionsColumn.setCellFactory(param -> new TableCell<Group, Set<Session>>() {
       @Override
       protected void updateItem(final Set<Session> item, final boolean empty) {
@@ -399,8 +421,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   private void initializeAbstractUnits() {
     abstractUnitsPane.visibleProperty().bind(abstractUnits.emptyProperty().not());
     abstractUnitsTable.itemsProperty().bind(abstractUnits);
-    abstractUnitKeyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
-    abstractUnitTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+    abstractUnitsTable.setOnMouseClicked(DetailViewHelper.getAbstractUnitMouseHandler(
+        abstractUnitsTable, router));
 
     abstractUnitModuleSemester.setCellValueFactory(param -> {
       final Set<ModuleAbstractUnitSemester> maus
@@ -477,9 +499,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   private void initializeModules() {
     modulesPane.visibleProperty().bind(modules.emptyProperty().not());
     modulesTable.itemsProperty().bind(modules);
-    modulePordnrColumn.setCellValueFactory(new PropertyValueFactory<>("pordnr"));
-    moduleNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-    moduleTypeColumn.setCellValueFactory(new PropertyValueFactory<>("mandatory"));
+    modulesTable.setOnMouseClicked(DetailViewHelper.getModuleMouseHandler(
+        modulesTable, router));
     moduleTypeColumn.setCellFactory(param -> new TableCell<Module, Boolean>() {
       @Override
       protected void updateItem(final Boolean item, final boolean empty) {

@@ -111,8 +111,6 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     this.checkStarted = new SimpleBooleanProperty(false);
     this.pdf = new SimpleObjectProperty<>();
 
-    this.setVgap(10.0);
-
     inflater.inflate("PartialTimeTables", this, this, "musterstudienplaene");
   }
 
@@ -120,13 +118,9 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   public final void initialize(final URL location, final ResourceBundle resources) {
     final BooleanBinding selectionBinding = storeProperty.isNull().or(checkStarted);
 
-    btChoose.setDefaultButton(true);
     btChoose.disableProperty().bind(selectionBinding);
     courseSelection.disableProperty().bind(selectionBinding);
 
-    scrollPane.setVisible(false);
-    btCheck.setVisible(false);
-    //
     courseSelection.addListener(observable -> {
       scrollPane.setVisible(false);
       btCheck.setVisible(false);
@@ -259,10 +253,10 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   @Override
   public void activateController(Object... courses) {
     if (courses.length > 0) {
-      courseSelection.selectMajorCourse((Course) courses[0]);
+      courseSelection.selectCourse((Course) courses[0]);
     }
     if (courses.length > 1) {
-      courseSelection.selectMinorCourse((Course) courses[1]);
+      courseSelection.selectCourse((Course) courses[1]);
     }
     btChoosePressed();
   }

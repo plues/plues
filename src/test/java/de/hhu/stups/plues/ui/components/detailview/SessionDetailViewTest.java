@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.components.timetable;
+package de.hhu.stups.plues.ui.components.detailview;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertThat;
@@ -15,8 +15,11 @@ import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
-import de.hhu.stups.plues.ui.components.timetable.DetailView.CourseTableEntry;
+import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.ui.components.detailview.SessionDetailView.CourseTableEntry;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import de.hhu.stups.plues.ui.layout.SceneFactory;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -35,10 +38,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-public class DetailViewTest extends ApplicationTest {
+public class SessionDetailViewTest extends ApplicationTest {
 
   private final Store store;
   private final Map<Course, List<ModuleAbstractUnitSemester>> courseMap;
@@ -51,7 +53,7 @@ public class DetailViewTest extends ApplicationTest {
    * Test constructor.
    */
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
-  public DetailViewTest() {
+  public SessionDetailViewTest() {
     store = mock(Store.class);
 
     final ObjectProperty<SessionFacade.Slot> slot = new SimpleObjectProperty<>(
@@ -104,8 +106,10 @@ public class DetailViewTest extends ApplicationTest {
 
     doReturn(1).when(au1).getId();
     doReturn("AU-1").when(au1).getKey();
+    doReturn("AU 1").when(au1).getTitle();
     doReturn(2).when(au2).getId();
     doReturn("AU-2").when(au2).getKey();
+    doReturn("AU 2").when(au2).getTitle();
 
     doReturn(new HashSet<>(Arrays.asList(au1, au2))).when(unit).getAbstractUnits();
 
@@ -116,7 +120,7 @@ public class DetailViewTest extends ApplicationTest {
     store.getCourses().forEach(course ->
         courseMap.put(course, store.getModuleAbstractUnitSemester()));
 
-    doReturn(false).when(sessionFacade).isTentative();
+    doReturn(false).when(session).isTentative();
     doReturn(session).when(sessionFacade).getSession();
     doReturn(slot).when(sessionFacade).slotProperty();
 
@@ -171,12 +175,12 @@ public class DetailViewTest extends ApplicationTest {
   @Override
   public void start(final Stage stage) throws Exception {
     final Inflater inflater = new Inflater(new FXMLLoader());
+    final Router router = new Router();
 
-    final DetailView detailView = new DetailView(inflater);
-    detailView.setSession(sessionFacade);
+    final SessionDetailView sessionDetailView = new SessionDetailView(inflater, router);
+    sessionDetailView.setSession(sessionFacade);
 
-    final Scene scene = new Scene(detailView, 400, 250);
-    stage.setScene(scene);
+    stage.setScene(SceneFactory.create(sessionDetailView));
     stage.show();
   }
 }

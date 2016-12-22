@@ -23,8 +23,7 @@ import java.util.stream.Collectors;
 public class Inflater {
 
   private final FXMLLoader loader;
-  private static final Locale LOCALE = Locale.getDefault();
-  private static final ResourceBundle MAIN_BUNDLE = ResourceBundle.getBundle("lang.main", LOCALE);
+  private static final ResourceBundle MAIN_BUNDLE = ResourceBundle.getBundle("lang.main");
   private final Logger logger = LoggerFactory.logger(getClass());
 
   @Inject
@@ -88,7 +87,7 @@ public class Inflater {
 
     final ResourceBundle[] bundles = new ResourceBundle[bundleNames.length + 1];
     for (int i = 0;i < bundleNames.length; i++) {
-      bundles[i] = ResourceBundle.getBundle("lang." + bundleNames[i], LOCALE);
+      bundles[i] = ResourceBundle.getBundle("lang." + bundleNames[i]);
     }
     bundles[bundleNames.length] = MAIN_BUNDLE;
 

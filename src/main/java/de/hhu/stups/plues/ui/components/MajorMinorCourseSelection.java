@@ -43,7 +43,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   // input properties
   private final ListProperty<Course> majorCourseList = new SimpleListProperty<>();
   private final ListProperty<Course> minorCourseList = new SimpleListProperty<>();
-  private final SetProperty<String> impossibleCoursesProperty = new SimpleSetProperty<>();
+  private final SetProperty<Course> impossibleCoursesProperty = new SimpleSetProperty<>();
   // output properties
   private final ObjectProperty<Course> selectedMajor = new SimpleObjectProperty<>();
   private final ObjectProperty<Course> selectedMinor = new SimpleObjectProperty<>();
@@ -186,7 +186,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
    * @return The callback providing the updated list cells of courses.
    */
   Callback<ListView<Course>, ListCell<Course>> getCallbackForImpossibleCourses(
-      final Set<String> impossibleCourses) {
+      final Set<Course> impossibleCourses) {
     return new ListViewListCellCallback(impossibleCourses);
   }
 
@@ -198,12 +198,16 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     return this.cbMinor;
   }
 
-  public void selectMajorCourse(final Course majorCourse) {
-    cbMajor.getSelectionModel().select(majorCourse);
-  }
-
-  public void selectMinorCourse(final Course minorCourse) {
-    cbMinor.getSelectionModel().select(minorCourse);
+  /**
+   * Select the given course either in the {@link #cbMajor major} or the {@link #cbMinor minor}
+   * course selection.
+   */
+  public void selectCourse(final Course course) {
+    if (course.isMajor()) {
+      cbMajor.getSelectionModel().select(course);
+    } else {
+      cbMinor.getSelectionModel().select(course);
+    }
   }
 
   private void fireListenerEvents() {
@@ -229,12 +233,12 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     listeners.remove(listener);
   }
 
-  public SetProperty<String> impossibleCoursesProperty() {
+  public SetProperty<Course> impossibleCoursesProperty() {
     return this.impossibleCoursesProperty;
   }
 
   @SuppressWarnings("unused")
-  public void setImpossibleCourses(final ObservableSet<String> impossibleCourses) {
+  public void setImpossibleCourses(final ObservableSet<Course> impossibleCourses) {
     this.impossibleCoursesProperty.set(impossibleCourses);
   }
 
@@ -260,9 +264,9 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private static class ListViewListCellCallback
       implements Callback<ListView<Course>, ListCell<Course>> {
 
-    private final Set<String> impossibleCourses;
+    private final Set<Course> impossibleCourses;
 
-    ListViewListCellCallback(final Set<String> impossibleCourses) {
+    ListViewListCellCallback(final Set<Course> impossibleCourses) {
       this.impossibleCourses = impossibleCourses;
     }
 
@@ -276,7 +280,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
           if (item != null) {
             setText(item.getFullName());
 
-            if (impossibleCourses.contains(item.getName())) {
+            if (impossibleCourses.contains(item)) {
               setTextFill(Color.RED);
             } else {
               setTextFill(Color.BLACK);

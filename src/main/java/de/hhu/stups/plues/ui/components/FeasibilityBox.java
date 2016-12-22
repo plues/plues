@@ -8,6 +8,7 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.TaskStateColor;
@@ -22,12 +23,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -59,16 +57,10 @@ public class FeasibilityBox extends VBox implements Initializable {
   private final ExecutorService executorService;
   private final Delayed<SolverService> delayedSolverService;
   private final Delayed<Store> delayedStore;
-  private final Set<String> impossibleCourses;
+  private final Set<Course> impossibleCourses;
   private final VBox parent;
 
   private final ListProperty<Integer> unsatCoreProperty = new SimpleListProperty<>();
-  @FXML
-  @SuppressWarnings("unused")
-  private GridPane gridPaneResults;
-  @FXML
-  @SuppressWarnings("unused")
-  private StackPane statePane;
   @FXML
   @SuppressWarnings("unused")
   private ProgressIndicator progressIndicator;
@@ -87,9 +79,6 @@ public class FeasibilityBox extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<String> cbAction;
-  @FXML
-  @SuppressWarnings("unused")
-  private Button btSubmit;
 
   /**
    * A container to display the feasibility of a combination of courses or a single one. For
@@ -102,16 +91,16 @@ public class FeasibilityBox extends VBox implements Initializable {
                         final Delayed<SolverService> delayedSolverService,
                         final ExecutorService executorService,
                         final Provider<ConflictTree> conflictTreeProvider,
+                        final UiDataService uiDataService,
                         @Assisted("major") final Course majorCourse,
                         @Nullable @Assisted("minor") final Course minorCourse,
-                        @Assisted final Set<String> impossibleCourses,
                         @Assisted final VBox parent) {
     super();
     this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
     this.executorService = executorService;
     this.conflictTreeProvider = conflictTreeProvider;
-    this.impossibleCourses = impossibleCourses;
+    this.impossibleCourses = uiDataService.getImpossibleCoures();
     this.parent = parent;
 
     majorCourseProperty = new SimpleObjectProperty<>(majorCourse);
@@ -127,8 +116,6 @@ public class FeasibilityBox extends VBox implements Initializable {
     cancelString = resources.getString("cancel");
     impossibleCourseString = resources.getString("impossibleCourse");
     noConflictString = resources.getString("noConflict");
-
-    gridPaneResults.setHgap(5.0);
 
     lbMajor.textProperty()
         .bind(Bindings.selectString(majorCourseProperty, "fullName"));
@@ -218,9 +205,11 @@ public class FeasibilityBox extends VBox implements Initializable {
     unsatCoreTask.setOnSucceeded(unsatCore -> {
       unsatCoreProperty.set(FXCollections.observableArrayList(unsatCoreTask.getValue()));
       final ConflictTree conflictTree = conflictTreeProvider.get();
-      conflictTree.setConflictSessions(delayedStore.get().getSessions()
-          .stream().filter(session -> unsatCoreProperty.get().contains(session.getId()))
-          .collect(Collectors.toList()));
+      // TODO: move to conflict tree
+      conflictTree.setConflictSessions(
+          unsatCoreProperty.get()
+            .stream().map(i -> delayedStore.get().getSessionById(i))
+            .collect(Collectors.toList()));
       conflictTree.setUnsatCoreProperty(unsatCoreProperty);
       getChildren().add(conflictTree);
       cbAction.setItems(FXCollections.singletonObservableList(removeString));
@@ -260,9 +249,9 @@ public class FeasibilityBox extends VBox implements Initializable {
    * course. Otherwise just offer the possibility to remove the feasibility box.
    */
   private ObservableList<String> getActionsForInfeasibleCourse() {
-    if (impossibleCourses.contains(majorCourseProperty.get().getName())
+    if (impossibleCourses.contains(majorCourseProperty.get())
         || (minorCourseProperty.get() != null
-        && impossibleCourses.contains(minorCourseProperty.get().getName()))) {
+        && impossibleCourses.contains(minorCourseProperty.get()))) {
       lbErrorMsg.setText(impossibleCourseString);
       return FXCollections.observableList(Collections.singletonList(removeString));
     } else {

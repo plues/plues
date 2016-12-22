@@ -97,11 +97,11 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
       resultBoxWrapper.getChildren().add(0, feasibilityBoxFactory.create(
           combinationOrSingleCourseSelection.getSelectedCourses().get(0),
           combinationOrSingleCourseSelection.getSelectedCourses().get(1),
-          getImpossibleCourses(), resultBoxWrapper));
+          resultBoxWrapper));
     } else {
       resultBoxWrapper.getChildren().add(0, feasibilityBoxFactory.create(
           combinationOrSingleCourseSelection.getSelectedCourses().get(0), null,
-          getImpossibleCourses(), resultBoxWrapper));
+          resultBoxWrapper));
     }
   }
 
@@ -120,11 +120,11 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   }
 
   @SuppressWarnings("WeakerAccess")
-  public SetProperty<String> impossibleCoursesProperty() {
+  public SetProperty<Course> impossibleCoursesProperty() {
     return combinationOrSingleCourseSelection.impossibleCoursesProperty();
   }
 
-  public Set<String> getImpossibleCourses() {
+  public Set<Course> getImpossibleCourses() {
     return combinationOrSingleCourseSelection.getImpossibleCourses();
   }
 

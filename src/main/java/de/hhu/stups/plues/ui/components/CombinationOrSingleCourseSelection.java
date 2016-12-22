@@ -34,7 +34,7 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
 
   private final ListProperty<Course> selectedCourses;
   private final ToggleGroup toggleGroup;
-  private final SetProperty<String> impossibleCoursesProperty;
+  private final SetProperty<Course> impossibleCoursesProperty;
   private final ListProperty<Course> coursesProperty;
   @FXML
   @SuppressWarnings("unused")
@@ -97,7 +97,6 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
       singleCourseSelection.getSelectionModel().selectFirst();
     });
 
-    rbCombination.setSelected(true);
     rbCombination.disableProperty().bind(coursesProperty.emptyProperty());
     rbSingleSelection.disableProperty().bind(coursesProperty.emptyProperty());
 
@@ -142,10 +141,10 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
     } else {
       rbCombination.setSelected(true);
       if (courses.length > 0) {
-        majorMinorCourseSelection.selectMajorCourse(courses[0]);
+        majorMinorCourseSelection.selectCourse(courses[0]);
       }
       if (courses.length > 1) {
-        majorMinorCourseSelection.selectMinorCourse(courses[1]);
+        majorMinorCourseSelection.selectCourse(courses[1]);
       }
     }
   }
@@ -170,15 +169,15 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
   }
 
 
-  public ObservableSet<String> getImpossibleCourses() {
+  public ObservableSet<Course> getImpossibleCourses() {
     return impossibleCoursesProperty.get();
   }
 
-  public void setImpossibleCourses(final ObservableSet<String> impossibleCourses) {
+  public void setImpossibleCourses(final ObservableSet<Course> impossibleCourses) {
     this.impossibleCoursesProperty.set(impossibleCourses);
   }
 
-  public SetProperty<String> impossibleCoursesProperty() {
+  public SetProperty<Course> impossibleCoursesProperty() {
     return this.impossibleCoursesProperty;
   }
 }

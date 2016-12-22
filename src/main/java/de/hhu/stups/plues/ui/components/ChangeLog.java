@@ -145,4 +145,8 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   TableView<Log> getTempTable() {
     return tempTable;
   }
+
+  public void dispose() {
+    this.delayedStore.whenAvailable(store -> store.deleteObserver(this));
+  }
 }

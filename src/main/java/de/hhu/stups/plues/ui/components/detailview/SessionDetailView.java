@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.components.timetable;
+package de.hhu.stups.plues.ui.components.detailview;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
@@ -6,14 +6,16 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.routes.RouteNames;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -21,16 +23,18 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class DetailView extends VBox implements Initializable {
+public class SessionDetailView extends VBox implements Initializable {
 
-  private final ObjectProperty<SessionFacade> sessionProperty;
+  private final ObjectProperty<Session> sessionProperty;
+  private final ObjectProperty<SessionFacade> sessionFacadeProperty;
+  private final Router router;
+
   @FXML
   @SuppressWarnings("unused")
   private Label session;
@@ -58,41 +62,39 @@ public class DetailView extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<CourseTableEntry, Integer> abstractUnit;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<CourseTableEntry, String> courseSemesters;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<CourseTableEntry, Character> type;
 
   /**
    * Constructor.
    * @param inflater Inflater instance to load FXMl
    */
   @Inject
-  public DetailView(final Inflater inflater) {
+  public SessionDetailView(final Inflater inflater, final Router router) {
     sessionProperty = new SimpleObjectProperty<>();
-    inflater.inflate("components/DetailView", this, this, "detailView");
+    sessionFacadeProperty = new SimpleObjectProperty<>();
+    this.router = router;
+
+    inflater.inflate("components/detailview/SessionDetailView", this, this, "detailView");
   }
 
   /**
    * Set content for detail view.
    *
-   * @param session SessionFacade to build content for
+   * @param sessionFacade SessionFacade to build content for
    */
   @SuppressWarnings("WeakerAccess")
-  public void setSession(final SessionFacade session) {
-    this.sessionProperty.set(session);
+  public void setSession(final SessionFacade sessionFacade) {
+    this.sessionProperty.set(sessionFacade.getSession());
+    this.sessionFacadeProperty.set(sessionFacade);
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.title.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
-        Bindings.selectString(sessionProperty, "session", "group", "unit", "title")).otherwise(""));
+        Bindings.selectString(sessionProperty, "group", "unit", "title")).otherwise(""));
     this.session.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
-        Bindings.selectString(sessionProperty, "slot")).otherwise(""));
+        Bindings.selectString(sessionFacadeProperty, "slot")).otherwise(""));
     this.group.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
-        Bindings.selectString(sessionProperty, "session", "group", "id")).otherwise(""));
+        Bindings.selectString(sessionProperty, "group", "id")).otherwise(""));
     this.semesters.textProperty().bind(new StringBinding() {
       {
         bind(sessionProperty);
@@ -100,20 +102,20 @@ public class DetailView extends VBox implements Initializable {
 
       @Override
       protected String computeValue() {
-        final SessionFacade sessionFacade = sessionProperty.get();
-        if (sessionFacade == null) {
+        final Session session = sessionProperty.get();
+        if (session == null) {
           return "";
         }
-        return Joiner.on(", ").join(sessionFacade.getSession().getGroup().getUnit().getSemesters());
+        return Joiner.on(", ").join(session.getGroup().getUnit().getSemesters());
       }
     });
     this.tentative.textProperty().bind(Bindings.createStringBinding(() -> {
-      SessionFacade sessionFacade = sessionProperty.get();
-      if (sessionFacade == null) {
+      final Session session = sessionProperty.get();
+      if (session == null) {
         return "?";
       }
 
-      return sessionFacade.isTentative() ? "✔︎" : "✗";
+      return session.isTentative() ? "✔︎" : "✗";
     }, sessionProperty));
 
     courseTable.itemsProperty().bind(new ListBinding<CourseTableEntry>() {
@@ -123,12 +125,12 @@ public class DetailView extends VBox implements Initializable {
 
       @Override
       protected ObservableList<CourseTableEntry> computeValue() {
-        final SessionFacade sessionFacade = sessionProperty.get();
-        if (sessionFacade == null) {
+        final Session session = sessionProperty.get();
+        if (session == null) {
           return FXCollections.observableArrayList();
         }
         final Set<AbstractUnit> abstractUnits
-            = sessionFacade.getSession().getGroup().getUnit().getAbstractUnits();
+            = session.getGroup().getUnit().getAbstractUnits();
         final ObservableList<CourseTableEntry> result = FXCollections.observableArrayList();
         abstractUnits.forEach(au ->
             au.getModuleAbstractUnitTypes().forEach(entry ->
@@ -142,11 +144,24 @@ public class DetailView extends VBox implements Initializable {
       }
     });
 
-    courseKey.setCellValueFactory(new PropertyValueFactory<>("courseKey"));
-    module.setCellValueFactory(new PropertyValueFactory<>("module"));
-    abstractUnit.setCellValueFactory(new PropertyValueFactory<>("abstractUnit"));
-    courseSemesters.setCellValueFactory(new PropertyValueFactory<>("semesters"));
-    type.setCellValueFactory(new PropertyValueFactory<>("type"));
+    courseTable.getSelectionModel().selectedItemProperty().addListener(
+        (observable, oldValue, newValue) -> courseTable.setOnMouseClicked(event -> {
+          if (event.getClickCount() < 2) {
+            return;
+          }
+
+          final TableColumn column
+              = courseTable.getSelectionModel().getSelectedCells().get(0).getTableColumn();
+
+
+          if (column.equals(module)) {
+            router.transitionTo(RouteNames.MODULE_DETAIL_VIEW, newValue.getModule());
+          } else if (column.equals(abstractUnit)) {
+            router.transitionTo(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW, newValue.getAbstractUnit());
+          } else if (column.equals(courseKey)) {
+            router.transitionTo(RouteNames.COURSE_DETAIL_VIEW, newValue.getCourse());
+          }
+        }));
   }
 
   public String getTitle() {
@@ -156,29 +171,25 @@ public class DetailView extends VBox implements Initializable {
   @SuppressWarnings("WeakerAccess")
   public static final class CourseTableEntry {
     private final String courseKey;
-    private final String module;
-    private final String abstractUnit;
+    private final Course course;
+    private final Module module;
+    private final AbstractUnit abstractUnit;
     private final Set<Integer> semesters;
     private final Character type;
 
 
     /**
      * Constructor for course table.
-     *
-     * @param course       Course key
-     * @param module       Module title
-     * @param abstractUnit Abstract Unit title
-     * @param semesters    Semester
-     * @param type         Type
      */
     CourseTableEntry(final Course course,
                      final Module module,
                      final AbstractUnit abstractUnit,
                      final Set<Integer> semesters,
                      final Character type) {
+      this.course = course;
       this.courseKey = course.getKey();
-      this.module = module.getTitle();
-      this.abstractUnit = abstractUnit.getKey();
+      this.module = module;
+      this.abstractUnit = abstractUnit;
       this.semesters = semesters;
       this.type = type;
     }
@@ -198,10 +209,10 @@ public class DetailView extends VBox implements Initializable {
       if (!courseKey.equals(that.courseKey)) {
         return false;
       }
-      if (!module.equals(that.module)) {
+      if (!module.getTitle().equals(that.module.getTitle())) {
         return false;
       }
-      if (!abstractUnit.equals(that.abstractUnit)) {
+      if (!abstractUnit.getTitle().equals(that.abstractUnit.getTitle())) {
         return false;
       }
       if (!semesters.equals(that.semesters)) {
@@ -238,12 +249,22 @@ public class DetailView extends VBox implements Initializable {
     }
 
     @SuppressWarnings("unused")
-    public String getModule() {
+    public String getModuleTitle() {
+      return module.getTitle();
+    }
+
+    @SuppressWarnings("unused")
+    public String getAbstractUnitTitle() {
+      return abstractUnit.getTitle();
+    }
+
+    @SuppressWarnings("unused")
+    public Module getModule() {
       return module;
     }
 
     @SuppressWarnings("unused")
-    public String getAbstractUnit() {
+    public AbstractUnit getAbstractUnit() {
       return abstractUnit;
     }
 
@@ -258,6 +279,10 @@ public class DetailView extends VBox implements Initializable {
 
     public Character getType() {
       return type;
+    }
+
+    public Course getCourse() {
+      return course;
     }
   }
 }

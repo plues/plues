@@ -18,8 +18,8 @@
 <?import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterConflicts?>
 <?import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits?>
 <?import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits?>
-<fx:root prefHeight="600.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1">
+<fx:root prefHeight="620.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
+         xmlns:fx="http://javafx.com/fxml/1" styleClass="windowPadding">
     <children>
         <VBox fx:id="paneHeader" prefHeight="100.0">
             <padding>

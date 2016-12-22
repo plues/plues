@@ -6,6 +6,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import de.hhu.stups.plues.injector.PluesModule;
+import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -28,7 +29,7 @@ public class Main extends Application {
     injector.getInstance(de.prob.Main.class);
 
     final Router router = injector.getInstance(Router.class);
-    router.transitionTo("index");
+    router.transitionTo(RouteNames.INDEX);
 
     primaryStage.setTitle("PlÜS");
 

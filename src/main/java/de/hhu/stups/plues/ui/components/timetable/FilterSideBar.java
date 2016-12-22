@@ -211,4 +211,12 @@ public class FilterSideBar extends TabPane implements Initializable {
   public void setUiDataService(final UiDataService uiDataService) {
     this.uiDataService = uiDataService;
   }
+
+  public SetOfCourseSelection getSetOfCourseSelection() {
+    return setOfCourseSelection;
+  }
+
+  public AbstractUnitFilter getAbstractUnitFilter() {
+    return abstractUnitFilter;
+  }
 }

@@ -57,11 +57,11 @@
         <Menu mnemonicParsing="false" text="%view">
             <Menu mnemonicParsing="false" text="%timetableView">
                 <RadioMenuItem fx:id="rbMenuItemSessionName" mnemonicParsing="false"
-                               text="%display.SessionName"/>
+                               text="%display.SessionName" userData="sessionName"/>
                 <RadioMenuItem fx:id="rbMenuItemSessionId" mnemonicParsing="false"
-                               text="%display.SessionId"/>
+                               text="%display.SessionId" userData="sessionId"/>
                 <RadioMenuItem fx:id="rbMenuItemSessionKey" mnemonicParsing="false"
-                               text="%display.SessionKey"/>
+                               text="%display.SessionKey" userData="sessionKey"/>
             </Menu>
         </Menu>
         <Menu fx:id="windowMenu" mnemonicParsing="false" text="%window">
@@ -69,8 +69,10 @@
         <Menu mnemonicParsing="false" text="%help">
             <MenuItem fx:id="aboutMenuItem" onAction="#about" mnemonicParsing="false"
                       text="%about"/>
-            <MenuItem fx:id="handbookMenuItem" onAction="#showHandbook" mnemonicParsing="false"
-                      text="%handbook"/>
+            <MenuItem onAction="#showHtmlHandbook" mnemonicParsing="false"
+                      text="%handbookHTML"/>
+            <MenuItem onAction="#showPdfHandbook" mnemonicParsing="false"
+                      text="%handbookPDF"/>
         </Menu>
     </MenuBar>
     <SplitPane fx:id="mainSplitPane">

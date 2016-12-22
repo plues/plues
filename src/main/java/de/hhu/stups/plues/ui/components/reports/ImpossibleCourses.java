@@ -13,11 +13,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+
+import org.controlsfx.control.SegmentedButton;
 
 import java.net.URL;
 import java.util.List;
@@ -32,28 +32,19 @@ public class ImpossibleCourses extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
+  private SegmentedButton segmentedButtons;
+  @FXML
+  @SuppressWarnings("unused")
   private Label explanation;
-
   @FXML
   @SuppressWarnings("unused")
   private TableView<Course> tableViewImpossibleCourses;
-
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<Course, String> tableColumnCourseName;
-
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<Course, String> tableColumnCourseFullName;
-
   @FXML
   @SuppressWarnings("unused")
   private ToggleButton buttonImpossibleCourses;
-
   @FXML
   @SuppressWarnings("unused")
   private ToggleButton buttonImpossibleCoursesBecauseOfImpossibleModules;
-
   @FXML
   @SuppressWarnings("unused")
   private ToggleButton buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations;
@@ -75,6 +66,7 @@ public class ImpossibleCourses extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    segmentedButtons.setToggleGroup(new PersistentToggleGroup());
     final ListBinding<Course> binding = new ListBinding<Course>() {
       {
         bind(buttonImpossibleCourses.selectedProperty());
@@ -103,9 +95,6 @@ public class ImpossibleCourses extends VBox implements Initializable {
       }
     };
     tableViewImpossibleCourses.itemsProperty().bind(binding);
-
-    tableColumnCourseName.setCellValueFactory(new PropertyValueFactory<>("key"));
-    tableColumnCourseFullName.setCellValueFactory(new PropertyValueFactory<>("fullName"));
 
     final StringBinding stringBinding = new StringBinding() {
       {

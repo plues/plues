@@ -1,13 +1,14 @@
 package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 import de.codecentric.centerdevice.MenuToolkit;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.modelgenerator.XmlExporter;
+import de.hhu.stups.plues.routes.RouteNames;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
@@ -18,8 +19,6 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
 import de.hhu.stups.plues.ui.ResourceManager;
-import de.hhu.stups.plues.ui.components.AboutWindow;
-import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
@@ -32,10 +31,8 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -51,7 +48,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -60,18 +57,14 @@ import javafx.stage.Stage;
 
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -87,9 +80,6 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.prefs.Preferences;
-
-import javax.swing.SwingUtilities;
-
 
 @Singleton
 public class MainController implements Initializable {
@@ -108,7 +98,7 @@ public class MainController implements Initializable {
     iconMap.put(PdfRenderingTask.class, FontAwesomeIcon.FILE_PDF_ALT);
   }
 
-  private final Logger logger = LoggerFactory.logger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
   private final Delayed<ObservableStore> delayedStore;
   private final Properties properties;
   private final Stage stage;
@@ -118,10 +108,8 @@ public class MainController implements Initializable {
 
   private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
   private final SolverLoaderImpl solverLoader;
-  private final Provider<Reports> reportsProvider;
   private final StoreLoaderTaskFactory storeLoaderTaskFactory;
-  private final ChangeLog changeLog;
-  private final Provider<AboutWindow> aboutWindowProvider;
+  private final Router router;
   private final ResourceManager resourceManager;
   private SolverService solverService;
   private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
@@ -185,9 +173,7 @@ public class MainController implements Initializable {
                         final Delayed<SolverService> delayedSolverService,
                         final SolverLoaderImpl solverLoader, final Properties properties,
                         final Stage stage,
-                        final Provider<ChangeLog> changeLogProvider,
-                        final Provider<AboutWindow> aboutWindowProvider,
-                        final Provider<Reports> reportsProvider,
+                        final Router router,
                         final StoreLoaderTaskFactory storeLoaderTaskFactory,
                         final ObservableListeningExecutorService executorService,
                         final ResourceManager resourceManager,
@@ -196,9 +182,7 @@ public class MainController implements Initializable {
     this.solverLoader = solverLoader;
     this.properties = properties;
     this.stage = stage;
-    this.changeLog = changeLogProvider.get();
-    this.aboutWindowProvider = aboutWindowProvider;
-    this.reportsProvider = reportsProvider;
+    this.router = router;
     this.storeLoaderTaskFactory = storeLoaderTaskFactory;
     this.executor = executorService;
     this.resourceManager = resourceManager;
@@ -234,6 +218,32 @@ public class MainController implements Initializable {
     return FontAwesomeIconFactory.get().createIcon(icon, "2em");
   }
 
+  @SuppressWarnings("unused")
+  private void handleKeyPressed(final KeyEvent event) {
+    switch (event.getCode()) {
+      case DIGIT1:
+        tabPane.getSelectionModel().select(0);
+        break;
+      case DIGIT2:
+        tabPane.getSelectionModel().select(1);
+        break;
+      case DIGIT3:
+        tabPane.getSelectionModel().select(2);
+        break;
+      case DIGIT4:
+        tabPane.getSelectionModel().select(3);
+        break;
+      case DIGIT5:
+        tabPane.getSelectionModel().select(4);
+        break;
+      case DIGIT6:
+        tabPane.getSelectionModel().select(5);
+        break;
+      default:
+        break;
+    }
+  }
+
   @Override
   public final void initialize(final URL location,
                                final ResourceBundle resources) {
@@ -261,7 +271,7 @@ public class MainController implements Initializable {
 
     initializeTaskProgressListener();
 
-    tabPane.setOnKeyPressed(event -> selectTabByKey(event.getCode()));
+    tabPane.setOnKeyPressed(this::handleKeyPressed);
 
     initializeMenu();
 
@@ -295,31 +305,6 @@ public class MainController implements Initializable {
     uiDataService.lastSavedDateProperty().addListener(
         (observable, oldValue, newValue) -> this.databaseChanged = false);
 
-  }
-
-  private void selectTabByKey(final KeyCode code) {
-    switch (code) {
-      case DIGIT1:
-        tabPane.getSelectionModel().select(0);
-        break;
-      case DIGIT2:
-        tabPane.getSelectionModel().select(1);
-        break;
-      case DIGIT3:
-        tabPane.getSelectionModel().select(2);
-        break;
-      case DIGIT4:
-        tabPane.getSelectionModel().select(3);
-        break;
-      case DIGIT5:
-        tabPane.getSelectionModel().select(4);
-        break;
-      case DIGIT6:
-        tabPane.getSelectionModel().select(5);
-        break;
-      default:
-        break;
-    }
   }
 
   private void initializeTaskProgressListener() {
@@ -363,7 +348,7 @@ public class MainController implements Initializable {
       try {
         Thread.sleep(1500);
       } catch (final InterruptedException exception) {
-        logger.error(exception);
+        logger.error("Interrupted status bar sleep", exception);
         Thread.currentThread().interrupt();
       }
       Platform.runLater(() -> {
@@ -421,11 +406,8 @@ public class MainController implements Initializable {
     }
 
     rbMenuItemSessionName.setToggleGroup(sessionPreferenceToggle);
-    rbMenuItemSessionName.setUserData(sessionName);
     rbMenuItemSessionId.setToggleGroup(sessionPreferenceToggle);
-    rbMenuItemSessionId.setUserData("sessionId");
     rbMenuItemSessionKey.setToggleGroup(sessionPreferenceToggle);
-    rbMenuItemSessionKey.setUserData("sessionKey");
 
     sessionPreferenceToggle.selectedToggleProperty().addListener(
         (observable, oldValue, newValue) -> {
@@ -528,10 +510,6 @@ public class MainController implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void exportCurrentDbState() {
-    // TODO: should we have a modal progress window to avoid confusion, since the export takes
-    // a few instants to finish
-    // TODO: consider generating the file to a temporary location and moving it to the final
-    // location after the generation finished successfully.
     final File selectedFile = getXmlExportFile();
 
     if (selectedFile != null) {
@@ -586,7 +564,7 @@ public class MainController implements Initializable {
     //
     storeLoader.setOnFailed(event -> {
       final Throwable ex = event.getSource().getException();
-      logger.fatal("Database could not be loaded", ex);
+      logger.error("Database could not be loaded", ex);
       showCriticalExceptionDialog(ex, "Database could not be loaded");
       Platform.exit();
     });
@@ -602,13 +580,15 @@ public class MainController implements Initializable {
   }
 
   private void showCriticalExceptionDialog(final Throwable ex, final String message) {
-    final ExceptionDialog ed = new ExceptionDialog();
+    Platform.runLater(() -> {
+      final ExceptionDialog ed = new ExceptionDialog();
 
-    ed.setTitle(resources.getString("edTitle"));
-    ed.setHeaderText(message);
-    ed.setException(ex);
+      ed.setTitle(resources.getString("edTitle"));
+      ed.setHeaderText(message);
+      ed.setException(ex);
 
-    ed.showAndWait();
+      ed.showAndWait();
+    });
   }
 
   private void submitTask(final Task<?> task, final ExecutorService exec) {
@@ -626,13 +606,7 @@ public class MainController implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void openChangeLog() {
-    final Stage logStage = new Stage();
-    logStage.setTitle(resources.getString("logTitle"));
-    logStage.setScene(new Scene(changeLog, 800, 600));
-    logStage.setResizable(false);
-    logStage.show();
-
-    // TODO delete observer
+    router.transitionTo(RouteNames.CHANGELOG, resources.getString("logTitle"));
   }
 
   /**
@@ -641,11 +615,7 @@ public class MainController implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void openReports() {
-    final Reports reports = reportsProvider.get();
-    final Stage reportStage = new Stage();
-    reportStage.setTitle(resources.getString("reportsTitle"));
-    reportStage.setScene(new Scene(reports, 700, 620));
-    reportStage.show();
+    router.transitionTo(RouteNames.REPORTS, resources.getString("reportsTitle"));
   }
 
   @FXML
@@ -738,57 +708,17 @@ public class MainController implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void about() {
-    final AboutWindow aboutWindow = aboutWindowProvider.get();
-    final Stage aboutStage = new Stage();
-    aboutWindow.setPadding(new Insets(10.0, 10.0, 10.0, 10.0));
-    aboutStage.setTitle(resources.getString("about"));
-    aboutStage.setScene(new Scene(aboutWindow, 550, 400));
-    aboutStage.setResizable(false);
-    aboutStage.show();
+    router.transitionTo(RouteNames.ABOUT_WINDOW, resources.getString("about"));
   }
 
   @FXML
-  @SuppressWarnings("unused")
-  private void showHandbook(final ActionEvent actionEvent) {
-    final String handbook = "doc/handbook.html";
-    final ClassLoader classLoader = MainController.class.getClassLoader();
-
-    try (final InputStream stream = classLoader.getResourceAsStream(handbook)) {
-      // if we didn't find the handbook in the resources try opening online version
-      if (stream == null) {
-        final String url = this.properties.getProperty("handbook-url");
-        openUrlInBrowser(url, handbook);
-        return;
-      }
-      //
-      // if we found the handbook, move it to a temporary location and open it from there
-      final Path output = Files.createTempFile("Handbook", ".html");
-      output.toFile().deleteOnExit();
-      Files.copy(stream, output, StandardCopyOption.REPLACE_EXISTING);
-      openFileInBrowser(output, handbook);
-    } catch (final IOException exception) {
-      logger.error("showHandbook", exception);
-    }
+  private void showHtmlHandbook(final ActionEvent actionEvent) {
+    router.transitionTo(RouteNames.HANDBOOK_HTML);
   }
 
-  private void openUrlInBrowser(final String url, final String handbook) {
-    SwingUtilities.invokeLater(() -> {
-      try {
-        Desktop.getDesktop().browse(new URI(url));
-      } catch (IOException | URISyntaxException exception) {
-        logger.error("browsing to handbook" + handbook, exception);
-      }
-    });
-  }
-
-  private void openFileInBrowser(final Path file, final String handbook) {
-    SwingUtilities.invokeLater(() -> {
-      try {
-        Desktop.getDesktop().open(file.toFile());
-      } catch (final IOException exception) {
-        logger.error("showing " + handbook, exception);
-      }
-    });
+  @FXML
+  public void showPdfHandbook(final ActionEvent actionEvent) {
+    router.transitionTo(RouteNames.HANDBOOK_PDF);
   }
 
   private class ExportXmlTask extends Task<Void> {

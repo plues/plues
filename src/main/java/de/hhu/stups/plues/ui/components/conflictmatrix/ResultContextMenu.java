@@ -41,35 +41,36 @@ class ResultContextMenu extends ContextMenu {
     resultState.addListener((observable, oldValue, newValue) -> updateMenu(newValue));
 
     itemGeneratePdf.setOnAction(event ->
-        router.transitionTo(RouteNames.PDF_TIMETABLES.getRouteName(), (Object[]) courses));
+        router.transitionTo(RouteNames.PDF_TIMETABLES, (Object[]) courses));
     itemComputeConflict.setOnAction(event ->
-        router.transitionTo(RouteNames.UNSAT_CORE.getRouteName(), (Object[]) courses));
+        router.transitionTo(RouteNames.UNSAT_CORE, (Object[]) courses));
     itemGeneratePartialTimetable.setOnAction(event ->
-        router.transitionTo(RouteNames.PARTIAL_TIMETABLES.getRouteName(), (Object[]) courses));
+        router.transitionTo(RouteNames.PARTIAL_TIMETABLES, (Object[]) courses));
     itemRecomputeFeasibility.setOnAction(event ->
-        router.transitionTo(RouteNames.TIMETABLE.getRouteName(), courses, ResultState.TIMEOUT));
+        router.transitionTo(RouteNames.TIMETABLE, courses, ResultState.TIMEOUT));
   }
 
   private void updateMenu(final ResultState resultState) {
     getItems().clear();
     switch (resultState) {
       case SUCCEEDED:
-        getItems().addAll(itemShowInTimetable, itemGeneratePartialTimetable, itemGeneratePdf);
+        if (courses.length == 1 && courses[0].isCombinable()) {
+          getItems().add(itemShowInTimetable);
+        } else {
+          getItems().addAll(itemShowInTimetable, itemGeneratePartialTimetable, itemGeneratePdf);
+        }
         itemShowInTimetable.setOnAction(event ->
-            router.transitionTo(RouteNames.TIMETABLE.getRouteName(),
-                courses, ResultState.SUCCEEDED));
+            router.transitionTo(RouteNames.TIMETABLE, courses, ResultState.SUCCEEDED));
         break;
       case IMPOSSIBLE:
         getItems().addAll(itemShowInTimetable);
         itemShowInTimetable.setOnAction(event ->
-            router.transitionTo(RouteNames.TIMETABLE.getRouteName(),
-                courses, ResultState.IMPOSSIBLE));
+            router.transitionTo(RouteNames.TIMETABLE, courses, ResultState.IMPOSSIBLE));
         break;
       case FAILED:
         getItems().addAll(itemShowInTimetable, itemComputeConflict);
         itemShowInTimetable.setOnAction(event ->
-            router.transitionTo(RouteNames.TIMETABLE.getRouteName(),
-                courses, ResultState.FAILED));
+            router.transitionTo(RouteNames.TIMETABLE, courses, ResultState.FAILED));
         break;
       case TIMEOUT:
         getItems().add(itemRecomputeFeasibility);

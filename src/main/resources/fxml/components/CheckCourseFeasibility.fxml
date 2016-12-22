@@ -13,6 +13,6 @@
                 onAction="#unhighlightConflicts"/>
     </HBox>
     <ScrollPane fx:id="scrollPaneResults">
-        <VBox fx:id="resultBoxWrapper"/>
+        <VBox fx:id="resultBoxWrapper" spacing="10.0"/>
     </ScrollPane>
 </fx:root>

@@ -10,6 +10,8 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.data.entities.AbstractUnit;
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
@@ -19,11 +21,11 @@ import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.controller.Activatable;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -35,6 +37,7 @@ import javafx.scene.layout.GridPane;
 
 import java.net.URL;
 import java.time.DayOfWeek;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -141,7 +144,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
   private void setSessions(final List<SessionFacade> sessions) {
     sessions.forEach(SessionFacade::initSlotProperty);
-    this.sessions.set(FXCollections.observableArrayList(sessions));
+    this.sessions.set(FXCollections.observableList(sessions,
+        (SessionFacade session) -> new Observable[] {session.slotProperty()}));
   }
 
   /**
@@ -163,21 +167,10 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     SessionFacadeListBinding(final SessionFacade.Slot slot) {
       this.slot = slot;
-      bind(sessions, semesterToggle.selectedToggleProperty());
 
-      // http://stackoverflow.com/questions/32536096/javafx-bindings-not-working-as-expected
-      sessions.addListener((Change<? extends SessionFacade> change) -> {
-        while (change.next()) {
-          if (change.wasAdded()) {
-            change.getAddedSubList()
-                .forEach(sessionFacade -> bind(sessionFacade.slotProperty()));
-          }
-
-          if (change.wasRemoved()) {
-            change.getRemoved().forEach(sessionFacade -> unbind(sessionFacade.slotProperty()));
-          }
-        }
-      });
+      bind(sessions, semesterToggle.selectedToggleProperty(),
+          filterSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
+          filterSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty());
     }
 
     @Override
@@ -193,8 +186,32 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
         }
 
         return session.getSlot().equals(slot)
+            && !sessionIsExcludedByCourse(session)
+            && !sessionIsExcludedByAbstractUnit(session)
             && (semester == null || semesters.contains(semester));
       });
+    }
+
+    private boolean sessionIsExcludedByCourse(SessionFacade session) {
+      final Set<Course> filteredCourses =
+          new HashSet<>(filterSideBar.getSetOfCourseSelection().getSelectedCourses());
+
+      Set<Course> sessionCourses = session.getIntendedCourses();
+
+      sessionCourses.retainAll(filteredCourses);
+
+      return !filteredCourses.isEmpty() && sessionCourses.isEmpty();
+    }
+
+    private boolean sessionIsExcludedByAbstractUnit(SessionFacade session) {
+      final Set<AbstractUnit> filteredAbstractUnits =
+          new HashSet<>(filterSideBar.getAbstractUnitFilter().getSelectedAbstractUnits());
+
+      Set<AbstractUnit> sessionAbstractUnits = session.getIntendedAbstractUnits();
+
+      sessionAbstractUnits.retainAll(filteredAbstractUnits);
+
+      return !filteredAbstractUnits.isEmpty() && sessionAbstractUnits.isEmpty();
     }
   }
 }

@@ -106,16 +106,12 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    btGenerateAll.setDefaultButton(true);
     btGenerateAll.disableProperty().bind(solverProperty.not().or(generationStarted));
     btCancel.disableProperty().bind(
         solverProperty.not().or(btGenerateAll.disabledProperty().not()));
 
     btSaveToZip.disableProperty().bind(generationSucceeded.emptyProperty());
     btSaveToFolder.disableProperty().bind(generationSucceeded.emptyProperty());
-
-    listView.setVisible(true);
-    listView.setId("batchListView");
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
   }
