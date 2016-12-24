@@ -258,6 +258,8 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     if (courses.length > 1) {
       courseSelection.selectCourse((Course) courses[1]);
     }
-    btChoosePressed();
+    if (courses.length == 2) {
+      btChoosePressed();
+    }
   }
 }

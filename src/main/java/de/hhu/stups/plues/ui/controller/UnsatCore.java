@@ -50,6 +50,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class UnsatCore extends VBox implements Initializable, Activatable {
@@ -561,8 +562,15 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
    * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
    */
   @Override
-  public void activateController(final Object... courses) {
-    courseSelection.selectCourses((Course[]) courses);
+  public void activateController(final Object... args) {
+    courseSelection.selectCourses(getCoursesFromArray(args));
     computeUnsatCoreModules();
+  }
+
+  // cast Object[] to Course[]
+  private Course[] getCoursesFromArray(final Object[] args) {
+    final Course[] courseArray = new Course[args.length];
+    IntStream.range(0, args.length).forEach(index -> courseArray[index] = (Course) args[index]);
+    return courseArray;
   }
 }
