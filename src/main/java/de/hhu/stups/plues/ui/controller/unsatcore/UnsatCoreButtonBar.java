@@ -34,6 +34,8 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   private Label taskStateIcon;
 
   private StringProperty text = new SimpleStringProperty();
+  private ResourceBundle resources;
+
   /**
    * Default constructor.
    */
@@ -44,7 +46,9 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    this.resources = resources;
     this.button.textProperty().bind(this.textProperty());
+    this.button.disableProperty().bind(this.disabledProperty());
   }
 
   public String getText() {
@@ -59,19 +63,15 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     return this.text;
   }
 
-  /**
-   * Configure button for one unsat core.
-   */
-  void configureButton(final BooleanBinding binding,
-                       final EventHandler<ActionEvent> eventHandler) {
-    button.disableProperty().bind(binding);
-    button.setOnAction(eventHandler);
+
+  public void setOnAction(final EventHandler<ActionEvent> eventHandler) {
+    this.button.setOnAction(eventHandler);
   }
 
   /**
    * Show and set current task state.
    */
-  void showTaskState(final Task<?> task, final ResourceBundle resources) {
+  void showTaskState(final Task<?> task) {
     taskStateIcon.graphicProperty().unbind();
     taskStateIcon.styleProperty().unbind();
     taskStateLabel.textProperty().unbind();

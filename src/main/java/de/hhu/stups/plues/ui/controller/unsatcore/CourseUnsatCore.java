@@ -38,9 +38,9 @@ public class CourseUnsatCore extends VBox implements Initializable {
   /**
    * Constructor.
    *
-   * @param inflater             Inflater to load FXML
-   * @param delayedStore         Delayed Store
-   * @param uiDataService        UiDataService
+   * @param inflater      Inflater to load FXML
+   * @param delayedStore  Delayed Store
+   * @param uiDataService UiDataService
    */
   @Inject
   public CourseUnsatCore(final Inflater inflater,
@@ -53,6 +53,10 @@ public class CourseUnsatCore extends VBox implements Initializable {
     this.courses = new SimpleListProperty<>(FXCollections.emptyObservableList());
 
     inflater.inflate("components/unsatcore/CourseUnsatCore", this, this, "unsatCore", "Column");
+  }
+
+  public UnsatCoreButtonBar getUnsatCoreButtonBar() {
+    return unsatCoreButtonBar;
   }
 
   @Override
@@ -73,14 +77,5 @@ public class CourseUnsatCore extends VBox implements Initializable {
 
   void selectCourses(final Course... courses) {
     this.courseSelection.selectCourses(courses);
-  }
-
-  void configureButton(final BooleanBinding binding,
-                       final EventHandler<ActionEvent> eventHandler) {
-    unsatCoreButtonBar.configureButton(binding, eventHandler);
-  }
-
-  void showTaskState(final SolverTask task, final ResourceBundle resources) {
-    unsatCoreButtonBar.showTaskState(task, resources);
   }
 }

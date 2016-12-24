@@ -9,7 +9,6 @@ import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.controller.Activatable;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -19,7 +18,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -89,7 +87,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
               FXCollections::observableArrayList)));
       });
 
-      courseUnsatCore.showTaskState(task, resources);
+      courseUnsatCore.getUnsatCoreButtonBar().showTaskState(task);
 
       executorService.submit(task);
     };
@@ -103,7 +101,9 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
         .or(courseUnsatCore.coursesProperty().emptyProperty())
         .or(moduleUnsatCore.getModuleProperty().emptyProperty().not());
 
-    courseUnsatCore.configureButton(binding, eventHandler);
+    final UnsatCoreButtonBar unsatCoreButtonBar = courseUnsatCore.getUnsatCoreButtonBar();
+    unsatCoreButtonBar.disableProperty().bind(binding);
+    unsatCoreButtonBar.setOnAction(eventHandler);
   }
 
   private void configureModuleUnsatCore(final ResourceBundle resources) {
@@ -119,7 +119,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
 
       });
 
-      moduleUnsatCore.showTaskState(task, resources);
+      moduleUnsatCore.getUnsatCoreButtonBar().showTaskState(task);
       executorService.submit(task);
     };
 
@@ -132,7 +132,9 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     final BooleanBinding binding = moduleUnsatCore.getModuleProperty().emptyProperty()
         .or(abstractUnitUnsatCore.getAbstractUnits().emptyProperty().not());
 
-    moduleUnsatCore.configureButton(binding, eventHandler);
+    final UnsatCoreButtonBar unsatCoreButtonBar = moduleUnsatCore.getUnsatCoreButtonBar();
+    unsatCoreButtonBar.disableProperty().bind(binding);
+    unsatCoreButtonBar.setOnAction(eventHandler);
   }
 
   private void configureAbstractUnitUnsatCore(final ResourceBundle resources) {
@@ -147,7 +149,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
             .collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
       });
 
-      abstractUnitUnsatCore.showTaskState(task, resources);
+      abstractUnitUnsatCore.getUnsatCoreButtonBar().showTaskState(task);
       executorService.submit(task);
     };
 
@@ -160,7 +162,9 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     final BooleanBinding binding = abstractUnitUnsatCore.getAbstractUnits().emptyProperty()
         .or(groupUnsatCore.getGroupProperty().emptyProperty().not());
 
-    abstractUnitUnsatCore.configureButton(binding, eventHandler);
+    final UnsatCoreButtonBar unsatCoreButtonBar = abstractUnitUnsatCore.getUnsatCoreButtonBar();
+    unsatCoreButtonBar.disableProperty().bind(binding);
+    unsatCoreButtonBar.setOnAction(eventHandler);
   }
 
   private void configureGroupUnsatCore(final ResourceBundle resources) {
@@ -174,7 +178,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
             Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
       });
 
-      groupUnsatCore.showTaskState(task, resources);
+      groupUnsatCore.getUnsatCoreButtonBar().showTaskState(task);
       executorService.submit(task);
     };
 
@@ -185,7 +189,9 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     final BooleanBinding binding = groupUnsatCore.getGroupProperty().emptyProperty()
         .or(sessionUnsatCore.getSessionProperty().emptyProperty().not());
 
-    groupUnsatCore.configureButton(binding, eventHandler);
+    final UnsatCoreButtonBar unsatCoreButtonBar = groupUnsatCore.getUnsatCoreButtonBar();
+    unsatCoreButtonBar.disableProperty().bind(binding);
+    unsatCoreButtonBar.setOnAction(eventHandler);
   }
 
   public SolverService getSolverService() {
