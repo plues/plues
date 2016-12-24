@@ -15,6 +15,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -35,19 +36,14 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   private ResourceBundle resources;
 
   @FXML
-  @SuppressWarnings("unused")
   private CourseUnsatCore courseUnsatCore;
   @FXML
-  @SuppressWarnings("unused")
   private ModuleUnsatCore moduleUnsatCore;
   @FXML
-  @SuppressWarnings("unused")
   private AbstractUnitUnsatCore abstractUnitUnsatCore;
   @FXML
-  @SuppressWarnings("unused")
   private GroupUnsatCore groupUnsatCore;
   @FXML
-  @SuppressWarnings("unused")
   private SessionUnsatCore sessionUnsatCore;
 
   /**
@@ -70,7 +66,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
 
     configureCourseUnsatCore(resources);
@@ -80,8 +76,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   }
 
   private void configureCourseUnsatCore(final ResourceBundle resources) {
-    final EventHandler<MouseEvent> eventHandler = event -> {
-      final ObservableList<Course> courseList = courseUnsatCore.courseProperty().get();
+    final EventHandler<ActionEvent> eventHandler = event -> {
+      final ObservableList<Course> courseList = courseUnsatCore.coursesProperty().get();
       final Course[] selectedCourses = new Course[courseList.size()];
       final SolverTask<Set<Integer>> task =
           getSolverService().unsatCoreModules(courseList.toArray(selectedCourses));
@@ -98,21 +94,20 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
       executorService.submit(task);
     };
 
-    courseUnsatCore.courseProperty().addListener((observable, oldValue, newValue) -> {
+    courseUnsatCore.coursesProperty().addListener((observable, oldValue, newValue) -> {
       moduleUnsatCore.setModules(FXCollections.emptyObservableList());
       moduleUnsatCore.resetTaskState();
     });
 
-    BooleanBinding binding = solverService.isNull()
-        .or(courseUnsatCore.courseProperty().emptyProperty())
+    final BooleanBinding binding = solverService.isNull()
+        .or(courseUnsatCore.coursesProperty().emptyProperty())
         .or(moduleUnsatCore.getModuleProperty().emptyProperty().not());
 
-    courseUnsatCore.configureButton(resources.getString("button.unsatCoreModules"),
-        binding, eventHandler);
+    courseUnsatCore.configureButton(binding, eventHandler);
   }
 
   private void configureModuleUnsatCore(final ResourceBundle resources) {
-    final EventHandler<MouseEvent> eventHandler = event -> {
+    final EventHandler<ActionEvent> eventHandler = event -> {
       final SolverTask<Set<Integer>> task =
           getSolverService().unsatCoreAbstractUnits(moduleUnsatCore.getModuleProperty().get());
 
@@ -134,15 +129,14 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     });
 
 
-    BooleanBinding binding = moduleUnsatCore.getModuleProperty().emptyProperty()
+    final BooleanBinding binding = moduleUnsatCore.getModuleProperty().emptyProperty()
         .or(abstractUnitUnsatCore.getAbstractUnits().emptyProperty().not());
 
-    moduleUnsatCore.configureButton(resources.getString("button.unsatCoreAbstractUnits"),
-        binding, eventHandler);
+    moduleUnsatCore.configureButton(binding, eventHandler);
   }
 
   private void configureAbstractUnitUnsatCore(final ResourceBundle resources) {
-    final EventHandler<MouseEvent> eventHandler = event -> {
+    final EventHandler<ActionEvent> eventHandler = event -> {
       final SolverTask<Set<Integer>> task =
           getSolverService().unsatCoreGroups(abstractUnitUnsatCore.getAbstractUnits().get(),
               moduleUnsatCore.getModuleProperty().get());
@@ -163,15 +157,14 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     });
 
 
-    BooleanBinding binding = abstractUnitUnsatCore.getAbstractUnits().emptyProperty()
+    final BooleanBinding binding = abstractUnitUnsatCore.getAbstractUnits().emptyProperty()
         .or(groupUnsatCore.getGroupProperty().emptyProperty().not());
 
-    abstractUnitUnsatCore.configureButton(resources.getString("button.unsatCoreGroups"),
-        binding, eventHandler);
+    abstractUnitUnsatCore.configureButton(binding, eventHandler);
   }
 
   private void configureGroupUnsatCore(final ResourceBundle resources) {
-    final EventHandler<MouseEvent> eventHandler = event -> {
+    final EventHandler<ActionEvent> eventHandler = event -> {
       final SolverTask<Set<Integer>> task = getSolverService().unsatCoreSessions(
           groupUnsatCore.getGroupProperty().get());
 
@@ -189,11 +182,10 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
         sessionUnsatCore.setSessions(FXCollections.emptyObservableList()));
 
 
-    BooleanBinding binding = groupUnsatCore.getGroupProperty().emptyProperty()
+    final BooleanBinding binding = groupUnsatCore.getGroupProperty().emptyProperty()
         .or(sessionUnsatCore.getSessionProperty().emptyProperty().not());
 
-    groupUnsatCore.configureButton(resources.getString("button.unsatCoreSession"),
-        binding, eventHandler);
+    groupUnsatCore.configureButton(binding, eventHandler);
   }
 
   public SolverService getSolverService() {

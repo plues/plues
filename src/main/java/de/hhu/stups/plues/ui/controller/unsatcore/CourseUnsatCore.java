@@ -9,33 +9,30 @@ import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class CourseUnsatCore extends VBox implements Initializable {
-  private final ObjectProperty<Store> store;
 
+  private final ObjectProperty<Store> store;
   private final ListProperty<Course> courses;
   private final UiDataService uiDataService;
 
   @FXML
-  @SuppressWarnings("unused")
   private CombinationOrSingleCourseSelection courseSelection;
   @FXML
-  @SuppressWarnings("unused")
   private UnsatCoreButtonBar unsatCoreButtonBar;
 
   /**
@@ -66,9 +63,11 @@ public class CourseUnsatCore extends VBox implements Initializable {
     courseSelection.disableProperty().bind(store.isNull());
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
     courses.bind(courseSelection.selectedCoursesProperty());
+
+    unsatCoreButtonBar.setText(resources.getString("button.unsatCoreModules"));
   }
 
-  ListProperty<Course> courseProperty() {
+  ListProperty<Course> coursesProperty() {
     return this.courses;
   }
 
@@ -76,10 +75,9 @@ public class CourseUnsatCore extends VBox implements Initializable {
     this.courseSelection.selectCourses(courses);
   }
 
-  void configureButton(final String text,
-                       final BooleanBinding binding,
-                       final EventHandler<MouseEvent> eventHandler) {
-    unsatCoreButtonBar.configureButton(text, binding, eventHandler);
+  void configureButton(final BooleanBinding binding,
+                       final EventHandler<ActionEvent> eventHandler) {
+    unsatCoreButtonBar.configureButton(binding, eventHandler);
   }
 
   void showTaskState(final SolverTask task, final ResourceBundle resources) {

@@ -17,13 +17,13 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -147,6 +147,8 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
               .collect(Collectors.joining("\n")));
         }
       });
+
+    unsatCoreButtonBar.setText(resources.getString("button.unsatCoreGroups" ));
   }
 
   private String getPrefix(final Collection<?> item) {
@@ -168,10 +170,9 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
     return abstractUnits;
   }
 
-  void configureButton(final String text,
-                       final BooleanBinding binding,
-                       final EventHandler<MouseEvent> eventHandler) {
-    unsatCoreButtonBar.configureButton(text, binding, eventHandler);
+  void configureButton(final BooleanBinding binding,
+                       final EventHandler<ActionEvent> eventHandler) {
+    unsatCoreButtonBar.configureButton(binding, eventHandler);
   }
 
   void showTaskState(final SolverTask task, final ResourceBundle resources) {

@@ -2,19 +2,20 @@ package de.hhu.stups.plues.ui.controller.unsatcore;
 
 import com.google.inject.Inject;
 
-import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
 import java.net.URL;
@@ -32,6 +33,7 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   @SuppressWarnings("unused")
   private Label taskStateIcon;
 
+  private StringProperty text = new SimpleStringProperty();
   /**
    * Default constructor.
    */
@@ -41,19 +43,29 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
+    this.button.textProperty().bind(this.textProperty());
+  }
 
+  public String getText() {
+    return this.text.get();
+  }
+
+  public void setText(final String text) {
+    this.text.set(text);
+  }
+
+  public StringProperty textProperty() {
+    return this.text;
   }
 
   /**
    * Configure button for one unsat core.
    */
-  void configureButton(final String text,
-                       final BooleanBinding binding,
-                       final EventHandler<MouseEvent> eventHandler) {
-    button.setText(text);
+  void configureButton(final BooleanBinding binding,
+                       final EventHandler<ActionEvent> eventHandler) {
     button.disableProperty().bind(binding);
-    button.setOnMouseClicked(eventHandler);
+    button.setOnAction(eventHandler);
   }
 
   /**
