@@ -31,7 +31,13 @@ import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration;
 import de.hhu.stups.plues.ui.controller.ConflictMatrix;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
 import de.hhu.stups.plues.ui.controller.PartialTimeTables;
-import de.hhu.stups.plues.ui.controller.UnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.AbstractUnitUnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.CourseUnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.GroupUnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.ModuleUnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.SessionUnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.UnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.UnsatCoreButtonBar;
 
 class ComponentsModule extends AbstractModule {
   @Override
@@ -61,10 +67,16 @@ class ComponentsModule extends AbstractModule {
     bind(AbstractUnitsWithoutUnits.class);
     bind(UnitsWithoutAbstractUnits.class);
     bind(ConflictTree.class);
-    bind(UnsatCore.class);
+    bind(CourseUnsatCore.class);
     bind(AbstractUnitDetailView.class);
     bind(ModuleDetailView.class);
     bind(UnitDetailView.class);
     bind(CourseDetailView.class);
+    bind(ModuleUnsatCore.class);
+    bind(AbstractUnitUnsatCore.class);
+    bind(GroupUnsatCore.class);
+    bind(SessionUnsatCore.class);
+    bind(UnsatCoreButtonBar.class);
+    bind(UnsatCore.class);
   }
 }

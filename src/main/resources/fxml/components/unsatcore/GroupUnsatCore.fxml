@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.hhu.stups.plues.ui.controller.unsatcore.UnsatCoreButtonBar?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+<fx:root maxHeight="400.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <Separator prefWidth="200.0">
+        <padding>
+            <Insets bottom="10.0" top="10.0"/>
+        </padding>
+    </Separator>
+    <Label styleClass="h2" text="%groupsPaneTitle"/>
+    <Label text="%groupsPaneExplanation"/>
+    <TableView fx:id="groupsTable" minHeight="400.0" VBox.vgrow="NEVER">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
+        <columns>
+            <TableColumn fx:id="groupUnitKeyColumn" maxWidth="-1.0" minWidth="100.0"
+                         prefWidth="-1.0" text="%columnKey"/>
+            <TableColumn fx:id="groupUnitTitleColumn" maxWidth="1.7976931348623157E308"
+                         minWidth="200" prefWidth="-1.0" text="%columnTitle"/>
+            <TableColumn fx:id="groupUnitSemestersColumn" maxWidth="-1.0" minWidth="100.0"
+                         prefWidth="-1.0" text="%groupUnitSemestersColumn"/>
+            <TableColumn fx:id="groupSessionsColumn" maxWidth="-1.0" minWidth="200" prefWidth="-1.0"
+                         text="%columnGroup">
+                <cellValueFactory>
+                    <PropertyValueFactory property="sessions"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="groupAbstractUnits" maxWidth="-1.0" minWidth="200.0"
+                         prefWidth="-1.0" text="%groupAbstractUnits"/>
+        </columns>
+    </TableView>
+    <UnsatCoreButtonBar fx:id="unsatCoreButtonBar"/>
+</fx:root>
