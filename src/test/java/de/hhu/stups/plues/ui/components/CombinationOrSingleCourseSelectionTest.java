@@ -4,6 +4,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
@@ -124,7 +125,16 @@ public class CombinationOrSingleCourseSelectionTest extends ApplicationTest {
     courseList.add(createCourse("shortName10", "ma", "H"));
     courseList.add(createCourse("shortName11", "ma", "H"));
 
-    final Inflater inflater = new Inflater(new FXMLLoader());
+    final FXMLLoader loader = new FXMLLoader();
+    loader.setBuilderFactory(type -> {
+      if (type.equals(MajorMinorCourseSelection.class)) {
+        return () -> new MajorMinorCourseSelection(new Inflater(new FXMLLoader()));
+      }
+      return new JavaFXBuilderFactory().getBuilder(type);
+    });
+
+    final Inflater inflater = new Inflater(loader);
+
     courseSelection = new CombinationOrSingleCourseSelection(inflater);
     courseSelection.setCourses(courseList);
 

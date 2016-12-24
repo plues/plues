@@ -72,13 +72,6 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     inflater.inflate("components/MajorMinorCourseSelection", this, this);
   }
 
-  /**
-   * Used for initializing the component in the tests.
-   */
-  public MajorMinorCourseSelection() {
-    new Inflater(new FXMLLoader()).inflate("components/MajorMinorCourseSelection", this, this);
-  }
-
   @SuppressWarnings("unused")
   public Course getSelectedMajor() {
     return selectedMajor.get();
