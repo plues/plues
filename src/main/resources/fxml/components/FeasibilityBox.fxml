@@ -20,9 +20,9 @@
             <Label fx:id="lbIcon" prefHeight="Infinity" prefWidth="70.0" alignment="CENTER"
                    contentDisplay="CENTER"/>
         </StackPane>
-        <HBox alignment="BOTTOM_RIGHT" prefWidth="170.0" GridPane.columnIndex="1"
+        <HBox alignment="BOTTOM_RIGHT" prefWidth="230.0" GridPane.columnIndex="1"
               GridPane.rowIndex="0">
-            <ComboBox fx:id="cbAction" prefWidth="120.0"/>
+            <ComboBox fx:id="cbAction" prefWidth="180.0"/>
             <Button onAction="#submitAction" minWidth="50.0" prefWidth="50.0"
                     text="%go"/>
         </HBox>

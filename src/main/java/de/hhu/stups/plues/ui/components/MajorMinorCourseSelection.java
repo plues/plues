@@ -21,6 +21,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -69,6 +70,13 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   @Inject
   MajorMinorCourseSelection(final Inflater inflater) {
     inflater.inflate("components/MajorMinorCourseSelection", this, this);
+  }
+
+  /**
+   * Used for initializing the component in the tests.
+   */
+  public MajorMinorCourseSelection() {
+    new Inflater(new FXMLLoader()).inflate("components/MajorMinorCourseSelection", this, this);
   }
 
   @SuppressWarnings("unused")
