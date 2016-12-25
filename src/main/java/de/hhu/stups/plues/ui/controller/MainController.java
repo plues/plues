@@ -1,5 +1,10 @@
 package de.hhu.stups.plues.ui.controller;
 
+import static org.apache.fop.fonts.type1.AdobeStandardEncoding.s;
+
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -76,6 +81,11 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 @Singleton
@@ -334,23 +344,28 @@ public class MainController implements Initializable {
    * Wait some time and hide the {@link #taskProgress task progress view} if there are no running
    * tasks anymore.
    */
+
+  private static final ListeningScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE;
+
+  static {
+    final ThreadFactory threadFactoryBuilder = new ThreadFactoryBuilder().setDaemon(true)
+        .setNameFormat("task-progress-hide-runner-%d").build();
+
+    SCHEDULED_EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
+      Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
+
+  }
+
   private void removeTaskProgressBox() {
     mainProgressBar.progressProperty().unbind();
     mainStatusBar.getRightItems().remove(lbRunningTasks);
     mainStatusBar.getRightItems().remove(mainProgressBar);
-    new Thread(() -> {
-      try {
-        Thread.sleep(1500);
-      } catch (final InterruptedException exception) {
-        logger.error("Interrupted status bar sleep", exception);
-        Thread.currentThread().interrupt();
-      }
-      Platform.runLater(() -> {
-        if (taskProgress.getTasks().isEmpty()) {
-          mainSplitPane.getItems().remove(boxTaskProgress);
-        }
-      });
-    }).start();
+    SCHEDULED_EXECUTOR_SERVICE.schedule(() ->
+        Platform.runLater(() -> {
+          if (taskProgress.getTasks().isEmpty()) {
+            mainSplitPane.getItems().remove(boxTaskProgress);
+          }
+        }), 1500, TimeUnit.MILLISECONDS);
   }
 
   private void initializeMenu() {
