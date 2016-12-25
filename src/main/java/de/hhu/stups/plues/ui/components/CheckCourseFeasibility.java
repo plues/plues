@@ -2,7 +2,9 @@ package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
@@ -25,7 +27,7 @@ import java.util.Set;
 public class CheckCourseFeasibility extends VBox implements Initializable {
 
   private final FeasibilityBoxFactory feasibilityBoxFactory;
-  private final BooleanProperty solverProperty;
+  private final BooleanProperty solverAvailableProperty;
 
   private final UiDataService uiDataService;
 
@@ -51,18 +53,20 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
    * {@link FeasibilityBox result boxes} within {@link #resultBoxWrapper a VBox}. When using the
    * component we need to initialize the courses via {@link #setCourses(List)} and optionally
    * highlight the impossible courses with the use of {@link #impossibleCoursesProperty()}. As soon
-   * as the solver is available the {@link #solverProperty} is set to true to enable computations
+   * as the solver is available the {@link #solverAvailableProperty} is set to true to enable computations
    * like {@link #btCheckFeasibility}.
    */
   @Inject
   public CheckCourseFeasibility(final Inflater inflater,
                                 final FeasibilityBoxFactory feasibilityBoxFactory,
+                                final Delayed<SolverService> solverServiceDelayed,
                                 final UiDataService uiDataService) {
 
     this.feasibilityBoxFactory = feasibilityBoxFactory;
     this.uiDataService = uiDataService;
 
-    solverProperty = new SimpleBooleanProperty(false);
+    solverAvailableProperty = new SimpleBooleanProperty(false);
+    solverServiceDelayed.whenAvailable(solverService -> solverAvailableProperty.set(true));
 
     inflater.inflate("components/CheckCourseFeasibility", this, this, "checkCourseFeasibility");
   }
@@ -74,7 +78,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     final IntegerBinding resultBoxChildren = Bindings.size(resultBoxWrapper.getChildren());
     scrollPaneResults.visibleProperty().bind(resultBoxChildren.greaterThan(0));
 
-    btCheckFeasibility.disableProperty().bind(solverProperty.not());
+    btCheckFeasibility.disableProperty().bind(solverAvailableProperty.not());
 
     btUnhighlightAllConflicts.visibleProperty().bind(this.uiDataService
         .conflictMarkedSessionsProperty().emptyProperty().not());
@@ -120,9 +124,5 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
 
   public Set<Course> getImpossibleCourses() {
     return combinationOrSingleCourseSelection.getImpossibleCourses();
-  }
-
-  public BooleanProperty getSolverProperty() {
-    return solverProperty;
   }
 }
