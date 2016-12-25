@@ -11,9 +11,6 @@ import de.hhu.stups.plues.ui.components.CheckCourseFeasibility;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.event.EventTarget;
 import javafx.fxml.FXML;
@@ -38,7 +35,6 @@ public class FilterSideBar extends TabPane implements Initializable {
 
   private static final String SIDE_BAR_TAB_LAYOUT = "sideBarTabLayout";
 
-  private final BooleanProperty solverProperty;
   private UiDataService uiDataService;
   private Tab selectedSubTab;
   private Timetable parent;
@@ -61,7 +57,6 @@ public class FilterSideBar extends TabPane implements Initializable {
 
   @Inject
   public FilterSideBar(final Inflater inflater) {
-    solverProperty = new SimpleBooleanProperty();
     inflater.inflate("components/timetable/FilterSideBar", this, this, "timetable");
   }
 
@@ -102,7 +97,6 @@ public class FilterSideBar extends TabPane implements Initializable {
     checkCourseFeasibility.setCourses(store.getCourses());
     checkCourseFeasibility.impossibleCoursesProperty().bind(
         uiDataService.impossibleCoursesProperty());
-    checkCourseFeasibility.getSolverProperty().bind(solverProperty);
     setTabPaneButtonHeight();
 
     parent.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -189,10 +183,6 @@ public class FilterSideBar extends TabPane implements Initializable {
 
   public double getPaneMinWidth() {
     return getMinWidth();
-  }
-
-  public BooleanProperty getSolverProperty() {
-    return solverProperty;
   }
 
   public void setParent(final Timetable parent) {

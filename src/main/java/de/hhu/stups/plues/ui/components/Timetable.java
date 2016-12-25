@@ -48,7 +48,6 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
   private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
-  private final Delayed<SolverService> delayedSolverService;
   private final UiDataService uiDataService;
   private double userDefinedDividerPos = 0.65;
 
@@ -69,12 +68,10 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
    */
   @Inject
   public Timetable(final Inflater inflater, final Delayed<ObservableStore> delayedStore,
-                   final Delayed<SolverService> delayedSolverService,
                    final UiDataService uiDataService,
                    final SessionListViewFactory sessionListViewFactory) {
     this.delayedStore = delayedStore;
     this.sessionListViewFactory = sessionListViewFactory;
-    this.delayedSolverService = delayedSolverService;
     this.uiDataService = uiDataService;
 
     // TODO: remove controller param if possible
@@ -91,9 +88,6 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
           .map(SessionFacade::new)
           .collect(Collectors.toList()));
     });
-
-    delayedSolverService.whenAvailable(solverService ->
-        filterSideBar.getSolverProperty().setValue(true));
 
     filterSideBar.setParent(this);
     filterSideBar.setUiDataService(uiDataService);
