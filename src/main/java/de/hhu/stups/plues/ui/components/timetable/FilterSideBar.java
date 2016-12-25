@@ -82,9 +82,7 @@ public class FilterSideBar extends TabPane implements Initializable {
         if (styleClasses.contains("tab-container")) {
           final Optional<Node> optionalLabel = ((StackPane) eventTarget).getChildren().stream()
               .filter(node -> node instanceof Label).findFirst();
-          if (optionalLabel.isPresent()) {
-            handleSideBarTabs(((Label) optionalLabel.get()).getText());
-          }
+          optionalLabel.ifPresent(node -> handleSideBarTabs(((Label) node).getText()));
         }
       }
     });
@@ -145,9 +143,7 @@ public class FilterSideBar extends TabPane implements Initializable {
   private void handleSideBarTabs(final String tabText) {
     final Optional<Tab> optionalTab = getTabs().stream()
         .filter(tab -> tab.getText().equals(tabText)).findFirst();
-    if (optionalTab.isPresent()) {
-      showOrHideSideBar(optionalTab.get());
-    }
+    optionalTab.ifPresent(this::showOrHideSideBar);
   }
 
   /**
