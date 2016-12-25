@@ -190,18 +190,18 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
       final Set<Course> filteredCourses =
           new HashSet<>(filterSideBar.getSetOfCourseSelection().getSelectedCourses());
 
-      Set<Course> sessionCourses = session.getIntendedCourses();
+      final Set<Course> sessionCourses = session.getIntendedCourses();
 
       sessionCourses.retainAll(filteredCourses);
 
       return !filteredCourses.isEmpty() && sessionCourses.isEmpty();
     }
 
-    private boolean sessionIsExcludedByAbstractUnit(SessionFacade session) {
+    private boolean sessionIsExcludedByAbstractUnit(final SessionFacade session) {
       final Set<AbstractUnit> filteredAbstractUnits =
           new HashSet<>(filterSideBar.getAbstractUnitFilter().getSelectedAbstractUnits());
 
-      Set<AbstractUnit> sessionAbstractUnits = session.getIntendedAbstractUnits();
+      final Set<AbstractUnit> sessionAbstractUnits = session.getIntendedAbstractUnits();
 
       sessionAbstractUnits.retainAll(filteredAbstractUnits);
 
