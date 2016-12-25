@@ -13,9 +13,9 @@ import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
-import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.ui.components.timetable.FilterSideBar;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.controller.Activatable;
@@ -26,52 +26,40 @@ import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
 import java.time.DayOfWeek;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Timetable extends BorderPane implements Initializable, Activatable {
+public class Timetable extends SplitPane implements Initializable, Activatable {
 
   private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
-  private final Delayed<SolverService> delayedSolverService;
   private final UiDataService uiDataService;
+  private double userDefinedDividerPos = 0.65;
 
   @FXML
-  private TabPane tabPaneSide;
-  @FXML
+  @SuppressWarnings("unused")
   private GridPane timeTable;
-
   @FXML
-  private SetOfCourseSelection setOfCourseSelection;
-
-  @FXML
-  private AbstractUnitFilter abstractUnitFilter;
-
-  @FXML
-  private CheckCourseFeasibility checkCourseFeasibility;
-
-  @FXML
+  @SuppressWarnings("unused")
   private ToggleGroup semesterToggle;
+  @FXML
+  @SuppressWarnings("unused")
+  private FilterSideBar filterSideBar;
 
   private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
 
@@ -80,12 +68,10 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
    */
   @Inject
   public Timetable(final Inflater inflater, final Delayed<ObservableStore> delayedStore,
-                   final Delayed<SolverService> delayedSolverService,
                    final UiDataService uiDataService,
                    final SessionListViewFactory sessionListViewFactory) {
     this.delayedStore = delayedStore;
     this.sessionListViewFactory = sessionListViewFactory;
-    this.delayedSolverService = delayedSolverService;
     this.uiDataService = uiDataService;
 
     // TODO: remove controller param if possible
@@ -96,25 +82,29 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.delayedStore.whenAvailable(store -> {
-      this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
-      setOfCourseSelection.setCourses(store.getCourses());
-      checkCourseFeasibility.setCourses(store.getCourses());
-      abstractUnitFilter.courseFilterProperty().bind(
-          setOfCourseSelection.selectedCoursesProperty());
-
+      filterSideBar.initializeComponents(store);
       setSessions(store.getSessions()
           .parallelStream()
           .map(SessionFacade::new)
           .collect(Collectors.toList()));
     });
 
-    // if the component checkCourseFeasibility is included
-    checkCourseFeasibility.impossibleCoursesProperty().bind(
-        uiDataService.impossibleCoursesProperty());
-    delayedSolverService.whenAvailable(
-        solverService -> checkCourseFeasibility.setSolverProperty(true));
+    filterSideBar.setParent(this);
+    filterSideBar.setUiDataService(uiDataService);
+
+    getDividers().get(0).positionProperty().addListener((observable, oldValue, newValue) -> {
+      filterSideBar.setTabPaneButtonHeight();
+      // don't store too small divider positions
+      if (Math.abs(newValue.doubleValue() - filterSideBar.getPaneMinWidth() / getWidth()) > 0.25) {
+        userDefinedDividerPos = newValue.doubleValue();
+      }
+    });
 
     initSessionBoxes();
+  }
+
+  public void disableDivider(final boolean bool) {
+    lookup(".split-pane-divider").setDisable(bool);
   }
 
   private void initSessionBoxes() {
@@ -149,7 +139,7 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
   private void setSessions(final List<SessionFacade> sessions) {
     sessions.forEach(SessionFacade::initSlotProperty);
     this.sessions.set(FXCollections.observableList(sessions,
-        (SessionFacade session) -> new Observable[] { session.slotProperty() }));
+        (SessionFacade session) -> new Observable[] {session.slotProperty()}));
   }
 
   /**
@@ -157,29 +147,12 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
    * de.hhu.stups.plues.routes.ControllerRoute}.
    */
   @Override
-  public void activateController(Object... args) {
-    final Course[] courses = (Course[]) args[0];
-    final ResultState resultState = (ResultState) args[1];
-    setOfCourseSelection.setSelectedCourses(Arrays.asList(courses));
-    switch (resultState) {
-      case FAILED:
-        selectTabById("tabCheckFeasibility");
-        checkCourseFeasibility.selectCourses(courses);
-        break;
-      case TIMEOUT:
-        selectTabById("tabCheckFeasibility");
-        checkCourseFeasibility.selectCourses(courses);
-        checkCourseFeasibility.checkFeasibility();
-        break;
-      default:
-        selectTabById("tabCourseFilters");
-    }
+  public void activateController(final Object... args) {
+    filterSideBar.activateComponents(args);
   }
 
-  private void selectTabById(final String tabId) {
-    final Optional<Tab> tabConflict = tabPaneSide.getTabs().stream()
-        .filter(tab -> tabId.equals(tab.getId())).findFirst();
-    tabConflict.ifPresent(tabPaneSide.getSelectionModel()::select);
+  public void restoreUserDefinedDividerPos() {
+    getDividers().get(0).setPosition(userDefinedDividerPos);
   }
 
   private class SessionFacadeListBinding extends ListBinding<SessionFacade> {
@@ -190,8 +163,8 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
       this.slot = slot;
 
       bind(sessions, semesterToggle.selectedToggleProperty(),
-          setOfCourseSelection.selectedCoursesProperty(),
-          abstractUnitFilter.selectedAbstractUnitsProperty());
+          filterSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
+          filterSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty());
     }
 
     @Override
@@ -214,20 +187,21 @@ public class Timetable extends BorderPane implements Initializable, Activatable 
     }
 
     private boolean sessionIsExcludedByCourse(SessionFacade session) {
-      final Set<Course> filteredCourses = new HashSet<>(setOfCourseSelection.getSelectedCourses());
+      final Set<Course> filteredCourses =
+          new HashSet<>(filterSideBar.getSetOfCourseSelection().getSelectedCourses());
 
-      Set<Course> sessionCourses = session.getIntendedCourses();
+      final Set<Course> sessionCourses = session.getIntendedCourses();
 
       sessionCourses.retainAll(filteredCourses);
 
       return !filteredCourses.isEmpty() && sessionCourses.isEmpty();
     }
 
-    private boolean sessionIsExcludedByAbstractUnit(SessionFacade session) {
+    private boolean sessionIsExcludedByAbstractUnit(final SessionFacade session) {
       final Set<AbstractUnit> filteredAbstractUnits =
-          new HashSet<>(abstractUnitFilter.getSelectedAbstractUnits());
+          new HashSet<>(filterSideBar.getAbstractUnitFilter().getSelectedAbstractUnits());
 
-      Set<AbstractUnit> sessionAbstractUnits = session.getIntendedAbstractUnits();
+      final Set<AbstractUnit> sessionAbstractUnits = session.getIntendedAbstractUnits();
 
       sessionAbstractUnits.retainAll(filteredAbstractUnits);
 

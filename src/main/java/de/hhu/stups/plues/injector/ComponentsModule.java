@@ -27,6 +27,7 @@ import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterCo
 import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
+import de.hhu.stups.plues.ui.components.timetable.FilterSideBar;
 import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration;
 import de.hhu.stups.plues.ui.controller.ConflictMatrix;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
@@ -68,6 +69,7 @@ class ComponentsModule extends AbstractModule {
     bind(UnitsWithoutAbstractUnits.class);
     bind(ConflictTree.class);
     bind(CourseUnsatCore.class);
+    bind(FilterSideBar.class);
     bind(AbstractUnitDetailView.class);
     bind(ModuleDetailView.class);
     bind(UnitDetailView.class);

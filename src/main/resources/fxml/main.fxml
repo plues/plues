@@ -6,16 +6,21 @@
 <?import de.hhu.stups.plues.ui.controller.Musterstudienplaene?>
 <?import de.hhu.stups.plues.ui.controller.PartialTimeTables?>
 <?import de.hhu.stups.plues.ui.controller.unsatcore.UnsatCore?>
-<?import org.controlsfx.control.TaskProgressView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.StatusBar?>
+<?import org.controlsfx.control.TaskProgressView?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="de.hhu.stups.plues.ui.controller.MainController">
@@ -69,8 +74,8 @@
                       text="%handbookPDF"/>
         </Menu>
     </MenuBar>
-    <BorderPane>
-        <center>
+    <SplitPane fx:id="mainSplitPane">
+        <VBox>
             <TabPane id="tabPane" fx:id="tabPane">
                 <Tab id="tabTimetable" text="%timetable" closable="false">
                     <Timetable fx:id="timetable"/>
@@ -91,11 +96,21 @@
                     <UnsatCore fx:id="unsatCore"/>
                 </Tab>
             </TabPane>
-        </center>
-        <right>
-            <ScrollPane prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
-                <TaskProgressView fx:id="taskProgress" prefWidth="300"/>
+        </VBox>
+        <VBox fx:id="boxTaskProgress">
+            <ScrollPane fx:id="scrollPaneTaskProgress" VBox.vgrow="ALWAYS" hbarPolicy="NEVER"
+                        fitToHeight="true" fitToWidth="true">
+                <TaskProgressView fx:id="taskProgress" minWidth="200.0"/>
             </ScrollPane>
-        </right>
-    </BorderPane>
+        </VBox>
+    </SplitPane>
+    <StatusBar fx:id="mainStatusBar">
+        <padding>
+            <Insets top="0.0" right="10.0" bottom="0.0" left="10.0"/>
+        </padding>
+        <rightItems>
+            <Label fx:id="lbRunningTasks" id="statusBarLabel"/>
+            <ProgressBar fx:id="mainProgressBar"/>
+        </rightItems>
+    </StatusBar>
 </VBox>

@@ -28,6 +28,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
@@ -94,7 +95,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
    *
    * @param abstractUnits List of abstract units to be displayed in TableView
    */
-  void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
+  public void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
     this.abstractUnits.setAll(abstractUnits);
   }
 
@@ -151,6 +152,11 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     checkboxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(checkboxColumn));
 
     selectableAbstractUnits.bind(new ListBinding<SelectableAbstractUnit>() {
+      // extractor used to compute an observable list that propagates changes on the extracted
+      // property to the observers of the list
+      final Callback<SelectableAbstractUnit, Observable[]> extractor
+          = (SelectableAbstractUnit param) -> new Observable[] {param.selectedProperty()};
+
       {
         bind(abstractUnits);
       }
@@ -161,11 +167,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
         unbind(abstractUnits);
       }
 
-
-      // extractor used to compute an observable list that propagates changes on the extracted
-      // property to the observers of the list
-      final Callback<SelectableAbstractUnit, Observable[]> extractor
-          = (SelectableAbstractUnit param) -> new Observable[] {param.selectedProperty()};
 
       // NOTE: A change to the abstractUnits list, this binding is bound to, will recreate all
       // SelectableAbstractUnit objects. This behaviour will loose the state of all
