@@ -5,7 +5,6 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.BooleanProperty;
@@ -16,7 +15,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -73,12 +71,8 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     resultBoxWrapper.setSpacing(5.0);
 
-    VBox.setVgrow(scrollPaneResults, Priority.ALWAYS);
-
     final IntegerBinding resultBoxChildren = Bindings.size(resultBoxWrapper.getChildren());
     scrollPaneResults.visibleProperty().bind(resultBoxChildren.greaterThan(0));
-    scrollPaneResults.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-    scrollPaneResults.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
     btCheckFeasibility.disableProperty().bind(solverProperty.not());
 
@@ -109,7 +103,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     combinationOrSingleCourseSelection.setCourses(courses);
   }
 
-  public void selectCourses(Course... courses) {
+  public void selectCourses(final Course... courses) {
     combinationOrSingleCourseSelection.selectCourses(courses);
   }
 

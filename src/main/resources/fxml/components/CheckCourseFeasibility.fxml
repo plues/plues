@@ -12,7 +12,7 @@
         <Button fx:id="btUnhighlightAllConflicts" text="%unhighlightConflicts" visible="false"
                 onAction="#unhighlightConflicts"/>
     </HBox>
-    <ScrollPane fx:id="scrollPaneResults">
+    <ScrollPane fx:id="scrollPaneResults" VBox.vgrow="ALWAYS">
         <VBox fx:id="resultBoxWrapper" spacing="10.0"/>
     </ScrollPane>
 </fx:root>
