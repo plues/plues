@@ -22,7 +22,6 @@ import de.hhu.stups.plues.ui.ResourceManager;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -50,11 +49,9 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
 import org.slf4j.Logger;
@@ -111,8 +108,9 @@ public class MainController implements Initializable {
   private final StoreLoaderTaskFactory storeLoaderTaskFactory;
   private final Router router;
   private final ResourceManager resourceManager;
-  private SolverService solverService;
+  private final Delayed<SolverService> delayedSolverService;
   private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
+
   private boolean databaseChanged = false;
   private ResourceBundle resources;
 
@@ -179,6 +177,7 @@ public class MainController implements Initializable {
                         final ResourceManager resourceManager,
                         final UiDataService uiDataService) {
     this.delayedStore = delayedStore;
+    this.delayedSolverService = delayedSolverService;
     this.solverLoader = solverLoader;
     this.properties = properties;
     this.stage = stage;
@@ -188,15 +187,6 @@ public class MainController implements Initializable {
     this.resourceManager = resourceManager;
     this.uiDataService = uiDataService;
     userPreferences = Preferences.userRoot().node("Plues");
-
-    delayedSolverService.whenAvailable(solverService1 -> {
-      solverService = solverService1;
-      openReportsMenuItem.setDisable(false);
-      setTimeoutMenuItem.setDisable(false);
-      oneMinuteMenuItem.setDisable(false);
-      threeMinutesMenuItem.setDisable(false);
-      fiveMinutesMenuItem.setDisable(false);
-    });
 
     executorService.addObserver((observable, arg) -> this.register(arg));
 
@@ -270,6 +260,14 @@ public class MainController implements Initializable {
     tabPane.setOnKeyPressed(this::handleKeyPressed);
 
     initializeMenu();
+
+    delayedSolverService.whenAvailable(solverService -> {
+      openReportsMenuItem.setDisable(false);
+      setTimeoutMenuItem.setDisable(false);
+      oneMinuteMenuItem.setDisable(false);
+      threeMinutesMenuItem.setDisable(false);
+      fiveMinutesMenuItem.setDisable(false);
+    });
 
     delayedStore.whenAvailable(s -> {
       this.exportStateMenuItem.setDisable(false);
@@ -656,8 +654,10 @@ public class MainController implements Initializable {
    * @param timeout New timeout
    */
   private void setTimeout(final int timeout) {
-    solverService.setTimeout(timeout);
-    logger.info("Timeout set to " + timeout + " seconds");
+    delayedSolverService.whenAvailable(solverService -> {
+      solverService.setTimeout(timeout);
+      logger.info("Timeout set to " + timeout + " seconds");
+    });
   }
 
   /**
