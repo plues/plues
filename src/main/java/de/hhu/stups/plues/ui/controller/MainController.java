@@ -251,10 +251,6 @@ public class MainController implements Initializable {
 
     this.taskProgress.setGraphicFactory(this::getGraphicForTask);
 
-    VBox.setVgrow(scrollPaneTaskProgress, Priority.ALWAYS);
-
-    scrollPaneTaskProgress.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-
     taskProgress.prefWidthProperty().bind(scrollPaneTaskProgress.widthProperty());
     taskProgress.prefHeightProperty().bind(scrollPaneTaskProgress.heightProperty());
 
