@@ -10,7 +10,7 @@
     <Tab fx:id="tabCourseFilters" text="%tabCourseFilters" closable="false">
         <VBox spacing="20.0">
             <SetOfCourseSelection fx:id="setOfCourseSelection"/>
-            <AbstractUnitFilter fx:id="abstractUnitFilter"/>
+            <AbstractUnitFilter fx:id="abstractUnitFilter" VBox.vgrow="ALWAYS"/>
         </VBox>
     </Tab>
     <Tab fx:id="tabCheckFeasibility" text="%tabCheckFeasibility" closable="false">

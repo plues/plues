@@ -23,7 +23,7 @@
         </HBox>
         <CheckBox fx:id="selectedCoursesOnly" text="%selectedCoursesOnly"/>
         <Button fx:id="clearSelection" text="%clear" onAction="#resetSelection"/>
-        <TableView fx:id="units" editable="true">
+        <TableView fx:id="units" editable="true" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="checkboxColumn" prefWidth="30" sortable="false"
                              resizable="false">
