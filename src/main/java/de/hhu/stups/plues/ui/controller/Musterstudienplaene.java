@@ -117,6 +117,8 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
     if (courses.length > 1) {
       courseSelection.selectCourse((Course) courses[1]);
     }
-    btGeneratePressed();
+    if (courses.length == 2) {
+      btGeneratePressed();
+    }
   }
 }

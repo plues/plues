@@ -36,6 +36,7 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
   private final ToggleGroup toggleGroup;
   private final SetProperty<Course> impossibleCoursesProperty;
   private final ListProperty<Course> coursesProperty;
+
   @FXML
   @SuppressWarnings("unused")
   private RadioButton rbCombination;
@@ -180,4 +181,22 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
   public SetProperty<Course> impossibleCoursesProperty() {
     return this.impossibleCoursesProperty;
   }
+
+  RadioButton getRbCombination() {
+    return rbCombination;
+  }
+
+  RadioButton getRbSingleSelection() {
+    return rbSingleSelection;
+  }
+
+  MajorMinorCourseSelection getMajorMinorCourseSelection() {
+    return majorMinorCourseSelection;
+  }
+
+  ComboBox<Course> getSingleCourseSelection() {
+    return singleCourseSelection;
+  }
+
+
 }
