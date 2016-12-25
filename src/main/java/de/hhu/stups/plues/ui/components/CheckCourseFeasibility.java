@@ -53,8 +53,8 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
    * {@link FeasibilityBox result boxes} within {@link #resultBoxWrapper a VBox}. When using the
    * component we need to initialize the courses via {@link #setCourses(List)} and optionally
    * highlight the impossible courses with the use of {@link #impossibleCoursesProperty()}. As soon
-   * as the solver is available the {@link #solverAvailableProperty} is set to true to enable computations
-   * like {@link #btCheckFeasibility}.
+   * as the solver is available the {@link #solverAvailableProperty} is set to true to enable
+   * computations like {@link #btCheckFeasibility}.
    */
   @Inject
   public CheckCourseFeasibility(final Inflater inflater,
