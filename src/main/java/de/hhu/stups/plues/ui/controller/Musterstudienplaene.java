@@ -13,15 +13,13 @@ import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -43,10 +41,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
   private Button btGenerate;
   @FXML
   @SuppressWarnings("unused")
-  private VBox resultBox;
-  @FXML
-  @SuppressWarnings("unused")
-  private ScrollPane scrollPane;
+  private ListView<ResultBox> resultBoxWrapper;
 
   /**
    * This view presents a selection of major and minor courses where the user can choose a
@@ -72,8 +67,6 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
 
     this.solverProperty = new SimpleBooleanProperty(false);
 
-    this.setVgap(10.0);
-
     inflater.inflate("musterstudienplaene", this, this, "musterstudienplaene");
   }
 
@@ -81,23 +74,22 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
    * Function to handle generation of resultbox containing result for chosen major and minor.
    */
   @FXML
-  @SuppressWarnings({"unused,WeakerAccess"})
+  @SuppressWarnings( {"unused,WeakerAccess"})
   public void btGeneratePressed() {
     final Course selectedMajorCourse = courseSelection.getSelectedMajor();
     final Course selectedMinorCourse = courseSelection.getSelectedMinor();
 
     final ResultBox rb
-        = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse, resultBox);
+        = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse, resultBoxWrapper);
 
-    resultBox.getChildren().add(0, rb);
+    resultBoxWrapper.getItems().add(0, rb);
   }
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     btGenerate.disableProperty().bind(solverProperty.not());
 
-    final IntegerBinding resultBoxChildren = Bindings.size(resultBox.getChildren());
-    scrollPane.visibleProperty().bind(resultBoxChildren.greaterThan(0));
+    resultBoxWrapper.visibleProperty().bind(Bindings.isEmpty(resultBoxWrapper.getItems()).not());
 
     delayedStore.whenAvailable(store ->
         PdfRenderingHelper.initializeCourseSelection(store, uiDataService, courseSelection));
