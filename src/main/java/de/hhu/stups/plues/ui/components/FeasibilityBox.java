@@ -29,6 +29,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
 
@@ -57,6 +58,7 @@ public class FeasibilityBox extends VBox implements Initializable {
   private String stepwiseUnsatCore;
   private String cancelString;
   private String impossibleCourseString;
+  private ResultState resultState;
 
   private String noConflictString;
   private SolverTask<Set<Integer>> unsatCoreTask;
@@ -69,7 +71,7 @@ public class FeasibilityBox extends VBox implements Initializable {
   private final Set<Course> impossibleCourses;
   private final Router router;
 
-  private final VBox parent;
+  private final ListView<FeasibilityBox> parent;
   private final ListProperty<Integer> unsatCoreProperty = new SimpleListProperty<>();
   @FXML
   @SuppressWarnings("unused")
@@ -105,7 +107,7 @@ public class FeasibilityBox extends VBox implements Initializable {
                         final UiDataService uiDataService,
                         @Assisted("major") final Course majorCourse,
                         @Nullable @Assisted("minor") final Course minorCourse,
-                        @Assisted final VBox parent) {
+                        @Assisted final ListView<FeasibilityBox> parent) {
     super();
     this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
@@ -158,6 +160,7 @@ public class FeasibilityBox extends VBox implements Initializable {
     feasibilityTask.setOnFailed(event -> {
       cbAction.setItems(getActionsForInfeasibleCourse(feasibilityTask.getReason()));
       cbAction.getSelectionModel().selectFirst();
+      resultState = ResultState.FAILED;
     });
 
     feasibilityTask.setOnSucceeded(event -> Platform.runLater(() -> {
@@ -168,12 +171,14 @@ public class FeasibilityBox extends VBox implements Initializable {
           : FXCollections.observableArrayList(openInTimetable, removeString))
           : getActionsForInfeasibleCourse(""));
       cbAction.getSelectionModel().selectFirst();
+      resultState = ResultState.SUCCEEDED;
     }));
 
     feasibilityTask.setOnCancelled(event -> {
       cbAction.setItems(FXCollections.observableList(
           Arrays.asList(openInTimetable, restartComputation, removeString)));
       cbAction.getSelectionModel().selectFirst();
+      resultState = ResultState.FAILED;
     });
 
     feasibilityTask.setOnScheduled(event -> {
@@ -198,7 +203,7 @@ public class FeasibilityBox extends VBox implements Initializable {
 
     if (selectedItem.equals(openInTimetable)) {
       router.transitionTo(RouteNames.TIMETABLE, new Course[] {majorCourse, minorCourse},
-          ResultState.SUCCEEDED);
+          resultState);
     }
     if (selectedItem.equals(restartComputation)) {
       initFeasibilityTask(delayedSolverService.get());
@@ -221,7 +226,7 @@ public class FeasibilityBox extends VBox implements Initializable {
       initUnsatCoreTask();
     }
     if (selectedItem.equals(removeString)) {
-      parent.getChildren().remove(this);
+      parent.getItems().remove(this);
     }
     if (selectedItem.equals(cancelString)) {
       if (feasibilityTask.isRunning()) {

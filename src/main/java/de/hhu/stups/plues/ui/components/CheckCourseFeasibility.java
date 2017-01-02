@@ -7,8 +7,8 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -16,7 +16,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -39,10 +39,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   private Button btCheckFeasibility;
   @FXML
   @SuppressWarnings("unused")
-  private ScrollPane scrollPaneResults;
-  @FXML
-  @SuppressWarnings("unused")
-  private VBox resultBoxWrapper;
+  private ListView<FeasibilityBox> resultBoxWrapper;
   @FXML
   @SuppressWarnings("unused")
   private Button btUnhighlightAllConflicts;
@@ -61,7 +58,6 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
                                 final FeasibilityBoxFactory feasibilityBoxFactory,
                                 final Delayed<SolverService> solverServiceDelayed,
                                 final UiDataService uiDataService) {
-
     this.feasibilityBoxFactory = feasibilityBoxFactory;
     this.uiDataService = uiDataService;
 
@@ -73,13 +69,9 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    resultBoxWrapper.setSpacing(5.0);
-
-    final IntegerBinding resultBoxChildren = Bindings.size(resultBoxWrapper.getChildren());
-    scrollPaneResults.visibleProperty().bind(resultBoxChildren.greaterThan(0));
+    resultBoxWrapper.visibleProperty().bind(Bindings.isEmpty(resultBoxWrapper.getItems()).not());
 
     btCheckFeasibility.disableProperty().bind(solverAvailableProperty.not());
-
     btUnhighlightAllConflicts.visibleProperty().bind(this.uiDataService
         .conflictMarkedSessionsProperty().emptyProperty().not());
   }
@@ -92,12 +84,12 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   @SuppressWarnings("unused")
   public void checkFeasibility() {
     if (combinationOrSingleCourseSelection.getSelectedCourses().size() == 2) {
-      resultBoxWrapper.getChildren().add(0, feasibilityBoxFactory.create(
+      resultBoxWrapper.getItems().add(0, feasibilityBoxFactory.create(
           combinationOrSingleCourseSelection.getSelectedCourses().get(0),
           combinationOrSingleCourseSelection.getSelectedCourses().get(1),
           resultBoxWrapper));
     } else {
-      resultBoxWrapper.getChildren().add(0, feasibilityBoxFactory.create(
+      resultBoxWrapper.getItems().add(0, feasibilityBoxFactory.create(
           combinationOrSingleCourseSelection.getSelectedCourses().get(0), null,
           resultBoxWrapper));
     }
