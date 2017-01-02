@@ -4,10 +4,10 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.data.entities.Course;
 
-import javafx.scene.layout.VBox;
+import javafx.scene.control.ListView;
 
 @FunctionalInterface
 public interface ResultBoxFactory {
   ResultBox create(@Assisted("major") Course major, @Assisted("minor") Course minor,
-                   @Assisted("parent") VBox parent);
+                   @Assisted("parent") ListView<ResultBox> parent);
 }
