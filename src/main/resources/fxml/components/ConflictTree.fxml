@@ -9,11 +9,13 @@
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <Label text="%conflictExplanation" wrapText="true">
-      <padding>
-         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-      </padding></Label>
-    <TreeView fx:id="conflictTreeView">
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+    </Label>
+    <TreeView fx:id="conflictTreeView" prefHeight="175.0" focusTraversable="false">
         <TreeItem fx:id="conflictTreeRootItem" value="%conflictPaneTitle" expanded="true"/>
     </TreeView>
-    <Button fx:id="btHighlightAllConflicts" onAction="#highlightConflicts" text="%highlightConflicts" />
+    <Button fx:id="btHighlightAllConflicts" onAction="#highlightConflicts"
+            text="%highlightConflicts"/>
 </fx:root>
