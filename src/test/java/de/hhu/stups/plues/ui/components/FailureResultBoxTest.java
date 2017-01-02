@@ -4,8 +4,6 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
-import java.util.HashMap;
-
 public class FailureResultBoxTest extends ResultBoxTest {
 
   /**
