@@ -19,6 +19,7 @@ import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.SolverTask;
+
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyMapProperty;
 import javafx.beans.property.ReadOnlyMapWrapper;
@@ -41,7 +42,7 @@ public class SolverService {
   /**
    * Create an ew SolverService instance. Using executorService to run tasks executed by solver.
    *
-   * @param solver          Solver object to execute operations on ProB instance.
+   * @param solver Solver object to execute operations on ProB instance.
    */
   public SolverService(final Solver solver) {
     this.solver = solver;
@@ -134,7 +135,7 @@ public class SolverService {
     final List<String> names = courses.stream()
         .map(Course::getName)
         .collect(Collectors.toList());
-    final Course[] coursesArray = courses.toArray(new Course[]{});
+    final Course[] coursesArray = courses.toArray(new Course[] {});
 
     final Map<String, List<Integer>> mc = moduleChoice.entrySet().stream()
         .collect(Collectors.toMap(
@@ -303,23 +304,25 @@ public class SolverService {
   /**
    * Add a {@link ResultState result} to the cache {@link #courseSelectionResults}. A result is
    * replaced if the existing one is {@link ResultState#FAILED failed}.
-   *  @param courses The list of courses or a single standalone course.
+   *
+   * @param courses The list of courses or a single standalone course.
    * @param result  The {@link ResultState result} to be stored.
    */
   private synchronized void addCourseResult(final Course[] courses, final ResultState result) {
     final CourseSelection key = new CourseSelection(courses);
-    //
-    if (!courseSelectionResults.containsKey(key)
-        || !ResultState.SUCCEEDED.equals(courseSelectionResults.get(key))) {
-      courseSelectionResults.put(key, result);
-    }
-    // if we checked a pair of courses and the result is SUCCEEDED we know each course is feasible
-    // and can add that information to the cache
-    if (courses.length == 2 && ResultState.SUCCEEDED.equals(result)) {
-      for (final Course course : courses) {
-        courseSelectionResults.put(new CourseSelection(course), result);
+    Platform.runLater(() -> {
+      if (!courseSelectionResults.containsKey(key)
+          || !ResultState.SUCCEEDED.equals(courseSelectionResults.get(key))) {
+        courseSelectionResults.put(key, result);
       }
-    }
+      // if we checked a pair of courses and the result is SUCCEEDED we know each course is feasible
+      // and can add that information to the cache
+      if (courses.length == 2 && ResultState.SUCCEEDED.equals(result)) {
+        for (final Course course : courses) {
+          courseSelectionResults.put(new CourseSelection(course), result);
+        }
+      }
+    });
   }
 
   /**
@@ -348,11 +351,11 @@ public class SolverService {
    */
   public SolverTask<Void> moveSessionTask(final int sessionId, final SessionFacade.Slot slot) {
     return new SolverTask<>(resources.getString("moving"), resources.getString("message.moving"),
-      solver, () -> {
+        solver, () -> {
       solver.move(
-            String.valueOf(sessionId),
-            slot.getDayString(),
-            slot.getTime().toString());
+          String.valueOf(sessionId),
+          slot.getDayString(),
+          slot.getTime().toString());
       Platform.runLater(courseSelectionResults::clear);
       return null;
     }, timeout);
