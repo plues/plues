@@ -1,9 +1,9 @@
 <?import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.VBox?>
 
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.ListView?>
 <fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1" spacing="10.0">
     <CombinationOrSingleCourseSelection fx:id="combinationOrSingleCourseSelection"/>
@@ -12,7 +12,6 @@
         <Button fx:id="btUnhighlightAllConflicts" text="%unhighlightConflicts" visible="false"
                 onAction="#unhighlightConflicts"/>
     </HBox>
-    <ScrollPane fx:id="scrollPaneResults" VBox.vgrow="ALWAYS">
-        <VBox fx:id="resultBoxWrapper" spacing="10.0"/>
-    </ScrollPane>
+    <ListView fx:id="resultBoxWrapper" id="batchListView" focusTraversable="false"
+              VBox.vgrow="ALWAYS"/>
 </fx:root>
