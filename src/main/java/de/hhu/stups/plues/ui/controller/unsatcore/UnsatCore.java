@@ -9,6 +9,7 @@ import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.controller.Activatable;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -24,6 +25,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class UnsatCore extends VBox implements Initializable, Activatable {
 
@@ -130,8 +132,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   private void computeUnsatCoreGroups(final ActionEvent actionEvent) {
     final SolverTask<Set<Integer>> task
         = getSolverService().unsatCoreGroups(
-          abstractUnitUnsatCore.getAbstractUnits().get(),
-          moduleUnsatCore.getModuleProperty().get());
+        abstractUnitUnsatCore.getAbstractUnits().get(),
+        moduleUnsatCore.getModuleProperty().get());
 
     task.setOnSucceeded(succeeded -> {
       final Set<Integer> groupIds = task.getValue();
@@ -153,8 +155,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     task.setOnSucceeded(succeeded -> {
       final Set<Integer> moduleIds = task.getValue();
       moduleUnsatCore.setModules(moduleIds.stream().map(getStore()::getModuleById)
-          .collect(
-            Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
+          .collect(Collectors.collectingAndThen(Collectors.toList(),
+              FXCollections::observableArrayList)));
     });
 
     courseUnsatCore.getUnsatCoreButtonBar().showTaskState(task);
@@ -171,7 +173,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
       final Set<Integer> abstractUnitIds = task.getValue();
       abstractUnitUnsatCore.setAbstractUnits(abstractUnitIds.stream()
           .map(getStore()::getAbstractUnitById).collect(Collectors
-            .collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
+              .collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
 
     });
 
@@ -208,7 +210,13 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
    */
   @Override
   public void activateController(final Object... args) {
-    courseUnsatCore.selectCourses((Course[]) args);
+    courseUnsatCore.selectCourses(getCoursesFromArray(args));
     computeUnsatCoreModules(null);
+  }
+
+  private Course[] getCoursesFromArray(final Object[] args) {
+    final Course[] courseArray = new Course[args.length];
+    IntStream.range(0, args.length).forEach(index -> courseArray[index] = (Course) args[index]);
+    return courseArray;
   }
 }
