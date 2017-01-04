@@ -25,7 +25,7 @@ public class CancelledResultBoxTest extends ResultBoxTest {
   static class TestPdfTask extends PdfRenderingTask {
 
     TestPdfTask() {
-      super(null, null, null, null, null);
+      super(null, null, null, null);
     }
 
     public Path call() {

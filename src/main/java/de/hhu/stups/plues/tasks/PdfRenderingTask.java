@@ -1,5 +1,8 @@
 package de.hhu.stups.plues.tasks;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -22,6 +25,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
@@ -36,7 +41,16 @@ public class PdfRenderingTask extends Task<Path> {
 
   private final Logger logger = LoggerFactory.logger(getClass());
   private final ResourceBundle resources;
-  private final ExecutorService executorService;
+  private static final ListeningExecutorService EXECUTOR_SERVICE;
+
+  static {
+    final ThreadFactory threadFactoryBuilder
+        = new ThreadFactoryBuilder().setDaemon(true)
+          .setNameFormat("pdfrendering-task-runner-%d").build();
+
+    EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
+      Executors.newSingleThreadExecutor(threadFactoryBuilder));
+  }
 
 
   /**
@@ -48,12 +62,10 @@ public class PdfRenderingTask extends Task<Path> {
    */
   @Inject
   protected PdfRenderingTask(final Delayed<Store> delayedStore,
-                             final ExecutorService executorService,
                              @Assisted("major") final Course major,
                              @Assisted("minor") @Nullable final Course minor,
                              @Assisted final SolverTask<FeasibilityResult> solverTask) {
     this.delayedStore = delayedStore;
-    this.executorService = executorService;
     this.resources = ResourceBundle.getBundle("lang.tasks");
     this.major = major;
     this.minor = minor;
@@ -62,7 +74,7 @@ public class PdfRenderingTask extends Task<Path> {
 
   @Override
   protected Path call() throws Exception {
-    updateTitle(resources.getString("rendering"));
+    updateTitle(this.buildTitle());
 
     updateMessage(resources.getString("submit"));
     updateProgress(20, 100);
@@ -70,7 +82,9 @@ public class PdfRenderingTask extends Task<Path> {
     if (this.isCancelled()) {
       return null;
     }
-    executorService.submit(solverTask);
+
+    solverTask.setOnRunning(event -> this.updateMessage(resources.getString("running")));
+    EXECUTOR_SERVICE.submit(solverTask);
 
     updateMessage(resources.getString("waiting"));
     updateProgress(40, 100);
@@ -86,6 +100,14 @@ public class PdfRenderingTask extends Task<Path> {
     final FeasibilityResult result = solverTask.get();
 
     return renderPdf(result);
+  }
+
+  private String buildTitle() {
+    String names = major.getKey();
+    if (this.minor != null) {
+      names += ", " + minor.getKey();
+    }
+    return String.format(resources.getString("rendering"), names);
   }
 
   private void runTask() throws InterruptedException {
