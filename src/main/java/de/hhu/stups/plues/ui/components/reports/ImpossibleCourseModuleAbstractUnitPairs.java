@@ -6,9 +6,7 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
-import de.hhu.stups.plues.prob.report.Pair;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
@@ -42,7 +40,7 @@ public class ImpossibleCourseModuleAbstractUnitPairs extends VBox implements Ini
    * Set data for this component.
    * @param courseModuleAbstractUnitPairs data
    */
-  public void setData(final Map<Course, Map<Module, Set<Pair<AbstractUnit>>>>
+  public void setData(final Map<Course, Map<Module, Set<AbstractUnitPair>>>
       courseModuleAbstractUnitPairs) {
     treeViewCourseModuleAbstractUnitPairs.getRoot().getChildren().setAll(
         courseModuleAbstractUnitPairs.entrySet().stream().map(courseMapEntry -> {

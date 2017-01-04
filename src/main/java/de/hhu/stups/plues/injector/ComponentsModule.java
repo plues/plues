@@ -11,6 +11,11 @@ import de.hhu.stups.plues.ui.components.ConflictTree;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.components.Timetable;
+import de.hhu.stups.plues.ui.components.detailview.AbstractUnitDetailView;
+import de.hhu.stups.plues.ui.components.detailview.CourseDetailView;
+import de.hhu.stups.plues.ui.components.detailview.ModuleDetailView;
+import de.hhu.stups.plues.ui.components.detailview.SessionDetailView;
+import de.hhu.stups.plues.ui.components.detailview.UnitDetailView;
 import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
@@ -22,12 +27,18 @@ import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterCo
 import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
-import de.hhu.stups.plues.ui.components.timetable.DetailView;
+import de.hhu.stups.plues.ui.components.timetable.FilterSideBar;
 import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration;
 import de.hhu.stups.plues.ui.controller.ConflictMatrix;
 import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
 import de.hhu.stups.plues.ui.controller.PartialTimeTables;
-import de.hhu.stups.plues.ui.controller.UnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.AbstractUnitUnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.CourseUnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.GroupUnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.ModuleUnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.SessionUnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.UnsatCore;
+import de.hhu.stups.plues.ui.controller.unsatcore.UnsatCoreButtonBar;
 
 class ComponentsModule extends AbstractModule {
   @Override
@@ -43,7 +54,7 @@ class ComponentsModule extends AbstractModule {
     bind(SetOfCourseSelection.class);
     bind(CombinationOrSingleCourseSelection.class);
     bind(CheckCourseFeasibility.class);
-    bind(DetailView.class);
+    bind(SessionDetailView.class);
     bind(AboutWindow.class);
     bind(ImpossibleModules.class);
     bind(ImpossibleAbstractUnitsInModule.class);
@@ -57,6 +68,17 @@ class ComponentsModule extends AbstractModule {
     bind(AbstractUnitsWithoutUnits.class);
     bind(UnitsWithoutAbstractUnits.class);
     bind(ConflictTree.class);
+    bind(CourseUnsatCore.class);
+    bind(FilterSideBar.class);
+    bind(AbstractUnitDetailView.class);
+    bind(ModuleDetailView.class);
+    bind(UnitDetailView.class);
+    bind(CourseDetailView.class);
+    bind(ModuleUnsatCore.class);
+    bind(AbstractUnitUnsatCore.class);
+    bind(GroupUnsatCore.class);
+    bind(SessionUnsatCore.class);
+    bind(UnsatCoreButtonBar.class);
     bind(UnsatCore.class);
   }
 }

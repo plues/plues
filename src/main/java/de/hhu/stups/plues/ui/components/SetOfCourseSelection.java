@@ -21,11 +21,11 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
@@ -56,21 +56,15 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   private TableView<SelectableCourse> tableViewBachelorCourse;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<SelectableCourse, String> tableColumnMasterCourse;
-  @FXML
-  @SuppressWarnings("unused")
   private TableColumn<SelectableCourse, Boolean> tableColumnMasterCheckBox;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<SelectableCourse, String> tableColumnBachelorCourse;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<SelectableCourse, Boolean> tableColumnBachelorCheckBox;
 
   /**
    * Component that allows the user to select one or more courses. The courses need to be
-   * instantiated via the {@link this#coursesProperty()}. Those are used to highlight all events
-   * in the timetable view associated with the courses. Selected courses are stored in the readonly
+   * instantiated via the {@link this#coursesProperty()}. Those are used to highlight all events in
+   * the timetable view associated with the courses. Selected courses are stored in the readonly
    * list property {@link this#selectedCoursesProperty()}.
    */
   @Inject
@@ -86,25 +80,11 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
 
-    tableColumnMasterCheckBox.setResizable(false);
-    tableColumnMasterCheckBox.setSortable(false);
-    tableColumnMasterCourse.setSortable(false);
-
     tableColumnMasterCheckBox.setCellFactory(
         CheckBoxTableCell.forTableColumn(tableColumnMasterCheckBox));
-    tableColumnMasterCheckBox.setCellValueFactory(new PropertyValueFactory<>("selected"));
-    tableColumnMasterCourse.setCellValueFactory(new PropertyValueFactory<>("name"));
-
-
-    tableColumnBachelorCheckBox.setResizable(false);
-    tableColumnBachelorCheckBox.setSortable(false);
-    tableColumnBachelorCourse.setSortable(false);
 
     tableColumnBachelorCheckBox.setCellFactory(
         CheckBoxTableCell.forTableColumn(tableColumnBachelorCheckBox));
-    tableColumnBachelorCheckBox.setCellValueFactory(new PropertyValueFactory<>("selected"));
-
-    tableColumnBachelorCourse.setCellValueFactory(new PropertyValueFactory<>("name"));
 
     tableViewMasterCourse.setSelectionModel(null);
     tableViewBachelorCourse.setSelectionModel(null);
@@ -123,11 +103,14 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         unbind(courses);
       }
 
+
+      // NOTE: A change to the courses list, this binding is bound to, will recreate all
+      // SelectableCourses objects. This behaviour will loose the state of all selectedProperties.
       @Override
       protected ObservableList<SelectableCourse> computeValue() {
         return FXCollections.observableList(
-          courses.parallelStream().map(SelectableCourse::new)
-            .collect(Collectors.toList()), SelectableCourse.getExtractor());
+            courses.parallelStream().map(SelectableCourse::new)
+                .collect(Collectors.toList()), SelectableCourse.getExtractor());
       }
     });
 
@@ -157,9 +140,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         return selectableCourses.parallelStream()
             .filter(SelectableCourse::isSelected)
             .map(SelectableCourse::getCourse)
-            .collect(
-                Collectors.collectingAndThen(Collectors.toList(),
-                    FXCollections::observableArrayList));
+            .collect(Collectors.collectingAndThen(Collectors.toList(),
+                FXCollections::observableArrayList));
       }
     });
   }
@@ -189,8 +171,6 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
   /**
    * Initialize the lists of bachelor and master courses and the table views.
-   *
-   * @param courses The list of courses.
    */
   public void setCourses(final List<Course> courses) {
     this.courses.set(FXCollections.observableList(courses));
@@ -208,6 +188,16 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
   public ObservableList<Course> getSelectedCourses() {
     return selectedCourses.get();
+  }
+
+  /**
+   * Set the list of currently selected courses (checkobx in the UI is selected).
+   */
+  public void setSelectedCourses(final List<Course> courses) {
+    // We put the courses in a HashSet here to avoid the linear scan of the list in the membership
+    // check bellow
+    final HashSet<Course> courseSet = new HashSet<>(courses);
+    selectableCourses.forEach(course -> course.setSelected(courseSet.contains(course.getCourse())));
   }
 
   @SuppressWarnings("unused")
@@ -232,7 +222,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     }
 
     private static Callback<SelectableCourse, Observable[]> getExtractor() {
-      return  (SelectableCourse param) -> new Observable[] {param.selectedProperty()};
+      return (SelectableCourse param) -> new Observable[] {param.selectedProperty()};
     }
 
     private boolean isSelected() {

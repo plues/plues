@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
+         xmlns:fx="http://javafx.com/fxml/1" prefWidth="500" prefHeight="500" styleClass="windowPadding">
+    <Label text="%unit" styleClass="h1"/>
+    <Label/>
+    <GridPane>
+        <Label text="%columnKey" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <Label fx:id="key" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <Label text="%title" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <Label fx:id="title" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label text="%semesters" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <Label fx:id="semesters" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50"/>
+            <ColumnConstraints percentWidth="50"/>
+        </columnConstraints>
+    </GridPane>
+    <Label/>
+    <Label text="%abstractUnits" styleClass="h2"/>
+    <TableView fx:id="abstractUnitTableView">
+        <columns>
+            <TableColumn text="%key" minWidth="150" maxWidth="150">
+                <cellValueFactory>
+                    <PropertyValueFactory property="key"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="%columnTitle">
+                <cellValueFactory>
+                    <PropertyValueFactory property="title"/>
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
+    </TableView>
+    <Label/>
+    <Label text="%sessions" styleClass="h2"/>
+    <TableView fx:id="sessionTableView">
+        <columns>
+            <TableColumn text="%columnId">
+                <cellValueFactory>
+                    <PropertyValueFactory property="id"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="%columnDay" fx:id="columnDay"/>
+            <TableColumn text="%columnTime" fx:id="columnTime"/>
+        </columns>
+    </TableView>
+</fx:root>

@@ -14,9 +14,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -35,24 +33,7 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
   @FXML
   private TableView<Module> tableViewModules;
   @FXML
-  private TableColumn<Module, String> tableColumnModulePordnr;
-  @FXML
-  private TableColumn<Module, String> tableColumnModuleTitle;
-  //
-  @FXML
   private TableView<Conflict> tableViewAbstractUnitUnitSemesters;
-  @FXML
-  private TableColumn<Conflict, String> tableColumnAbstractUnitKey;
-  @FXML
-  private TableColumn<Conflict, String> tableColumnAbstractUnitTitle;
-  @FXML
-  private TableColumn<Conflict, String> tableColumnAbstractUnitSemesters;
-  @FXML
-  private TableColumn<Conflict, String> tableColumnUnitTitle;
-  @FXML
-  private TableColumn<Conflict, String> tableColumnUnitKey;
-  @FXML
-  private TableColumn<Conflict, String> tableColumnUnitSemesters;
 
   /**
    * Default constructor.
@@ -83,19 +64,7 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
       }
     });
 
-    tableColumnAbstractUnitKey.setCellValueFactory(new PropertyValueFactory<>("abstractUnitKey"));
-    tableColumnAbstractUnitTitle.setCellValueFactory(
-        new PropertyValueFactory<>("abstractUnitTitle"));
-    tableColumnAbstractUnitSemesters.setCellValueFactory(
-        new PropertyValueFactory<>("abstractUnitSemesters"));
-
-    tableColumnUnitKey.setCellValueFactory(new PropertyValueFactory<>("unitKey"));
-    tableColumnUnitTitle.setCellValueFactory(new PropertyValueFactory<>("unitTitle"));
-    tableColumnUnitSemesters.setCellValueFactory(new PropertyValueFactory<>("unitSemesters"));
-
     tableViewModules.itemsProperty().bind(modules);
-    tableColumnModulePordnr.setCellValueFactory(new PropertyValueFactory<>("pordnr"));
-    tableColumnModuleTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
   }
 
   public void setData(final Map<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflicts) {

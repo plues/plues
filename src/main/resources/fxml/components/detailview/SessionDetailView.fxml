@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
+         xmlns:fx="http://javafx.com/fxml/1" prefWidth="500" prefHeight="500" styleClass="windowPadding">
+    <Label text="%session" styleClass="h1"/>
+    <Label/>
+    <GridPane>
+        <Label text="%session" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <Label fx:id="session" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <Label text="%title" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <Label fx:id="title" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label text="%group" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <Label fx:id="group" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <Label text="%semesters" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+        <Label fx:id="semesters" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        <Label text="%tentative" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+        <Label fx:id="tentative" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50"/>
+            <ColumnConstraints percentWidth="50"/>
+        </columnConstraints>
+    </GridPane>
+    <Label/>
+    <Label text="%courseAssignment" styleClass="h2"/>
+    <TableView fx:id="courseTable">
+        <columns>
+            <TableColumn fx:id="courseKey" text="%cell.course" minWidth="100" maxWidth="100">
+                <cellValueFactory>
+                    <PropertyValueFactory property="courseKey"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="module" text="%cell.module">
+                <cellValueFactory>
+                    <PropertyValueFactory property="moduleTitle"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="abstractUnit" text="%cell.abstractUnit">
+                <cellValueFactory>
+                    <PropertyValueFactory property="abstractUnitTitle"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="%cell.semester" minWidth="80" maxWidth="80">
+                <cellValueFactory>
+                    <PropertyValueFactory property="semesters"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="%cell.type" minWidth="50" maxWidth="50">
+                <cellValueFactory>
+                    <PropertyValueFactory property="type"/>
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
+    </TableView>
+</fx:root>

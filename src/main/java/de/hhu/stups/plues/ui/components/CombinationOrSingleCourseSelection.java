@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.ObjectBinding;
@@ -33,8 +34,9 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
 
   private final ListProperty<Course> selectedCourses;
   private final ToggleGroup toggleGroup;
-  private final SetProperty<String> impossibleCoursesProperty;
+  private final SetProperty<Course> impossibleCoursesProperty;
   private final ListProperty<Course> coursesProperty;
+
   @FXML
   @SuppressWarnings("unused")
   private RadioButton rbCombination;
@@ -81,11 +83,12 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
             bind(impossibleCoursesProperty);
           }
 
-        @Override
-        protected Callback<ListView<Course>, ListCell<Course>> computeValue() {
-          return majorMinorCourseSelection.getCallbackForImpossibleCourses(getImpossibleCourses());
-        }
-      });
+          @Override
+          protected Callback<ListView<Course>, ListCell<Course>> computeValue() {
+            return
+                majorMinorCourseSelection.getCallbackForImpossibleCourses(getImpossibleCourses());
+          }
+        });
 
     rbCombination.setToggleGroup(toggleGroup);
     rbSingleSelection.setToggleGroup(toggleGroup);
@@ -95,7 +98,6 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
       singleCourseSelection.getSelectionModel().selectFirst();
     });
 
-    rbCombination.setSelected(true);
     rbCombination.disableProperty().bind(coursesProperty.emptyProperty());
     rbSingleSelection.disableProperty().bind(coursesProperty.emptyProperty());
 
@@ -105,27 +107,47 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
         rbSingleSelection.selectedProperty().not().or(coursesProperty.emptyProperty()));
 
     majorMinorCourseSelection.majorCourseListProperty()
-      .bind(new SimpleListProperty<>(coursesProperty.filtered(Course::isMajor)));
+        .bind(new SimpleListProperty<>(coursesProperty.filtered(Course::isMajor)));
     majorMinorCourseSelection.minorCourseListProperty()
-      .bind(new SimpleListProperty<>(coursesProperty.filtered(Course::isMinor)));
+        .bind(new SimpleListProperty<>(coursesProperty.filtered(Course::isMinor)));
 
     selectedCourses.bind(Bindings.when(rbSingleSelection.selectedProperty())
         .then(new ListBinding<Course>() {
-            {
-              bind(singleCourseSelection.getSelectionModel().selectedItemProperty());
-            }
+          {
+            bind(singleCourseSelection.getSelectionModel().selectedItemProperty());
+          }
 
-            @Override
-            protected ObservableList<Course> computeValue() {
-              final Course item = singleCourseSelection.getSelectionModel().getSelectedItem();
-              if (item == null) {
-                return FXCollections.emptyObservableList();
-              }
-              return FXCollections.singletonObservableList(
-                  singleCourseSelection.getSelectionModel().getSelectedItem());
+          @Override
+          protected ObservableList<Course> computeValue() {
+            final Course item = singleCourseSelection.getSelectionModel().getSelectedItem();
+            if (item == null) {
+              return FXCollections.emptyObservableList();
             }
+            return FXCollections.singletonObservableList(
+                singleCourseSelection.getSelectionModel().getSelectedItem());
+          }
         }).otherwise(
             (ObservableList<Course>) majorMinorCourseSelection.selectedCoursesProperty()));
+  }
+
+  /**
+   * Select courses within the {@link #majorMinorCourseSelection} if two combinable courses or a
+   * standalone course is given. If only one combinable course is given use the {@link
+   * #singleCourseSelection}.
+   */
+  public void selectCourses(Course... courses) {
+    if (courses.length == 1 && courses[0].isCombinable()) {
+      rbSingleSelection.setSelected(true);
+      singleCourseSelection.getSelectionModel().select(courses[0]);
+    } else {
+      rbCombination.setSelected(true);
+      if (courses.length > 0) {
+        majorMinorCourseSelection.selectCourse(courses[0]);
+      }
+      if (courses.length > 1) {
+        majorMinorCourseSelection.selectCourse(courses[1]);
+      }
+    }
   }
 
   /**
@@ -148,15 +170,33 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
   }
 
 
-  public ObservableSet<String> getImpossibleCourses() {
+  public ObservableSet<Course> getImpossibleCourses() {
     return impossibleCoursesProperty.get();
   }
 
-  public void setImpossibleCourses(final ObservableSet<String> impossibleCourses) {
+  public void setImpossibleCourses(final ObservableSet<Course> impossibleCourses) {
     this.impossibleCoursesProperty.set(impossibleCourses);
   }
 
-  public SetProperty<String> impossibleCoursesProperty() {
+  public SetProperty<Course> impossibleCoursesProperty() {
     return this.impossibleCoursesProperty;
   }
+
+  RadioButton getRbCombination() {
+    return rbCombination;
+  }
+
+  RadioButton getRbSingleSelection() {
+    return rbSingleSelection;
+  }
+
+  MajorMinorCourseSelection getMajorMinorCourseSelection() {
+    return majorMinorCourseSelection;
+  }
+
+  ComboBox<Course> getSingleCourseSelection() {
+    return singleCourseSelection;
+  }
+
+
 }

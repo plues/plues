@@ -28,6 +28,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
@@ -67,12 +68,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<SelectableAbstractUnit, Boolean> checkboxColumn;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<SelectableAbstractUnit, String> abstractUnitTitleColumn;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<SelectableAbstractUnit, String> abstractUnitKeyColumn;
 
   /**
    * AbstractUnitFilter component.
@@ -100,7 +95,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
    *
    * @param abstractUnits List of abstract units to be displayed in TableView
    */
-  void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
+  public void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
     this.abstractUnits.setAll(abstractUnits);
   }
 
@@ -155,12 +150,13 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     all.setToggleGroup(filterGroup);
 
     checkboxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(checkboxColumn));
-    checkboxColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
-
-    abstractUnitTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
-    abstractUnitKeyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
 
     selectableAbstractUnits.bind(new ListBinding<SelectableAbstractUnit>() {
+      // extractor used to compute an observable list that propagates changes on the extracted
+      // property to the observers of the list
+      final Callback<SelectableAbstractUnit, Observable[]> extractor
+          = (SelectableAbstractUnit param) -> new Observable[] {param.selectedProperty()};
+
       {
         bind(abstractUnits);
       }
@@ -172,11 +168,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       }
 
 
-      // extractor used to compute an observable list that propagates changes on the extracted
-      // property to the observers of the list
-      final Callback<SelectableAbstractUnit, Observable[]> extractor
-          = (SelectableAbstractUnit param) -> new Observable[] {param.selectedProperty()};
-
+      // NOTE: A change to the abstractUnits list, this binding is bound to, will recreate all
+      // SelectableAbstractUnit objects. This behaviour will loose the state of all
+      // selectedProperties.
       @Override
       protected ObservableList<SelectableAbstractUnit> computeValue() {
         return FXCollections.observableList(

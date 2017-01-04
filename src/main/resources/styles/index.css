@@ -123,3 +123,43 @@
 .h2 {
     -fx-font-size: 20;
 }
+
+.split-pane-divider {
+    -fx-background-color: #D8D8D8;
+    -fx-padding: 0 0.1em 0 0.1em;
+}
+
+.tab {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.sideBarTabLayout {
+    -fx-background-color: #DFDFDF;
+    -fx-border-width: 1 1 0 1;
+    -fx-border-color: #BDBDBD;
+    -fx-padding: 5 5 5 5;
+    -fx-tab-width: 100px;
+    -fx-tab-height: 20px;
+}
+
+.sideBarTabVisible:selected, .sideBarTabVisible:hover {
+    -fx-background-color: #F4F4F4;
+}
+
+.sideBarTabHidden:selected {
+    -fx-background-color: #DFDFDF;
+}
+
+.sideBarTabHidden:hover {
+    -fx-background-color: #F4F4F4;
+}
+
+#statusBarLabel {
+    -fx-font-size: 9pt;
+    -fx-padding: 2 10 0 0;
+}
+
+.windowPadding {
+    -fx-padding: 20px 20px 20px 20px;
+}

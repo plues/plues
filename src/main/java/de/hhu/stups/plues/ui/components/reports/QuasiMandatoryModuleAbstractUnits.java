@@ -10,9 +10,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -31,19 +29,7 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
   private TableView<Module> tableViewQuasiMandatoryModules;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Module, Integer> columnModulePordnr;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<Module, String> columnModuleTitle;
-  @FXML
-  @SuppressWarnings("unused")
   private TableView<AbstractUnit> tableViewAbstractUnits;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<AbstractUnit, String> columnAbstractUnitKey;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<AbstractUnit, String> columnAbstractUnitTitle;
 
   /**
    * Default constructor.
@@ -61,12 +47,7 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     tableViewQuasiMandatoryModules.itemsProperty().bind(modules);
-    columnModulePordnr.setCellValueFactory(new PropertyValueFactory<>("pordnr"));
-    columnModuleTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
-
     tableViewAbstractUnits.itemsProperty().bind(abstractUnits);
-    columnAbstractUnitKey.setCellValueFactory(new PropertyValueFactory<>("key"));
-    columnAbstractUnitTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
 
     tableViewQuasiMandatoryModules.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) ->

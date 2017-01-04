@@ -6,38 +6,40 @@
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 
-<fx:root prefHeight="30.0" prefWidth="600.0" type="GridPane"
-         xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
-    <StackPane fx:id="statePane" prefWidth="Infinity" GridPane.columnIndex="0"
-               GridPane.rowIndex="0" GridPane.rowSpan="4">
-        <ProgressIndicator fx:id="progressIndicator"/>
-        <Label fx:id="lbIcon" prefHeight="Infinity" prefWidth="70.0" alignment="CENTER"
-               contentDisplay="CENTER"/>
-    </StackPane>
-    <HBox alignment="BOTTOM_RIGHT" prefWidth="170.0" GridPane.columnIndex="1"
-          GridPane.rowIndex="0">
-        <ComboBox fx:id="cbAction" prefWidth="120.0"/>
-        <Button fx:id="btSubmit" onAction="#submitAction" minWidth="50.0" prefWidth="50.0"
-                text="%go"/>
-    </HBox>
-    <Label fx:id="lbMajor" prefWidth="Infinity" prefHeight="Infinity" text="%major" wrapText="true"
-           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-    <Label fx:id="lbMinor" prefWidth="Infinity" prefHeight="Infinity" text="%minor" wrapText="true"
-           GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-    <Label fx:id="lbErrorMsg" prefWidth="Infinity" prefHeight="Infinity" textFill="#ff3226"
-           wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-    <columnConstraints>
-        <ColumnConstraints percentWidth="10"/>
-        <ColumnConstraints percentWidth="90"/>
-    </columnConstraints>
-    <rowConstraints>
-        <RowConstraints percentHeight="25"/>
-        <RowConstraints percentHeight="25"/>
-        <RowConstraints percentHeight="25"/>
-        <RowConstraints percentHeight="25"/>
-    </rowConstraints>
+<fx:root prefWidth="600.0" type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <GridPane prefHeight="30.0" hgap="5.0">
+        <StackPane prefWidth="Infinity" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                   GridPane.rowSpan="4">
+            <ProgressIndicator fx:id="progressIndicator"/>
+            <Label fx:id="lbIcon" prefHeight="Infinity" prefWidth="70.0" alignment="CENTER"
+                   contentDisplay="CENTER"/>
+        </StackPane>
+        <HBox alignment="BOTTOM_RIGHT" prefWidth="230.0" GridPane.columnIndex="1"
+              GridPane.rowIndex="0">
+            <ComboBox fx:id="cbAction" prefWidth="180.0"/>
+            <Button onAction="#submitAction" minWidth="50.0" prefWidth="50.0" text="%go"/>
+        </HBox>
+        <Label fx:id="lbMajor" text="%major" wrapText="true" GridPane.columnIndex="1"
+               GridPane.rowIndex="1"/>
+        <Label fx:id="lbMinor" text="%minor" wrapText="true" GridPane.columnIndex="1"
+               GridPane.rowIndex="2"/>
+        <Label fx:id="lbErrorMsg" textFill="#ff3226" wrapText="true" GridPane.columnIndex="1"
+               GridPane.rowIndex="3"/>
+        <columnConstraints>
+            <ColumnConstraints percentWidth="10"/>
+            <ColumnConstraints percentWidth="90"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints percentHeight="25"/>
+            <RowConstraints percentHeight="25"/>
+            <RowConstraints percentHeight="25"/>
+            <RowConstraints percentHeight="25"/>
+        </rowConstraints>
+    </GridPane>
 </fx:root>

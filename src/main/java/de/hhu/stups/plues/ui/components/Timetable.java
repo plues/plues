@@ -10,56 +10,56 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.data.entities.AbstractUnit;
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.ui.components.timetable.FilterSideBar;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
+import de.hhu.stups.plues.ui.controller.Activatable;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
 import java.time.DayOfWeek;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Timetable extends BorderPane implements Initializable {
+public class Timetable extends SplitPane implements Initializable, Activatable {
 
   private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
-  private final Delayed<SolverService> delayedSolverService;
   private final UiDataService uiDataService;
+  private double userDefinedDividerPos = 0.65;
 
   @FXML
+  @SuppressWarnings("unused")
   private GridPane timeTable;
-
   @FXML
-  private SetOfCourseSelection setOfCourseSelection;
-
-  @FXML
-  private AbstractUnitFilter abstractUnitFilter;
-
-  @FXML
-  private CheckCourseFeasibility checkCourseFeasibility;
-
-  @FXML
+  @SuppressWarnings("unused")
   private ToggleGroup semesterToggle;
+  @FXML
+  @SuppressWarnings("unused")
+  private FilterSideBar filterSideBar;
 
   private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
 
@@ -68,12 +68,10 @@ public class Timetable extends BorderPane implements Initializable {
    */
   @Inject
   public Timetable(final Inflater inflater, final Delayed<ObservableStore> delayedStore,
-                   final Delayed<SolverService> delayedSolverService,
                    final UiDataService uiDataService,
                    final SessionListViewFactory sessionListViewFactory) {
     this.delayedStore = delayedStore;
     this.sessionListViewFactory = sessionListViewFactory;
-    this.delayedSolverService = delayedSolverService;
     this.uiDataService = uiDataService;
 
     // TODO: remove controller param if possible
@@ -84,25 +82,29 @@ public class Timetable extends BorderPane implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.delayedStore.whenAvailable(store -> {
-      this.abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
-      setOfCourseSelection.setCourses(store.getCourses());
-      checkCourseFeasibility.setCourses(store.getCourses());
-      abstractUnitFilter.courseFilterProperty().bind(
-          setOfCourseSelection.selectedCoursesProperty());
-
+      filterSideBar.initializeComponents(store);
       setSessions(store.getSessions()
           .parallelStream()
           .map(SessionFacade::new)
           .collect(Collectors.toList()));
     });
 
-    // if the component checkCourseFeasibility is included
-    checkCourseFeasibility.impossibleCoursesProperty().bind(
-        uiDataService.impossibleCoursesProperty());
-    delayedSolverService.whenAvailable(
-        solverService -> checkCourseFeasibility.setSolverProperty(true));
+    filterSideBar.setParent(this);
+    filterSideBar.setUiDataService(uiDataService);
+
+    getDividers().get(0).positionProperty().addListener((observable, oldValue, newValue) -> {
+      filterSideBar.setTabPaneButtonHeight();
+      // don't store too small divider positions
+      if (Math.abs(newValue.doubleValue() - filterSideBar.getPaneMinWidth() / getWidth()) > 0.25) {
+        userDefinedDividerPos = newValue.doubleValue();
+      }
+    });
 
     initSessionBoxes();
+  }
+
+  public void disableDivider(final boolean bool) {
+    lookup(".split-pane-divider").setDisable(bool);
   }
 
   private void initSessionBoxes() {
@@ -136,7 +138,21 @@ public class Timetable extends BorderPane implements Initializable {
 
   private void setSessions(final List<SessionFacade> sessions) {
     sessions.forEach(SessionFacade::initSlotProperty);
-    this.sessions.set(FXCollections.observableArrayList(sessions));
+    this.sessions.set(FXCollections.observableList(sessions,
+        (SessionFacade session) -> new Observable[] {session.slotProperty()}));
+  }
+
+  /**
+   * Highlight the given courses when the user navigates to the timetable via the {@link
+   * de.hhu.stups.plues.routes.ControllerRoute}.
+   */
+  @Override
+  public void activateController(final Object... args) {
+    filterSideBar.activateComponents(args);
+  }
+
+  public void restoreUserDefinedDividerPos() {
+    getDividers().get(0).setPosition(userDefinedDividerPos);
   }
 
   private class SessionFacadeListBinding extends ListBinding<SessionFacade> {
@@ -145,21 +161,10 @@ public class Timetable extends BorderPane implements Initializable {
 
     SessionFacadeListBinding(final SessionFacade.Slot slot) {
       this.slot = slot;
-      bind(sessions, semesterToggle.selectedToggleProperty());
 
-      // http://stackoverflow.com/questions/32536096/javafx-bindings-not-working-as-expected
-      sessions.addListener((Change<? extends SessionFacade> change) -> {
-        while (change.next()) {
-          if (change.wasAdded()) {
-            change.getAddedSubList()
-                .forEach(sessionFacade -> bind(sessionFacade.slotProperty()));
-          }
-
-          if (change.wasRemoved()) {
-            change.getRemoved().forEach(sessionFacade -> unbind(sessionFacade.slotProperty()));
-          }
-        }
-      });
+      bind(sessions, semesterToggle.selectedToggleProperty(),
+          filterSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
+          filterSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty());
     }
 
     @Override
@@ -175,8 +180,32 @@ public class Timetable extends BorderPane implements Initializable {
         }
 
         return session.getSlot().equals(slot)
+            && !sessionIsExcludedByCourse(session)
+            && !sessionIsExcludedByAbstractUnit(session)
             && (semester == null || semesters.contains(semester));
       });
+    }
+
+    private boolean sessionIsExcludedByCourse(SessionFacade session) {
+      final Set<Course> filteredCourses =
+          new HashSet<>(filterSideBar.getSetOfCourseSelection().getSelectedCourses());
+
+      final Set<Course> sessionCourses = session.getIntendedCourses();
+
+      sessionCourses.retainAll(filteredCourses);
+
+      return !filteredCourses.isEmpty() && sessionCourses.isEmpty();
+    }
+
+    private boolean sessionIsExcludedByAbstractUnit(final SessionFacade session) {
+      final Set<AbstractUnit> filteredAbstractUnits =
+          new HashSet<>(filterSideBar.getAbstractUnitFilter().getSelectedAbstractUnits());
+
+      final Set<AbstractUnit> sessionAbstractUnits = session.getIntendedAbstractUnits();
+
+      sessionAbstractUnits.retainAll(filteredAbstractUnits);
+
+      return !filteredAbstractUnits.isEmpty() && sessionAbstractUnits.isEmpty();
     }
   }
 }

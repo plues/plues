@@ -5,7 +5,7 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
+import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -13,7 +13,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -25,9 +24,6 @@ public class BatchResultBox extends GridPane implements Initializable {
 
   private final PdfRenderingTask task;
 
-  @FXML
-  @SuppressWarnings("unused")
-  private StackPane statePane;
   @FXML
   @SuppressWarnings("unused")
   private ProgressIndicator progressIndicator;
@@ -73,7 +69,7 @@ public class BatchResultBox extends GridPane implements Initializable {
     this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
     this.progressIndicator.visibleProperty().bind(task.runningProperty());
     this.icon.visibleProperty().bind(task.runningProperty().not());
-    this.icon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(ICON_SIZE, this.task));
-    this.icon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(this.task));
+    this.icon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, this.task));
+    this.icon.styleProperty().bind(TaskBindings.getStyleBinding(this.task));
   }
 }

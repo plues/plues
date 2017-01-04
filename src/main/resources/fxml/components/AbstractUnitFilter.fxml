@@ -9,8 +9,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.CheckBox?>
-<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1">
+
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <Label text="%search"/>
         <TextField fx:id="query"/>
@@ -22,14 +23,24 @@
         </HBox>
         <CheckBox fx:id="selectedCoursesOnly" text="%selectedCoursesOnly"/>
         <Button fx:id="clearSelection" text="%clear" onAction="#resetSelection"/>
-        <TableView fx:id="units" editable="true">
+        <TableView fx:id="units" editable="true" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="checkboxColumn" prefWidth="30" sortable="false"
-                             resizable="false"/>
-                <TableColumn fx:id="abstractUnitKeyColumn" minWidth="120" maxWidth="200"
-                             text="%columnKey" editable="false"/>
-                <TableColumn fx:id="abstractUnitTitleColumn" minWidth="350"
-                             text="%columnTitle" editable="false"/>
+                             resizable="false">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="selected"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn minWidth="120" maxWidth="200" text="%columnKey" editable="false">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="key"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn minWidth="350" text="%columnTitle" editable="false">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="title"/>
+                    </cellValueFactory>
+                </TableColumn>
             </columns>
         </TableView>
     </children>

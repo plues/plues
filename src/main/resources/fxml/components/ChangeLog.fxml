@@ -5,42 +5,31 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.Label?>
 
-<?import javafx.scene.text.Font?>
-<fx:root type="VBox"
-         xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1">
-    <Label text="%temporary">
-        <font>
-            <Font size="20"/>
-        </font>
-    </Label>
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
+         xmlns:fx="http://javafx.com/fxml/1" prefWidth="800" prefHeight="600" styleClass="windowPadding">
+    <Label text="%temporary" styleClass="h2"/>
     <TableView fx:id="tempTable">
         <columns>
-            <TableColumn fx:id="sessionT" text="%session" sortable="false"
-                         prefWidth="400" resizable="false"/>
-            <TableColumn fx:id="sourceT" text="%source" sortable="false"
-                         prefWidth="150" resizable="false"/>
-            <TableColumn fx:id="targetT" text="%target" sortable="false"
-                         prefWidth="100" resizable="false"/>
-            <TableColumn fx:id="dateT" text="%date" sortable="false"
-                         prefWidth="250" resizable="false"/>
+            <TableColumn fx:id="sessionT" text="%session" sortable="false"/>
+            <TableColumn fx:id="sourceT" text="%source" sortable="false" minWidth="150" maxWidth="150"/>
+            <TableColumn fx:id="targetT" text="%target" sortable="false" minWidth="150" maxWidth="150"/>
+            <TableColumn fx:id="dateT" text="%date" sortable="false" minWidth="250" maxWidth="250"/>
         </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
     </TableView>
-    <Label text="%persistent">
-        <font>
-            <Font size="20"/>
-        </font>
-    </Label>
+    <Label/>
+    <Label text="%persistent" styleClass="h2"/>
     <TableView fx:id="persistentTable">
         <columns>
-            <TableColumn fx:id="sessionP" text="%session" sortable="false"
-                         prefWidth="400" resizable="false"/>
-            <TableColumn fx:id="sourceP" text="%source" sortable="false"
-                         prefWidth="150" resizable="false"/>
-            <TableColumn fx:id="targetP" text="%target" sortable="false"
-                         prefWidth="100" resizable="false"/>
-            <TableColumn fx:id="dateP" text="%date" sortable="false"
-                         prefWidth="250" resizable="false"/>
+            <TableColumn fx:id="sessionP" text="%session" sortable="false"/>
+            <TableColumn fx:id="sourceP" text="%source" sortable="false" minWidth="150" maxWidth="150"/>
+            <TableColumn fx:id="targetP" text="%target" sortable="false" minWidth="150" maxWidth="150"/>
+            <TableColumn fx:id="dateP" text="%date" sortable="false" minWidth="250" maxWidth="250"/>
         </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
     </TableView>
 </fx:root>

@@ -4,8 +4,6 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
-import java.util.HashMap;
-
 public class FailureResultBoxTest extends ResultBoxTest {
 
   /**
@@ -19,7 +17,7 @@ public class FailureResultBoxTest extends ResultBoxTest {
 
   private static final class TestPdfTask extends PdfRenderingTask {
     TestPdfTask() {
-      super(null, null, null, null, null);
+      super(null, null, null, null);
     }
   }
 }

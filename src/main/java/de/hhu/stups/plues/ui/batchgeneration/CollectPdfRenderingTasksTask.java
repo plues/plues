@@ -11,20 +11,20 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.concurrent.Task;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
   private final List<Course> courses;
   private final SolverService solverService;
   private final PdfRenderingTaskFactory taskFactory;
-  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+  private final Logger logger = LoggerFactory.logger(getClass());
 
   @Inject
   CollectPdfRenderingTasksTask(final Delayed<Store> store,
@@ -83,6 +83,6 @@ public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
 
   @Override
   protected void cancelled() {
-    logger.log(Level.INFO, "Generation cancelled.");
+    logger.info("Generation cancelled.");
   }
 }

@@ -3,20 +3,18 @@ package de.hhu.stups.plues.ui.layout;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.ui.exceptions.InflaterException;
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -25,8 +23,8 @@ import java.util.stream.Collectors;
 public class Inflater {
 
   private final FXMLLoader loader;
-  private static final Locale LOCALE = Locale.getDefault();
-  private static final ResourceBundle MAIN_BUNDLE = ResourceBundle.getBundle("lang.main", LOCALE);
+  private static final ResourceBundle MAIN_BUNDLE = ResourceBundle.getBundle("lang.main");
+  private final Logger logger = LoggerFactory.logger(getClass());
 
   @Inject
   public Inflater(final FXMLLoader loader) {
@@ -89,7 +87,7 @@ public class Inflater {
 
     final ResourceBundle[] bundles = new ResourceBundle[bundleNames.length + 1];
     for (int i = 0;i < bundleNames.length; i++) {
-      bundles[i] = ResourceBundle.getBundle("lang." + bundleNames[i], LOCALE);
+      bundles[i] = ResourceBundle.getBundle("lang." + bundleNames[i]);
     }
     bundles[bundleNames.length] = MAIN_BUNDLE;
 
@@ -98,8 +96,7 @@ public class Inflater {
     try {
       return loader.load();
     } catch (final IOException ignored) {
-      final Logger logger = Logger.getLogger(getClass().getSimpleName());
-      logger.log(Level.SEVERE, "Exception in FXML Loader", ignored);
+      logger.error("Exception in FXML Loader", ignored);
       throw new InflaterException(ignored);
     }
   }

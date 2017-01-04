@@ -10,9 +10,9 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.prob.ReportData;
-import de.hhu.stups.plues.prob.report.Pair;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.components.reports.AbstractUnitPair;
 import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnits;
@@ -34,6 +34,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import org.jtwig.environment.EnvironmentConfiguration;
@@ -59,14 +61,12 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
 
-class Reports extends VBox implements Initializable {
+public class Reports extends VBox implements Initializable {
 
   private final ObjectProperty<ReportData> reportData = new SimpleObjectProperty<>();
   private final Properties properties;
@@ -96,11 +96,9 @@ class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Label lbSessionAmount;
-
   @FXML
   @SuppressWarnings("unused")
   private Label lbModelVersion;
-
   @FXML
   @SuppressWarnings("unused")
   private Button buttonPrint;
@@ -226,7 +224,7 @@ class Reports extends VBox implements Initializable {
     private Set<Unit> redundantUnitGroups;
     private Map<Course, Map<Module, Set<AbstractUnit>>>
         impossibleCourseModuleAbstractUnits;
-    private Map<Course, Map<Module, Set<Pair<AbstractUnit>>>>
+    private Map<Course, Map<Module, Set<AbstractUnitPair>>>
         impossibleCourseModuleAbstractUnitPairs;
     private Map<Module, List<ModuleAbstractUnitUnitSemesterConflicts.Conflict>>
         moduleAbstractUnitUnitSemesterConflicts;
@@ -238,7 +236,7 @@ class Reports extends VBox implements Initializable {
     private List<Course> impossibleCoursesBecauseOfImpossibleModuleCombinations;
     private List<AbstractUnit> abstractUnitsWithoutUnits;
 
-    private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+    private final Logger logger = LoggerFactory.logger(getClass());
     private final String faculty;
     private final Map<String, String> resources;
 
@@ -296,7 +294,7 @@ class Reports extends VBox implements Initializable {
             entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
               innerEntry -> store.getModuleById(innerEntry.getKey()),
               innerEntry -> innerEntry.getValue().stream().map(
-                pair -> new Pair<>(store.getAbstractUnitById(pair.getFirst()),
+                pair -> new AbstractUnitPair(store.getAbstractUnitById(pair.getFirst()),
                   store.getAbstractUnitById(pair.getSecond()))).collect(Collectors.toSet())))));
     }
 
@@ -412,7 +410,7 @@ class Reports extends VBox implements Initializable {
       return redundantUnitGroups;
     }
 
-    Map<Course, Map<Module, Set<Pair<AbstractUnit>>>> getImpossibleCourseModuleAbstractUnitPairs() {
+    Map<Course, Map<Module, Set<AbstractUnitPair>>> getImpossibleCourseModuleAbstractUnitPairs() {
       return impossibleCourseModuleAbstractUnitPairs;
     }
 
@@ -462,12 +460,12 @@ class Reports extends VBox implements Initializable {
             try {
               Desktop.getDesktop().open(file);
             } catch (IOException exc) {
-              logger.log(Level.SEVERE, "Exception while opening pdf", exc);
+              logger.error("Exception while opening pdf", exc);
             }
           });
         }
       } catch (SAXException | ParserConfigurationException | IOException exc) {
-        logger.log(Level.SEVERE, "Exception while rendering reports", exc);
+        logger.error("Exception while rendering reports", exc);
       }
     }
   }

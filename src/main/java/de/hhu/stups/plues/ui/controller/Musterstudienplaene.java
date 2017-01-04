@@ -13,23 +13,18 @@ import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 
 import java.net.URL;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class Musterstudienplaene extends GridPane implements Initializable {
+public class Musterstudienplaene extends GridPane implements Initializable, Activatable {
 
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
@@ -46,13 +41,7 @@ public class Musterstudienplaene extends GridPane implements Initializable {
   private Button btGenerate;
   @FXML
   @SuppressWarnings("unused")
-  private ProgressBar progressGenerate;
-  @FXML
-  @SuppressWarnings("unused")
-  private VBox resultBox;
-  @FXML
-  @SuppressWarnings("unused")
-  private ScrollPane scrollPane;
+  private ListView<ResultBox> resultBoxWrapper;
 
   /**
    * This view presents a selection of major and minor courses where the user can choose a
@@ -78,8 +67,6 @@ public class Musterstudienplaene extends GridPane implements Initializable {
 
     this.solverProperty = new SimpleBooleanProperty(false);
 
-    this.setVgap(10.0);
-
     inflater.inflate("musterstudienplaene", this, this, "musterstudienplaene");
   }
 
@@ -87,31 +74,43 @@ public class Musterstudienplaene extends GridPane implements Initializable {
    * Function to handle generation of resultbox containing result for chosen major and minor.
    */
   @FXML
-  @SuppressWarnings("unused")
+  @SuppressWarnings( {"unused,WeakerAccess"})
   public void btGeneratePressed() {
     final Course selectedMajorCourse = courseSelection.getSelectedMajor();
     final Course selectedMinorCourse = courseSelection.getSelectedMinor();
 
     final ResultBox rb
-        = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse, resultBox);
+        = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse, resultBoxWrapper);
 
-    resultBox.getChildren().add(0, rb);
+    resultBoxWrapper.getItems().add(0, rb);
   }
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
-    btGenerate.setDefaultButton(true);
     btGenerate.disableProperty().bind(solverProperty.not());
 
-    final IntegerBinding resultBoxChildren = Bindings.size(resultBox.getChildren());
-    scrollPane.visibleProperty().bind(resultBoxChildren.greaterThan(0));
-
-    resultBox.setSpacing(10.0);
-    resultBox.setPadding(new Insets(10.0, 10.0, 10.0, 10.0));
+    resultBoxWrapper.visibleProperty().bind(Bindings.isEmpty(resultBoxWrapper.getItems()).not());
 
     delayedStore.whenAvailable(store ->
         PdfRenderingHelper.initializeCourseSelection(store, uiDataService, courseSelection));
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
+  }
+
+  /**
+   * Select the given courses within the {@link #courseSelection} when the user navigates to the
+   * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
+   */
+  @Override
+  public void activateController(Object... courses) {
+    if (courses.length > 0) {
+      courseSelection.selectCourse((Course) courses[0]);
+    }
+    if (courses.length > 1) {
+      courseSelection.selectCourse((Course) courses[1]);
+    }
+    if (courses.length == 2) {
+      btGeneratePressed();
+    }
   }
 }

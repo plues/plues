@@ -3,8 +3,11 @@
 [![Build Status](https://travis-ci.org/plues/plues.svg?style=flat-square)](https://travis-ci.org/plues/plues)
 [![SonarQube Tech Debt](https://img.shields.io/sonar/http/sonarqube.com/plues/tech_debt.svg?maxAge=2592000&style=flat-square)](https://sonarqube.com/overview?id=plues)
 [![Dependency Status](https://www.versioneye.com/user/projects/57a33b001dadcb004d680562/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/57a33b001dadcb004d680562)
+[![codebeat badge](https://codebeat.co/badges/6216d53c-afad-4808-8da8-2cf748f0016d)](https://codebeat.co/projects/github-com-plues-plues)
+[![Code Climate](https://codeclimate.com/github/plues/plues/badges/gpa.svg)](https://codeclimate.com/github/plues/plues)
 
-**Current Version:** 2.0.0-PREVIEW3
+
+**Current Version:** 2.0.0-PREVIEW4
 
 This is the main application component of the
 [ProB](https://www3.hhu.de/stups/prob/) based timetable validation tool

@@ -1,5 +1,8 @@
 package de.hhu.stups.plues.tasks;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -10,6 +13,8 @@ import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.studienplaene.Renderer;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -20,9 +25,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
@@ -34,9 +39,18 @@ public class PdfRenderingTask extends Task<Path> {
   private final Course minor;
   private final SolverTask<FeasibilityResult> solverTask;
 
-  private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+  private final Logger logger = LoggerFactory.logger(getClass());
   private final ResourceBundle resources;
-  private final ExecutorService executorService;
+  private static final ListeningExecutorService EXECUTOR_SERVICE;
+
+  static {
+    final ThreadFactory threadFactoryBuilder
+        = new ThreadFactoryBuilder().setDaemon(true)
+          .setNameFormat("pdfrendering-task-runner-%d").build();
+
+    EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
+      Executors.newSingleThreadExecutor(threadFactoryBuilder));
+  }
 
 
   /**
@@ -48,12 +62,10 @@ public class PdfRenderingTask extends Task<Path> {
    */
   @Inject
   protected PdfRenderingTask(final Delayed<Store> delayedStore,
-                             final ExecutorService executorService,
                              @Assisted("major") final Course major,
                              @Assisted("minor") @Nullable final Course minor,
                              @Assisted final SolverTask<FeasibilityResult> solverTask) {
     this.delayedStore = delayedStore;
-    this.executorService = executorService;
     this.resources = ResourceBundle.getBundle("lang.tasks");
     this.major = major;
     this.minor = minor;
@@ -62,7 +74,7 @@ public class PdfRenderingTask extends Task<Path> {
 
   @Override
   protected Path call() throws Exception {
-    updateTitle(resources.getString("rendering"));
+    updateTitle(this.buildTitle());
 
     updateMessage(resources.getString("submit"));
     updateProgress(20, 100);
@@ -70,7 +82,9 @@ public class PdfRenderingTask extends Task<Path> {
     if (this.isCancelled()) {
       return null;
     }
-    executorService.submit(solverTask);
+
+    solverTask.setOnRunning(event -> this.updateMessage(resources.getString("running")));
+    EXECUTOR_SERVICE.submit(solverTask);
 
     updateMessage(resources.getString("waiting"));
     updateProgress(40, 100);
@@ -88,6 +102,14 @@ public class PdfRenderingTask extends Task<Path> {
     return renderPdf(result);
   }
 
+  private String buildTitle() {
+    String names = major.getKey();
+    if (this.minor != null) {
+      names += ", " + minor.getKey();
+    }
+    return String.format(resources.getString("rendering"), names);
+  }
+
   private void runTask() throws InterruptedException {
     int percentage = 0;
     while (!solverTask.isDone()) {
@@ -103,7 +125,7 @@ public class PdfRenderingTask extends Task<Path> {
         TimeUnit.MILLISECONDS.sleep(200);
       } catch (final InterruptedException exception) {
 
-        logger.log(Level.INFO, "Task interrupted during sleep", exception);
+        logger.info("Task interrupted during sleep", exception);
 
         if (solverTask.isCancelled() || this.isCancelled()) {
           throw exception;
@@ -135,7 +157,7 @@ public class PdfRenderingTask extends Task<Path> {
     try {
       return new Renderer(store, result, major, minor);
     } catch (final NullPointerException exc) {
-      logger.log(Level.SEVERE, "Exception rendering PDF", exc);
+      logger.error("Exception rendering PDF", exc);
       throw exc;
     }
   }
@@ -169,7 +191,7 @@ public class PdfRenderingTask extends Task<Path> {
     try (OutputStream out = new FileOutputStream(temp)) {
       renderer.getResult().writeTo(out);
     } catch (final IOException | ParserConfigurationException | SAXException exc) {
-      logger.log(Level.SEVERE, "Exception rendering PDF", exc);
+      logger.error("Exception rendering PDF", exc);
       throw exc;
     }
     return temp;

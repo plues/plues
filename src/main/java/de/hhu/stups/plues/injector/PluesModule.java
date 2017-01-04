@@ -15,6 +15,8 @@ import de.hhu.stups.plues.prob.ProBSolver;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.provider.RouterProvider;
+import de.hhu.stups.plues.routes.ControllerRouteFactory;
+import de.hhu.stups.plues.routes.HandbookRouteFactory;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
@@ -82,6 +84,9 @@ public class PluesModule extends AbstractModule {
     install(new FactoryModuleBuilder().build(CheckBoxGroupFactory.class));
     install(new FactoryModuleBuilder().build(StoreLoaderTaskFactory.class));
     install(new FactoryModuleBuilder().build(SessionListViewFactory.class));
+
+    install(new FactoryModuleBuilder().build(ControllerRouteFactory.class));
+    install(new FactoryModuleBuilder().build(HandbookRouteFactory.class));
 
     install(new FactoryModuleBuilder()
         .implement(Solver.class, Names.named("prob"), ProBSolver.class)

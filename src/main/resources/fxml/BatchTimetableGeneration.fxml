@@ -11,18 +11,20 @@
     <children>
         <Button fx:id="btGenerateAll" prefHeight="50.0" prefWidth="200.0" onAction="#generateAll"
                 text="%generate" GridPane.halignment="RIGHT" GridPane.columnIndex="0"
-                GridPane.rowIndex="1"/>
+                GridPane.rowIndex="1" defaultButton="true"/>
         <Button fx:id="btCancel" prefHeight="50.0" prefWidth="200.0" onAction="#cancelGeneration"
                 text="%cancel" GridPane.halignment="LEFT" GridPane.columnIndex="1"
                 GridPane.rowIndex="1"/>
-        <Button fx:id="btSaveToFolder" prefHeight="50.0" prefWidth="200.0" onAction="#savePersistentFolder"
+        <Button fx:id="btSaveToFolder" prefHeight="50.0" prefWidth="200.0"
+                onAction="#savePersistentFolder"
                 text="%export" GridPane.halignment="RIGHT" GridPane.columnIndex="0"
                 GridPane.rowIndex="2"/>
         <Button fx:id="btSaveToZip" prefHeight="50.0" prefWidth="200.0"
                 onAction="#savePersistentZip" text="%zip" GridPane.halignment="LEFT"
                 GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        <ListView fx:id="listView" maxWidth="Infinity" maxHeight="Infinity"
-                  GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
+        <ListView fx:id="listView" maxWidth="Infinity" maxHeight="Infinity" visible="true"
+                  id="batchListView" focusTraversable="false" GridPane.columnIndex="0"
+                  GridPane.rowIndex="3" GridPane.columnSpan="2">
         </ListView>
     </children>
     <columnConstraints>

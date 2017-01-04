@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.nio.file.Path;
-import java.util.HashMap;
 
 @RunWith(JUnit4.class)
 public class CancelledResultBoxTest extends ResultBoxTest {
@@ -26,7 +25,7 @@ public class CancelledResultBoxTest extends ResultBoxTest {
   static class TestPdfTask extends PdfRenderingTask {
 
     TestPdfTask() {
-      super(null, null, null, null, null);
+      super(null, null, null, null);
     }
 
     public Path call() {

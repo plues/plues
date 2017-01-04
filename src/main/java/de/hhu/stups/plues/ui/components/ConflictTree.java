@@ -72,7 +72,6 @@ public class ConflictTree extends VBox implements Initializable {
         conflictTreeView.setPrefHeight(175.0);
       }
     });
-    conflictTreeRootItem.setExpanded(true);
   }
 
   @FXML

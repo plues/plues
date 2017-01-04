@@ -7,13 +7,16 @@ import com.google.inject.assistedinject.Assisted;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.prob.ResultState;
+import de.hhu.stups.plues.routes.RouteNames;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.TaskStateColor;
-import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
@@ -24,12 +27,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -48,12 +49,18 @@ public class FeasibilityBox extends VBox implements Initializable {
   private final Provider<ConflictTree> conflictTreeProvider;
   private static final String ICON_SIZE = "50";
 
+  private String openInTimetable;
+  private String restartComputation;
+  private String generatePdf;
+  private String generatePartial;
   private String removeString;
   private String unsatCoreString;
+  private String stepwiseUnsatCore;
   private String cancelString;
   private String impossibleCourseString;
-  private String noConflictString;
+  private ResultState resultState;
 
+  private String noConflictString;
   private SolverTask<Set<Integer>> unsatCoreTask;
   private SolverTask<Boolean> feasibilityTask;
   private final ObjectProperty<Course> majorCourseProperty;
@@ -61,16 +68,11 @@ public class FeasibilityBox extends VBox implements Initializable {
   private final ExecutorService executorService;
   private final Delayed<SolverService> delayedSolverService;
   private final Delayed<Store> delayedStore;
-  private final Set<String> impossibleCourses;
-  private final VBox parent;
+  private final Set<Course> impossibleCourses;
+  private final Router router;
 
+  private final ListView<FeasibilityBox> parent;
   private final ListProperty<Integer> unsatCoreProperty = new SimpleListProperty<>();
-  @FXML
-  @SuppressWarnings("unused")
-  private GridPane gridPaneResults;
-  @FXML
-  @SuppressWarnings("unused")
-  private StackPane statePane;
   @FXML
   @SuppressWarnings("unused")
   private ProgressIndicator progressIndicator;
@@ -89,9 +91,6 @@ public class FeasibilityBox extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<String> cbAction;
-  @FXML
-  @SuppressWarnings("unused")
-  private Button btSubmit;
 
   /**
    * A container to display the feasibility of a combination of courses or a single one. For
@@ -100,20 +99,22 @@ public class FeasibilityBox extends VBox implements Initializable {
    */
   @Inject
   public FeasibilityBox(final Inflater inflater,
+                        final Router router,
                         final Delayed<Store> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final ExecutorService executorService,
                         final Provider<ConflictTree> conflictTreeProvider,
+                        final UiDataService uiDataService,
                         @Assisted("major") final Course majorCourse,
                         @Nullable @Assisted("minor") final Course minorCourse,
-                        @Assisted final Set<String> impossibleCourses,
-                        @Assisted final VBox parent) {
+                        @Assisted final ListView<FeasibilityBox> parent) {
     super();
     this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
+    this.router = router;
     this.executorService = executorService;
     this.conflictTreeProvider = conflictTreeProvider;
-    this.impossibleCourses = impossibleCourses;
+    this.impossibleCourses = uiDataService.getImpossibleCoures();
     this.parent = parent;
 
     majorCourseProperty = new SimpleObjectProperty<>(majorCourse);
@@ -124,13 +125,16 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
+    openInTimetable = resources.getString("openInTimetable");
+    restartComputation = resources.getString("restartComputation");
+    generatePdf = resources.getString("generatePDF");
+    generatePartial = resources.getString("generatePartial");
+    stepwiseUnsatCore = resources.getString("stepwiseUnsatCore");
     removeString = resources.getString("remove");
     unsatCoreString = resources.getString("unsatCore");
     cancelString = resources.getString("cancel");
     impossibleCourseString = resources.getString("impossibleCourse");
     noConflictString = resources.getString("noConflict");
-
-    gridPaneResults.setHgap(5.0);
 
     lbMajor.textProperty()
         .bind(Bindings.selectString(majorCourseProperty, "fullName"));
@@ -138,35 +142,47 @@ public class FeasibilityBox extends VBox implements Initializable {
         .bind(Bindings.selectString(minorCourseProperty, "fullName"));
 
     delayedSolverService.whenAvailable(solver -> {
-      final Course cMajor = majorCourseProperty.get();
-      final Course cMinor = minorCourseProperty.get();
-
-      if (cMinor != null) {
-        feasibilityTask = solver.checkFeasibilityTask(cMajor, cMinor);
-      } else {
-        feasibilityTask = solver.checkFeasibilityTask(cMajor);
-      }
-
-      progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
-      progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
-
+      initFeasibilityTask(solver);
       executorService.submit(feasibilityTask);
+    });
+  }
+
+  private void initFeasibilityTask(final SolverService solverService) {
+    final Course cMajor = majorCourseProperty.get();
+    final Course cMinor = minorCourseProperty.get();
+
+    if (cMinor != null) {
+      feasibilityTask = solverService.checkFeasibilityTask(cMajor, cMinor);
+    } else {
+      feasibilityTask = solverService.checkFeasibilityTask(cMajor);
+    }
+
+    feasibilityTask.setOnFailed(event -> {
+      cbAction.setItems(getActionsForInfeasibleCourse(feasibilityTask.getReason()));
+      cbAction.getSelectionModel().selectFirst();
+      resultState = ResultState.FAILED;
     });
 
     feasibilityTask.setOnSucceeded(event -> Platform.runLater(() -> {
       cbAction.setItems(feasibilityTask.getValue()
-          ? FXCollections.observableList(Collections.singletonList(removeString))
-          : getActionsForInfeasibleCourse());
+          ? FXCollections.observableList(minorCourseProperty.get() != null
+          ? FXCollections.observableArrayList(
+          openInTimetable, generatePdf, generatePartial, removeString)
+          : FXCollections.observableArrayList(openInTimetable, removeString))
+          : getActionsForInfeasibleCourse(""));
       cbAction.getSelectionModel().selectFirst();
+      resultState = ResultState.SUCCEEDED;
     }));
 
-    feasibilityTask.setOnFailed(event -> {
-      cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
+    feasibilityTask.setOnCancelled(event -> {
+      cbAction.setItems(FXCollections.observableList(
+          Arrays.asList(openInTimetable, restartComputation, removeString)));
       cbAction.getSelectionModel().selectFirst();
+      resultState = ResultState.FAILED;
     });
 
-    feasibilityTask.setOnCancelled(event -> {
-      cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
+    feasibilityTask.setOnScheduled(event -> {
+      cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancelString)));
       cbAction.getSelectionModel().selectFirst();
     });
 
@@ -174,29 +190,49 @@ public class FeasibilityBox extends VBox implements Initializable {
     progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
 
     lbIcon.visibleProperty().bind(feasibilityTask.runningProperty().not());
-    lbIcon.graphicProperty().bind(PdfRenderingHelper.getIconBinding(ICON_SIZE, feasibilityTask));
-    lbIcon.styleProperty().bind(PdfRenderingHelper.getStyleBinding(feasibilityTask));
-
-
-    cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancelString)));
-    cbAction.getSelectionModel().selectFirst();
+    lbIcon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, feasibilityTask));
+    lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(feasibilityTask));
   }
 
   @FXML
   @SuppressWarnings("unused")
   private void submitAction() {
     final String selectedItem = cbAction.getSelectionModel().getSelectedItem();
+    final Course majorCourse = majorCourseProperty.get();
+    final Course minorCourse = minorCourseProperty.get();
 
+    if (selectedItem.equals(openInTimetable)) {
+      router.transitionTo(RouteNames.TIMETABLE, new Course[] {majorCourse, minorCourse},
+          resultState);
+    }
+    if (selectedItem.equals(restartComputation)) {
+      initFeasibilityTask(delayedSolverService.get());
+      executorService.submit(feasibilityTask);
+    }
+    if (selectedItem.equals(generatePdf)) {
+      router.transitionTo(RouteNames.PDF_TIMETABLES, majorCourse, minorCourse);
+    }
+    if (selectedItem.equals(generatePartial)) {
+      router.transitionTo(RouteNames.PARTIAL_TIMETABLES, majorCourse, minorCourse);
+    }
+    if (selectedItem.equals(stepwiseUnsatCore)) {
+      if (minorCourse != null) {
+        router.transitionTo(RouteNames.UNSAT_CORE, majorCourse, minorCourse);
+      } else {
+        router.transitionTo(RouteNames.UNSAT_CORE, majorCourse);
+      }
+    }
     if (selectedItem.equals(unsatCoreString)) {
       initUnsatCoreTask();
     }
     if (selectedItem.equals(removeString)) {
-      parent.getChildren().remove(this);
+      parent.getItems().remove(this);
     }
     if (selectedItem.equals(cancelString)) {
       if (feasibilityTask.isRunning()) {
         interrupt();
-        cbAction.setItems(FXCollections.observableList(Collections.singletonList(removeString)));
+        cbAction.setItems(FXCollections.observableList(
+            Arrays.asList(openInTimetable, restartComputation, removeString)));
         cbAction.getSelectionModel().selectFirst();
       } else if (unsatCoreTask.isRunning()) {
         unsatCoreTask.cancel(true);
@@ -223,12 +259,15 @@ public class FeasibilityBox extends VBox implements Initializable {
     unsatCoreTask.setOnSucceeded(unsatCore -> {
       unsatCoreProperty.set(FXCollections.observableArrayList(unsatCoreTask.getValue()));
       final ConflictTree conflictTree = conflictTreeProvider.get();
-      conflictTree.setConflictSessions(delayedStore.get().getSessions()
-          .stream().filter(session -> unsatCoreProperty.get().contains(session.getId()))
-          .collect(Collectors.toList()));
+      // TODO: move to conflict tree
+      conflictTree.setConflictSessions(
+          unsatCoreProperty.get()
+              .stream().map(delayedStore.get()::getSessionById)
+              .collect(Collectors.toList()));
       conflictTree.setUnsatCoreProperty(unsatCoreProperty);
       getChildren().add(conflictTree);
-      cbAction.setItems(FXCollections.singletonObservableList(removeString));
+      cbAction.setItems(FXCollections.observableArrayList(
+          openInTimetable, stepwiseUnsatCore, removeString));
       cbAction.getSelectionModel().selectFirst();
     });
 
@@ -236,18 +275,16 @@ public class FeasibilityBox extends VBox implements Initializable {
       if (ResourceBundle.getBundle("lang.tasks").getString("timeout")
           .equals(unsatCoreTask.getReason())) {
         lbErrorMsg.setText(noConflictString);
-        cbAction.setItems(FXCollections.singletonObservableList(removeString));
-        cbAction.getSelectionModel().selectFirst();
-      } else {
-        cbAction.setItems(FXCollections.observableList(
-            Arrays.asList(unsatCoreString, removeString)));
-        cbAction.getSelectionModel().selectFirst();
       }
+      cbAction.setItems(FXCollections.observableList(
+          Arrays.asList(openInTimetable, unsatCoreString, stepwiseUnsatCore, removeString)));
+      cbAction.getSelectionModel().selectFirst();
     });
 
     unsatCoreTask.setOnFailed(unsatCore -> {
       lbErrorMsg.setText(noConflictString);
-      cbAction.setItems(FXCollections.singletonObservableList(removeString));
+      cbAction.setItems(FXCollections.observableArrayList(
+          openInTimetable, stepwiseUnsatCore, removeString));
       cbAction.getSelectionModel().selectFirst();
     });
 
@@ -264,14 +301,19 @@ public class FeasibilityBox extends VBox implements Initializable {
    * unsat core if the course is not impossible or the combination does not contain an impossible
    * course. Otherwise just offer the possibility to remove the feasibility box.
    */
-  private ObservableList<String> getActionsForInfeasibleCourse() {
-    if (impossibleCourses.contains(majorCourseProperty.get().getName())
+  private ObservableList<String> getActionsForInfeasibleCourse(final String reason) {
+    if (impossibleCourses.contains(majorCourseProperty.get())
         || (minorCourseProperty.get() != null
-        && impossibleCourses.contains(minorCourseProperty.get().getName()))) {
+        && impossibleCourses.contains(minorCourseProperty.get()))) {
       lbErrorMsg.setText(impossibleCourseString);
       return FXCollections.observableList(Collections.singletonList(removeString));
+    } else if (ResourceBundle.getBundle("lang.tasks").getString("timeout")
+        .equals(reason)) {
+      return FXCollections.observableList(
+          Arrays.asList(openInTimetable, restartComputation, removeString));
     } else {
-      return FXCollections.observableList(Arrays.asList(unsatCoreString, removeString));
+      return FXCollections.observableList(
+          Arrays.asList(openInTimetable, unsatCoreString, stepwiseUnsatCore, removeString));
     }
   }
 
