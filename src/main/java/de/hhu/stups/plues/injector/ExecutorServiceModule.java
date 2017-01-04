@@ -15,8 +15,9 @@ class ExecutorServiceModule extends AbstractModule {
   private final ObservableListeningExecutorService executorPool;
 
   ExecutorServiceModule() {
+    final int parallelism = Math.max(Runtime.getRuntime().availableProcessors(), 4);
     this.executorPool = new ObservableListeningExecutorService(
-      MoreExecutors.listeningDecorator(Executors.newWorkStealingPool()));
+      MoreExecutors.listeningDecorator(Executors.newWorkStealingPool(parallelism)));
 
   }
 
