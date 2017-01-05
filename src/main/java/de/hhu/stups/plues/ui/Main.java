@@ -22,6 +22,8 @@ public class Main extends Application {
 
   @Override
   public void start(final Stage primaryStage) throws Exception {
+    System.setProperty("logback.configurationFile", "config/logging.xml");
+
     final Injector injector = Guice.createInjector(DEVELOPMENT, new PluesModule(primaryStage));
 
     // XXX load an instance of Main.class to ensure Prob 2.0 is properly loaded.
