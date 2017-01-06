@@ -10,6 +10,9 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import de.hhu.stups.plues.prob.Solver;
+import de.hhu.stups.plues.ui.components.ExceptionDialog;
+import de.prob.exception.CliError;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.hibernate.annotations.common.util.impl.LoggerFactory;
 import org.jboss.logging.Logger;
@@ -167,7 +170,6 @@ public class SolverTask<T> extends Task<T> {
 
   @Override
   protected void failed() {
-    logger.info("failed handler");
     updateMessage(resources.getString("failed"));
 
     if (timer != null) {
@@ -178,6 +180,28 @@ public class SolverTask<T> extends Task<T> {
         solver.interrupt();
       }
       future.cancel(true);
+    }
+
+    // Check if the cause of the failure was a CliError. In that case we show an exception dialog
+    // and close the application.
+    // TODO: show a save dialog
+    // TODO: handle case if many solver tasks fail, e.g. for a batch task.
+    if (this.getException() != null
+        && this.getException().getCause() != null
+        && this.getException().getCause() instanceof CliError) {
+
+      Platform.runLater(() -> {
+        final ExceptionDialog ed = new ExceptionDialog();
+        ed.setTitle(resources.getString("edTitle"));
+        ed.setHeaderText(resources.getString("cliError"));
+        ed.setException(this.getException());
+
+        logger.fatal("Fatal CliError", this.getException());
+        ed.showAndWait();
+        Platform.exit();
+      });
+    } else {
+      logger.error("failed handler", this.getException());
     }
   }
 
