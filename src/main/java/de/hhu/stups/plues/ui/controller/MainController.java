@@ -116,6 +116,7 @@ public class MainController implements Initializable {
   private final ResourceManager resourceManager;
   private final Delayed<SolverService> delayedSolverService;
   private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
+  private final ToggleGroup timeoutPreferenceToggle = new ToggleGroup();
 
   private boolean databaseChanged = false;
   private ResourceBundle resources;
@@ -133,11 +134,11 @@ public class MainController implements Initializable {
   @FXML
   private MenuItem setTimeoutMenuItem;
   @FXML
-  private MenuItem oneMinuteMenuItem;
+  private RadioMenuItem oneMinuteMenuItem;
   @FXML
-  private MenuItem threeMinutesMenuItem;
+  private RadioMenuItem threeMinutesMenuItem;
   @FXML
-  private MenuItem fiveMinutesMenuItem;
+  private RadioMenuItem fiveMinutesMenuItem;
   @FXML
   private MenuItem openChangeLog;
   @FXML
@@ -429,6 +430,10 @@ public class MainController implements Initializable {
             uiDataService.setSessionDisplayFormatProperty(userPreferences.get(sessionFormat, ""));
           }
         });
+
+    oneMinuteMenuItem.setToggleGroup(timeoutPreferenceToggle);
+    threeMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
+    fiveMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
   }
 
   /**
@@ -626,18 +631,21 @@ public class MainController implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void setTimeoutOneMinute() {
+    oneMinuteMenuItem.setSelected(true);
     setTimeout(60);
   }
 
   @FXML
   @SuppressWarnings("unused")
   private void setTimeoutThreeMinutes() {
+    threeMinutesMenuItem.setSelected(true);
     setTimeout(180);
   }
 
   @FXML
   @SuppressWarnings("unused")
   private void setTimeoutFiveMinutes() {
+    fiveMinutesMenuItem.setSelected(true);
     setTimeout(300);
   }
 

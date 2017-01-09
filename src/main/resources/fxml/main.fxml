@@ -43,11 +43,12 @@
         </Menu>
         <Menu mnemonicParsing="false" text="%edit">
             <Menu mnemonicParsing="false" text="%timeout.Select">
-                <MenuItem fx:id="oneMinuteMenuItem" text="%timeout.oneMinute" disable="true"
+                <RadioMenuItem fx:id="oneMinuteMenuItem" text="%timeout.oneMinute" disable="true"
+                               selected="true"
                           mnemonicParsing="false" onAction="#setTimeoutOneMinute"/>
-                <MenuItem fx:id="threeMinutesMenuItem" text="%timeout.threeMinutes" disable="true"
+                <RadioMenuItem fx:id="threeMinutesMenuItem" text="%timeout.threeMinutes" disable="true"
                           mnemonicParsing="false" onAction="#setTimeoutThreeMinutes"/>
-                <MenuItem fx:id="fiveMinutesMenuItem" text="%timeout.fiveMinutes" disable="true"
+                <RadioMenuItem fx:id="fiveMinutesMenuItem" text="%timeout.fiveMinutes" disable="true"
                           mnemonicParsing="false" onAction="#setTimeoutFiveMinutes"/>
                 <MenuItem fx:id="setTimeoutMenuItem" text="%timeout.Title" disable="true"
                           mnemonicParsing="false" onAction="#setTimeoutCustom"/>
