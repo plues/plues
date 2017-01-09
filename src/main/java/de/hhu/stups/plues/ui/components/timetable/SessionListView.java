@@ -1,8 +1,5 @@
 package de.hhu.stups.plues.ui.components.timetable;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -14,17 +11,17 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
-
+import javafx.application.Platform;
 import javafx.beans.property.ListProperty;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
 import java.util.Optional;
-
-import javax.annotation.Nullable;
+import java.util.ResourceBundle;
 
 public class SessionListView extends ListView<SessionFacade> {
   private final SessionFacade.Slot slot;
@@ -130,22 +127,34 @@ public class SessionListView extends ListView<SessionFacade> {
 
       delayedSolverService.whenAvailable(solver -> {
         final SolverTask<Void> moveSession = solver.moveSessionTask(sessionId, slot);
-        @SuppressWarnings("unchecked") final ListenableFuture<Void> future
-            = (ListenableFuture<Void>) executorService.submit(moveSession);
-        Futures.addCallback(future, new FutureCallback<Void>() {
-          @Override
-          public void onSuccess(@Nullable final Void result) {
-            delayedStore.whenAvailable(store -> {
-              store.moveSession(getSessionFacadeById(sessionId), slot);
-            });
+        moveSession.setOnSucceeded(moveSessionEvent
+            -> delayedStore.whenAvailable(store
+                -> store.moveSession(getSessionFacadeById(sessionId), slot)));
+        moveSession.setOnFailed(moveSessionEvent -> {
+          Platform.runLater(() -> {
+            final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
+            final Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(bundle.getString("moveFailedTitle"));
+            alert.setHeaderText(bundle.getString("moveFailedHeader"));
+            alert.setContentText(bundle.getString("moveFailedContent"));
 
-          }
-
-          @Override
-          public void onFailure(@Nullable final Throwable throwable) {
-            // TODO: show error message
-          }
+            alert.showAndWait();
+          });
         });
+
+        moveSession.setOnCancelled(moveSessionEvent -> {
+          Platform.runLater(() -> {
+            final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
+            final Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle(bundle.getString("moveCancelledTitle"));
+            alert.setHeaderText(bundle.getString("moveCancelledHeader"));
+            alert.setContentText(bundle.getString("moveCancelledContent"));
+
+            alert.showAndWait();
+          });
+        });
+
+        executorService.submit(moveSession);
       });
     }
 
