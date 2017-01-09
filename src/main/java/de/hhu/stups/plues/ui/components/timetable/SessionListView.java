@@ -31,16 +31,16 @@ public class SessionListView extends ListView<SessionFacade> {
   private final Delayed<ObservableStore> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
   private final ListeningExecutorService executorService;
-  private ListProperty<SessionFacade> sessions;
-
   private final UiDataService uiDataService;
+  private ListProperty<SessionFacade> sessions;
 
   /**
    * Custom implementation of ListView for sessions.
-   * @param slot the time slot identifying this session list
-   * @param delayedStore Store to save new session info after moving
+   *
+   * @param slot                 the time slot identifying this session list
+   * @param delayedStore         Store to save new session info after moving
    * @param delayedSolverService Solver to find out if moving a session is valid
-   * @param uiDataService a stupid data container to dump any kind of data in it
+   * @param uiDataService        a stupid data container to dump any kind of data in it
    */
   @Inject
   public SessionListView(@Assisted final SessionFacade.Slot slot,
@@ -74,10 +74,10 @@ public class SessionListView extends ListView<SessionFacade> {
         });
   }
 
-  private boolean hasSessionIdsIn(ObservableList<Integer> ids) {
+  private boolean hasSessionIdsIn(final ObservableList<Integer> ids) {
     return ids.stream().anyMatch(
-        conflictedId -> getItems().stream().anyMatch(
-            (SessionFacade session) -> session.getSession().getId() == conflictedId));
+      conflictedId -> getItems().stream().anyMatch(
+        (SessionFacade session) -> session.getSession().getId() == conflictedId));
   }
 
   private void initEvents() {
@@ -90,7 +90,7 @@ public class SessionListView extends ListView<SessionFacade> {
   private boolean isValidTarget(final DragEvent event) {
     return event.getDragboard().hasString()
       && !getItems().stream().anyMatch(sessionFacade ->
-        String.valueOf(sessionFacade.getId()).equals(event.getDragboard().getString()))
+      String.valueOf(sessionFacade.getId()).equals(event.getDragboard().getString()))
       && event.getGestureSource() != this;
   }
 

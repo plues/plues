@@ -62,7 +62,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     setOnDragDetected(this::dragItem);
     setOnMousePressed(this::clickItem);
 
@@ -132,7 +132,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
   }
 
   @Override
-  protected void updateItem(SessionFacade item, boolean empty) {
+  protected void updateItem(final SessionFacade item, final boolean empty) {
     super.updateItem(item, empty);
 
     if (!empty && item != null) {
