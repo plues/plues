@@ -132,6 +132,8 @@ public class MainController implements Initializable {
   @FXML
   private MenuItem exportStateMenuItem;
   @FXML
+  private Menu selectTimeoutMenu;
+  @FXML
   private MenuItem setTimeoutMenuItem;
   @FXML
   private RadioMenuItem oneMinuteMenuItem;
@@ -169,6 +171,8 @@ public class MainController implements Initializable {
   private ProgressBar mainProgressBar;
   @FXML
   private Label lbRunningTasks;
+
+  private RadioMenuItem customTimeoutItem;
 
   /**
    * MainController component.
@@ -661,10 +665,26 @@ public class MainController implements Initializable {
     result.ifPresent(timeout -> {
       try {
         setTimeout(Integer.parseInt(timeout));
+        initializeCustomTimeoutMenuItem();
+
+        customTimeoutItem.setText(
+            String.format(resources.getString("timeout.custom"), timeout));
+        customTimeoutItem.setSelected(true);
+
       } catch (final NumberFormatException exception) {
         logger.error("Incorrect input: " + timeout);
       }
     });
+  }
+
+  private void initializeCustomTimeoutMenuItem() {
+    if (customTimeoutItem != null) {
+      return;
+    }
+    customTimeoutItem = new RadioMenuItem();
+    customTimeoutItem.setToggleGroup(timeoutPreferenceToggle);
+    customTimeoutItem.setDisable(true);
+    selectTimeoutMenu.getItems().add(customTimeoutItem);
   }
 
   /**

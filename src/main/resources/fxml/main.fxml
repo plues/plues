@@ -42,7 +42,7 @@
                       mnemonicParsing="false" text="%close"/>
         </Menu>
         <Menu mnemonicParsing="false" text="%edit">
-            <Menu mnemonicParsing="false" text="%timeout.Select">
+            <Menu fx:id="selectTimeoutMenu" mnemonicParsing="false" text="%timeout.Select">
                 <RadioMenuItem fx:id="oneMinuteMenuItem" text="%timeout.oneMinute" disable="true"
                                selected="true"
                           mnemonicParsing="false" onAction="#setTimeoutOneMinute"/>
