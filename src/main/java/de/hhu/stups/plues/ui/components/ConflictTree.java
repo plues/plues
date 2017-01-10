@@ -8,10 +8,12 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableView;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -24,6 +26,12 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+/**
+ * Display the unsat core in a {@link #conflictTreeTableView TreeView} grouped by the day of week
+ * and the time of the day. Furthermore provide a button to highlight all conflicting session in the
+ * {@link Timetable}. This component is dynamically added to a {@link FeasibilityBox} in case the
+ * specific combination of courses is infeasible and we have found an unsat core.
+ */
 public class ConflictTree extends VBox implements Initializable {
 
   private final EnumMap<DayOfWeek, String> dayOfWeekStrings;
@@ -36,16 +44,22 @@ public class ConflictTree extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private TreeView<String> conflictTreeView;
+  private TreeTableView<Object> conflictTreeTableView;
   @FXML
   @SuppressWarnings("unused")
-  private TreeItem<String> conflictTreeRootItem;
+  private TreeItem<Object> conflictTreeRootItem;
+  @FXML
+  @SuppressWarnings("unused")
+  private TreeTableColumn<Object, String> treeColumnTitle;
+  @FXML
+  @SuppressWarnings("unused")
+  private TreeTableColumn<Object, String> treeColumnKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TreeTableColumn<Object, String> treeColumnSemesters;
 
   /**
-   * Display the unsat core in a {@link #conflictTreeView TreeView} grouped by the day of week and
-   * the time of the day. Furthermore provide a button to highlight all conflicting session in the
-   * {@link Timetable}. This component is dynamically added to a {@link FeasibilityBox} in case the
-   * specific combination of courses is infeasible and we have found an unsat core.
+   * Initialize the conflict tree.
    */
   @Inject
   public ConflictTree(final Inflater inflater, final UiDataService uiDataService) {
@@ -53,7 +67,7 @@ public class ConflictTree extends VBox implements Initializable {
     dayOfWeekStrings = new EnumMap<>(DayOfWeek.class);
     timeStrings = new HashMap<>();
 
-    inflater.inflate("components/ConflictTree", this, this, "conflictTree", "Days");
+    inflater.inflate("components/ConflictTree", this, this, "conflictTree", "Days", "Column");
   }
 
   @Override
@@ -63,15 +77,18 @@ public class ConflictTree extends VBox implements Initializable {
     initDayOfWeekString();
     initTimeStrings();
 
-    conflictTreeView.rootProperty().bind(new ReadOnlyObjectWrapper<>(conflictTreeRootItem));
+    conflictTreeTableView.rootProperty().bind(new ReadOnlyObjectWrapper<>(conflictTreeRootItem));
 
     conflictTreeRootItem.expandedProperty().addListener((observable, oldValue, newValue) -> {
       if (!newValue) {
-        conflictTreeView.setPrefHeight(26.0);
+        conflictTreeTableView.setPrefHeight(
+            conflictTreeTableView.lookup(".column-header-background").getBoundsInLocal().getHeight()
+                + 50.0);
       } else {
-        conflictTreeView.setPrefHeight(175.0);
+        conflictTreeTableView.setPrefHeight(175.0);
       }
     });
+    initTreeTableViewValueFactories();
   }
 
   @FXML
@@ -82,7 +99,7 @@ public class ConflictTree extends VBox implements Initializable {
 
   /**
    * Add the sessions from the unsat core to the {@link #conflictTreeRootItem TreeItem} that is
-   * bound to the {@link #conflictTreeView TreeView's} root property.
+   * bound to the {@link #conflictTreeTableView TreeView's} root property.
    *
    * @param unsatCore The list of sessions that form the unsat core.
    */
@@ -107,15 +124,15 @@ public class ConflictTree extends VBox implements Initializable {
     // add all conflicting sessions to the TreeView's root grouped by the day of the week and the
     // time of the day
     sortedSessionsByDay.entrySet().forEach(dayOfWeekEntry -> {
-      final TreeItem<String> dayRootItem = new TreeItem<>(dayOfWeekStrings
+      final TreeItem<Object> dayRootItem = new TreeItem<>(dayOfWeekStrings
           .get(dayOfWeekEntry.getKey()));
       dayRootItem.setExpanded(true);
       groupSessionsByTime(sortedSessionsByDay.get(dayOfWeekEntry.getKey())).entrySet()
           .forEach(timeAtDayEntry -> {
-            final TreeItem<String> timeRootItem = new TreeItem<>(timeAtDayEntry.getKey());
+            final TreeItem<Object> timeRootItem = new TreeItem<>(timeAtDayEntry.getKey());
             timeRootItem.setExpanded(true);
             timeRootItem.getChildren().addAll(timeAtDayEntry.getValue().stream()
-                .map(session -> new TreeItem<>(session.toString()))
+                .map(session -> new TreeItem<>((Object) session))
                 .collect(Collectors.toList()));
             dayRootItem.getChildren().add(timeRootItem);
           });
@@ -142,6 +159,29 @@ public class ConflictTree extends VBox implements Initializable {
 
   void setUnsatCoreProperty(final ListProperty<Integer> unsatCoreProperty) {
     this.unsatCoreProperty = unsatCoreProperty;
+  }
+
+  private void initTreeTableViewValueFactories() {
+    treeColumnTitle.setCellValueFactory(param -> {
+      if (param.getValue().getValue() instanceof String) {
+        return new ReadOnlyStringWrapper((String) param.getValue().getValue());
+      } else if (param.getValue().getValue() instanceof Session) {
+        return new ReadOnlyStringWrapper(
+            ((Session) param.getValue().getValue()).getGroup().getUnit().getTitle());
+      } else {
+        return new ReadOnlyStringWrapper("");
+      }
+    });
+    treeColumnKey.setCellValueFactory(param ->
+        (param.getValue().getValue() instanceof Session)
+            ? new ReadOnlyStringWrapper(
+            ((Session) param.getValue().getValue()).getGroup().getUnit().getKey())
+            : new ReadOnlyStringWrapper(""));
+    treeColumnSemesters.setCellValueFactory(param ->
+        (param.getValue().getValue() instanceof Session)
+            ? new ReadOnlyStringWrapper(
+            ((Session) param.getValue().getValue()).getGroup().getUnit().getSemesters().toString())
+            : new ReadOnlyStringWrapper(""));
   }
 
   private void initTimeStrings() {
