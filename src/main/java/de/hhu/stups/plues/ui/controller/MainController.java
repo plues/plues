@@ -25,7 +25,10 @@ import de.hhu.stups.plues.ui.ResourceManager;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -55,6 +58,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
 import org.slf4j.Logger;
@@ -93,6 +97,7 @@ public class MainController implements Initializable {
   private static final String LAST_XML_EXPORT_DIR = "LAST_XML_EXPORT_DIR";
   private static final String DB_PATH = "dbpath";
   private static final String TEMP_DB_PATH = "tempDBpath";
+  private static final ListeningScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE;
 
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
@@ -173,6 +178,7 @@ public class MainController implements Initializable {
   private Label lbRunningTasks;
 
   private RadioMenuItem customTimeoutItem;
+  private IntegerProperty customTimeoutProperty;
 
   /**
    * MainController component.
@@ -197,6 +203,8 @@ public class MainController implements Initializable {
     this.executor = executorService;
     this.resourceManager = resourceManager;
     this.uiDataService = uiDataService;
+
+    customTimeoutProperty = new SimpleIntegerProperty(0);
     userPreferences = Preferences.userRoot().node("Plues");
 
     executorService.addObserver((observable, arg) -> this.register(arg));
@@ -275,9 +283,9 @@ public class MainController implements Initializable {
     delayedSolverService.whenAvailable(solverService -> {
       openReportsMenuItem.setDisable(false);
       setTimeoutMenuItem.setDisable(false);
-      oneMinuteMenuItem.setDisable(false);
-      threeMinutesMenuItem.setDisable(false);
-      fiveMinutesMenuItem.setDisable(false);
+      oneMinuteMenuItem.disableProperty().bind(oneMinuteMenuItem.selectedProperty());
+      threeMinutesMenuItem.disableProperty().bind(threeMinutesMenuItem.selectedProperty());
+      fiveMinutesMenuItem.disableProperty().bind(fiveMinutesMenuItem.selectedProperty());
     });
 
     delayedStore.whenAvailable(s -> {
@@ -346,14 +354,12 @@ public class MainController implements Initializable {
    * tasks anymore.
    */
 
-  private static final ListeningScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE;
-
   static {
     final ThreadFactory threadFactoryBuilder = new ThreadFactoryBuilder().setDaemon(true)
         .setNameFormat("task-progress-hide-runner-%d").build();
 
     SCHEDULED_EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
-      Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
+        Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
 
   }
 
@@ -462,7 +468,6 @@ public class MainController implements Initializable {
    * Saves a file.
    */
   @FXML
-  @SuppressWarnings("UnusedParamters")
   private void saveFile() {
     try {
       Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
@@ -478,7 +483,7 @@ public class MainController implements Initializable {
    * Saves a file at another location.
    */
   @FXML
-  @SuppressWarnings( {"UnusedParamters", "unused"})
+  @SuppressWarnings("unused")
   private void saveFileAs() {
     final FileChooser fileChooser = prepareFileChooser("saveDB");
     fileChooser.setInitialFileName("data.sqlite3");
@@ -664,13 +669,10 @@ public class MainController implements Initializable {
     final Optional<String> result = dialog.showAndWait();
     result.ifPresent(timeout -> {
       try {
-        setTimeout(Integer.parseInt(timeout));
         initializeCustomTimeoutMenuItem();
-
-        customTimeoutItem.setText(
-            String.format(resources.getString("timeout.custom"), timeout));
-        customTimeoutItem.setSelected(true);
-
+        final int timeoutValue = Integer.parseInt(timeout);
+        setTimeout(timeoutValue);
+        customTimeoutProperty.setValue(timeoutValue);
       } catch (final NumberFormatException exception) {
         logger.error("Incorrect input: " + timeout);
       }
@@ -683,8 +685,15 @@ public class MainController implements Initializable {
     }
     customTimeoutItem = new RadioMenuItem();
     customTimeoutItem.setToggleGroup(timeoutPreferenceToggle);
-    customTimeoutItem.setDisable(true);
+    customTimeoutItem.disableProperty().bind(customTimeoutItem.selectedProperty());
     selectTimeoutMenu.getItems().add(customTimeoutItem);
+    customTimeoutItem.addEventHandler(MouseEvent.MOUSE_CLICKED, event ->
+        setTimeout(customTimeoutProperty.get()));
+
+    customTimeoutProperty.addListener((observable, oldValue, newValue) -> {
+      customTimeoutItem.setText(String.format(resources.getString("timeout.custom"), newValue));
+      customTimeoutItem.setSelected(true);
+    });
   }
 
   /**
@@ -747,11 +756,13 @@ public class MainController implements Initializable {
   }
 
   @FXML
+  @SuppressWarnings( {"UnusedParameters", "unused"})
   private void showHtmlHandbook(final ActionEvent actionEvent) {
     router.transitionTo(RouteNames.HANDBOOK_HTML);
   }
 
   @FXML
+  @SuppressWarnings("UnusedParameters")
   public void showPdfHandbook(final ActionEvent actionEvent) {
     router.transitionTo(RouteNames.HANDBOOK_PDF);
   }
