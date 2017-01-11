@@ -34,8 +34,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
+import org.controlsfx.control.SegmentedButton;
 
 import java.net.URL;
 import java.time.DayOfWeek;
@@ -59,7 +59,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   private GridPane timeTable;
   @FXML
   @SuppressWarnings("unused")
-  private ToggleGroup semesterToggle;
+  private SegmentedButton semesterToggle;
   @FXML
   @SuppressWarnings("unused")
   private FilterSideBar filterSideBar;
@@ -115,8 +115,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   }
 
   private void highlightConflictedSemesters(final ObservableSet<String> semesters) {
-    semesterToggle.getToggles().forEach(toggle -> {
-      final ToggleButton button = (ToggleButton) toggle;
+    semesterToggle.getButtons().forEach(toggle -> {
+      final ToggleButton button = toggle;
       final String value = (String) button.getUserData();
 
       if (semesters.contains(value)) {
@@ -186,14 +186,15 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     SessionFacadeListBinding(final SessionFacade.Slot slot) {
       this.slot = slot;
 
-      bind(sessions, semesterToggle.selectedToggleProperty(),
+      bind(sessions, semesterToggle.getToggleGroup().selectedToggleProperty(),
           filterSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
           filterSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty());
     }
 
     @Override
     protected ObservableList<SessionFacade> computeValue() {
-      final ToggleButton semesterButton = (ToggleButton) semesterToggle.getSelectedToggle();
+      final ToggleButton semesterButton
+          = (ToggleButton) semesterToggle.getToggleGroup().getSelectedToggle();
 
       return sessions.filtered(session -> {
         final Set<Integer> semesters = session.getUnitSemesters();
