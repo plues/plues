@@ -40,9 +40,9 @@
 }
 
 .red-border {
-    -fx-border-color: #ffbaba;
-    -fx-border-width: 10;
-    -fx-border-style: dotted;
+    -fx-border-width: 2px;
+    -fx-border-color: red;
+    -fx-border-style: solid;
 }
 
 /* Conflict Matrix */
