@@ -58,8 +58,6 @@ public class SessionUnsatCore extends VBox implements Initializable {
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    this.visibleProperty().bind(sessions.emptyProperty().not());
-
     sessionsTable.itemsProperty().bind(sessions);
     sessionsTable.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
         sessionsTable, router));

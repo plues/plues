@@ -4,17 +4,13 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.routes.Router;
-import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableCell;
@@ -55,8 +51,6 @@ public class ModuleUnsatCore extends VBox implements Initializable {
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    this.visibleProperty().bind(modules.emptyProperty().not());
-
     modulesTable.itemsProperty().bind(modules);
     modulesTable.setOnMouseClicked(DetailViewHelper.getModuleMouseHandler(
         modulesTable, router));
@@ -91,7 +85,7 @@ public class ModuleUnsatCore extends VBox implements Initializable {
     return modules;
   }
 
-  public UnsatCoreButtonBar getUnsatCoreButtonBar() {
+  UnsatCoreButtonBar getUnsatCoreButtonBar() {
     return unsatCoreButtonBar;
   }
 }

@@ -6,7 +6,6 @@ import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
@@ -78,39 +77,40 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
 
     taskStateIcon.graphicProperty().bind(TaskBindings.getIconBinding("25", task));
     taskStateIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
-    taskStateLabel.textProperty().bind(Bindings.createStringBinding(() -> {
-      final String msg;
-      switch (task.getState()) {
-        case SUCCEEDED:
-          msg = "";
-          break;
-        case CANCELLED:
-          msg = resources.getString("task.Cancelled");
-          break;
-        case FAILED:
-          msg = resources.getString("task.Failed");
-          break;
-        case READY:
-        case SCHEDULED:
-        case RUNNING:
-        default:
-          msg = resources.getString("task.Running");
-          break;
-      }
-      return msg;
-    }, task.stateProperty()));
+    taskStateLabel.textProperty().bind(Bindings.createStringBinding(
+        () -> getMessageForTask(task), task.stateProperty()));
   }
-
 
   void resetTaskState() {
     taskStateIcon.styleProperty().unbind();
     taskStateIcon.setStyle("");
-    //
+
     taskStateIcon.graphicProperty().unbind();
     taskStateIcon.setGraphic(null);
-    //
+
     taskStateLabel.textProperty().unbind();
     taskStateLabel.setText("");
   }
 
+  private String getMessageForTask(final Task<?> task) {
+    final String msg;
+    switch (task.getState()) {
+      case SUCCEEDED:
+        msg = "";
+        break;
+      case CANCELLED:
+        msg = resources.getString("task.Cancelled");
+        break;
+      case FAILED:
+        msg = resources.getString("task.Failed");
+        break;
+      case READY:
+      case SCHEDULED:
+      case RUNNING:
+      default:
+        msg = resources.getString("task.Running");
+        break;
+    }
+    return msg;
+  }
 }

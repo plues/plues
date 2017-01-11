@@ -7,20 +7,16 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.Router;
-import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableCell;
@@ -78,8 +74,6 @@ public class GroupUnsatCore extends VBox implements Initializable  {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    this.visibleProperty().bind(groups.emptyProperty().not());
-
     groupsTable.itemsProperty().bind(groups);
     groupsTable.setOnMouseClicked(DetailViewHelper.getGroupMouseHandler(
         groupsTable, router));
@@ -163,11 +157,7 @@ public class GroupUnsatCore extends VBox implements Initializable  {
     return groups;
   }
 
-  void showTaskState(final SolverTask task) {
-    unsatCoreButtonBar.showTaskState(task);
-  }
-
-  public UnsatCoreButtonBar getUnsatCoreButtonBar() {
+  UnsatCoreButtonBar getUnsatCoreButtonBar() {
     return unsatCoreButtonBar;
   }
 }

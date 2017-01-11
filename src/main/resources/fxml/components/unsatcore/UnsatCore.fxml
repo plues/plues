@@ -5,18 +5,38 @@
 <?import de.hhu.stups.plues.ui.controller.unsatcore.GroupUnsatCore?>
 <?import de.hhu.stups.plues.ui.controller.unsatcore.ModuleUnsatCore?>
 <?import de.hhu.stups.plues.ui.controller.unsatcore.SessionUnsatCore?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.VBox?>
-<fx:root prefHeight="400.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8"
-         xmlns:fx="http://javafx.com/fxml/1">
-    <ScrollPane fitToHeight="false" fitToWidth="true" hbarPolicy="NEVER" pannable="true"
-                vbarPolicy="ALWAYS">
-        <VBox>
-            <CourseUnsatCore fx:id="courseUnsatCore"/>
-            <ModuleUnsatCore fx:id="moduleUnsatCore"/>
-            <AbstractUnitUnsatCore fx:id="abstractUnitUnsatCore"/>
-            <GroupUnsatCore fx:id="groupUnsatCore"/>
-            <SessionUnsatCore fx:id="sessionUnsatCore"/>
-        </VBox>
-    </ScrollPane>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<fx:root type="GridPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+         styleClass="windowPadding" vgap="10.0">
+    <CourseUnsatCore fx:id="courseUnsatCore" GridPane.rowIndex="0"
+                     GridPane.columnIndex="0"/>
+    <Accordion fx:id="stepwisePanesAccordion" GridPane.rowIndex="1" GridPane.columnIndex="0">
+        <panes>
+            <TitledPane fx:id="modulesPane" text="%modulesPaneTitle" expanded="true"
+                        collapsible="true">
+                <ModuleUnsatCore fx:id="moduleUnsatCore"/>
+            </TitledPane>
+            <TitledPane fx:id="abstractUnitsPane" text="%abstractUnitsPaneTitle" collapsible="true">
+                <AbstractUnitUnsatCore fx:id="abstractUnitUnsatCore"/>
+            </TitledPane>
+            <TitledPane fx:id="groupPane" text="%groupsPaneTitle" collapsible="true">
+                <GroupUnsatCore fx:id="groupUnsatCore"/>
+            </TitledPane>
+            <TitledPane fx:id="sessionPane" text="%sessionsPaneTitle" collapsible="true">
+                <SessionUnsatCore fx:id="sessionUnsatCore"/>
+            </TitledPane>
+        </panes>
+    </Accordion>
+    <columnConstraints>
+        <ColumnConstraints percentWidth="100.0"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints percentHeight="25.0"/>
+        <RowConstraints percentHeight="75.0"/>
+    </rowConstraints>
 </fx:root>
