@@ -188,7 +188,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
       bind(sessions, semesterToggle.getToggleGroup().selectedToggleProperty(),
           filterSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
-          filterSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty());
+          filterSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty(),
+          uiDataService.conflictMarkedSessionsProperty());
     }
 
     @Override
@@ -205,10 +206,18 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
         }
 
         return session.getSlot().equals(slot)
-            && !sessionIsExcludedByCourse(session)
-            && !sessionIsExcludedByAbstractUnit(session)
-            && (semester == null || semesters.contains(semester));
+            && (semester == null || semesters.contains(semester)
+            && (sessionIsNotExcluded(session) || sessionIsIncludedByConflict(session)));
       });
+    }
+
+    private boolean sessionIsIncludedByConflict(final SessionFacade session) {
+      return uiDataService.conflictMarkedSessionsProperty().stream()
+          .anyMatch(sessionId -> sessionId == session.getId());
+    }
+
+    private boolean sessionIsNotExcluded(final SessionFacade session) {
+      return !sessionIsExcludedByCourse(session) && !sessionIsExcludedByAbstractUnit(session);
     }
 
     private boolean sessionIsExcludedByCourse(SessionFacade session) {
