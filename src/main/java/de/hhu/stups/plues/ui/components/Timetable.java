@@ -201,7 +201,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
         Integer semester = null;
         if (null != semesterButton) {
-          semester = Integer.valueOf(semesterButton.getText());
+          semester = Integer.valueOf((String) semesterButton.getUserData());
         }
 
         return session.getSlot().equals(slot)
