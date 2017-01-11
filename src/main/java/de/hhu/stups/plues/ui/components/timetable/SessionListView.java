@@ -47,8 +47,6 @@ public class SessionListView extends ListView<SessionFacade> {
                          final ListeningExecutorService executorService,
                          final Provider<SessionCell> cellProvider,
                          final UiDataService uiDataService) {
-    super();
-
     this.slot = slot;
     this.delayedStore = delayedStore;
     this.executorService = executorService;
@@ -135,29 +133,25 @@ public class SessionListView extends ListView<SessionFacade> {
         moveSession.setOnSucceeded(moveSessionEvent
             -> delayedStore.whenAvailable(store
                 -> store.moveSession(getSessionFacadeById(sessionId), slot)));
-        moveSession.setOnFailed(moveSessionEvent -> {
-          Platform.runLater(() -> {
-            final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
-            final Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle(bundle.getString("moveFailedTitle"));
-            alert.setHeaderText(bundle.getString("moveFailedHeader"));
-            alert.setContentText(bundle.getString("moveFailedContent"));
+        moveSession.setOnFailed(moveSessionEvent -> Platform.runLater(() -> {
+          final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
+          final Alert alert = new Alert(Alert.AlertType.ERROR);
+          alert.setTitle(bundle.getString("moveFailedTitle"));
+          alert.setHeaderText(bundle.getString("moveFailedHeader"));
+          alert.setContentText(bundle.getString("moveFailedContent"));
 
-            alert.showAndWait();
-          });
-        });
+          alert.showAndWait();
+        }));
 
-        moveSession.setOnCancelled(moveSessionEvent -> {
-          Platform.runLater(() -> {
-            final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
-            final Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle(bundle.getString("moveCancelledTitle"));
-            alert.setHeaderText(bundle.getString("moveCancelledHeader"));
-            alert.setContentText(bundle.getString("moveCancelledContent"));
+        moveSession.setOnCancelled(moveSessionEvent -> Platform.runLater(() -> {
+          final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
+          final Alert alert = new Alert(Alert.AlertType.WARNING);
+          alert.setTitle(bundle.getString("moveCancelledTitle"));
+          alert.setHeaderText(bundle.getString("moveCancelledHeader"));
+          alert.setContentText(bundle.getString("moveCancelledContent"));
 
-            alert.showAndWait();
-          });
-        });
+          alert.showAndWait();
+        }));
 
         executorService.submit(moveSession);
       });
