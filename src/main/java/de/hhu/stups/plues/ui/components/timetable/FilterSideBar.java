@@ -35,7 +35,7 @@ public class FilterSideBar extends TabPane implements Initializable {
 
   private static final String SIDE_BAR_TAB_LAYOUT = "sideBarTabLayout";
 
-  private UiDataService uiDataService;
+  private final UiDataService uiDataService;
   private Tab selectedSubTab;
   private Timetable parent;
 
@@ -56,7 +56,8 @@ public class FilterSideBar extends TabPane implements Initializable {
   private CheckCourseFeasibility checkCourseFeasibility;
 
   @Inject
-  public FilterSideBar(final Inflater inflater) {
+  public FilterSideBar(final Inflater inflater, final UiDataService uiDataService) {
+    this.uiDataService = uiDataService;
     inflater.inflate("components/timetable/FilterSideBar", this, this, "timetable");
   }
 
@@ -192,10 +193,6 @@ public class FilterSideBar extends TabPane implements Initializable {
   private void selectSideBarTab(final Tab tab) {
     getSelectionModel().select(getTabs().indexOf(tab));
     showSideBar(tab);
-  }
-
-  public void setUiDataService(final UiDataService uiDataService) {
-    this.uiDataService = uiDataService;
   }
 
   public SetOfCourseSelection getSetOfCourseSelection() {

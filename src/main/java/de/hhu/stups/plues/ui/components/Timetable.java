@@ -95,7 +95,6 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     });
 
     filterSideBar.setParent(this);
-    filterSideBar.setUiDataService(uiDataService);
 
     getDividers().get(0).positionProperty().addListener((observable, oldValue, newValue) -> {
       filterSideBar.setTabPaneButtonHeight();
