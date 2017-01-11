@@ -12,6 +12,7 @@ import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.ListProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -62,13 +63,17 @@ public class SessionListView extends ListView<SessionFacade> {
 
   private void setupConflictHighlight() {
     this.uiDataService.conflictMarkedSessionsProperty()
-        .addListener((observable, oldValue, newValue) -> {
-          getStyleClass().remove("red-border");
+        .addListener((observable, oldValue, newValue) -> computeStyleClass());
+    itemsProperty()
+        .addListener((observable, oldValue, newValue) -> computeStyleClass());
+  }
 
-          if (hasSessionIdsIn(this.uiDataService.conflictMarkedSessionsProperty())) {
-            getStyleClass().add("red-border");
-          }
-        });
+  private void computeStyleClass() {
+    getStyleClass().remove("red-border");
+
+    if (hasSessionIdsIn(this.uiDataService.conflictMarkedSessionsProperty())) {
+      getStyleClass().add("red-border");
+    }
   }
 
   private boolean hasSessionIdsIn(final ObservableList<Integer> ids) {
