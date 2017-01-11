@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui.components;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Session;
@@ -173,15 +174,18 @@ public class ConflictTree extends VBox implements Initializable {
       }
     });
     treeColumnKey.setCellValueFactory(param ->
-        (param.getValue().getValue() instanceof Session)
-            ? new ReadOnlyStringWrapper(
-            ((Session) param.getValue().getValue()).getGroup().getUnit().getKey())
-            : new ReadOnlyStringWrapper(""));
+        new ReadOnlyStringWrapper(
+          (param.getValue().getValue() instanceof Session)
+          ?
+            ((Session) param.getValue().getValue()).getGroup().getUnit().getKey() : ""));
+
     treeColumnSemesters.setCellValueFactory(param ->
-        (param.getValue().getValue() instanceof Session)
-            ? new ReadOnlyStringWrapper(
-            ((Session) param.getValue().getValue()).getGroup().getUnit().getSemesters().toString())
-            : new ReadOnlyStringWrapper(""));
+        new ReadOnlyStringWrapper(
+          (param.getValue().getValue() instanceof Session)
+          ?
+            Joiner.on(", ").join(
+              ((Session) param.getValue().getValue()).getGroup().getUnit().getSemesters())
+            : ""));
   }
 
   private void initTimeStrings() {
