@@ -30,6 +30,10 @@
     -fx-control-inner-background: #F2F2F2;
 }
 
+.conflicted-semester {
+    -fx-base: #ffbaba;
+}
+
 .conflicted-session {
     -fx-background-color: #ffbaba;
     -fx-text-fill: aliceblue;
