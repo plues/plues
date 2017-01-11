@@ -31,12 +31,12 @@
 }
 
 .conflicted-session {
-    -fx-background-color: darkred;
+    -fx-background-color: #ffbaba;
     -fx-text-fill: aliceblue;
 }
 
 .red-border {
-    -fx-border-color: red;
+    -fx-border-color: #ffbaba;
     -fx-border-width: 10;
     -fx-border-style: dotted;
 }
