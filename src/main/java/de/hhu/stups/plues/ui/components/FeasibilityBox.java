@@ -277,7 +277,7 @@ public class FeasibilityBox extends VBox implements Initializable {
         lbErrorMsg.setText(noConflictString);
       }
       cbAction.setItems(FXCollections.observableList(
-          Arrays.asList(openInTimetable, unsatCoreString, stepwiseUnsatCore, removeString)));
+          Arrays.asList(unsatCoreString, openInTimetable, stepwiseUnsatCore, removeString)));
       cbAction.getSelectionModel().selectFirst();
     });
 
@@ -313,7 +313,7 @@ public class FeasibilityBox extends VBox implements Initializable {
           Arrays.asList(openInTimetable, restartComputation, removeString));
     } else {
       return FXCollections.observableList(
-          Arrays.asList(openInTimetable, unsatCoreString, stepwiseUnsatCore, removeString));
+          Arrays.asList(unsatCoreString, openInTimetable, stepwiseUnsatCore, removeString));
     }
   }
 
