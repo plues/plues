@@ -40,8 +40,7 @@ public class ModuleUnsatCore extends VBox implements Initializable {
    * Default constructor.
    */
   @Inject
-  public ModuleUnsatCore(final Inflater inflater,
-                         final Router router) {
+  public ModuleUnsatCore(final Inflater inflater, final Router router) {
     this.router = router;
 
     modules = new SimpleListProperty<>(FXCollections.emptyObservableList());
@@ -50,7 +49,7 @@ public class ModuleUnsatCore extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     modulesTable.itemsProperty().bind(modules);
     modulesTable.setOnMouseClicked(DetailViewHelper.getModuleMouseHandler(
         modulesTable, router));

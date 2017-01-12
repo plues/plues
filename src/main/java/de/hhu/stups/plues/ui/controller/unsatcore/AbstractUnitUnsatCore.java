@@ -66,7 +66,7 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     abstractUnitsTable.itemsProperty().bind(abstractUnitsProperty);
     abstractUnitsTable.setOnMouseClicked(DetailViewHelper.getAbstractUnitMouseHandler(
         abstractUnitsTable, router));
