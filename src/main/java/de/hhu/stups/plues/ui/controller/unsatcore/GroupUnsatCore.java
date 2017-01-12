@@ -23,6 +23,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.Collection;
@@ -30,7 +31,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class GroupUnsatCore extends VBox implements Initializable  {
+public class GroupUnsatCore extends VBox implements Initializable {
 
   private final ListProperty<Group> groups;
   private final ListProperty<AbstractUnit> abstractUnits;
@@ -57,6 +58,9 @@ public class GroupUnsatCore extends VBox implements Initializable  {
   @FXML
   @SuppressWarnings("unused")
   private UnsatCoreButtonBar unsatCoreButtonBar;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   /**
    * Default constructor.
@@ -74,6 +78,8 @@ public class GroupUnsatCore extends VBox implements Initializable  {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    txtExplanation.wrappingWidthProperty().bind(widthProperty().subtract(150));
+
     groupsTable.itemsProperty().bind(groups);
     groupsTable.setOnMouseClicked(DetailViewHelper.getGroupMouseHandler(
         groupsTable, router));
@@ -103,7 +109,7 @@ public class GroupUnsatCore extends VBox implements Initializable  {
               return String.format("%s%s - %s%n", prefix, dayString, timeString);
             })
             .reduce(String::concat).orElse("??"));
-        }
+      }
     });
 
     unsatCoreButtonBar.setText(resources.getString("button.unsatCoreSession"));
@@ -111,8 +117,8 @@ public class GroupUnsatCore extends VBox implements Initializable  {
     // extract abstract units associated to group (through unit) in the current abstract unit core
     groupAbstractUnits.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
         param.getValue().getUnit().getAbstractUnits().stream()
-          .filter(getAbstractUnits()::contains)
-          .collect(Collectors.toSet())));
+            .filter(getAbstractUnits()::contains)
+            .collect(Collectors.toSet())));
 
     groupAbstractUnits.setCellFactory(param -> new TableCell<Group, Set<AbstractUnit>>() {
       @Override
@@ -125,7 +131,7 @@ public class GroupUnsatCore extends VBox implements Initializable  {
         final String prefix = getPrefix(item);
         setText(item.stream()
             .map(e -> String.format("%s%s", prefix, e.getKey())).collect(Collectors.joining(
-              String.format("%n"))));
+                String.format("%n"))));
       }
     });
   }

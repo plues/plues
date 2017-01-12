@@ -9,7 +9,7 @@
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.GridPane?>
 
-<fx:root type="javafx.scene.layout.VBox" styleClass="windowPadding" spacing="10.0"
+<fx:root type="javafx.scene.layout.VBox" styleClass="windowPadding" spacing="20.0"
          xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <CourseUnsatCore fx:id="courseUnsatCore"/>
     <Accordion fx:id="stepwisePanesAccordion" expandedPane="$courseSelectionPane"

@@ -18,6 +18,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -42,6 +43,9 @@ public class SessionUnsatCore extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Session, String> sessionUnitTitleColumn;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   /**
    * Default constructor.
@@ -57,6 +61,8 @@ public class SessionUnsatCore extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    txtExplanation.wrappingWidthProperty().bind(widthProperty().subtract(150));
+
     sessionsTable.itemsProperty().bind(sessions);
     sessionsTable.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
         sessionsTable, router));
