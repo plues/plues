@@ -1,5 +1,7 @@
 package de.hhu.stups.plues.ui.controller.unsatcore;
 
+import static javafx.concurrent.Worker.State.SUCCEEDED;
+
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.ui.TaskBindings;
@@ -20,11 +22,12 @@ import javafx.scene.layout.HBox;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+
 public class UnsatCoreButtonBar extends HBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private Button button;
+  private Button btSubmitTask;
   @FXML
   @SuppressWarnings("unused")
   private Label taskStateLabel;
@@ -46,8 +49,8 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
-    this.button.textProperty().bind(this.textProperty());
-    this.button.disableProperty().bind(this.disabledProperty());
+    btSubmitTask.textProperty().bind(textProperty());
+    btSubmitTask.disableProperty().bind(disabledProperty());
   }
 
   public String getText() {
@@ -64,7 +67,7 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
 
 
   public void setOnAction(final EventHandler<ActionEvent> eventHandler) {
-    this.button.setOnAction(eventHandler);
+    this.btSubmitTask.setOnAction(eventHandler);
   }
 
   /**
@@ -75,6 +78,7 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     taskStateIcon.styleProperty().unbind();
     taskStateLabel.textProperty().unbind();
 
+    taskStateIcon.visibleProperty().bind(task.stateProperty().isEqualTo(SUCCEEDED).not());
     taskStateIcon.graphicProperty().bind(TaskBindings.getIconBinding("25", task));
     taskStateIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
     taskStateLabel.textProperty().bind(Bindings.createStringBinding(
@@ -95,20 +99,18 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   private String getMessageForTask(final Task<?> task) {
     final String msg;
     switch (task.getState()) {
-      case SUCCEEDED:
-        msg = "";
-        break;
       case CANCELLED:
         msg = resources.getString("task.Cancelled");
         break;
       case FAILED:
         msg = resources.getString("task.Failed");
         break;
+      case SUCCEEDED:
       case READY:
       case SCHEDULED:
       case RUNNING:
       default:
-        msg = resources.getString("task.Running");
+        msg = "";
         break;
     }
     return msg;
