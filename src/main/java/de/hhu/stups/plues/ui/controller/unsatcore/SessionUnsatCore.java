@@ -47,8 +47,7 @@ public class SessionUnsatCore extends VBox implements Initializable {
    * Default constructor.
    */
   @Inject
-  public SessionUnsatCore(final Inflater inflater,
-                          final Router router) {
+  public SessionUnsatCore(final Inflater inflater, final Router router) {
     sessions = new SimpleListProperty<>(FXCollections.emptyObservableList());
     this.router = router;
 
@@ -57,7 +56,7 @@ public class SessionUnsatCore extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     sessionsTable.itemsProperty().bind(sessions);
     sessionsTable.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
         sessionsTable, router));
