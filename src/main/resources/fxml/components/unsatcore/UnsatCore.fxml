@@ -8,35 +8,25 @@
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.RowConstraints?>
 
-<fx:root type="GridPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-         styleClass="windowPadding" vgap="10.0">
-    <CourseUnsatCore fx:id="courseUnsatCore" GridPane.rowIndex="0"
-                     GridPane.columnIndex="0"/>
-    <Accordion fx:id="stepwisePanesAccordion" GridPane.rowIndex="1" GridPane.columnIndex="0">
+<fx:root type="javafx.scene.layout.VBox" styleClass="windowPadding" spacing="10.0"
+         xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <CourseUnsatCore fx:id="courseUnsatCore"/>
+    <Accordion fx:id="stepwisePanesAccordion" expandedPane="$courseSelectionPane"
+               GridPane.rowIndex="1" GridPane.columnIndex="0">
         <panes>
-            <TitledPane fx:id="modulesPane" text="%modulesPaneTitle" expanded="true"
-                        collapsible="true">
+            <TitledPane fx:id="modulesPane" text="%modulesPaneTitle">
                 <ModuleUnsatCore fx:id="moduleUnsatCore"/>
             </TitledPane>
-            <TitledPane fx:id="abstractUnitsPane" text="%abstractUnitsPaneTitle" collapsible="true">
+            <TitledPane fx:id="abstractUnitsPane" text="%abstractUnitsPaneTitle">
                 <AbstractUnitUnsatCore fx:id="abstractUnitUnsatCore"/>
             </TitledPane>
-            <TitledPane fx:id="groupPane" text="%groupsPaneTitle" collapsible="true">
+            <TitledPane fx:id="groupPane" text="%groupsPaneTitle">
                 <GroupUnsatCore fx:id="groupUnsatCore"/>
             </TitledPane>
-            <TitledPane fx:id="sessionPane" text="%sessionsPaneTitle" collapsible="true">
+            <TitledPane fx:id="sessionPane" text="%sessionsPaneTitle">
                 <SessionUnsatCore fx:id="sessionUnsatCore"/>
             </TitledPane>
         </panes>
     </Accordion>
-    <columnConstraints>
-        <ColumnConstraints percentWidth="100.0"/>
-    </columnConstraints>
-    <rowConstraints>
-        <RowConstraints percentHeight="25.0"/>
-        <RowConstraints percentHeight="75.0"/>
-    </rowConstraints>
 </fx:root>

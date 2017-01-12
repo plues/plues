@@ -20,7 +20,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class UnsatCore extends GridPane implements Initializable, Activatable {
+public class UnsatCore extends VBox implements Initializable, Activatable {
 
   private final ObjectProperty<SolverService> solverService;
   private final ObjectProperty<Store> store;
@@ -104,7 +104,6 @@ public class UnsatCore extends GridPane implements Initializable, Activatable {
     courseUnsatCore.getCoursesProperty().addListener((observable, oldValue, newValue) -> {
       moduleUnsatCore.setModules(FXCollections.emptyObservableList());
       moduleUnsatCore.resetTaskState();
-      stepwisePanesAccordion.setExpandedPane(null);
     });
 
     final BooleanBinding binding = solverService.isNull()
@@ -149,7 +148,6 @@ public class UnsatCore extends GridPane implements Initializable, Activatable {
   private void initializeGroupUnsatCore() {
     groupUnsatCore.getGroupProperty().addListener((observable, oldValue, newValue) ->
         sessionUnsatCore.setSessions(FXCollections.emptyObservableList()));
-
 
     final BooleanBinding binding = groupUnsatCore.getGroupProperty().emptyProperty()
         .or(sessionUnsatCore.getSessionProperty().emptyProperty().not());
