@@ -174,9 +174,6 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
    * Highlight the given courses or session when the user navigates to the timetable via the {@link
    * de.hhu.stups.plues.routes.ControllerRoute}.
    */
-  // TODO: Consider passing route name as first argument to activateController in order to use
-  // the route instead of the type of the arguments to select the correct behaviour
-  //
   // XXX is it a good idea to use the router for selecting a session?
   // an alternative would be a selected session property in the timetable controller
   // or a global event bus that could unify the different event handling/notification and routing
@@ -186,20 +183,24 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     if (args.length == 0) {
       return;
     }
-    if (args[0] instanceof Course) {
-      filterSideBar.activateComponents(args);
-    }
-    final Optional<SessionFacade> sessionFacade = sessions.stream()
-        .filter(facade -> facade.getId() == ((Session) args[0]).getId()).findFirst();
+    switch (routeName) {
+      case SESSION_IN_TIMETABLE:
+        final Optional<SessionFacade> sessionFacade = sessions.stream()
+          .filter(facade -> facade.getId() == ((Session) args[0]).getId()).findFirst();
 
-    sessionFacade.ifPresent(this::selectSemesterForSession);
-    sessionFacade.ifPresent(facade -> timeTable.getChildren().forEach(node -> {
-      if (node instanceof SessionListView) {
-        final SessionListView sessionListView = (SessionListView) node;
-        sessionListView.scrollTo(facade);
-        sessionListView.getSelectionModel().select(facade);
-      }
-    }));
+        sessionFacade.ifPresent(this::selectSemesterForSession);
+        sessionFacade.ifPresent(facade -> timeTable.getChildren().forEach(node -> {
+          if (node instanceof SessionListView) {
+            final SessionListView sessionListView = (SessionListView) node;
+            sessionListView.scrollTo(facade);
+            sessionListView.getSelectionModel().select(facade);
+          }
+        }));
+        break;
+      default:
+        filterSideBar.activateComponents(args);
+        break;
+    }
   }
 
   private void selectSemesterForSession(final SessionFacade facade) {
