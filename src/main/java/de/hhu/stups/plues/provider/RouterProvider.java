@@ -83,6 +83,8 @@ public class RouterProvider implements Provider<Router> {
       cache.put(RouteNames.HANDBOOK_PDF, handbookRouteFactory.create(HandbookRoute.Format.PDF));
       cache.put(RouteNames.TIMETABLE,
           controllerRouteFactory.create("tabTimetable"));
+      cache.put(RouteNames.SESSION_IN_TIMETABLE,
+        controllerRouteFactory.create("tabTimetable"));
       cache.put(RouteNames.PDF_TIMETABLES,
           controllerRouteFactory.create("tabPdfTimetables"));
       cache.put(RouteNames.PARTIAL_TIMETABLES,
