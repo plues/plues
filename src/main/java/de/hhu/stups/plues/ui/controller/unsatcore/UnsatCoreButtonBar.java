@@ -79,7 +79,7 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   }
 
   public void setOnAction(final EventHandler<ActionEvent> eventHandler) {
-    this.btSubmitTask.setOnAction(eventHandler);
+    btSubmitTask.setOnAction(eventHandler);
   }
 
   @FXML
@@ -115,6 +115,18 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
 
     taskStateIconTooltip.textProperty().unbind();
     taskStateIconTooltip.setText("");
+  }
+
+  public Task getTask() {
+    return task;
+  }
+
+  public Button getBtSubmitTask() {
+    return btSubmitTask;
+  }
+
+  public Button getBtCancelTask() {
+    return btCancelTask;
   }
 
   private String getMessageForTask(final Task<?> task) {
