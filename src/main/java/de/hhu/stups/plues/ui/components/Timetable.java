@@ -186,7 +186,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     switch (routeName) {
       case SESSION_IN_TIMETABLE:
         final Optional<SessionFacade> sessionFacade = sessions.stream()
-          .filter(facade -> facade.getId() == ((Session) args[0]).getId()).findFirst();
+            .filter(facade -> facade.getId() == ((Session) args[0]).getId()).findFirst();
 
         sessionFacade.ifPresent(this::selectSemesterForSession);
         sessionFacade.ifPresent(facade -> timeTable.getChildren().forEach(node -> {
