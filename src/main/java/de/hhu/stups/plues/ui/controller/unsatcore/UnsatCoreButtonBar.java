@@ -15,8 +15,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 
 import java.net.URL;
@@ -30,10 +32,10 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   private Button btSubmitTask;
   @FXML
   @SuppressWarnings("unused")
-  private Label taskStateLabel;
+  private Label taskStateIcon;
   @FXML
   @SuppressWarnings("unused")
-  private Label taskStateIcon;
+  private Tooltip taskStateIconTooltip;
 
   private StringProperty text = new SimpleStringProperty();
   private ResourceBundle resources;
@@ -51,6 +53,13 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     this.resources = resources;
     btSubmitTask.textProperty().bind(textProperty());
     btSubmitTask.disableProperty().bind(disabledProperty());
+
+    taskStateIcon.setOnMouseEntered(event -> {
+      final Point2D pos = taskStateIcon.localToScreen(
+          taskStateIcon.getLayoutBounds().getMaxX(), taskStateIcon.getLayoutBounds().getMaxY());
+      taskStateIconTooltip.show(taskStateIcon, pos.getX(), pos.getY());
+    });
+    taskStateIcon.setOnMouseExited(event -> taskStateIconTooltip.hide());
   }
 
   public String getText() {
@@ -65,7 +74,6 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     return this.text;
   }
 
-
   public void setOnAction(final EventHandler<ActionEvent> eventHandler) {
     this.btSubmitTask.setOnAction(eventHandler);
   }
@@ -76,12 +84,12 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   void showTaskState(final Task<?> task) {
     taskStateIcon.graphicProperty().unbind();
     taskStateIcon.styleProperty().unbind();
-    taskStateLabel.textProperty().unbind();
+    taskStateIconTooltip.textProperty().unbind();
 
     taskStateIcon.visibleProperty().bind(task.stateProperty().isEqualTo(SUCCEEDED).not());
     taskStateIcon.graphicProperty().bind(TaskBindings.getIconBinding("25", task));
     taskStateIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
-    taskStateLabel.textProperty().bind(Bindings.createStringBinding(
+    taskStateIconTooltip.textProperty().bind(Bindings.createStringBinding(
         () -> getMessageForTask(task), task.stateProperty()));
   }
 
@@ -92,13 +100,16 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     taskStateIcon.graphicProperty().unbind();
     taskStateIcon.setGraphic(null);
 
-    taskStateLabel.textProperty().unbind();
-    taskStateLabel.setText("");
+    taskStateIconTooltip.textProperty().unbind();
+    taskStateIconTooltip.setText("");
   }
 
   private String getMessageForTask(final Task<?> task) {
     final String msg;
     switch (task.getState()) {
+      case RUNNING:
+        msg = resources.getString("task.Running");
+        break;
       case CANCELLED:
         msg = resources.getString("task.Cancelled");
         break;
@@ -108,7 +119,6 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
       case SUCCEEDED:
       case READY:
       case SCHEDULED:
-      case RUNNING:
       default:
         msg = "";
         break;
