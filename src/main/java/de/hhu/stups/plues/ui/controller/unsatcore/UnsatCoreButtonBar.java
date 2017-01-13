@@ -32,6 +32,9 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   private Button btSubmitTask;
   @FXML
   @SuppressWarnings("unused")
+  private Button btCancelTask;
+  @FXML
+  @SuppressWarnings("unused")
   private Label taskStateIcon;
   @FXML
   @SuppressWarnings("unused")
@@ -39,6 +42,7 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
 
   private StringProperty text = new SimpleStringProperty();
   private ResourceBundle resources;
+  private Task<?> task;
 
   /**
    * Default constructor.
@@ -78,10 +82,17 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     this.btSubmitTask.setOnAction(eventHandler);
   }
 
+  @FXML
+  @SuppressWarnings("unused")
+  public void cancelTask() {
+    task.cancel(true);
+  }
+
   /**
    * Show and set current task state.
    */
   void showTaskState(final Task<?> task) {
+    this.task = task;
     taskStateIcon.graphicProperty().unbind();
     taskStateIcon.styleProperty().unbind();
     taskStateIconTooltip.textProperty().unbind();
@@ -91,6 +102,8 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     taskStateIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
     taskStateIconTooltip.textProperty().bind(Bindings.createStringBinding(
         () -> getMessageForTask(task), task.stateProperty()));
+    btCancelTask.disableProperty().bind(task.runningProperty().not());
+    btSubmitTask.disableProperty().bind(task.runningProperty());
   }
 
   void resetTaskState() {

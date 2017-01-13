@@ -8,6 +8,7 @@
 <fx:root prefWidth="700.0" type="HBox" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1" spacing="10.0">
     <Button fx:id="btSubmitTask"/>
+    <Button fx:id="btCancelTask" text="%button.cancel" onAction="#cancelTask" disable="true"/>
     <Label fx:id="taskStateIcon">
         <tooltip>
             <Tooltip fx:id="taskStateIconTooltip"/>
