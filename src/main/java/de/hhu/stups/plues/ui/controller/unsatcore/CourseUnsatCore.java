@@ -38,6 +38,9 @@ public class CourseUnsatCore extends GridPane implements Initializable {
   private Label unsatCoreInfo;
   @FXML
   @SuppressWarnings("unused")
+  private Tooltip unsatCoreInfoTooltip;
+  @FXML
+  @SuppressWarnings("unused")
   private CombinationOrSingleCourseSelection courseSelection;
   @FXML
   @SuppressWarnings("unused")
@@ -64,16 +67,13 @@ public class CourseUnsatCore extends GridPane implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    final Tooltip infoTooltip = new Tooltip(resources.getString("unsatCoreExplanation"));
-    infoTooltip.setPrefWidth(400.0);
-    infoTooltip.setWrapText(true);
 
     unsatCoreInfo.setOnMouseEntered(event -> {
       final Point2D pos = unsatCoreInfo.localToScreen(
           unsatCoreInfo.getLayoutBounds().getMaxX(), unsatCoreInfo.getLayoutBounds().getMaxY());
-      infoTooltip.show(unsatCoreInfo, pos.getX(), pos.getY());
+      unsatCoreInfoTooltip.show(unsatCoreInfo, pos.getX(), pos.getY());
     });
-    unsatCoreInfo.setOnMouseExited(event -> infoTooltip.hide());
+    unsatCoreInfo.setOnMouseExited(event -> unsatCoreInfoTooltip.hide());
 
     unsatCoreInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
         FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "20")));
