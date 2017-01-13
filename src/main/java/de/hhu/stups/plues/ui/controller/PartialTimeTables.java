@@ -8,6 +8,7 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.prob.FeasibilityResult;
+import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
@@ -251,7 +252,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
    * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
    */
   @Override
-  public void activateController(Object... courses) {
+  public void activateController(final RouteNames routeName, final Object... courses) {
     if (courses.length > 0) {
       courseSelection.selectCourse((Course) courses[0]);
     }

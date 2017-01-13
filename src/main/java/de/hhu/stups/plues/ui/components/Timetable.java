@@ -14,6 +14,7 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
+import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.timetable.FilterSideBar;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
@@ -181,7 +182,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   // or a global event bus that could unify the different event handling/notification and routing
   // mechanism.
   @Override
-  public void activateController(final Object... args) {
+  public void activateController(final RouteNames routeName, final Object... args) {
     if (args.length == 0) {
       return;
     }

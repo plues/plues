@@ -18,7 +18,7 @@ public class ReportsRoute implements Route {
   }
 
   @Override
-  public void transition(Object... args) {
+  public void transition(final RouteNames routeName, final Object... args) {
     final Reports reports = reportsProvider.get();
     final String title = (String) args[0];
 

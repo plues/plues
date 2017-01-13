@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.controller.Activatable;
@@ -209,7 +210,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
    * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
    */
   @Override
-  public void activateController(final Object... args) {
+  public void activateController(final RouteNames routeName, final Object... args) {
     courseUnsatCore.selectCourses(getCoursesFromArray(args));
     computeUnsatCoreModules(null);
   }

@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.ui.controller;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 
 /**
@@ -9,5 +10,5 @@ import de.hhu.stups.plues.routes.Router;
  */
 @FunctionalInterface
 public interface Activatable {
-  void activateController(Object... args);
+  void activateController(RouteNames route, Object... args);
 }
