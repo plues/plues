@@ -4,6 +4,8 @@ import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Session;
+import de.hhu.stups.plues.routes.RouteNames;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -38,6 +40,7 @@ public class ConflictTree extends VBox implements Initializable {
   private final EnumMap<DayOfWeek, String> dayOfWeekStrings;
   private final Map<Integer, String> timeStrings;
   private final UiDataService uiDataService;
+  private final Router router;
 
   private ListProperty<Integer> unsatCoreProperty;
   private ResourceBundle resources;
@@ -63,10 +66,14 @@ public class ConflictTree extends VBox implements Initializable {
    * Initialize the conflict tree.
    */
   @Inject
-  public ConflictTree(final Inflater inflater, final UiDataService uiDataService) {
+  public ConflictTree(final Inflater inflater,
+      final UiDataService uiDataService,
+      final Router router) {
     this.uiDataService = uiDataService;
-    dayOfWeekStrings = new EnumMap<>(DayOfWeek.class);
-    timeStrings = new HashMap<>();
+    this.router = router;
+
+    this.dayOfWeekStrings = new EnumMap<>(DayOfWeek.class);
+    this.timeStrings = new HashMap<>();
 
     inflater.inflate("components/ConflictTree", this, this, "conflictTree", "Days", "Column");
   }
@@ -87,6 +94,15 @@ public class ConflictTree extends VBox implements Initializable {
                 + 50.0);
       } else {
         conflictTreeTableView.setPrefHeight(175.0);
+      }
+    });
+
+    conflictTreeTableView.setOnMouseClicked(event -> {
+      final TreeItem<Object> item = conflictTreeTableView.getSelectionModel().getSelectedItem();
+
+      if (event.getClickCount() == 2 && item != null && item.getValue() instanceof Session) {
+        router.transitionTo(RouteNames.SESSION_IN_TIMETABLE, item.getValue());
+
       }
     });
     initTreeTableViewValueFactories();
