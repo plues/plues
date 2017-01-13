@@ -12,6 +12,7 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.timetable.FilterSideBar;
@@ -33,6 +34,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 import org.controlsfx.control.SegmentedButton;
@@ -40,8 +42,10 @@ import org.controlsfx.control.SegmentedButton;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -116,13 +120,12 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
   private void highlightConflictedSemesters(final ObservableSet<String> semesters) {
     semesterToggle.getButtons().forEach(toggle -> {
-      final ToggleButton button = toggle;
-      final String value = (String) button.getUserData();
+      final String value = (String) toggle.getUserData();
 
       if (semesters.contains(value)) {
-        button.getStyleClass().add("conflicted-semester");
+        toggle.getStyleClass().add("conflicted-semester");
       } else {
-        button.getStyleClass().remove("conflicted-semester");
+        toggle.getStyleClass().remove("conflicted-semester");
       }
     });
   }
@@ -167,12 +170,58 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   }
 
   /**
-   * Highlight the given courses when the user navigates to the timetable via the {@link
+   * Highlight the given courses or session when the user navigates to the timetable via the {@link
    * de.hhu.stups.plues.routes.ControllerRoute}.
    */
+  // TODO: Consider passing route name as first argument to activateController in order to use
+  // the route instead of the type of the arguments to select the correct behaviour
+  //
+  // XXX is it a good idea to use the router for selecting a session?
+  // an alternative would be a selected session property in the timetable controller
+  // or a global event bus that could unify the different event handling/notification and routing
+  // mechanism.
   @Override
   public void activateController(final Object... args) {
-    filterSideBar.activateComponents(args);
+    if (args.length == 0) {
+      return;
+    }
+    if (args[0] instanceof Course) {
+      filterSideBar.activateComponents(args);
+    }
+    final Optional<SessionFacade> sessionFacade = sessions.stream()
+        .filter(facade -> facade.getId() == ((Session) args[0]).getId()).findFirst();
+
+    sessionFacade.ifPresent(this::selectSemesterForSession);
+    sessionFacade.ifPresent(facade -> timeTable.getChildren().forEach(node -> {
+      if (node instanceof SessionListView) {
+        final SessionListView sessionListView = (SessionListView) node;
+        sessionListView.scrollTo(facade);
+        sessionListView.getSelectionModel().select(facade);
+      }
+    }));
+  }
+
+  private void selectSemesterForSession(final SessionFacade facade) {
+    final Toggle selectedSemester = semesterToggle.getToggleGroup().getSelectedToggle();
+
+    // no semester is selected, hence all sessions are visible
+    if (selectedSemester == null) {
+      return;
+    }
+
+    final Set<Integer> unitSemesters = facade.getUnitSemesters();
+    final int semester = Integer.parseInt(String.valueOf(selectedSemester.getUserData()));
+
+    // a semester for the session is already selected
+    if (unitSemesters.contains(semester)) {
+      return;
+    }
+
+    final Integer first = Collections.min(unitSemesters);
+    final Optional<ToggleButton> toggleButton = semesterToggle.getButtons().stream()
+        .filter(button -> button.getUserData().equals(String.valueOf(first)))
+        .findFirst();
+    toggleButton.ifPresent(button -> button.setSelected(true));
   }
 
   public void restoreUserDefinedDividerPos() {
