@@ -116,10 +116,18 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     });
 
     courses.addListener((observable, oldValue, newValue) -> {
-      handleTitledPaneVisibility(courses.stream().filter(Course::isMaster).findAny().isPresent(),
-          titledPaneMasterCourse);
-      handleTitledPaneVisibility(courses.stream().filter(Course::isBachelor).findAny().isPresent(),
-          titledPaneBachelorCourse);
+      final boolean hasMaster = courses.stream().filter(Course::isMaster).findAny().isPresent();
+      final boolean hasBachelor = courses.stream().filter(Course::isBachelor).findAny().isPresent();
+      if (!hasMaster) {
+        getChildren().remove(titledPaneMasterCourse);
+      } else if (!getChildren().contains(titledPaneMasterCourse)) {
+        getChildren().add(2, titledPaneMasterCourse);
+      }
+      if (!hasBachelor) {
+        getChildren().remove(titledPaneBachelorCourse);
+      } else if (!getChildren().contains(titledPaneBachelorCourse)) {
+        getChildren().add(titledPaneBachelorCourse);
+      }
     });
 
     tableViewMasterCourse.itemsProperty().bind(newFilterBinding(SelectableCourse::isMaster));
@@ -152,17 +160,6 @@ public class SetOfCourseSelection extends VBox implements Initializable {
                 FXCollections::observableArrayList));
       }
     });
-  }
-
-  /**
-   * Add or remove a given TitledPane to the component according to the parameter {@code bool}.
-   */
-  private void handleTitledPaneVisibility(final boolean bool, final TitledPane titledPane) {
-    if (!bool) {
-      getChildren().remove(titledPane);
-    } else if (!getChildren().contains(titledPane)) {
-      getChildren().add(titledPane);
-    }
   }
 
   private ListBinding<SelectableCourse> newFilterBinding(
