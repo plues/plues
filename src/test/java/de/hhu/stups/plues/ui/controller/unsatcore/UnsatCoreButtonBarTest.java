@@ -22,18 +22,18 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
 
   @Test
   public void submitTaskTest() {
-    Assert.assertTrue(unsatCoreButtonBar.getBtCancelTask().isDisabled());
-    Assert.assertFalse(unsatCoreButtonBar.getBtSubmitTask().isDisabled());
+    Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
+    Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
 
     unsatCoreButtonBar.setOnAction((event) -> runSimpleTask(3));
-    Assert.assertTrue(unsatCoreButtonBar.getBtCancelTask().isDisabled());
-    Assert.assertFalse(unsatCoreButtonBar.getBtSubmitTask().isDisabled());
+    Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
+    Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
     Assert.assertEquals(unsatCoreButtonBar.getTask(), null);
 
-    clickOn(unsatCoreButtonBar.getBtSubmitTask());
+    clickOn(unsatCoreButtonBar.getSubmitTask());
     Assert.assertNotEquals(unsatCoreButtonBar.getTask(), null);
-    Assert.assertFalse(unsatCoreButtonBar.getBtCancelTask().isDisabled());
-    Assert.assertTrue(unsatCoreButtonBar.getBtSubmitTask().isDisabled());
+    Assert.assertFalse(unsatCoreButtonBar.getCancelTask().isDisabled());
+    Assert.assertTrue(unsatCoreButtonBar.getSubmitTask().isDisabled());
   }
 
   @Test
@@ -41,12 +41,12 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
     unsatCoreButtonBar.setOnAction((event) -> runSimpleTask(10));
     Assert.assertEquals(unsatCoreButtonBar.getTask(), null);
 
-    clickOn(unsatCoreButtonBar.getBtSubmitTask());
+    clickOn(unsatCoreButtonBar.getSubmitTask());
     Assert.assertNotEquals(unsatCoreButtonBar.getTask(), null);
-    Assert.assertFalse(unsatCoreButtonBar.getBtCancelTask().isDisabled());
-    Assert.assertTrue(unsatCoreButtonBar.getBtSubmitTask().isDisabled());
+    Assert.assertFalse(unsatCoreButtonBar.getCancelTask().isDisabled());
+    Assert.assertTrue(unsatCoreButtonBar.getSubmitTask().isDisabled());
 
-    clickOn(unsatCoreButtonBar.getBtCancelTask());
+    clickOn(unsatCoreButtonBar.getCancelTask());
   }
 
   private void runSimpleTask(final int sleep) {
@@ -55,13 +55,13 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
     executorService.submit(simpleTask);
 
     simpleTask.setOnSucceeded((event -> {
-      Assert.assertTrue(unsatCoreButtonBar.getBtCancelTask().isDisabled());
-      Assert.assertFalse(unsatCoreButtonBar.getBtSubmitTask().isDisabled());
+      Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
+      Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
     }));
 
     simpleTask.setOnCancelled((event -> {
-      Assert.assertTrue(unsatCoreButtonBar.getBtCancelTask().isDisabled());
-      Assert.assertFalse(unsatCoreButtonBar.getBtSubmitTask().isDisabled());
+      Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
+      Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
     }));
   }
 

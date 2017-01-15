@@ -40,7 +40,7 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   @SuppressWarnings("unused")
   private Tooltip taskStateIconTooltip;
 
-  private StringProperty text = new SimpleStringProperty();
+  private final StringProperty text = new SimpleStringProperty();
   private ResourceBundle resources;
   private Task<?> task;
 
@@ -121,11 +121,13 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     return task;
   }
 
-  public Button getBtSubmitTask() {
+  @SuppressWarnings("WeakerAccess")
+  public Button getSubmitTask() {
     return btSubmitTask;
   }
 
-  public Button getBtCancelTask() {
+  @SuppressWarnings("WeakerAccess")
+  public Button getCancelTask() {
     return btCancelTask;
   }
 

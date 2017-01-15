@@ -68,7 +68,7 @@ public class SessionUnsatCore extends VBox implements Initializable {
         sessionsTable, router));
     sessionDayColumn.setCellFactory(param -> new TableCell<Session, String>() {
       @Override
-      protected void updateItem(String item, boolean empty) {
+      protected void updateItem(final String item, final boolean empty) {
         super.updateItem(item, empty);
         if (empty) {
           setText("");
@@ -80,7 +80,7 @@ public class SessionUnsatCore extends VBox implements Initializable {
     });
     sessionTimeColumn.setCellFactory(param -> new TableCell<Session, Integer>() {
       @Override
-      protected void updateItem(Integer item, boolean empty) {
+      protected void updateItem(final Integer item, boolean empty) {
         super.updateItem(item, empty);
         if (empty) {
           setText("");
