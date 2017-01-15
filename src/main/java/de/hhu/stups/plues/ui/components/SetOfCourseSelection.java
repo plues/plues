@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.BooleanProperty;
@@ -114,6 +115,13 @@ public class SetOfCourseSelection extends VBox implements Initializable {
       }
     });
 
+    courses.addListener((observable, oldValue, newValue) -> {
+      handleTitledPaneVisibility(courses.stream().filter(Course::isMaster).findAny().isPresent(),
+          titledPaneMasterCourse);
+      handleTitledPaneVisibility(courses.stream().filter(Course::isBachelor).findAny().isPresent(),
+          titledPaneBachelorCourse);
+    });
+
     tableViewMasterCourse.itemsProperty().bind(newFilterBinding(SelectableCourse::isMaster));
     tableViewBachelorCourse.itemsProperty().bind(newFilterBinding(SelectableCourse::isBachelor));
 
@@ -144,6 +152,17 @@ public class SetOfCourseSelection extends VBox implements Initializable {
                 FXCollections::observableArrayList));
       }
     });
+  }
+
+  /**
+   * Add or remove a given TitledPane to the component according to the parameter {@code bool}.
+   */
+  private void handleTitledPaneVisibility(final boolean bool, final TitledPane titledPane) {
+    if (!bool) {
+      getChildren().remove(titledPane);
+    } else if (!getChildren().contains(titledPane)) {
+      getChildren().add(titledPane);
+    }
   }
 
   private ListBinding<SelectableCourse> newFilterBinding(
