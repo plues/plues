@@ -9,20 +9,21 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.CheckBox?>
-
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <Label text="%search"/>
-        <TextField fx:id="query"/>
-        <Label text="%filter"/>
-        <HBox spacing="10">
-            <RadioButton fx:id="selected" text="%selected"/>
-            <RadioButton fx:id="notSelected" text="%notSelected"/>
-            <RadioButton fx:id="all" text="%all" selected="true"/>
-        </HBox>
-        <CheckBox fx:id="selectedCoursesOnly" text="%selectedCoursesOnly"/>
-        <Button fx:id="clearSelection" text="%clear" onAction="#resetSelection"/>
+        <TextField fx:id="query" promptText="%searchAbstractUnit"/>
+        <VBox styleClass="windowPaddingSmall" spacing="7.0">
+            <Label text="%filter"/>
+            <HBox spacing="10.0">
+                <RadioButton fx:id="selected" text="%selected"/>
+                <RadioButton fx:id="notSelected" text="%notSelected"/>
+                <RadioButton fx:id="all" text="%all" selected="true"/>
+            </HBox>
+            <CheckBox fx:id="selectedCoursesOnly" text="%selectedCoursesOnly"/>
+            <Button fx:id="clearSelection" text="%clear" onAction="#resetSelection"/>
+        </VBox>
         <TableView fx:id="units" editable="true" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="checkboxColumn" prefWidth="30" sortable="false"
