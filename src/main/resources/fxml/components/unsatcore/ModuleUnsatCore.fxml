@@ -1,25 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import de.hhu.stups.plues.ui.controller.unsatcore.UnsatCoreButtonBar?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
-<fx:root prefHeight="400.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8"
+
+<?import javafx.scene.text.Text?>
+<fx:root type="VBox" spacing="10.0" styleClass="windowPadding" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
-    <Separator prefWidth="200.0">
-        <padding>
-            <Insets bottom="10.0" top="10.0" />
-        </padding>
-    </Separator>
-    <Label styleClass="h2" text="%modulesPaneTitle" />
-    <Label text="%modulesPaneExplanation" wrapText="true" />
-    <TableView fx:id="modulesTable" minHeight="400.0" VBox.vgrow="NEVER">
+    <Text fx:id="txtExplanation" text="%modulesPaneExplanation"/>
+    <TableView fx:id="modulesTable">
         <columnResizePolicy>
-            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
         </columnResizePolicy>
         <columns>
             <TableColumn maxWidth="300" minWidth="100" prefWidth="-1.0" text="%columnPordnr">
@@ -27,12 +20,14 @@
                     <PropertyValueFactory property="pordnr"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn maxWidth="1.7976931348623157E308" minWidth="200" prefWidth="-1.0" text="%columnName">
+            <TableColumn maxWidth="1.7976931348623157E308" minWidth="200" prefWidth="-1.0"
+                         text="%columnName">
                 <cellValueFactory>
                     <PropertyValueFactory property="name"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="moduleTypeColumn" maxWidth="200" minWidth="100" text="%columnElectability">
+            <TableColumn fx:id="moduleTypeColumn" maxWidth="200" minWidth="100"
+                         text="%columnElectability">
                 <cellValueFactory>
                     <PropertyValueFactory property="mandatory"/>
                 </cellValueFactory>

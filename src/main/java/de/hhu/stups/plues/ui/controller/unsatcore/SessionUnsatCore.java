@@ -18,6 +18,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -42,13 +43,15 @@ public class SessionUnsatCore extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Session, String> sessionUnitTitleColumn;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   /**
    * Default constructor.
    */
   @Inject
-  public SessionUnsatCore(final Inflater inflater,
-                          final Router router) {
+  public SessionUnsatCore(final Inflater inflater, final Router router) {
     sessions = new SimpleListProperty<>(FXCollections.emptyObservableList());
     this.router = router;
 
@@ -57,15 +60,15 @@ public class SessionUnsatCore extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
-    this.visibleProperty().bind(sessions.emptyProperty().not());
+  public void initialize(final URL location, final ResourceBundle resources) {
+    txtExplanation.wrappingWidthProperty().bind(widthProperty().subtract(150));
 
     sessionsTable.itemsProperty().bind(sessions);
     sessionsTable.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
         sessionsTable, router));
     sessionDayColumn.setCellFactory(param -> new TableCell<Session, String>() {
       @Override
-      protected void updateItem(String item, boolean empty) {
+      protected void updateItem(final String item, final boolean empty) {
         super.updateItem(item, empty);
         if (empty) {
           setText("");
@@ -77,7 +80,7 @@ public class SessionUnsatCore extends VBox implements Initializable {
     });
     sessionTimeColumn.setCellFactory(param -> new TableCell<Session, Integer>() {
       @Override
-      protected void updateItem(Integer item, boolean empty) {
+      protected void updateItem(final Integer item, boolean empty) {
         super.updateItem(item, empty);
         if (empty) {
           setText("");
