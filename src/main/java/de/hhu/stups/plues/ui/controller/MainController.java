@@ -178,7 +178,7 @@ public class MainController implements Initializable {
   private Label lbRunningTasks;
 
   private RadioMenuItem customTimeoutItem;
-  private IntegerProperty customTimeoutProperty;
+  private final IntegerProperty customTimeoutProperty;
 
   /**
    * MainController component.
