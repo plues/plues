@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.hhu.stups.plues.ui.components.timetable.FilterSideBar?>
+<?import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.ToggleButton?>
@@ -11,9 +11,10 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.SegmentedButton?>
+
 <fx:root minHeight="600" prefWidth="250.0" type="javafx.scene.control.SplitPane"
          xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-    <FilterSideBar fx:id="filterSideBar"/>
+    <TimetableSideBar fx:id="timetableSideBar"/>
     <VBox>
         <children>
 

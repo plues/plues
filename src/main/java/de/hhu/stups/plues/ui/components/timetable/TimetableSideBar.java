@@ -31,7 +31,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 
-public class FilterSideBar extends TabPane implements Initializable {
+public class TimetableSideBar extends TabPane implements Initializable {
 
   private static final String SIDE_BAR_TAB_LAYOUT = "sideBarTabLayout";
 
@@ -56,9 +56,9 @@ public class FilterSideBar extends TabPane implements Initializable {
   private CheckCourseFeasibility checkCourseFeasibility;
 
   @Inject
-  public FilterSideBar(final Inflater inflater, final UiDataService uiDataService) {
+  public TimetableSideBar(final Inflater inflater, final UiDataService uiDataService) {
     this.uiDataService = uiDataService;
-    inflater.inflate("components/timetable/FilterSideBar", this, this, "timetable");
+    inflater.inflate("components/timetable/TimetableSideBar", this, this, "timetable");
   }
 
   @Override

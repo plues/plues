@@ -16,11 +16,12 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.UiDataService;
-import de.hhu.stups.plues.ui.components.timetable.FilterSideBar;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
+import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.controller.Activatable;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.SetBinding;
@@ -38,6 +39,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
+
 import org.controlsfx.control.SegmentedButton;
 
 import java.net.URL;
@@ -67,7 +69,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   private SegmentedButton semesterToggle;
   @FXML
   @SuppressWarnings("unused")
-  private FilterSideBar filterSideBar;
+  private TimetableSideBar timetableSideBar;
 
   private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
   private final SetProperty<String> conflictedSemesters;
@@ -92,19 +94,20 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.delayedStore.whenAvailable(store -> {
-      filterSideBar.initializeComponents(store);
+      timetableSideBar.initializeComponents(store);
       setSessions(store.getSessions()
           .parallelStream()
           .map(SessionFacade::new)
           .collect(Collectors.toList()));
     });
 
-    filterSideBar.setParent(this);
+    timetableSideBar.setParent(this);
 
     getDividers().get(0).positionProperty().addListener((observable, oldValue, newValue) -> {
-      filterSideBar.setTabPaneButtonHeight();
+      timetableSideBar.setTabPaneButtonHeight();
       // don't store too small divider positions
-      if (Math.abs(newValue.doubleValue() - filterSideBar.getPaneMinWidth() / getWidth()) > 0.25) {
+      if (Math.abs(newValue.doubleValue()
+          - timetableSideBar.getPaneMinWidth() / getWidth()) > 0.25) {
         userDefinedDividerPos = newValue.doubleValue();
       }
     });
@@ -198,7 +201,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
         }));
         break;
       default:
-        filterSideBar.activateComponents(args);
+        timetableSideBar.activateComponents(args);
         break;
     }
   }
@@ -238,8 +241,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
       this.slot = slot;
 
       bind(sessions, semesterToggle.getToggleGroup().selectedToggleProperty(),
-          filterSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
-          filterSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty(),
+          timetableSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
+          timetableSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty(),
           uiDataService.conflictMarkedSessionsProperty());
     }
 
@@ -273,7 +276,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     private boolean sessionIsExcludedByCourse(SessionFacade session) {
       final Set<Course> filteredCourses =
-          new HashSet<>(filterSideBar.getSetOfCourseSelection().getSelectedCourses());
+          new HashSet<>(timetableSideBar.getSetOfCourseSelection().getSelectedCourses());
 
       final Set<Course> sessionCourses = session.getIntendedCourses();
 
@@ -284,7 +287,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     private boolean sessionIsExcludedByAbstractUnit(final SessionFacade session) {
       final Set<AbstractUnit> filteredAbstractUnits =
-          new HashSet<>(filterSideBar.getAbstractUnitFilter().getSelectedAbstractUnits());
+          new HashSet<>(timetableSideBar.getAbstractUnitFilter().getSelectedAbstractUnits());
 
       final Set<AbstractUnit> sessionAbstractUnits = session.getIntendedAbstractUnits();
 
@@ -306,14 +309,14 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     @Override
     protected ObservableSet<String> computeValue() {
       return uiDataService.getConflictMarkedSessions().parallelStream()
-        .map(store::getSessionById)
-        .map(SessionFacade::new)
-        .map(SessionFacade::getUnitSemesters)
-        .flatMap(Collection::stream)
-        .collect(
-          Collectors.collectingAndThen(
-            Collectors.mapping(String::valueOf, Collectors.toSet()),
-            FXCollections::observableSet));
+          .map(store::getSessionById)
+          .map(SessionFacade::new)
+          .map(SessionFacade::getUnitSemesters)
+          .flatMap(Collection::stream)
+          .collect(
+              Collectors.collectingAndThen(
+                  Collectors.mapping(String::valueOf, Collectors.toSet()),
+                  FXCollections::observableSet));
     }
   }
 }
