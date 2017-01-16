@@ -37,10 +37,10 @@
                     1. {{ resources.get("title.ImpossibleModules") }}
                 </fo:block>
                 {% if incompleteModules|length > 0 %}
-                    {% include '/ui/controller/IncompleteModules.twig' with { modules: incompleteModules, resources: resources } only  %}
-                {% endif %}
+                    {% include '/reports/templates/IncompleteModules.twig' with { modules: incompleteModules, resources: resources } only  %}
+                {% endif %} 
                 {% if impossibleModulesBecauseOfMissingElectiveAbstractUnits|length > 0 %}
-                    {% include '/ui/controller/ImpossibleModulesBecauseOfMissingElectiveAbstractUnits.twig' with
+                    {% include '/reports/templates/ImpossibleModulesBecauseOfMissingElectiveAbstractUnits.twig' with
                         { modules: impossibleModulesBecauseOfMissingElectiveAbstractUnits, resources: resources } only %}
                 {% endif %}
             </fo:flow>
@@ -53,15 +53,15 @@
                     2. {{ resources.get("title.ImpossibleCourses") }}
                 </fo:block>
                 {% if impossibleCourses|length > 0 %}
-                    {% include '/ui/controller/ImpossibleCourses.twig' with
+                    {% include '/reports/templates/ImpossibleCourses.twig' with
                         { courses: impossibleCourses, resources: resources } only %}
                {% endif %}
                {% if impossibleCoursesBecauseOfImpossibleModules|length > 0 %}
-                    {% include '/ui/controller/ImpossibleCoursesBecauseOfImpossibleModules.twig' with
+                    {% include '/reports/templates/ImpossibleCoursesBecauseOfImpossibleModules.twig' with
                         { courses: impossibleCoursesBecauseOfImpossibleModules, resources: resources } only %}
                {% endif %}
                {% if impossibleCoursesBecauseOfImpossibleModuleCombinations|length > 0 %}
-                    {% include '/ui/controller/ImpossibleCoursesBecauseOfImpossibleModuleCombinations.twig' with
+                    {% include '/reports/templates/ImpossibleCoursesBecauseOfImpossibleModuleCombinations.twig' with
                         { courses: impossibleCoursesBecauseOfImpossibleModuleCombinations, resources: resources } only %}
                {% endif %}
             </fo:flow>
@@ -73,7 +73,7 @@
                 <fo:block font-size="18pt">
                     3. {{ resources.get("title.AbstractUnits") }}
                 </fo:block>
-                {% include '/ui/controller/AbstractUnitsWithoutUnits.twig' with
+                {% include '/reports/templates/AbstractUnitsWithoutUnits.twig' with
                     { abstractUnits: abstractUnitsWithoutUnits, resources: resources } only %}
             </fo:flow>
         </fo:page-sequence>
@@ -84,7 +84,7 @@
                 <fo:block font-size="18pt">
                     4. {{ resources.get("title.UnitsWithoutAbstractUnits") }}
                 </fo:block>
-                {% include '/ui/controller/UnitsWithoutAbstractUnits.twig' with
+                {% include '/reports/templates/UnitsWithoutAbstractUnits.twig' with
                     { units: unitsWithoutAbstractUnits, resources: resources } only %}
             </fo:flow>
         </fo:page-sequence>
@@ -95,7 +95,7 @@
                 <fo:block font-size="18pt">
                     5. {{ resources.get("title.AbstractUnitsWithUnits") }}
                 </fo:block>
-                {% include '/ui/controller/ModuleAbstractUnitUnitSemesterConflicts.twig' with
+                {% include '/reports/templates/ModuleAbstractUnitUnitSemesterConflicts.twig' with
                     { modules: moduleAbstractUnitUnitSemesterConflicts, resources: resources } only %}
             </fo:flow>
         </fo:page-sequence>
@@ -106,7 +106,7 @@
                 <fo:block font-size="18pt">
                     6. {{ resources.get("title.MandatoryModules") }}
                 </fo:block>
-                {% include '/ui/controller/MandatoryModules.twig' with
+                {% include '/reports/templates/MandatoryModules.twig' with
                     { modules: mandatoryModules, resources: resources } only %}
             </fo:flow>
         </fo:page-sequence>
@@ -117,7 +117,7 @@
                 <fo:block font-size="18pt">
                     7. {{ resources.get("title.QuasiMandatoryModules") }}
                 </fo:block>
-                {% include '/ui/controller/QuasiMandatoryModuleAbstractUnits.twig' with
+                {% include '/reports/templates/QuasiMandatoryModuleAbstractUnits.twig' with
                     { modules: quasiMandatoryModuleAbstractUnits, resources: resources } only %}
             </fo:flow>
         </fo:page-sequence>
@@ -128,7 +128,7 @@
                 <fo:block font-size="18pt">
                     8. {{ resources.get("title.RedundantUnitGroups") }}
                 </fo:block>
-                {% include '/ui/controller/RedundantUnitGroups.twig' with
+                {% include '/reports/templates/RedundantUnitGroups.twig' with
                     { units: redundantUnitGroups, resources: resources } only %}
             </fo:flow>
         </fo:page-sequence>
@@ -139,7 +139,7 @@
                 <fo:block font-size="18pt">
                     9. {{ resources.get("title.ImpossibleCourseModuleAbstractUnits") }}
                 </fo:block>
-                {% include '/ui/controller/ImpossibleCourseModuleAbstractUnits.twig' with
+                {% include '/reports/templates/ImpossibleCourseModuleAbstractUnits.twig' with
                     { courses: impossibleCourseModuleAbstractUnits, resources: resources } only %}
             </fo:flow>
         </fo:page-sequence>
@@ -150,7 +150,7 @@
                 <fo:block font-size="18pt">
                     10. {{ resources.get("title.ImpossibleCourseModuleAbstractUnitPairs") }}
                 </fo:block>
-                {% include '/ui/controller/ImpossibleCourseModuleAbstractUnitPairs.twig' with
+                {% include '/reports/templates/ImpossibleCourseModuleAbstractUnitPairs.twig' with
                     { courses: impossibleCourseModuleAbstractUnitPairs, resources: resources } only %}
             </fo:flow>
         </fo:page-sequence>

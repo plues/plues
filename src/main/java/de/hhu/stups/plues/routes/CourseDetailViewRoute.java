@@ -23,7 +23,7 @@ public class CourseDetailViewRoute implements Route {
   }
 
   @Override
-  public void transition(Object... args) {
+  public void transition(final RouteNames routeName, final Object... args) {
     final CourseDetailView courseDetailView = courseDetailViewProvider.get();
     courseDetailView.setCourse((Course) args[0]);
 

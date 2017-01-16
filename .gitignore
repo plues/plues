@@ -131,3 +131,5 @@ gradle-app.setting
 src/main/resources/models.zip
 plues*.log
 src/main/resources/doc
+prob_log.txt
+ProB.log.*log

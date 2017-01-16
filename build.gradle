@@ -16,7 +16,7 @@ checkstyle {
 sourceCompatibility = 8
 targetCompatibility = 8
 
-version = "2.0.0-PREVIEW4"
+version = "2.0.0-RC1"
 
 mainClassName = "de.hhu.stups.plues.ui.Main"
 
@@ -95,7 +95,8 @@ launch4j {
 task winZip(dependsOn: "launch4j", type: Zip) {
     def outdir = "${project.buildDir}/launch4j" // project.launch4j.outputDir not working as expected
     def libdir = "${project.buildDir}/launch4j/${project.launch4j.libraryDir}"
-    def zipdir = "${project.buildDir}/launch4j"
+    def zipdir = "${project.buildDir}/distributions/"
+
 
     from(outdir) {
         include project.launch4j.outfile

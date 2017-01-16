@@ -30,15 +30,19 @@
     -fx-control-inner-background: #F2F2F2;
 }
 
+.conflicted-semester {
+    -fx-base: #ffbaba;
+}
+
 .conflicted-session {
-    -fx-background-color: darkred;
+    -fx-background-color: #ffbaba;
     -fx-text-fill: aliceblue;
 }
 
 .red-border {
+    -fx-border-width: 2px;
     -fx-border-color: red;
-    -fx-border-width: 10;
-    -fx-border-style: dotted;
+    -fx-border-style: solid;
 }
 
 /* Conflict Matrix */
@@ -163,3 +167,8 @@
 .windowPadding {
     -fx-padding: 20px 20px 20px 20px;
 }
+
+.windowPaddingSmall {
+    -fx-padding: 10px 10px 10px 10px;
+}
+

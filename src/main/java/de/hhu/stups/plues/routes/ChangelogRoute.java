@@ -19,7 +19,7 @@ public class ChangelogRoute implements Route {
   }
 
   @Override
-  public void transition(Object... args) {
+  public void transition(final RouteNames routeName, final Object... args) {
     final ChangeLog changeLog = changeLogProvider.get();
     final String title = (String) args[0];
 

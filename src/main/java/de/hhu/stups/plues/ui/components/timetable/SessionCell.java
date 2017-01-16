@@ -62,7 +62,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     setOnDragDetected(this::dragItem);
     setOnMousePressed(this::clickItem);
 
@@ -132,7 +132,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
   }
 
   @Override
-  protected void updateItem(SessionFacade item, boolean empty) {
+  protected void updateItem(final SessionFacade item, final boolean empty) {
     super.updateItem(item, empty);
 
     if (!empty && item != null) {
@@ -166,12 +166,12 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
    * key, e.g. 'P-..'.
    */
   private String trimUnitKey(final String unitKey) {
-    final List<String> splitedKey = Arrays.asList(unitKey.split("-"));
-    if ("w".equalsIgnoreCase(splitedKey.get(0))) {
-      return splitedKey.subList(2, splitedKey.size()).stream()
+    final List<String> splittedKey = Arrays.asList(unitKey.split("-"));
+    if ("w".equalsIgnoreCase(splittedKey.get(0))) {
+      return splittedKey.subList(2, splittedKey.size()).stream()
           .collect(Collectors.joining("-"));
     } else {
-      return splitedKey.subList(1, splitedKey.size()).stream()
+      return splittedKey.subList(1, splittedKey.size()).stream()
           .collect(Collectors.joining("-"));
     }
   }

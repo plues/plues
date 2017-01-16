@@ -1,22 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection?>
-<?import de.hhu.stups.plues.ui.controller.unsatcore.UnsatCoreButtonBar?>
-<?import javafx.geometry.Insets?>
+<?import de.hhu.stups.plues.ui.components.unsatcore.UnsatCoreButtonBar?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.VBox?>
-<fx:root prefHeight="400.0" prefWidth="700.0" type="VBox" xmlns="http://javafx.com/javafx/8"
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<?import javafx.scene.control.Tooltip?>
+<fx:root type="GridPane" vgap="10.0" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
-    <VBox>
-        <Label styleClass="h1" text="%unsatCore"/>
-        <Label text="%unsatCoreExplanation" wrapText="true"/>
-        <Separator prefWidth="200.0">
-            <padding>
-                <Insets bottom="10.0" top="10.0"/>
-            </padding>
-        </Separator>
+    <VBox GridPane.rowIndex="0" GridPane.columnIndex="0" spacing="10.0">
         <CombinationOrSingleCourseSelection fx:id="courseSelection"/>
         <UnsatCoreButtonBar fx:id="unsatCoreButtonBar"/>
     </VBox>
+    <Label fx:id="unsatCoreInfo" GridPane.rowIndex="0" GridPane.columnIndex="1"
+           GridPane.valignment="TOP" GridPane.halignment="CENTER">
+        <tooltip>
+            <Tooltip fx:id="unsatCoreInfoTooltip" text="%unsatCoreExplanation" prefWidth="400.0"
+                     wrapText="true"/>
+        </tooltip>
+    </Label>
+    <columnConstraints>
+        <ColumnConstraints percentWidth="95.0"/>
+        <ColumnConstraints percentWidth="5.0"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints percentHeight="100.0"/>
+    </rowConstraints>
 </fx:root>

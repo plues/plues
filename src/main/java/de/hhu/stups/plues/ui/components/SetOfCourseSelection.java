@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.BooleanProperty;
@@ -111,6 +112,21 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         return FXCollections.observableList(
             courses.parallelStream().map(SelectableCourse::new)
                 .collect(Collectors.toList()), SelectableCourse.getExtractor());
+      }
+    });
+
+    courses.addListener((observable, oldValue, newValue) -> {
+      final boolean hasMaster = courses.stream().filter(Course::isMaster).findAny().isPresent();
+      final boolean hasBachelor = courses.stream().filter(Course::isBachelor).findAny().isPresent();
+      if (!hasMaster) {
+        getChildren().remove(titledPaneMasterCourse);
+      } else if (!getChildren().contains(titledPaneMasterCourse)) {
+        getChildren().add(2, titledPaneMasterCourse);
+      }
+      if (!hasBachelor) {
+        getChildren().remove(titledPaneBachelorCourse);
+      } else if (!getChildren().contains(titledPaneBachelorCourse)) {
+        getChildren().add(titledPaneBachelorCourse);
       }
     });
 

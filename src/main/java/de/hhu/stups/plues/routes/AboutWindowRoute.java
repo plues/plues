@@ -19,7 +19,7 @@ public class AboutWindowRoute implements Route {
   }
 
   @Override
-  public void transition(final Object... args) {
+  public void transition(final RouteNames routeName, final Object... args) {
     final AboutWindow aboutWindow = aboutWindowProvider.get();
     final String title = (String) args[0];
 

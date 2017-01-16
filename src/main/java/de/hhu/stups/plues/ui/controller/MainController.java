@@ -25,12 +25,16 @@ import de.hhu.stups.plues.ui.ResourceManager;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
@@ -55,6 +59,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
 import org.slf4j.Logger;
@@ -93,6 +98,7 @@ public class MainController implements Initializable {
   private static final String LAST_XML_EXPORT_DIR = "LAST_XML_EXPORT_DIR";
   private static final String DB_PATH = "dbpath";
   private static final String TEMP_DB_PATH = "tempDBpath";
+  private static final ListeningScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE;
 
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
@@ -116,6 +122,7 @@ public class MainController implements Initializable {
   private final ResourceManager resourceManager;
   private final Delayed<SolverService> delayedSolverService;
   private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
+  private final ToggleGroup timeoutPreferenceToggle = new ToggleGroup();
 
   private boolean databaseChanged = false;
   private ResourceBundle resources;
@@ -131,13 +138,15 @@ public class MainController implements Initializable {
   @FXML
   private MenuItem exportStateMenuItem;
   @FXML
+  private Menu selectTimeoutMenu;
+  @FXML
   private MenuItem setTimeoutMenuItem;
   @FXML
-  private MenuItem oneMinuteMenuItem;
+  private RadioMenuItem oneMinuteMenuItem;
   @FXML
-  private MenuItem threeMinutesMenuItem;
+  private RadioMenuItem threeMinutesMenuItem;
   @FXML
-  private MenuItem fiveMinutesMenuItem;
+  private RadioMenuItem fiveMinutesMenuItem;
   @FXML
   private MenuItem openChangeLog;
   @FXML
@@ -169,6 +178,9 @@ public class MainController implements Initializable {
   @FXML
   private Label lbRunningTasks;
 
+  private RadioMenuItem customTimeoutItem;
+  private final IntegerProperty customTimeoutProperty;
+
   /**
    * MainController component.
    */
@@ -192,6 +204,8 @@ public class MainController implements Initializable {
     this.executor = executorService;
     this.resourceManager = resourceManager;
     this.uiDataService = uiDataService;
+
+    customTimeoutProperty = new SimpleIntegerProperty(0);
     userPreferences = Preferences.userRoot().node("Plues");
 
     executorService.addObserver((observable, arg) -> this.register(arg));
@@ -261,6 +275,9 @@ public class MainController implements Initializable {
     mainProgressBar.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
     mainProgressBar.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
 
+    lbRunningTasks.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
+    lbRunningTasks.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
+
     initializeTaskProgressListener();
 
     tabPane.setOnKeyPressed(this::handleKeyPressed);
@@ -270,9 +287,9 @@ public class MainController implements Initializable {
     delayedSolverService.whenAvailable(solverService -> {
       openReportsMenuItem.setDisable(false);
       setTimeoutMenuItem.setDisable(false);
-      oneMinuteMenuItem.setDisable(false);
-      threeMinutesMenuItem.setDisable(false);
-      fiveMinutesMenuItem.setDisable(false);
+      oneMinuteMenuItem.disableProperty().bind(oneMinuteMenuItem.selectedProperty());
+      threeMinutesMenuItem.disableProperty().bind(threeMinutesMenuItem.selectedProperty());
+      fiveMinutesMenuItem.disableProperty().bind(fiveMinutesMenuItem.selectedProperty());
     });
 
     delayedStore.whenAvailable(s -> {
@@ -326,14 +343,16 @@ public class MainController implements Initializable {
         }
     );
 
-    mainProgressBar.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+    final EventHandler<MouseEvent> mouseEventEventHandler = event -> {
       final ObservableList<Node> splitPaneItems = mainSplitPane.getItems();
       if (splitPaneItems.contains(boxTaskProgress)) {
         splitPaneItems.remove(boxTaskProgress);
       } else {
         splitPaneItems.add(boxTaskProgress);
       }
-    });
+    };
+    lbRunningTasks.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
+    mainProgressBar.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
   }
 
   /**
@@ -341,14 +360,12 @@ public class MainController implements Initializable {
    * tasks anymore.
    */
 
-  private static final ListeningScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE;
-
   static {
     final ThreadFactory threadFactoryBuilder = new ThreadFactoryBuilder().setDaemon(true)
         .setNameFormat("task-progress-hide-runner-%d").build();
 
     SCHEDULED_EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
-      Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
+        Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
 
   }
 
@@ -361,7 +378,7 @@ public class MainController implements Initializable {
           if (taskProgress.getTasks().isEmpty()) {
             mainSplitPane.getItems().remove(boxTaskProgress);
           }
-        }), 1500, TimeUnit.MILLISECONDS);
+        }), 3, TimeUnit.SECONDS);
   }
 
   private void initializeMenu() {
@@ -429,6 +446,10 @@ public class MainController implements Initializable {
             uiDataService.setSessionDisplayFormatProperty(userPreferences.get(sessionFormat, ""));
           }
         });
+
+    oneMinuteMenuItem.setToggleGroup(timeoutPreferenceToggle);
+    threeMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
+    fiveMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
   }
 
   /**
@@ -453,7 +474,6 @@ public class MainController implements Initializable {
    * Saves a file.
    */
   @FXML
-  @SuppressWarnings("UnusedParamters")
   private void saveFile() {
     try {
       Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
@@ -469,7 +489,7 @@ public class MainController implements Initializable {
    * Saves a file at another location.
    */
   @FXML
-  @SuppressWarnings( {"UnusedParamters", "unused"})
+  @SuppressWarnings("unused")
   private void saveFileAs() {
     final FileChooser fileChooser = prepareFileChooser("saveDB");
     fileChooser.setInitialFileName("data.sqlite3");
@@ -626,18 +646,21 @@ public class MainController implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void setTimeoutOneMinute() {
+    oneMinuteMenuItem.setSelected(true);
     setTimeout(60);
   }
 
   @FXML
   @SuppressWarnings("unused")
   private void setTimeoutThreeMinutes() {
+    threeMinutesMenuItem.setSelected(true);
     setTimeout(180);
   }
 
   @FXML
   @SuppressWarnings("unused")
   private void setTimeoutFiveMinutes() {
+    fiveMinutesMenuItem.setSelected(true);
     setTimeout(300);
   }
 
@@ -652,10 +675,30 @@ public class MainController implements Initializable {
     final Optional<String> result = dialog.showAndWait();
     result.ifPresent(timeout -> {
       try {
-        setTimeout(Integer.parseInt(timeout));
+        initializeCustomTimeoutMenuItem();
+        final int timeoutValue = Integer.parseInt(timeout);
+        setTimeout(timeoutValue);
+        customTimeoutProperty.setValue(timeoutValue);
       } catch (final NumberFormatException exception) {
         logger.error("Incorrect input: " + timeout);
       }
+    });
+  }
+
+  private void initializeCustomTimeoutMenuItem() {
+    if (customTimeoutItem != null) {
+      return;
+    }
+    customTimeoutItem = new RadioMenuItem();
+    customTimeoutItem.setToggleGroup(timeoutPreferenceToggle);
+    customTimeoutItem.disableProperty().bind(customTimeoutItem.selectedProperty());
+    selectTimeoutMenu.getItems().add(customTimeoutItem);
+    customTimeoutItem.addEventHandler(MouseEvent.MOUSE_CLICKED, event ->
+        setTimeout(customTimeoutProperty.get()));
+
+    customTimeoutProperty.addListener((observable, oldValue, newValue) -> {
+      customTimeoutItem.setText(String.format(resources.getString("timeout.custom"), newValue));
+      customTimeoutItem.setSelected(true);
     });
   }
 
@@ -719,11 +762,13 @@ public class MainController implements Initializable {
   }
 
   @FXML
+  @SuppressWarnings( {"UnusedParameters", "unused"})
   private void showHtmlHandbook(final ActionEvent actionEvent) {
     router.transitionTo(RouteNames.HANDBOOK_HTML);
   }
 
   @FXML
+  @SuppressWarnings("UnusedParameters")
   public void showPdfHandbook(final ActionEvent actionEvent) {
     router.transitionTo(RouteNames.HANDBOOK_PDF);
   }

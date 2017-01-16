@@ -22,7 +22,7 @@ public class ModuleDetailViewRoute implements Route {
   }
 
   @Override
-  public void transition(Object... args) {
+  public void transition(final RouteNames routeName, final Object... args) {
     final ModuleDetailView moduleDetailView = moduleDetailViewProvider.get();
     moduleDetailView.setModule((Module) args[0]);
 

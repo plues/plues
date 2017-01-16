@@ -4,9 +4,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.ColumnConstraints?>
 
-<?import javafx.geometry.Insets?>
-<fx:root type="GridPane" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1" prefWidth="550" prefHeight="400" styleClass="windowPadding">
+<fx:root xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1"
+         type="GridPane" prefWidth="550" prefHeight="400" styleClass="windowPadding">
     <Label fx:id="logo" GridPane.rowIndex="0" GridPane.columnIndex="1" textAlignment="RIGHT"/>
     <Label GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
     <Label text="%developer" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2"

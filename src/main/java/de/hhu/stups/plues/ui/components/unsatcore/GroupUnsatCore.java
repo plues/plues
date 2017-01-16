@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.controller.unsatcore;
+package de.hhu.stups.plues.ui.components.unsatcore;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
@@ -7,26 +7,23 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.Router;
-import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.Collection;
@@ -34,7 +31,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class GroupUnsatCore extends VBox implements Initializable  {
+public class GroupUnsatCore extends VBox implements Initializable {
 
   private final ListProperty<Group> groups;
   private final ListProperty<AbstractUnit> abstractUnits;
@@ -61,6 +58,9 @@ public class GroupUnsatCore extends VBox implements Initializable  {
   @FXML
   @SuppressWarnings("unused")
   private UnsatCoreButtonBar unsatCoreButtonBar;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   /**
    * Default constructor.
@@ -78,7 +78,7 @@ public class GroupUnsatCore extends VBox implements Initializable  {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    this.visibleProperty().bind(groups.emptyProperty().not());
+    txtExplanation.wrappingWidthProperty().bind(widthProperty().subtract(150));
 
     groupsTable.itemsProperty().bind(groups);
     groupsTable.setOnMouseClicked(DetailViewHelper.getGroupMouseHandler(
@@ -109,7 +109,7 @@ public class GroupUnsatCore extends VBox implements Initializable  {
               return String.format("%s%s - %s%n", prefix, dayString, timeString);
             })
             .reduce(String::concat).orElse("??"));
-        }
+      }
     });
 
     unsatCoreButtonBar.setText(resources.getString("button.unsatCoreSession"));
@@ -117,8 +117,8 @@ public class GroupUnsatCore extends VBox implements Initializable  {
     // extract abstract units associated to group (through unit) in the current abstract unit core
     groupAbstractUnits.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
         param.getValue().getUnit().getAbstractUnits().stream()
-          .filter(getAbstractUnits()::contains)
-          .collect(Collectors.toSet())));
+            .filter(getAbstractUnits()::contains)
+            .collect(Collectors.toSet())));
 
     groupAbstractUnits.setCellFactory(param -> new TableCell<Group, Set<AbstractUnit>>() {
       @Override
@@ -131,7 +131,7 @@ public class GroupUnsatCore extends VBox implements Initializable  {
         final String prefix = getPrefix(item);
         setText(item.stream()
             .map(e -> String.format("%s%s", prefix, e.getKey())).collect(Collectors.joining(
-              String.format("%n"))));
+                String.format("%n"))));
       }
     });
   }
@@ -143,7 +143,7 @@ public class GroupUnsatCore extends VBox implements Initializable  {
     return "";
   }
 
-  void resetTaskState() {
+  public void resetTaskState() {
     unsatCoreButtonBar.resetTaskState();
   }
 
@@ -159,12 +159,8 @@ public class GroupUnsatCore extends VBox implements Initializable  {
     return abstractUnits.get();
   }
 
-  ListProperty<Group> getGroupProperty() {
+  public ListProperty<Group> getGroupProperty() {
     return groups;
-  }
-
-  void showTaskState(final SolverTask task) {
-    unsatCoreButtonBar.showTaskState(task);
   }
 
   public UnsatCoreButtonBar getUnsatCoreButtonBar() {

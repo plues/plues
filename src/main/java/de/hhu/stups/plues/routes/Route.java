@@ -5,5 +5,5 @@ package de.hhu.stups.plues.routes;
  */
 @FunctionalInterface
 interface Route {
-  void transition(Object... args);
+  void transition(RouteNames routeName, Object... args);
 }

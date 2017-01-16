@@ -9,7 +9,7 @@ import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.AbstractUnitFilter;
 import de.hhu.stups.plues.ui.components.CheckCourseFeasibility;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
-import de.hhu.stups.plues.ui.components.Timetable;
+import de.hhu.stups.plues.ui.controller.Timetable;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.collections.ObservableList;
 import javafx.event.EventTarget;
@@ -31,11 +31,11 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 
-public class FilterSideBar extends TabPane implements Initializable {
+public class TimetableSideBar extends TabPane implements Initializable {
 
   private static final String SIDE_BAR_TAB_LAYOUT = "sideBarTabLayout";
 
-  private UiDataService uiDataService;
+  private final UiDataService uiDataService;
   private Tab selectedSubTab;
   private Timetable parent;
 
@@ -56,8 +56,9 @@ public class FilterSideBar extends TabPane implements Initializable {
   private CheckCourseFeasibility checkCourseFeasibility;
 
   @Inject
-  public FilterSideBar(final Inflater inflater) {
-    inflater.inflate("components/timetable/FilterSideBar", this, this, "timetable");
+  public TimetableSideBar(final Inflater inflater, final UiDataService uiDataService) {
+    this.uiDataService = uiDataService;
+    inflater.inflate("components/timetable/TimetableSideBar", this, this, "timetable");
   }
 
   @Override
@@ -192,10 +193,6 @@ public class FilterSideBar extends TabPane implements Initializable {
   private void selectSideBarTab(final Tab tab) {
     getSelectionModel().select(getTabs().indexOf(tab));
     showSideBar(tab);
-  }
-
-  public void setUiDataService(final UiDataService uiDataService) {
-    this.uiDataService = uiDataService;
   }
 
   public SetOfCourseSelection getSetOfCourseSelection() {

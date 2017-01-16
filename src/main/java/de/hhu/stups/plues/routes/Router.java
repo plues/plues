@@ -10,6 +10,6 @@ import java.util.HashMap;
 @Singleton
 public class Router extends HashMap<RouteNames, Route> {
   public void transitionTo(final RouteNames routeName, final Object... args) {
-    this.get(routeName).transition(args);
+    this.get(routeName).transition(routeName, args);
   }
 }

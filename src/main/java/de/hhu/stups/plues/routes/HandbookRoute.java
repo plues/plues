@@ -30,7 +30,7 @@ public class HandbookRoute implements Route {
   }
 
   @Override
-  public void transition(final Object... args) {
+  public void transition(final RouteNames routeName, final Object... args) {
     final String handbook = this.format.getFileName();
     final ClassLoader classLoader = this.getClass().getClassLoader();
 

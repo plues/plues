@@ -164,29 +164,31 @@ public class Reports extends VBox implements Initializable {
         delayedStore.whenAvailable(store -> {
           buttonPrint.setDisable(false);
           printReportData = new PrintReportData(store, newValue, resources);
-
-          this.mandatoryModules.setData(printReportData.getMandatoryModules());
-          this.abstractUnitsWithoutUnits.setData(printReportData.getAbstractUnitsWithoutUnits());
-          this.impossibleCourseModuleAbstractUnitPairs.setData(
-              printReportData.getImpossibleCourseModuleAbstractUnitPairs());
-          this.impossibleCourseModuleAbstractUnits.setData(
-              printReportData.getImpossibleCourseModuleAbstractUnits());
-          this.quasiMandatoryModuleAbstractUnits.setData(
-              printReportData.getQuasiMandatoryModuleAbstractUnits());
-          this.impossibleModules.setData(printReportData.getIncompleteModules(),
-              printReportData.getImpossibleModulesBecauseOfMissingElectiveAbstractUnits());
-          this.impossibleCourses.setData(printReportData.getImpossibleCourses(),
-              printReportData.getImpossibleCoursesBecauseOfImpossibleModules(),
-              printReportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations());
-          this.redundantUnitGroups.setData(printReportData.getRedundantUnitGroups());
-          this.unitsWithoutAbstractUnits.setData(printReportData.getUnitsWithoutAbstractUnits());
-          this.moduleAbstractUnitUnitSemesterConflicts.setData(
-              printReportData.getModuleAbstractUnitUnitSemesterConflicts());
-
+          setSpecificData();
           lbImpossibleCoursesAmount.setText(String.valueOf(newValue.getImpossibleCourses().size()));
         }));
 
     inflater.inflate("Reports", this, this, "reports", "Column");
+  }
+
+  private void setSpecificData() {
+    mandatoryModules.setData(printReportData.getMandatoryModules());
+    abstractUnitsWithoutUnits.setData(printReportData.getAbstractUnitsWithoutUnits());
+    impossibleCourseModuleAbstractUnitPairs.setData(
+        printReportData.getImpossibleCourseModuleAbstractUnitPairs());
+    impossibleCourseModuleAbstractUnits.setData(
+        printReportData.getImpossibleCourseModuleAbstractUnits());
+    quasiMandatoryModuleAbstractUnits.setData(
+        printReportData.getQuasiMandatoryModuleAbstractUnits());
+    impossibleModules.setData(printReportData.getIncompleteModules(),
+        printReportData.getImpossibleModulesBecauseOfMissingElectiveAbstractUnits());
+    impossibleCourses.setData(printReportData.getImpossibleCourses(),
+        printReportData.getImpossibleCoursesBecauseOfImpossibleModules(),
+        printReportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations());
+    redundantUnitGroups.setData(printReportData.getRedundantUnitGroups());
+    unitsWithoutAbstractUnits.setData(printReportData.getUnitsWithoutAbstractUnits());
+    moduleAbstractUnitUnitSemesterConflicts.setData(
+        printReportData.getModuleAbstractUnitUnitSemesterConflicts());
   }
 
   @Override
@@ -358,7 +360,7 @@ public class Reports extends VBox implements Initializable {
 
     private void calculateUnitsWithoutAbstractUnits(final Store store) {
       this.unitsWithoutAbstractUnits = store.getUnits().stream()
-        .filter(unit -> unit.getAbstractUnits().size() == 0).collect(Collectors.toList());
+        .filter(unit -> unit.getAbstractUnits().isEmpty()).collect(Collectors.toList());
     }
 
     Map<Course, Set<Module>> getMandatoryModules() {
@@ -447,7 +449,7 @@ public class Reports extends VBox implements Initializable {
         // load template
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final JtwigTemplate template =
-            JtwigTemplate.classpathTemplate("/ui/controller/reportTemplate.twig", config);
+            JtwigTemplate.classpathTemplate("/reports/templates/reportTemplate.twig", config);
         template.render(model, out);
 
         // write to file
@@ -455,18 +457,21 @@ public class Reports extends VBox implements Initializable {
         try (OutputStream stream = new FileOutputStream(file)) {
           final ByteArrayOutputStream pdf = PdfRenderingHelper.toPdf(out);
           pdf.writeTo(stream);
-
-          SwingUtilities.invokeLater(() -> {
-            try {
-              Desktop.getDesktop().open(file);
-            } catch (IOException exc) {
-              logger.error("Exception while opening pdf", exc);
-            }
-          });
+          tryOpenFile(file);
         }
       } catch (SAXException | ParserConfigurationException | IOException exc) {
         logger.error("Exception while rendering reports", exc);
       }
+    }
+
+    private void tryOpenFile(final File file) {
+      SwingUtilities.invokeLater(() -> {
+        try {
+          Desktop.getDesktop().open(file);
+        } catch (IOException exc) {
+          logger.error("Exception while opening pdf", exc);
+        }
+      });
     }
   }
 }

@@ -1,8 +1,5 @@
 package de.hhu.stups.plues.ui.components.timetable;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -14,33 +11,34 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
-
+import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.ListProperty;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
 import java.util.Optional;
-
-import javax.annotation.Nullable;
+import java.util.ResourceBundle;
 
 public class SessionListView extends ListView<SessionFacade> {
   private final SessionFacade.Slot slot;
   private final Delayed<ObservableStore> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
   private final ListeningExecutorService executorService;
-  private ListProperty<SessionFacade> sessions;
-
   private final UiDataService uiDataService;
+  private ListProperty<SessionFacade> sessions;
 
   /**
    * Custom implementation of ListView for sessions.
-   * @param slot the time slot identifying this session list
-   * @param delayedStore Store to save new session info after moving
+   *
+   * @param slot                 the time slot identifying this session list
+   * @param delayedStore         Store to save new session info after moving
    * @param delayedSolverService Solver to find out if moving a session is valid
-   * @param uiDataService a stupid data container to dump any kind of data in it
+   * @param uiDataService        a stupid data container to dump any kind of data in it
    */
   @Inject
   public SessionListView(@Assisted final SessionFacade.Slot slot,
@@ -49,8 +47,6 @@ public class SessionListView extends ListView<SessionFacade> {
                          final ListeningExecutorService executorService,
                          final Provider<SessionCell> cellProvider,
                          final UiDataService uiDataService) {
-    super();
-
     this.slot = slot;
     this.delayedStore = delayedStore;
     this.executorService = executorService;
@@ -65,19 +61,23 @@ public class SessionListView extends ListView<SessionFacade> {
 
   private void setupConflictHighlight() {
     this.uiDataService.conflictMarkedSessionsProperty()
-        .addListener((observable, oldValue, newValue) -> {
-          getStyleClass().remove("red-border");
-
-          if (hasSessionIdsIn(this.uiDataService.conflictMarkedSessionsProperty())) {
-            getStyleClass().add("red-border");
-          }
-        });
+        .addListener((observable, oldValue, newValue) -> computeStyleClass());
+    itemsProperty()
+        .addListener((observable, oldValue, newValue) -> computeStyleClass());
   }
 
-  private boolean hasSessionIdsIn(ObservableList<Integer> ids) {
+  private void computeStyleClass() {
+    getStyleClass().remove("red-border");
+
+    if (hasSessionIdsIn(this.uiDataService.conflictMarkedSessionsProperty())) {
+      getStyleClass().add("red-border");
+    }
+  }
+
+  private boolean hasSessionIdsIn(final ObservableList<Integer> ids) {
     return ids.stream().anyMatch(
-        conflictedId -> getItems().stream().anyMatch(
-            (SessionFacade session) -> session.getSession().getId() == conflictedId));
+      conflictedId -> getItems().stream().anyMatch(
+        (SessionFacade session) -> session.getSession().getId() == conflictedId));
   }
 
   private void initEvents() {
@@ -90,7 +90,7 @@ public class SessionListView extends ListView<SessionFacade> {
   private boolean isValidTarget(final DragEvent event) {
     return event.getDragboard().hasString()
       && !getItems().stream().anyMatch(sessionFacade ->
-        String.valueOf(sessionFacade.getId()).equals(event.getDragboard().getString()))
+      String.valueOf(sessionFacade.getId()).equals(event.getDragboard().getString()))
       && event.getGestureSource() != this;
   }
 
@@ -130,22 +130,30 @@ public class SessionListView extends ListView<SessionFacade> {
 
       delayedSolverService.whenAvailable(solver -> {
         final SolverTask<Void> moveSession = solver.moveSessionTask(sessionId, slot);
-        @SuppressWarnings("unchecked") final ListenableFuture<Void> future
-            = (ListenableFuture<Void>) executorService.submit(moveSession);
-        Futures.addCallback(future, new FutureCallback<Void>() {
-          @Override
-          public void onSuccess(@Nullable final Void result) {
-            delayedStore.whenAvailable(store -> {
-              store.moveSession(getSessionFacadeById(sessionId), slot);
-            });
+        moveSession.setOnSucceeded(moveSessionEvent
+            -> delayedStore.whenAvailable(store
+                -> store.moveSession(getSessionFacadeById(sessionId), slot)));
+        moveSession.setOnFailed(moveSessionEvent -> Platform.runLater(() -> {
+          final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
+          final Alert alert = new Alert(Alert.AlertType.ERROR);
+          alert.setTitle(bundle.getString("moveFailedTitle"));
+          alert.setHeaderText(bundle.getString("moveFailedHeader"));
+          alert.setContentText(bundle.getString("moveFailedContent"));
 
-          }
+          alert.showAndWait();
+        }));
 
-          @Override
-          public void onFailure(@Nullable final Throwable throwable) {
-            // TODO: show error message
-          }
-        });
+        moveSession.setOnCancelled(moveSessionEvent -> Platform.runLater(() -> {
+          final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
+          final Alert alert = new Alert(Alert.AlertType.WARNING);
+          alert.setTitle(bundle.getString("moveCancelledTitle"));
+          alert.setHeaderText(bundle.getString("moveCancelledHeader"));
+          alert.setContentText(bundle.getString("moveCancelledContent"));
+
+          alert.showAndWait();
+        }));
+
+        executorService.submit(moveSession);
       });
     }
 

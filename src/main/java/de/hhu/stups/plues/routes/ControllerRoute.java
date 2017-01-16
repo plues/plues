@@ -31,13 +31,13 @@ public class ControllerRoute implements Route {
   }
 
   @Override
-  public void transition(final Object... args) {
+  public void transition(RouteNames routeName, final Object... args) {
     final TabPane tabPane = (TabPane) stage.getScene().lookup("#tabPane");
     final Optional<Tab> optionalTab = tabPane.getTabs().stream()
         .filter(tab -> tabId.equals(tab.getId())).findFirst();
     if (optionalTab.isPresent()) {
       tabPane.getSelectionModel().select(optionalTab.get());
-      ((Activatable) optionalTab.get().getContent()).activateController(args);
+      ((Activatable) optionalTab.get().getContent()).activateController(routeName, args);
     }
   }
 }

@@ -21,7 +21,7 @@ public class SessionDetailViewRoute implements Route {
   }
 
   @Override
-  public void transition(Object... args) {
+  public void transition(final RouteNames routeName, Object... args) {
     final SessionDetailView sessionDetailView = sessionDetailViewProvider.get();
     sessionDetailView.setSession(new SessionFacade((Session) args[0]));
 
