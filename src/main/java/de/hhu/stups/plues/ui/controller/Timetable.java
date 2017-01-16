@@ -247,30 +247,40 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     @Override
     protected ObservableList<SessionFacade> computeValue() {
-      final ToggleButton semesterButton
-          = (ToggleButton) semesterToggle.getToggleGroup().getSelectedToggle();
+      final Integer semester = getSelectedSemester();
 
-      return sessions.filtered(session -> {
-        final Set<Integer> semesters = session.getUnitSemesters();
+      return sessions.filtered(session -> sessionIsIncluded(session, semester));
+    }
 
-        Integer semester = null;
-        if (null != semesterButton) {
-          semester = Integer.valueOf((String) semesterButton.getUserData());
-        }
+    private boolean sessionIsIncluded(final SessionFacade session, final Integer semester) {
+      final Set<Integer> semesters = session.getUnitSemesters();
 
-        return session.getSlot().equals(slot)
-            && (semester == null || semesters.contains(semester)
-            && (sessionIsNotExcluded(session) || sessionIsIncludedByConflict(session)));
-      });
+      final boolean isIncludedBySemester = semester == null || semesters.contains(semester);
+      final boolean isIncludedBySlot = session.getSlot().equals(slot);
+      final boolean isNotExcluded =
+          sessionIsNotExcluded(session) || sessionIsIncludedByConflict(session);
+
+      return isIncludedBySlot && isIncludedBySemester && isNotExcluded;
+    }
+
+    private Integer getSelectedSemester() {
+      final ToggleButton semesterButton =
+          (ToggleButton) semesterToggle.getToggleGroup().getSelectedToggle();
+
+      if (null != semesterButton) {
+        return Integer.valueOf((String) semesterButton.getUserData());
+      }
+
+      return null;
+    }
+
+    private boolean sessionIsNotExcluded(final SessionFacade session) {
+      return !sessionIsExcludedByCourse(session) && !sessionIsExcludedByAbstractUnit(session);
     }
 
     private boolean sessionIsIncludedByConflict(final SessionFacade session) {
       return uiDataService.conflictMarkedSessionsProperty().stream()
           .anyMatch(sessionId -> sessionId == session.getId());
-    }
-
-    private boolean sessionIsNotExcluded(final SessionFacade session) {
-      return !sessionIsExcludedByCourse(session) && !sessionIsExcludedByAbstractUnit(session);
     }
 
     private boolean sessionIsExcludedByCourse(SessionFacade session) {
