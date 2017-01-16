@@ -10,7 +10,6 @@ import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.components.ConflictTree;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
-import de.hhu.stups.plues.ui.controller.Timetable;
 import de.hhu.stups.plues.ui.components.detailview.AbstractUnitDetailView;
 import de.hhu.stups.plues.ui.components.detailview.CourseDetailView;
 import de.hhu.stups.plues.ui.components.detailview.ModuleDetailView;
@@ -28,17 +27,18 @@ import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnit
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
 import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
-import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration;
-import de.hhu.stups.plues.ui.controller.ConflictMatrix;
-import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
-import de.hhu.stups.plues.ui.controller.PartialTimeTables;
 import de.hhu.stups.plues.ui.components.unsatcore.AbstractUnitUnsatCore;
 import de.hhu.stups.plues.ui.components.unsatcore.CourseUnsatCore;
 import de.hhu.stups.plues.ui.components.unsatcore.GroupUnsatCore;
 import de.hhu.stups.plues.ui.components.unsatcore.ModuleUnsatCore;
 import de.hhu.stups.plues.ui.components.unsatcore.SessionUnsatCore;
-import de.hhu.stups.plues.ui.controller.UnsatCore;
 import de.hhu.stups.plues.ui.components.unsatcore.UnsatCoreButtonBar;
+import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration;
+import de.hhu.stups.plues.ui.controller.ConflictMatrix;
+import de.hhu.stups.plues.ui.controller.Musterstudienplaene;
+import de.hhu.stups.plues.ui.controller.PartialTimeTables;
+import de.hhu.stups.plues.ui.controller.Timetable;
+import de.hhu.stups.plues.ui.controller.UnsatCore;
 
 class ComponentsModule extends AbstractModule {
   @Override
