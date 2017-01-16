@@ -34,6 +34,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
@@ -274,6 +275,9 @@ public class MainController implements Initializable {
     mainProgressBar.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
     mainProgressBar.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
 
+    lbRunningTasks.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
+    lbRunningTasks.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
+
     initializeTaskProgressListener();
 
     tabPane.setOnKeyPressed(this::handleKeyPressed);
@@ -339,14 +343,16 @@ public class MainController implements Initializable {
         }
     );
 
-    mainProgressBar.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+    final EventHandler<MouseEvent> mouseEventEventHandler = event -> {
       final ObservableList<Node> splitPaneItems = mainSplitPane.getItems();
       if (splitPaneItems.contains(boxTaskProgress)) {
         splitPaneItems.remove(boxTaskProgress);
       } else {
         splitPaneItems.add(boxTaskProgress);
       }
-    });
+    };
+    lbRunningTasks.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
+    mainProgressBar.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
   }
 
   /**
