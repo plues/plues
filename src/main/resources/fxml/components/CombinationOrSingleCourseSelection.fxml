@@ -5,8 +5,8 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.layout.VBox?>
 
-<fx:root type="javafx.scene.layout.VBox" alignment="CENTER_LEFT" styleClass="windowPaddingSmall"
-         xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root type="javafx.scene.layout.VBox" alignment="CENTER_LEFT" xmlns="http://javafx.com/javafx/8"
+         xmlns:fx="http://javafx.com/fxml/1">
     <RadioButton fx:id="rbCombination" text="%combinable" selected="true"/>
     <MajorMinorCourseSelection fx:id="majorMinorCourseSelection"/>
     <RadioButton fx:id="rbSingleSelection" text="%subject"/>
