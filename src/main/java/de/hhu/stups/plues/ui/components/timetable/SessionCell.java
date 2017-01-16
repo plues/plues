@@ -139,8 +139,13 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
       setConflictedStyleClass(uiDataService.getConflictMarkedSessions());
       setGraphic(content);
     } else {
+      removeStyleClasses();
       setGraphic(null);
     }
+  }
+
+  private void removeStyleClasses() {
+    getStyleClass().remove("conflicted-session");
   }
 
   private String displayText(final SessionFacade sessionFacade) {
