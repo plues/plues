@@ -372,7 +372,7 @@ public class MainController implements Initializable {
           if (taskProgress.getTasks().isEmpty()) {
             mainSplitPane.getItems().remove(boxTaskProgress);
           }
-        }), 1500, TimeUnit.MILLISECONDS);
+        }), 3, TimeUnit.SECONDS);
   }
 
   private void initializeMenu() {
