@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.components;
+package de.hhu.stups.plues.ui.controller;
 
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.MONDAY;

@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.controller.unsatcore;
+package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
 
@@ -8,7 +8,12 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.controller.Activatable;
+import de.hhu.stups.plues.ui.components.unsatcore.AbstractUnitUnsatCore;
+import de.hhu.stups.plues.ui.components.unsatcore.CourseUnsatCore;
+import de.hhu.stups.plues.ui.components.unsatcore.GroupUnsatCore;
+import de.hhu.stups.plues.ui.components.unsatcore.ModuleUnsatCore;
+import de.hhu.stups.plues.ui.components.unsatcore.SessionUnsatCore;
+import de.hhu.stups.plues.ui.components.unsatcore.UnsatCoreButtonBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.BooleanBinding;

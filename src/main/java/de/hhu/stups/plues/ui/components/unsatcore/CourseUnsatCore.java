@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.controller.unsatcore;
+package de.hhu.stups.plues.ui.components.unsatcore;
 
 import com.google.inject.Inject;
 
@@ -61,7 +61,7 @@ public class CourseUnsatCore extends GridPane implements Initializable {
     inflater.inflate("components/unsatcore/CourseUnsatCore", this, this, "unsatCore", "Column");
   }
 
-  UnsatCoreButtonBar getUnsatCoreButtonBar() {
+  public UnsatCoreButtonBar getUnsatCoreButtonBar() {
     return unsatCoreButtonBar;
   }
 
@@ -88,11 +88,11 @@ public class CourseUnsatCore extends GridPane implements Initializable {
     unsatCoreButtonBar.setText(resources.getString("button.unsatCoreModules"));
   }
 
-  ListProperty<Course> getCoursesProperty() {
+  public ListProperty<Course> getCoursesProperty() {
     return coursesProperty;
   }
 
-  void selectCourses(final Course... courses) {
+  public void selectCourses(final Course... courses) {
     courseSelection.selectCourses(courses);
   }
 }

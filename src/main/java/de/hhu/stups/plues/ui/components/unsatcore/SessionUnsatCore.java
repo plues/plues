@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.controller.unsatcore;
+package de.hhu.stups.plues.ui.components.unsatcore;
 
 import com.google.inject.Inject;
 
@@ -104,7 +104,7 @@ public class SessionUnsatCore extends VBox implements Initializable {
     return sessions.get();
   }
 
-  ListProperty<Session> getSessionProperty() {
+  public ListProperty<Session> getSessionProperty() {
     return sessions;
   }
 }

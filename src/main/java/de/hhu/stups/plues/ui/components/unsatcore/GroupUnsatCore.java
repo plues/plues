@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.controller.unsatcore;
+package de.hhu.stups.plues.ui.components.unsatcore;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
@@ -143,7 +143,7 @@ public class GroupUnsatCore extends VBox implements Initializable {
     return "";
   }
 
-  void resetTaskState() {
+  public void resetTaskState() {
     unsatCoreButtonBar.resetTaskState();
   }
 
@@ -159,11 +159,11 @@ public class GroupUnsatCore extends VBox implements Initializable {
     return abstractUnits.get();
   }
 
-  ListProperty<Group> getGroupProperty() {
+  public ListProperty<Group> getGroupProperty() {
     return groups;
   }
 
-  UnsatCoreButtonBar getUnsatCoreButtonBar() {
+  public UnsatCoreButtonBar getUnsatCoreButtonBar() {
     return unsatCoreButtonBar;
   }
 }

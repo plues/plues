@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.controller.unsatcore;
+package de.hhu.stups.plues.ui.components.unsatcore;
 
 import com.google.inject.Inject;
 
@@ -167,7 +167,7 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
     return "";
   }
 
-  void resetTaskState() {
+  public void resetTaskState() {
     unsatCoreButtonBar.resetTaskState();
   }
 
@@ -175,11 +175,11 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
     this.abstractUnitsProperty.set(abstractUnits);
   }
 
-  ListProperty<AbstractUnit> getAbstractUnitsProperty() {
+  public ListProperty<AbstractUnit> getAbstractUnitsProperty() {
     return abstractUnitsProperty;
   }
 
-  UnsatCoreButtonBar getUnsatCoreButtonBar() {
+  public UnsatCoreButtonBar getUnsatCoreButtonBar() {
     return unsatCoreButtonBar;
   }
 }

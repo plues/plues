@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.controller.unsatcore;
+package de.hhu.stups.plues.ui.components.unsatcore;
 
 import static javafx.concurrent.Worker.State.SUCCEEDED;
 
@@ -91,7 +91,7 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   /**
    * Show and set current task state.
    */
-  void showTaskState(final Task<?> task) {
+  public void showTaskState(final Task<?> task) {
     this.task = task;
     taskStateIcon.graphicProperty().unbind();
     taskStateIcon.styleProperty().unbind();
