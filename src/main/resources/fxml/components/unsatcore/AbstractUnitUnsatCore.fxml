@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.hhu.stups.plues.ui.controller.unsatcore.UnsatCoreButtonBar?>
+<?import de.hhu.stups.plues.ui.components.unsatcore.UnsatCoreButtonBar?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>

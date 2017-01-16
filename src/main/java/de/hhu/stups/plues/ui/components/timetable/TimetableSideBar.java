@@ -9,7 +9,7 @@ import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.AbstractUnitFilter;
 import de.hhu.stups.plues.ui.components.CheckCourseFeasibility;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
-import de.hhu.stups.plues.ui.components.Timetable;
+import de.hhu.stups.plues.ui.controller.Timetable;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.collections.ObservableList;
 import javafx.event.EventTarget;

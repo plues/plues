@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.hhu.stups.plues.ui.components.Timetable?>
+<?import de.hhu.stups.plues.ui.controller.Timetable?>
 <?import de.hhu.stups.plues.ui.controller.BatchTimetableGeneration?>
 <?import de.hhu.stups.plues.ui.controller.ConflictMatrix?>
 <?import de.hhu.stups.plues.ui.controller.Musterstudienplaene?>
 <?import de.hhu.stups.plues.ui.controller.PartialTimeTables?>
-<?import de.hhu.stups.plues.ui.controller.unsatcore.UnsatCore?>
+<?import de.hhu.stups.plues.ui.controller.UnsatCore?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>

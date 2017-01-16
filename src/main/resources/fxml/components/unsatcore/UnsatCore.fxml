@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.hhu.stups.plues.ui.controller.unsatcore.AbstractUnitUnsatCore?>
-<?import de.hhu.stups.plues.ui.controller.unsatcore.CourseUnsatCore?>
-<?import de.hhu.stups.plues.ui.controller.unsatcore.GroupUnsatCore?>
-<?import de.hhu.stups.plues.ui.controller.unsatcore.ModuleUnsatCore?>
-<?import de.hhu.stups.plues.ui.controller.unsatcore.SessionUnsatCore?>
+<?import de.hhu.stups.plues.ui.components.unsatcore.AbstractUnitUnsatCore?>
+<?import de.hhu.stups.plues.ui.components.unsatcore.CourseUnsatCore?>
+<?import de.hhu.stups.plues.ui.components.unsatcore.GroupUnsatCore?>
+<?import de.hhu.stups.plues.ui.components.unsatcore.ModuleUnsatCore?>
+<?import de.hhu.stups.plues.ui.components.unsatcore.SessionUnsatCore?>
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.GridPane?>
