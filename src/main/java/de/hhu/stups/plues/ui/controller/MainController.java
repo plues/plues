@@ -163,8 +163,6 @@ public class MainController implements Initializable {
   @FXML
   private RadioMenuItem rbMenuItemSessionKey;
   @FXML
-  private Menu windowMenu;
-  @FXML
   private MenuItem aboutMenuItem;
   @FXML
   private ScrollPane scrollPaneTaskProgress;

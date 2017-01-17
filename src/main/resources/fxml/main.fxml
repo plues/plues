@@ -66,8 +66,6 @@
                                text="%display.SessionKey" userData="sessionKey"/>
             </Menu>
         </Menu>
-        <Menu fx:id="windowMenu" mnemonicParsing="false" text="%window">
-        </Menu>
         <Menu mnemonicParsing="false" text="%help">
             <MenuItem fx:id="aboutMenuItem" onAction="#about" mnemonicParsing="false"
                       text="%about"/>
