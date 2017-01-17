@@ -414,6 +414,7 @@ public class MainController implements Initializable {
     if (System.getProperty("os.name", "").toLowerCase().contains("mac")) {
       final String applicationName = "PlÜS";
       final MenuToolkit tk = MenuToolkit.toolkit();
+      final ObservableList<Menu> menus = menuBar.getMenus();
 
       // Remove About menu item from Help
       aboutMenuItem.getParentMenu().getItems().remove(aboutMenuItem);
@@ -421,7 +422,7 @@ public class MainController implements Initializable {
 
       // Create Mac-style application menu
       final Menu applicationMenu = tk.createDefaultApplicationMenu(applicationName);
-      menuBar.getMenus().add(0, applicationMenu);
+      menus.add(0, applicationMenu);
       tk.setApplicationMenu(applicationMenu);
       applicationMenu.getItems().setAll(aboutMenuItem, new SeparatorMenuItem(),
           new SeparatorMenuItem(), tk.createHideMenuItem(applicationName),
@@ -429,11 +430,16 @@ public class MainController implements Initializable {
           tk.createQuitMenuItem(applicationName));
 
       // Add Mac-style items to Window menu
+      final Menu windowMenu = new Menu(resources.getString("window"));
+      windowMenu.setMnemonicParsing(false);
       windowMenu.getItems().addAll(tk.createMinimizeMenuItem(), tk.createZoomMenuItem(),
           tk.createCycleWindowsItem(), new SeparatorMenuItem(), tk.createBringAllToFrontItem(),
           new SeparatorMenuItem());
+      menus.add(menus.size() - 1, windowMenu);
       tk.autoAddWindowMenuItems(windowMenu);
       tk.setGlobalMenuBar(menuBar);
+
+
     }
   }
 
