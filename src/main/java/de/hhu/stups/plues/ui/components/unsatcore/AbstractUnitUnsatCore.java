@@ -187,4 +187,17 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
     return unsatCoreButtonBar;
   }
 
+  public void setModules(final ObservableList<Module> modules) {
+    this.modules.set(modules);
+  }
+
+  public ObservableList<Module> getModules() {
+    return modules.get();
+  }
+
+  public ListProperty<Module> modulesProperty() {
+    return modules;
+  }
+
+
 }
