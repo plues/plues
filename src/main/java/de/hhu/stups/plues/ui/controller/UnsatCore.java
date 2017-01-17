@@ -141,6 +141,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
       groupUnsatCore.setGroups(FXCollections.emptyObservableList());
       groupUnsatCore.resetTaskState();
     });
+    abstractUnitUnsatCore.modulesProperty().bind(moduleUnsatCore.moduleProperty());
 
     final BooleanBinding binding = abstractUnitUnsatCore.abstractUnitsProperty().emptyProperty()
         .or(groupUnsatCore.groupProperty().emptyProperty().not());
