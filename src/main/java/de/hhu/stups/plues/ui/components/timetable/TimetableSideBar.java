@@ -224,7 +224,7 @@ public class TimetableSideBar extends TabPane implements Initializable {
 
   private void selectSideBarTab(final Tab tab) {
     getSelectionModel().select(getTabs().indexOf(tab));
-    showSideBar();
+    collapsed.set(false);
   }
 
   public SetOfCourseSelection getSetOfCourseSelection() {
