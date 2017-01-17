@@ -515,7 +515,7 @@ public class MainController implements Initializable {
    */
   @FXML
   @SuppressWarnings("unused")
-  private void saveFileAs() {
+  private boolean saveFileAs() {
     final FileChooser fileChooser = prepareFileChooser("saveDB");
     fileChooser.setInitialFileName("data.sqlite3");
     //
@@ -525,10 +525,12 @@ public class MainController implements Initializable {
       try {
         Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(file.getAbsolutePath()));
         logger.info("File saving finished!");
+        return true;
       } catch (final IOException exception) {
         logger.error("File saving failed!", exception);
       }
     }
+    return false;
   }
 
   /**
@@ -750,13 +752,16 @@ public class MainController implements Initializable {
     }
 
     final Alert closeConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
-    closeConfirmation.setTitle("Confirm");
-    closeConfirmation.setHeaderText("Save before closing?");
+    closeConfirmation.setTitle(resources.getString("dialog.close.confirm"));
+    closeConfirmation.setHeaderText(resources.getString("dialog.close.title"));
+    closeConfirmation.getDialogPane().setPrefSize(825.0, 150.0);
 
-    final ButtonType save = new ButtonType("Save");
-    final ButtonType saveAs = new ButtonType("Save as");
-    final ButtonType withoutSaving = new ButtonType("Close without saving");
-    final ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+    final ButtonType save = new ButtonType(resources.getString("dialog.close.save"));
+    final ButtonType saveAs = new ButtonType(resources.getString("dialog.close.saveAs"));
+    final ButtonType withoutSaving = new ButtonType(
+        resources.getString("dialog.close.withoutSaving"));
+    final ButtonType cancel = new ButtonType(resources.getString("dialog.close.cancel"),
+        ButtonBar.ButtonData.CANCEL_CLOSE);
     closeConfirmation.getButtonTypes().setAll(save, saveAs, withoutSaving, cancel);
 
     final Optional<ButtonType> answer = closeConfirmation.showAndWait();
@@ -764,13 +769,9 @@ public class MainController implements Initializable {
 
     if (result == save) {
       saveFile();
-    } else if (result == saveAs) {
-      saveFileAs();
-    }
-
-    // if the result is to cancel we ignore the close request and consume the event
-    // in all other cases we close the stage
-    if (result == cancel) {
+    } else if ((result == saveAs && !saveFileAs()) || result == cancel) {
+      // if the result is to cancel we ignore the close request and consume the event
+      // in all other cases we close the stage
       event.consume();
     } else {
       stage.close();
