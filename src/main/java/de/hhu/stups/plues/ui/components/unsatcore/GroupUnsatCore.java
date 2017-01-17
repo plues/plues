@@ -159,6 +159,16 @@ public class GroupUnsatCore extends VBox implements Initializable {
     return abstractUnits.get();
   }
 
+  public ListProperty<AbstractUnit> abstractUnitsProperty() {
+    return abstractUnits;
+  }
+
+  public void setAbstractUnits(final ObservableList<AbstractUnit> abstractUnits) {
+    this.abstractUnits.set(abstractUnits);
+  }
+
+
+
   public ListProperty<Group> groupProperty() {
     return groups;
   }
