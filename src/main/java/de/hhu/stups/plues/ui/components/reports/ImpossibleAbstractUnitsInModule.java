@@ -14,6 +14,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.Map;
@@ -32,9 +33,13 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
   @FXML
   @SuppressWarnings("unused")
   private TableView<AbstractUnit> tableViewAbstractUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   /**
    * Default constructor
+   *
    * @param inflater Inflater to handle fxml files and resources.
    */
   @Inject
@@ -62,7 +67,10 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
     });
     listViewModules.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) ->
-          abstractUnits.setAll(impossibleAbstractUnitsInModule.get(newValue)));
+            abstractUnits.setAll(impossibleAbstractUnitsInModule.get(newValue)));
+
+    txtExplanation.wrappingWidthProperty().bind(
+        tableViewAbstractUnits.widthProperty().subtract(25.0));
   }
 
   public void setData(final Map<Module, Set<AbstractUnit>> impossibleAbstractUnitsInModule) {

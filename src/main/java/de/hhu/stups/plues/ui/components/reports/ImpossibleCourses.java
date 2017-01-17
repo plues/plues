@@ -12,10 +12,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import org.controlsfx.control.SegmentedButton;
 
@@ -35,7 +35,7 @@ public class ImpossibleCourses extends VBox implements Initializable {
   private SegmentedButton segmentedButtons;
   @FXML
   @SuppressWarnings("unused")
-  private Label explanation;
+  private Text txtExplanation;
   @FXML
   @SuppressWarnings("unused")
   private TableView<Course> tableViewImpossibleCourses;
@@ -51,6 +51,7 @@ public class ImpossibleCourses extends VBox implements Initializable {
 
   /**
    * Default constructor.
+   *
    * @param inflater Handle fxml and resources
    */
   @Inject
@@ -114,7 +115,7 @@ public class ImpossibleCourses extends VBox implements Initializable {
           } else {
             if (buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations.isSelected()) {
               string = resources.getString(
-                "explain.ImpossibleCoursesBecauseOfImpossibleModuleCombinations");
+                  "explain.ImpossibleCoursesBecauseOfImpossibleModuleCombinations");
             } else {
               string = null;
             }
@@ -123,13 +124,17 @@ public class ImpossibleCourses extends VBox implements Initializable {
         return string;
       }
     };
-    explanation.textProperty().bind(stringBinding);
+
+    txtExplanation.textProperty().bind(stringBinding);
+    txtExplanation.wrappingWidthProperty().bind(
+        tableViewImpossibleCourses.widthProperty().subtract(25.0));
   }
 
   /**
    * Fill list with content.
-   * @param impossibleCourses Courses with missing data
-   * @param impossibleCoursesBecauseOfImpossibleModules Courses with impossible modules
+   *
+   * @param impossibleCourses                                      Courses with missing data
+   * @param impossibleCoursesBecauseOfImpossibleModules            Courses with impossible modules
    * @param impossibleCoursesBecauseOfImpossibleModuleCombinations Courses with impossible module
    *                                                               combinations
    */

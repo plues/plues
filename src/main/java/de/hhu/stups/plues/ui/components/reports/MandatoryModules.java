@@ -14,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.Collections;
@@ -27,9 +28,14 @@ public class MandatoryModules extends VBox implements Initializable {
   private final SimpleListProperty<Course> courses;
 
   @FXML
+  @SuppressWarnings("unused")
   private TableView<Course> tableViewcourses;
   @FXML
+  @SuppressWarnings("unused")
   private TableView<Module> tableViewMandatoryModules;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   /**
    * Default constructor.
@@ -59,6 +65,7 @@ public class MandatoryModules extends VBox implements Initializable {
       }
     });
 
+    txtExplanation.wrappingWidthProperty().bind(tableViewcourses.widthProperty().subtract(25.0));
   }
 
   public void setData(final Map<Course, Set<Module>> mandatoryModules) {

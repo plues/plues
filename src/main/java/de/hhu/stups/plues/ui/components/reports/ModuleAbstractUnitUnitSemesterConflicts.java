@@ -7,6 +7,7 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -16,6 +17,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.Collections;
@@ -29,11 +31,15 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
   private final SimpleListProperty<Module> modules;
   private final ObservableMap<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflicts;
 
-
   @FXML
+  @SuppressWarnings("unused")
   private TableView<Module> tableViewModules;
   @FXML
+  @SuppressWarnings("unused")
   private TableView<Conflict> tableViewAbstractUnitUnitSemesters;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   /**
    * Default constructor.
@@ -65,6 +71,8 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
     });
 
     tableViewModules.itemsProperty().bind(modules);
+
+    txtExplanation.wrappingWidthProperty().bind(tableViewModules.widthProperty().subtract(25.0));
   }
 
   public void setData(final Map<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflicts) {

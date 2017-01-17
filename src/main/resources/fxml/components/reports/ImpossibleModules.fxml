@@ -3,26 +3,27 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.Label?>
 <?import org.controlsfx.control.SegmentedButton?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1">
-    <SegmentedButton fx:id="segmentedButtons">
-        <padding>
-            <Insets left="20" right="20"/>
-        </padding>
-        <buttons>
-            <ToggleButton fx:id="buttonIncompleteModules" text="%button.IncompleteModules"
-                          minWidth="150.0" selected="true"/>
-            <ToggleButton fx:id="buttonMissingElectiveAbstractUnits"
-                          text="%button.MissingElectiveAbstractUnits" minWidth="200.0"/>
-        </buttons>
-    </SegmentedButton>
-    <Label fx:id="explanation"/>
-    <Label text="%modules" style="-fx-font-size: 20px"/>
+<?import javafx.scene.text.Text?>
+
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox styleClass="windowPaddingSmall" spacing="10.0">
+        <SegmentedButton fx:id="segmentedButtons">
+            <padding>
+                <Insets left="20" right="20"/>
+            </padding>
+            <buttons>
+                <ToggleButton fx:id="buttonIncompleteModules" text="%button.IncompleteModules"
+                              minWidth="150.0" selected="true"/>
+                <ToggleButton fx:id="buttonMissingElectiveAbstractUnits"
+                              text="%button.MissingElectiveAbstractUnits" minWidth="200.0"/>
+            </buttons>
+        </SegmentedButton>
+        <Text fx:id="txtExplanation"/>
+    </VBox>
     <TableView fx:id="tableViewModules">
         <columns>
             <TableColumn prefWidth="100.0" text="%columnPordnr">

@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.Map;
@@ -30,9 +31,13 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
   @FXML
   @SuppressWarnings("unused")
   private TableView<AbstractUnit> tableViewAbstractUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   /**
    * Default constructor.
+   *
    * @param inflater Handle fxml and resources
    */
   @Inject
@@ -51,7 +56,10 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
 
     tableViewQuasiMandatoryModules.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) ->
-          abstractUnits.setAll(quasiMandatoryModuleAbstractUnits.get(newValue)));
+            abstractUnits.setAll(quasiMandatoryModuleAbstractUnits.get(newValue)));
+
+    txtExplanation.wrappingWidthProperty().bind(
+        tableViewAbstractUnits.widthProperty().subtract(25.0));
   }
 
   public void setData(final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits) {

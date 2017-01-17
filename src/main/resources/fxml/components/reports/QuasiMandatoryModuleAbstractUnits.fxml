@@ -1,43 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1">
-    <Label text="%explain.QuasiMandatoryModules" wrapText="true"/>
-    <VBox spacing="5.0">
-        <Label text="%modules" style="-fx-font-size: 20px"/>
-        <TableView fx:id="tableViewQuasiMandatoryModules">
-            <columns>
-                <TableColumn text="%columnPordnr" prefWidth="200.0" minWidth="100.0">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="pordnr"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn text="%columnTitle" prefWidth="500.0" minWidth="100.0">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="title"/>
-                    </cellValueFactory>
-                </TableColumn>
-            </columns>
-        </TableView>
-        <Label text="%abstractUnits" style="-fx-font-size: 20px"/>
-        <TableView fx:id="tableViewAbstractUnits">
-            <columns>
-                <TableColumn text="%columnKey" prefWidth="200.0" minWidth="100.0">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="key"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn text="%columnTitle" prefWidth="500.0" minWidth="100.0">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="title"/>
-                    </cellValueFactory>
-                </TableColumn>
-            </columns>
-        </TableView>
+<?import javafx.scene.text.Text?>
+
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox styleClass="windowPaddingSmall" spacing="10.0">
+        <Text fx:id="txtExplanation" text="%explain.QuasiMandatoryModules"/>
+        <Text text="%modules" style="-fx-font-weight: bold;"/>
     </VBox>
+    <TableView fx:id="tableViewQuasiMandatoryModules">
+        <columns>
+            <TableColumn text="%columnPordnr" prefWidth="200.0" minWidth="100.0">
+                <cellValueFactory>
+                    <PropertyValueFactory property="pordnr"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="%columnTitle" prefWidth="500.0" minWidth="100.0">
+                <cellValueFactory>
+                    <PropertyValueFactory property="title"/>
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+    <VBox styleClass="windowPaddingSmall" spacing="10.0">
+        <Text text="%abstractUnits" style="-fx-font-weight: bold;"/>
+    </VBox>
+    <TableView fx:id="tableViewAbstractUnits">
+        <columns>
+            <TableColumn text="%columnKey" prefWidth="200.0" minWidth="100.0">
+                <cellValueFactory>
+                    <PropertyValueFactory property="key"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="%columnTitle" prefWidth="500.0" minWidth="100.0">
+                <cellValueFactory>
+                    <PropertyValueFactory property="title"/>
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
 </fx:root>

@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.List;
@@ -20,6 +21,9 @@ public class AbstractUnitsWithoutUnits extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableView<AbstractUnit> tableViewAbstractUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   @Inject
   public AbstractUnitsWithoutUnits(final Inflater inflater) {
@@ -28,7 +32,10 @@ public class AbstractUnitsWithoutUnits extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {}
+  public void initialize(final URL location, final ResourceBundle resources) {
+    txtExplanation.wrappingWidthProperty().bind(
+        tableViewAbstractUnits.widthProperty().subtract(25.0));
+  }
 
   public void setData(final List<AbstractUnit> abstractUnitsWithoutUnits) {
     tableViewAbstractUnits.setItems(FXCollections.observableList(abstractUnitsWithoutUnits));
