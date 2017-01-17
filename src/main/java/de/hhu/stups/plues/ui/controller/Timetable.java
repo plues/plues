@@ -283,7 +283,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
           .anyMatch(sessionId -> sessionId == session.getId());
     }
 
-    private boolean sessionIsExcludedByCourse(SessionFacade session) {
+    private boolean sessionIsExcludedByCourse(final SessionFacade session) {
       final Set<Course> filteredCourses =
           new HashSet<>(timetableSideBar.getSetOfCourseSelection().getSelectedCourses());
 
