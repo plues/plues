@@ -95,7 +95,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     this.delayedStore.whenAvailable(store -> {
       timetableSideBar.initializeComponents(store);
       setSessions(store.getSessions()
-          .parallelStream()
+          .stream()
           .map(SessionFacade::new)
           .collect(Collectors.toList()));
     });
@@ -317,7 +317,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     @Override
     protected ObservableSet<String> computeValue() {
-      return uiDataService.getConflictMarkedSessions().parallelStream()
+      return uiDataService.getConflictMarkedSessions().stream()
           .map(store::getSessionById)
           .map(SessionFacade::new)
           .map(SessionFacade::getUnitSemesters)
