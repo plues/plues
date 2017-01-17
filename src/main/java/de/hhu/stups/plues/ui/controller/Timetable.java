@@ -152,9 +152,9 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   }
 
   private ListView<SessionFacade> getSessionFacadeListView(final SessionFacade.Slot slot) {
-    final ListView<SessionFacade> view = sessionListViewFactory.create(slot);
+    final SessionListView view = sessionListViewFactory.create(slot);
 
-    ((SessionListView) view).setSessions(sessions);
+    view.setSessions(sessions);
     view.itemsProperty().bind(new SessionFacadeListBinding(slot));
     return view;
   }
