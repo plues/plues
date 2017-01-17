@@ -154,6 +154,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   private void initializeGroupUnsatCore() {
     groupUnsatCore.groupProperty().addListener((observable, oldValue, newValue) ->
         sessionUnsatCore.setSessions(FXCollections.emptyObservableList()));
+    groupUnsatCore.abstractUnitsProperty().bind(abstractUnitUnsatCore.abstractUnitsProperty());
 
     final BooleanBinding binding = groupUnsatCore.groupProperty().emptyProperty()
         .or(sessionUnsatCore.sessionProperty().emptyProperty().not());
