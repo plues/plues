@@ -86,7 +86,7 @@ public class ModuleUnsatCore extends VBox implements Initializable {
     return modules.get();
   }
 
-  public ListProperty<Module> getModuleProperty() {
+  public ListProperty<Module> moduleProperty() {
     return modules;
   }
 

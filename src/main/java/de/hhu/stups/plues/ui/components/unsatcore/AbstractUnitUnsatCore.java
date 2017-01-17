@@ -175,11 +175,16 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
     this.abstractUnitsProperty.set(abstractUnits);
   }
 
-  public ListProperty<AbstractUnit> getAbstractUnitsProperty() {
+  public ListProperty<AbstractUnit> abstractUnitsProperty() {
     return abstractUnitsProperty;
+  }
+
+  public List<AbstractUnit> getAbstractUnits() {
+    return abstractUnitsProperty.get();
   }
 
   public UnsatCoreButtonBar getUnsatCoreButtonBar() {
     return unsatCoreButtonBar;
   }
+
 }
