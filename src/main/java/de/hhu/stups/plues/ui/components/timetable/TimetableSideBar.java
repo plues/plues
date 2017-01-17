@@ -12,6 +12,7 @@ import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.controller.Timetable;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
 import javafx.event.EventTarget;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -65,8 +66,11 @@ public class TimetableSideBar extends TabPane implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     VBox.setVgrow(this, Priority.ALWAYS);
 
-    getTabs().forEach(sideTab ->
-        sideTab.getStyleClass().addAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabVisible"));
+    getTabs().forEach(sideTab -> {
+      sideTab.getStyleClass().addAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabVisible");
+      sideTab.setOnCloseRequest(Event::consume);
+    });
+
     selectedSubTab = getSelectionModel().getSelectedItem();
 
     addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
