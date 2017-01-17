@@ -21,6 +21,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.StatusBar?>
 <?import org.controlsfx.control.TaskProgressView?>
+
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="de.hhu.stups.plues.ui.controller.MainController">
@@ -38,18 +39,19 @@
                       mnemonicParsing="false" text="%log" accelerator="Shortcut+L"/>
             <MenuItem fx:id="openReportsMenuItem" onAction="#openReports" disable="true"
                       mnemonicParsing="false" text="%reports" accelerator="Shortcut+R"/>
-            <MenuItem fx:id="close" onAction="#closeWindow"
-                      mnemonicParsing="false" text="%close"/>
+            <MenuItem fx:id="close" onAction="#closeWindow" mnemonicParsing="false" text="%close"/>
         </Menu>
         <Menu mnemonicParsing="false" text="%edit">
             <Menu fx:id="selectTimeoutMenu" mnemonicParsing="false" text="%timeout.Select">
                 <RadioMenuItem fx:id="oneMinuteMenuItem" text="%timeout.oneMinute" disable="true"
                                selected="true"
-                          mnemonicParsing="false" onAction="#setTimeoutOneMinute"/>
-                <RadioMenuItem fx:id="threeMinutesMenuItem" text="%timeout.threeMinutes" disable="true"
-                          mnemonicParsing="false" onAction="#setTimeoutThreeMinutes"/>
-                <RadioMenuItem fx:id="fiveMinutesMenuItem" text="%timeout.fiveMinutes" disable="true"
-                          mnemonicParsing="false" onAction="#setTimeoutFiveMinutes"/>
+                               mnemonicParsing="false" onAction="#setTimeoutOneMinute"/>
+                <RadioMenuItem fx:id="threeMinutesMenuItem" text="%timeout.threeMinutes"
+                               disable="true"
+                               mnemonicParsing="false" onAction="#setTimeoutThreeMinutes"/>
+                <RadioMenuItem fx:id="fiveMinutesMenuItem" text="%timeout.fiveMinutes"
+                               disable="true"
+                               mnemonicParsing="false" onAction="#setTimeoutFiveMinutes"/>
                 <MenuItem fx:id="setTimeoutMenuItem" text="%timeout.Title" disable="true"
                           mnemonicParsing="false" onAction="#setTimeoutCustom"/>
             </Menu>
@@ -69,10 +71,8 @@
         <Menu mnemonicParsing="false" text="%help">
             <MenuItem fx:id="aboutMenuItem" onAction="#about" mnemonicParsing="false"
                       text="%about"/>
-            <MenuItem onAction="#showHtmlHandbook" mnemonicParsing="false"
-                      text="%handbookHTML"/>
-            <MenuItem onAction="#showPdfHandbook" mnemonicParsing="false"
-                      text="%handbookPDF"/>
+            <MenuItem onAction="#showHtmlHandbook" mnemonicParsing="false" text="%handbookHTML"/>
+            <MenuItem onAction="#showPdfHandbook" mnemonicParsing="false" text="%handbookPDF"/>
         </Menu>
     </MenuBar>
     <SplitPane fx:id="mainSplitPane">
@@ -101,7 +101,7 @@
         <VBox fx:id="boxTaskProgress">
             <ScrollPane fx:id="scrollPaneTaskProgress" VBox.vgrow="ALWAYS" hbarPolicy="NEVER"
                         fitToHeight="true" fitToWidth="true">
-                <TaskProgressView fx:id="taskProgress" minWidth="200.0"/>
+                <TaskProgressView fx:id="taskProgress"/>
             </ScrollPane>
         </VBox>
     </SplitPane>

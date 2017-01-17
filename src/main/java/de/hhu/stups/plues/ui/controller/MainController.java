@@ -32,6 +32,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -259,7 +260,7 @@ public class MainController implements Initializable {
                                final ResourceBundle resources) {
     this.resources = resources;
 
-    this.taskProgress.setGraphicFactory(this::getGraphicForTask);
+    taskProgress.setGraphicFactory(this::getGraphicForTask);
 
     taskProgress.prefWidthProperty().bind(scrollPaneTaskProgress.widthProperty());
     taskProgress.prefHeightProperty().bind(scrollPaneTaskProgress.heightProperty());
@@ -271,6 +272,8 @@ public class MainController implements Initializable {
     // don't show tasks on startup
     mainSplitPane.getItems().remove(boxTaskProgress);
     mainStatusBar.setText("");
+
+    removeTaskProgressBox();
 
     mainProgressBar.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
     mainProgressBar.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
@@ -325,23 +328,22 @@ public class MainController implements Initializable {
   }
 
   private void initializeTaskProgressListener() {
-    final ObservableList<Task<?>> runningTasks = taskProgress.getTasks();
+    final ObservableList<Task<?>> scheduledTasks = taskProgress.getTasks();
     final String tasksSingular = resources.getString("tasksSingular");
     final String tasksPlural = resources.getString("tasksPlural");
 
-    runningTasks.addListener((ListChangeListener.Change<? extends Task<?>> change) -> {
-          if (runningTasks.isEmpty()) {
-            removeTaskProgressBox();
-          } else {
-            mainProgressBar.progressProperty().bind(runningTasks.get(0).progressProperty());
-            if (!mainStatusBar.getRightItems().contains(mainProgressBar)) {
-              mainStatusBar.getRightItems().addAll(lbRunningTasks, mainProgressBar);
-            }
-          }
-          lbRunningTasks.setText(runningTasks.size() + " " + ((runningTasks.size() == 1)
-              ? tasksSingular : tasksPlural));
+    scheduledTasks.addListener((ListChangeListener.Change<? extends Task<?>> change) -> {
+      if (scheduledTasks.isEmpty()) {
+        removeTaskProgressBox();
+      } else {
+        if (!mainStatusBar.getRightItems().contains(mainProgressBar)) {
+          mainStatusBar.getRightItems().addAll(lbRunningTasks, mainProgressBar);
         }
-    );
+        bindProgressPropertyIfNecessary(scheduledTasks);
+        lbRunningTasks.setText(scheduledTasks.size() + " " + ((scheduledTasks.size() == 1)
+            ? tasksSingular : tasksPlural));
+      }
+    });
 
     final EventHandler<MouseEvent> mouseEventEventHandler = event -> {
       final ObservableList<Node> splitPaneItems = mainSplitPane.getItems();
@@ -353,6 +355,29 @@ public class MainController implements Initializable {
     };
     lbRunningTasks.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
     mainProgressBar.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
+  }
+
+  /**
+   * Bind the {@link #mainProgressBar progress bar's} ProgressProperty to the first running task if
+   * it is unbound and there is at least one scheduled task given.
+   */
+  private void bindProgressPropertyIfNecessary(final ObservableList<Task<?>> scheduledTasks) {
+    if (scheduledTasks.size() == 1) {
+      mainProgressBar.progressProperty().bind(scheduledTasks.get(0).progressProperty());
+    } else if (!mainProgressBar.progressProperty().isBound()) {
+      final Optional<Task<?>> optionalRunningTask = scheduledTasks.stream()
+          .filter(Task::isRunning).findFirst();
+
+      if (optionalRunningTask.isPresent()) {
+        final Task<?> runningTask = optionalRunningTask.get();
+        mainProgressBar.progressProperty().bind(runningTask.progressProperty());
+        final EventHandler<WorkerStateEvent> unbindProgressBar =
+            event -> mainProgressBar.progressProperty().unbind();
+        runningTask.setOnSucceeded(unbindProgressBar);
+        runningTask.setOnCancelled(unbindProgressBar);
+        runningTask.setOnFailed(unbindProgressBar);
+      }
+    }
   }
 
   /**
