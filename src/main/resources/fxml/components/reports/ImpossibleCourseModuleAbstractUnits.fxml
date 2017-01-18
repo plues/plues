@@ -8,5 +8,5 @@
     <VBox styleClass="windowPaddingSmall" spacing="10.0">
         <Text fx:id="txtExplanation" text="%explain.ImpossibleCourseModuleAbstractUnits"/>
     </VBox>
-    <TreeView fx:id="treeViewCourseModuleAbstractUnits" showRoot="fal"/>
+    <TreeView fx:id="treeViewCourseModuleAbstractUnits" showRoot="false" focusTraversable="false"/>
 </fx:root>
