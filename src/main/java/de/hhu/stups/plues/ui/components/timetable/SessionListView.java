@@ -63,7 +63,7 @@ public class SessionListView extends ListView<SessionFacade> {
     this.uiDataService.conflictMarkedSessionsProperty()
         .addListener((observable, oldValue, newValue) -> computeStyleClass());
     itemsProperty()
-        .addListener((observable, oldValue, newValue) -> computeStyleClass());
+        .addListener(observable -> computeStyleClass());
   }
 
   private void computeStyleClass() {
