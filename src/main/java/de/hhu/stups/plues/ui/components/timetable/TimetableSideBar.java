@@ -141,6 +141,8 @@ public class TimetableSideBar extends TabPane implements Initializable {
    * #checkCourseFeasibility}.
    */
   public void initializeComponents(final ObservableStore store) {
+    selectedSubTab = lookup(".tab:first-child");
+
     abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
     abstractUnitFilter.courseFilterProperty().bind(
         setOfCourseSelection.selectedCoursesProperty());
@@ -193,6 +195,7 @@ public class TimetableSideBar extends TabPane implements Initializable {
     });
     this.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
     this.getSelectionModel().select(null);
+    selectedSubTab = null;
   }
 
   private void showSideBar() {
