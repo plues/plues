@@ -33,6 +33,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Toggle;
@@ -133,8 +134,14 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     });
   }
 
+  /**
+   * Disable the split pane divider for the {@link #timetableSideBar}.
+   */
   public void disableDivider(final boolean bool) {
-    lookup(".split-pane-divider").setDisable(bool);
+    final Node divider = lookup("#timetable > .split-pane-divider");
+    if (divider != null) {
+      divider.setDisable(bool);
+    }
   }
 
   private void initSessionBoxes() {
