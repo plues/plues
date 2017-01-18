@@ -89,7 +89,7 @@ public class SessionListView extends ListView<SessionFacade> {
 
   private boolean isValidTarget(final DragEvent event) {
     return event.getDragboard().hasString()
-      && !getItems().stream().anyMatch(sessionFacade ->
+      && getItems().stream().noneMatch(sessionFacade ->
       String.valueOf(sessionFacade.getId()).equals(event.getDragboard().getString()))
       && event.getGestureSource() != this;
   }
