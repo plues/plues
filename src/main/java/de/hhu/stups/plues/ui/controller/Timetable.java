@@ -260,14 +260,18 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     }
 
     private boolean sessionIsIncluded(final SessionFacade session, final Integer semester) {
-      final Set<Integer> semesters = session.getUnitSemesters();
-
-      final boolean isIncludedBySemester = semester == null || semesters.contains(semester);
       final boolean isIncludedBySlot = session.getSlot().equals(slot);
-      final boolean isNotExcluded =
-          sessionIsNotExcluded(session) || sessionIsIncludedByConflict(session);
+      
+      return isIncludedBySlot && isIncludedBySemester(session, semester) && isNotExcluded(session);
+    }
 
-      return isIncludedBySlot && isIncludedBySemester && isNotExcluded;
+    private boolean isIncludedBySemester(final SessionFacade session, final Integer semester) {
+      final Set<Integer> semesters = session.getUnitSemesters();
+      return semester == null || semesters.contains(semester);
+    }
+
+    private boolean isNotExcluded(final SessionFacade session) {
+      return sessionIsNotExcluded(session) || sessionIsIncludedByConflict(session);
     }
 
     private Integer getSelectedSemester() {
@@ -294,6 +298,10 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
       final Set<Course> filteredCourses =
           new HashSet<>(timetableSideBar.getSetOfCourseSelection().getSelectedCourses());
 
+      if (filteredCourses.isEmpty()) {
+        return false;
+      }
+
       final Set<Course> sessionCourses = session.getIntendedCourses();
 
       sessionCourses.retainAll(filteredCourses);
@@ -304,6 +312,10 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     private boolean sessionIsExcludedByAbstractUnit(final SessionFacade session) {
       final Set<AbstractUnit> filteredAbstractUnits =
           new HashSet<>(timetableSideBar.getAbstractUnitFilter().getSelectedAbstractUnits());
+
+      if (filteredAbstractUnits.isEmpty()) {
+        return false;
+      }
 
       final Set<AbstractUnit> sessionAbstractUnits = session.getIntendedAbstractUnits();
 
