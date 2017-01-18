@@ -253,9 +253,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     @Override
     protected ObservableSet<String> computeValue() {
-      return uiDataService.getConflictMarkedSessions().stream()
-          .map(store::getSessionById)
-          .map(SessionFacade::new)
+      final Set<Integer> sessionIds = new HashSet<>(uiDataService.conflictMarkedSessionsProperty());
+      return sessions.filtered(facade -> sessionIds.contains(facade.getId())).stream()
           .map(SessionFacade::getUnitSemesters)
           .flatMap(Collection::stream)
           .collect(
