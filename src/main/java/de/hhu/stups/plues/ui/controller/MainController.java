@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui.controller;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -27,8 +28,12 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -100,6 +105,7 @@ public class MainController implements Initializable {
   private static final String DB_PATH = "dbpath";
   private static final String TEMP_DB_PATH = "tempDBpath";
   private static final ListeningScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE;
+  private static final ListeningExecutorService EXECUTOR_SERVICE;
 
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
@@ -115,6 +121,7 @@ public class MainController implements Initializable {
   private final ExecutorService executor;
   private final UiDataService uiDataService;
   private final Preferences userPreferences;
+  private final BooleanProperty taskBoxCollapsed = new SimpleBooleanProperty(false);
 
   private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
   private final SolverLoaderImpl solverLoader;
@@ -123,8 +130,8 @@ public class MainController implements Initializable {
   private final ResourceManager resourceManager;
   private final Delayed<SolverService> delayedSolverService;
   private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
-  private final ToggleGroup timeoutPreferenceToggle = new ToggleGroup();
 
+  private final ToggleGroup timeoutPreferenceToggle = new ToggleGroup();
   private boolean databaseChanged = false;
   private ResourceBundle resources;
 
@@ -177,8 +184,11 @@ public class MainController implements Initializable {
   @FXML
   private Label lbRunningTasks;
 
+  private SplitPane.Divider mainSplitPaneDivider;
   private RadioMenuItem customTimeoutItem;
   private final IntegerProperty customTimeoutProperty;
+  private double visibleDividerPos;
+  private boolean fadingInProgress = false;
 
   /**
    * MainController component.
@@ -254,8 +264,7 @@ public class MainController implements Initializable {
   }
 
   @Override
-  public final void initialize(final URL location,
-                               final ResourceBundle resources) {
+  public final void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
 
     taskProgress.setGraphicFactory(this::getGraphicForTask);
@@ -263,15 +272,39 @@ public class MainController implements Initializable {
     taskProgress.prefWidthProperty().bind(scrollPaneTaskProgress.widthProperty());
     taskProgress.prefHeightProperty().bind(scrollPaneTaskProgress.heightProperty());
 
-    boxTaskProgress.prefWidth(mainSplitPane.getWidth() / 3.0);
     boxTaskProgress.maxWidthProperty().bind(mainSplitPane.widthProperty().divide(3.0));
-    boxTaskProgress.minWidthProperty().bind(mainSplitPane.widthProperty().divide(5.0));
 
-    // don't show tasks on startup
-    mainSplitPane.getItems().remove(boxTaskProgress);
+    mainSplitPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+      boxTaskProgress.prefWidth(mainSplitPane.getWidth() / 3.0);
+      // calculate the divider position for the case that the task box is not collapsed
+      // and has its full width
+      visibleDividerPos = (mainSplitPane.getWidth() - boxTaskProgress.getMaxWidth())
+          / mainSplitPane.getWidth();
+      if (taskBoxCollapsed.get()) {
+        mainSplitPaneDivider.setPosition(1.0);
+      }
+    });
+
     mainStatusBar.setText("");
 
-    removeTaskProgressBox();
+    // do not show the task box on the startup, sadly there is no other way to set a default
+    // divider position with the correct behavior
+    // http://stackoverflow.com/questions/36290539/set-divider-position-of-splitpane
+    stage.showingProperty().addListener(new ChangeListener<Boolean>() {
+      @Override
+      public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
+                          Boolean newValue) {
+        if (newValue) {
+          mainSplitPaneDivider.setPosition(1.0);
+          observable.removeListener(this);
+        }
+      }
+    });
+
+    mainSplitPaneDivider = mainSplitPane.getDividers().get(0);
+
+    taskBoxCollapsed.addListener((observable, oldValue, shouldHide) ->
+        hideTaskProgressBox(shouldHide));
 
     mainProgressBar.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
     mainProgressBar.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
@@ -322,7 +355,6 @@ public class MainController implements Initializable {
     // reset unsaved flag.
     uiDataService.lastSavedDateProperty().addListener(
         (observable, oldValue, newValue) -> this.databaseChanged = false);
-
   }
 
   private void initializeTaskProgressListener() {
@@ -343,14 +375,8 @@ public class MainController implements Initializable {
       }
     });
 
-    final EventHandler<MouseEvent> mouseEventEventHandler = event -> {
-      final ObservableList<Node> splitPaneItems = mainSplitPane.getItems();
-      if (splitPaneItems.contains(boxTaskProgress)) {
-        splitPaneItems.remove(boxTaskProgress);
-      } else {
-        splitPaneItems.add(boxTaskProgress);
-      }
-    };
+    final EventHandler<MouseEvent> mouseEventEventHandler = event ->
+        taskBoxCollapsed.setValue(!taskBoxCollapsed.get());
     lbRunningTasks.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
     mainProgressBar.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
   }
@@ -378,30 +404,76 @@ public class MainController implements Initializable {
     }
   }
 
-  /**
-   * Wait some time and hide the {@link #taskProgress task progress view} if there are no running
-   * tasks anymore.
-   */
-
   static {
     final ThreadFactory threadFactoryBuilder = new ThreadFactoryBuilder().setDaemon(true)
         .setNameFormat("task-progress-hide-runner-%d").build();
 
     SCHEDULED_EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
         Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
-
+    EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
+        Executors.newSingleThreadExecutor(threadFactoryBuilder));
   }
 
+  /**
+   * Wait some time and hide the {@link #taskProgress task progress view} if there are no running
+   * tasks anymore.
+   */
   private void removeTaskProgressBox() {
-    mainProgressBar.progressProperty().unbind();
-    mainStatusBar.getRightItems().remove(lbRunningTasks);
-    mainStatusBar.getRightItems().remove(mainProgressBar);
+    clearStatusBar();
     SCHEDULED_EXECUTOR_SERVICE.schedule(() ->
         Platform.runLater(() -> {
           if (taskProgress.getTasks().isEmpty()) {
-            mainSplitPane.getItems().remove(boxTaskProgress);
+            taskBoxCollapsed.setValue(true);
           }
         }), 3, TimeUnit.SECONDS);
+  }
+
+  /**
+   * Fade-in or fade-out the {@link #boxTaskProgress} by moving the {@link #mainSplitPaneDivider} to
+   * the destination.
+   */
+  private void hideTaskProgressBox(final boolean hide) {
+    if ((!hide || mainSplitPane.getItems().contains(boxTaskProgress))
+        && !fadingInProgress) {
+      disableDivider(hide);
+      EXECUTOR_SERVICE.execute(() -> {
+        fadingInProgress = true;
+        while (true) {
+          final double currentDividerPosition = mainSplitPaneDivider.getPosition();
+          final boolean condition = hide ? currentDividerPosition > 0.999
+              : currentDividerPosition < visibleDividerPos;
+          if (condition) {
+            break;
+          }
+          try {
+            TimeUnit.MILLISECONDS.sleep(5);
+          } catch (InterruptedException exception) {
+            logger.error("Task bar fade-out has been interrupted.", exception);
+            Thread.currentThread().interrupt();
+          }
+          Platform.runLater(() -> mainSplitPaneDivider.setPosition(currentDividerPosition
+              + (hide ? 0.05 : -0.05)));
+        }
+        fadingInProgress = false;
+      });
+    }
+  }
+
+  /**
+   * Lookup and disable the {@link #mainSplitPane split pane's} divider.
+   */
+  private void disableDivider(final boolean bool) {
+    final Node divider = mainSplitPane.lookup("#mainSplitPane > .split-pane-divider");
+    if (divider != null) {
+      divider.setDisable(bool);
+    }
+  }
+
+  private void clearStatusBar() {
+    mainStatusBar.setText("");
+    mainProgressBar.progressProperty().unbind();
+    mainStatusBar.getRightItems().remove(lbRunningTasks);
+    mainStatusBar.getRightItems().remove(mainProgressBar);
   }
 
   private void initializeMenu() {
@@ -774,8 +846,8 @@ public class MainController implements Initializable {
     if (result == save) {
       saveFile();
     } else if ((result == saveAs && !saveFileAs()) || result == cancel) {
-      // if the result is to cancel we ignore the close request and consume the event
-      // in all other cases we close the stage
+      // if the result is to cancel or 'save as' has been canceled we ignore the close request and
+      // consume the event, otherwise we close the stage
       event.consume();
     } else {
       stage.close();

@@ -96,7 +96,7 @@
                 </Tab>
             </TabPane>
         </VBox>
-        <VBox fx:id="boxTaskProgress">
+        <VBox fx:id="boxTaskProgress" minWidth="0.0">
             <ScrollPane fx:id="scrollPaneTaskProgress" VBox.vgrow="ALWAYS" hbarPolicy="NEVER"
                         fitToHeight="true" fitToWidth="true">
                 <TaskProgressView fx:id="taskProgress"/>
