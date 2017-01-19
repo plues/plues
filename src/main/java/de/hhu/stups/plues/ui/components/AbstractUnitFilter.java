@@ -11,6 +11,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListProperty;
@@ -18,6 +19,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
@@ -27,8 +29,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
@@ -36,6 +36,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("WeakerAccess")
@@ -174,29 +175,39 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       @Override
       protected ObservableList<SelectableAbstractUnit> computeValue() {
         return FXCollections.observableList(
-          abstractUnits.parallelStream().map(SelectableAbstractUnit::new)
+          abstractUnits.stream().map(SelectableAbstractUnit::new)
             .collect(toList()), extractor);
       }
     });
 
 
-    final ListBinding<SelectableAbstractUnit> tableViewBinding
-        = new ListBinding<SelectableAbstractUnit>() {
-          {
-            bind(query.textProperty(), all.selectedProperty(), selected.selectedProperty(),
-                notSelected.selectedProperty(), selectableAbstractUnits);
-            bind(selectedCoursesOnly.selectedProperty(), courseFilter);
-          }
+    final FilteredList<SelectableAbstractUnit> filteredUnits
+        = new FilteredList<>(selectableAbstractUnits);
+    filteredUnits.predicateProperty().bind(
+        new ObjectBinding<Predicate<? super SelectableAbstractUnit>>() {
+        {
+          bind(query.textProperty(), all.selectedProperty(), selected.selectedProperty(),
+              notSelected.selectedProperty());
+          bind(selectedCoursesOnly.selectedProperty(), courseFilter);
+        }
 
-          @Override
-          protected ObservableList<SelectableAbstractUnit> computeValue() {
-            return selectableAbstractUnits.get().filtered(selectableAbstractUnit
-                -> selectableAbstractUnit.matches(query, all.isSelected(),
-              selected.isSelected(), notSelected.isSelected(),
-              selectedCoursesOnly.isSelected(), getCourseFilter()));
-          }
-        };
-    units.itemsProperty().bind(tableViewBinding);
+        @Override
+        public void dispose() {
+          super.dispose();
+          unbind(query.textProperty(), all.selectedProperty(), selected.selectedProperty(),
+              notSelected.selectedProperty());
+          unbind(selectedCoursesOnly.selectedProperty(), courseFilter);
+        }
+
+        @Override
+        protected Predicate<? super SelectableAbstractUnit> computeValue() {
+          return selectableAbstractUnit -> selectableAbstractUnit.matches(query, all.isSelected(),
+                selected.isSelected(), notSelected.isSelected(),
+                selectedCoursesOnly.isSelected(), getCourseFilter());
+        }
+      });
+
+    units.itemsProperty().bind(new SimpleListProperty<>(filteredUnits));
 
     selectedAbstractUnits.bind(new ListBinding<AbstractUnit>() {
       {
@@ -206,7 +217,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       @Override
       protected ObservableList<AbstractUnit> computeValue() {
         return
-          selectableAbstractUnits.filtered(SelectableAbstractUnit::isSelected).parallelStream()
+          selectableAbstractUnits.filtered(SelectableAbstractUnit::isSelected).stream()
             .map(SelectableAbstractUnit::getAbstractUnit)
             .collect(
               Collectors.collectingAndThen(
