@@ -115,7 +115,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
         -> this.highlightConflictedSemesters(newValue));
 
     this.delayedStore.whenAvailable(store
-        -> conflictedSemesters.bind(new ConflictedSemestersBinding(store)));
+        -> conflictedSemesters.bind(new ConflictedSemestersBinding()));
 
     initSessionBoxes();
   }
@@ -244,10 +244,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
   private class ConflictedSemestersBinding extends SetBinding<String> {
 
-    private final ObservableStore store;
-
-    ConflictedSemestersBinding(final ObservableStore store) {
-      this.store = store;
+    ConflictedSemestersBinding() {
       bind(uiDataService.conflictMarkedSessionsProperty());
     }
 
