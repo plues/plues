@@ -116,8 +116,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     });
 
     courses.addListener((observable, oldValue, newValue) -> {
-      final boolean hasMaster = courses.stream().filter(Course::isMaster).findAny().isPresent();
-      final boolean hasBachelor = courses.stream().filter(Course::isBachelor).findAny().isPresent();
+      final boolean hasMaster = courses.stream().anyMatch(Course::isMaster);
+      final boolean hasBachelor = courses.stream().anyMatch(Course::isBachelor);
       if (!hasMaster) {
         getChildren().remove(titledPaneMasterCourse);
       } else if (!getChildren().contains(titledPaneMasterCourse)) {
