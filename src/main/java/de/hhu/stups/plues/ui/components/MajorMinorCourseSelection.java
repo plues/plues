@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class MajorMinorCourseSelection extends GridPane implements Initializable, Observable {
 
@@ -136,7 +138,10 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
         if (major == null) {
           return minorCourseList;
         }
-        return minorCourseList.filtered(major::isCombinableWith);
+        return minorCourseList.stream()
+            .filter(major::isCombinableWith)
+            .collect(
+              Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
       }
     });
 
