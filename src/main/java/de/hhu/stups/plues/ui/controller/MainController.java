@@ -32,8 +32,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -266,6 +264,7 @@ public class MainController implements Initializable {
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
+    mainSplitPane.getItems().remove(boxTaskProgress);
 
     taskProgress.setGraphicFactory(this::getGraphicForTask);
 
@@ -286,22 +285,6 @@ public class MainController implements Initializable {
     });
 
     mainStatusBar.setText("");
-
-    // do not show the task box on the startup, sadly there is no other way to set a default
-    // divider position with the correct behavior
-    // http://stackoverflow.com/questions/36290539/set-divider-position-of-splitpane
-    stage.showingProperty().addListener(new ChangeListener<Boolean>() {
-      @Override
-      public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
-                          Boolean newValue) {
-        if (newValue) {
-          mainSplitPaneDivider.setPosition(1.0);
-          observable.removeListener(this);
-        }
-      }
-    });
-
-    mainSplitPaneDivider = mainSplitPane.getDividers().get(0);
 
     taskBoxCollapsed.addListener((observable, oldValue, shouldHide) ->
         hideTaskProgressBox(shouldHide));
@@ -334,6 +317,11 @@ public class MainController implements Initializable {
 
       // Handle database changes for confirmation dialogue on close -> set unsaved flag
       s.addObserver((object, arg) -> this.databaseChanged = true);
+
+      mainSplitPane.getItems().add(1, boxTaskProgress);
+      mainSplitPaneDivider = mainSplitPane.getDividers().get(0);
+      mainSplitPaneDivider.setPosition(1.0);
+      disableDivider(true);
     });
 
     if (this.properties.get(DB_PATH) != null) {
@@ -451,8 +439,8 @@ public class MainController implements Initializable {
             logger.error("Task bar fade-out has been interrupted.", exception);
             Thread.currentThread().interrupt();
           }
-          Platform.runLater(() -> mainSplitPaneDivider.setPosition(currentDividerPosition
-              + (hide ? 0.05 : -0.05)));
+          Platform.runLater(() ->
+              mainSplitPaneDivider.setPosition(currentDividerPosition + (hide ? 0.05 : -0.05)));
         }
         fadingInProgress = false;
       });
