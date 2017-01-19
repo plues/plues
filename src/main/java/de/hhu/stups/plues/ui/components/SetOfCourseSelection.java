@@ -7,6 +7,7 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListProperty;
@@ -15,6 +16,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
@@ -64,9 +66,9 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
   /**
    * Component that allows the user to select one or more courses. The courses need to be
-   * instantiated via the {@link this#coursesProperty()}. Those are used to highlight all events in
-   * the timetable view associated with the courses. Selected courses are stored in the readonly
-   * list property {@link this#selectedCoursesProperty()}.
+   * instantiated via the {@link this#coursesProperty()}. Those are used to highlight all events
+   * in the timetable view associated with the courses. Selected courses are stored in the
+   * readonly list property {@link this#selectedCoursesProperty()}.
    */
   @Inject
   public SetOfCourseSelection(final Inflater inflater) {
@@ -104,14 +106,13 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         unbind(courses);
       }
 
-
       // NOTE: A change to the courses list, this binding is bound to, will recreate all
       // SelectableCourses objects. This behaviour will loose the state of all selectedProperties.
       @Override
       protected ObservableList<SelectableCourse> computeValue() {
         return FXCollections.observableList(
-            courses.parallelStream().map(SelectableCourse::new)
-                .collect(Collectors.toList()), SelectableCourse.getExtractor());
+          courses.stream().map(SelectableCourse::new)
+            .collect(Collectors.toList()), SelectableCourse.getExtractor());
       }
     });
 
@@ -130,15 +131,13 @@ public class SetOfCourseSelection extends VBox implements Initializable {
       }
     });
 
-    tableViewMasterCourse.itemsProperty().bind(newFilterBinding(SelectableCourse::isMaster));
-    tableViewBachelorCourse.itemsProperty().bind(newFilterBinding(SelectableCourse::isBachelor));
+    tableViewMasterCourse.itemsProperty().bind(newFilteredProperty(SelectableCourse::isMaster));
+    tableViewBachelorCourse.itemsProperty().bind(newFilteredProperty(SelectableCourse::isBachelor));
 
-    tableViewMasterCourse.itemsProperty().addListener(
-        (observable, oldValue, newValue)
-            -> titledPaneMasterCourse.setExpanded(!newValue.isEmpty()));
-    tableViewBachelorCourse.itemsProperty().addListener(
-        (observable, oldValue, newValue)
-            -> titledPaneBachelorCourse.setExpanded(!newValue.isEmpty()));
+    tableViewMasterCourse.itemsProperty().addListener(observable
+        -> titledPaneMasterCourse.setExpanded(!tableViewMasterCourse.getItems().isEmpty()));
+    tableViewBachelorCourse.itemsProperty().addListener(observable
+        -> titledPaneBachelorCourse.setExpanded(!tableViewBachelorCourse.getItems().isEmpty()));
 
     selectedCourses.bind(new ListBinding<Course>() {
       {
@@ -153,36 +152,38 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
       @Override
       protected ObservableList<Course> computeValue() {
-        return selectableCourses.parallelStream()
-            .filter(SelectableCourse::isSelected)
-            .map(SelectableCourse::getCourse)
-            .collect(Collectors.collectingAndThen(Collectors.toList(),
-                FXCollections::observableArrayList));
+        return selectableCourses.stream()
+          .filter(SelectableCourse::isSelected)
+          .map(SelectableCourse::getCourse)
+          .collect(Collectors.collectingAndThen(Collectors.toList(),
+            FXCollections::observableArrayList));
       }
     });
   }
 
-  private ListBinding<SelectableCourse> newFilterBinding(
+  private ListProperty<SelectableCourse> newFilteredProperty(
       final Predicate<SelectableCourse> predicate) {
-    return new ListBinding<SelectableCourse>() {
+
+    final FilteredList<SelectableCourse> filter
+        = new FilteredList<>(selectableCourses.filtered(predicate));
+
+    filter.predicateProperty().bind(new ObjectBinding<Predicate<? super SelectableCourse>>() {
       {
-        bind(selectableCourses, txtQuery.textProperty());
+        bind(txtQuery.textProperty());
       }
 
       @Override
       public void dispose() {
         super.dispose();
-        unbind(selectableCourses);
+        unbind(txtQuery.textProperty());
       }
 
       @Override
-      protected ObservableList<SelectableCourse> computeValue() {
-        return selectableCourses
-            .filtered(predicate)
-            .filtered(row
-                -> row.getName().toLowerCase().contains(txtQuery.getText().toLowerCase()));
+      protected Predicate<? super SelectableCourse> computeValue() {
+        return row -> row.getName().toLowerCase().contains(txtQuery.getText().toLowerCase());
       }
-    };
+    });
+    return new SimpleListProperty<>(filter);
   }
 
   /**
