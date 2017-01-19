@@ -162,8 +162,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     view.setSessions(sessions);
 
     final ListBinding<SessionFacade> slotBinding = new SlotBinding(slot);
-    final ListBinding<SessionFacade> semesterBinding = new SemesterBinding(slotBinding);
-    final ListBinding<SessionFacade> filterBinding = new FilterBinding(semesterBinding);
+    final ListBinding<SessionFacade> filterBinding = new FilterBinding(slotBinding);
 
     view.itemsProperty().bind(filterBinding);
     return view;
@@ -281,54 +280,36 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     }
   }
 
-  private class SemesterBinding extends ListBinding<SessionFacade> {
-
-    private final ListBinding<SessionFacade> slotBinding;
-
-    SemesterBinding(final ListBinding<SessionFacade> slotBinding) {
-      this.slotBinding = slotBinding;
-      bind(slotBinding);
-      bind(semesterToggle.getToggleGroup().selectedToggleProperty());
-    }
-
-    @Override
-    protected ObservableList<SessionFacade> computeValue() {
-      final Integer semester = getSelectedSemester();
-      return slotBinding.filtered(facade -> {
-        final Set<Integer> semesters = facade.getUnitSemesters();
-        return semester == null || semesters.contains(semester);
-      });
-    }
-
-    private Integer getSelectedSemester() {
-      final ToggleButton semesterButton =
-          (ToggleButton) semesterToggle.getToggleGroup().getSelectedToggle();
-
-      if (null != semesterButton) {
-        return Integer.valueOf((String) semesterButton.getUserData());
-      }
-
-      return null;
-    }
-  }
-
   private class FilterBinding extends ListBinding<SessionFacade> {
-    private final ListBinding<SessionFacade> semesterBinding;
+    private final ListBinding<SessionFacade> binding;
     private Set<Course> filteredCourses;
     private Set<AbstractUnit> filteredAbstractUnits;
+    private Integer selectedSemester;
 
-    FilterBinding(final ListBinding<SessionFacade> semesterBinding) {
+    FilterBinding(final ListBinding<SessionFacade> binding) {
 
-      this.semesterBinding = semesterBinding;
-      bind(semesterBinding);
-      bind(timetableSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
+      this.binding = binding;
+      bind(binding);
+      bind(semesterToggle.getToggleGroup().selectedToggleProperty(),
+          timetableSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
           timetableSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty(),
           uiDataService.conflictMarkedSessionsProperty());
     }
 
     @Override
     protected ObservableList<SessionFacade> computeValue() {
-      return semesterBinding.filtered(this::isNotExcluded);
+      this.filteredAbstractUnits =
+        new HashSet<>(timetableSideBar.getAbstractUnitFilter().getSelectedAbstractUnits());
+      this.filteredCourses =
+        new HashSet<>(timetableSideBar.getSetOfCourseSelection().getSelectedCourses());
+      this.selectedSemester = getSelectedSemester();
+
+      return binding.filtered(this::isIncludedBySemester).filtered(this::isNotExcluded);
+    }
+
+    private boolean isIncludedBySemester(final SessionFacade session) {
+      final Set<Integer> semesters = session.getUnitSemesters();
+      return selectedSemester == null || semesters.contains(selectedSemester);
     }
 
     private boolean isNotExcluded(final SessionFacade session) {
@@ -340,10 +321,6 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     }
 
     private boolean sessionIsIncludedByConflict(final SessionFacade session) {
-      this.filteredAbstractUnits =
-        new HashSet<>(timetableSideBar.getAbstractUnitFilter().getSelectedAbstractUnits());
-      this.filteredCourses =
-        new HashSet<>(timetableSideBar.getSetOfCourseSelection().getSelectedCourses());
 
       return uiDataService.conflictMarkedSessionsProperty().stream()
         .anyMatch(sessionId -> sessionId == session.getId());
@@ -365,6 +342,17 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
       final Set<AbstractUnit> sessionAbstractUnits = session.getIntendedAbstractUnits();
       return Collections.disjoint(filteredAbstractUnits, sessionAbstractUnits);
+    }
+
+    private Integer getSelectedSemester() {
+      final ToggleButton semesterButton =
+          (ToggleButton) semesterToggle.getToggleGroup().getSelectedToggle();
+
+      if (null != semesterButton) {
+        return Integer.valueOf((String) semesterButton.getUserData());
+      }
+
+      return null;
     }
   }
 }
