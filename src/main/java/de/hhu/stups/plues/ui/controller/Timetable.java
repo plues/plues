@@ -21,15 +21,15 @@ import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.Observable;
-import javafx.beans.binding.ListBinding;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.SetBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -161,10 +162,12 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     view.setSessions(sessions);
 
-    final ListBinding<SessionFacade> slotBinding = new SlotBinding(slot);
-    final ListBinding<SessionFacade> filterBinding = new FilterBinding(slotBinding);
+    final FilteredList<SessionFacade> slotSessions
+        = sessions.filtered(facade -> facade.getSlot().equals(slot));
+    final FilteredList<SessionFacade> filteredSessions = new FilteredList<>(slotSessions);
+    filteredSessions.predicateProperty().bind(new PredicateObjectBinding());
 
-    view.itemsProperty().bind(filterBinding);
+    view.itemsProperty().bind(new SimpleListProperty<>(filteredSessions));
     return view;
   }
 
@@ -264,47 +267,22 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     }
   }
 
-  private class SlotBinding extends ListBinding<SessionFacade> {
+  private class FilterPredicate implements Predicate<SessionFacade> {
+    private final HashSet<Course> filteredCourses;
+    private final HashSet<AbstractUnit> filteredAbstractUnits;
+    private final Integer selectedSemester;
 
-    private final SessionFacade.Slot slot;
+    FilterPredicate(final HashSet<Course> filteredCourses,
+        final HashSet<AbstractUnit> filteredAbstractUnits, final Integer selectedSemester) {
 
-    SlotBinding(final SessionFacade.Slot slot) {
-      this.slot = slot;
-
-      bind(sessions);
+      this.filteredCourses = filteredCourses;
+      this.filteredAbstractUnits = filteredAbstractUnits;
+      this.selectedSemester = selectedSemester;
     }
 
     @Override
-    protected ObservableList<SessionFacade> computeValue() {
-      return sessions.filtered(facade -> facade.getSlot().equals(slot));
-    }
-  }
-
-  private class FilterBinding extends ListBinding<SessionFacade> {
-    private final ListBinding<SessionFacade> binding;
-    private Set<Course> filteredCourses;
-    private Set<AbstractUnit> filteredAbstractUnits;
-    private Integer selectedSemester;
-
-    FilterBinding(final ListBinding<SessionFacade> binding) {
-
-      this.binding = binding;
-      bind(binding);
-      bind(semesterToggle.getToggleGroup().selectedToggleProperty(),
-          timetableSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
-          timetableSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty(),
-          uiDataService.conflictMarkedSessionsProperty());
-    }
-
-    @Override
-    protected ObservableList<SessionFacade> computeValue() {
-      this.filteredAbstractUnits =
-        new HashSet<>(timetableSideBar.getAbstractUnitFilter().getSelectedAbstractUnits());
-      this.filteredCourses =
-        new HashSet<>(timetableSideBar.getSetOfCourseSelection().getSelectedCourses());
-      this.selectedSemester = getSelectedSemester();
-
-      return binding.filtered(this::isIncludedBySemester).filtered(this::isNotExcluded);
+    public boolean test(final SessionFacade facade) {
+      return isIncludedBySemester(facade) && isNotExcluded(facade);
     }
 
     private boolean isIncludedBySemester(final SessionFacade session) {
@@ -321,7 +299,6 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     }
 
     private boolean sessionIsIncludedByConflict(final SessionFacade session) {
-
       return uiDataService.conflictMarkedSessionsProperty().stream()
         .anyMatch(sessionId -> sessionId == session.getId());
     }
@@ -342,6 +319,33 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
       final Set<AbstractUnit> sessionAbstractUnits = session.getIntendedAbstractUnits();
       return Collections.disjoint(filteredAbstractUnits, sessionAbstractUnits);
+    }
+  }
+
+  private class PredicateObjectBinding extends ObjectBinding<Predicate<? super SessionFacade>> {
+    {
+      bind(semesterToggle.getToggleGroup().selectedToggleProperty(),
+          timetableSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
+          timetableSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty(),
+          uiDataService.conflictMarkedSessionsProperty());
+    }
+
+    @Override
+    public void dispose() {
+      super.dispose();
+      unbind(semesterToggle.getToggleGroup().selectedToggleProperty(),
+          timetableSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
+          timetableSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty(),
+          uiDataService.conflictMarkedSessionsProperty());
+    }
+
+    @Override
+    protected Predicate<? super SessionFacade> computeValue() {
+      final HashSet<AbstractUnit> filteredAbstractUnits
+          = new HashSet<>(timetableSideBar.getAbstractUnitFilter().getSelectedAbstractUnits());
+      final HashSet<Course> filteredCourses
+          = new HashSet<>(timetableSideBar.getSetOfCourseSelection().getSelectedCourses());
+      return new FilterPredicate(filteredCourses, filteredAbstractUnits, getSelectedSemester());
     }
 
     private Integer getSelectedSemester() {
