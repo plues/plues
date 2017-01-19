@@ -73,7 +73,7 @@
             <MenuItem onAction="#showPdfHandbook" mnemonicParsing="false" text="%handbookPDF"/>
         </Menu>
     </MenuBar>
-    <SplitPane fx:id="mainSplitPane">
+    <SplitPane fx:id="mainSplitPane" dividerPositions="1.0">
         <VBox>
             <TabPane id="tabPane" fx:id="tabPane">
                 <Tab id="tabTimetable" text="%timetable" closable="false">
