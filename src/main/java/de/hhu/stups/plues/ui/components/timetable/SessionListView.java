@@ -12,7 +12,6 @@ import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.ListProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
