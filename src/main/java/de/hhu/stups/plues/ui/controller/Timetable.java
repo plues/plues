@@ -197,22 +197,26 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     }
     switch (routeName) {
       case SESSION_IN_TIMETABLE:
-        final Optional<SessionFacade> sessionFacade = sessions.stream()
-            .filter(facade -> facade.getId() == ((Session) args[0]).getId()).findFirst();
-
-        sessionFacade.ifPresent(this::selectSemesterForSession);
-        sessionFacade.ifPresent(facade -> timeTable.getChildren().forEach(node -> {
-          if (node instanceof SessionListView) {
-            final SessionListView sessionListView = (SessionListView) node;
-            sessionListView.scrollTo(facade);
-            sessionListView.getSelectionModel().select(facade);
-          }
-        }));
+        scrollToSession((Session) args[0]);
         break;
       default:
         timetableSideBar.activateComponents(args);
         break;
     }
+  }
+
+  private void scrollToSession(final Session arg) {
+    final Optional<SessionFacade> sessionFacade = sessions.stream()
+        .filter(facade -> facade.getId() == arg.getId()).findFirst();
+
+    sessionFacade.ifPresent(this::selectSemesterForSession);
+    sessionFacade.ifPresent(facade -> timeTable.getChildren().forEach(node -> {
+      if (node instanceof SessionListView) {
+        final SessionListView sessionListView = (SessionListView) node;
+        sessionListView.scrollTo(facade);
+        sessionListView.getSelectionModel().select(facade);
+      }
+    }));
   }
 
   private void selectSemesterForSession(final SessionFacade facade) {
