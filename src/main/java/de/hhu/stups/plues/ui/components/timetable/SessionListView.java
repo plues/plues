@@ -88,9 +88,9 @@ public class SessionListView extends ListView<SessionFacade> {
 
   private boolean isValidTarget(final DragEvent event) {
     return event.getDragboard().hasString()
+      && event.getGestureSource() != this
       && getItems().stream().noneMatch(sessionFacade ->
-      String.valueOf(sessionFacade.getId()).equals(event.getDragboard().getString()))
-      && event.getGestureSource() != this;
+        String.valueOf(sessionFacade.getId()).equals(event.getDragboard().getString()));
   }
 
   @SuppressWarnings("unused")
@@ -129,28 +129,9 @@ public class SessionListView extends ListView<SessionFacade> {
 
       delayedSolverService.whenAvailable(solver -> {
         final SolverTask<Void> moveSession = solver.moveSessionTask(sessionId, slot);
-        moveSession.setOnSucceeded(moveSessionEvent
-            -> delayedStore.whenAvailable(store
-                -> store.moveSession(getSessionFacadeById(sessionId), slot)));
-        moveSession.setOnFailed(moveSessionEvent -> Platform.runLater(() -> {
-          final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
-          final Alert alert = new Alert(Alert.AlertType.ERROR);
-          alert.setTitle(bundle.getString("moveFailedTitle"));
-          alert.setHeaderText(bundle.getString("moveFailedHeader"));
-          alert.setContentText(bundle.getString("moveFailedContent"));
-
-          alert.showAndWait();
-        }));
-
-        moveSession.setOnCancelled(moveSessionEvent -> Platform.runLater(() -> {
-          final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
-          final Alert alert = new Alert(Alert.AlertType.WARNING);
-          alert.setTitle(bundle.getString("moveCancelledTitle"));
-          alert.setHeaderText(bundle.getString("moveCancelledHeader"));
-          alert.setContentText(bundle.getString("moveCancelledContent"));
-
-          alert.showAndWait();
-        }));
+        moveSession.setOnSucceeded(moveSessionEvent -> moveSucceededHandler(sessionId));
+        moveSession.setOnFailed(moveSessionEvent -> moveFailedHandler());
+        moveSession.setOnCancelled(moveSessionEvent -> moveCancelledHandler());
 
         executorService.submit(moveSession);
       });
@@ -158,6 +139,35 @@ public class SessionListView extends ListView<SessionFacade> {
 
     event.setDropCompleted(success);
     event.consume();
+  }
+
+  private void moveSucceededHandler(final int sessionId) {
+    delayedStore.whenAvailable(store
+        -> store.moveSession(getSessionFacadeById(sessionId), slot));
+  }
+
+  private void moveCancelledHandler() {
+    Platform.runLater(() -> {
+      final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
+      final Alert alert = new Alert(Alert.AlertType.WARNING);
+      alert.setTitle(bundle.getString("moveCancelledTitle"));
+      alert.setHeaderText(bundle.getString("moveCancelledHeader"));
+      alert.setContentText(bundle.getString("moveCancelledContent"));
+
+      alert.showAndWait();
+    });
+  }
+
+  private void moveFailedHandler() {
+    Platform.runLater(() -> {
+      final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
+      final Alert alert = new Alert(Alert.AlertType.ERROR);
+      alert.setTitle(bundle.getString("moveFailedTitle"));
+      alert.setHeaderText(bundle.getString("moveFailedHeader"));
+      alert.setContentText(bundle.getString("moveFailedContent"));
+
+      alert.showAndWait();
+    });
   }
 
   private SessionFacade getSessionFacadeById(final int sessionId) {
