@@ -25,6 +25,7 @@ public class ReportsRoute implements Route {
     final Stage reportStage = new Stage();
     reportStage.setTitle(title);
     reportStage.setScene(SceneFactory.create(reports));
+    reportStage.setMaximized(true);
     reportStage.show();
   }
 }

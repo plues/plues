@@ -207,7 +207,7 @@ public class Reports extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  public void print() {
+  public void printReport() {
     printReportData.print();
   }
 
