@@ -417,32 +417,18 @@ public class ConflictMatrix extends GridPane implements Initializable {
     checkFeasibilityTasks.clear();
   }
 
-  @SuppressWarnings("unused")
-  private void restoreInitialState() {
-    gridPaneCombinable.getChildren().clear();
-    gridPaneStandalone.getChildren().clear();
-    gridPaneSingleCourses.getChildren().clear();
-
-    initializeGridPaneCombinable();
-    initializeGridPaneStandalone();
-    initializeGridPaneSingleCourse();
-    highlightImpossibleCombinations();
-    highlightImpossibleCourses();
-  }
-
   private MapChangeListener<CourseSelection, ResultState> getCourseResultChangeListener() {
     return change -> {
-      if (change.wasAdded()) {
-        final CourseSelection key = change.getKey();
-        final ResultGridCell cell = cellMap.get(key);
+      final ResultGridCell cell = cellMap.get(change.getKey());
 
-        if (cell.getResultState() == ResultState.IMPOSSIBLE) {
-          return;
-        }
+      if (cell.getResultState() == ResultState.IMPOSSIBLE) {
+        return;
+      }
+
+      if (change.wasAdded()) {
         cell.setResultState(change.getValueAdded());
       } else {
-        // discard all if a session has been moved
-        Platform.runLater(this::restoreInitialState);
+        cell.setResultState(null);
       }
     };
   }
