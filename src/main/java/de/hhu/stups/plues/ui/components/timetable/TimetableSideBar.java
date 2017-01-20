@@ -53,7 +53,7 @@ public class TimetableSideBar extends TabPane implements Initializable {
   @SuppressWarnings("unused")
   private CheckCourseFeasibility checkCourseFeasibility;
 
-  private BooleanProperty collapsed = new SimpleBooleanProperty(false);
+  private final BooleanProperty collapsed = new SimpleBooleanProperty(false);
 
   @Inject
   public TimetableSideBar(final Inflater inflater, final UiDataService uiDataService) {
