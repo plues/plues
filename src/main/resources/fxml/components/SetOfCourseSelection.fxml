@@ -19,8 +19,14 @@
                         <PropertyValueFactory property="selected"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="470.0" resizable="false"
-                             sortable="false" minWidth="470.0" text="%course">
+                <TableColumn prefWidth="150" resizable="false" sortable="false"
+                             minWidth="150" text="%key">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="key"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn prefWidth="320.0" resizable="false" sortable="false"
+                             minWidth="100.0" text="%course">
                     <cellValueFactory>
                         <PropertyValueFactory property="name"/>
                     </cellValueFactory>
@@ -38,8 +44,14 @@
                         <PropertyValueFactory property="selected"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="470.0" resizable="false"
-                             sortable="false" minWidth="470.0" text="%course">
+                <TableColumn prefWidth="150" resizable="false" sortable="false"
+                             minWidth="150" text="%key">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="key"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn prefWidth="320.0" resizable="false" sortable="false"
+                             minWidth="100" text="%course">
                     <cellValueFactory>
                         <PropertyValueFactory property="name"/>
                     </cellValueFactory>

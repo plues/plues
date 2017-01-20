@@ -180,7 +180,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
       @Override
       protected Predicate<? super SelectableCourse> computeValue() {
-        return row -> row.getName().toLowerCase().contains(txtQuery.getText().toLowerCase());
+        final String query = txtQuery.getText().toLowerCase();
+        return row -> row.matches(query);
       }
     });
     return new SimpleListProperty<>(filter);
@@ -259,6 +260,10 @@ public class SetOfCourseSelection extends VBox implements Initializable {
       return this.course;
     }
 
+    public String getKey() {
+      return this.course.getKey();
+    }
+
     public String getName() {
       return this.course.getFullName();
     }
@@ -269,6 +274,12 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
     public boolean isBachelor() {
       return this.course.isBachelor();
+    }
+
+
+    private boolean matches(final String query) {
+      return this.getName().toLowerCase().contains(query)
+          || this.getKey().toLowerCase().contains(query);
     }
   }
 }
