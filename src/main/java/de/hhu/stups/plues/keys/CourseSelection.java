@@ -1,5 +1,7 @@
 package de.hhu.stups.plues.keys;
 
+import com.google.common.base.Joiner;
+
 import de.hhu.stups.plues.data.entities.Course;
 
 import java.util.Arrays;
@@ -99,5 +101,10 @@ public class CourseSelection {
    */
   public boolean isCurriculum() {
     return isCombination() || isStandalone();
+  }
+
+
+  public String toString() {
+    return String.format("CourseSelection[%s]", Joiner.on(", ").join(courses));
   }
 }
