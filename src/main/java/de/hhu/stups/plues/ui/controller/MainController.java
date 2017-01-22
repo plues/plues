@@ -27,6 +27,9 @@ import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -63,6 +66,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
@@ -264,6 +268,7 @@ public class MainController implements Initializable {
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
+
     mainSplitPane.getItems().remove(boxTaskProgress);
 
     taskProgress.setGraphicFactory(this::getGraphicForTask);
@@ -286,6 +291,8 @@ public class MainController implements Initializable {
 
     mainStatusBar.setText("");
 
+    clearStatusBar();
+
     taskBoxCollapsed.addListener((observable, oldValue, shouldHide) ->
         hideTaskProgressBox(shouldHide));
 
@@ -294,8 +301,6 @@ public class MainController implements Initializable {
 
     lbRunningTasks.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
     lbRunningTasks.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
-
-    initializeTaskProgressListener();
 
     tabPane.setOnKeyPressed(this::handleKeyPressed);
 
@@ -322,6 +327,7 @@ public class MainController implements Initializable {
       mainSplitPaneDivider = mainSplitPane.getDividers().get(0);
       mainSplitPaneDivider.setPosition(1.0);
       disableDivider(true);
+      initializeTaskProgressListener();
     });
 
     if (this.properties.get(DB_PATH) != null) {
@@ -421,28 +427,21 @@ public class MainController implements Initializable {
    * the destination.
    */
   private void hideTaskProgressBox(final boolean hide) {
-    if ((!hide || mainSplitPane.getItems().contains(boxTaskProgress))
-        && !fadingInProgress) {
+    if ((!hide || mainSplitPane.getItems().contains(boxTaskProgress)) && !fadingInProgress) {
       disableDivider(hide);
       EXECUTOR_SERVICE.execute(() -> {
         fadingInProgress = true;
-        while (true) {
-          final double currentDividerPosition = mainSplitPaneDivider.getPosition();
-          final boolean condition = hide ? currentDividerPosition > 0.999
-              : currentDividerPosition < visibleDividerPos;
-          if (condition) {
-            break;
-          }
-          try {
-            TimeUnit.MILLISECONDS.sleep(5);
-          } catch (InterruptedException exception) {
-            logger.error("Task bar fade-out has been interrupted.", exception);
-            Thread.currentThread().interrupt();
-          }
-          Platform.runLater(() ->
-              mainSplitPaneDivider.setPosition(currentDividerPosition + (hide ? 0.05 : -0.05)));
-        }
-        fadingInProgress = false;
+
+        final Timeline timeline = new Timeline();
+        final double destination = hide ? 1.0 : visibleDividerPos;
+
+        KeyValue dividerPosition =
+            new KeyValue(mainSplitPaneDivider.positionProperty(), destination);
+
+        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250), dividerPosition));
+        timeline.setOnFinished(event -> fadingInProgress = false);
+
+        Platform.runLater(timeline::play);
       });
     }
   }
@@ -662,6 +661,11 @@ public class MainController implements Initializable {
 
     final StoreLoaderTask storeLoader = this.getStoreLoaderTask(path);
     delayedStore.whenAvailable(solverLoader::load);
+
+    storeLoader.setOnRunning(event ->
+        lbRunningTasks.setText(resources.getString("loadStore")));
+    mainStatusBar.getRightItems().addAll(lbRunningTasks, mainProgressBar);
+    mainProgressBar.progressProperty().bind(storeLoader.progressProperty());
 
     this.openFileMenuItem.setDisable(true);
     this.submitTask(storeLoader);
