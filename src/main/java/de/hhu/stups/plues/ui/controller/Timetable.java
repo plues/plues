@@ -20,6 +20,7 @@ import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.Observable;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.SetBinding;
@@ -38,6 +39,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
+
 import org.controlsfx.control.SegmentedButton;
 
 import java.net.URL;
@@ -59,6 +61,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   private final SessionListViewFactory sessionListViewFactory;
   private final UiDataService uiDataService;
   private double userDefinedDividerPos = 0.65;
+  private SplitPane.Divider splitPaneDivider;
 
   @FXML
   @SuppressWarnings("unused")
@@ -102,15 +105,22 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     timetableSideBar.setParent(this);
 
-    getDividers().get(0).positionProperty().addListener((observable, oldValue, newValue) -> {
-      timetableSideBar.setTabPaneButtonHeight();
+    splitPaneDivider = getDividers().get(0);
+
+    splitPaneDivider.positionProperty().addListener((observable, oldValue, newValue) -> {
       // don't store too small divider positions
-      if (Math.abs(newValue.doubleValue()
-          - timetableSideBar.getPaneMinWidth() / getWidth()) > 0.25) {
+      if (Math.abs(newValue.doubleValue() - timetableSideBar.getPaneMinWidth() / getWidth()) > 0.25
+          && !timetableSideBar.isFadingInProgress()) {
         userDefinedDividerPos = newValue.doubleValue();
       }
     });
 
+    widthProperty().addListener((observable, oldValue, newValue) -> {
+      timetableSideBar.setTabPaneButtonHeight();
+      if (timetableSideBar.isCollapsed()) {
+        splitPaneDivider.setPosition(timetableSideBar.getMinWidth() / getWidth());
+      }
+    });
 
     conflictedSemesters.addListener((observable, oldValue, newValue)
         -> this.highlightConflictedSemesters(newValue));
@@ -244,8 +254,12 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     toggleButton.ifPresent(button -> button.setSelected(true));
   }
 
-  public void restoreUserDefinedDividerPos() {
-    getDividers().get(0).setPosition(userDefinedDividerPos);
+  public SplitPane.Divider getDivider() {
+    return splitPaneDivider;
+  }
+
+  public double getUserDefinedDividerPos() {
+    return userDefinedDividerPos;
   }
 
   private class ConflictedSemestersBinding extends SetBinding<String> {
@@ -273,7 +287,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     private final Integer selectedSemester;
 
     FilterPredicate(final HashSet<Course> filteredCourses,
-        final HashSet<AbstractUnit> filteredAbstractUnits, final Integer selectedSemester) {
+                    final HashSet<AbstractUnit> filteredAbstractUnits,
+                    final Integer selectedSemester) {
 
       this.filteredCourses = filteredCourses;
       this.filteredAbstractUnits = filteredAbstractUnits;
@@ -300,7 +315,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     private boolean sessionIsIncludedByConflict(final SessionFacade session) {
       return uiDataService.conflictMarkedSessionsProperty().stream()
-        .anyMatch(sessionId -> sessionId == session.getId());
+          .anyMatch(sessionId -> sessionId == session.getId());
     }
 
     private boolean sessionIsExcludedByCourse(final SessionFacade session) {
