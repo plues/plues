@@ -22,9 +22,8 @@
         <Button fx:id="btSaveToZip" prefHeight="50.0" prefWidth="200.0"
                 onAction="#savePersistentZip" text="%zip" GridPane.halignment="LEFT"
                 GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        <ListView fx:id="listView" maxWidth="Infinity" maxHeight="Infinity" visible="true"
-                  id="batchListView" focusTraversable="false" GridPane.columnIndex="0"
-                  GridPane.rowIndex="3" GridPane.columnSpan="2">
+        <ListView fx:id="listView" maxWidth="Infinity" maxHeight="Infinity" id="batchListView"
+                  GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
         </ListView>
     </children>
     <columnConstraints>

@@ -11,7 +11,7 @@
         <Text fx:id="txtExplanation" text="%explain.QuasiMandatoryModules"/>
         <Text text="%modules" style="-fx-font-weight: bold;"/>
     </VBox>
-    <TableView fx:id="tableViewQuasiMandatoryModules" focusTraversable="false">
+    <TableView fx:id="tableViewQuasiMandatoryModules">
         <columns>
             <TableColumn text="%columnPordnr" prefWidth="200.0" minWidth="100.0">
                 <cellValueFactory>
@@ -28,7 +28,7 @@
     <VBox styleClass="windowPaddingSmall" spacing="10.0">
         <Text text="%abstractUnits" style="-fx-font-weight: bold;"/>
     </VBox>
-    <TableView fx:id="tableViewAbstractUnits" focusTraversable="false">
+    <TableView fx:id="tableViewAbstractUnits">
         <columns>
             <TableColumn text="%columnKey" prefWidth="200.0" minWidth="100.0">
                 <cellValueFactory>

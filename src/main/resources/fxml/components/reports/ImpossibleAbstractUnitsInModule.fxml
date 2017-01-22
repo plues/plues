@@ -14,11 +14,11 @@
             <Text fx:id="txtExplanation" text="%explain.ImpossibleAbstractUnitsInModule"/>
             <Text text="%modules" style="-fx-font-weight: bold;"/>
         </VBox>
-        <ListView fx:id="listViewModules" focusTraversable="false"/>
+        <ListView fx:id="listViewModules"/>
         <VBox styleClass="windowPaddingSmall">
             <Label text="%abstractUnits" style="-fx-font-weight: bold;"/>
         </VBox>
-        <TableView fx:id="tableViewAbstractUnits" focusTraversable="false">
+        <TableView fx:id="tableViewAbstractUnits">
             <columns>
                 <TableColumn text="%columnKey" prefWidth="150.0">
                     <cellValueFactory>

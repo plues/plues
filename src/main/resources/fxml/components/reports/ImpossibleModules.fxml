@@ -17,14 +17,14 @@
             </padding>
             <buttons>
                 <ToggleButton fx:id="buttonIncompleteModules" text="%button.IncompleteModules"
-                              minWidth="150.0" selected="true" focusTraversable="false"/>
+                              minWidth="150.0" selected="true"/>
                 <ToggleButton fx:id="buttonMissingElectiveAbstractUnits" minWidth="200.0"
-                              text="%button.MissingElectiveAbstractUnits" focusTraversable="false"/>
+                              text="%button.MissingElectiveAbstractUnits"/>
             </buttons>
         </SegmentedButton>
         <Text fx:id="txtExplanation"/>
     </VBox>
-    <TableView fx:id="tableViewModules" focusTraversable="false">
+    <TableView fx:id="tableViewModules">
         <columns>
             <TableColumn prefWidth="100.0" text="%columnPordnr">
                 <cellValueFactory>

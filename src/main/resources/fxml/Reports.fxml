@@ -20,78 +20,74 @@
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" spacing="10.0"
          xmlns:fx="http://javafx.com/fxml/1" styleClass="windowPadding">
-    <children>
-        <VBox fx:id="paneHeader" prefHeight="100.0">
-            <padding>
-                <Insets bottom="10.0" top="10.0" left="10.0" right="10.0"/>
-            </padding>
-            <Label text="%stats" style="-fx-font-weight: bold"/>
-            <GridPane fx:id="gridPaneHeader" hgap="5.0" vgap="5.0" alignment="CENTER">
-                <Label text="%amount.course" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                <Label fx:id="lbCourseAmount" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                <Label text="%amount.unit" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                <Label fx:id="lbUnitAmount" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                <Label text="%amount.group" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-                <Label fx:id="lbGroupAmount" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
-                <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
-                <Label text="%amount.abstractUnit" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
-                <Label fx:id="lbAbstractUnitAmount" GridPane.columnIndex="4" GridPane.rowIndex="0"/>
-                <Label text="%amount.impossibleCourses" GridPane.columnIndex="3"
-                       GridPane.rowIndex="1"/>
-                <Label fx:id="lbImpossibleCoursesAmount" GridPane.columnIndex="4"
-                       GridPane.rowIndex="1"/>
-                <Label text="%amount.session" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
-                <Label fx:id="lbSessionAmount" GridPane.columnIndex="4" GridPane.rowIndex="2"/>
-                <Label text="%modelVersion" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-                <Label fx:id="lbModelVersion" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-            </GridPane>
-        </VBox>
-        <Button fx:id="buttonPrint" text="%print" onAction="#printReport" disable="true"
-                focusTraversable="false">
-            <padding>
-                <Insets bottom="10.0" top="10.0" left="10.0" right="10.0"/>
-            </padding>
-        </Button>
-        <Accordion>
-            <panes>
-                <TitledPane text="%title.ImpossibleModules" collapsible="true">
-                    <ImpossibleModules fx:id="impossibleModules"/>
-                </TitledPane>
-                <TitledPane collapsible="true" text="%title.ImpossibleCourses"
-                            fx:id="paneImpossibleCourses">
-                    <ImpossibleCourses fx:id="impossibleCourses"/>
-                </TitledPane>
-                <TitledPane collapsible="true" text="%title.AbstractUnits">
-                    <AbstractUnitsWithoutUnits fx:id="abstractUnitsWithoutUnits"/>
-                </TitledPane>
-                <TitledPane collapsible="true" text="%title.UnitsWithoutAbstractUnits">
-                    <UnitsWithoutAbstractUnits fx:id="unitsWithoutAbstractUnits"/>
-                </TitledPane>
-                <TitledPane collapsible="true" text="%title.AbstractUnitsWithUnits">
-                    <ModuleAbstractUnitUnitSemesterConflicts
-                            fx:id="moduleAbstractUnitUnitSemesterConflicts"/>
-                </TitledPane>
-                <TitledPane collapsible="true" text="%title.MandatoryModules">
-                    <MandatoryModules fx:id="mandatoryModules"/>
-                </TitledPane>
-                <TitledPane collapsible="true" text="%title.QuasiMandatoryModules">
-                    <QuasiMandatoryModuleAbstractUnits fx:id="quasiMandatoryModuleAbstractUnits"/>
-                </TitledPane>
-                <TitledPane collapsible="true" text="%title.RedundantUnitGroups">
-                    <RedundantUnitGroups fx:id="redundantUnitGroups"/>
-                </TitledPane>
-                <TitledPane collapsible="true" text="%title.ImpossibleCourseModuleAbstractUnits">
-                    <ImpossibleCourseModuleAbstractUnits
-                            fx:id="impossibleCourseModuleAbstractUnits"/>
-                </TitledPane>
-                <TitledPane collapsible="true"
-                            text="%title.ImpossibleCourseModuleAbstractUnitPairs">
-                    <ImpossibleCourseModuleAbstractUnitPairs
-                            fx:id="impossibleCourseModuleAbstractUnitPairs"/>
-                </TitledPane>
-            </panes>
-        </Accordion>
-    </children>
+    <VBox fx:id="paneHeader" prefHeight="100.0">
+        <padding>
+            <Insets bottom="10.0" top="10.0" left="10.0" right="10.0"/>
+        </padding>
+        <Label text="%stats" style="-fx-font-weight: bold"/>
+        <GridPane fx:id="gridPaneHeader" hgap="5.0" vgap="5.0" alignment="CENTER">
+            <Label text="%amount.course" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <Label fx:id="lbCourseAmount" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            <Label text="%amount.unit" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <Label fx:id="lbUnitAmount" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            <Label text="%amount.group" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <Label fx:id="lbGroupAmount" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+            <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+            <Label prefWidth="20.0" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+            <Label text="%amount.abstractUnit" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+            <Label fx:id="lbAbstractUnitAmount" GridPane.columnIndex="4" GridPane.rowIndex="0"/>
+            <Label text="%amount.impossibleCourses" GridPane.columnIndex="3"
+                   GridPane.rowIndex="1"/>
+            <Label fx:id="lbImpossibleCoursesAmount" GridPane.columnIndex="4"
+                   GridPane.rowIndex="1"/>
+            <Label text="%amount.session" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+            <Label fx:id="lbSessionAmount" GridPane.columnIndex="4" GridPane.rowIndex="2"/>
+            <Label text="%modelVersion" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <Label fx:id="lbModelVersion" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        </GridPane>
+    </VBox>
+    <Button fx:id="buttonPrint" text="%print" onAction="#printReport" disable="true">
+        <padding>
+            <Insets bottom="10.0" top="10.0" left="10.0" right="10.0"/>
+        </padding>
+    </Button>
+    <Accordion>
+        <panes>
+            <TitledPane text="%title.ImpossibleModules">
+                <ImpossibleModules fx:id="impossibleModules"/>
+            </TitledPane>
+            <TitledPane text="%title.ImpossibleCourses"
+                        fx:id="paneImpossibleCourses">
+                <ImpossibleCourses fx:id="impossibleCourses"/>
+            </TitledPane>
+            <TitledPane text="%title.AbstractUnits">
+                <AbstractUnitsWithoutUnits fx:id="abstractUnitsWithoutUnits"/>
+            </TitledPane>
+            <TitledPane text="%title.UnitsWithoutAbstractUnits">
+                <UnitsWithoutAbstractUnits fx:id="unitsWithoutAbstractUnits"/>
+            </TitledPane>
+            <TitledPane text="%title.AbstractUnitsWithUnits">
+                <ModuleAbstractUnitUnitSemesterConflicts
+                        fx:id="moduleAbstractUnitUnitSemesterConflicts"/>
+            </TitledPane>
+            <TitledPane text="%title.MandatoryModules">
+                <MandatoryModules fx:id="mandatoryModules"/>
+            </TitledPane>
+            <TitledPane text="%title.QuasiMandatoryModules">
+                <QuasiMandatoryModuleAbstractUnits fx:id="quasiMandatoryModuleAbstractUnits"/>
+            </TitledPane>
+            <TitledPane text="%title.RedundantUnitGroups">
+                <RedundantUnitGroups fx:id="redundantUnitGroups"/>
+            </TitledPane>
+            <TitledPane text="%title.ImpossibleCourseModuleAbstractUnits">
+                <ImpossibleCourseModuleAbstractUnits
+                        fx:id="impossibleCourseModuleAbstractUnits"/>
+            </TitledPane>
+            <TitledPane text="%title.ImpossibleCourseModuleAbstractUnitPairs">
+                <ImpossibleCourseModuleAbstractUnitPairs
+                        fx:id="impossibleCourseModuleAbstractUnitPairs"/>
+            </TitledPane>
+        </panes>
+    </Accordion>
 </fx:root>

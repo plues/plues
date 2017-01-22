@@ -50,32 +50,37 @@
     -fx-border-color: black;
     -fx-border-width: 1;
 }
+
 .matrix-cell {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, white;
 }
+
 /* TODO: remove these and use color classes below, once we update the matrix cells directly */
 .matrix-cell-ignored {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, #BDBDBD;
 }
+
 .matrix-cell-impossible {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, #FA80AA;
 }
+
 .matrix-cell-failure {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, #FFBABA;
 }
+
 .matrix-cell-timeout {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, #FEEFB3;
 }
+
 .matrix-cell-success {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, #DFF2BF;
 }
-
 
 #gridPaneLegend {
     -fx-border-style: solid inside;
@@ -91,6 +96,7 @@
 .impossible {
     -fx-background-color: #fa80aa;
 }
+
 .infeasible, .failure {
     -fx-background-color: #FFBABA;
 }
@@ -120,10 +126,10 @@
     -fx-font-weight: bold;
 }
 
-
 .h1 {
     -fx-font-size: 30;
 }
+
 .h2 {
     -fx-font-size: 20;
 }
@@ -172,3 +178,7 @@
     -fx-padding: 10px 10px 10px 10px;
 }
 
+.table-view:focused, .list-view:focused, .tree-view:focused, .button:focused, .tree-table-view:focused {
+    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+}

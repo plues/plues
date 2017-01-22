@@ -11,7 +11,7 @@
         <Text fx:id="txtExplanation" text="%explain.MandatoryModules"/>
         <Text text="%courses" style="-fx-font-weight: bold;"/>
     </VBox>
-    <TableView fx:id="tableViewcourses" focusTraversable="false">
+    <TableView fx:id="tableViewcourses">
         <columns>
             <TableColumn text="%columnKey" minWidth="100.0" prefWidth="150.0">
                 <cellValueFactory>
@@ -28,7 +28,7 @@
     <VBox styleClass="windowPaddingSmall" spacing="10.0">
         <Text text="%modules" style="-fx-font-weight: bold;"/>
     </VBox>
-    <TableView fx:id="tableViewMandatoryModules" focusTraversable="false">
+    <TableView fx:id="tableViewMandatoryModules">
         <columns>
             <TableColumn text="%columnPordnr" prefWidth="300.0" minWidth="100.0">
                 <cellValueFactory>

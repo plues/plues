@@ -17,18 +17,16 @@
             </padding>
             <buttons>
                 <ToggleButton fx:id="buttonImpossibleCourses" text="%button.MissingData"
-                              minWidth="150.0" selected="true" focusTraversable="false"/>
+                              minWidth="150.0" selected="true"/>
                 <ToggleButton fx:id="buttonImpossibleCoursesBecauseOfImpossibleModules"
-                              minWidth="150.0" text="%button.ImpossibleModules"
-                              focusTraversable="false"/>
+                              minWidth="150.0" text="%button.ImpossibleModules"/>
                 <ToggleButton fx:id="buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations"
-                              text="%button.ImpossibleModuleCombinations" minWidth="200.0"
-                              focusTraversable="false"/>
+                              text="%button.ImpossibleModuleCombinations" minWidth="200.0"/>
             </buttons>
         </SegmentedButton>
         <Text fx:id="txtExplanation"/>
     </VBox>
-    <TableView fx:id="tableViewImpossibleCourses" focusTraversable="false">
+    <TableView fx:id="tableViewImpossibleCourses">
         <columns>
             <TableColumn text="%columnKey" minWidth="100.0" prefWidth="150.0">
                 <cellValueFactory>
