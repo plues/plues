@@ -26,12 +26,12 @@
     </VBox>
     <TableView fx:id="tableViewModules">
         <columns>
-            <TableColumn prefWidth="100.0" text="%columnPordnr">
+            <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="pordnr"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn prefWidth="600.0" text="%columnTitle">
+            <TableColumn fx:id="tableColumnModuleTitle" text="%columnTitle" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>

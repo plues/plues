@@ -32,10 +32,22 @@ public class MandatoryModules extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private TableView<Course> tableViewcourses;
+  private TableView<Course> tableViewCourses;
   @FXML
   @SuppressWarnings("unused")
   private TableView<Module> tableViewMandatoryModules;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Course, String> tableColumnCourseKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Course, String> tableColumnCourseName;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Course, String> tableColumnModulePordnr;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Course, String> tableColumnModuleTitle;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<String, String> tableColumnElectability;
@@ -45,8 +57,6 @@ public class MandatoryModules extends VBox implements Initializable {
 
   /**
    * Default constructor.
-   *
-   * @param inflater Handle fxml and resources
    */
   @Inject
   public MandatoryModules(final Inflater inflater) {
@@ -57,26 +67,43 @@ public class MandatoryModules extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    tableViewcourses.itemsProperty().bind(courses);
+    tableViewCourses.itemsProperty().bind(courses);
 
     tableColumnElectability.setCellValueFactory(param ->
         new SimpleStringProperty("true".equals(param.getValue()) ? "✔︎" : "✗"));
 
     tableViewMandatoryModules.itemsProperty().bind(new ListBinding<Module>() {
       {
-        bind(tableViewcourses.getSelectionModel().selectedItemProperty());
+        bind(tableViewCourses.getSelectionModel().selectedItemProperty());
       }
 
       @Override
       protected ObservableList<Module> computeValue() {
-        final Course course = tableViewcourses.getSelectionModel().getSelectedItem();
+        final Course course = tableViewCourses.getSelectionModel().getSelectedItem();
         return FXCollections.observableArrayList(
             mandatoryModulesMap.getOrDefault(course, Collections.emptySet()));
       }
     });
 
-    txtExplanation.wrappingWidthProperty().bind(tableViewcourses.widthProperty().subtract(25.0));
+    txtExplanation.wrappingWidthProperty().bind(tableViewCourses.widthProperty().subtract(25.0));
+
+    bindTableColumnsWidth();
   }
+
+
+  private void bindTableColumnsWidth() {
+    tableColumnCourseKey.prefWidthProperty().bind(
+        tableViewCourses.widthProperty().multiply(0.2));
+    tableColumnCourseName.prefWidthProperty().bind(
+        tableViewCourses.widthProperty().multiply(0.76));
+    tableColumnModulePordnr.prefWidthProperty().bind(
+        tableViewMandatoryModules.widthProperty().multiply(0.2));
+    tableColumnModuleTitle.prefWidthProperty().bind(
+        tableViewMandatoryModules.widthProperty().multiply(0.69));
+    tableColumnElectability.prefWidthProperty().bind(
+        tableViewMandatoryModules.widthProperty().multiply(0.07));
+  }
+
 
   public void setData(final Map<Course, Set<Module>> mandatoryModulesMap) {
     this.mandatoryModulesMap.putAll(mandatoryModulesMap);

@@ -12,6 +12,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
@@ -48,6 +49,12 @@ public class ImpossibleCourses extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ToggleButton buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Course, String> tableColumnCourseKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Course, String> tableColumnCourseName;
 
   /**
    * Default constructor.
@@ -128,6 +135,15 @@ public class ImpossibleCourses extends VBox implements Initializable {
     txtExplanation.textProperty().bind(stringBinding);
     txtExplanation.wrappingWidthProperty().bind(
         tableViewImpossibleCourses.widthProperty().subtract(25.0));
+
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnCourseKey.prefWidthProperty().bind(
+        tableViewImpossibleCourses.widthProperty().multiply(0.2));
+    tableColumnCourseName.prefWidthProperty().bind(
+        tableViewImpossibleCourses.widthProperty().multiply(0.76));
   }
 
   /**

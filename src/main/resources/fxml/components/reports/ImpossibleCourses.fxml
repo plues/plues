@@ -28,12 +28,12 @@
     </VBox>
     <TableView fx:id="tableViewImpossibleCourses">
         <columns>
-            <TableColumn text="%columnKey" minWidth="100.0" prefWidth="150.0">
+            <TableColumn fx:id="tableColumnCourseKey" text="%columnKey" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn text="%columnName" minWidth="100.0" prefWidth="500.0">
+            <TableColumn fx:id="tableColumnCourseName" text="%columnName" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="fullName"/>
                 </cellValueFactory>
