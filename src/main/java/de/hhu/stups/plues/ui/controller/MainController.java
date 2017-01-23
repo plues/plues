@@ -123,7 +123,7 @@ public class MainController implements Initializable {
   private final ExecutorService executor;
   private final UiDataService uiDataService;
   private final Preferences userPreferences;
-  private final BooleanProperty taskBoxCollapsed = new SimpleBooleanProperty(false);
+  private final BooleanProperty taskBoxCollapsed = new SimpleBooleanProperty(true);
 
   private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
   private final SolverLoaderImpl solverLoader;
@@ -284,7 +284,7 @@ public class MainController implements Initializable {
       // and has its full width
       visibleDividerPos = (mainSplitPane.getWidth() - boxTaskProgress.getMaxWidth())
           / mainSplitPane.getWidth();
-      if (taskBoxCollapsed.get()) {
+      if (taskBoxCollapsed.get() && mainSplitPaneDivider != null) {
         mainSplitPaneDivider.setPosition(1.0);
       }
     });
@@ -293,8 +293,10 @@ public class MainController implements Initializable {
 
     clearStatusBar();
 
-    taskBoxCollapsed.addListener((observable, oldValue, shouldHide) ->
-        hideTaskProgressBox(shouldHide));
+    taskBoxCollapsed.addListener((observable, oldValue, shouldHide) -> {
+      hideTaskProgressBox(shouldHide);
+      setStatusBarText(taskProgress.getTasks().size(), shouldHide);
+    });
 
     mainProgressBar.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
     mainProgressBar.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
@@ -353,8 +355,6 @@ public class MainController implements Initializable {
 
   private void initializeTaskProgressListener() {
     final ObservableList<Task<?>> scheduledTasks = taskProgress.getTasks();
-    final String tasksSingular = resources.getString("tasksSingular");
-    final String tasksPlural = resources.getString("tasksPlural");
 
     scheduledTasks.addListener((ListChangeListener.Change<? extends Task<?>> change) -> {
       if (scheduledTasks.isEmpty()) {
@@ -364,8 +364,7 @@ public class MainController implements Initializable {
           mainStatusBar.getRightItems().addAll(lbRunningTasks, mainProgressBar);
         }
         bindProgressPropertyIfNecessary(scheduledTasks);
-        lbRunningTasks.setText(scheduledTasks.size() + " " + ((scheduledTasks.size() == 1)
-            ? tasksSingular : tasksPlural));
+        setStatusBarText(scheduledTasks.size(), taskBoxCollapsed.get());
       }
     });
 
@@ -373,6 +372,24 @@ public class MainController implements Initializable {
         taskBoxCollapsed.setValue(!taskBoxCollapsed.get());
     lbRunningTasks.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
     mainProgressBar.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
+  }
+
+  /**
+   * Set the {@link #mainStatusBar}'s text according to the amount of running tasks and whether the
+   * side bar is collapsed or not.
+   */
+  @SuppressWarnings("unused")
+  private void setStatusBarText(final int taskAmount, final boolean taskBoxCollapsed) {
+    final String tasksSingular;
+    final String tasksPlural;
+    if (taskBoxCollapsed) {
+      tasksSingular = resources.getString("tasksSingularCollapsed");
+      tasksPlural = resources.getString("tasksPluralCollapsed");
+    } else {
+      tasksSingular = resources.getString("tasksSingular");
+      tasksPlural = resources.getString("tasksPlural");
+    }
+    lbRunningTasks.setText(taskAmount + " " + ((taskAmount == 1) ? tasksSingular : tasksPlural));
   }
 
   /**
