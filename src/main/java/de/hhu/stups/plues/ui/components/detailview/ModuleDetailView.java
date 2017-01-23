@@ -17,6 +17,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 
@@ -29,24 +30,45 @@ public class ModuleDetailView extends VBox implements Initializable {
   private final Router router;
 
   @FXML
+  @SuppressWarnings("unused")
   private Label pordnr;
   @FXML
+  @SuppressWarnings("unused")
   private Label title;
   @FXML
+  @SuppressWarnings("unused")
   private Label name;
   @FXML
+  @SuppressWarnings("unused")
   private Label mandatory;
   @FXML
+  @SuppressWarnings("unused")
   private Label creditPoints;
   @FXML
+  @SuppressWarnings("unused")
   private Label electiveUnits;
   @FXML
+  @SuppressWarnings("unused")
   private TableView<Course> courseTableView;
   @FXML
+  @SuppressWarnings("unused")
   private TableView<AbstractUnit> abstractUnitTableView;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Course, String> tableColumnCourseName;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Course, String> tableColumnCourseColumnName;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<AbstractUnit, String> tableColumnAbstractUnitKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<AbstractUnit, String> tableColumnAbstractUnitTitle;
 
   /**
    * Constructor for ModuleDetailView.
+   *
    * @param inflater Inflater to handle fxml and lang files
    */
   @Inject
@@ -79,6 +101,16 @@ public class ModuleDetailView extends VBox implements Initializable {
     electiveUnits.textProperty().bind(Bindings.when(moduleProperty.isNotNull()).then(
         Bindings.selectString(moduleProperty, "electiveUnits")).otherwise(""));
 
+    tableColumnCourseName.prefWidthProperty().bind(
+        courseTableView.widthProperty().multiply(0.25));
+    tableColumnCourseColumnName.prefWidthProperty().bind(
+        courseTableView.widthProperty().multiply(0.71));
+
+    tableColumnAbstractUnitKey.prefWidthProperty().bind(
+        abstractUnitTableView.widthProperty().multiply(0.25));
+    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
+        abstractUnitTableView.widthProperty().multiply(0.71));
+
     courseTableView.itemsProperty().bind(new ListBinding<Course>() {
       {
         bind(moduleProperty);
@@ -94,6 +126,7 @@ public class ModuleDetailView extends VBox implements Initializable {
         return FXCollections.observableArrayList(module.getCourses());
       }
     });
+
     abstractUnitTableView.itemsProperty().bind(new ListBinding<AbstractUnit>() {
       {
         bind(moduleProperty);
