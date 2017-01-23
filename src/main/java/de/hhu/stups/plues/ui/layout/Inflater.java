@@ -111,7 +111,7 @@ public class Inflater {
 
     @Override
     protected Object handleGetObject(final String key) {
-      for (ResourceBundle resourceBundle : resourceBundles) {
+      for (final ResourceBundle resourceBundle : resourceBundles) {
         if (!resourceBundle.containsKey(key)) {
           continue;
         }
@@ -123,7 +123,7 @@ public class Inflater {
 
     @Override
     public Enumeration<String> getKeys() {
-      Set<String> allKeys =
+      final Set<String> allKeys =
           Arrays.stream(resourceBundles).flatMap(resourceBundle
               -> resourceBundle.keySet().stream()).collect(Collectors.toSet());
 
