@@ -16,6 +16,7 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.ui.components.timetable.SemesterChooser;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
@@ -39,8 +40,6 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
-
-import org.controlsfx.control.SegmentedButton;
 
 import java.net.URL;
 import java.time.DayOfWeek;
@@ -68,7 +67,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   private GridPane timeTable;
   @FXML
   @SuppressWarnings("unused")
-  private SegmentedButton semesterToggle;
+  private SemesterChooser semesterToggle;
   @FXML
   @SuppressWarnings("unused")
   private TimetableSideBar timetableSideBar;
