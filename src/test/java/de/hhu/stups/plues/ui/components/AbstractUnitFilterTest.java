@@ -58,7 +58,7 @@ public class AbstractUnitFilterTest extends ApplicationTest {
 
   @Test
   public void testContent() {
-    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#unitsTable").query();
     for (final AbstractUnitFilter.SelectableAbstractUnit entry : units.getItems()) {
       boolean containsTitle = false;
       for (final AbstractUnit unit : abstractUnits) {
@@ -73,82 +73,82 @@ public class AbstractUnitFilterTest extends ApplicationTest {
 
   @Test
   public void testSelection() {
-    TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#unitsTable").query();
     final CheckBoxTableCell cb = (CheckBoxTableCell) units.lookup(".table-row-cell .table-cell");
 
     clickOn(cb);
 
     // only selected units
-    clickOn((RadioButton) lookup("#selected").query());
-    units = lookup("#units").query();
+    clickOn((RadioButton) lookup("#rbSelected").query());
+    units = lookup("#unitsTable").query();
     Assert.assertEquals(1, units.getItems().size());
     Assert.assertEquals(abstractUnits.get(0).getTitle(), units.getItems().get(0).getTitle());
 
     // only not-selected units
-    clickOn((RadioButton) lookup("#notSelected").query());
-    units = lookup("#units").query();
+    clickOn((RadioButton) lookup("#rbNotSelected").query());
+    units = lookup("#unitsTable").query();
     Assert.assertEquals(1, units.getItems().size());
     Assert.assertEquals(abstractUnits.get(1).getTitle(), units.getItems().get(0).getTitle());
   }
 
   @Test
   public void testSearchForTitle() {
-    final TextField field = lookup("#query").query();
+    final TextField field = lookup("#txtQuery").query();
     field.setText("Abstract Unit 1");
 
-    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#unitsTable").query();
     Assert.assertEquals(1, units.getItems().size());
   }
 
   @Test
   public void testSearchForKey() {
-    final TextField field = lookup("#query").query();
+    final TextField field = lookup("#txtQuery").query();
     field.setText("Key 1");
 
-    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#unitsTable").query();
     Assert.assertEquals(1, units.getItems().size());
   }
 
   @Test
   public void testLiveUpdate() {
-    TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#unitsTable").query();
     final CheckBoxTableCell cb = (CheckBoxTableCell) units.lookup(".table-row-cell .table-cell");
 
     clickOn(cb); // click on checkbox
-    clickOn((RadioButton) lookup("#selected").query()); // filter by selected
+    clickOn((RadioButton) lookup("#rbSelected").query()); // filter by selected
     clickOn(cb); // click on checkbox again
-    units = lookup("#units").query(); // collect units again
+    units = lookup("#unitsTable").query(); // collect units again
 
     Assert.assertEquals(0, units.getItems().size());
 
-    clickOn((RadioButton) lookup("#notSelected").query());
-    units = lookup("#units").query();
+    clickOn((RadioButton) lookup("#rbNotSelected").query());
+    units = lookup("#unitsTable").query();
     Assert.assertEquals(2, units.getItems().size());
   }
 
   @Test
   public void testCourseSelection() {
-    TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#unitsTable").query();
     Assert.assertEquals(2, units.getItems().size()); // all units present
 
-    final CheckBox cb = lookup("#selectedCoursesOnly").query();
+    final CheckBox cb = lookup("#cbSelectedCoursesOnly").query();
     clickOn(cb);
 
-    units = lookup("#units").query();
+    units = lookup("#unitsTable").query();
     Assert.assertEquals(1, units.getItems().size()); // only one present
     Assert.assertEquals(a1.getKey(), units.getItems().get(0).getKey());
   }
 
   @Test
   public void testClearingSelection() {
-    TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#unitsTable").query();
     final CheckBoxTableCell cb = (CheckBoxTableCell) units.lookup(".table-row-cell .table-cell");
     clickOn(cb);
-    clickOn((RadioButton) lookup("#selected").query());
+    clickOn((RadioButton) lookup("#rbSelected").query());
     clickOn((Button) lookup("#clearSelection").query());
-    units = lookup("#units").query();
+    units = lookup("#unitsTable").query();
     Assert.assertEquals(2, units.getItems().size());
-    Assert.assertTrue(((RadioButton) lookup("#all").query()).isSelected());
+    Assert.assertTrue(((RadioButton) lookup("#rbAll").query()).isSelected());
   }
 
 
@@ -156,7 +156,7 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   public void testSelectedItems() {
     Assert.assertEquals(0, filter.getSelectedAbstractUnits().size());
 
-    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#units").query();
+    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#unitsTable").query();
     final CheckBoxTableCell cb = (CheckBoxTableCell) units.lookup(".table-row-cell .table-cell");
     clickOn(cb);
 
