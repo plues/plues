@@ -71,6 +71,7 @@ public class SolverTask<T> extends Task<T> {
     this.resources = ResourceBundle.getBundle("lang.tasks");
     this.reason = resources.getString("cancelled");
 
+    updateProgress(0, 100);
     updateTitle(title);
     updateMessage(message);
   }
