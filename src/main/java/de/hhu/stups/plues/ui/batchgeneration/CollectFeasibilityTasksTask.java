@@ -46,6 +46,9 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
     this.results = results;
     this.impossibleCourses = impossibleCourses;
     resources = ResourceBundle.getBundle("lang.conflictMatrix");
+
+    updateTitle(resources.getString("preparing"));
+    updateProgress(0, 100);
   }
 
   @Override

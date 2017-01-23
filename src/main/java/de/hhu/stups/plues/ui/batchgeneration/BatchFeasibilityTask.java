@@ -27,11 +27,14 @@ public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> 
     this.tasks = tasks;
     this.resources = ResourceBundle.getBundle("lang.conflictMatrix");
 
+    updateTitle(resources.getString("checkAllMsg"));
+    updateProgress(0, 100);
+
   }
 
   @Override
   protected Collection<SolverTask<Boolean>> call() throws Exception {
-    updateTitle(resources.getString("checkAllMsg"));
+    updateMessage(resources.getString("waitingForResults"));
     final List<Future<?>> futurePool
         = tasks.stream().map(executor::submit).collect(Collectors.toList());
 
