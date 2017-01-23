@@ -231,26 +231,20 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   }
 
   private void selectSemesterForSession(final SessionFacade facade) {
-    final Toggle selectedSemester = semesterToggle.getToggleGroup().getSelectedToggle();
-
-    // no semester is selected, hence all sessions are visible
-    if (selectedSemester == null) {
-      return;
-    }
-
+    final Set<Integer> selectedSemesters = semesterToggle.getSelectedSemesters();
     final Set<Integer> unitSemesters = facade.getUnitSemesters();
-    final int semester = Integer.parseInt(String.valueOf(selectedSemester.getUserData()));
 
-    // a semester for the session is already selected
-    if (unitSemesters.contains(semester)) {
+    // no semester or on of the unitSemesters is selected, hence all sessions are visible
+    if (selectedSemesters.isEmpty() || !Collections.disjoint(selectedSemesters, unitSemesters)) {
       return;
     }
 
     final Integer first = Collections.min(unitSemesters);
-    final Optional<ToggleButton> toggleButton = semesterToggle.getButtons().stream()
-        .filter(button -> button.getUserData().equals(String.valueOf(first)))
-        .findFirst();
-    toggleButton.ifPresent(button -> button.setSelected(true));
+    semesterToggle.getButtons().forEach(button -> {
+      if (button.getUserData().equals(String.valueOf(first))) {
+        button.setSelected(true);
+      }
+    });
   }
 
   public SplitPane.Divider getDivider() {
@@ -283,15 +277,15 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   private class FilterPredicate implements Predicate<SessionFacade> {
     private final HashSet<Course> filteredCourses;
     private final HashSet<AbstractUnit> filteredAbstractUnits;
-    private final Integer selectedSemester;
+    private final Set<Integer> selectedSemesters;
 
     FilterPredicate(final HashSet<Course> filteredCourses,
                     final HashSet<AbstractUnit> filteredAbstractUnits,
-                    final Integer selectedSemester) {
+                    final Set<Integer> selectedSemesters) {
 
       this.filteredCourses = filteredCourses;
       this.filteredAbstractUnits = filteredAbstractUnits;
-      this.selectedSemester = selectedSemester;
+      this.selectedSemesters = selectedSemesters;
     }
 
     @Override
@@ -300,8 +294,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     }
 
     private boolean isIncludedBySemester(final SessionFacade session) {
-      final Set<Integer> semesters = session.getUnitSemesters();
-      return selectedSemester == null || semesters.contains(selectedSemester);
+      return selectedSemesters.isEmpty()
+          || !Collections.disjoint(selectedSemesters, session.getUnitSemesters());
     }
 
     private boolean isNotExcluded(final SessionFacade session) {
@@ -338,7 +332,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
   private class PredicateObjectBinding extends ObjectBinding<Predicate<? super SessionFacade>> {
     {
-      bind(semesterToggle.getToggleGroup().selectedToggleProperty(),
+      bind(semesterToggle.selectedSemestersProperty(),
           timetableSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
           timetableSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty(),
           uiDataService.conflictMarkedSessionsProperty());
@@ -347,7 +341,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     @Override
     public void dispose() {
       super.dispose();
-      unbind(semesterToggle.getToggleGroup().selectedToggleProperty(),
+      unbind(semesterToggle.selectedSemestersProperty(),
           timetableSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
           timetableSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty(),
           uiDataService.conflictMarkedSessionsProperty());
@@ -359,18 +353,9 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
           = new HashSet<>(timetableSideBar.getAbstractUnitFilter().getSelectedAbstractUnits());
       final HashSet<Course> filteredCourses
           = new HashSet<>(timetableSideBar.getSetOfCourseSelection().getSelectedCourses());
-      return new FilterPredicate(filteredCourses, filteredAbstractUnits, getSelectedSemester());
-    }
+      final Set<Integer> selectedSemesters = semesterToggle.getSelectedSemesters();
 
-    private Integer getSelectedSemester() {
-      final ToggleButton semesterButton =
-          (ToggleButton) semesterToggle.getToggleGroup().getSelectedToggle();
-
-      if (null != semesterButton) {
-        return Integer.valueOf((String) semesterButton.getUserData());
-      }
-
-      return null;
+      return new FilterPredicate(filteredCourses, filteredAbstractUnits, selectedSemesters);
     }
   }
 }
