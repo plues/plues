@@ -1,8 +1,9 @@
 package de.hhu.stups.plues.ui.batchgeneration;
 
-import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.concurrent.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,6 +16,7 @@ public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> 
   private final ExecutorService executor;
   private final ResourceBundle resources;
   private Collection<SolverTask<Boolean>> tasks;
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   /**
    * Constructor, create a new Task to manage batch execution of SolverTasks on a given executor.
@@ -29,7 +31,6 @@ public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> 
 
     updateTitle(resources.getString("checkAllMsg"));
     updateProgress(0, 100);
-
   }
 
   @Override
@@ -63,5 +64,11 @@ public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> 
   @Override
   protected void cancelled() {
     this.tasks.forEach(Task::cancel);
+  }
+
+  @Override
+  protected void failed() {
+    super.failed();
+    logger.error("failed", this.getException());
   }
 }
