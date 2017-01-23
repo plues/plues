@@ -898,14 +898,16 @@ public class MainController implements Initializable {
 
     ExportXmlTask(final File selectedFile) {
       this.selectedFile = selectedFile;
+
+      updateTitle(resources.getString("export.title"));
+      updateProgress(0, 3);
+      updateMessage(resources.getString("export.gen"));
     }
 
     @Override
     protected Void call() throws Exception {
 
-      updateTitle(resources.getString("export.title"));
       updateProgress(1, 3);
-      updateMessage(resources.getString("export.gen"));
 
       writeZipFile();
       return null;

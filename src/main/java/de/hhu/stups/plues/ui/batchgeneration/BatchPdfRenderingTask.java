@@ -27,11 +27,16 @@ public class BatchPdfRenderingTask extends Task<Collection<PdfRenderingTask>> {
     this.executor = executorService;
     this.tasks = tasks;
     this.resources = ResourceBundle.getBundle("lang.tasks");
+
+    updateTitle(resources.getString("batchGen"));
+    updateProgress(0, 100);
+    updateMessage(resources.getString("waitingForExecution"));
+
   }
 
   @Override
   protected Collection<PdfRenderingTask> call() throws Exception {
-    updateTitle(resources.getString("batchGen"));
+    updateMessage(resources.getString("waitingForResult"));
     final List<Future<?>> futurePool
         = tasks.stream().map(executor::submit).collect(Collectors.toList());
 

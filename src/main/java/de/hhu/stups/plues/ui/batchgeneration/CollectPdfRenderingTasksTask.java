@@ -34,11 +34,13 @@ public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
     this.courses = store.get().getCourses();
     this.solverService = solverService.get();
     this.taskFactory = factory;
+
+    updateTitle(ResourceBundle.getBundle("lang.tasks").getString("preparing"));
+    updateProgress(0, 100);
   }
 
   @Override
   protected Set<PdfRenderingTask> call() throws Exception {
-    updateTitle(ResourceBundle.getBundle("lang.tasks").getString("preparing"));
     final List<Course> majorCourseList = courses.stream()
         .filter(Course::isMajor)
         .collect(Collectors.toList());
