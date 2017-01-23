@@ -38,7 +38,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -293,10 +292,8 @@ public class MainController implements Initializable {
 
     clearStatusBar();
 
-    taskBoxCollapsed.addListener((observable, oldValue, shouldHide) -> {
-      hideTaskProgressBox(shouldHide);
-      setStatusBarText(taskProgress.getTasks().size(), shouldHide);
-    });
+    taskBoxCollapsed.addListener((observable, oldValue, shouldHide) ->
+        hideTaskProgressBox(shouldHide));
 
     mainProgressBar.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
     mainProgressBar.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
@@ -393,25 +390,21 @@ public class MainController implements Initializable {
   }
 
   /**
-   * Bind the {@link #mainProgressBar progress bar's} ProgressProperty to the first running task if
-   * it is unbound and there is at least one scheduled task given.
+   * Bind the {@link #mainProgressBar progress bar's} ProgressProperty to the running task if there
+   * is exactly one given. Otherwise the progress is just pending and not bound to any progress.
    */
   private void bindProgressPropertyIfNecessary(final ObservableList<Task<?>> scheduledTasks) {
     if (scheduledTasks.size() == 1) {
       mainProgressBar.progressProperty().bind(scheduledTasks.get(0).progressProperty());
-    } else if (!mainProgressBar.progressProperty().isBound()) {
-      final Optional<Task<?>> optionalRunningTask = scheduledTasks.stream()
-          .filter(Task::isRunning).findFirst();
-
-      if (optionalRunningTask.isPresent()) {
-        final Task<?> runningTask = optionalRunningTask.get();
-        mainProgressBar.progressProperty().bind(runningTask.progressProperty());
-        final EventHandler<WorkerStateEvent> unbindProgressBar =
-            event -> mainProgressBar.progressProperty().unbind();
-        runningTask.setOnSucceeded(unbindProgressBar);
-        runningTask.setOnCancelled(unbindProgressBar);
-        runningTask.setOnFailed(unbindProgressBar);
-      }
+    } else {
+      // just an empty task to simulate the pending progress bar
+      final Task emptyTask = new Task() {
+        @Override
+        protected Object call() throws Exception {
+          return null;
+        }
+      };
+      mainProgressBar.progressProperty().bind(emptyTask.progressProperty());
     }
   }
 
@@ -445,6 +438,7 @@ public class MainController implements Initializable {
    */
   private void hideTaskProgressBox(final boolean hide) {
     if ((!hide || mainSplitPane.getItems().contains(boxTaskProgress)) && !fadingInProgress) {
+      setStatusBarText(taskProgress.getTasks().size(), hide);
       disableDivider(hide);
       EXECUTOR_SERVICE.execute(() -> {
         fadingInProgress = true;
