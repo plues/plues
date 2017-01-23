@@ -190,6 +190,13 @@ public class MainController implements Initializable {
   private final IntegerProperty customTimeoutProperty;
   private double visibleDividerPos;
   private boolean fadingInProgress = false;
+  private final Task emptyTask = new Task() {
+    // just an empty task to simulate a pending progress bar
+    @Override
+    protected Object call() throws Exception {
+      return null;
+    }
+  };
 
   /**
    * MainController component.
@@ -397,13 +404,6 @@ public class MainController implements Initializable {
     if (scheduledTasks.size() == 1) {
       mainProgressBar.progressProperty().bind(scheduledTasks.get(0).progressProperty());
     } else {
-      // just an empty task to simulate the pending progress bar
-      final Task emptyTask = new Task() {
-        @Override
-        protected Object call() throws Exception {
-          return null;
-        }
-      };
       mainProgressBar.progressProperty().bind(emptyTask.progressProperty());
     }
   }
