@@ -5,6 +5,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 import de.codecentric.centerdevice.MenuToolkit;
@@ -57,6 +58,7 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
@@ -185,11 +187,14 @@ public class MainController implements Initializable {
   @FXML
   private Label lbRunningTasks;
 
+  private final Tab reportsTab = new Tab();
+
   private SplitPane.Divider mainSplitPaneDivider;
   private RadioMenuItem customTimeoutItem;
   private final IntegerProperty customTimeoutProperty;
   private double visibleDividerPos;
   private boolean fadingInProgress = false;
+  private Provider<Reports> reportsProvider;
   private final Task emptyTask = new Task() {
     // just an empty task to simulate a pending progress bar
     @Override
@@ -210,7 +215,8 @@ public class MainController implements Initializable {
                         final StoreLoaderTaskFactory storeLoaderTaskFactory,
                         final ObservableListeningExecutorService executorService,
                         final ResourceManager resourceManager,
-                        final UiDataService uiDataService) {
+                        final UiDataService uiDataService,
+                        final Provider<Reports> reportsProvider) {
     this.delayedStore = delayedStore;
     this.delayedSolverService = delayedSolverService;
     this.solverLoader = solverLoader;
@@ -221,6 +227,7 @@ public class MainController implements Initializable {
     this.executor = executorService;
     this.resourceManager = resourceManager;
     this.uiDataService = uiDataService;
+    this.reportsProvider = reportsProvider;
 
     customTimeoutProperty = new SimpleIntegerProperty(0);
     userPreferences = Preferences.userRoot().node("Plues");
@@ -274,6 +281,8 @@ public class MainController implements Initializable {
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
+
+    reportsTab.setText(resources.getString("reportsTitle"));
 
     mainSplitPane.getItems().remove(boxTaskProgress);
 
@@ -741,12 +750,17 @@ public class MainController implements Initializable {
   }
 
   /**
-   * Open the reports view in a new stage.
+   * Open the reports view in a new tab within the {@link #tabPane}.
    */
   @FXML
   @SuppressWarnings("unused")
   private void openReports() {
-    router.transitionTo(RouteNames.REPORTS, resources.getString("reportsTitle"));
+    if (!tabPane.getTabs().contains(reportsTab)) {
+      reportsTab.setContent(reportsProvider.get());
+      reportsTab.setClosable(false);
+      tabPane.getTabs().add(reportsTab);
+    }
+    tabPane.getSelectionModel().select(reportsTab);
   }
 
   @FXML

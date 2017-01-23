@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.ui.controller;
 
-
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
