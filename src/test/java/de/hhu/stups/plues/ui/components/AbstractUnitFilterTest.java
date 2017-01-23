@@ -58,7 +58,8 @@ public class AbstractUnitFilterTest extends ApplicationTest {
 
   @Test
   public void testContent() {
-    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#unitsTable").query();
+    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units =
+        lookup("#unitsTable").query();
     for (final AbstractUnitFilter.SelectableAbstractUnit entry : units.getItems()) {
       boolean containsTitle = false;
       for (final AbstractUnit unit : abstractUnits) {
@@ -96,7 +97,8 @@ public class AbstractUnitFilterTest extends ApplicationTest {
     final TextField field = lookup("#txtQuery").query();
     field.setText("Abstract Unit 1");
 
-    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#unitsTable").query();
+    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units =
+        lookup("#unitsTable").query();
     Assert.assertEquals(1, units.getItems().size());
   }
 
@@ -105,7 +107,8 @@ public class AbstractUnitFilterTest extends ApplicationTest {
     final TextField field = lookup("#txtQuery").query();
     field.setText("Key 1");
 
-    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#unitsTable").query();
+    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units =
+        lookup("#unitsTable").query();
     Assert.assertEquals(1, units.getItems().size());
   }
 
@@ -156,7 +159,8 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   public void testSelectedItems() {
     Assert.assertEquals(0, filter.getSelectedAbstractUnits().size());
 
-    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#unitsTable").query();
+    final TableView<AbstractUnitFilter.SelectableAbstractUnit> units =
+        lookup("#unitsTable").query();
     final CheckBoxTableCell cb = (CheckBoxTableCell) units.lookup(".table-row-cell .table-cell");
     clickOn(cb);
 
