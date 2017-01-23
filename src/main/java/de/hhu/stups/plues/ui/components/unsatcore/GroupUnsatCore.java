@@ -42,19 +42,19 @@ public class GroupUnsatCore extends VBox implements Initializable {
   private TableView<Group> groupsTable;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Group, String> groupUnitKeyColumn;
+  private TableColumn<Group, String> tableColumnGroupUnitKey;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Group, String> groupUnitTitleColumn;
+  private TableColumn<Group, String> tableColumnGroupUnitTitle;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Group, String> groupUnitSemestersColumn;
+  private TableColumn<Group, String> tableColumnGroupUnitSemesters;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Group, Set<Session>> groupSessionsColumn;
+  private TableColumn<Group, Set<Session>> tableColumnGroupSessions;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Group, Set<AbstractUnit>> groupAbstractUnits;
+  private TableColumn<Group, Set<AbstractUnit>> tableColumnGroupAbstractUnits;
   @FXML
   @SuppressWarnings("unused")
   private UnsatCoreButtonBar unsatCoreButtonBar;
@@ -83,16 +83,16 @@ public class GroupUnsatCore extends VBox implements Initializable {
     groupsTable.itemsProperty().bind(groups);
     groupsTable.setOnMouseClicked(DetailViewHelper.getGroupMouseHandler(
         groupsTable, router));
-    groupUnitKeyColumn.setCellValueFactory(param
+    tableColumnGroupUnitKey.setCellValueFactory(param
         -> Bindings.selectString(param, "value", "unit", "key"));
-    groupUnitTitleColumn.setCellValueFactory(param
+    tableColumnGroupUnitTitle.setCellValueFactory(param
         -> Bindings.selectString(param, "value", "unit", "title"));
-    groupUnitSemestersColumn.setCellValueFactory(param
+    tableColumnGroupUnitSemesters.setCellValueFactory(param
         -> new SimpleStringProperty(
         Joiner.on(',').join(param.getValue().getUnit().getSemesters())));
 
     // display a bullet-list of sessions to represent the group
-    groupSessionsColumn.setCellFactory(param -> new TableCell<Group, Set<Session>>() {
+    tableColumnGroupSessions.setCellFactory(param -> new TableCell<Group, Set<Session>>() {
       @Override
       protected void updateItem(final Set<Session> item, final boolean empty) {
         super.updateItem(item, empty);
@@ -115,12 +115,12 @@ public class GroupUnsatCore extends VBox implements Initializable {
     unsatCoreButtonBar.setText(resources.getString("button.unsatCoreSession"));
 
     // extract abstract units associated to group (through unit) in the current abstract unit core
-    groupAbstractUnits.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
+    tableColumnGroupAbstractUnits.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
         param.getValue().getUnit().getAbstractUnits().stream()
             .filter(getAbstractUnits()::contains)
             .collect(Collectors.toSet())));
 
-    groupAbstractUnits.setCellFactory(param -> new TableCell<Group, Set<AbstractUnit>>() {
+    tableColumnGroupAbstractUnits.setCellFactory(param -> new TableCell<Group, Set<AbstractUnit>>() {
       @Override
       protected void updateItem(final Set<AbstractUnit> item, final boolean empty) {
         super.updateItem(item, empty);
@@ -134,6 +134,21 @@ public class GroupUnsatCore extends VBox implements Initializable {
                 String.format("%n"))));
       }
     });
+
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnGroupUnitKey.prefWidthProperty().bind(
+        groupsTable.widthProperty().multiply(0.1));
+    tableColumnGroupUnitTitle.prefWidthProperty().bind(
+        groupsTable.widthProperty().multiply(0.43));
+    tableColumnGroupUnitSemesters.prefWidthProperty().bind(
+        groupsTable.widthProperty().multiply(0.07));
+    tableColumnGroupSessions.prefWidthProperty().bind(
+        groupsTable.widthProperty().multiply(0.14));
+    tableColumnGroupAbstractUnits.prefWidthProperty().bind(
+        groupsTable.widthProperty().multiply(0.22));
   }
 
   private String getPrefix(final Collection<?> item) {
@@ -166,7 +181,6 @@ public class GroupUnsatCore extends VBox implements Initializable {
   public void setAbstractUnits(final ObservableList<AbstractUnit> abstractUnits) {
     this.abstractUnits.set(abstractUnits);
   }
-
 
 
   public ListProperty<Group> groupProperty() {
