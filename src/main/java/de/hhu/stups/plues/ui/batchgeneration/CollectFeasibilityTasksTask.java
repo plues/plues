@@ -53,9 +53,13 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
 
   @Override
   protected Set<SolverTask<Boolean>> call() throws Exception {
-    updateTitle(resources.getString("preparing"));
     final Set<SolverTask<Boolean>> feasibilityTasks = new HashSet<>();
+    final int total = majorCourses.size();
+    final int[] count = {0};
     majorCourses.forEach(majorCourse -> {
+
+      updateProgress(++count[0], total);
+
       if (!majorCourse.isCombinable() && shouldBeChecked(majorCourse)) {
         feasibilityTasks.add(solverService.checkFeasibilityTask(majorCourse));
       } else {
