@@ -62,7 +62,19 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   private TableColumn<SelectableCourse, Boolean> tableColumnMasterCheckBox;
   @FXML
   @SuppressWarnings("unused")
+  private TableColumn<SelectableCourse, Boolean> tableColumnMasterCourseKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<SelectableCourse, Boolean> tableColumnMasterCourseTitle;
+  @FXML
+  @SuppressWarnings("unused")
   private TableColumn<SelectableCourse, Boolean> tableColumnBachelorCheckBox;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<SelectableCourse, Boolean> tableColumnBachelorCourseKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<SelectableCourse, Boolean> tableColumnBachelorCourseTitle;
 
   /**
    * Component that allows the user to select one or more courses. The courses need to be
@@ -111,8 +123,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
       @Override
       protected ObservableList<SelectableCourse> computeValue() {
         return FXCollections.observableList(
-          courses.stream().map(SelectableCourse::new)
-            .collect(Collectors.toList()), SelectableCourse.getExtractor());
+            courses.stream().map(SelectableCourse::new)
+                .collect(Collectors.toList()), SelectableCourse.getExtractor());
       }
     });
 
@@ -153,12 +165,30 @@ public class SetOfCourseSelection extends VBox implements Initializable {
       @Override
       protected ObservableList<Course> computeValue() {
         return selectableCourses.stream()
-          .filter(SelectableCourse::isSelected)
-          .map(SelectableCourse::getCourse)
-          .collect(Collectors.collectingAndThen(Collectors.toList(),
-            FXCollections::observableArrayList));
+            .filter(SelectableCourse::isSelected)
+            .map(SelectableCourse::getCourse)
+            .collect(Collectors.collectingAndThen(Collectors.toList(),
+                FXCollections::observableArrayList));
       }
     });
+
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnMasterCheckBox.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty().multiply(0.07));
+    tableColumnMasterCourseKey.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty().multiply(0.2));
+    tableColumnMasterCourseTitle.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty().multiply(0.69));
+
+    tableColumnBachelorCheckBox.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty().multiply(0.07));
+    tableColumnBachelorCourseKey.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty().multiply(0.2));
+    tableColumnBachelorCourseTitle.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty().multiply(0.69));
   }
 
   private ListProperty<SelectableCourse> newFilteredProperty(
@@ -243,6 +273,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
       return (SelectableCourse param) -> new Observable[] {param.selectedProperty()};
     }
 
+    @SuppressWarnings("unused")
     private boolean isSelected() {
       return selected.get();
     }
