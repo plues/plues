@@ -117,17 +117,7 @@ public class UnitDetailView extends VBox implements Initializable {
         String.valueOf(6 + param.getValue().getTime() * 2) + ":30"));
     tableColumnSessionTime.setCellFactory(param -> new SessionStringTableCell());
 
-    tableColumnAbstractUnitKey.prefWidthProperty().bind(
-        abstractUnitTableView.widthProperty().multiply(0.25));
-    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
-        abstractUnitTableView.widthProperty().multiply(0.71));
-
-    tableColumnSessionId.prefWidthProperty().bind(
-        sessionTableView.widthProperty().multiply(0.2));
-    tableColumnSessionDay.prefWidthProperty().bind(
-        sessionTableView.widthProperty().multiply(0.38));
-    tableColumnSessionTime.prefWidthProperty().bind(
-        sessionTableView.widthProperty().multiply(0.38));
+    bindTableColumnsWidth();
 
     abstractUnitTableView.itemsProperty().bind(new ListBinding<AbstractUnit>() {
       {
@@ -166,6 +156,20 @@ public class UnitDetailView extends VBox implements Initializable {
         abstractUnitTableView, router));
     sessionTableView.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
         sessionTableView, router));
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnAbstractUnitKey.prefWidthProperty().bind(
+        abstractUnitTableView.widthProperty().multiply(0.25));
+    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
+        abstractUnitTableView.widthProperty().multiply(0.71));
+
+    tableColumnSessionId.prefWidthProperty().bind(
+        sessionTableView.widthProperty().multiply(0.2));
+    tableColumnSessionDay.prefWidthProperty().bind(
+        sessionTableView.widthProperty().multiply(0.38));
+    tableColumnSessionTime.prefWidthProperty().bind(
+        sessionTableView.widthProperty().multiply(0.38));
   }
 
   private static class SessionStringTableCell extends TableCell<Session, String> {

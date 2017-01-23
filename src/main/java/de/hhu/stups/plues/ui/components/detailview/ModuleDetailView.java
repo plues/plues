@@ -101,15 +101,7 @@ public class ModuleDetailView extends VBox implements Initializable {
     electiveUnits.textProperty().bind(Bindings.when(moduleProperty.isNotNull()).then(
         Bindings.selectString(moduleProperty, "electiveUnits")).otherwise(""));
 
-    tableColumnCourseName.prefWidthProperty().bind(
-        courseTableView.widthProperty().multiply(0.25));
-    tableColumnCourseColumnName.prefWidthProperty().bind(
-        courseTableView.widthProperty().multiply(0.71));
-
-    tableColumnAbstractUnitKey.prefWidthProperty().bind(
-        abstractUnitTableView.widthProperty().multiply(0.25));
-    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
-        abstractUnitTableView.widthProperty().multiply(0.71));
+    bindTableColumnsWidth();
 
     courseTableView.itemsProperty().bind(new ListBinding<Course>() {
       {
@@ -148,6 +140,19 @@ public class ModuleDetailView extends VBox implements Initializable {
 
     abstractUnitTableView.setOnMouseClicked(DetailViewHelper.getAbstractUnitMouseHandler(
         abstractUnitTableView, router));
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnCourseName.prefWidthProperty().bind(
+        courseTableView.widthProperty().multiply(0.25));
+    tableColumnCourseColumnName.prefWidthProperty().bind(
+        courseTableView.widthProperty().multiply(0.71));
+
+    tableColumnAbstractUnitKey.prefWidthProperty().bind(
+        abstractUnitTableView.widthProperty().multiply(0.25));
+    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
+        abstractUnitTableView.widthProperty().multiply(0.71));
+
   }
 
   public void setModule(final Module module) {

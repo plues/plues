@@ -100,19 +100,7 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
     title.textProperty().bind(Bindings.when(abstractUnitProperty.isNotNull()).then(
         Bindings.selectString(abstractUnitProperty, "title")).otherwise(""));
 
-    tableColumnUnitsKey.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.2));
-    tableColumnUnitsTitle.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.76));
-
-    tableColumnModulesPordnr.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.15));
-    tableColumnModulesTitle.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.59));
-    tableColumnModulesSemesters.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.15));
-    tableColumnModulesType.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.07));
+    bindTableColumnsWidth();
 
     tableViewUnits.itemsProperty().bind(new ListBinding<Unit>() {
       {
@@ -177,5 +165,21 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
         tableViewUnits, router));
     tableViewModules.setOnMouseClicked(DetailViewHelper.getModuleMouseHandler(
         tableViewModules, router));
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnUnitsKey.prefWidthProperty().bind(
+        tableViewUnits.widthProperty().multiply(0.2));
+    tableColumnUnitsTitle.prefWidthProperty().bind(
+        tableViewUnits.widthProperty().multiply(0.76));
+
+    tableColumnModulesPordnr.prefWidthProperty().bind(
+        tableViewUnits.widthProperty().multiply(0.15));
+    tableColumnModulesTitle.prefWidthProperty().bind(
+        tableViewUnits.widthProperty().multiply(0.59));
+    tableColumnModulesSemesters.prefWidthProperty().bind(
+        tableViewUnits.widthProperty().multiply(0.15));
+    tableColumnModulesType.prefWidthProperty().bind(
+        tableViewUnits.widthProperty().multiply(0.07));
   }
 }

@@ -126,16 +126,7 @@ public class SessionDetailView extends VBox implements Initializable {
       return session.isTentative() ? "✔︎" : "✗";
     }, sessionProperty));
 
-    tableColumnCourseKey.prefWidthProperty().bind(
-        courseTable.widthProperty().multiply(0.14));
-    tableColumnModule.prefWidthProperty().bind(
-        courseTable.widthProperty().multiply(0.37));
-    tableColumnAbstractUnit.prefWidthProperty().bind(
-        courseTable.widthProperty().multiply(0.25));
-    tableColumnSemester.prefWidthProperty().bind(
-        courseTable.widthProperty().multiply(0.13));
-    tableColumnType.prefWidthProperty().bind(
-        courseTable.widthProperty().multiply(0.07));
+    bindTableColumnsWidth();
 
     courseTable.itemsProperty().bind(new ListBinding<CourseTableEntry>() {
       {
@@ -181,6 +172,19 @@ public class SessionDetailView extends VBox implements Initializable {
             router.transitionTo(RouteNames.COURSE_DETAIL_VIEW, newValue.getCourse());
           }
         }));
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnCourseKey.prefWidthProperty().bind(
+        courseTable.widthProperty().multiply(0.14));
+    tableColumnModule.prefWidthProperty().bind(
+        courseTable.widthProperty().multiply(0.31));
+    tableColumnAbstractUnit.prefWidthProperty().bind(
+        courseTable.widthProperty().multiply(0.31));
+    tableColumnSemester.prefWidthProperty().bind(
+        courseTable.widthProperty().multiply(0.13));
+    tableColumnType.prefWidthProperty().bind(
+        courseTable.widthProperty().multiply(0.07));
   }
 
   public String getTitle() {
