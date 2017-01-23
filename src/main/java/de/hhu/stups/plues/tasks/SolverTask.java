@@ -90,9 +90,12 @@ public class SolverTask<T> extends Task<T> {
   @Override
   protected T call() throws InterruptedException, ExecutionException {
     this.updateMessage(resources.getString("waiting"));
+    this.updateProgress(5, -1);
+
     synchronized (SolverTask.class) {
       if (this.isCancelled()) {
         logger.info("cancelled");
+        updateMessage(this.reason);
         return null;
       }
 
@@ -111,6 +114,7 @@ public class SolverTask<T> extends Task<T> {
         updateProgress(percentage, 100);
         if (this.isCancelled()) {
           logger.info("cancelled");
+          updateMessage(this.reason);
           return null;
         }
         if (future.isCancelled()) {
@@ -134,6 +138,7 @@ public class SolverTask<T> extends Task<T> {
       TimeUnit.MILLISECONDS.sleep(100);
     } catch (final InterruptedException interrupted) {
       if (isCancelled()) {
+        updateMessage(this.reason);
         logger.info("Task cancelled while sleeping " + this.toString());
         throw interrupted;
       }
@@ -148,11 +153,11 @@ public class SolverTask<T> extends Task<T> {
 
   @Override
   protected void cancelled() {
-    logger.info("Cancelled handler");
     super.cancelled();
+    logger.info("Cancelled handler");
 
-    logger.info(this.reason);
     updateMessage(this.reason);
+    logger.info(this.reason);
 
     if (timer != null) {
       timer.cancel(true);

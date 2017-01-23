@@ -117,6 +117,8 @@ public class SolverTaskTest extends ApplicationTest {
 
   @Test
   public void testTaskIsCancelled() throws InterruptedException {
+    final CountDownLatch latch = new CountDownLatch(1);
+
     final Callable<Integer> c = () -> {
       TimeUnit.DAYS.sleep(365);
       throw new TestException("NO");
@@ -126,20 +128,23 @@ public class SolverTaskTest extends ApplicationTest {
 
     Platform.runLater(() -> {
       executor.submit(solverTask);
+      this.sleep(500);
       solverTask.cancel();
+      latch.countDown();
     });
     try {
+      latch.await();
       solverTask.get();
       fail();
     } catch (final CancellationException cancellationException) {
       final TaskProperties taskProperties = getTaskProperties(solverTask);
 
-      assertEquals(resources.getString("cancelled"), taskProperties.getMessage());
-      assertEquals(TITLE, taskProperties.getTitle());
-
       assertTrue(taskProperties.isDone());
       assertEquals(taskProperties.getState(), Worker.State.CANCELLED);
       assertTrue(taskProperties.isCancelled());
+
+      assertEquals(TITLE, taskProperties.getTitle());
+      assertEquals(resources.getString("cancelled"), taskProperties.getMessage());
     } catch (InterruptedException | ExecutionException exception) {
       fail();
     }
