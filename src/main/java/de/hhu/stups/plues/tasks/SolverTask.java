@@ -55,12 +55,12 @@ public class SolverTask<T> extends Task<T> {
   private ListenableScheduledFuture<?> timer;
   private String reason;
 
-  public SolverTask(final String title, final String message, final Solver solver,
+  public SolverTask(final String title, final Solver solver,
                     final Callable<T> func, final Integer timeout) {
-    this(title, message, solver, func, timeout, TimeUnit.SECONDS);
+    this(title, solver, func, timeout, TimeUnit.SECONDS);
   }
 
-  SolverTask(final String title, final String message, final Solver solver,
+  SolverTask(final String title, final Solver solver,
              final Callable<T> func, final int timeout, final TimeUnit timeUnit) {
 
     this.function = timedCallableWrapper(title, func);
@@ -73,7 +73,7 @@ public class SolverTask<T> extends Task<T> {
 
     updateProgress(0, 100);
     updateTitle(title);
-    updateMessage(message);
+    updateMessage(resources.getString("waitingForExecution"));
   }
 
   private Callable<T> timedCallableWrapper(final String title, final Callable<T> func) {
@@ -89,6 +89,7 @@ public class SolverTask<T> extends Task<T> {
 
   @Override
   protected T call() throws InterruptedException, ExecutionException {
+    this.updateMessage(resources.getString("waiting"));
     synchronized (SolverTask.class) {
       if (this.isCancelled()) {
         logger.info("cancelled");
@@ -102,8 +103,11 @@ public class SolverTask<T> extends Task<T> {
       updateProgress(10, 100);
 
       int percentage = 10;
+
+      updateMessage(resources.getString("waitingForResult"));
+
       while (!future.isDone()) {
-        percentage = (percentage + 2) % 95;
+        percentage = (percentage + 2) % 90;
         updateProgress(percentage, 100);
         if (this.isCancelled()) {
           logger.info("cancelled");
@@ -119,7 +123,9 @@ public class SolverTask<T> extends Task<T> {
         sleep();
       }
     }
+    updateMessage(resources.getString("done"));
     updateProgress(100, 100);
+
     return future.get();
   }
 
