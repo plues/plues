@@ -120,20 +120,21 @@ public class GroupUnsatCore extends VBox implements Initializable {
             .filter(getAbstractUnits()::contains)
             .collect(Collectors.toSet())));
 
-    tableColumnGroupAbstractUnits.setCellFactory(param -> new TableCell<Group, Set<AbstractUnit>>() {
-      @Override
-      protected void updateItem(final Set<AbstractUnit> item, final boolean empty) {
-        super.updateItem(item, empty);
-        if (item == null || empty) {
-          setText(null);
-          return;
-        }
-        final String prefix = getPrefix(item);
-        setText(item.stream()
-            .map(e -> String.format("%s%s", prefix, e.getKey())).collect(Collectors.joining(
-                String.format("%n"))));
-      }
-    });
+    tableColumnGroupAbstractUnits.setCellFactory(param ->
+        new TableCell<Group, Set<AbstractUnit>>() {
+          @Override
+          protected void updateItem(final Set<AbstractUnit> item, final boolean empty) {
+            super.updateItem(item, empty);
+            if (item == null || empty) {
+              setText(null);
+              return;
+            }
+            final String prefix = getPrefix(item);
+            setText(item.stream()
+                .map(e -> String.format("%s%s", prefix, e.getKey())).collect(Collectors.joining(
+                    String.format("%n"))));
+          }
+        });
 
     bindTableColumnsWidth();
   }
