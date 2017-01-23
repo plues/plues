@@ -21,7 +21,7 @@ import java.util.Set;
 
 public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializable {
 
-  private Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits;
+  private Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnitsMap;
   private final SimpleListProperty<Module> modules;
   private final SimpleListProperty<AbstractUnit> abstractUnits;
 
@@ -56,14 +56,14 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
 
     tableViewQuasiMandatoryModules.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) ->
-            abstractUnits.setAll(quasiMandatoryModuleAbstractUnits.get(newValue)));
+            abstractUnits.setAll(quasiMandatoryModuleAbstractUnitsMap.get(newValue)));
 
     txtExplanation.wrappingWidthProperty().bind(
         tableViewAbstractUnits.widthProperty().subtract(25.0));
   }
 
-  public void setData(final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits) {
-    this.quasiMandatoryModuleAbstractUnits = quasiMandatoryModuleAbstractUnits;
-    modules.addAll(quasiMandatoryModuleAbstractUnits.keySet());
+  public void setData(final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnitsMap) {
+    this.quasiMandatoryModuleAbstractUnitsMap = quasiMandatoryModuleAbstractUnitsMap;
+    modules.addAll(quasiMandatoryModuleAbstractUnitsMap.keySet());
   }
 }

@@ -29,7 +29,7 @@ import java.util.Set;
 public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Initializable {
 
   private final SimpleListProperty<Module> modules;
-  private final ObservableMap<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflicts;
+  private final ObservableMap<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflictsMap;
 
   @FXML
   @SuppressWarnings("unused")
@@ -49,7 +49,7 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
   @Inject
   public ModuleAbstractUnitUnitSemesterConflicts(final Inflater inflater) {
     modules = new SimpleListProperty<>(FXCollections.observableArrayList());
-    moduleAbstractUnitUnitSemesterConflicts = FXCollections.observableHashMap();
+    moduleAbstractUnitUnitSemesterConflictsMap = FXCollections.observableHashMap();
 
     inflater.inflate("components/reports/ModuleAbstractUnitUnitSemesterConflicts",
         this, this, "reports", "Column");
@@ -65,8 +65,8 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
       @Override
       protected ObservableList<Conflict> computeValue() {
         final Module module = tableViewModules.getSelectionModel().getSelectedItem();
-        return FXCollections.observableList(
-            moduleAbstractUnitUnitSemesterConflicts.getOrDefault(module, Collections.emptyList()));
+        return FXCollections.observableList(moduleAbstractUnitUnitSemesterConflictsMap
+            .getOrDefault(module, Collections.emptyList()));
       }
     });
 
@@ -76,7 +76,7 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
   }
 
   public void setData(final Map<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflicts) {
-    this.moduleAbstractUnitUnitSemesterConflicts.putAll(moduleAbstractUnitUnitSemesterConflicts);
+    this.moduleAbstractUnitUnitSemesterConflictsMap.putAll(moduleAbstractUnitUnitSemesterConflicts);
     this.modules.setAll(moduleAbstractUnitUnitSemesterConflicts.keySet());
   }
 

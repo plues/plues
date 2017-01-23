@@ -9,7 +9,6 @@
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <VBox styleClass="windowPaddingSmall" spacing="10.0">
         <Text fx:id="txtExplanation" text="%explain.QuasiMandatoryModules"/>
-        <Text text="%modules" style="-fx-font-weight: bold;"/>
     </VBox>
     <TableView fx:id="tableViewQuasiMandatoryModules">
         <columns>
@@ -18,16 +17,13 @@
                     <PropertyValueFactory property="pordnr"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn text="%columnTitle" prefWidth="500.0" minWidth="100.0">
+            <TableColumn text="%columnModule" prefWidth="500.0" minWidth="100.0">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
             </TableColumn>
         </columns>
     </TableView>
-    <VBox styleClass="windowPaddingSmall" spacing="10.0">
-        <Text text="%abstractUnits" style="-fx-font-weight: bold;"/>
-    </VBox>
     <TableView fx:id="tableViewAbstractUnits">
         <columns>
             <TableColumn text="%columnKey" prefWidth="200.0" minWidth="100.0">
@@ -35,7 +31,7 @@
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn text="%columnTitle" prefWidth="500.0" minWidth="100.0">
+            <TableColumn text="%columnAbstractUnit" prefWidth="500.0" minWidth="100.0">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>

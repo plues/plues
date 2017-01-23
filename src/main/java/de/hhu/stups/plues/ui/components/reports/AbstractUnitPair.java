@@ -11,10 +11,12 @@ public class AbstractUnitPair {
     this.second = second;
   }
 
+  @SuppressWarnings("WeakerAccess")
   public AbstractUnit getSecond() {
     return second;
   }
 
+  @SuppressWarnings("WeakerAccess")
   public AbstractUnit getFirst() {
     return first;
   }

@@ -23,7 +23,7 @@ import java.util.Set;
 
 public class ImpossibleAbstractUnitsInModule extends VBox implements Initializable {
 
-  private Map<Module, Set<AbstractUnit>> impossibleAbstractUnitsInModule;
+  private Map<Module, Set<AbstractUnit>> impossibleAbstractUnitsInModuleMap;
   private SimpleListProperty<Module> modules;
   private SimpleListProperty<AbstractUnit> abstractUnits;
 
@@ -67,14 +67,14 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
     });
     listViewModules.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) ->
-            abstractUnits.setAll(impossibleAbstractUnitsInModule.get(newValue)));
+            abstractUnits.setAll(impossibleAbstractUnitsInModuleMap.get(newValue)));
 
     txtExplanation.wrappingWidthProperty().bind(
         tableViewAbstractUnits.widthProperty().subtract(25.0));
   }
 
-  public void setData(final Map<Module, Set<AbstractUnit>> impossibleAbstractUnitsInModule) {
-    this.impossibleAbstractUnitsInModule = impossibleAbstractUnitsInModule;
-    modules.addAll(impossibleAbstractUnitsInModule.keySet());
+  public void setData(final Map<Module, Set<AbstractUnit>> impossibleAbstractUnitsInModuleMap) {
+    this.impossibleAbstractUnitsInModuleMap = impossibleAbstractUnitsInModuleMap;
+    modules.addAll(impossibleAbstractUnitsInModuleMap.keySet());
   }
 }
