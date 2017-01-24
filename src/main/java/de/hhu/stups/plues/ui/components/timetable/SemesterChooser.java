@@ -27,13 +27,13 @@ public class SemesterChooser extends SegmentedButton {
   }
 
   @SuppressWarnings("unused")
-  public SemesterChooser(ToggleButton... semesters) {
+  public SemesterChooser(final ToggleButton... semesters) {
     super(semesters);
     init();
   }
 
   @SuppressWarnings("unused")
-  public SemesterChooser(ObservableList<ToggleButton> semesters) {
+  public SemesterChooser(final ObservableList<ToggleButton> semesters) {
     super(semesters);
     init();
   }
