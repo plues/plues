@@ -50,7 +50,7 @@ public class ResultBox extends VBox implements Initializable {
   private String generatePartial;
   private String restartComputation;
   private String show;
-  private String save;
+  private String saveAs;
   private String cancel;
   private PdfRenderingTask task;
   private ResultState resultState;
@@ -125,7 +125,7 @@ public class ResultBox extends VBox implements Initializable {
     generatePartial = resources.getString("generatePartial");
     restartComputation = resources.getString("restartComputation");
     show = resources.getString("show");
-    save = resources.getString("save");
+    saveAs = resources.getString("saveAs");
     cancel = resources.getString("cancel");
 
     lbMajor.textProperty().bind(Bindings.selectString(majorCourseProperty, "fullName"));
@@ -154,7 +154,7 @@ public class ResultBox extends VBox implements Initializable {
     task.setOnSucceeded(event -> Platform.runLater(() -> {
       pdf.set((Path) event.getSource().getValue());
       cbAction.setItems(FXCollections.observableList(
-          Arrays.asList(show, save, openInTimetable, generatePartial, remove)));
+          Arrays.asList(show, saveAs, openInTimetable, generatePartial, remove)));
       cbAction.getSelectionModel().selectFirst();
       resultState = ResultState.SUCCEEDED;
     }));
@@ -207,7 +207,7 @@ public class ResultBox extends VBox implements Initializable {
     if (selectedItem.equals(show)) {
       showPdf();
     }
-    if (selectedItem.equals(save)) {
+    if (selectedItem.equals(saveAs)) {
       savePdf();
     }
     if (selectedItem.equals(remove)) {
