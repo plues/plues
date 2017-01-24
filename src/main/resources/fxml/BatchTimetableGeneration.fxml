@@ -6,26 +6,24 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.control.ListView?>
 
-<fx:root alignment="center" type="javafx.scene.layout.GridPane" vgap="10.0"
+<fx:root alignment="center" type="javafx.scene.layout.GridPane" vgap="10.0" hgap="10.0"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-        <Button fx:id="btGenerateAll" prefHeight="50.0" prefWidth="200.0" onAction="#generateAll"
-                text="%generate" GridPane.halignment="RIGHT" GridPane.columnIndex="0"
-                GridPane.rowIndex="1" defaultButton="true"/>
-        <Button fx:id="btCancel" prefHeight="50.0" prefWidth="200.0" onAction="#cancelGeneration"
-                text="%cancel" GridPane.halignment="LEFT" GridPane.columnIndex="1"
-                GridPane.rowIndex="1"/>
-        <Button fx:id="btSaveToFolder" prefHeight="50.0" prefWidth="200.0"
-                onAction="#savePersistentFolder"
-                text="%export" GridPane.halignment="RIGHT" GridPane.columnIndex="0"
-                GridPane.rowIndex="2"/>
-        <Button fx:id="btSaveToZip" prefHeight="50.0" prefWidth="200.0"
-                onAction="#savePersistentZip" text="%zip" GridPane.halignment="LEFT"
-                GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        <ListView fx:id="listView" maxWidth="Infinity" maxHeight="Infinity" id="batchListView"
-                  GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
-        </ListView>
-    </children>
+    <Button fx:id="btGenerateAll" prefHeight="50.0" prefWidth="200.0" onAction="#generateAll"
+            text="%generate" GridPane.halignment="RIGHT" GridPane.columnIndex="0"
+            GridPane.rowIndex="1" defaultButton="true"/>
+    <Button fx:id="btCancel" prefHeight="50.0" prefWidth="200.0" onAction="#cancelGeneration"
+            text="%cancel" GridPane.halignment="LEFT" GridPane.columnIndex="1"
+            GridPane.rowIndex="1"/>
+    <Button fx:id="btSaveToFolder" prefHeight="50.0" prefWidth="200.0"
+            onAction="#savePersistentFolder"
+            text="%export" GridPane.halignment="RIGHT" GridPane.columnIndex="0"
+            GridPane.rowIndex="2"/>
+    <Button fx:id="btSaveToZip" prefHeight="50.0" prefWidth="200.0"
+            onAction="#savePersistentZip" text="%zip" GridPane.halignment="LEFT"
+            GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+    <ListView fx:id="listView" maxWidth="Infinity" maxHeight="Infinity" id="batchListView"
+              GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
+    </ListView>
     <columnConstraints>
         <ColumnConstraints percentWidth="40"/>
         <ColumnConstraints percentWidth="40"/>
