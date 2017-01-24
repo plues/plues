@@ -13,7 +13,7 @@
 <?import org.controlsfx.control.SegmentedButton?>
 
 <fx:root minHeight="600" type="javafx.scene.control.SplitPane" xmlns="http://javafx.com/javafx/8"
-         xmlns:fx="http://javafx.com/fxml/1">
+         xmlns:fx="http://javafx.com/fxml/1" dividerPositions="0.15">
     <TimetableSideBar fx:id="timetableSideBar"/>
     <VBox>
         <children>
