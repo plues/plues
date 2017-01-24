@@ -9,37 +9,39 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.ProgressIndicator?>
 
-<fx:root alignment="center" type="javafx.scene.layout.GridPane" vgap="10.0"
+<fx:root alignment="center" type="GridPane" vgap="10.0" styleClass="windowPadding"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <columnConstraints>
-        <ColumnConstraints percentWidth="30.0"/>
-        <ColumnConstraints percentWidth="30.0"/>
+        <ColumnConstraints percentWidth="80.0"/>
     </columnConstraints>
     <rowConstraints>
         <RowConstraints percentHeight="15.0"/>
         <RowConstraints percentHeight="5.0"/>
-        <RowConstraints percentHeight="60.0"/>
+        <RowConstraints percentHeight="75.0"/>
+        <RowConstraints percentHeight="5.0"/>
     </rowConstraints>
     <MajorMinorCourseSelection fx:id="courseSelection" GridPane.columnIndex="0"
-                               GridPane.halignment="CENTER" GridPane.rowIndex="0"
-                               GridPane.columnSpan="2"/>
-    <Button fx:id="btChoose" onAction="#btChoosePressed" prefWidth="300" maxHeight="10000.0"
+                               GridPane.halignment="CENTER" GridPane.rowIndex="0"/>
+    <Button fx:id="btChoose" onAction="#btChoosePressed" prefWidth="300" maxHeight="Infinity"
             text="%choose" GridPane.halignment="CENTER" GridPane.columnIndex="0"
-            GridPane.rowIndex="1" GridPane.columnSpan="2" defaultButton="true"/>
-    <ScrollPane fx:id="scrollPane" GridPane.columnIndex="0" GridPane.columnSpan="2"
-                GridPane.rowIndex="2" visible="false"
-                maxHeight="10000.0" maxWidth="10000.0">
+            GridPane.rowIndex="1" defaultButton="true"/>
+    <ScrollPane fx:id="scrollPane" styleClass="windowPadding" GridPane.columnIndex="0"
+                GridPane.rowIndex="2" visible="false" maxHeight="Infinity" maxWidth="Infinity">
         <VBox fx:id="modulesUnits" spacing="25"/>
     </ScrollPane>
-    <Button fx:id="btCheck" onAction="#btCheckPressed" prefWidth="300" maxHeight="10000.0"
-            text="%check" GridPane.halignment="CENTER" GridPane.columnIndex="0"
-            GridPane.rowIndex="3" GridPane.columnSpan="2" visible="false"/>
-    <HBox fx:id="buttons" prefWidth="250" maxWidth="250"
-          spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="4"
-          GridPane.columnSpan="2" GridPane.halignment="CENTER">
-        <Label fx:id="icon" prefWidth="50" alignment="CENTER"/>
-        <Button fx:id="show" text="%show" onMouseClicked="#showPdf" prefWidth="100"/>
-        <Button fx:id="save" text="%save" onMouseClicked="#savePdf" prefWidth="100"/>
+    <HBox fx:id="buttonBox" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="3"
+          alignment="CENTER">
+        <Button fx:id="btCheck" onAction="#btCheckPressed" maxHeight="Infinity" text="%check"
+                visible="false"/>
+        <Button fx:id="btShow" text="%show" onMouseClicked="#showPdf"/>
+        <Button fx:id="btSave" text="%saveAs" onMouseClicked="#savePdf"/>
+        <StackPane>
+            <ProgressIndicator fx:id="progressIndicator" prefWidth="25.0" prefHeight="25.0"
+                               visible="false"/>
+            <Label fx:id="lbIcon"/>
+        </StackPane>
     </HBox>
 </fx:root>
