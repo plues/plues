@@ -17,9 +17,9 @@
     </Label>
     <TreeTableView fx:id="conflictTreeTableView" prefHeight="175.0">
         <columns>
-            <TreeTableColumn fx:id="treeColumnTitle" text="%columnTitle"/>
-            <TreeTableColumn fx:id="treeColumnKey" text="%columnKey"/>
-            <TreeTableColumn fx:id="treeColumnSemesters" text="%columnSemesters"/>
+            <TreeTableColumn fx:id="treeColumnTitle" text="%columnTitle" resizable="false"/>
+            <TreeTableColumn fx:id="treeColumnKey" text="%columnKey" resizable="false"/>
+            <TreeTableColumn fx:id="treeColumnSemesters" text="%columnSemesters" resizable="false"/>
         </columns>
         <TreeItem fx:id="conflictTreeRootItem" value="%conflictPaneTitle" expanded="true"/>
     </TreeTableView>

@@ -32,7 +32,13 @@ public class ModuleUnsatCore extends VBox implements Initializable {
   private TableView<Module> modulesTable;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Module, Boolean> moduleTypeColumn;
+  private TableColumn<Module, String> tableColumnModulePordnr;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnModuleName;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, Boolean> tableColumnModuleType;
   @FXML
   @SuppressWarnings("unused")
   private UnsatCoreButtonBar unsatCoreButtonBar;
@@ -59,7 +65,7 @@ public class ModuleUnsatCore extends VBox implements Initializable {
     modulesTable.itemsProperty().bind(modules);
     modulesTable.setOnMouseClicked(DetailViewHelper.getModuleMouseHandler(
         modulesTable, router));
-    moduleTypeColumn.setCellFactory(param -> new TableCell<Module, Boolean>() {
+    tableColumnModuleType.setCellFactory(param -> new TableCell<Module, Boolean>() {
       @Override
       protected void updateItem(final Boolean item, final boolean empty) {
         super.updateItem(item, empty);
@@ -72,6 +78,17 @@ public class ModuleUnsatCore extends VBox implements Initializable {
     });
 
     unsatCoreButtonBar.setText(resources.getString("button.unsatCoreAbstractUnits"));
+
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnModulePordnr.prefWidthProperty().bind(
+        modulesTable.widthProperty().multiply(0.2));
+    tableColumnModuleName.prefWidthProperty().bind(
+        modulesTable.widthProperty().multiply(0.69));
+    tableColumnModuleType.prefWidthProperty().bind(
+        modulesTable.widthProperty().multiply(0.07));
   }
 
   public void resetTaskState() {

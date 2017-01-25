@@ -12,37 +12,37 @@
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-        <TextField fx:id="query" promptText="%searchAbstractUnit"/>
-        <VBox styleClass="windowPaddingSmall" spacing="7.0">
-            <Label text="%filter"/>
-            <HBox spacing="10.0">
-                <RadioButton fx:id="selected" text="%selected"/>
-                <RadioButton fx:id="notSelected" text="%notSelected"/>
-                <RadioButton fx:id="all" text="%all" selected="true"/>
-            </HBox>
-            <CheckBox fx:id="selectedCoursesOnly" text="%selectedCoursesOnly"/>
-            <Button fx:id="clearSelection" text="%clear" onAction="#resetSelection"/>
-        </VBox>
-        <TableView fx:id="units" editable="true" VBox.vgrow="ALWAYS">
-            <columns>
-                <TableColumn fx:id="checkboxColumn" prefWidth="30" sortable="false"
-                             resizable="false">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="selected"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn minWidth="120" maxWidth="200" text="%columnKey" editable="false">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="key"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn minWidth="350" text="%columnTitle" editable="false">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="title"/>
-                    </cellValueFactory>
-                </TableColumn>
-            </columns>
-        </TableView>
-    </children>
+    <TextField fx:id="txtQuery" promptText="%searchAbstractUnit"/>
+    <VBox styleClass="windowPaddingSmall" spacing="7.0">
+        <Label text="%filter"/>
+        <HBox spacing="10.0">
+            <RadioButton fx:id="rbSelected" text="%selected"/>
+            <RadioButton fx:id="rbNotSelected" text="%notSelected"/>
+            <RadioButton fx:id="rbAll" text="%all" selected="true"/>
+        </HBox>
+        <CheckBox fx:id="cbSelectedCoursesOnly" text="%selectedCoursesOnly"/>
+        <Button fx:id="clearSelection" text="%clear" onAction="#resetSelection"/>
+    </VBox>
+    <TableView fx:id="unitsTable" editable="true" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="tableColumnCheckBox" sortable="false" maxWidth="30.0"
+                         minWidth="30.0" resizable="false">
+                <cellValueFactory>
+                    <PropertyValueFactory property="selected"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="tableColumnKey" text="%columnKey" editable="false"
+                         resizable="false">
+                <cellValueFactory>
+                    <PropertyValueFactory property="key"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="tableColumnTitle" text="%columnTitle" editable="false"
+                         resizable="false">
+                <cellValueFactory>
+                    <PropertyValueFactory property="title"/>
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
 </fx:root>

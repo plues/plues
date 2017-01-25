@@ -12,12 +12,12 @@
     </VBox>
     <TableView fx:id="tableViewQuasiMandatoryModules">
         <columns>
-            <TableColumn text="%columnPordnr" prefWidth="200.0" minWidth="100.0">
+            <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="pordnr"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn text="%columnModule" prefWidth="500.0" minWidth="100.0">
+            <TableColumn fx:id="tableColumnModuleTitle" text="%columnModule" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
@@ -26,12 +26,13 @@
     </TableView>
     <TableView fx:id="tableViewAbstractUnits">
         <columns>
-            <TableColumn text="%columnKey" prefWidth="200.0" minWidth="100.0">
+            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn text="%columnAbstractUnit" prefWidth="500.0" minWidth="100.0">
+            <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnAbstractUnit"
+                         resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>

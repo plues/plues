@@ -221,7 +221,7 @@ public class TimetableSideBar extends TabPane implements Initializable {
         final double destination = hide ? getMinWidth() / parent.getWidth()
             : parent.getUserDefinedDividerPos();
 
-        KeyValue dividerPosition =
+        final KeyValue dividerPosition =
             new KeyValue(parent.getDivider().positionProperty(), destination);
 
         timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250), dividerPosition));

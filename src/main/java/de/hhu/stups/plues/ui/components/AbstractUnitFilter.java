@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.ObjectBinding;
@@ -50,25 +51,31 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private TextField query;
+  private TextField txtQuery;
   @FXML
   @SuppressWarnings("unused")
-  private RadioButton selected;
+  private RadioButton rbSelected;
   @FXML
   @SuppressWarnings("unused")
-  private RadioButton notSelected;
+  private RadioButton rbNotSelected;
   @FXML
   @SuppressWarnings("unused")
-  private RadioButton all;
+  private RadioButton rbAll;
   @FXML
   @SuppressWarnings("unused")
-  private CheckBox selectedCoursesOnly;
+  private CheckBox cbSelectedCoursesOnly;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<SelectableAbstractUnit> units;
+  private TableView<SelectableAbstractUnit> unitsTable;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<SelectableAbstractUnit, Boolean> checkboxColumn;
+  private TableColumn<SelectableAbstractUnit, Boolean> tableColumnCheckBox;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<SelectableAbstractUnit, Boolean> tableColumnKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<SelectableAbstractUnit, Boolean> tableColumnTitle;
 
   /**
    * AbstractUnitFilter component.
@@ -87,10 +94,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     inflater.inflate("components/AbstractUnitFilter", this, this, "filter", "Column");
   }
 
-  private ObservableList<AbstractUnit> getAbstractUnits() {
-    return abstractUnits.get();
-  }
-
   /**
    * Setter for abstract units. Required to display content.
    *
@@ -98,10 +101,6 @@ public class AbstractUnitFilter extends VBox implements Initializable {
    */
   public void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
     this.abstractUnits.setAll(abstractUnits);
-  }
-
-  public ListProperty<AbstractUnit> abstractUnitsProperty() {
-    return abstractUnits;
   }
 
   public ObservableList<AbstractUnit> getSelectedAbstractUnits() {
@@ -122,6 +121,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
   /**
    * Setter for courseFilter.
+   *
    * @param courseFilter List of courses to be filtered by in TableView
    */
   public void setCourseFilter(ObservableList<Course> courseFilter) {
@@ -129,7 +129,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   }
 
   /**
-   * OnClick method to remove selection and return to all units view.
+   * OnClick method to remove selection and return to rbAll units view.
    */
   @FXML
   @SuppressWarnings("unused")
@@ -137,20 +137,20 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     selectableAbstractUnits.forEach(selectableAbstractUnit
         -> selectableAbstractUnit.setSelected(false));
     selectedAbstractUnits.clear();
-    query.clear();
+    txtQuery.clear();
 
-    selected.setSelected(false);
-    notSelected.setSelected(false);
-    all.setSelected(true);
+    rbSelected.setSelected(false);
+    rbNotSelected.setSelected(false);
+    rbAll.setSelected(true);
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    selected.setToggleGroup(filterGroup);
-    notSelected.setToggleGroup(filterGroup);
-    all.setToggleGroup(filterGroup);
+    rbSelected.setToggleGroup(filterGroup);
+    rbNotSelected.setToggleGroup(filterGroup);
+    rbAll.setToggleGroup(filterGroup);
 
-    checkboxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(checkboxColumn));
+    tableColumnCheckBox.setCellFactory(CheckBoxTableCell.forTableColumn(tableColumnCheckBox));
 
     selectableAbstractUnits.bind(new ListBinding<SelectableAbstractUnit>() {
       // extractor used to compute an observable list that propagates changes on the extracted
@@ -169,14 +169,14 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       }
 
 
-      // NOTE: A change to the abstractUnits list, this binding is bound to, will recreate all
-      // SelectableAbstractUnit objects. This behaviour will loose the state of all
+      // NOTE: A change to the abstractUnits list, this binding is bound to, will recreate rbAll
+      // SelectableAbstractUnit objects. This behaviour will loose the state of rbAll
       // selectedProperties.
       @Override
       protected ObservableList<SelectableAbstractUnit> computeValue() {
         return FXCollections.observableList(
-          abstractUnits.stream().map(SelectableAbstractUnit::new)
-            .collect(toList()), extractor);
+            abstractUnits.stream().map(SelectableAbstractUnit::new)
+                .collect(toList()), extractor);
       }
     });
 
@@ -185,29 +185,30 @@ public class AbstractUnitFilter extends VBox implements Initializable {
         = new FilteredList<>(selectableAbstractUnits);
     filteredUnits.predicateProperty().bind(
         new ObjectBinding<Predicate<? super SelectableAbstractUnit>>() {
-        {
-          bind(query.textProperty(), all.selectedProperty(), selected.selectedProperty(),
-              notSelected.selectedProperty());
-          bind(selectedCoursesOnly.selectedProperty(), courseFilter);
-        }
+          {
+            bind(txtQuery.textProperty(), rbAll.selectedProperty(), rbSelected.selectedProperty(),
+                rbNotSelected.selectedProperty());
+            bind(cbSelectedCoursesOnly.selectedProperty(), courseFilter);
+          }
 
-        @Override
-        public void dispose() {
-          super.dispose();
-          unbind(query.textProperty(), all.selectedProperty(), selected.selectedProperty(),
-              notSelected.selectedProperty());
-          unbind(selectedCoursesOnly.selectedProperty(), courseFilter);
-        }
+          @Override
+          public void dispose() {
+            super.dispose();
+            unbind(txtQuery.textProperty(), rbAll.selectedProperty(), rbSelected.selectedProperty(),
+                rbNotSelected.selectedProperty());
+            unbind(cbSelectedCoursesOnly.selectedProperty(), courseFilter);
+          }
 
-        @Override
-        protected Predicate<? super SelectableAbstractUnit> computeValue() {
-          return selectableAbstractUnit -> selectableAbstractUnit.matches(query, all.isSelected(),
-                selected.isSelected(), notSelected.isSelected(),
-                selectedCoursesOnly.isSelected(), getCourseFilter());
-        }
-      });
+          @Override
+          protected Predicate<? super SelectableAbstractUnit> computeValue() {
+            return selectableAbstractUnit ->
+                selectableAbstractUnit.matches(txtQuery, rbAll.isSelected(),
+                    rbSelected.isSelected(), rbNotSelected.isSelected(),
+                    cbSelectedCoursesOnly.isSelected(), getCourseFilter());
+          }
+        });
 
-    units.itemsProperty().bind(new SimpleListProperty<>(filteredUnits));
+    unitsTable.itemsProperty().bind(new SimpleListProperty<>(filteredUnits));
 
     selectedAbstractUnits.bind(new ListBinding<AbstractUnit>() {
       {
@@ -217,13 +218,20 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       @Override
       protected ObservableList<AbstractUnit> computeValue() {
         return
-          selectableAbstractUnits.filtered(SelectableAbstractUnit::isSelected).stream()
-            .map(SelectableAbstractUnit::getAbstractUnit)
-            .collect(
-              Collectors.collectingAndThen(
-                Collectors.toList(), FXCollections::observableList));
+            selectableAbstractUnits.filtered(SelectableAbstractUnit::isSelected).stream()
+                .map(SelectableAbstractUnit::getAbstractUnit)
+                .collect(
+                    Collectors.collectingAndThen(
+                        Collectors.toList(), FXCollections::observableList));
       }
     });
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnCheckBox.prefWidthProperty().bind(unitsTable.widthProperty().multiply(0.07));
+    tableColumnKey.prefWidthProperty().bind(unitsTable.widthProperty().multiply(0.2));
+    tableColumnTitle.prefWidthProperty().bind(unitsTable.widthProperty().multiply(0.69));
   }
 
   @SuppressWarnings("WeakerAccess")
@@ -236,8 +244,8 @@ public class AbstractUnitFilter extends VBox implements Initializable {
       this.selected = new SimpleBooleanProperty(false);
       this.abstractUnit = abstractUnit;
       abstractUnitCourses = abstractUnit.getModules().stream()
-        .flatMap(module -> module.getCourses().stream())
-        .collect(Collectors.toSet());
+          .flatMap(module -> module.getCourses().stream())
+          .collect(Collectors.toSet());
     }
 
     private boolean isSelected() {
@@ -264,8 +272,8 @@ public class AbstractUnitFilter extends VBox implements Initializable {
                     final boolean showNotSelected, final boolean selectedCoursesOnly,
                     final List<Course> courseFilter) {
       return this.titleOrKeyMatchesQuery(query)
-        && this.checkboxMatchesCriteria(all, showSelected, showNotSelected)
-        && this.selectedCoursesCriteria(courseFilter, selectedCoursesOnly);
+          && this.checkboxMatchesCriteria(all, showSelected, showNotSelected)
+          && this.selectedCoursesCriteria(courseFilter, selectedCoursesOnly);
     }
 
     private boolean checkboxMatchesCriteria(final boolean all, final boolean showSelected,
@@ -286,10 +294,11 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     private boolean selectedCoursesCriteria(final List<Course> selectedCourses,
                                             final boolean selectedCoursesOnly) {
       return !selectedCoursesOnly
-        || selectedCourses.stream().anyMatch(abstractUnitCourses::contains);
+          || selectedCourses.stream().anyMatch(abstractUnitCourses::contains);
 
     }
 
+    @SuppressWarnings("unused")
     private AbstractUnit getAbstractUnit() {
       return abstractUnit;
     }

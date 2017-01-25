@@ -369,12 +369,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
       checkFeasibilityTasks.clear();
     });
 
-    prepareFeasibilityCheck.setOnSucceeded(event -> {
-      checkFeasibilityTasks.addAll(prepareFeasibilityCheck.getValue());
-      executeFeasibilityCheck.setTasks(checkFeasibilityTasks);
-      executor.submit(executeFeasibilityCheck);
-    });
-
     executeFeasibilityCheck = new BatchFeasibilityTask(executor, checkFeasibilityTasks);
 
     executeFeasibilityCheck.setOnCancelled(event -> {
@@ -396,6 +390,14 @@ public class ConflictMatrix extends GridPane implements Initializable {
       feasibilityCheckRunning.setValue(false);
       checkFeasibilityTasks.clear();
     });
+
+    //
+    prepareFeasibilityCheck.setOnSucceeded(event -> {
+      checkFeasibilityTasks.addAll(prepareFeasibilityCheck.getValue());
+      executeFeasibilityCheck.setTasks(checkFeasibilityTasks);
+      executor.submit(executeFeasibilityCheck);
+    });
+
 
     executor.submit(prepareFeasibilityCheck);
   }

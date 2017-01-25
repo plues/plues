@@ -134,19 +134,19 @@ public class SessionDetailViewTest extends ApplicationTest {
 
   @Test
   public void testSessionInfo() {
-    final Label sessionLabel = lookup("#session").query();
+    final Label sessionLabel = lookup("#lbSession").query();
     Assert.assertEquals("mon, 22:30", sessionLabel.getText());
 
-    final Label titleLabel = lookup("#title").query();
+    final Label titleLabel = lookup("#lbTitle").query();
     Assert.assertEquals("Unit", titleLabel.getText());
 
-    final Label groupLabel = lookup("#group").query();
+    final Label groupLabel = lookup("#lbGroup").query();
     Assert.assertEquals(1025, Integer.parseInt(groupLabel.getText()));
 
-    final Label semesterLabel = lookup("#semesters").query();
+    final Label semesterLabel = lookup("#lbSemesters").query();
     Assert.assertEquals("1, 2", semesterLabel.getText());
 
-    final Label tentativeLabel = lookup("#tentative").query();
+    final Label tentativeLabel = lookup("#lbTentative").query();
     Assert.assertEquals("✗", tentativeLabel.getText());
   }
 

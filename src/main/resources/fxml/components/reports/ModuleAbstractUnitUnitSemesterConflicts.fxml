@@ -12,12 +12,12 @@
     </VBox>
     <TableView fx:id="tableViewModules">
         <columns>
-            <TableColumn minWidth="100.0" prefWidth="100.0" text="%columnPordnr">
+            <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr">
                 <cellValueFactory>
                     <PropertyValueFactory property="pordnr"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn minWidth="300.0" prefWidth="400.0" text="%columnModule">
+            <TableColumn fx:id="tableColumnModuleTitle" text="%columnModule">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
@@ -26,38 +26,46 @@
     </TableView>
     <TableView fx:id="tableViewAbstractUnitUnitSemesters">
         <columns>
-            <TableColumn text="%columnAbstractUnit">
+            <TableColumn fx:id="tableColumnAbstractUnit" text="%columnAbstractUnit"
+                         resizable="false">
                 <columns>
-                    <TableColumn text="%columnKey" minWidth="50.0" prefWidth="100.0">
+                    <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey"
+                                 resizable="false">
                         <cellValueFactory>
                             <PropertyValueFactory property="abstractUnitKey"/>
                         </cellValueFactory>
                     </TableColumn>
-                    <TableColumn text="%columnTitle" minWidth="100.0" prefWidth="300.0">
+                    <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnTitle"
+                                 resizable="false">
                         <cellValueFactory>
                             <PropertyValueFactory property="abstractUnitTitle"/>
                         </cellValueFactory>
                     </TableColumn>
-                    <TableColumn text="%columnSemesters" minWidth="50.0" prefWidth="50.0">
+                    <TableColumn fx:id="tableColumnAbstractUnitSemesters" text="%columnSemesters"
+                                 resizable="false">
                         <cellValueFactory>
                             <PropertyValueFactory property="abstractUnitSemesters"/>
                         </cellValueFactory>
                     </TableColumn>
                 </columns>
             </TableColumn>
-            <TableColumn text="%columnExplicitUnit">
+            <TableColumn fx:id="tableColumnExplicitUnit" text="%columnExplicitUnit"
+                         resizable="false">
                 <columns>
-                    <TableColumn text="%columnKey" minWidth="50.0" prefWidth="100.0">
+                    <TableColumn fx:id="tableColumnExplicitUnitKey" text="%columnKey"
+                                 resizable="false">
                         <cellValueFactory>
                             <PropertyValueFactory property="unitKey"/>
                         </cellValueFactory>
                     </TableColumn>
-                    <TableColumn text="%columnTitle" minWidth="100.0" prefWidth="300.0">
+                    <TableColumn fx:id="tableColumnExplicitUnitTitle" text="%columnTitle"
+                                 resizable="false">
                         <cellValueFactory>
                             <PropertyValueFactory property="unitTitle"/>
                         </cellValueFactory>
                     </TableColumn>
-                    <TableColumn text="%columnSemesters" minWidth="50.0" prefWidth="50.0">
+                    <TableColumn fx:id="tableColumnExplicitUnitSemesters" text="%columnSemesters"
+                                 resizable="false">
                         <cellValueFactory>
                             <PropertyValueFactory property="unitSemesters"/>
                         </cellValueFactory>

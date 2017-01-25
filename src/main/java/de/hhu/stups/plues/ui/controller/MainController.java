@@ -194,7 +194,7 @@ public class MainController implements Initializable {
   private final IntegerProperty customTimeoutProperty;
   private double visibleDividerPos;
   private boolean fadingInProgress = false;
-  private Provider<Reports> reportsProvider;
+  private final Provider<Reports> reportsProvider;
   private final Task emptyTask = new Task() {
     // just an empty task to simulate a pending progress bar
     @Override
@@ -292,12 +292,13 @@ public class MainController implements Initializable {
     taskProgress.prefHeightProperty().bind(scrollPaneTaskProgress.heightProperty());
 
     boxTaskProgress.maxWidthProperty().bind(mainSplitPane.widthProperty().divide(3.0));
+    boxTaskProgress.prefWidth(0);
+    boxTaskProgress.prefWidthProperty().bind(mainSplitPane.widthProperty().divide(4.0));
 
     mainSplitPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-      boxTaskProgress.prefWidth(mainSplitPane.getWidth() / 3.0);
       // calculate the divider position for the case that the task box is not collapsed
       // and has its full width
-      visibleDividerPos = (mainSplitPane.getWidth() - boxTaskProgress.getMaxWidth())
+      visibleDividerPos = (mainSplitPane.getWidth() - boxTaskProgress.getPrefWidth())
           / mainSplitPane.getWidth();
       if (taskBoxCollapsed.get() && mainSplitPaneDivider != null) {
         mainSplitPaneDivider.setPosition(1.0);
@@ -455,7 +456,7 @@ public class MainController implements Initializable {
         final Timeline timeline = new Timeline();
         final double destination = hide ? 1.0 : visibleDividerPos;
 
-        KeyValue dividerPosition =
+        final KeyValue dividerPosition =
             new KeyValue(mainSplitPaneDivider.positionProperty(), destination);
 
         timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250), dividerPosition));
@@ -898,14 +899,16 @@ public class MainController implements Initializable {
 
     ExportXmlTask(final File selectedFile) {
       this.selectedFile = selectedFile;
+
+      updateTitle(resources.getString("export.title"));
+      updateProgress(0, 3);
+      updateMessage(resources.getString("export.gen"));
     }
 
     @Override
     protected Void call() throws Exception {
 
-      updateTitle(resources.getString("export.title"));
       updateProgress(1, 3);
-      updateMessage(resources.getString("export.gen"));
 
       writeZipFile();
       return null;

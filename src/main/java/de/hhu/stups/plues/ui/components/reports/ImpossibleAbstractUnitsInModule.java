@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -33,6 +34,12 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
   @FXML
   @SuppressWarnings("unused")
   private TableView<AbstractUnit> tableViewAbstractUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<AbstractUnit, String> tableColumnAbstractUnitKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<AbstractUnit, String> tableColumnAbstractUnitTitle;
   @FXML
   @SuppressWarnings("unused")
   private Text txtExplanation;
@@ -71,6 +78,15 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
 
     txtExplanation.wrappingWidthProperty().bind(
         tableViewAbstractUnits.widthProperty().subtract(25.0));
+
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnAbstractUnitKey.prefWidthProperty().bind(
+        tableViewAbstractUnits.widthProperty().multiply(0.2));
+    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
+        tableViewAbstractUnits.widthProperty().multiply(0.76));
   }
 
   public void setData(final Map<Module, Set<AbstractUnit>> impossibleAbstractUnitsInModuleMap) {

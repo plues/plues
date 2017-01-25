@@ -10,14 +10,14 @@
     <VBox styleClass="windowPaddingSmall" spacing="10.0">
         <Text fx:id="txtExplanation" text="%explain.MandatoryModules"/>
     </VBox>
-    <TableView fx:id="tableViewcourses">
+    <TableView fx:id="tableViewCourses">
         <columns>
-            <TableColumn text="%columnKey" minWidth="100.0" prefWidth="150.0">
+            <TableColumn fx:id="tableColumnCourseKey" text="%columnKey" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn text="%columnCourse" minWidth="100.0" prefWidth="500.0">
+            <TableColumn fx:id="tableColumnCourseName" text="%columnCourse" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="fullName"/>
                 </cellValueFactory>
@@ -26,19 +26,18 @@
     </TableView>
     <TableView fx:id="tableViewMandatoryModules">
         <columns>
-            <TableColumn text="%columnPordnr" prefWidth="300.0" minWidth="100.0">
+            <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="pordnr"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn text="%columnModule" prefWidth="300.0" minWidth="100.0">
+            <TableColumn fx:id="tableColumnModuleTitle" text="%columnModule" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn text="%columnElectability" fx:id="tableColumnElectability" prefWidth="50.0"
-                         minWidth="20.0">
-            </TableColumn>
+            <TableColumn fx:id="tableColumnElectability" text="%columnElectability"
+                         resizable="false"/>
         </columns>
     </TableView>
 </fx:root>

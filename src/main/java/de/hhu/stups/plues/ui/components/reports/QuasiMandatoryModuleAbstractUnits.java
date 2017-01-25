@@ -10,6 +10,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -30,7 +31,19 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
   private TableView<Module> tableViewQuasiMandatoryModules;
   @FXML
   @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnModulePordnr;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnModuleTitle;
+  @FXML
+  @SuppressWarnings("unused")
   private TableView<AbstractUnit> tableViewAbstractUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnAbstractUnitKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnAbstractUnitTitle;
   @FXML
   @SuppressWarnings("unused")
   private Text txtExplanation;
@@ -60,6 +73,20 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
 
     txtExplanation.wrappingWidthProperty().bind(
         tableViewAbstractUnits.widthProperty().subtract(25.0));
+
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnModulePordnr.prefWidthProperty().bind(
+        tableViewQuasiMandatoryModules.widthProperty().multiply(0.2));
+    tableColumnModuleTitle.prefWidthProperty().bind(
+        tableViewQuasiMandatoryModules.widthProperty().multiply(0.76));
+
+    tableColumnAbstractUnitKey.prefWidthProperty().bind(
+        tableViewAbstractUnits.widthProperty().multiply(0.2));
+    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
+        tableViewAbstractUnits.widthProperty().multiply(0.76));
   }
 
   public void setData(final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnitsMap) {

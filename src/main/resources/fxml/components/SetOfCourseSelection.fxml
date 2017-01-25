@@ -13,20 +13,20 @@
     <TitledPane fx:id="titledPaneMasterCourse" expanded="false" text="%master">
         <TableView fx:id="tableViewMasterCourse" prefWidth="500.0" editable="true">
             <columns>
-                <TableColumn fx:id="tableColumnMasterCheckBox" prefWidth="30" sortable="false"
-                             resizable="false">
+                <TableColumn fx:id="tableColumnMasterCheckBox" sortable="false" maxWidth="30.0"
+                             minWidth="30.0" resizable="false">
                     <cellValueFactory>
                         <PropertyValueFactory property="selected"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="150" resizable="false" sortable="false"
-                             minWidth="150" text="%key">
+                <TableColumn fx:id="tableColumnMasterCourseKey" resizable="false" sortable="false"
+                             text="%key">
                     <cellValueFactory>
                         <PropertyValueFactory property="key"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="320.0" resizable="false" sortable="false"
-                             minWidth="100.0" text="%course">
+                <TableColumn fx:id="tableColumnMasterCourseTitle" resizable="false" sortable="false"
+                             text="%course">
                     <cellValueFactory>
                         <PropertyValueFactory property="name"/>
                     </cellValueFactory>
@@ -38,20 +38,20 @@
                 prefWidth="400.0">
         <TableView fx:id="tableViewBachelorCourse" prefWidth="500.0" editable="true">
             <columns>
-                <TableColumn fx:id="tableColumnBachelorCheckBox" sortable="false" resizable="false"
-                             prefWidth="30.0">
+                <TableColumn fx:id="tableColumnBachelorCheckBox" sortable="false" maxWidth="30.0"
+                             minWidth="30.0" resizable="false">
                     <cellValueFactory>
                         <PropertyValueFactory property="selected"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="150" resizable="false" sortable="false"
-                             minWidth="150" text="%key">
+                <TableColumn fx:id="tableColumnBachelorCourseKey" resizable="false" sortable="false"
+                             text="%key">
                     <cellValueFactory>
                         <PropertyValueFactory property="key"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="320.0" resizable="false" sortable="false"
-                             minWidth="100" text="%course">
+                <TableColumn fx:id="tableColumnBachelorCourseTitle" resizable="false"
+                             sortable="false" text="%course">
                     <cellValueFactory>
                         <PropertyValueFactory property="name"/>
                     </cellValueFactory>

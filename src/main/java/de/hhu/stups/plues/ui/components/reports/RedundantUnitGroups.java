@@ -8,6 +8,7 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -24,6 +25,12 @@ public class RedundantUnitGroups extends VBox implements Initializable {
   private TableView<Unit> tableViewRedundantUnitGroups;
   @FXML
   @SuppressWarnings("unused")
+  private TableColumn<Unit, String> tableColumnUnitKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Unit, String> tableColumnUnitTitle;
+  @FXML
+  @SuppressWarnings("unused")
   private Text txtExplanation;
 
   @Inject
@@ -35,6 +42,15 @@ public class RedundantUnitGroups extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     txtExplanation.wrappingWidthProperty().bind(
         tableViewRedundantUnitGroups.widthProperty().subtract(25.0));
+
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnUnitKey.prefWidthProperty().bind(
+        tableViewRedundantUnitGroups.widthProperty().multiply(0.2));
+    tableColumnUnitTitle.prefWidthProperty().bind(
+        tableViewRedundantUnitGroups.widthProperty().multiply(0.76));
   }
 
   public void setData(final Set<Unit> redundantUnitGroups) {
