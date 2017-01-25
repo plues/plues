@@ -6,9 +6,13 @@ import javafx.beans.binding.SetBinding;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import org.controlsfx.control.SegmentedButton;
 
 import java.util.stream.Collectors;
@@ -19,6 +23,7 @@ import java.util.stream.Collectors;
 public class SemesterChooser extends SegmentedButton {
 
   private final SetProperty<Integer> selectedSemesters = new SimpleSetProperty<>();
+  private SelectedSemestersBinding selectedSemestersBinding;
 
   @SuppressWarnings("unused")
   public SemesterChooser() {
@@ -40,7 +45,53 @@ public class SemesterChooser extends SegmentedButton {
 
   private void init() {
     setToggleGroup(null);
-    selectedSemesters.bind(new SelectedSemestersBinding());
+    selectedSemestersBinding = new SelectedSemestersBinding();
+    selectedSemesters.bind(selectedSemestersBinding);
+
+    getButtons().addListener((ListChangeListener<ToggleButton>) c -> {
+      while (c.next()) {
+        c.getAddedSubList().forEach(o -> {
+          o.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
+          o.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPressed);
+        });
+      }
+    });
+  }
+
+  private void handleMouseClicked(final MouseEvent event) {
+    final ToggleButton button = (ToggleButton) event.getSource();
+
+    final boolean newState;
+    if (!event.isControlDown()) {
+      newState = button.isSelected();
+      deselectAll();
+    } else {
+      newState = !button.isSelected();
+    }
+
+    button.setSelected(newState);
+    event.consume();
+  }
+
+  private void deselectAll() {
+    selectedSemesters.unbind();
+    getButtons().forEach(toggleButton -> toggleButton.setSelected(false));
+    selectedSemesters.bind(selectedSemestersBinding);
+  }
+
+  private void handleKeyPressed(final KeyEvent event) {
+    if (event.getCode() != KeyCode.SPACE) {
+      return;
+    }
+    final ToggleButton button = (ToggleButton) event.getSource();
+    final boolean newState = !button.isSelected();
+
+    if (!event.isControlDown()) {
+      deselectAll();
+    }
+
+    button.setSelected(newState);
+    event.consume();
   }
 
   public ObservableSet<Integer> getSelectedSemesters() {
