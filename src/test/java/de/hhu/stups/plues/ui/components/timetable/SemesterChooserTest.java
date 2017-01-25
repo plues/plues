@@ -22,7 +22,7 @@ public class SemesterChooserTest extends ApplicationTest {
 
   @Before
   public void setUp() throws Exception {
-
+    semesterChooser.getButtons().forEach(toggleButton -> toggleButton.setSelected(false));
   }
 
   @After
@@ -45,7 +45,6 @@ public class SemesterChooserTest extends ApplicationTest {
     final ObservableSet<Integer> selection2 = semesterChooser.getSelectedSemesters();
 
     assertEquals(2, selection2.size());
-    System.out.println(selection2);
     assertTrue(selection2.contains(1));
     assertTrue(selection2.contains(3));
   }
@@ -56,15 +55,15 @@ public class SemesterChooserTest extends ApplicationTest {
     assertEquals(0, selection1.size());
 
     clickOn(semesterChooser)
-        .type(KeyCode.TAB)
-        .type(KeyCode.TAB)
-        .type(KeyCode.TAB)
-        .type(KeyCode.SPACE);
+        .push(KeyCode.TAB)
+        .push(KeyCode.TAB)
+        .push(KeyCode.TAB)
+        .push(KeyCode.SPACE);
 
     final ObservableSet<Integer> selection2 = semesterChooser.getSelectedSemesters();
 
-    assertEquals(1, selection2.size());
     assertTrue(selection2.contains(4));
+    assertEquals(1, selection2.size());
   }
 
   @Test
@@ -75,8 +74,9 @@ public class SemesterChooserTest extends ApplicationTest {
     clickOn(semesterChooser.getButtons().get(2));
 
     final ObservableSet<Integer> selection2 = semesterChooser.getSelectedSemesters();
-    assertEquals(1, selection2.size());
+
     assertTrue(selection2.contains(3));
+    assertEquals(1, selection2.size());
   }
 
   @Test
@@ -87,6 +87,7 @@ public class SemesterChooserTest extends ApplicationTest {
     clickOn(semesterChooser.getButtons().get(2))
         .type(KeyCode.CONTROL)
         .clickOn(semesterChooser.getButtons().get(4))
+        .type(KeyCode.CONTROL)
         .clickOn(semesterChooser.getButtons().get(0));
 
     final ObservableSet<Integer> selection2 = semesterChooser.getSelectedSemesters();
