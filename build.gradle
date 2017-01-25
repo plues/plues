@@ -136,3 +136,6 @@ if(System.getenv('TRAVIS')) {
     exclude 'de/hhu/stups/plues/tasks/SolverTaskTest.class'
   }
 }
+test {
+  exclude 'de/hhu/stups/plues/ui/components/timetable/SemesterChooserTest.class'
+}
