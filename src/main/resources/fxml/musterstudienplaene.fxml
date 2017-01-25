@@ -13,15 +13,15 @@
         <ColumnConstraints percentWidth="80.0"/>
     </columnConstraints>
     <rowConstraints>
-        <RowConstraints percentHeight="15.0"/>
+        <RowConstraints percentHeight="10.0"/>
         <RowConstraints percentHeight="5.0"/>
-        <RowConstraints percentHeight="80.0"/>
+        <RowConstraints percentHeight="85.0"/>
     </rowConstraints>
     <MajorMinorCourseSelection fx:id="courseSelection" GridPane.columnIndex="0"
                                GridPane.halignment="CENTER" GridPane.rowIndex="0"/>
-    <Button fx:id="btGenerate" onAction="#btGeneratePressed" prefWidth="300" maxHeight="Infinity"
-            text="%generate" GridPane.halignment="CENTER" GridPane.columnIndex="0"
-            GridPane.rowIndex="1" defaultButton="true"/>
+    <Button fx:id="btGenerate" onAction="#btGeneratePressed" prefWidth="300" text="%generate"
+            GridPane.halignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1"
+            defaultButton="true"/>
     <ListView fx:id="resultBoxWrapper" id="batchListView" maxWidth="Infinity" maxHeight="Infinity"
               GridPane.columnIndex="0" GridPane.rowIndex="2"/>
 </fx:root>

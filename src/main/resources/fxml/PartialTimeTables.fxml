@@ -18,24 +18,23 @@
         <ColumnConstraints percentWidth="80.0"/>
     </columnConstraints>
     <rowConstraints>
-        <RowConstraints percentHeight="15.0"/>
+        <RowConstraints percentHeight="10.0"/>
         <RowConstraints percentHeight="5.0"/>
-        <RowConstraints percentHeight="75.0"/>
+        <RowConstraints percentHeight="80.0"/>
         <RowConstraints percentHeight="5.0"/>
     </rowConstraints>
     <MajorMinorCourseSelection fx:id="courseSelection" GridPane.columnIndex="0"
                                GridPane.halignment="CENTER" GridPane.rowIndex="0"/>
-    <Button fx:id="btChoose" onAction="#btChoosePressed" prefWidth="300" maxHeight="Infinity"
-            text="%choose" GridPane.halignment="CENTER" GridPane.columnIndex="0"
-            GridPane.rowIndex="1" defaultButton="true"/>
+    <Button fx:id="btChoose" onAction="#btChoosePressed" prefWidth="300" text="%choose"
+            GridPane.halignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1"
+            defaultButton="true"/>
     <ScrollPane fx:id="scrollPane" styleClass="windowPadding" GridPane.columnIndex="0"
                 GridPane.rowIndex="2" visible="false" maxHeight="Infinity" maxWidth="Infinity">
         <VBox fx:id="modulesUnits" spacing="25"/>
     </ScrollPane>
     <HBox fx:id="buttonBox" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="3"
           alignment="CENTER">
-        <Button fx:id="btCheck" onAction="#btCheckPressed" maxHeight="Infinity" text="%check"
-                visible="false"/>
+        <Button fx:id="btCheck" onAction="#btCheckPressed" text="%check" visible="false"/>
         <Button fx:id="btShow" text="%show" onMouseClicked="#showPdf"/>
         <Button fx:id="btSave" text="%saveAs" onMouseClicked="#savePdf"/>
         <StackPane>
