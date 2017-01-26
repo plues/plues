@@ -97,7 +97,7 @@ public class UiDataService {
     });
   }
 
-  public String getSessionDisplayFormatProperty() {
+  public String getSessionDisplayFormat() {
     return sessionDisplayFormatProperty.get();
   }
 
