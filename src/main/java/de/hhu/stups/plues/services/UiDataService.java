@@ -36,10 +36,6 @@ public class UiDataService {
       new SimpleListProperty<>(FXCollections.emptyObservableList());
   private final StringProperty sessionDisplayFormatProperty = new SimpleStringProperty();
 
-  // TODO: remove
-  @Deprecated
-  private final SetProperty<String> impossibleCourseNamesProperty
-      = new SimpleSetProperty<>(FXCollections.observableSet());
   private final SetProperty<Course> impossibleCoursesProperty
       = new SimpleSetProperty<>(FXCollections.observableSet());
 
@@ -77,20 +73,6 @@ public class UiDataService {
     return lastSavedDate;
   }
 
-  @Deprecated
-  public ObservableSet<String> getImpossibleCourseNames() {
-    return impossibleCourseNamesProperty.get();
-  }
-
-  private void setImpossibleCourseNames(final Set<String> value) {
-    this.impossibleCourseNamesProperty.set(FXCollections.observableSet(value));
-  }
-
-  @Deprecated
-  public SetProperty<String> impossibleCourseNamesProperty() {
-    return impossibleCourseNamesProperty;
-  }
-
   public ObservableSet<Course> getImpossibleCoures() {
     return this.impossibleCoursesProperty.get();
   }
@@ -109,7 +91,6 @@ public class UiDataService {
     executorService.submit(t);
     t.setOnSucceeded(event -> {
       final Set<String> names = t.getValue();
-      this.setImpossibleCourseNames(names);
       this.setImpossibleCourses(t.getValue().stream()
           .map(store::getCourseByKey)
           .collect(Collectors.collectingAndThen(Collectors.toSet(), FXCollections::observableSet)));
