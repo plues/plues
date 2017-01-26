@@ -8,7 +8,6 @@ import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
-
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.StringBinding;
 import javafx.fxml.FXML;
@@ -23,10 +22,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 class SessionCell extends ListCell<SessionFacade> implements Initializable {
 
@@ -97,7 +94,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
     });
   }
 
-  private void setConflictedStyleClass(List<Integer> sessionIDs) {
+  private void setConflictedStyleClass(final List<Integer> sessionIDs) {
     getStyleClass().remove("conflicted-session");
 
     if (getItem() != null && sessionIDs.contains(getItem().getId())) {
@@ -149,43 +146,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
   }
 
   private String displayText(final SessionFacade sessionFacade) {
-    final String representation;
-
     final SessionDisplayFormat displayFormat = uiDataService.sessionDisplayFormatProperty().get();
-
-    switch (displayFormat) {
-      case TITLE:
-        representation = sessionFacade.getTitle();
-        break;
-      case ABSTRACT_UNIT_KEYS:
-        final String unitKeys = sessionFacade.getAbstractUnitKeys().stream()
-            .map(this::trimUnitKey).collect(Collectors.joining(", "));
-
-        // display session title if there are no abstract units
-        representation = unitKeys.isEmpty() ? sessionFacade.toString() : unitKeys;
-        break;
-      case UNIT_KEY:
-      default:
-        representation = String.format("%s/%d", sessionFacade.getUnitKey(),
-          sessionFacade.getGroupId());
-        break;
-    }
-    return representation;
-  }
-
-  /**
-   * Adapt a unit key to be displayed within the timetable view, i.e. remove the key's prefix for
-   * WiWi data like 'W-WiWi' or 'W-Wichem' and for all other data remove the first letter in the
-   * key, e.g. 'P-..'.
-   */
-  private String trimUnitKey(final String unitKey) {
-    final List<String> splittedKey = Arrays.asList(unitKey.split("-"));
-    if ("w".equalsIgnoreCase(splittedKey.get(0))) {
-      return splittedKey.subList(2, splittedKey.size()).stream()
-          .collect(Collectors.joining("-"));
-    } else {
-      return splittedKey.subList(1, splittedKey.size()).stream()
-          .collect(Collectors.joining("-"));
-    }
+    return SessionHelper.displayText(displayFormat, sessionFacade);
   }
 }

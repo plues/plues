@@ -17,6 +17,7 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.timetable.SemesterChooser;
+import de.hhu.stups.plues.ui.components.timetable.SessionHelper;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
@@ -176,18 +177,9 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
         bind(uiDataService.sessionDisplayFormatProperty());
       }
 
-      // TODO: Merge with SessionCell.displayText
       @Override
       protected Comparator<SessionFacade> computeValue() {
-        switch (uiDataService.getSessionDisplayFormat()) {
-          case TITLE:
-            return Comparator.comparing(SessionFacade::getTitle);
-          case ABSTRACT_UNIT_KEYS:
-            return Comparator.comparing(o -> o.getAbstractUnitKeys().toString());
-          case UNIT_KEY:
-          default:
-            return Comparator.comparing(SessionFacade::getUnitKey);
-        }
+        return SessionHelper.comparator(uiDataService.getSessionDisplayFormat());
       }
     });
 
