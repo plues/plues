@@ -90,7 +90,6 @@ public class UiDataService {
     final SolverTask<Set<String>> t = solverService.impossibleCoursesTask();
     executorService.submit(t);
     t.setOnSucceeded(event -> {
-      final Set<String> names = t.getValue();
       this.setImpossibleCourses(t.getValue().stream()
           .map(store::getCourseByKey)
           .collect(Collectors.collectingAndThen(Collectors.toSet(), FXCollections::observableSet)));
