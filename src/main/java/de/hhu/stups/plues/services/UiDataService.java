@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class UiDataService {
   private final ListProperty<Integer> conflictMarkedSessionsProperty =
       new SimpleListProperty<>(FXCollections.emptyObservableList());
-  private final StringProperty sessionDisplayFormatProperty = new SimpleStringProperty();
+  private final StringProperty sessionDisplayFormatProperty = new SimpleStringProperty("");
 
   private final SetProperty<Course> impossibleCoursesProperty
       = new SimpleSetProperty<>(FXCollections.observableSet());
