@@ -8,6 +8,7 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
@@ -32,9 +33,11 @@ import java.util.stream.Collectors;
 
 @Singleton
 public class UiDataService {
-  private final ListProperty<Integer> conflictMarkedSessionsProperty =
-      new SimpleListProperty<>(FXCollections.emptyObservableList());
-  private final StringProperty sessionDisplayFormatProperty = new SimpleStringProperty("");
+  private final ListProperty<Integer> conflictMarkedSessionsProperty
+      = new SimpleListProperty<>(FXCollections.emptyObservableList());
+
+  private final ObjectProperty<SessionDisplayFormat> sessionDisplayFormatProperty
+      = new SimpleObjectProperty<>(SessionDisplayFormat.UNIT_KEY);
 
   private final SetProperty<Course> impossibleCoursesProperty
       = new SimpleSetProperty<>(FXCollections.observableSet());
@@ -89,22 +92,21 @@ public class UiDataService {
   private void loadImpossibleCourses(final SolverService solverService, final Store store) {
     final SolverTask<Set<String>> t = solverService.impossibleCoursesTask();
     executorService.submit(t);
-    t.setOnSucceeded(event -> {
-      this.setImpossibleCourses(t.getValue().stream()
-          .map(store::getCourseByKey)
-          .collect(Collectors.collectingAndThen(Collectors.toSet(), FXCollections::observableSet)));
-    });
+    t.setOnSucceeded(event -> this.setImpossibleCourses(t.getValue().stream()
+        .map(store::getCourseByKey)
+        .collect(Collectors.collectingAndThen(Collectors.toSet(), FXCollections::observableSet))));
   }
 
-  public String getSessionDisplayFormat() {
+  public SessionDisplayFormat getSessionDisplayFormat() {
     return sessionDisplayFormatProperty.get();
   }
 
-  public void setSessionDisplayFormatProperty(final String sessionDisplayFormatProperty) {
+  public void setSessionDisplayFormatProperty(
+        final SessionDisplayFormat sessionDisplayFormatProperty) {
     this.sessionDisplayFormatProperty.set(sessionDisplayFormatProperty);
   }
 
-  public StringProperty sessionDisplayFormatProperty() {
+  public ObjectProperty<SessionDisplayFormat> sessionDisplayFormatProperty() {
     return sessionDisplayFormatProperty;
   }
 

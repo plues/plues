@@ -21,7 +21,6 @@ import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.Observable;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.SetBinding;
@@ -38,8 +37,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
@@ -180,14 +177,14 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
       }
 
       // TODO: Merge with SessionCell.displayText
-      // TODO: extract SessionDisplayFormats to an enum instead of Strings
       @Override
       protected Comparator<SessionFacade> computeValue() {
         switch (uiDataService.getSessionDisplayFormat()) {
-          case "name":
+          case TITLE:
             return Comparator.comparing(SessionFacade::getTitle);
-          case "key":
+          case ABSTRACT_UNIT_KEYS:
             return Comparator.comparing(o -> o.getAbstractUnitKeys().toString());
+          case UNIT_KEY:
           default:
             return Comparator.comparing(SessionFacade::getUnitKey);
         }

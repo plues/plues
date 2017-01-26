@@ -151,20 +151,24 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
   private String displayText(final SessionFacade sessionFacade) {
     final String representation;
 
-    final String displayFormat = uiDataService.sessionDisplayFormatProperty().get();
+    final SessionDisplayFormat displayFormat = uiDataService.sessionDisplayFormatProperty().get();
 
-    if ("name".equals(displayFormat)) {
-      representation = sessionFacade.getTitle();
-    } else if ("key".equals(displayFormat)) {
-      final String unitKeys = sessionFacade.getAbstractUnitKeys().stream()
-          .map(this::trimUnitKey).collect(Collectors.joining(", "));
+    switch (displayFormat) {
+      case TITLE:
+        representation = sessionFacade.getTitle();
+        break;
+      case ABSTRACT_UNIT_KEYS:
+        final String unitKeys = sessionFacade.getAbstractUnitKeys().stream()
+            .map(this::trimUnitKey).collect(Collectors.joining(", "));
 
-      // display session title if there are no abstract units
-      representation = unitKeys.isEmpty() ? sessionFacade.toString() : unitKeys;
-    } else {
-
-      representation = String.format("%s/%d", sessionFacade.getUnitKey(),
+        // display session title if there are no abstract units
+        representation = unitKeys.isEmpty() ? sessionFacade.toString() : unitKeys;
+        break;
+      case UNIT_KEY:
+      default:
+        representation = String.format("%s/%d", sessionFacade.getUnitKey(),
           sessionFacade.getGroupId());
+        break;
     }
     return representation;
   }
