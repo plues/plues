@@ -179,6 +179,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
         bind(uiDataService.sessionDisplayFormatProperty());
       }
 
+      // TODO: Merge with SessionCell.displayText
+      // TODO: extract SessionDisplayFormats to an enum instead of Strings
       @Override
       protected Comparator<SessionFacade> computeValue() {
         switch (uiDataService.getSessionDisplayFormat()) {
