@@ -183,7 +183,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
       protected Comparator<SessionFacade> computeValue() {
         switch (uiDataService.getSessionDisplayFormat()) {
           case "name":
-            return Comparator.comparing(SessionFacade::toString);
+            return Comparator.comparing(SessionFacade::getTitle);
           case "key":
             return Comparator.comparing(o -> o.getAbstractUnitKeys().toString());
           default:
