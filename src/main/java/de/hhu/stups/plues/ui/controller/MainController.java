@@ -25,9 +25,9 @@ import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
 import de.hhu.stups.plues.ui.ResourceManager;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
+import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -36,6 +36,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -61,6 +62,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -68,7 +70,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
 import org.slf4j.Logger;
@@ -202,6 +203,7 @@ public class MainController implements Initializable {
       return null;
     }
   };
+  public static final String SESSION_FORMAT_PREF_KEY = "sessionFormat";
 
   /**
    * MainController component.
@@ -524,41 +526,66 @@ public class MainController implements Initializable {
   }
 
   private void initializeViewMenuItems() {
-    final String sessionName = "sessionName";
-    final String sessionFormat = "sessionFormat";
-    uiDataService.setSessionDisplayFormatProperty(userPreferences.get(sessionFormat, ""));
-
-    if ("id".equals(userPreferences.get(sessionFormat, ""))) {
-      rbMenuItemSessionId.setSelected(true);
-    } else if ("key".equals(userPreferences.get(sessionFormat, ""))) {
-      rbMenuItemSessionKey.setSelected(true);
-    } else {
-      rbMenuItemSessionName.setSelected(true);
-    }
-
     rbMenuItemSessionName.setToggleGroup(sessionPreferenceToggle);
     rbMenuItemSessionId.setToggleGroup(sessionPreferenceToggle);
     rbMenuItemSessionKey.setToggleGroup(sessionPreferenceToggle);
 
-    sessionPreferenceToggle.selectedToggleProperty().addListener(
-        (observable, oldValue, newValue) -> {
-          if (sessionPreferenceToggle.getSelectedToggle() != null) {
-            final String selectedPref = sessionPreferenceToggle.getSelectedToggle().getUserData()
-                .toString();
-            if (sessionName.equals(selectedPref)) {
-              userPreferences.put(sessionFormat, "name");
-            } else if ("sessionKey".equals(selectedPref)) {
-              userPreferences.put(sessionFormat, "key");
-            } else {
-              userPreferences.put(sessionFormat, "id");
-            }
-            uiDataService.setSessionDisplayFormatProperty(userPreferences.get(sessionFormat, ""));
-          }
-        });
+    final SessionDisplayFormat userFormat = getSessionDisplayFormatFromPreferences();
+    uiDataService.setSessionDisplayFormatProperty(userFormat);
+
+    switch (userFormat) {
+      case TITLE:
+        rbMenuItemSessionName.setSelected(true);
+        break;
+      case ABSTRACT_UNIT_KEYS:
+        rbMenuItemSessionKey.setSelected(true);
+        break;
+      case UNIT_KEY:
+      default:
+        rbMenuItemSessionId.setSelected(true);
+        break;
+    }
+    sessionPreferenceToggle.selectedToggleProperty().addListener(this::updateSessionDisplayFormat);
 
     oneMinuteMenuItem.setToggleGroup(timeoutPreferenceToggle);
     threeMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
     fiveMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
+  }
+
+  private SessionDisplayFormat getSessionDisplayFormatFromPreferences() {
+    final String preference
+        = userPreferences.get(SESSION_FORMAT_PREF_KEY,
+            String.valueOf(SessionDisplayFormat.UNIT_KEY));
+
+    SessionDisplayFormat userFormat;
+    try {
+      userFormat = SessionDisplayFormat.valueOf(preference);
+    } catch (final IllegalArgumentException exception) {
+      logger.error("Unknown SessionDisplayFormat", exception);
+      userFormat = SessionDisplayFormat.UNIT_KEY;
+      userPreferences.put(SESSION_FORMAT_PREF_KEY, String.valueOf(userFormat));
+    }
+    return userFormat;
+  }
+
+  private void updateSessionDisplayFormat(final ObservableValue<? extends Toggle> observable,
+      final Toggle oldValue, final Toggle newValue) {
+
+    if (newValue == null) {
+      return;
+    }
+
+    final String selectedPref = newValue.getUserData().toString();
+
+    SessionDisplayFormat format = SessionDisplayFormat.UNIT_KEY;
+    try {
+      format = SessionDisplayFormat.valueOf(selectedPref);
+    } catch (final IllegalArgumentException exception) {
+      logger.error("User selected invalid session format", exception);
+    }
+
+    userPreferences.put(SESSION_FORMAT_PREF_KEY, String.valueOf(format));
+    uiDataService.setSessionDisplayFormatProperty(format);
   }
 
   /**

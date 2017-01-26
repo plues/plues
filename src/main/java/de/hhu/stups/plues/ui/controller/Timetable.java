@@ -17,11 +17,11 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.timetable.SemesterChooser;
+import de.hhu.stups.plues.ui.components.timetable.SessionHelper;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.Observable;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.SetBinding;
@@ -32,19 +32,19 @@ import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -171,8 +171,20 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     view.setSessions(sessions);
 
+    final SortedList<SessionFacade> sortedSessions = sessions.sorted();
+    sortedSessions.comparatorProperty().bind(new ObjectBinding<Comparator<SessionFacade>>() {
+      {
+        bind(uiDataService.sessionDisplayFormatProperty());
+      }
+
+      @Override
+      protected Comparator<SessionFacade> computeValue() {
+        return SessionHelper.comparator(uiDataService.getSessionDisplayFormat());
+      }
+    });
+
     final FilteredList<SessionFacade> slotSessions
-        = sessions.filtered(facade -> facade.getSlot().equals(slot));
+        = sortedSessions.filtered(facade -> facade.getSlot().equals(slot));
     final FilteredList<SessionFacade> filteredSessions = new FilteredList<>(slotSessions);
     filteredSessions.predicateProperty().bind(new PredicateObjectBinding());
 
