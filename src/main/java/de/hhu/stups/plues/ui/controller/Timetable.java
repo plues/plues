@@ -32,6 +32,7 @@ import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -45,6 +46,7 @@ import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -171,8 +173,27 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     view.setSessions(sessions);
 
+    final SortedList<SessionFacade> sortedSessions = sessions.sorted();
+    sortedSessions.comparatorProperty().bind(new ObjectBinding<Comparator<SessionFacade>>() {
+      {
+        bind(uiDataService.sessionDisplayFormatProperty());
+      }
+
+      @Override
+      protected Comparator<SessionFacade> computeValue() {
+        switch (uiDataService.getSessionDisplayFormat()) {
+          case "name":
+            return Comparator.comparing(SessionFacade::toString);
+          case "key":
+            return Comparator.comparing(o -> o.getAbstractUnitKeys().toString());
+          default:
+            return Comparator.comparing(SessionFacade::getUnitKey);
+        }
+      }
+    });
+
     final FilteredList<SessionFacade> slotSessions
-        = sessions.filtered(facade -> facade.getSlot().equals(slot));
+        = sortedSessions.filtered(facade -> facade.getSlot().equals(slot));
     final FilteredList<SessionFacade> filteredSessions = new FilteredList<>(slotSessions);
     filteredSessions.predicateProperty().bind(new PredicateObjectBinding());
 
