@@ -9,6 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
+import javafx.event.EventHandler;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -48,13 +49,21 @@ public class SemesterChooser extends SegmentedButton {
     selectedSemestersBinding = new SelectedSemestersBinding();
     selectedSemesters.bind(selectedSemestersBinding);
 
+    final EventHandler<MouseEvent> handleMouseClicked = this::handleMouseClicked;
+    final EventHandler<KeyEvent> handleKeyPressed = this::handleKeyPressed;
+
     getButtons().addListener((ListChangeListener<ToggleButton>) c -> {
       while (c.next()) {
         c.getAddedSubList().forEach(o -> {
-          o.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
-          o.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPressed);
+          o.addEventFilter(MouseEvent.MOUSE_CLICKED, handleMouseClicked);
+          o.addEventFilter(KeyEvent.KEY_PRESSED, handleKeyPressed);
         });
       }
+      c.getRemoved().forEach(o -> {
+        o.removeEventFilter(MouseEvent.MOUSE_CLICKED, handleMouseClicked);
+        o.removeEventFilter(KeyEvent.KEY_PRESSED, handleKeyPressed);
+
+      });
     });
   }
 
