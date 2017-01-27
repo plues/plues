@@ -130,11 +130,20 @@ if (project.hasProperty('headless') ? project.headless : false) {
     }
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
 if(System.getenv('TRAVIS')) {
   println "Running on Travis"
   test {
     exclude 'de/hhu/stups/plues/tasks/SolverTaskTest.class'
   }
+
+  check.dependsOn jacocoTestReport
 }
 test {
   exclude 'de/hhu/stups/plues/ui/components/timetable/SemesterChooserTest.class'
