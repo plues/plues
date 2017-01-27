@@ -322,6 +322,8 @@ public class MainController implements Initializable {
 
     tabPane.setOnKeyPressed(this::handleKeyPressed);
 
+    reportsTab.setClosable(true);
+
     initializeMenu();
 
     delayedSolverService.whenAvailable(solverService -> {
@@ -785,7 +787,6 @@ public class MainController implements Initializable {
   private void openReports() {
     if (!tabPane.getTabs().contains(reportsTab)) {
       reportsTab.setContent(reportsProvider.get());
-      reportsTab.setClosable(false);
       tabPane.getTabs().add(reportsTab);
     }
     tabPane.getSelectionModel().select(reportsTab);
