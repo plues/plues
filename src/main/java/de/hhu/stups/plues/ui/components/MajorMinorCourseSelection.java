@@ -7,6 +7,7 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -145,8 +146,9 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     final ReadOnlyObjectProperty<Course> selectedMajorProperty
         = this.cbMajor.getSelectionModel().selectedItemProperty();
 
-    cbMinor.disableProperty().bind(
-        Bindings.selectBoolean(selectedMajorProperty, "combinable").not());
+    final BooleanBinding majorNotCombinable
+        = Bindings.selectBoolean(selectedMajorProperty, "combinable").not();
+    cbMinor.disableProperty().bind(majorNotCombinable);
 
     impossibleCoursesProperty.addListener((observable, oldValue, newValue) -> {
       cbMajor.setCellFactory(getCallbackForImpossibleCourses(newValue));
@@ -154,9 +156,10 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     });
 
     this.selectedMajor.bind(cbMajor.getSelectionModel().selectedItemProperty());
-    this.selectedMinor.bind(Bindings.when(cbMinor.disabledProperty().not())
-        .then(cbMinor.getSelectionModel().selectedItemProperty())
-        .otherwise(new SimpleObjectProperty<>(null)));
+    this.selectedMinor.bind(Bindings.when(majorNotCombinable)
+        .then(new SimpleObjectProperty<Course>(null))
+        .otherwise(cbMinor.getSelectionModel().selectedItemProperty()));
+
     this.selectedCourses.bind(new ListBinding<Course>() {
       {
         bind(selectedMajor, selectedMinor);
