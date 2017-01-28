@@ -30,6 +30,10 @@
     -fx-control-inner-background: #F2F2F2;
 }
 
+#batchListView .list-cell:empty {
+    -fx-opacity: 0;
+}
+
 .conflicted-semester {
     -fx-base: #ffbaba;
 }
