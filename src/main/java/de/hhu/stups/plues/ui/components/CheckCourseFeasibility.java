@@ -8,6 +8,7 @@ import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SetProperty;
@@ -70,6 +71,10 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     resultBoxWrapper.visibleProperty().bind(Bindings.isEmpty(resultBoxWrapper.getItems()).not());
+    // disable list-view selection
+    resultBoxWrapper.getSelectionModel().selectedIndexProperty().addListener(
+        (observable, oldvalue, newValue) ->
+            Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
 
     btCheckFeasibility.disableProperty().bind(solverAvailableProperty.not());
     btUnhighlightAllConflicts.visibleProperty().bind(this.uiDataService
