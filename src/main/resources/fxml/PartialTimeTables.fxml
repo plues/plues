@@ -34,7 +34,8 @@
     </ScrollPane>
     <HBox fx:id="buttonBox" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="3"
           alignment="CENTER">
-        <Button fx:id="btCheck" onAction="#btCheckPressed" text="%check" visible="false"/>
+        <Button fx:id="btGenerate" onAction="#btGeneratePressed" text="%generate" visible="false"/>
+        <Button fx:id="btCancel" onAction="#btCancelPressed" text="%cancel" visible="false"/>
         <Button fx:id="btShow" text="%show" onMouseClicked="#showPdf"/>
         <Button fx:id="btSave" text="%saveAs" onMouseClicked="#savePdf"/>
         <StackPane>
