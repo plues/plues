@@ -61,9 +61,9 @@
                 <RadioMenuItem fx:id="rbMenuItemSessionName" mnemonicParsing="false"
                                text="%display.SessionName" userData="TITLE"/>
                 <RadioMenuItem fx:id="rbMenuItemSessionId" mnemonicParsing="false"
-                               text="%display.SessionId" userData="ABSTRACT_UNIT_KEYS"/>
+                               text="%display.SessionId" userData="UNIT_KEY"/>
                 <RadioMenuItem fx:id="rbMenuItemSessionKey" mnemonicParsing="false"
-                               text="%display.SessionKey" userData="UNIT_KEY"/>
+                               text="%display.SessionKey" userData="ABSTRACT_UNIT_KEYS"/>
             </Menu>
         </Menu>
         <Menu mnemonicParsing="false" text="%help">
