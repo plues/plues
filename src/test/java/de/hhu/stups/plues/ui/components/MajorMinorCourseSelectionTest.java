@@ -97,6 +97,24 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
     return course;
   }
 
+  @Test
+  public void selectionStateWhenDisabled() {
+    final Course major = courseSelection.getSelectedMajor();
+    final Course minor = courseSelection.getSelectedMinor();
+    final ObservableList<Course> courses = courseSelection.getSelectedCourses();
+
+    Assert.assertNotNull(major);
+    Assert.assertNotNull(minor);
+    Assert.assertEquals(2, courses.size());
+
+    courseSelection.setDisable(true);
+
+    Assert.assertEquals(major, courseSelection.getSelectedMajor());
+    Assert.assertEquals(minor, courseSelection.getSelectedMinor());
+    Assert.assertEquals(courses, courseSelection.getSelectedCourses());
+
+  }
+
   @Override
   public void start(final Stage stage) throws Exception {
 
