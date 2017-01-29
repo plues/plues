@@ -64,7 +64,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
   @FXML
   @SuppressWarnings("unused")
-  private GridPane timeTable;
+  private GridPane timeTablePane;
   @FXML
   @SuppressWarnings("unused")
   private SemesterChooser semesterToggle;
@@ -162,7 +162,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
       final ListView<SessionFacade> view = getSessionFacadeListView(slot);
 
-      timeTable.add(view, i % widthX + offX, (i / widthX) + offY);
+      timeTablePane.add(view, i % widthX + offX, (i / widthX) + offY);
     });
   }
 
@@ -172,21 +172,12 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     view.setSessions(sessions);
 
     final SortedList<SessionFacade> sortedSessions = sessions.sorted();
-    sortedSessions.comparatorProperty().bind(new ObjectBinding<Comparator<SessionFacade>>() {
-      {
-        bind(uiDataService.sessionDisplayFormatProperty());
-      }
-
-      @Override
-      protected Comparator<SessionFacade> computeValue() {
-        return SessionHelper.comparator(uiDataService.getSessionDisplayFormat());
-      }
-    });
+    sortedSessions.comparatorProperty().bind(new ComparatorObjectBinding());
 
     final FilteredList<SessionFacade> slotSessions
         = sortedSessions.filtered(facade -> facade.getSlot().equals(slot));
     final FilteredList<SessionFacade> filteredSessions = new FilteredList<>(slotSessions);
-    filteredSessions.predicateProperty().bind(new PredicateObjectBinding());
+    filteredSessions.predicateProperty().bind(new FilteredSessionsPredicateBinding());
 
     view.itemsProperty().bind(new SimpleListProperty<>(filteredSessions));
     return view;
@@ -218,13 +209,10 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     if (args.length == 0) {
       return;
     }
-    switch (routeName) {
-      case SESSION_IN_TIMETABLE:
-        scrollToSession((Session) args[0]);
-        break;
-      default:
-        timetableSideBar.activateComponents(args);
-        break;
+    if (routeName == RouteNames.SESSION_IN_TIMETABLE) {
+      scrollToSession((Session) args[0]);
+    } else {
+      timetableSideBar.activateComponents(args);
     }
   }
 
@@ -233,7 +221,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
         .filter(facade -> facade.getId() == arg.getId()).findFirst();
 
     sessionFacade.ifPresent(this::selectSemesterForSession);
-    sessionFacade.ifPresent(facade -> timeTable.getChildren().forEach(node -> {
+    sessionFacade.ifPresent(facade -> timeTablePane.getChildren().forEach(node -> {
       if (node instanceof SessionListView) {
         final SessionListView sessionListView = (SessionListView) node;
         sessionListView.scrollTo(facade);
@@ -342,8 +330,9 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     }
   }
 
-  private class PredicateObjectBinding extends ObjectBinding<Predicate<? super SessionFacade>> {
-    {
+  private class FilteredSessionsPredicateBinding
+      extends ObjectBinding<Predicate<? super SessionFacade>> {
+    FilteredSessionsPredicateBinding() {
       bind(semesterToggle.selectedSemestersProperty(),
           timetableSideBar.getSetOfCourseSelection().selectedCoursesProperty(),
           timetableSideBar.getAbstractUnitFilter().selectedAbstractUnitsProperty(),
@@ -368,6 +357,17 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
       final Set<Integer> selectedSemesters = semesterToggle.getSelectedSemesters();
 
       return new FilterPredicate(filteredCourses, filteredAbstractUnits, selectedSemesters);
+    }
+  }
+
+  private class ComparatorObjectBinding extends ObjectBinding<Comparator<SessionFacade>> {
+    ComparatorObjectBinding() {
+      bind(uiDataService.sessionDisplayFormatProperty());
+    }
+
+    @Override
+    protected Comparator<SessionFacade> computeValue() {
+      return SessionHelper.comparator(uiDataService.getSessionDisplayFormat());
     }
   }
 }
