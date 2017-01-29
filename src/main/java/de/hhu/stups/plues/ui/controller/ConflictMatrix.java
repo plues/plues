@@ -16,7 +16,6 @@ import de.hhu.stups.plues.ui.batchgeneration.CollectFeasibilityTasksTask;
 import de.hhu.stups.plues.ui.components.conflictmatrix.CourseGridCell;
 import de.hhu.stups.plues.ui.components.conflictmatrix.ResultGridCell;
 import de.hhu.stups.plues.ui.layout.Inflater;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.LongProperty;
