@@ -75,64 +75,9 @@ public class ImpossibleCourses extends VBox implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     segmentedButtons.setToggleGroup(new PersistentToggleGroup());
-    final ListBinding<Course> binding = new ListBinding<Course>() {
-      {
-        bind(buttonImpossibleCourses.selectedProperty());
-        bind(buttonImpossibleCoursesBecauseOfImpossibleModules.selectedProperty());
-        bind(buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations.selectedProperty());
-        bind(impossibleCoursesList);
-        bind(impossibleCoursesBecauseOfImpossibleModulesList);
-        bind(impossibleCoursesBecauseOfImpossibleModuleCombinationsList);
-      }
+    tableViewImpossibleCourses.itemsProperty().bind(new CourseListBinding());
 
-      @Override
-      protected ObservableList<Course> computeValue() {
-        if (buttonImpossibleCourses.isSelected()) {
-          return impossibleCoursesList;
-        } else {
-          if (buttonImpossibleCoursesBecauseOfImpossibleModules.isSelected()) {
-            return impossibleCoursesBecauseOfImpossibleModulesList;
-          } else {
-            if (buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations.isSelected()) {
-              return impossibleCoursesBecauseOfImpossibleModuleCombinationsList;
-            }
-          }
-        }
-
-        return null;
-      }
-    };
-    tableViewImpossibleCourses.itemsProperty().bind(binding);
-
-    final StringBinding stringBinding = new StringBinding() {
-      {
-        bind(buttonImpossibleCourses.selectedProperty());
-        bind(buttonImpossibleCoursesBecauseOfImpossibleModules.selectedProperty());
-        bind(buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations.selectedProperty());
-      }
-
-      @Override
-      protected String computeValue() {
-        final String string;
-        if (buttonImpossibleCourses.isSelected()) {
-          string = resources.getString("explain.ImpossibleCourses");
-        } else {
-          if (buttonImpossibleCoursesBecauseOfImpossibleModules.isSelected()) {
-            string = resources.getString("explain.ImpossibleCoursesBecauseOfImpossibleModules");
-          } else {
-            if (buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations.isSelected()) {
-              string = resources.getString(
-                  "explain.ImpossibleCoursesBecauseOfImpossibleModuleCombinations");
-            } else {
-              string = null;
-            }
-          }
-        }
-        return string;
-      }
-    };
-
-    txtExplanation.textProperty().bind(stringBinding);
+    txtExplanation.textProperty().bind(new ExplanationStringBinding(resources));
     txtExplanation.wrappingWidthProperty().bind(
         tableViewImpossibleCourses.widthProperty().subtract(25.0));
 
@@ -162,5 +107,57 @@ public class ImpossibleCourses extends VBox implements Initializable {
         impossibleCoursesBecauseOfImpossibleModules);
     impossibleCoursesBecauseOfImpossibleModuleCombinationsList.setAll(
         impossibleCoursesBecauseOfImpossibleModuleCombinations);
+  }
+
+  private class CourseListBinding extends ListBinding<Course> {
+    CourseListBinding() {
+      bind(buttonImpossibleCourses.selectedProperty());
+      bind(buttonImpossibleCoursesBecauseOfImpossibleModules.selectedProperty());
+      bind(buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations.selectedProperty());
+      bind(impossibleCoursesList);
+      bind(impossibleCoursesBecauseOfImpossibleModulesList);
+      bind(impossibleCoursesBecauseOfImpossibleModuleCombinationsList);
+    }
+
+    @Override
+    protected ObservableList<Course> computeValue() {
+      if (buttonImpossibleCourses.isSelected()) {
+        return impossibleCoursesList;
+      } else if (buttonImpossibleCoursesBecauseOfImpossibleModules.isSelected()) {
+        return impossibleCoursesBecauseOfImpossibleModulesList;
+      } else if (buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations.isSelected()) {
+        return impossibleCoursesBecauseOfImpossibleModuleCombinationsList;
+      }
+
+      return null;
+    }
+  }
+
+  private class ExplanationStringBinding extends StringBinding {
+
+    private final ResourceBundle resources;
+
+    ExplanationStringBinding(final ResourceBundle resources) {
+      this.resources = resources;
+      bind(buttonImpossibleCourses.selectedProperty());
+      bind(buttonImpossibleCoursesBecauseOfImpossibleModules.selectedProperty());
+      bind(buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations.selectedProperty());
+    }
+
+    @Override
+    protected String computeValue() {
+      final String string;
+      if (buttonImpossibleCourses.isSelected()) {
+        string = resources.getString("explain.ImpossibleCourses");
+      } else if (buttonImpossibleCoursesBecauseOfImpossibleModules.isSelected()) {
+        string = resources.getString("explain.ImpossibleCoursesBecauseOfImpossibleModules");
+      } else if (buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations.isSelected()) {
+        string = resources.getString(
+          "explain.ImpossibleCoursesBecauseOfImpossibleModuleCombinations");
+      } else {
+        string = null;
+      }
+      return string;
+    }
   }
 }

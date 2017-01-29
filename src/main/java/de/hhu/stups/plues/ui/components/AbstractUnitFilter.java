@@ -152,79 +152,16 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     tableColumnCheckBox.setCellFactory(CheckBoxTableCell.forTableColumn(tableColumnCheckBox));
 
-    selectableAbstractUnits.bind(new ListBinding<SelectableAbstractUnit>() {
-      // extractor used to compute an observable list that propagates changes on the extracted
-      // property to the observers of the list
-      final Callback<SelectableAbstractUnit, Observable[]> extractor
-          = (SelectableAbstractUnit param) -> new Observable[] {param.selectedProperty()};
-
-      {
-        bind(abstractUnits);
-      }
-
-      @Override
-      public void dispose() {
-        super.dispose();
-        unbind(abstractUnits);
-      }
-
-
-      // NOTE: A change to the abstractUnits list, this binding is bound to, will recreate rbAll
-      // SelectableAbstractUnit objects. This behaviour will loose the state of rbAll
-      // selectedProperties.
-      @Override
-      protected ObservableList<SelectableAbstractUnit> computeValue() {
-        return FXCollections.observableList(
-            abstractUnits.stream().map(SelectableAbstractUnit::new)
-                .collect(toList()), extractor);
-      }
-    });
+    selectableAbstractUnits.bind(new SelectableAbstractUnitListBinding());
 
 
     final FilteredList<SelectableAbstractUnit> filteredUnits
         = new FilteredList<>(selectableAbstractUnits);
-    filteredUnits.predicateProperty().bind(
-        new ObjectBinding<Predicate<? super SelectableAbstractUnit>>() {
-          {
-            bind(txtQuery.textProperty(), rbAll.selectedProperty(), rbSelected.selectedProperty(),
-                rbNotSelected.selectedProperty());
-            bind(cbSelectedCoursesOnly.selectedProperty(), courseFilter);
-          }
-
-          @Override
-          public void dispose() {
-            super.dispose();
-            unbind(txtQuery.textProperty(), rbAll.selectedProperty(), rbSelected.selectedProperty(),
-                rbNotSelected.selectedProperty());
-            unbind(cbSelectedCoursesOnly.selectedProperty(), courseFilter);
-          }
-
-          @Override
-          protected Predicate<? super SelectableAbstractUnit> computeValue() {
-            return selectableAbstractUnit ->
-                selectableAbstractUnit.matches(txtQuery, rbAll.isSelected(),
-                    rbSelected.isSelected(), rbNotSelected.isSelected(),
-                    cbSelectedCoursesOnly.isSelected(), getCourseFilter());
-          }
-        });
+    filteredUnits.predicateProperty().bind(new UnitFilterPredicateBinding());
 
     unitsTable.itemsProperty().bind(new SimpleListProperty<>(filteredUnits));
 
-    selectedAbstractUnits.bind(new ListBinding<AbstractUnit>() {
-      {
-        bind(selectableAbstractUnits);
-      }
-
-      @Override
-      protected ObservableList<AbstractUnit> computeValue() {
-        return
-            selectableAbstractUnits.filtered(SelectableAbstractUnit::isSelected).stream()
-                .map(SelectableAbstractUnit::getAbstractUnit)
-                .collect(
-                    Collectors.collectingAndThen(
-                        Collectors.toList(), FXCollections::observableList));
-      }
-    });
+    selectedAbstractUnits.bind(new SelectedAbstractUnitListBinding());
     bindTableColumnsWidth();
   }
 
@@ -301,6 +238,76 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     @SuppressWarnings("unused")
     private AbstractUnit getAbstractUnit() {
       return abstractUnit;
+    }
+  }
+
+  private class SelectableAbstractUnitListBinding extends ListBinding<SelectableAbstractUnit> {
+    // extractor used to compute an observable list that propagates changes on the extracted
+    // property to the observers of the list
+    final Callback<SelectableAbstractUnit, Observable[]> extractor
+        = (SelectableAbstractUnit param) -> new Observable[] {param.selectedProperty()};
+
+    SelectableAbstractUnitListBinding() {
+      bind(abstractUnits);
+    }
+
+    @Override
+    public void dispose() {
+      super.dispose();
+      unbind(abstractUnits);
+    }
+
+
+    // NOTE: A change to the abstractUnits list, this binding is bound to, will recreate rbAll
+    // SelectableAbstractUnit objects. This behaviour will loose the state of rbAll
+    // selectedProperties.
+    @Override
+    protected ObservableList<SelectableAbstractUnit> computeValue() {
+      return FXCollections.observableList(
+          abstractUnits.stream().map(SelectableAbstractUnit::new)
+              .collect(toList()), extractor);
+    }
+  }
+
+  private class UnitFilterPredicateBinding
+      extends ObjectBinding<Predicate<? super SelectableAbstractUnit>> {
+
+    UnitFilterPredicateBinding() {
+      bind(txtQuery.textProperty(), rbAll.selectedProperty(), rbSelected.selectedProperty(),
+          rbNotSelected.selectedProperty());
+      bind(cbSelectedCoursesOnly.selectedProperty(), courseFilter);
+    }
+
+    @Override
+    public void dispose() {
+      super.dispose();
+      unbind(txtQuery.textProperty(), rbAll.selectedProperty(), rbSelected.selectedProperty(),
+          rbNotSelected.selectedProperty());
+      unbind(cbSelectedCoursesOnly.selectedProperty(), courseFilter);
+    }
+
+    @Override
+    protected Predicate<? super SelectableAbstractUnit> computeValue() {
+      return selectableAbstractUnit ->
+          selectableAbstractUnit.matches(txtQuery, rbAll.isSelected(),
+              rbSelected.isSelected(), rbNotSelected.isSelected(),
+              cbSelectedCoursesOnly.isSelected(), getCourseFilter());
+    }
+  }
+
+  private class SelectedAbstractUnitListBinding extends ListBinding<AbstractUnit> {
+    SelectedAbstractUnitListBinding() {
+      bind(selectableAbstractUnits);
+    }
+
+    @Override
+    protected ObservableList<AbstractUnit> computeValue() {
+      return
+          selectableAbstractUnits.filtered(SelectableAbstractUnit::isSelected).stream()
+              .map(SelectableAbstractUnit::getAbstractUnit)
+              .collect(
+                  Collectors.collectingAndThen(
+                      Collectors.toList(), FXCollections::observableList));
     }
   }
 }
