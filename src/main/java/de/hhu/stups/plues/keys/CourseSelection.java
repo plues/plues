@@ -104,6 +104,7 @@ public class CourseSelection {
   }
 
 
+  @Override
   public String toString() {
     return String.format("CourseSelection[%s]", Joiner.on(", ").join(courses));
   }
