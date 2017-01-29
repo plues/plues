@@ -10,6 +10,10 @@ import java.util.stream.Collectors;
 // TODO: move SessionFacade to de.hhu.stups.plues.ui.components.timetable
 public class SessionHelper {
 
+  private SessionHelper() {
+    throw new IllegalAccessError("Utility class");
+  }
+
   /**
    * Compute the textual representation for a session facade based on a chosen display format.
    *
