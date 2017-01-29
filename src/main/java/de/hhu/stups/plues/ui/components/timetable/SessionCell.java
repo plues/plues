@@ -113,9 +113,9 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
     }
 
     final Dragboard dragboard = startDragAndDrop(TransferMode.MOVE);
-    final ClipboardContent content = new ClipboardContent();
-    content.putString(String.valueOf(getItem().getId()));
-    dragboard.setContent(content);
+    final ClipboardContent clipboardContent = new ClipboardContent();
+    clipboardContent.putString(String.valueOf(getItem().getId()));
+    dragboard.setContent(clipboardContent);
     event.consume();
   }
 
