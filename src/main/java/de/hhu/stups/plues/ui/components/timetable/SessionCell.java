@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
 
 class SessionCell extends ListCell<SessionFacade> implements Initializable {
 
+  public static final String CONFLICTED_SESSION = "conflicted-session";
   private final Router router;
   private final Delayed<SolverService> delayedSolverService;
 
@@ -95,10 +96,10 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
   }
 
   private void setConflictedStyleClass(final List<Integer> sessionIDs) {
-    getStyleClass().remove("conflicted-session");
+    getStyleClass().remove(CONFLICTED_SESSION);
 
     if (getItem() != null && sessionIDs.contains(getItem().getId())) {
-      getStyleClass().add("conflicted-session");
+      getStyleClass().add(CONFLICTED_SESSION);
     }
   }
 
@@ -142,7 +143,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
   }
 
   private void removeStyleClasses() {
-    getStyleClass().remove("conflicted-session");
+    getStyleClass().remove(CONFLICTED_SESSION);
   }
 
   private String displayText(final SessionFacade sessionFacade) {
