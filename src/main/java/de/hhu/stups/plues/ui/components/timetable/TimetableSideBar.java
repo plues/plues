@@ -250,7 +250,7 @@ public class TimetableSideBar extends TabPane implements Initializable {
         sideTab.getStyleClass().clear();
         sideTab.getStyleClass().addAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabVisible");
       });
-      this.setTabClosingPolicy(TabClosingPolicy.SELECTED_TAB);
+      setTabClosingPolicy(TabClosingPolicy.SELECTED_TAB);
     }
   }
 
