@@ -13,6 +13,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.Map;
@@ -25,6 +26,9 @@ public class ImpossibleCourseModuleAbstractUnits extends VBox implements Initial
   @FXML
   @SuppressWarnings("unused")
   private TreeView<String> treeViewCourseModuleAbstractUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   @Inject
   public ImpossibleCourseModuleAbstractUnits(final Inflater inflater) {
@@ -35,10 +39,13 @@ public class ImpossibleCourseModuleAbstractUnits extends VBox implements Initial
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     treeViewCourseModuleAbstractUnits.setRoot(new TreeItem<>());
+    txtExplanation.wrappingWidthProperty().bind(
+        treeViewCourseModuleAbstractUnits.widthProperty().subtract(25.0));
   }
 
   /**
    * Set data for this component.
+   *
    * @param courseModuleAbstractUnit data
    */
   public void setData(final Map<Course, Map<Module, Set<AbstractUnit>>> courseModuleAbstractUnit) {
@@ -51,7 +58,7 @@ public class ImpossibleCourseModuleAbstractUnits extends VBox implements Initial
                     new TreeItem<>(getModuleString(moduleSetEntry.getKey()));
                 moduleItem.getChildren().setAll(
                     moduleSetEntry.getValue().stream().map(abstractUnit ->
-                    new TreeItem<>(getAbstractUnitString(abstractUnit)))
+                        new TreeItem<>(getAbstractUnitString(abstractUnit)))
                         .collect(Collectors.toSet()));
                 return moduleItem;
               }).collect(Collectors.toSet()));

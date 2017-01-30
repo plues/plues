@@ -8,6 +8,8 @@ import de.hhu.stups.plues.tasks.SolverTask;
 
 import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +27,8 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
   private final List<Course> standaloneCourses;
   private final Set<Course> impossibleCourses;
   private final ObservableMap<CourseSelection, ResultState> results;
+
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   /**
    * Create tasks for each combination of major and minor course as well as for each standalone
@@ -46,17 +50,24 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
     this.results = results;
     this.impossibleCourses = impossibleCourses;
     resources = ResourceBundle.getBundle("lang.conflictMatrix");
+
+    updateTitle(resources.getString("preparing"));
+    updateProgress(0, 100);
   }
 
   @Override
   protected Set<SolverTask<Boolean>> call() throws Exception {
-    updateTitle(resources.getString("preparing"));
     final Set<SolverTask<Boolean>> feasibilityTasks = new HashSet<>();
+    final int total = majorCourses.size();
+    final int[] count = {0};
     majorCourses.forEach(majorCourse -> {
+
+      updateProgress(++count[0], total);
+
       if (!majorCourse.isCombinable() && shouldBeChecked(majorCourse)) {
         feasibilityTasks.add(solverService.checkFeasibilityTask(majorCourse));
       } else {
-        feasibilityTasks.addAll(minorCourses.parallelStream()
+        feasibilityTasks.addAll(minorCourses.stream()
             .filter(majorCourse::isCombinableWith)
             .filter(minorCourse -> shouldBeChecked(majorCourse, minorCourse))
             .map(minorCourse -> solverService.checkFeasibilityTask(majorCourse, minorCourse))
@@ -74,7 +85,7 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
   }
 
   private List<SolverTask<Boolean>> collectTasks(final List<Course> courses) {
-    return courses.parallelStream()
+    return courses.stream()
         .filter(this::shouldBeChecked)
         .map(solverService::checkFeasibilityTask)
         .collect(Collectors.toList());
@@ -107,5 +118,11 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
       return false;
     }
     return true;
+  }
+
+  @Override
+  protected void failed() {
+    super.failed();
+    logger.error("failed", this.getException());
   }
 }

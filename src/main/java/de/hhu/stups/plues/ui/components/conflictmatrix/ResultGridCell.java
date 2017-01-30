@@ -45,6 +45,12 @@ public class ResultGridCell extends Pane {
 
   private void updateResultGridCell(final ResultState resultState, final Course... courses) {
     getChildren().clear();
+    getStyleClass().setAll("matrix-cell");
+
+    if (resultState == null) {
+      return;
+    }
+
     switch (resultState) {
       case SUCCEEDED:
       case FAILED:
@@ -141,7 +147,8 @@ public class ResultGridCell extends Pane {
    * Set the value of the {@link this#resultState} property.
    */
   public void setResultState(final ResultState resultState) {
-    if (this.resultState.getValue() != ResultState.IMPOSSIBLE_COMBINATION) {
+    if (this.resultState.getValue() == null
+        || this.resultState.getValue() != ResultState.IMPOSSIBLE_COMBINATION) {
       this.resultState.set(resultState);
     }
   }

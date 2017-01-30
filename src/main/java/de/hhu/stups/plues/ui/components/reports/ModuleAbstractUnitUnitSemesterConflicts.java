@@ -7,6 +7,7 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -14,8 +15,10 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.Collections;
@@ -27,13 +30,48 @@ import java.util.Set;
 public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Initializable {
 
   private final SimpleListProperty<Module> modules;
-  private final ObservableMap<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflicts;
-
+  private final ObservableMap<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflictsMap;
 
   @FXML
+  @SuppressWarnings("unused")
   private TableView<Module> tableViewModules;
   @FXML
+  @SuppressWarnings("unused")
   private TableView<Conflict> tableViewAbstractUnitUnitSemesters;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnModulePordnr;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnModuleTitle;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnAbstractUnit;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnAbstractUnitKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnAbstractUnitTitle;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnAbstractUnitSemesters;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnExplicitUnit;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnExplicitUnitKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnExplicitUnitTitle;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnExplicitUnitSemesters;
+
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   /**
    * Default constructor.
@@ -43,7 +81,7 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
   @Inject
   public ModuleAbstractUnitUnitSemesterConflicts(final Inflater inflater) {
     modules = new SimpleListProperty<>(FXCollections.observableArrayList());
-    moduleAbstractUnitUnitSemesterConflicts = FXCollections.observableHashMap();
+    moduleAbstractUnitUnitSemesterConflictsMap = FXCollections.observableHashMap();
 
     inflater.inflate("components/reports/ModuleAbstractUnitUnitSemesterConflicts",
         this, this, "reports", "Column");
@@ -59,16 +97,46 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
       @Override
       protected ObservableList<Conflict> computeValue() {
         final Module module = tableViewModules.getSelectionModel().getSelectedItem();
-        return FXCollections.observableList(
-            moduleAbstractUnitUnitSemesterConflicts.getOrDefault(module, Collections.emptyList()));
+        return FXCollections.observableList(moduleAbstractUnitUnitSemesterConflictsMap
+            .getOrDefault(module, Collections.emptyList()));
       }
     });
 
     tableViewModules.itemsProperty().bind(modules);
+
+    txtExplanation.wrappingWidthProperty().bind(tableViewModules.widthProperty().subtract(25.0));
+
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnModulePordnr.prefWidthProperty().bind(
+        tableViewModules.widthProperty().multiply(0.2));
+    tableColumnModuleTitle.prefWidthProperty().bind(
+        tableViewModules.widthProperty().multiply(0.76));
+
+    tableColumnAbstractUnit.prefWidthProperty().bind(
+        tableViewAbstractUnitUnitSemesters.widthProperty().multiply(0.5));
+    tableColumnExplicitUnit.prefWidthProperty().bind(
+        tableViewAbstractUnitUnitSemesters.widthProperty().multiply(0.5));
+
+    tableColumnAbstractUnitKey.prefWidthProperty().bind(
+        tableColumnAbstractUnit.widthProperty().multiply(0.2));
+    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
+        tableColumnAbstractUnit.widthProperty().multiply(0.58));
+    tableColumnAbstractUnitSemesters.prefWidthProperty().bind(
+        tableColumnAbstractUnit.widthProperty().multiply(0.18));
+
+    tableColumnExplicitUnitKey.prefWidthProperty().bind(
+        tableColumnExplicitUnit.widthProperty().multiply(0.2));
+    tableColumnExplicitUnitTitle.prefWidthProperty().bind(
+        tableColumnExplicitUnit.widthProperty().multiply(0.58));
+    tableColumnExplicitUnitSemesters.prefWidthProperty().bind(
+        tableColumnExplicitUnit.widthProperty().multiply(0.18));
   }
 
   public void setData(final Map<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflicts) {
-    this.moduleAbstractUnitUnitSemesterConflicts.putAll(moduleAbstractUnitUnitSemesterConflicts);
+    this.moduleAbstractUnitUnitSemesterConflictsMap.putAll(moduleAbstractUnitUnitSemesterConflicts);
     this.modules.setAll(moduleAbstractUnitUnitSemesterConflicts.keySet());
   }
 

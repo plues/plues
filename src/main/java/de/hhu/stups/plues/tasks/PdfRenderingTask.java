@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -70,11 +69,14 @@ public class PdfRenderingTask extends Task<Path> {
     this.major = major;
     this.minor = minor;
     this.solverTask = solverTask;
+
+    updateTitle(this.buildTitle());
+    updateProgress(0, 100);
+    updateMessage(resources.getString("waitingForExecution"));
   }
 
   @Override
   protected Path call() throws Exception {
-    updateTitle(this.buildTitle());
 
     updateMessage(resources.getString("submit"));
     updateProgress(20, 100);
@@ -83,11 +85,11 @@ public class PdfRenderingTask extends Task<Path> {
       return null;
     }
 
+    updateMessage(resources.getString("waiting"));
     solverTask.setOnRunning(event -> this.updateMessage(resources.getString("running")));
     EXECUTOR_SERVICE.submit(solverTask);
 
-    updateMessage(resources.getString("waiting"));
-    updateProgress(40, 100);
+    updateProgress(40, -1);
 
     runTask();
 
@@ -103,7 +105,10 @@ public class PdfRenderingTask extends Task<Path> {
   }
 
   private String buildTitle() {
-    String names = major.getKey();
+    String names = "";
+    if (this.major != null) {
+      names += major.getKey();
+    }
     if (this.minor != null) {
       names += ", " + minor.getKey();
     }
@@ -111,11 +116,7 @@ public class PdfRenderingTask extends Task<Path> {
   }
 
   private void runTask() throws InterruptedException {
-    int percentage = 0;
     while (!solverTask.isDone()) {
-      percentage = (percentage + 1) % 20 + 40;
-      updateProgress(percentage, 100);
-
       if (solverTask.isCancelled() || this.isCancelled()) {
         updateMessage(resources.getString("cancelled"));
         break;
@@ -176,6 +177,7 @@ public class PdfRenderingTask extends Task<Path> {
     if (solverTask != null && solverTask.isRunning()) {
       solverTask.cancel(true);
     }
+    logger.error("Exception in Task", this.getException());
   }
 
   /**
@@ -204,4 +206,5 @@ public class PdfRenderingTask extends Task<Path> {
   public Course getMajor() {
     return major;
   }
+
 }

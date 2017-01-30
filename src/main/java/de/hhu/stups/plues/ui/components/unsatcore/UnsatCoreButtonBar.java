@@ -1,10 +1,12 @@
 package de.hhu.stups.plues.ui.components.unsatcore;
 
+import static javafx.concurrent.Worker.State.RUNNING;
 import static javafx.concurrent.Worker.State.SUCCEEDED;
 
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.ui.TaskBindings;
+import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
@@ -18,6 +20,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 
@@ -39,6 +42,12 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Tooltip taskStateIconTooltip;
+  @FXML
+  @SuppressWarnings("unused")
+  private Tooltip taskRunningTooltip;
+  @FXML
+  @SuppressWarnings("unused")
+  private ProgressIndicator progressIndicator;
 
   private final StringProperty text = new SimpleStringProperty();
   private ResourceBundle resources;
@@ -64,6 +73,14 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
       taskStateIconTooltip.show(taskStateIcon, pos.getX(), pos.getY());
     });
     taskStateIcon.setOnMouseExited(event -> taskStateIconTooltip.hide());
+
+    progressIndicator.setOnMouseEntered(event -> {
+      final Point2D pos = progressIndicator.localToScreen(
+          progressIndicator.getLayoutBounds().getMaxX(),
+          progressIndicator.getLayoutBounds().getMaxY());
+      taskRunningTooltip.show(progressIndicator, pos.getX(), pos.getY());
+    });
+    progressIndicator.setOnMouseExited(event -> taskRunningTooltip.hide());
   }
 
   public String getText() {
@@ -97,13 +114,17 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     taskStateIcon.styleProperty().unbind();
     taskStateIconTooltip.textProperty().unbind();
 
-    taskStateIcon.visibleProperty().bind(task.stateProperty().isEqualTo(SUCCEEDED).not());
+    taskStateIcon.visibleProperty().bind(task.stateProperty().isEqualTo(SUCCEEDED).not()
+        .and(task.stateProperty().isEqualTo(RUNNING).not()));
     taskStateIcon.graphicProperty().bind(TaskBindings.getIconBinding("25", task));
     taskStateIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
     taskStateIconTooltip.textProperty().bind(Bindings.createStringBinding(
         () -> getMessageForTask(task), task.stateProperty()));
     btCancelTask.disableProperty().bind(task.runningProperty().not());
     btSubmitTask.disableProperty().bind(task.runningProperty());
+
+    progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
+    progressIndicator.visibleProperty().bind(task.runningProperty());
   }
 
   void resetTaskState() {
@@ -143,9 +164,11 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
       case FAILED:
         msg = resources.getString("task.Failed");
         break;
-      case SUCCEEDED:
       case READY:
       case SCHEDULED:
+        msg = resources.getString("task.Waiting");
+        break;
+      case SUCCEEDED:
       default:
         msg = "";
         break;

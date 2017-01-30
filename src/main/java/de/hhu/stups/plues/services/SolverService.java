@@ -61,10 +61,10 @@ public class SolverService {
 
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
+    final String title = String.format(resources.getString("check"), msg);
     //
     final SolverTask<Boolean> checkFeasibilityTask =
-        new SolverTask<>(resources.getString("check"), msg, this.solver,
-            () -> solver.checkFeasibility(names), timeout);
+        new SolverTask<>(title, this.solver, () -> solver.checkFeasibility(names), timeout);
     addOnCancelListener(courses, checkFeasibilityTask);
 
     checkFeasibilityTask.addEventHandler(WORKER_STATE_SUCCEEDED, event -> {
@@ -97,9 +97,10 @@ public class SolverService {
 
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
+    final String title = String.format(resources.getString("compute"), msg);
     //
     final SolverTask<FeasibilityResult> computeFeasibilityTask =
-        new SolverTask<>(resources.getString("compute"), msg, solver,
+        new SolverTask<>(title, solver,
             () -> {
               final FeasibilityResult result = solver.computeFeasibility(names);
               this.addCourseResult(courses, ResultState.SUCCEEDED);
@@ -149,9 +150,10 @@ public class SolverService {
         .collect(Collectors.toList());
 
     final String msg = getMessage(names);
+    final String title = String.format(resources.getString("compute"), msg);
     //
     final SolverTask<FeasibilityResult> computeFeasibilityTask =
-        new SolverTask<>(resources.getString("compute"), msg, solver,
+        new SolverTask<>(title, solver,
             () -> {
               final FeasibilityResult result = solver.computePartialFeasibility(names, mc, auc);
               addCourseResult(coursesArray, ResultState.SUCCEEDED);
@@ -181,9 +183,9 @@ public class SolverService {
 
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
+    final String title = String.format(resources.getString("unsat"), msg);
     //
-    return new SolverTask<>(resources.getString("unsat"), msg, solver,
-        () -> solver.unsatCore(names), timeout);
+    return new SolverTask<>(title, solver, () -> solver.unsatCore(names), timeout);
   }
 
   /**
@@ -195,9 +197,9 @@ public class SolverService {
   public SolverTask<Set<Integer>> unsatCoreModules(final Course... courses) {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
+    final String title = String.format(resources.getString("unsatCoreModules"), msg);
     //
-    return new SolverTask<>(resources.getString("unsatCoreModules"), msg, solver,
-        () -> solver.unsatCoreModules(names), timeout);
+    return new SolverTask<>(title, solver, () -> solver.unsatCoreModules(names), timeout);
   }
 
   /**
@@ -210,9 +212,9 @@ public class SolverService {
     final String msg = "";
     final List<Integer> moduleIds = modules.stream()
         .map(Module::getId).collect(Collectors.toList());
+    final String title = String.format(resources.getString("unsatCoreAbstractUnits"), msg);
     //
-    return new SolverTask<>(resources.getString("unsatCoreAbstractUnits"), msg, solver,
-        () -> solver.unsatCoreAbstractUnits(moduleIds), timeout);
+    return new SolverTask<>(title, solver, () -> solver.unsatCoreAbstractUnits(moduleIds), timeout);
   }
 
   /**
@@ -230,7 +232,9 @@ public class SolverService {
         .collect(Collectors.toList());
     final List<Integer> moduleIds = modules.stream()
         .map(Module::getId).collect(Collectors.toList());
-    return new SolverTask<>(resources.getString("unsatCoreGroups"), msg, solver,
+    final String title = String.format(resources.getString("unsatCoreGroups"), msg);
+
+    return new SolverTask<>(title, solver,
         () -> solver.unsatCoreGroups(abstractUnitIds, moduleIds), timeout);
   }
 
@@ -244,9 +248,9 @@ public class SolverService {
   public SolverTask<Set<Integer>> unsatCoreSessions(final List<Group> groups) {
     final String msg = "";
     final List<Integer> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
+    final String title = String.format(resources.getString("unsatCoreSessions"), msg);
     //
-    return new SolverTask<>(resources.getString("unsatCoreSessions"), msg, solver,
-        () -> solver.unsatCoreSessions(groupIds), timeout);
+    return new SolverTask<>(title, solver, () -> solver.unsatCoreSessions(groupIds), timeout);
   }
 
   /**
@@ -261,7 +265,9 @@ public class SolverService {
                                                              final Course... courses) {
     final String[] names = getNames(courses);
     final String msg = getMessage(names);
-    return new SolverTask<>(resources.getString("alternatives"), msg, solver,
+    final String title = String.format(resources.getString("alternatives"), msg);
+    //
+    return new SolverTask<>(title, solver,
         () -> solver.getLocalAlternatives(session.getId(), names), timeout);
   }
 
@@ -272,15 +278,15 @@ public class SolverService {
    * @return SolverTask
    */
   SolverTask<Set<String>> impossibleCoursesTask() {
-    return new SolverTask<>(resources.getString("impossible"),
-        resources.getString("message.impossible"), solver, solver::getImpossibleCourses,
-        timeout);
+
+    return new SolverTask<>(resources.getString("impossible"), solver,
+        solver::getImpossibleCourses, timeout);
   }
 
 
   public SolverTask<ReportData> collectReportDataTask() {
-    return new SolverTask<>(resources.getString("report"), resources.getString("message.report"),
-        solver, solver::getReportingData, timeout);
+    return new SolverTask<>(resources.getString("report"), solver,
+        solver::getReportingData, timeout);
   }
 
   private String getMessage(final String[] names) {
@@ -350,8 +356,7 @@ public class SolverService {
    * @return SolverTask object for moving a session
    */
   public SolverTask<Void> moveSessionTask(final int sessionId, final SessionFacade.Slot slot) {
-    return new SolverTask<>(resources.getString("moving"), resources.getString("message.moving"),
-        solver, () -> {
+    return new SolverTask<>(resources.getString("moving"), solver, () -> {
       solver.move(
           String.valueOf(sessionId),
           slot.getDayString(),

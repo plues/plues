@@ -12,6 +12,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.Map;
@@ -24,6 +25,9 @@ public class ImpossibleCourseModuleAbstractUnitPairs extends VBox implements Ini
   @FXML
   @SuppressWarnings("unused")
   private TreeView<String> treeViewCourseModuleAbstractUnitPairs;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   @Inject
   public ImpossibleCourseModuleAbstractUnitPairs(final Inflater inflater) {
@@ -34,6 +38,8 @@ public class ImpossibleCourseModuleAbstractUnitPairs extends VBox implements Ini
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     treeViewCourseModuleAbstractUnitPairs.setRoot(new TreeItem<>());
+    txtExplanation.wrappingWidthProperty().bind(
+        treeViewCourseModuleAbstractUnitPairs.widthProperty().subtract(25.0));
   }
 
   /**

@@ -1,33 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-        <Label text="%explain.ImpossibleAbstractUnitsInModule"/>
-        <Label text="%modules" style="-fx-font-size: 20px">
-        </Label>
-        <ListView fx:id="listViewModules"/>
-        <Label text="%abstractUnits" style="-fx-font-size: 20px"/>
-        <TableView fx:id="tableViewAbstractUnits">
-            <columns>
-                <TableColumn text="%columnKey" prefWidth="150.0">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="key"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn text="%columnTitle" prefWidth="550.0">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="title"/>
-                    </cellValueFactory>
-                </TableColumn>
-            </columns>
-        </TableView>
-    </children>
+<?import javafx.scene.text.Text?>
+
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox styleClass="windowPaddingSmall" spacing="10.0">
+        <Text fx:id="txtExplanation" text="%explain.ImpossibleAbstractUnitsInModule"/>
+        <Text text="%modules" style="-fx-font-weight: bold;"/>
+    </VBox>
+    <ListView fx:id="listViewModules"/>
+    <VBox styleClass="windowPaddingSmall">
+        <Label text="%abstractUnits" style="-fx-font-weight: bold;"/>
+    </VBox>
+    <TableView fx:id="tableViewAbstractUnits">
+        <columns>
+            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey" resizable="false">
+                <cellValueFactory>
+                    <PropertyValueFactory property="key"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnTitle" resizable="false">
+                <cellValueFactory>
+                    <PropertyValueFactory property="title"/>
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
 </fx:root>

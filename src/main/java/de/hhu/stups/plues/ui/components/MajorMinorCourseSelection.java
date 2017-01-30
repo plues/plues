@@ -4,10 +4,10 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -21,7 +21,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -37,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MajorMinorCourseSelection extends GridPane implements Initializable, Observable {
 
@@ -119,32 +119,14 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
         -> cbMinor.getSelectionModel().selectFirst());
 
     cbMajor.itemsProperty().bind(majorCourseList);
-    cbMinor.itemsProperty().bind(new ListBinding<Course>() {
-      {
-        bind(cbMajor.getSelectionModel().selectedItemProperty(), minorCourseList);
-      }
-
-      @Override
-      public void dispose() {
-        super.dispose();
-        unbind(cbMajor.getSelectionModel().selectedItemProperty(), minorCourseList);
-      }
-
-      @Override
-      protected ObservableList<Course> computeValue() {
-        final Course major = getSelectedMajor();
-        if (major == null) {
-          return minorCourseList;
-        }
-        return minorCourseList.filtered(major::isCombinableWith);
-      }
-    });
+    cbMinor.itemsProperty().bind(new MinorCourseListBinding());
 
     final ReadOnlyObjectProperty<Course> selectedMajorProperty
         = this.cbMajor.getSelectionModel().selectedItemProperty();
 
-    cbMinor.disableProperty().bind(
-        Bindings.selectBoolean(selectedMajorProperty, "combinable").not());
+    final BooleanBinding majorNotCombinable
+        = Bindings.selectBoolean(selectedMajorProperty, "combinable").not();
+    cbMinor.disableProperty().bind(majorNotCombinable);
 
     impossibleCoursesProperty.addListener((observable, oldValue, newValue) -> {
       cbMajor.setCellFactory(getCallbackForImpossibleCourses(newValue));
@@ -152,31 +134,11 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     });
 
     this.selectedMajor.bind(cbMajor.getSelectionModel().selectedItemProperty());
-    this.selectedMinor.bind(Bindings.when(cbMinor.disabledProperty().not())
-        .then(cbMinor.getSelectionModel().selectedItemProperty())
-        .otherwise(new SimpleObjectProperty<>(null)));
-    this.selectedCourses.bind(new ListBinding<Course>() {
-      {
-        bind(selectedMajor, selectedMinor);
-      }
+    this.selectedMinor.bind(Bindings.when(majorNotCombinable)
+        .then(new SimpleObjectProperty<Course>(null))
+        .otherwise(cbMinor.getSelectionModel().selectedItemProperty()));
 
-      @Override
-      public void dispose() {
-        super.dispose();
-        unbind(selectedMajor, selectedMinor);
-      }
-
-      @Override
-      protected ObservableList<Course> computeValue() {
-        final ObservableList<Course> result
-            = FXCollections.observableArrayList(selectedMajor.get());
-        final Course minor = selectedMinor.get();
-        if (minor != null) {
-          result.add(minor);
-        }
-        return result;
-      }
-    });
+    this.selectedCourses.bind(new SelectedCoursesListBinding());
   }
 
   /**
@@ -305,6 +267,53 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     @Override
     public Course fromString(final String string) {
       throw new UnsupportedOperationException();
+    }
+  }
+
+  private class MinorCourseListBinding extends ListBinding<Course> {
+    MinorCourseListBinding() {
+      bind(cbMajor.getSelectionModel().selectedItemProperty(), minorCourseList);
+    }
+
+    @Override
+    public void dispose() {
+      super.dispose();
+      unbind(cbMajor.getSelectionModel().selectedItemProperty(), minorCourseList);
+    }
+
+    @Override
+    protected ObservableList<Course> computeValue() {
+      final Course major = getSelectedMajor();
+      if (major == null) {
+        return minorCourseList;
+      }
+      return minorCourseList.stream()
+          .filter(major::isCombinableWith)
+          .collect(
+            Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
+    }
+  }
+
+  private class SelectedCoursesListBinding extends ListBinding<Course> {
+    SelectedCoursesListBinding() {
+      bind(selectedMajor, selectedMinor);
+    }
+
+    @Override
+    public void dispose() {
+      super.dispose();
+      unbind(selectedMajor, selectedMinor);
+    }
+
+    @Override
+    protected ObservableList<Course> computeValue() {
+      final ObservableList<Course> result
+          = FXCollections.observableArrayList(selectedMajor.get());
+      final Course minor = selectedMinor.get();
+      if (minor != null) {
+        result.add(minor);
+      }
+      return result;
     }
   }
 }

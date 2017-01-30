@@ -20,7 +20,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
@@ -36,20 +35,39 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
   private final Router router;
 
   @FXML
+  @SuppressWarnings("unused")
   private Label key;
   @FXML
+  @SuppressWarnings("unused")
   private Label title;
   @FXML
+  @SuppressWarnings("unused")
   private TableView<Unit> tableViewUnits;
   @FXML
+  @SuppressWarnings("unused")
   private TableView<Module> tableViewModules;
   @FXML
-  private TableColumn<Module, String> semesters;
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnUnitsKey;
   @FXML
-  private TableColumn<Module, String> type;
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnUnitsTitle;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnModulesPordnr;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnModulesTitle;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnModulesSemesters;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnModulesType;
 
   /**
    * Default constructor.
+   *
    * @param inflater Inflater to handle fxml and lang
    */
   @Inject
@@ -64,6 +82,7 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
 
   /**
    * Set property for this detail view.
+   *
    * @param abstractUnit Unit for property containing displayed data
    */
   public void setAbstractUnit(final AbstractUnit abstractUnit) {
@@ -76,11 +95,14 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    this.key.textProperty().bind(Bindings.when(abstractUnitProperty.isNotNull()).then(
+    key.textProperty().bind(Bindings.when(abstractUnitProperty.isNotNull()).then(
         Bindings.selectString(abstractUnitProperty, "key")).otherwise(""));
-    this.title.textProperty().bind(Bindings.when(abstractUnitProperty.isNotNull()).then(
+    title.textProperty().bind(Bindings.when(abstractUnitProperty.isNotNull()).then(
         Bindings.selectString(abstractUnitProperty, "title")).otherwise(""));
-    this.tableViewUnits.itemsProperty().bind(new ListBinding<Unit>() {
+
+    bindTableColumnsWidth();
+
+    tableViewUnits.itemsProperty().bind(new ListBinding<Unit>() {
       {
         bind(abstractUnitProperty);
       }
@@ -95,7 +117,8 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
         return FXCollections.observableArrayList(abstractUnit.getUnits());
       }
     });
-    this.tableViewModules.itemsProperty().bind(new ListBinding<Module>() {
+
+    tableViewModules.itemsProperty().bind(new ListBinding<Module>() {
       {
         bind(abstractUnitProperty);
       }
@@ -111,36 +134,52 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
       }
     });
 
-    this.semesters.setCellValueFactory(param -> {
+    tableColumnModulesSemesters.setCellValueFactory(param -> {
       final Set<ModuleAbstractUnitSemester> filteredByAbstractUnit =
           param.getValue().getModuleAbstractUnitSemesters()
-          .stream().filter(moduleAbstractUnitSemester ->
-            this.abstractUnitProperty.get().equals(moduleAbstractUnitSemester.getAbstractUnit()))
-          .collect(Collectors.toSet());
+              .stream().filter(moduleAbstractUnitSemester ->
+              this.abstractUnitProperty.get().equals(moduleAbstractUnitSemester.getAbstractUnit()))
+              .collect(Collectors.toSet());
       final Set<ModuleAbstractUnitSemester> filteredByBoth =
           filteredByAbstractUnit.stream().filter(moduleAbstractUnitSemester ->
-            this.tableViewModules.getItems().contains(moduleAbstractUnitSemester.getModule()))
-            .collect(Collectors.toSet());
+              this.tableViewModules.getItems().contains(moduleAbstractUnitSemester.getModule()))
+              .collect(Collectors.toSet());
 
       final Set<Integer> semesters = filteredByBoth.stream()
           .map(ModuleAbstractUnitSemester::getSemester).collect(Collectors.toSet());
 
       return new ReadOnlyObjectWrapper<>(Joiner.on(",").join(semesters));
     });
-    this.semesters.setCellFactory(param -> DetailViewHelper.createTableCell());
+    tableColumnModulesSemesters.setCellFactory(param -> DetailViewHelper.createTableCell());
 
-    this.type.setCellValueFactory(param -> {
+    tableColumnModulesType.setCellValueFactory(param -> {
       if (param.getValue().getMandatory()) {
         return new ReadOnlyObjectWrapper<>("m");
       }
 
       return new ReadOnlyObjectWrapper<>("e");
     });
-    this.type.setCellFactory(param -> DetailViewHelper.createTableCell());
+    tableColumnModulesType.setCellFactory(param -> DetailViewHelper.createTableCell());
 
     tableViewUnits.setOnMouseClicked(DetailViewHelper.getUnitMouseHandler(
         tableViewUnits, router));
     tableViewModules.setOnMouseClicked(DetailViewHelper.getModuleMouseHandler(
         tableViewModules, router));
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnUnitsKey.prefWidthProperty().bind(
+        tableViewUnits.widthProperty().multiply(0.2));
+    tableColumnUnitsTitle.prefWidthProperty().bind(
+        tableViewUnits.widthProperty().multiply(0.76));
+
+    tableColumnModulesPordnr.prefWidthProperty().bind(
+        tableViewUnits.widthProperty().multiply(0.15));
+    tableColumnModulesTitle.prefWidthProperty().bind(
+        tableViewUnits.widthProperty().multiply(0.59));
+    tableColumnModulesSemesters.prefWidthProperty().bind(
+        tableViewUnits.widthProperty().multiply(0.15));
+    tableColumnModulesType.prefWidthProperty().bind(
+        tableViewUnits.widthProperty().multiply(0.07));
   }
 }

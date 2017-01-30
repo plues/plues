@@ -21,14 +21,19 @@ public class CourseDetailView extends VBox implements Initializable {
   private final ObjectProperty<Course> courseProperty;
 
   @FXML
+  @SuppressWarnings("unused")
   private Label key;
   @FXML
+  @SuppressWarnings("unused")
   private Label name;
   @FXML
+  @SuppressWarnings("unused")
   private Label po;
   @FXML
+  @SuppressWarnings("unused")
   private Label kzfa;
   @FXML
+  @SuppressWarnings("unused")
   private Label degree;
 
   /**

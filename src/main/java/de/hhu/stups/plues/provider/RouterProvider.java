@@ -12,7 +12,6 @@ import de.hhu.stups.plues.routes.HandbookRoute;
 import de.hhu.stups.plues.routes.HandbookRouteFactory;
 import de.hhu.stups.plues.routes.IndexRoute;
 import de.hhu.stups.plues.routes.ModuleDetailViewRoute;
-import de.hhu.stups.plues.routes.ReportsRoute;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.routes.SessionDetailViewRoute;
@@ -31,7 +30,6 @@ public class RouterProvider implements Provider<Router> {
   private final Provider<UnitDetailViewRoute> unitDetailViewRouteProvider;
   private final Provider<SessionDetailViewRoute> sessionDetailViewRouteProvider;
   private final Provider<CourseDetailViewRoute> courseDetailViewRouteProvider;
-  private final Provider<ReportsRoute> reportsRouteProvider;
   private final Provider<IndexRoute> indexRouteProvider;
 
   /**
@@ -46,7 +44,6 @@ public class RouterProvider implements Provider<Router> {
                         final Provider<SessionDetailViewRoute> sessionDetailViewRouteProvider,
                         final Provider<CourseDetailViewRoute> courseDetailViewRouteProvider,
                         final Provider<AboutWindowRoute> aboutWindowRouteProvider,
-                        final Provider<ReportsRoute> reportsRouteProvider,
                         final Provider<ChangelogRoute> changelogRouteProvider,
                         final ControllerRouteFactory controllerRouteFactory,
                         final HandbookRouteFactory handbookRouteFactory) {
@@ -57,7 +54,6 @@ public class RouterProvider implements Provider<Router> {
     this.sessionDetailViewRouteProvider = sessionDetailViewRouteProvider;
     this.courseDetailViewRouteProvider = courseDetailViewRouteProvider;
     this.aboutWindowRouteProvider = aboutWindowRouteProvider;
-    this.reportsRouteProvider = reportsRouteProvider;
     this.changelogRouteProvider = changelogRouteProvider;
     this.controllerRouteFactory = controllerRouteFactory;
     this.handbookRouteFactory = handbookRouteFactory;
@@ -77,7 +73,6 @@ public class RouterProvider implements Provider<Router> {
       cache.put(RouteNames.UNIT_DETAIL_VIEW, unitDetailViewRouteProvider.get());
       cache.put(RouteNames.COURSE_DETAIL_VIEW, courseDetailViewRouteProvider.get());
       cache.put(RouteNames.ABOUT_WINDOW, aboutWindowRouteProvider.get());
-      cache.put(RouteNames.REPORTS, reportsRouteProvider.get());
       cache.put(RouteNames.CHANGELOG, changelogRouteProvider.get());
       cache.put(RouteNames.HANDBOOK_HTML, handbookRouteFactory.create(HandbookRoute.Format.HTML));
       cache.put(RouteNames.HANDBOOK_PDF, handbookRouteFactory.create(HandbookRoute.Format.PDF));

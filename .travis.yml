@@ -11,7 +11,10 @@ addons:
     - lib32z1
     - lib32ncurses5
     - oracle-java8-installer
-  sonarqube: true
+  sonarqube:
+    branches:
+      - master
+      - develop
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -23,7 +26,7 @@ before_install:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
 script:
-  - ./gradlew --stacktrace -Pheadless=true check
+  - ./gradlew --stacktrace -Pheadless=true check jacocoTestReport
   - sonar-scanner -Dsonar.login=$SONAR_TOKEN
 after_success:
   - ./gradlew distZip winZip createApp

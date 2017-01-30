@@ -5,17 +5,15 @@ import com.google.inject.Singleton;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
-import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleSetProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -32,14 +30,12 @@ import java.util.stream.Collectors;
 
 @Singleton
 public class UiDataService {
-  private final ListProperty<Integer> conflictMarkedSessionsProperty =
-      new SimpleListProperty<>(FXCollections.emptyObservableList());
-  private final StringProperty sessionDisplayFormatProperty = new SimpleStringProperty();
+  private final ListProperty<Integer> conflictMarkedSessionsProperty
+      = new SimpleListProperty<>(FXCollections.emptyObservableList());
 
-  // TODO: remove
-  @Deprecated
-  private final SetProperty<String> impossibleCourseNamesProperty
-      = new SimpleSetProperty<>(FXCollections.observableSet());
+  private final ObjectProperty<SessionDisplayFormat> sessionDisplayFormatProperty
+      = new SimpleObjectProperty<>(SessionDisplayFormat.UNIT_KEY);
+
   private final SetProperty<Course> impossibleCoursesProperty
       = new SimpleSetProperty<>(FXCollections.observableSet());
 
@@ -77,20 +73,6 @@ public class UiDataService {
     return lastSavedDate;
   }
 
-  @Deprecated
-  public ObservableSet<String> getImpossibleCourseNames() {
-    return impossibleCourseNamesProperty.get();
-  }
-
-  private void setImpossibleCourseNames(final Set<String> value) {
-    this.impossibleCourseNamesProperty.set(FXCollections.observableSet(value));
-  }
-
-  @Deprecated
-  public SetProperty<String> impossibleCourseNamesProperty() {
-    return impossibleCourseNamesProperty;
-  }
-
   public ObservableSet<Course> getImpossibleCoures() {
     return this.impossibleCoursesProperty.get();
   }
@@ -107,24 +89,21 @@ public class UiDataService {
   private void loadImpossibleCourses(final SolverService solverService, final Store store) {
     final SolverTask<Set<String>> t = solverService.impossibleCoursesTask();
     executorService.submit(t);
-    t.setOnSucceeded(event -> {
-      final Set<String> names = t.getValue();
-      this.setImpossibleCourseNames(names);
-      this.setImpossibleCourses(t.getValue().stream()
-          .map(store::getCourseByKey)
-          .collect(Collectors.collectingAndThen(Collectors.toSet(), FXCollections::observableSet)));
-    });
+    t.setOnSucceeded(event -> this.setImpossibleCourses(t.getValue().stream()
+        .map(store::getCourseByKey)
+        .collect(Collectors.collectingAndThen(Collectors.toSet(), FXCollections::observableSet))));
   }
 
-  public String getSessionDisplayFormatProperty() {
+  public SessionDisplayFormat getSessionDisplayFormat() {
     return sessionDisplayFormatProperty.get();
   }
 
-  public void setSessionDisplayFormatProperty(final String sessionDisplayFormatProperty) {
+  public void setSessionDisplayFormatProperty(
+        final SessionDisplayFormat sessionDisplayFormatProperty) {
     this.sessionDisplayFormatProperty.set(sessionDisplayFormatProperty);
   }
 
-  public StringProperty sessionDisplayFormatProperty() {
+  public ObjectProperty<SessionDisplayFormat> sessionDisplayFormatProperty() {
     return sessionDisplayFormatProperty;
   }
 

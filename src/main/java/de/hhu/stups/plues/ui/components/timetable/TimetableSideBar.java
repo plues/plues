@@ -1,5 +1,8 @@
 package de.hhu.stups.plues.ui.components.timetable;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.ObservableStore;
@@ -11,32 +14,39 @@ import de.hhu.stups.plues.ui.components.CheckCourseFeasibility;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.controller.Timetable;
 import de.hhu.stups.plues.ui.layout.Inflater;
-import javafx.collections.ObservableList;
-import javafx.event.EventTarget;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 
 public class TimetableSideBar extends TabPane implements Initializable {
 
   private static final String SIDE_BAR_TAB_LAYOUT = "sideBarTabLayout";
+  private static final ListeningExecutorService EXECUTOR_SERVICE;
 
   private final UiDataService uiDataService;
-  private Tab selectedSubTab;
+  private Node selectedSubTab;
   private Timetable parent;
 
   @FXML
@@ -55,6 +65,9 @@ public class TimetableSideBar extends TabPane implements Initializable {
   @SuppressWarnings("unused")
   private CheckCourseFeasibility checkCourseFeasibility;
 
+  private final BooleanProperty collapsed = new SimpleBooleanProperty(false);
+  private boolean fadingInProgress = false;
+
   @Inject
   public TimetableSideBar(final Inflater inflater, final UiDataService uiDataService) {
     this.uiDataService = uiDataService;
@@ -65,23 +78,74 @@ public class TimetableSideBar extends TabPane implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     VBox.setVgrow(this, Priority.ALWAYS);
 
-    getTabs().forEach(sideTab ->
-        sideTab.getStyleClass().addAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabVisible"));
-    selectedSubTab = getSelectionModel().getSelectedItem();
+    getTabs().forEach(sideTab -> {
+      sideTab.getStyleClass().addAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabVisible");
+      sideTab.setOnCloseRequest(Event::consume);
+    });
 
-    addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
-      final EventTarget eventTarget = mouseEvent.getTarget();
-      if (eventTarget instanceof Text) {
-        handleSideBarTabs(((Text) eventTarget).getText());
-      } else if (eventTarget instanceof StackPane) {
-        final ObservableList<String> styleClasses = ((StackPane) eventTarget).getStyleClass();
-        if (styleClasses.contains("tab-container")) {
-          final Optional<Node> optionalLabel = ((StackPane) eventTarget).getChildren().stream()
-              .filter(node -> node instanceof Label).findFirst();
-          optionalLabel.ifPresent(node -> handleSideBarTabs(((Label) node).getText()));
+    this.collapsed.addListener((observable, oldValue, shouldHide) -> hideSideBar(shouldHide));
+
+    addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+      final Node clickedTab = getClickedTab(mouseEvent);
+      if (clickedTab != null) {
+        if (selectedSubTab == null) {
+          selectedSubTab = this.lookup(".tab:first-child");
+        }
+        if (selectedSubTab.equals(clickedTab)) { // switch state
+          mouseEvent.consume();
+          this.collapsed.set(!this.collapsed.get());
+          if (this.collapsed.get()) {
+            selectedSubTab = null;
+          }
+        } else { // switch tab and make visible
+          selectedSubTab = clickedTab;
+          this.collapsed.set(false);
         }
       }
     });
+  }
+
+  /**
+   * Find the tab that was clicked in the mouse event.
+   *
+   * @param mouseEvent MouseEvent for the click
+   * @return Node representing the clicked tab, null if the click was not on a tab header.
+   */
+  private Node getClickedTab(final MouseEvent mouseEvent) {
+    Node node = (Node) mouseEvent.getTarget();
+
+    if (!inTabHeader(node)) {
+      return null;
+    }
+
+    do {
+      if (!node.getStyleClass().contains("tab")) {
+        continue;
+      }
+      return node;
+    }
+    while ((node = node.getParent()) != null);
+
+    return null;
+  }
+
+  /**
+   * Check if the node is in a tab header.
+   *
+   * @param root Node to check
+   * @return boolean
+   */
+  private boolean inTabHeader(final Node root) {
+    Node node = root;
+    do {
+      if (!node.getStyleClass().contains("tab-container")) {
+        continue;
+      }
+      return true;
+    }
+    while ((node = node.getParent()) != null);
+
+    return false;
   }
 
   /**
@@ -89,9 +153,10 @@ public class TimetableSideBar extends TabPane implements Initializable {
    * #checkCourseFeasibility}.
    */
   public void initializeComponents(final ObservableStore store) {
+    selectedSubTab = lookup(".tab:first-child");
+
     abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
-    abstractUnitFilter.courseFilterProperty().bind(
-        setOfCourseSelection.selectedCoursesProperty());
+    abstractUnitFilter.courseFilterProperty().bind(setOfCourseSelection.selectedCoursesProperty());
 
     setOfCourseSelection.setCourses(store.getCourses());
 
@@ -130,47 +195,63 @@ public class TimetableSideBar extends TabPane implements Initializable {
     }
   }
 
-  /**
-   * Identify each tab by its text and handle the visibility of the side bar according to the
-   * selected tab's state.
-   */
-  @SuppressWarnings("unused")
-  private void handleSideBarTabs(final String tabText) {
-    final Optional<Tab> optionalTab = getTabs().stream()
-        .filter(tab -> tab.getText().equals(tabText)).findFirst();
-    optionalTab.ifPresent(this::showOrHideSideBar);
+  static {
+    final ThreadFactory threadFactoryBuilder = new ThreadFactoryBuilder().setDaemon(true)
+        .setNameFormat("task-progress-hide-runner-%d").build();
+
+    EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
+        Executors.newSingleThreadExecutor(threadFactoryBuilder));
   }
 
+
   /**
-   * Either show or hide the tab pane's content by moving the {@link #parent split pane's} slider.
-   * The content is hidden if a selected tab is clicked again.
+   * Fade-in or fade-out the {@link this TimetableSideBar} by moving the {@link #parent
+   * Timetables's} split pane divider to the destination.
    */
-  private void showOrHideSideBar(final Tab tab) {
-    if (tab.equals(selectedSubTab)) {
-      parent.setDividerPosition(0, getMinWidth() / parent.getWidth());
-      parent.disableDivider(true);
-      selectedSubTab = null;
-      tab.getStyleClass().clear();
+  private void hideSideBar(final boolean hide) {
+    if (!fadingInProgress) {
+      if (!hide) {
+        handleTabVisibility(false);
+      }
+      parent.disableDivider(hide);
+      EXECUTOR_SERVICE.execute(() -> {
+        fadingInProgress = true;
+
+        final Timeline timeline = new Timeline();
+        final double destination = hide ? getMinWidth() / parent.getWidth()
+            : parent.getUserDefinedDividerPos();
+
+        final KeyValue dividerPosition =
+            new KeyValue(parent.getDivider().positionProperty(), destination);
+
+        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250), dividerPosition));
+        timeline.setOnFinished(event -> {
+          fadingInProgress = false;
+          if (hide) {
+            handleTabVisibility(true);
+          }
+        });
+        Platform.runLater(timeline::play);
+      });
+    }
+  }
+
+  private void handleTabVisibility(final boolean hide) {
+    if (hide) {
       getTabs().forEach(sideTab -> {
         sideTab.getStyleClass().clear();
         sideTab.getStyleClass().addAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabHidden");
       });
+      setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+      getSelectionModel().select(null);
+      selectedSubTab = null;
     } else {
-      showSideBar(tab);
+      getTabs().forEach(sideTab -> {
+        sideTab.getStyleClass().clear();
+        sideTab.getStyleClass().addAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabVisible");
+      });
+      setTabClosingPolicy(TabClosingPolicy.SELECTED_TAB);
     }
-  }
-
-  private void showSideBar(final Tab tab) {
-    getSelectionModel().select(getTabs().indexOf(tab));
-    if (selectedSubTab == null) {
-      parent.restoreUserDefinedDividerPos();
-    }
-    parent.disableDivider(false);
-    selectedSubTab = tab;
-    getTabs().forEach(sideTab -> {
-      sideTab.getStyleClass().clear();
-      sideTab.getStyleClass().addAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabVisible");
-    });
   }
 
   /**
@@ -186,13 +267,17 @@ public class TimetableSideBar extends TabPane implements Initializable {
     return getMinWidth();
   }
 
+  public boolean isFadingInProgress() {
+    return fadingInProgress;
+  }
+
   public void setParent(final Timetable parent) {
     this.parent = parent;
   }
 
   private void selectSideBarTab(final Tab tab) {
     getSelectionModel().select(getTabs().indexOf(tab));
-    showSideBar(tab);
+    collapsed.set(false);
   }
 
   public SetOfCourseSelection getSetOfCourseSelection() {
@@ -201,5 +286,9 @@ public class TimetableSideBar extends TabPane implements Initializable {
 
   public AbstractUnitFilter getAbstractUnitFilter() {
     return abstractUnitFilter;
+  }
+
+  public boolean isCollapsed() {
+    return collapsed.get();
   }
 }

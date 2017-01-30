@@ -12,8 +12,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.Map;
@@ -22,7 +24,7 @@ import java.util.Set;
 
 public class ImpossibleAbstractUnitsInModule extends VBox implements Initializable {
 
-  private Map<Module, Set<AbstractUnit>> impossibleAbstractUnitsInModule;
+  private Map<Module, Set<AbstractUnit>> impossibleAbstractUnitsInModuleMap;
   private SimpleListProperty<Module> modules;
   private SimpleListProperty<AbstractUnit> abstractUnits;
 
@@ -32,9 +34,19 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
   @FXML
   @SuppressWarnings("unused")
   private TableView<AbstractUnit> tableViewAbstractUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<AbstractUnit, String> tableColumnAbstractUnitKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<AbstractUnit, String> tableColumnAbstractUnitTitle;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   /**
    * Default constructor
+   *
    * @param inflater Inflater to handle fxml files and resources.
    */
   @Inject
@@ -62,11 +74,23 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
     });
     listViewModules.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) ->
-          abstractUnits.setAll(impossibleAbstractUnitsInModule.get(newValue)));
+            abstractUnits.setAll(impossibleAbstractUnitsInModuleMap.get(newValue)));
+
+    txtExplanation.wrappingWidthProperty().bind(
+        tableViewAbstractUnits.widthProperty().subtract(25.0));
+
+    bindTableColumnsWidth();
   }
 
-  public void setData(final Map<Module, Set<AbstractUnit>> impossibleAbstractUnitsInModule) {
-    this.impossibleAbstractUnitsInModule = impossibleAbstractUnitsInModule;
-    modules.addAll(impossibleAbstractUnitsInModule.keySet());
+  private void bindTableColumnsWidth() {
+    tableColumnAbstractUnitKey.prefWidthProperty().bind(
+        tableViewAbstractUnits.widthProperty().multiply(0.2));
+    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
+        tableViewAbstractUnits.widthProperty().multiply(0.76));
+  }
+
+  public void setData(final Map<Module, Set<AbstractUnit>> impossibleAbstractUnitsInModuleMap) {
+    this.impossibleAbstractUnitsInModuleMap = impossibleAbstractUnitsInModuleMap;
+    modules.addAll(impossibleAbstractUnitsInModuleMap.keySet());
   }
 }

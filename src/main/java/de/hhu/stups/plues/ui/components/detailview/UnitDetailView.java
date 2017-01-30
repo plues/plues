@@ -2,7 +2,6 @@ package de.hhu.stups.plues.ui.components.detailview;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Session;
@@ -37,24 +36,38 @@ public class UnitDetailView extends VBox implements Initializable {
   private final Router router;
 
   @FXML
+  @SuppressWarnings("unused")
   private Label key;
   @FXML
+  @SuppressWarnings("unused")
   private Label title;
   @FXML
+  @SuppressWarnings("unused")
   private Label semesters;
   @FXML
+  @SuppressWarnings("unused")
   private TableView<AbstractUnit> abstractUnitTableView;
   @FXML
+  @SuppressWarnings("unused")
   private TableView<Session> sessionTableView;
   @FXML
-  private TableColumn<Session, String> columnDay;
+  @SuppressWarnings("unused")
+  private TableColumn<AbstractUnit, String> tableColumnAbstractUnitKey;
   @FXML
-  private TableColumn<Session, String> columnTime;
+  @SuppressWarnings("unused")
+  private TableColumn<AbstractUnit, String> tableColumnAbstractUnitTitle;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Session, String> tableColumnSessionId;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Session, String> tableColumnSessionDay;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Session, String> tableColumnSessionTime;
 
   /**
    * Constructor to create unitDetailView.
-   * @param inflater Inflater to handle fxml and lang files.
-   * @param router Router to open window
    */
   @Inject
   public UnitDetailView(final Inflater inflater,
@@ -96,13 +109,15 @@ public class UnitDetailView extends VBox implements Initializable {
       }
     });
 
-    columnDay.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
+    tableColumnSessionDay.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
         resources.getString(param.getValue().getDay())));
-    columnDay.setCellFactory(param -> new SessionStringTableCell());
+    tableColumnSessionDay.setCellFactory(param -> new SessionStringTableCell());
 
-    columnTime.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
+    tableColumnSessionTime.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
         String.valueOf(6 + param.getValue().getTime() * 2) + ":30"));
-    columnTime.setCellFactory(param -> new SessionStringTableCell());
+    tableColumnSessionTime.setCellFactory(param -> new SessionStringTableCell());
+
+    bindTableColumnsWidth();
 
     abstractUnitTableView.itemsProperty().bind(new ListBinding<AbstractUnit>() {
       {
@@ -141,6 +156,20 @@ public class UnitDetailView extends VBox implements Initializable {
         abstractUnitTableView, router));
     sessionTableView.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
         sessionTableView, router));
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnAbstractUnitKey.prefWidthProperty().bind(
+        abstractUnitTableView.widthProperty().multiply(0.25));
+    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
+        abstractUnitTableView.widthProperty().multiply(0.71));
+
+    tableColumnSessionId.prefWidthProperty().bind(
+        sessionTableView.widthProperty().multiply(0.2));
+    tableColumnSessionDay.prefWidthProperty().bind(
+        sessionTableView.widthProperty().multiply(0.38));
+    tableColumnSessionTime.prefWidthProperty().bind(
+        sessionTableView.widthProperty().multiply(0.38));
   }
 
   private static class SessionStringTableCell extends TableCell<Session, String> {

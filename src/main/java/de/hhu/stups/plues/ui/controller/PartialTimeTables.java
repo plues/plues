@@ -1,5 +1,7 @@
 package de.hhu.stups.plues.ui.controller;
 
+import static javafx.concurrent.Worker.State.RUNNING;
+
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
@@ -15,6 +17,7 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.TaskBindings;
+import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
@@ -31,6 +34,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -46,13 +50,15 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
+
 public class PartialTimeTables extends GridPane implements Initializable, Activatable {
 
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
 
   private final BooleanProperty solverProperty;
-  private final BooleanProperty checkStarted;
+  private final BooleanProperty checkRunning;
+  private final BooleanProperty selectionChanged;
 
   private final CheckBoxGroupFactory checkBoxGroupFactory;
   private final ObjectProperty<Store> storeProperty;
@@ -61,6 +67,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   private final ExecutorService executor;
   private final UiDataService uiDataService;
   private final ObjectProperty<Path> pdf;
+  private final ObjectProperty<PdfRenderingTask> currentTaskProperty;
 
   @FXML
   @SuppressWarnings("unused")
@@ -76,13 +83,25 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   private VBox modulesUnits;
   @FXML
   @SuppressWarnings("unused")
-  private Button btCheck;
+  private Button btGenerate;
   @FXML
   @SuppressWarnings("unused")
-  private Label icon;
+  private Button btShow;
   @FXML
   @SuppressWarnings("unused")
-  private HBox buttons;
+  private Button btSave;
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btCancel;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbIcon;
+  @FXML
+  @SuppressWarnings("unused")
+  private HBox buttonBox;
+  @FXML
+  @SuppressWarnings("unused")
+  private ProgressIndicator progressIndicator;
 
   /**
    * Constructor for partial time table controller.
@@ -109,27 +128,35 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
 
     this.storeProperty = new SimpleObjectProperty<>();
     this.solverProperty = new SimpleBooleanProperty(false);
-    this.checkStarted = new SimpleBooleanProperty(false);
+    this.checkRunning = new SimpleBooleanProperty(false);
+    this.selectionChanged = new SimpleBooleanProperty(false);
     this.pdf = new SimpleObjectProperty<>();
+    currentTaskProperty = new SimpleObjectProperty<>();
 
     inflater.inflate("PartialTimeTables", this, this, "musterstudienplaene");
   }
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
-    final BooleanBinding selectionBinding = storeProperty.isNull().or(checkStarted);
+    final BooleanBinding selectionBinding = storeProperty.isNull().or(checkRunning);
 
     btChoose.disableProperty().bind(selectionBinding);
     courseSelection.disableProperty().bind(selectionBinding);
 
     courseSelection.addListener(observable -> {
       scrollPane.setVisible(false);
-      btCheck.setVisible(false);
+      btGenerate.setVisible(false);
+      lbIcon.visibleProperty().unbind();
+      lbIcon.setVisible(false);
     });
-    btCheck.disableProperty().bind(solverProperty.not().or(checkStarted));
 
-    buttons.visibleProperty().bind(btCheck.visibleProperty());
-    buttons.disableProperty().bind(pdf.isNull());
+    btGenerate.disableProperty().bind(solverProperty.not().or(checkRunning));
+    btCancel.disableProperty().bind(solverProperty.not().or(checkRunning.not()));
+    btCancel.visibleProperty().bind(btGenerate.visibleProperty());
+    btShow.visibleProperty().bind(btGenerate.visibleProperty());
+    btSave.visibleProperty().bind(btGenerate.visibleProperty());
+    btShow.disableProperty().bind(pdf.isNull().or(checkRunning).or(selectionChanged));
+    btSave.disableProperty().bind(pdf.isNull().or(checkRunning).or(selectionChanged));
 
     delayedStore.whenAvailable(s -> {
       PdfRenderingHelper.initializeCourseSelection(s, uiDataService, courseSelection);
@@ -145,10 +172,11 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   @FXML
   @SuppressWarnings( {"unused", "WeakerAccess"})
   public void btChoosePressed() {
-    checkStarted.set(false);
+    selectionChanged.set(false);
+    checkRunning.set(false);
     modulesUnits.getChildren().clear();
     scrollPane.setVisible(true);
-    btCheck.setVisible(true);
+    btGenerate.setVisible(true);
     pdf.set(null);
 
     final Course major = courseSelection.getSelectedMajor();
@@ -174,6 +202,13 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     }
   }
 
+  @FXML
+  @SuppressWarnings("unused")
+  public void btCancelPressed() {
+    currentTaskProperty.get().cancel(true);
+    currentTaskProperty.unbind();
+  }
+
   private Node createCheckBoxGroup(final Module module, final Course course) {
     return checkBoxGroupFactory.create(course, module);
   }
@@ -183,8 +218,8 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
    */
   @FXML
   @SuppressWarnings("unused")
-  public void btCheckPressed() throws InterruptedException {
-    checkStarted.set(true);
+  public void btGeneratePressed() throws InterruptedException {
+    checkRunning.set(true);
 
     final ObservableList<Course> courses = courseSelection.getSelectedCourses();
     final Course major = courseSelection.getSelectedMajor();
@@ -195,7 +230,6 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
 
     for (final Course course : courses) {
       moduleChoice.put(course, new ArrayList<>());
-
     }
 
     for (final Object o : modulesUnits.getChildren()) {
@@ -203,6 +237,8 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
         continue;
       }
       final CheckBoxGroup cbg = (CheckBoxGroup) o;
+
+      cbg.setOnSelectionChanged(selectionChanged);
 
       final Module module = cbg.getModule();
       if (module != null) {
@@ -214,22 +250,45 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     delayedSolverService.whenAvailable(solverService -> {
       final SolverTask<FeasibilityResult> solverTask =
           solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
-      final PdfRenderingTask task = renderingTaskFactory.create(major, minor, solverTask);
-      task.setOnSucceeded(event -> {
-        pdf.set((Path) event.getSource().getValue());
-        checkStarted.set(false);
-      });
-      task.setOnFailed(event -> {
-        pdf.set(null);
-        checkStarted.set(false);
-      });
-      task.setOnCancelled(event -> checkStarted.set(false));
-
-      icon.styleProperty().bind(TaskBindings.getStyleBinding(task));
-      icon.graphicProperty().bind(TaskBindings.getIconBinding(task));
+      final PdfRenderingTask task = getPdfRenderingTask(major, minor, solverTask);
+      currentTaskProperty.set(task);
+      bindStateIcon(task);
 
       executor.submit(task);
     });
+  }
+
+  private PdfRenderingTask getPdfRenderingTask(final Course major, final Course minor,
+                                               final SolverTask<FeasibilityResult> solverTask) {
+    final PdfRenderingTask task = renderingTaskFactory.create(major, minor, solverTask);
+    task.setOnSucceeded(event -> {
+      pdf.set((Path) event.getSource().getValue());
+      checkRunning.set(false);
+      selectionChanged.set(false);
+    });
+
+    task.setOnFailed(event -> {
+      pdf.set(null);
+      checkRunning.set(false);
+      selectionChanged.set(false);
+    });
+
+    task.setOnCancelled(event -> {
+      checkRunning.set(false);
+      selectionChanged.set(false);
+    });
+    return task;
+  }
+
+  private void bindStateIcon(final PdfRenderingTask task) {
+    lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
+    lbIcon.graphicProperty().bind(TaskBindings.getIconBinding("25", task));
+
+    progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
+    progressIndicator.visibleProperty().bind(task.runningProperty());
+
+    lbIcon.visibleProperty().bind(task.stateProperty().isEqualTo(RUNNING).not()
+        .and(selectionChanged.not()));
   }
 
   @SuppressWarnings("unused")

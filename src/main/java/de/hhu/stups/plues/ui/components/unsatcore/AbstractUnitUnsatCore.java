@@ -43,10 +43,17 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
   private TableView<AbstractUnit> abstractUnitsTable;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<AbstractUnit, Map<Module, List<Integer>>> abstractUnitModuleSemester;
+  private TableColumn<AbstractUnit, String> tableColumnAbstractUnitKey;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<AbstractUnit, Map<Module, Character>> abstractUnitModuleType;
+  private TableColumn<AbstractUnit, String> tableColumnAbstractUnitTitle;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<AbstractUnit, Map<Module, List<Integer>>>
+      tableColumnAbstractUnitModuleSemester;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<AbstractUnit, Map<Module, Character>> tableColumnAbstractUnitModuleType;
   @FXML
   @SuppressWarnings("unused")
   private UnsatCoreButtonBar unsatCoreButtonBar;
@@ -81,10 +88,23 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
     setAbstractUnitModuleTypeFactories();
 
     unsatCoreButtonBar.setText(resources.getString("button.unsatCoreGroups"));
+
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnAbstractUnitKey.prefWidthProperty().bind(
+        abstractUnitsTable.widthProperty().multiply(0.15));
+    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
+        abstractUnitsTable.widthProperty().multiply(0.59));
+    tableColumnAbstractUnitModuleSemester.prefWidthProperty().bind(
+        abstractUnitsTable.widthProperty().multiply(0.15));
+    tableColumnAbstractUnitModuleType.prefWidthProperty().bind(
+        abstractUnitsTable.widthProperty().multiply(0.07));
   }
 
   private void setAbstractUnitModuleSemesterFactories() {
-    abstractUnitModuleSemester.setCellValueFactory(param -> {
+    tableColumnAbstractUnitModuleSemester.setCellValueFactory(param -> {
       final Set<ModuleAbstractUnitSemester> maus =
           param.getValue().getModuleAbstractUnitSemesters();
 
@@ -101,7 +121,7 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
       return new ReadOnlyObjectWrapper<>(result);
     });
 
-    abstractUnitModuleSemester.setCellFactory(param ->
+    tableColumnAbstractUnitModuleSemester.setCellFactory(param ->
         new TableCell<AbstractUnit, Map<Module, List<Integer>>>() {
           @Override
           protected void updateItem(final Map<Module, List<Integer>> item, final boolean empty) {
@@ -125,7 +145,7 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
   }
 
   private void setAbstractUnitModuleTypeFactories() {
-    abstractUnitModuleType.setCellValueFactory(param -> {
+    tableColumnAbstractUnitModuleType.setCellValueFactory(param -> {
       final Set<ModuleAbstractUnitType> maus =
           param.getValue().getModuleAbstractUnitTypes();
 
@@ -140,7 +160,7 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
       return new ReadOnlyObjectWrapper<>(result);
     });
 
-    abstractUnitModuleType.setCellFactory(param ->
+    tableColumnAbstractUnitModuleType.setCellFactory(param ->
         new TableCell<AbstractUnit, Map<Module, Character>>() {
           @Override
           protected void updateItem(final Map<Module, Character> item, final boolean empty) {
@@ -175,11 +195,29 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
     this.abstractUnitsProperty.set(abstractUnits);
   }
 
-  public ListProperty<AbstractUnit> getAbstractUnitsProperty() {
+  public ListProperty<AbstractUnit> abstractUnitsProperty() {
     return abstractUnitsProperty;
+  }
+
+  public List<AbstractUnit> getAbstractUnits() {
+    return abstractUnitsProperty.get();
   }
 
   public UnsatCoreButtonBar getUnsatCoreButtonBar() {
     return unsatCoreButtonBar;
   }
+
+  public void setModules(final ObservableList<Module> modules) {
+    this.modules.set(modules);
+  }
+
+  public ObservableList<Module> getModules() {
+    return modules.get();
+  }
+
+  public ListProperty<Module> modulesProperty() {
+    return modules;
+  }
+
+
 }

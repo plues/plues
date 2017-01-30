@@ -2,6 +2,7 @@ package de.hhu.stups.plues.ui.components.reports;
 
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -12,10 +13,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import org.controlsfx.control.SegmentedButton;
 
@@ -37,23 +39,29 @@ public class ImpossibleModules extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ToggleButton buttonMissingElectiveAbstractUnits;
-
   @FXML
   @SuppressWarnings("unused")
-  private Label explanation;
+  private Text txtExplanation;
   @FXML
   @SuppressWarnings("unused")
   private TableView<Module> tableViewModules;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Course, String> tableColumnModulePordnr;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Course, String> tableColumnModuleTitle;
 
   /**
    * Default constructor for incomplete modules component.
+   *
    * @param inflater Inflater to handle fxml files and resources
    */
   @Inject
   public ImpossibleModules(final Inflater inflater) {
     incompleteModules = new SimpleListProperty<>(FXCollections.observableArrayList());
     impossibleModulesBecauseOfMissingElectiveAbstractUnits = new SimpleListProperty<>(
-      FXCollections.observableArrayList());
+        FXCollections.observableArrayList());
 
     inflater.inflate("components/reports/ImpossibleModules", this, this, "reports", "Column");
   }
@@ -98,7 +106,7 @@ public class ImpossibleModules extends VBox implements Initializable {
         } else {
           if (buttonMissingElectiveAbstractUnits.isSelected()) {
             string = resources.getString(
-              "explain.ImpossibleModulesBecauseOfMissingElectiveAbstractUnits");
+                "explain.ImpossibleModulesBecauseOfMissingElectiveAbstractUnits");
           } else {
             string = null;
           }
@@ -107,15 +115,22 @@ public class ImpossibleModules extends VBox implements Initializable {
         return string;
       }
     };
-    explanation.textProperty().bind(stringBinding);
+
+    txtExplanation.textProperty().bind(stringBinding);
+    txtExplanation.wrappingWidthProperty().bind(tableViewModules.widthProperty().subtract(25.0));
+
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnModulePordnr.prefWidthProperty().bind(
+        tableViewModules.widthProperty().multiply(0.2));
+    tableColumnModuleTitle.prefWidthProperty().bind(
+        tableViewModules.widthProperty().multiply(0.76));
   }
 
   /**
    * Set data for this component.
-   * @param incompleteModules Incomplete modules
-   * @param impossibleModulesBecauseOfMissingElectiveAbstractUnits modules which are impossible
-   *                                                               because of missing elective
-   *                                                               abstract units
    */
   public void setData(final List<Module> incompleteModules,
                       final List<Module> impossibleModulesBecauseOfMissingElectiveAbstractUnits) {

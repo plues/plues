@@ -7,6 +7,7 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.Observable;
 import javafx.beans.binding.ListBinding;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListProperty;
@@ -15,6 +16,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
@@ -60,13 +62,25 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   private TableColumn<SelectableCourse, Boolean> tableColumnMasterCheckBox;
   @FXML
   @SuppressWarnings("unused")
+  private TableColumn<SelectableCourse, Boolean> tableColumnMasterCourseKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<SelectableCourse, Boolean> tableColumnMasterCourseTitle;
+  @FXML
+  @SuppressWarnings("unused")
   private TableColumn<SelectableCourse, Boolean> tableColumnBachelorCheckBox;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<SelectableCourse, Boolean> tableColumnBachelorCourseKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<SelectableCourse, Boolean> tableColumnBachelorCourseTitle;
 
   /**
    * Component that allows the user to select one or more courses. The courses need to be
-   * instantiated via the {@link this#coursesProperty()}. Those are used to highlight all events in
-   * the timetable view associated with the courses. Selected courses are stored in the readonly
-   * list property {@link this#selectedCoursesProperty()}.
+   * instantiated via the {@link this#coursesProperty()}. Those are used to highlight all events
+   * in the timetable view associated with the courses. Selected courses are stored in the
+   * readonly list property {@link this#selectedCoursesProperty()}.
    */
   @Inject
   public SetOfCourseSelection(final Inflater inflater) {
@@ -104,20 +118,19 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         unbind(courses);
       }
 
-
       // NOTE: A change to the courses list, this binding is bound to, will recreate all
       // SelectableCourses objects. This behaviour will loose the state of all selectedProperties.
       @Override
       protected ObservableList<SelectableCourse> computeValue() {
         return FXCollections.observableList(
-            courses.parallelStream().map(SelectableCourse::new)
+            courses.stream().map(SelectableCourse::new)
                 .collect(Collectors.toList()), SelectableCourse.getExtractor());
       }
     });
 
     courses.addListener((observable, oldValue, newValue) -> {
-      final boolean hasMaster = courses.stream().filter(Course::isMaster).findAny().isPresent();
-      final boolean hasBachelor = courses.stream().filter(Course::isBachelor).findAny().isPresent();
+      final boolean hasMaster = courses.stream().anyMatch(Course::isMaster);
+      final boolean hasBachelor = courses.stream().anyMatch(Course::isBachelor);
       if (!hasMaster) {
         getChildren().remove(titledPaneMasterCourse);
       } else if (!getChildren().contains(titledPaneMasterCourse)) {
@@ -130,15 +143,13 @@ public class SetOfCourseSelection extends VBox implements Initializable {
       }
     });
 
-    tableViewMasterCourse.itemsProperty().bind(newFilterBinding(SelectableCourse::isMaster));
-    tableViewBachelorCourse.itemsProperty().bind(newFilterBinding(SelectableCourse::isBachelor));
+    tableViewMasterCourse.itemsProperty().bind(newFilteredProperty(SelectableCourse::isMaster));
+    tableViewBachelorCourse.itemsProperty().bind(newFilteredProperty(SelectableCourse::isBachelor));
 
-    tableViewMasterCourse.itemsProperty().addListener(
-        (observable, oldValue, newValue)
-            -> titledPaneMasterCourse.setExpanded(!newValue.isEmpty()));
-    tableViewBachelorCourse.itemsProperty().addListener(
-        (observable, oldValue, newValue)
-            -> titledPaneBachelorCourse.setExpanded(!newValue.isEmpty()));
+    tableViewMasterCourse.itemsProperty().addListener(observable
+        -> titledPaneMasterCourse.setExpanded(!tableViewMasterCourse.getItems().isEmpty()));
+    tableViewBachelorCourse.itemsProperty().addListener(observable
+        -> titledPaneBachelorCourse.setExpanded(!tableViewBachelorCourse.getItems().isEmpty()));
 
     selectedCourses.bind(new ListBinding<Course>() {
       {
@@ -153,36 +164,57 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
       @Override
       protected ObservableList<Course> computeValue() {
-        return selectableCourses.parallelStream()
+        return selectableCourses.stream()
             .filter(SelectableCourse::isSelected)
             .map(SelectableCourse::getCourse)
             .collect(Collectors.collectingAndThen(Collectors.toList(),
                 FXCollections::observableArrayList));
       }
     });
+
+    bindTableColumnsWidth();
   }
 
-  private ListBinding<SelectableCourse> newFilterBinding(
+  private void bindTableColumnsWidth() {
+    tableColumnMasterCheckBox.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty().multiply(0.07));
+    tableColumnMasterCourseKey.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty().multiply(0.2));
+    tableColumnMasterCourseTitle.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty().multiply(0.69));
+
+    tableColumnBachelorCheckBox.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty().multiply(0.07));
+    tableColumnBachelorCourseKey.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty().multiply(0.2));
+    tableColumnBachelorCourseTitle.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty().multiply(0.69));
+  }
+
+  private ListProperty<SelectableCourse> newFilteredProperty(
       final Predicate<SelectableCourse> predicate) {
-    return new ListBinding<SelectableCourse>() {
+
+    final FilteredList<SelectableCourse> filter
+        = new FilteredList<>(selectableCourses.filtered(predicate));
+
+    filter.predicateProperty().bind(new ObjectBinding<Predicate<? super SelectableCourse>>() {
       {
-        bind(selectableCourses, txtQuery.textProperty());
+        bind(txtQuery.textProperty());
       }
 
       @Override
       public void dispose() {
         super.dispose();
-        unbind(selectableCourses);
+        unbind(txtQuery.textProperty());
       }
 
       @Override
-      protected ObservableList<SelectableCourse> computeValue() {
-        return selectableCourses
-            .filtered(predicate)
-            .filtered(row
-                -> row.getName().toLowerCase().contains(txtQuery.getText().toLowerCase()));
+      protected Predicate<? super SelectableCourse> computeValue() {
+        final String query = txtQuery.getText().toLowerCase();
+        return row -> row.matches(query);
       }
-    };
+    });
+    return new SimpleListProperty<>(filter);
   }
 
   /**
@@ -241,6 +273,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
       return (SelectableCourse param) -> new Observable[] {param.selectedProperty()};
     }
 
+    @SuppressWarnings("unused")
     private boolean isSelected() {
       return selected.get();
     }
@@ -258,6 +291,10 @@ public class SetOfCourseSelection extends VBox implements Initializable {
       return this.course;
     }
 
+    public String getKey() {
+      return this.course.getKey();
+    }
+
     public String getName() {
       return this.course.getFullName();
     }
@@ -268,6 +305,12 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
     public boolean isBachelor() {
       return this.course.isBachelor();
+    }
+
+
+    private boolean matches(final String query) {
+      return this.getName().toLowerCase().contains(query)
+          || this.getKey().toLowerCase().contains(query);
     }
   }
 }

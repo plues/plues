@@ -34,39 +34,38 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private final ObjectProperty<Date> compare;
 
   @FXML
+  @SuppressWarnings("unused")
   private TableView<Log> persistentTable;
-
   @FXML
-  private TableColumn<Log, Session> sessionP;
-
+  @SuppressWarnings("unused")
+  private TableColumn<Log, Session> tableColumnSessionTemporary;
   @FXML
-  private TableColumn<Log, String> sourceP;
-
+  @SuppressWarnings("unused")
+  private TableColumn<Log, String> tableColumnSourceTemporary;
   @FXML
-  private TableColumn<Log, String> targetP;
-
+  @SuppressWarnings("unused")
+  private TableColumn<Log, String> tableColumnTargetTemporary;
   @FXML
-  private TableColumn<Log, Date> dateP;
-
+  @SuppressWarnings("unused")
+  private TableColumn<Log, Date> tableColumnDateTemporary;
   @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Log, Session> tableColumnSessionPersistent;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Log, String> tableColumnSourcePersistent;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Log, String> tableColumnTargetPersistent;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Log, Date> tableColumnDatePersistent;
+  @FXML
+  @SuppressWarnings("unused")
   private TableView<Log> tempTable;
-
-  @FXML
-  private TableColumn<Log, Session> sessionT;
-
-  @FXML
-  private TableColumn<Log, String> sourceT;
-
-  @FXML
-  private TableColumn<Log, String> targetT;
-
-  @FXML
-  private TableColumn<Log, Date> dateT;
 
   /**
    * Constructor to create the change log.
-   * @param inflater Inflater to handle fxml.
-   * @param delayedStore Store which contains data
    */
   @Inject
   public ChangeLog(final Inflater inflater, final UiDataService uiDataService,
@@ -80,15 +79,15 @@ public class ChangeLog extends VBox implements Initializable, Observer {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    sessionP.setCellValueFactory(new PropertyValueFactory<>("session"));
-    sourceP.setCellValueFactory(new PropertyValueFactory<>("src"));
-    targetP.setCellValueFactory(new PropertyValueFactory<>("target"));
-    dateP.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+    tableColumnSessionTemporary.setCellValueFactory(new PropertyValueFactory<>("session"));
+    tableColumnSourceTemporary.setCellValueFactory(new PropertyValueFactory<>("src"));
+    tableColumnTargetTemporary.setCellValueFactory(new PropertyValueFactory<>("target"));
+    tableColumnDateTemporary.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
-    sessionT.setCellValueFactory(new PropertyValueFactory<>("session"));
-    sourceT.setCellValueFactory(new PropertyValueFactory<>("src"));
-    targetT.setCellValueFactory(new PropertyValueFactory<>("target"));
-    dateT.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+    tableColumnSessionPersistent.setCellValueFactory(new PropertyValueFactory<>("session"));
+    tableColumnSourcePersistent.setCellValueFactory(new PropertyValueFactory<>("src"));
+    tableColumnTargetPersistent.setCellValueFactory(new PropertyValueFactory<>("target"));
+    tableColumnDatePersistent.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
     updateBinding();
 
@@ -96,6 +95,27 @@ public class ChangeLog extends VBox implements Initializable, Observer {
       store.addObserver(this);
       logs.addAll(store.getLogEntries());
     });
+
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnSessionTemporary.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.46));
+    tableColumnSourceTemporary.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.15));
+    tableColumnTargetTemporary.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.15));
+    tableColumnDateTemporary.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.2));
+    tableColumnSessionPersistent.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.46));
+    tableColumnSourcePersistent.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.15));
+    tableColumnTargetPersistent.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.15));
+    tableColumnDatePersistent.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.2));
   }
 
   @Override

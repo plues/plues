@@ -11,6 +11,7 @@ import de.hhu.stups.plues.ui.batchgeneration.CollectPdfRenderingTasksTask;
 import de.hhu.stups.plues.ui.components.BatchResultBox;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -24,6 +25,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+
 import org.hibernate.annotations.common.util.impl.LoggerFactory;
 import org.jboss.logging.Logger;
 
@@ -43,7 +45,12 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-
+/**
+ * Generate all possible combinations of major and minor courses and show the results in a {@link
+ * #listView}. During generation the pdf files are stored in a temporary directory. When all tasks
+ * are finished the user is able to store the pdf files persistently in a {@link
+ * #savePersistentFolder folder} or a {@link #savePersistentZip zip archive}.
+ */
 public class BatchTimetableGeneration extends GridPane implements Initializable {
 
   private final Logger logger = LoggerFactory.logger(getClass());
@@ -51,7 +58,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   private final Delayed<SolverService> delayedSolverService;
 
   private final BooleanProperty solverProperty;
-  private final BooleanProperty generationStarted;
+  private final BooleanProperty generationRunning;
   private final SimpleListProperty<PdfRenderingTask> generationSucceeded;
 
   private final BatchResultBoxFactory batchResultBoxFactory;
@@ -79,9 +86,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   private ListView<BatchResultBox> listView;
 
   /**
-   * Generate all possible combinations of major and minor courses. While generating the pdf files
-   * save them in a temporary directory. When all tasks are finished the user is able to store the
-   * pdf files persistently in a folder or a zip archive.
+   * Constructor.
    */
   @Inject
   public BatchTimetableGeneration(final Inflater inflater,
@@ -98,7 +103,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     this.executor = executorService;
 
     this.solverProperty = new SimpleBooleanProperty(false);
-    this.generationStarted = new SimpleBooleanProperty(false);
+    this.generationRunning = new SimpleBooleanProperty(false);
     this.generationSucceeded = new SimpleListProperty<>();
 
     inflater.inflate("BatchTimetableGeneration", this, this, "batchTimetable");
@@ -106,7 +111,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    btGenerateAll.disableProperty().bind(solverProperty.not().or(generationStarted));
+    btGenerateAll.disableProperty().bind(solverProperty.not().or(generationRunning));
     btCancel.disableProperty().bind(
         solverProperty.not().or(btGenerateAll.disabledProperty().not()));
 
@@ -123,7 +128,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   @FXML
   @SuppressWarnings("unused")
   private void generateAll() {
-    generationStarted.setValue(true);
+    generationRunning.setValue(true);
     //
     generationSucceeded.clear();
     listView.getItems().clear();
@@ -136,21 +141,27 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
         listView.getItems().add(b);
       });
       executePoolTask = buildBatchPdfRenderingTask(fillPoolTask.getValue());
+      executePoolTask.setOnRunning(executePoolEvent -> {
+        if (!generationRunning.get()) {
+          executePoolTask.cancel(true);
+        }
+      });
       executor.submit(executePoolTask);
     });
 
     fillPoolTask.setOnCancelled(event -> {
-      generationStarted.setValue(false);
+      generationRunning.setValue(false);
       generationSucceeded.clear();
     });
 
     fillPoolTask.setOnFailed(event -> {
-      generationStarted.setValue(false);
+      generationRunning.setValue(false);
       generationSucceeded.clear();
     });
     executor.submit(fillPoolTask);
   }
 
+  @SuppressWarnings("unused")
   private BatchPdfRenderingTask buildBatchPdfRenderingTask(final Set<PdfRenderingTask> tasks) {
     final BatchPdfRenderingTask renderingTask = new BatchPdfRenderingTask(executor, tasks);
 
@@ -159,18 +170,18 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       final List<PdfRenderingTask> result = getSuccessfulTasks(executedTasks);
 
       generationSucceeded.set(FXCollections.observableList(result));
-      generationStarted.setValue(false);
+      generationRunning.setValue(false);
     });
 
     renderingTask.setOnCancelled(event -> {
       logger.info("PDF generation task cancelled.");
-      generationStarted.setValue(false);
+      generationRunning.setValue(false);
       generationSucceeded.clear();
     });
 
     renderingTask.setOnFailed(event -> {
       logger.info("PDF generation task failed.");
-      generationStarted.setValue(false);
+      generationRunning.setValue(false);
       generationSucceeded.clear();
     });
 
@@ -179,8 +190,8 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   private List<PdfRenderingTask> getSuccessfulTasks(final Collection<PdfRenderingTask> tasks) {
     return tasks.stream()
-      .filter(pdfRenderingTask -> pdfRenderingTask.getState() == Worker.State.SUCCEEDED)
-      .collect(Collectors.toList());
+        .filter(pdfRenderingTask -> pdfRenderingTask.getState() == Worker.State.SUCCEEDED)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -195,7 +206,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     if (executePoolTask.isRunning()) {
       executePoolTask.cancel(true);
     }
-    generationStarted.setValue(false);
+    generationRunning.setValue(false);
   }
 
   /**

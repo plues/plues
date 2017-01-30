@@ -1,48 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1">
-    <Label text="%explain.MandatoryModules" wrapText="true"/>
-    <VBox spacing="5.0">
-        <Label text="%courses" style="-fx-font-size: 20px"/>
-        <TableView fx:id="tableViewcourses">
-            <columns>
-                <TableColumn text="%columnKey" minWidth="100.0" prefWidth="150.0">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="key"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn text="%columnName" minWidth="100.0" prefWidth="500.0">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="fullName"/>
-                    </cellValueFactory>
-                </TableColumn>
-            </columns>
-        </TableView>
-        <Label text="%modules" style="-fx-font-size: 20px"/>
-        <TableView fx:id="tableViewMandatoryModules">
-            <columns>
-                <TableColumn text="%columnPordnr" prefWidth="300.0" minWidth="100.0">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="pordnr"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn text="%columnTitle" prefWidth="300.0" minWidth="100.0">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="title"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn text="%columnElectability" prefWidth="50.0" minWidth="20.0">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="mandatory"/>
-                    </cellValueFactory>
-                </TableColumn>
-            </columns>
-        </TableView>
+<?import javafx.scene.text.Text?>
+
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox styleClass="windowPaddingSmall" spacing="10.0">
+        <Text fx:id="txtExplanation" text="%explain.MandatoryModules"/>
     </VBox>
+    <TableView fx:id="tableViewCourses">
+        <columns>
+            <TableColumn fx:id="tableColumnCourseKey" text="%columnKey" resizable="false">
+                <cellValueFactory>
+                    <PropertyValueFactory property="key"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="tableColumnCourseName" text="%columnCourse" resizable="false">
+                <cellValueFactory>
+                    <PropertyValueFactory property="fullName"/>
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+    <TableView fx:id="tableViewMandatoryModules">
+        <columns>
+            <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr" resizable="false">
+                <cellValueFactory>
+                    <PropertyValueFactory property="pordnr"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="tableColumnModuleTitle" text="%columnModule" resizable="false">
+                <cellValueFactory>
+                    <PropertyValueFactory property="title"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="tableColumnElectability" text="%columnElectability"
+                         resizable="false"/>
+        </columns>
+    </TableView>
 </fx:root>

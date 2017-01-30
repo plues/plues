@@ -11,22 +11,18 @@
     <Text fx:id="txtExplanation" text="%sessionsPaneExplanation"/>
     <TableView fx:id="sessionsTable">
         <columns>
-            <TableColumn fx:id="sessionDayColumn" maxWidth="-1.0" minWidth="100.0"
-                         prefWidth="-1.0" text="%columnDay">
+            <TableColumn fx:id="tableColumnSessionDay" text="%columnDay" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="day"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="sessionTimeColumn" maxWidth="-1.0" minWidth="-1.0"
-                         prefWidth="50.0" text="%columnTime">
+            <TableColumn fx:id="tableColumnSessionTime" text="%columnTime" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="time"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="sessionUnitKeyColumn" maxWidth="-1.0" minWidth="100.0"
-                         prefWidth="-1.0" text="%columnKey"/>
-            <TableColumn fx:id="sessionUnitTitleColumn" maxWidth="1.7976931348623157E308"
-                         minWidth="200" prefWidth="-1.0" text="%columnTitle"/>
+            <TableColumn fx:id="tableColumnSessionUnitKey" text="%columnKey" resizable="false"/>
+            <TableColumn fx:id="tableColumnSessionUnitTitle" text="%columnTitle" resizable="false"/>
         </columns>
     </TableView>
 </fx:root>

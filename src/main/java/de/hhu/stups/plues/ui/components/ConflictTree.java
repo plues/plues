@@ -67,14 +67,12 @@ public class ConflictTree extends VBox implements Initializable {
    * Initialize the conflict tree.
    */
   @Inject
-  public ConflictTree(final Inflater inflater,
-      final UiDataService uiDataService,
-      final Router router) {
+  public ConflictTree(final Inflater inflater, final UiDataService uiDataService,
+                      final Router router) {
     this.uiDataService = uiDataService;
     this.router = router;
-
-    this.dayOfWeekStrings = new EnumMap<>(DayOfWeek.class);
-    this.timeStrings = new HashMap<>();
+    dayOfWeekStrings = new EnumMap<>(DayOfWeek.class);
+    timeStrings = new HashMap<>();
 
     inflater.inflate("components/ConflictTree", this, this, "conflictTree", "Days", "Column");
   }
@@ -83,20 +81,13 @@ public class ConflictTree extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
 
+    conflictTreeTableView.setShowRoot(false);
+    conflictTreeTableView.setPrefHeight(175.0);
+
     initDayOfWeekString();
     initTimeStrings();
 
     conflictTreeTableView.rootProperty().bind(new ReadOnlyObjectWrapper<>(conflictTreeRootItem));
-
-    conflictTreeRootItem.expandedProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue) {
-        conflictTreeTableView.setPrefHeight(
-            conflictTreeTableView.lookup(".column-header-background").getBoundsInLocal().getHeight()
-                + 50.0);
-      } else {
-        conflictTreeTableView.setPrefHeight(175.0);
-      }
-    });
 
     conflictTreeTableView.setOnMouseClicked(event -> {
       final TreeItem<Object> item = conflictTreeTableView.getSelectionModel().getSelectedItem();
@@ -107,6 +98,17 @@ public class ConflictTree extends VBox implements Initializable {
       }
     });
     initTreeTableViewValueFactories();
+
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    treeColumnTitle.prefWidthProperty().bind(
+        conflictTreeTableView.widthProperty().multiply(0.66));
+    treeColumnKey.prefWidthProperty().bind(
+        conflictTreeTableView.widthProperty().multiply(0.15));
+    treeColumnSemesters.prefWidthProperty().bind(
+        conflictTreeTableView.widthProperty().multiply(0.15));
   }
 
   @FXML
@@ -192,17 +194,17 @@ public class ConflictTree extends VBox implements Initializable {
     });
     treeColumnKey.setCellValueFactory(param ->
         new ReadOnlyStringWrapper(
-          (param.getValue().getValue() instanceof Session)
-          ?
-            ((Session) param.getValue().getValue()).getGroup().getUnit().getKey() : ""));
+            (param.getValue().getValue() instanceof Session)
+                ?
+                ((Session) param.getValue().getValue()).getGroup().getUnit().getKey() : ""));
 
     treeColumnSemesters.setCellValueFactory(param ->
         new ReadOnlyStringWrapper(
-          (param.getValue().getValue() instanceof Session)
-          ?
-            Joiner.on(", ").join(
-              ((Session) param.getValue().getValue()).getGroup().getUnit().getSemesters())
-            : ""));
+            (param.getValue().getValue() instanceof Session)
+                ?
+                Joiner.on(", ").join(
+                    ((Session) param.getValue().getValue()).getGroup().getUnit().getSemesters())
+                : ""));
   }
 
   private void initTimeStrings() {

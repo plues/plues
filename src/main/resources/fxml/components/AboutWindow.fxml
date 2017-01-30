@@ -20,8 +20,13 @@
     <Label text="%ui" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
     <Label text="Joshua Schmidt" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
     <Label text="%ui" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
-    <Label GridPane.rowIndex="8" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
-    <Label text="%footer" GridPane.rowIndex="9" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+
+    <Label text="Niklas Bertram" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+    <Label text="%handbook" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+    <Label GridPane.rowIndex="9" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+    <Label text="%footer" GridPane.rowIndex="10" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+
     <columnConstraints>
         <ColumnConstraints percentWidth="50"/>
         <ColumnConstraints percentWidth="50"/>

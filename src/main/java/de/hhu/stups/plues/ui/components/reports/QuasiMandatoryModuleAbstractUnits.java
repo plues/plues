@@ -10,8 +10,10 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.Map;
@@ -20,7 +22,7 @@ import java.util.Set;
 
 public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializable {
 
-  private Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits;
+  private Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnitsMap;
   private final SimpleListProperty<Module> modules;
   private final SimpleListProperty<AbstractUnit> abstractUnits;
 
@@ -29,10 +31,26 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
   private TableView<Module> tableViewQuasiMandatoryModules;
   @FXML
   @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnModulePordnr;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnModuleTitle;
+  @FXML
+  @SuppressWarnings("unused")
   private TableView<AbstractUnit> tableViewAbstractUnits;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnAbstractUnitKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Module, String> tableColumnAbstractUnitTitle;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   /**
    * Default constructor.
+   *
    * @param inflater Handle fxml and resources
    */
   @Inject
@@ -51,11 +69,28 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
 
     tableViewQuasiMandatoryModules.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) ->
-          abstractUnits.setAll(quasiMandatoryModuleAbstractUnits.get(newValue)));
+            abstractUnits.setAll(quasiMandatoryModuleAbstractUnitsMap.get(newValue)));
+
+    txtExplanation.wrappingWidthProperty().bind(
+        tableViewAbstractUnits.widthProperty().subtract(25.0));
+
+    bindTableColumnsWidth();
   }
 
-  public void setData(final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits) {
-    this.quasiMandatoryModuleAbstractUnits = quasiMandatoryModuleAbstractUnits;
-    modules.addAll(quasiMandatoryModuleAbstractUnits.keySet());
+  private void bindTableColumnsWidth() {
+    tableColumnModulePordnr.prefWidthProperty().bind(
+        tableViewQuasiMandatoryModules.widthProperty().multiply(0.2));
+    tableColumnModuleTitle.prefWidthProperty().bind(
+        tableViewQuasiMandatoryModules.widthProperty().multiply(0.76));
+
+    tableColumnAbstractUnitKey.prefWidthProperty().bind(
+        tableViewAbstractUnits.widthProperty().multiply(0.2));
+    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
+        tableViewAbstractUnits.widthProperty().multiply(0.76));
+  }
+
+  public void setData(final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnitsMap) {
+    this.quasiMandatoryModuleAbstractUnitsMap = quasiMandatoryModuleAbstractUnitsMap;
+    modules.addAll(quasiMandatoryModuleAbstractUnitsMap.keySet());
   }
 }

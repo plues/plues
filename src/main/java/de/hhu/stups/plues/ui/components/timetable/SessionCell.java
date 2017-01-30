@@ -8,7 +8,6 @@ import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
-
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.StringBinding;
 import javafx.fxml.FXML;
@@ -23,13 +22,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 class SessionCell extends ListCell<SessionFacade> implements Initializable {
 
+  public static final String CONFLICTED_SESSION = "conflicted-session";
   private final Router router;
   private final Delayed<SolverService> delayedSolverService;
 
@@ -97,11 +95,11 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
     });
   }
 
-  private void setConflictedStyleClass(List<Integer> sessionIDs) {
-    getStyleClass().remove("conflicted-session");
+  private void setConflictedStyleClass(final List<Integer> sessionIDs) {
+    getStyleClass().remove(CONFLICTED_SESSION);
 
     if (getItem() != null && sessionIDs.contains(getItem().getId())) {
-      getStyleClass().add("conflicted-session");
+      getStyleClass().add(CONFLICTED_SESSION);
     }
   }
 
@@ -116,9 +114,9 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
     }
 
     final Dragboard dragboard = startDragAndDrop(TransferMode.MOVE);
-    final ClipboardContent content = new ClipboardContent();
-    content.putString(String.valueOf(getItem().getId()));
-    dragboard.setContent(content);
+    final ClipboardContent clipboardContent = new ClipboardContent();
+    clipboardContent.putString(String.valueOf(getItem().getId()));
+    dragboard.setContent(clipboardContent);
     event.consume();
   }
 
@@ -139,40 +137,17 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
       setConflictedStyleClass(uiDataService.getConflictMarkedSessions());
       setGraphic(content);
     } else {
+      removeStyleClasses();
       setGraphic(null);
     }
   }
 
-  private String displayText(final SessionFacade sessionFacade) {
-    final String representation;
-
-    if ("name".equals(uiDataService.sessionDisplayFormatProperty().get())) {
-      representation = sessionFacade.toString();
-    } else if ("key".equals(uiDataService.sessionDisplayFormatProperty().get())) {
-      final String unitKeys = sessionFacade.getAbstractUnitKeys().stream()
-          .map(this::trimUnitKey).collect(Collectors.joining(", "));
-      // display session title if there are no abstract units
-      representation = unitKeys.isEmpty() ? sessionFacade.toString() : unitKeys;
-    } else {
-      representation = String.format("%s/%d", sessionFacade.getUnitKey(),
-          sessionFacade.getGroupId());
-    }
-    return representation;
+  private void removeStyleClasses() {
+    getStyleClass().remove(CONFLICTED_SESSION);
   }
 
-  /**
-   * Adapt a unit key to be displayed within the timetable view, i.e. remove the key's prefix for
-   * WiWi data like 'W-WiWi' or 'W-Wichem' and for all other data remove the first letter in the
-   * key, e.g. 'P-..'.
-   */
-  private String trimUnitKey(final String unitKey) {
-    final List<String> splittedKey = Arrays.asList(unitKey.split("-"));
-    if ("w".equalsIgnoreCase(splittedKey.get(0))) {
-      return splittedKey.subList(2, splittedKey.size()).stream()
-          .collect(Collectors.joining("-"));
-    } else {
-      return splittedKey.subList(1, splittedKey.size()).stream()
-          .collect(Collectors.joining("-"));
-    }
+  private String displayText(final SessionFacade sessionFacade) {
+    final SessionDisplayFormat displayFormat = uiDataService.sessionDisplayFormatProperty().get();
+    return SessionHelper.displayText(displayFormat, sessionFacade);
   }
 }

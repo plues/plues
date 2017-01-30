@@ -1,9 +1,11 @@
 package de.hhu.stups.plues.ui.controller;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 import de.codecentric.centerdevice.MenuToolkit;
@@ -23,12 +25,19 @@ import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
 import de.hhu.stups.plues.ui.ResourceManager;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
+import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -51,14 +60,17 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
@@ -99,6 +111,7 @@ public class MainController implements Initializable {
   private static final String DB_PATH = "dbpath";
   private static final String TEMP_DB_PATH = "tempDBpath";
   private static final ListeningScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE;
+  private static final ListeningExecutorService EXECUTOR_SERVICE;
 
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
@@ -114,6 +127,7 @@ public class MainController implements Initializable {
   private final ExecutorService executor;
   private final UiDataService uiDataService;
   private final Preferences userPreferences;
+  private final BooleanProperty taskBoxCollapsed = new SimpleBooleanProperty(true);
 
   private final Preferences preferences = Preferences.userNodeForPackage(MainController.class);
   private final SolverLoaderImpl solverLoader;
@@ -122,8 +136,8 @@ public class MainController implements Initializable {
   private final ResourceManager resourceManager;
   private final Delayed<SolverService> delayedSolverService;
   private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
-  private final ToggleGroup timeoutPreferenceToggle = new ToggleGroup();
 
+  private final ToggleGroup timeoutPreferenceToggle = new ToggleGroup();
   private boolean databaseChanged = false;
   private ResourceBundle resources;
 
@@ -142,11 +156,15 @@ public class MainController implements Initializable {
   @FXML
   private MenuItem setTimeoutMenuItem;
   @FXML
+  private RadioMenuItem fifteenSecondsMenuItem;
+  @FXML
   private RadioMenuItem oneMinuteMenuItem;
   @FXML
   private RadioMenuItem threeMinutesMenuItem;
   @FXML
   private RadioMenuItem fiveMinutesMenuItem;
+  @FXML
+  private RadioMenuItem twentyMinutesMenuItem;
   @FXML
   private MenuItem openChangeLog;
   @FXML
@@ -162,8 +180,6 @@ public class MainController implements Initializable {
   @FXML
   private RadioMenuItem rbMenuItemSessionKey;
   @FXML
-  private Menu windowMenu;
-  @FXML
   private MenuItem aboutMenuItem;
   @FXML
   private ScrollPane scrollPaneTaskProgress;
@@ -178,8 +194,22 @@ public class MainController implements Initializable {
   @FXML
   private Label lbRunningTasks;
 
+  private final Tab reportsTab = new Tab();
+
+  private SplitPane.Divider mainSplitPaneDivider;
   private RadioMenuItem customTimeoutItem;
   private final IntegerProperty customTimeoutProperty;
+  private double visibleDividerPos;
+  private boolean fadingInProgress = false;
+  private final Provider<Reports> reportsProvider;
+  private final Task emptyTask = new Task() {
+    // just an empty task to simulate a pending progress bar
+    @Override
+    protected Object call() throws Exception {
+      return null;
+    }
+  };
+  private static final String SESSION_FORMAT_PREF_KEY = "sessionFormat";
 
   /**
    * MainController component.
@@ -193,7 +223,8 @@ public class MainController implements Initializable {
                         final StoreLoaderTaskFactory storeLoaderTaskFactory,
                         final ObservableListeningExecutorService executorService,
                         final ResourceManager resourceManager,
-                        final UiDataService uiDataService) {
+                        final UiDataService uiDataService,
+                        final Provider<Reports> reportsProvider) {
     this.delayedStore = delayedStore;
     this.delayedSolverService = delayedSolverService;
     this.solverLoader = solverLoader;
@@ -204,6 +235,7 @@ public class MainController implements Initializable {
     this.executor = executorService;
     this.resourceManager = resourceManager;
     this.uiDataService = uiDataService;
+    this.reportsProvider = reportsProvider;
 
     customTimeoutProperty = new SimpleIntegerProperty(0);
     userPreferences = Preferences.userRoot().node("Plues");
@@ -255,22 +287,38 @@ public class MainController implements Initializable {
   }
 
   @Override
-  public final void initialize(final URL location,
-                               final ResourceBundle resources) {
+  public final void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
 
-    this.taskProgress.setGraphicFactory(this::getGraphicForTask);
+    reportsTab.setText(resources.getString("reportsTitle"));
+
+    mainSplitPane.getItems().remove(boxTaskProgress);
+
+    taskProgress.setGraphicFactory(this::getGraphicForTask);
 
     taskProgress.prefWidthProperty().bind(scrollPaneTaskProgress.widthProperty());
     taskProgress.prefHeightProperty().bind(scrollPaneTaskProgress.heightProperty());
 
-    boxTaskProgress.prefWidth(mainSplitPane.getWidth() / 3.0);
     boxTaskProgress.maxWidthProperty().bind(mainSplitPane.widthProperty().divide(3.0));
-    boxTaskProgress.minWidthProperty().bind(mainSplitPane.widthProperty().divide(5.0));
+    boxTaskProgress.prefWidth(0);
+    boxTaskProgress.prefWidthProperty().bind(mainSplitPane.widthProperty().divide(4.0));
 
-    // don't show tasks on startup
-    mainSplitPane.getItems().remove(boxTaskProgress);
+    mainSplitPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+      // calculate the divider position for the case that the task box is not collapsed
+      // and has its full width
+      visibleDividerPos = (mainSplitPane.getWidth() - boxTaskProgress.getPrefWidth())
+          / mainSplitPane.getWidth();
+      if (taskBoxCollapsed.get() && mainSplitPaneDivider != null) {
+        mainSplitPaneDivider.setPosition(1.0);
+      }
+    });
+
     mainStatusBar.setText("");
+
+    clearStatusBar();
+
+    taskBoxCollapsed.addListener((observable, oldValue, shouldHide) ->
+        hideTaskProgressBox(shouldHide));
 
     mainProgressBar.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
     mainProgressBar.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
@@ -278,18 +326,20 @@ public class MainController implements Initializable {
     lbRunningTasks.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
     lbRunningTasks.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
 
-    initializeTaskProgressListener();
-
     tabPane.setOnKeyPressed(this::handleKeyPressed);
+
+    reportsTab.setClosable(true);
 
     initializeMenu();
 
     delayedSolverService.whenAvailable(solverService -> {
       openReportsMenuItem.setDisable(false);
       setTimeoutMenuItem.setDisable(false);
-      oneMinuteMenuItem.disableProperty().bind(oneMinuteMenuItem.selectedProperty());
-      threeMinutesMenuItem.disableProperty().bind(threeMinutesMenuItem.selectedProperty());
-      fiveMinutesMenuItem.disableProperty().bind(fiveMinutesMenuItem.selectedProperty());
+      fifteenSecondsMenuItem.setDisable(false);
+      oneMinuteMenuItem.setDisable(false);
+      threeMinutesMenuItem.setDisable(false);
+      fiveMinutesMenuItem.setDisable(false);
+      twentyMinutesMenuItem.setDisable(false);
     });
 
     delayedStore.whenAvailable(s -> {
@@ -300,6 +350,12 @@ public class MainController implements Initializable {
 
       // Handle database changes for confirmation dialogue on close -> set unsaved flag
       s.addObserver((object, arg) -> this.databaseChanged = true);
+
+      mainSplitPane.getItems().add(1, boxTaskProgress);
+      mainSplitPaneDivider = mainSplitPane.getDividers().get(0);
+      mainSplitPaneDivider.setPosition(1.0);
+      disableDivider(true);
+      initializeTaskProgressListener();
     });
 
     if (this.properties.get(DB_PATH) != null) {
@@ -321,44 +377,58 @@ public class MainController implements Initializable {
     // reset unsaved flag.
     uiDataService.lastSavedDateProperty().addListener(
         (observable, oldValue, newValue) -> this.databaseChanged = false);
-
   }
 
   private void initializeTaskProgressListener() {
-    final ObservableList<Task<?>> runningTasks = taskProgress.getTasks();
-    final String tasksSingular = resources.getString("tasksSingular");
-    final String tasksPlural = resources.getString("tasksPlural");
+    final ObservableList<Task<?>> scheduledTasks = taskProgress.getTasks();
 
-    runningTasks.addListener((ListChangeListener.Change<? extends Task<?>> change) -> {
-          if (runningTasks.isEmpty()) {
-            removeTaskProgressBox();
-          } else {
-            mainProgressBar.progressProperty().bind(runningTasks.get(0).progressProperty());
-            if (!mainStatusBar.getRightItems().contains(mainProgressBar)) {
-              mainStatusBar.getRightItems().addAll(lbRunningTasks, mainProgressBar);
-            }
-          }
-          lbRunningTasks.setText(runningTasks.size() + " " + ((runningTasks.size() == 1)
-              ? tasksSingular : tasksPlural));
-        }
-    );
-
-    final EventHandler<MouseEvent> mouseEventEventHandler = event -> {
-      final ObservableList<Node> splitPaneItems = mainSplitPane.getItems();
-      if (splitPaneItems.contains(boxTaskProgress)) {
-        splitPaneItems.remove(boxTaskProgress);
+    scheduledTasks.addListener((ListChangeListener.Change<? extends Task<?>> change) -> {
+      if (scheduledTasks.isEmpty()) {
+        removeTaskProgressBox();
       } else {
-        splitPaneItems.add(boxTaskProgress);
+        if (!mainStatusBar.getRightItems().contains(mainProgressBar)) {
+          mainStatusBar.getRightItems().addAll(lbRunningTasks, mainProgressBar);
+        }
+        bindProgressPropertyIfNecessary(scheduledTasks);
+        setStatusBarText(scheduledTasks.size(), taskBoxCollapsed.get());
       }
-    };
+    });
+
+    final EventHandler<MouseEvent> mouseEventEventHandler = event ->
+        taskBoxCollapsed.setValue(!taskBoxCollapsed.get());
     lbRunningTasks.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
     mainProgressBar.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
   }
 
   /**
-   * Wait some time and hide the {@link #taskProgress task progress view} if there are no running
-   * tasks anymore.
+   * Set the {@link #mainStatusBar}'s text according to the amount of running tasks and whether the
+   * side bar is collapsed or not.
    */
+  @SuppressWarnings("unused")
+  private void setStatusBarText(final int taskAmount, final boolean taskBoxCollapsed) {
+    final String tasksSingular;
+    final String tasksPlural;
+    if (taskBoxCollapsed) {
+      tasksSingular = resources.getString("tasksSingularCollapsed");
+      tasksPlural = resources.getString("tasksPluralCollapsed");
+    } else {
+      tasksSingular = resources.getString("tasksSingular");
+      tasksPlural = resources.getString("tasksPlural");
+    }
+    lbRunningTasks.setText(taskAmount + " " + ((taskAmount == 1) ? tasksSingular : tasksPlural));
+  }
+
+  /**
+   * Bind the {@link #mainProgressBar progress bar's} ProgressProperty to the running task if there
+   * is exactly one given. Otherwise the progress is just pending and not bound to any progress.
+   */
+  private void bindProgressPropertyIfNecessary(final ObservableList<Task<?>> scheduledTasks) {
+    if (scheduledTasks.size() == 1) {
+      mainProgressBar.progressProperty().bind(scheduledTasks.get(0).progressProperty());
+    } else {
+      mainProgressBar.progressProperty().bind(emptyTask.progressProperty());
+    }
+  }
 
   static {
     final ThreadFactory threadFactoryBuilder = new ThreadFactoryBuilder().setDaemon(true)
@@ -366,19 +436,64 @@ public class MainController implements Initializable {
 
     SCHEDULED_EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
         Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
-
+    EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
+        Executors.newSingleThreadExecutor(threadFactoryBuilder));
   }
 
+  /**
+   * Wait some time and hide the {@link #taskProgress task progress view} if there are no running
+   * tasks anymore.
+   */
   private void removeTaskProgressBox() {
-    mainProgressBar.progressProperty().unbind();
-    mainStatusBar.getRightItems().remove(lbRunningTasks);
-    mainStatusBar.getRightItems().remove(mainProgressBar);
+    clearStatusBar();
     SCHEDULED_EXECUTOR_SERVICE.schedule(() ->
         Platform.runLater(() -> {
           if (taskProgress.getTasks().isEmpty()) {
-            mainSplitPane.getItems().remove(boxTaskProgress);
+            taskBoxCollapsed.setValue(true);
           }
         }), 3, TimeUnit.SECONDS);
+  }
+
+  /**
+   * Fade-in or fade-out the {@link #boxTaskProgress} by moving the {@link #mainSplitPaneDivider} to
+   * the destination.
+   */
+  private void hideTaskProgressBox(final boolean hide) {
+    if ((!hide || mainSplitPane.getItems().contains(boxTaskProgress)) && !fadingInProgress) {
+      setStatusBarText(taskProgress.getTasks().size(), hide);
+      disableDivider(hide);
+      EXECUTOR_SERVICE.execute(() -> {
+        fadingInProgress = true;
+
+        final Timeline timeline = new Timeline();
+        final double destination = hide ? 1.0 : visibleDividerPos;
+
+        final KeyValue dividerPosition =
+            new KeyValue(mainSplitPaneDivider.positionProperty(), destination);
+
+        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250), dividerPosition));
+        timeline.setOnFinished(event -> fadingInProgress = false);
+
+        Platform.runLater(timeline::play);
+      });
+    }
+  }
+
+  /**
+   * Lookup and disable the {@link #mainSplitPane split pane's} divider.
+   */
+  private void disableDivider(final boolean bool) {
+    final Node divider = mainSplitPane.lookup("#mainSplitPane > .split-pane-divider");
+    if (divider != null) {
+      divider.setDisable(bool);
+    }
+  }
+
+  private void clearStatusBar() {
+    mainStatusBar.setText("");
+    mainProgressBar.progressProperty().unbind();
+    mainStatusBar.getRightItems().remove(lbRunningTasks);
+    mainStatusBar.getRightItems().remove(mainProgressBar);
   }
 
   private void initializeMenu() {
@@ -391,6 +506,7 @@ public class MainController implements Initializable {
     if (System.getProperty("os.name", "").toLowerCase().contains("mac")) {
       final String applicationName = "PlÜS";
       final MenuToolkit tk = MenuToolkit.toolkit();
+      final ObservableList<Menu> menus = menuBar.getMenus();
 
       // Remove About menu item from Help
       aboutMenuItem.getParentMenu().getItems().remove(aboutMenuItem);
@@ -398,7 +514,7 @@ public class MainController implements Initializable {
 
       // Create Mac-style application menu
       final Menu applicationMenu = tk.createDefaultApplicationMenu(applicationName);
-      menuBar.getMenus().add(0, applicationMenu);
+      menus.add(0, applicationMenu);
       tk.setApplicationMenu(applicationMenu);
       applicationMenu.getItems().setAll(aboutMenuItem, new SeparatorMenuItem(),
           new SeparatorMenuItem(), tk.createHideMenuItem(applicationName),
@@ -406,50 +522,83 @@ public class MainController implements Initializable {
           tk.createQuitMenuItem(applicationName));
 
       // Add Mac-style items to Window menu
+      final Menu windowMenu = new Menu(resources.getString("window"));
+      windowMenu.setMnemonicParsing(false);
       windowMenu.getItems().addAll(tk.createMinimizeMenuItem(), tk.createZoomMenuItem(),
           tk.createCycleWindowsItem(), new SeparatorMenuItem(), tk.createBringAllToFrontItem(),
           new SeparatorMenuItem());
+      menus.add(menus.size() - 1, windowMenu);
       tk.autoAddWindowMenuItems(windowMenu);
       tk.setGlobalMenuBar(menuBar);
+
+
     }
   }
 
   private void initializeViewMenuItems() {
-    final String sessionName = "sessionName";
-    final String sessionFormat = "sessionFormat";
-    uiDataService.setSessionDisplayFormatProperty(userPreferences.get(sessionFormat, ""));
-
-    if ("id".equals(userPreferences.get(sessionFormat, ""))) {
-      rbMenuItemSessionId.setSelected(true);
-    } else if ("key".equals(userPreferences.get(sessionFormat, ""))) {
-      rbMenuItemSessionKey.setSelected(true);
-    } else {
-      rbMenuItemSessionName.setSelected(true);
-    }
-
     rbMenuItemSessionName.setToggleGroup(sessionPreferenceToggle);
     rbMenuItemSessionId.setToggleGroup(sessionPreferenceToggle);
     rbMenuItemSessionKey.setToggleGroup(sessionPreferenceToggle);
 
-    sessionPreferenceToggle.selectedToggleProperty().addListener(
-        (observable, oldValue, newValue) -> {
-          if (sessionPreferenceToggle.getSelectedToggle() != null) {
-            final String selectedPref = sessionPreferenceToggle.getSelectedToggle().getUserData()
-                .toString();
-            if (sessionName.equals(selectedPref)) {
-              userPreferences.put(sessionFormat, "name");
-            } else if ("sessionKey".equals(selectedPref)) {
-              userPreferences.put(sessionFormat, "key");
-            } else {
-              userPreferences.put(sessionFormat, "id");
-            }
-            uiDataService.setSessionDisplayFormatProperty(userPreferences.get(sessionFormat, ""));
-          }
-        });
+    final SessionDisplayFormat userFormat = getSessionDisplayFormatFromPreferences();
+    uiDataService.setSessionDisplayFormatProperty(userFormat);
 
+    switch (userFormat) {
+      case TITLE:
+        rbMenuItemSessionName.setSelected(true);
+        break;
+      case ABSTRACT_UNIT_KEYS:
+        rbMenuItemSessionKey.setSelected(true);
+        break;
+      case UNIT_KEY:
+      default:
+        rbMenuItemSessionId.setSelected(true);
+        break;
+    }
+    sessionPreferenceToggle.selectedToggleProperty().addListener(this::updateSessionDisplayFormat);
+
+    fifteenSecondsMenuItem.setToggleGroup(timeoutPreferenceToggle);
     oneMinuteMenuItem.setToggleGroup(timeoutPreferenceToggle);
     threeMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
     fiveMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
+    twentyMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
+  }
+
+  private SessionDisplayFormat getSessionDisplayFormatFromPreferences() {
+    final String preference
+        = userPreferences.get(SESSION_FORMAT_PREF_KEY,
+        String.valueOf(SessionDisplayFormat.UNIT_KEY));
+
+    SessionDisplayFormat userFormat;
+    try {
+      userFormat = SessionDisplayFormat.valueOf(preference);
+    } catch (final IllegalArgumentException exception) {
+      logger.error("Unknown SessionDisplayFormat", exception);
+      userFormat = SessionDisplayFormat.UNIT_KEY;
+      userPreferences.put(SESSION_FORMAT_PREF_KEY, String.valueOf(userFormat));
+    }
+    return userFormat;
+  }
+
+  @SuppressWarnings("unused")
+  private void updateSessionDisplayFormat(final ObservableValue<? extends Toggle> observable,
+                                          final Toggle oldValue, final Toggle newValue) {
+
+    if (newValue == null) {
+      return;
+    }
+
+    final String selectedPref = newValue.getUserData().toString();
+
+    SessionDisplayFormat format = SessionDisplayFormat.UNIT_KEY;
+    try {
+      format = SessionDisplayFormat.valueOf(selectedPref);
+    } catch (final IllegalArgumentException exception) {
+      logger.error("User selected invalid session format", exception);
+    }
+
+    userPreferences.put(SESSION_FORMAT_PREF_KEY, String.valueOf(format));
+    uiDataService.setSessionDisplayFormatProperty(format);
   }
 
   /**
@@ -490,7 +639,7 @@ public class MainController implements Initializable {
    */
   @FXML
   @SuppressWarnings("unused")
-  private void saveFileAs() {
+  private boolean saveFileAs() {
     final FileChooser fileChooser = prepareFileChooser("saveDB");
     fileChooser.setInitialFileName("data.sqlite3");
     //
@@ -500,10 +649,12 @@ public class MainController implements Initializable {
       try {
         Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(file.getAbsolutePath()));
         logger.info("File saving finished!");
+        return true;
       } catch (final IOException exception) {
         logger.error("File saving failed!", exception);
       }
     }
+    return false;
   }
 
   /**
@@ -572,6 +723,11 @@ public class MainController implements Initializable {
     final StoreLoaderTask storeLoader = this.getStoreLoaderTask(path);
     delayedStore.whenAvailable(solverLoader::load);
 
+    storeLoader.setOnRunning(event ->
+        lbRunningTasks.setText(resources.getString("loadStore")));
+    mainStatusBar.getRightItems().addAll(lbRunningTasks, mainProgressBar);
+    mainProgressBar.progressProperty().bind(storeLoader.progressProperty());
+
     this.openFileMenuItem.setDisable(true);
     this.submitTask(storeLoader);
 
@@ -635,12 +791,23 @@ public class MainController implements Initializable {
   }
 
   /**
-   * Open the reports view in a new stage.
+   * Open the reports view in a new tab within the {@link #tabPane}.
    */
   @FXML
   @SuppressWarnings("unused")
   private void openReports() {
-    router.transitionTo(RouteNames.REPORTS, resources.getString("reportsTitle"));
+    if (!tabPane.getTabs().contains(reportsTab)) {
+      reportsTab.setContent(reportsProvider.get());
+      tabPane.getTabs().add(reportsTab);
+    }
+    tabPane.getSelectionModel().select(reportsTab);
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
+  private void setTimeoutFifteenSeconds() {
+    fifteenSecondsMenuItem.setSelected(true);
+    setTimeout(15);
   }
 
   @FXML
@@ -666,6 +833,13 @@ public class MainController implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
+  private void setTimeoutTwentyMinutes() {
+    twentyMinutesMenuItem.setSelected(true);
+    setTimeout(1200);
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
   private void setTimeoutCustom() {
     final TextInputDialog dialog = new TextInputDialog();
     dialog.setTitle(resources.getString("timeout.Title"));
@@ -674,13 +848,15 @@ public class MainController implements Initializable {
 
     final Optional<String> result = dialog.showAndWait();
     result.ifPresent(timeout -> {
-      try {
-        initializeCustomTimeoutMenuItem();
-        final int timeoutValue = Integer.parseInt(timeout);
-        setTimeout(timeoutValue);
-        customTimeoutProperty.setValue(timeoutValue);
-      } catch (final NumberFormatException exception) {
-        logger.error("Incorrect input: " + timeout);
+      if (!result.get().isEmpty()) {
+        try {
+          initializeCustomTimeoutMenuItem();
+          final int timeoutValue = Integer.parseInt(timeout);
+          setTimeout(timeoutValue);
+          customTimeoutProperty.setValue(timeoutValue);
+        } catch (final NumberFormatException exception) {
+          logger.error("Incorrect input: " + timeout);
+        }
       }
     });
   }
@@ -691,8 +867,10 @@ public class MainController implements Initializable {
     }
     customTimeoutItem = new RadioMenuItem();
     customTimeoutItem.setToggleGroup(timeoutPreferenceToggle);
-    customTimeoutItem.disableProperty().bind(customTimeoutItem.selectedProperty());
-    selectTimeoutMenu.getItems().add(customTimeoutItem);
+
+    final int lastButOne = selectTimeoutMenu.getItems().size() - 1;
+    selectTimeoutMenu.getItems().add(lastButOne, customTimeoutItem);
+
     customTimeoutItem.addEventHandler(MouseEvent.MOUSE_CLICKED, event ->
         setTimeout(customTimeoutProperty.get()));
 
@@ -725,13 +903,16 @@ public class MainController implements Initializable {
     }
 
     final Alert closeConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
-    closeConfirmation.setTitle("Confirm");
-    closeConfirmation.setHeaderText("Save before closing?");
+    closeConfirmation.setTitle(resources.getString("dialog.close.confirm"));
+    closeConfirmation.setHeaderText(resources.getString("dialog.close.title"));
+    closeConfirmation.getDialogPane().setPrefSize(825.0, 150.0);
 
-    final ButtonType save = new ButtonType("Save");
-    final ButtonType saveAs = new ButtonType("Save as");
-    final ButtonType withoutSaving = new ButtonType("Close without saving");
-    final ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+    final ButtonType save = new ButtonType(resources.getString("dialog.close.save"));
+    final ButtonType saveAs = new ButtonType(resources.getString("dialog.close.saveAs"));
+    final ButtonType withoutSaving = new ButtonType(
+        resources.getString("dialog.close.withoutSaving"));
+    final ButtonType cancel = new ButtonType(resources.getString("dialog.close.cancel"),
+        ButtonBar.ButtonData.CANCEL_CLOSE);
     closeConfirmation.getButtonTypes().setAll(save, saveAs, withoutSaving, cancel);
 
     final Optional<ButtonType> answer = closeConfirmation.showAndWait();
@@ -739,13 +920,9 @@ public class MainController implements Initializable {
 
     if (result == save) {
       saveFile();
-    } else if (result == saveAs) {
-      saveFileAs();
-    }
-
-    // if the result is to cancel we ignore the close request and consume the event
-    // in all other cases we close the stage
-    if (result == cancel) {
+    } else if ((result == saveAs && !saveFileAs()) || result == cancel) {
+      // if the result is to cancel or 'save as' has been canceled we ignore the close request and
+      // consume the event, otherwise we close the stage
       event.consume();
     } else {
       stage.close();
@@ -779,14 +956,16 @@ public class MainController implements Initializable {
 
     ExportXmlTask(final File selectedFile) {
       this.selectedFile = selectedFile;
+
+      updateTitle(resources.getString("export.title"));
+      updateProgress(0, 3);
+      updateMessage(resources.getString("export.gen"));
     }
 
     @Override
     protected Void call() throws Exception {
 
-      updateTitle(resources.getString("export.title"));
       updateProgress(1, 3);
-      updateMessage(resources.getString("export.gen"));
 
       writeZipFile();
       return null;

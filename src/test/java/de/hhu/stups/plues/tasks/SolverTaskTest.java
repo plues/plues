@@ -41,8 +41,6 @@ public class SolverTaskTest extends ApplicationTest {
   private static final ResourceBundle resources = ResourceBundle.getBundle("lang.tasks");
   private static final String TITLE =
       ResourceBundle.getBundle("lang.solverTask").getString("testTitle");
-  private static final String MESSAGE =
-      ResourceBundle.getBundle("lang.solverTask").getString("message.test");
   private static final int TIMEOUT = 60;
 
   static {
@@ -55,7 +53,7 @@ public class SolverTaskTest extends ApplicationTest {
   public void testCallableIsSuccessful() throws ExecutionException, InterruptedException {
     final CountDownLatch latch = new CountDownLatch(1);
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), () -> 1, TIMEOUT);
+        = new SolverTask<>(TITLE, new TestSolver(), () -> 1, TIMEOUT);
     final TaskProperties taskProperties = new TaskProperties();
 
     Platform.runLater(() -> {
@@ -74,7 +72,6 @@ public class SolverTaskTest extends ApplicationTest {
     // wait until the onSucceeded event handler finishes
     latch.await();
 
-    assertEquals(MESSAGE, taskProperties.getMessage());
     assertEquals(TITLE, taskProperties.getTitle());
 
     assertTrue(taskProperties.isDone());
@@ -89,7 +86,7 @@ public class SolverTaskTest extends ApplicationTest {
       throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c, TIMEOUT);
+        = new SolverTask<>(TITLE, new TestSolver(), c, TIMEOUT);
 
     executor.submit(solverTask);
 
@@ -120,29 +117,34 @@ public class SolverTaskTest extends ApplicationTest {
 
   @Test
   public void testTaskIsCancelled() throws InterruptedException {
+    final CountDownLatch latch = new CountDownLatch(1);
+
     final Callable<Integer> c = () -> {
       TimeUnit.DAYS.sleep(365);
       throw new TestException("NO");
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c, TIMEOUT);
+        = new SolverTask<>(TITLE, new TestSolver(), c, TIMEOUT);
 
     Platform.runLater(() -> {
       executor.submit(solverTask);
+      this.sleep(500);
       solverTask.cancel();
+      latch.countDown();
     });
     try {
+      latch.await();
       solverTask.get();
       fail();
     } catch (final CancellationException cancellationException) {
       final TaskProperties taskProperties = getTaskProperties(solverTask);
 
-      assertEquals(resources.getString("cancelled"), taskProperties.getMessage());
-      assertEquals(TITLE, taskProperties.getTitle());
-
       assertTrue(taskProperties.isDone());
       assertEquals(taskProperties.getState(), Worker.State.CANCELLED);
       assertTrue(taskProperties.isCancelled());
+
+      assertEquals(TITLE, taskProperties.getTitle());
+      assertEquals(resources.getString("cancelled"), taskProperties.getMessage());
     } catch (InterruptedException | ExecutionException exception) {
       fail();
     }
@@ -155,7 +157,7 @@ public class SolverTaskTest extends ApplicationTest {
       return 1;
     };
     final SolverTask<Integer> solverTask
-        = new SolverTask<>(TITLE, MESSAGE, new TestSolver(), c, 3, TimeUnit.SECONDS);
+        = new SolverTask<>(TITLE, new TestSolver(), c, 3, TimeUnit.SECONDS);
     executor.submit(solverTask);
 
     try {

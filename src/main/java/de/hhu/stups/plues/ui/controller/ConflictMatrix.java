@@ -16,7 +16,6 @@ import de.hhu.stups.plues.ui.batchgeneration.CollectFeasibilityTasksTask;
 import de.hhu.stups.plues.ui.components.conflictmatrix.CourseGridCell;
 import de.hhu.stups.plues.ui.components.conflictmatrix.ResultGridCell;
 import de.hhu.stups.plues.ui.layout.Inflater;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.LongProperty;
@@ -369,12 +368,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
       checkFeasibilityTasks.clear();
     });
 
-    prepareFeasibilityCheck.setOnSucceeded(event -> {
-      checkFeasibilityTasks.addAll(prepareFeasibilityCheck.getValue());
-      executeFeasibilityCheck.setTasks(checkFeasibilityTasks);
-      executor.submit(executeFeasibilityCheck);
-    });
-
     executeFeasibilityCheck = new BatchFeasibilityTask(executor, checkFeasibilityTasks);
 
     executeFeasibilityCheck.setOnCancelled(event -> {
@@ -397,6 +390,14 @@ public class ConflictMatrix extends GridPane implements Initializable {
       checkFeasibilityTasks.clear();
     });
 
+    //
+    prepareFeasibilityCheck.setOnSucceeded(event -> {
+      checkFeasibilityTasks.addAll(prepareFeasibilityCheck.getValue());
+      executeFeasibilityCheck.setTasks(checkFeasibilityTasks);
+      executor.submit(executeFeasibilityCheck);
+    });
+
+
     executor.submit(prepareFeasibilityCheck);
   }
 
@@ -417,32 +418,18 @@ public class ConflictMatrix extends GridPane implements Initializable {
     checkFeasibilityTasks.clear();
   }
 
-  @SuppressWarnings("unused")
-  private void restoreInitialState() {
-    gridPaneCombinable.getChildren().clear();
-    gridPaneStandalone.getChildren().clear();
-    gridPaneSingleCourses.getChildren().clear();
-
-    initializeGridPaneCombinable();
-    initializeGridPaneStandalone();
-    initializeGridPaneSingleCourse();
-    highlightImpossibleCombinations();
-    highlightImpossibleCourses();
-  }
-
   private MapChangeListener<CourseSelection, ResultState> getCourseResultChangeListener() {
     return change -> {
-      if (change.wasAdded()) {
-        final CourseSelection key = change.getKey();
-        final ResultGridCell cell = cellMap.get(key);
+      final ResultGridCell cell = cellMap.get(change.getKey());
 
-        if (cell.getResultState() == ResultState.IMPOSSIBLE) {
-          return;
-        }
+      if (cell.getResultState() == ResultState.IMPOSSIBLE) {
+        return;
+      }
+
+      if (change.wasAdded()) {
         cell.setResultState(change.getValueAdded());
       } else {
-        // discard all if a session has been moved
-        Platform.runLater(this::restoreInitialState);
+        cell.setResultState(null);
       }
     };
   }

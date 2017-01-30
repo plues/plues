@@ -33,16 +33,16 @@ public class SessionUnsatCore extends VBox implements Initializable {
   private TableView<Session> sessionsTable;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Session, String> sessionDayColumn;
+  private TableColumn<Session, String> tableColumnSessionDay;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Session, Integer> sessionTimeColumn;
+  private TableColumn<Session, Integer> tableColumnSessionTime;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Session, String> sessionUnitKeyColumn;
+  private TableColumn<Session, String> tableColumnSessionUnitKey;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Session, String> sessionUnitTitleColumn;
+  private TableColumn<Session, String> tableColumnSessionUnitTitle;
   @FXML
   @SuppressWarnings("unused")
   private Text txtExplanation;
@@ -66,7 +66,7 @@ public class SessionUnsatCore extends VBox implements Initializable {
     sessionsTable.itemsProperty().bind(sessions);
     sessionsTable.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
         sessionsTable, router));
-    sessionDayColumn.setCellFactory(param -> new TableCell<Session, String>() {
+    tableColumnSessionDay.setCellFactory(param -> new TableCell<Session, String>() {
       @Override
       protected void updateItem(final String item, final boolean empty) {
         super.updateItem(item, empty);
@@ -78,7 +78,7 @@ public class SessionUnsatCore extends VBox implements Initializable {
         setText(resources.getString(item));
       }
     });
-    sessionTimeColumn.setCellFactory(param -> new TableCell<Session, Integer>() {
+    tableColumnSessionTime.setCellFactory(param -> new TableCell<Session, Integer>() {
       @Override
       protected void updateItem(final Integer item, boolean empty) {
         super.updateItem(item, empty);
@@ -90,10 +90,23 @@ public class SessionUnsatCore extends VBox implements Initializable {
         setText(String.valueOf(6 + item * 2) + ":30");
       }
     });
-    sessionUnitKeyColumn.setCellValueFactory(param
+    tableColumnSessionUnitKey.setCellValueFactory(param
         -> Bindings.selectString(param, "value", "group", "unit", "key"));
-    sessionUnitTitleColumn.setCellValueFactory(param
+    tableColumnSessionUnitTitle.setCellValueFactory(param
         -> Bindings.selectString(param, "value", "group", "unit", "title"));
+
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnSessionDay.prefWidthProperty().bind(
+        sessionsTable.widthProperty().multiply(0.12));
+    tableColumnSessionTime.prefWidthProperty().bind(
+        sessionsTable.widthProperty().multiply(0.12));
+    tableColumnSessionUnitKey.prefWidthProperty().bind(
+        sessionsTable.widthProperty().multiply(0.16));
+    tableColumnSessionUnitTitle.prefWidthProperty().bind(
+        sessionsTable.widthProperty().multiply(0.56));
   }
 
   public void setSessions(final ObservableList<Session> sessions) {
@@ -104,7 +117,7 @@ public class SessionUnsatCore extends VBox implements Initializable {
     return sessions.get();
   }
 
-  public ListProperty<Session> getSessionProperty() {
+  public ListProperty<Session> sessionProperty() {
     return sessions;
   }
 }

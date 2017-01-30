@@ -2,32 +2,21 @@
     -fx-background-color: white;
 }
 
-#timeTable .headerLabel {
+#timeTablePane .headerLabel {
     -fx-font-weight: bold;
     -fx-text-alignment: center;
 }
 
-#timeTable .time {
-    -fx-background-color: black, white;
-    -fx-background-insets: 0, 0 1 0 0;
-}
-
-#timeTable .day {
-    -fx-background-color: black, white;
-    -fx-background-insets: 0, 0 0 1 0;
-}
-
-#timeTable .list-view {
-    -fx-background-color: black, white;
-    -fx-background-insets: 0, 0 1 1 0;
-}
-
-#timeTable .dragged-over .list-cell {
+#timeTablePane .dragged-over .list-cell {
     -fx-background-color: #eaeef7;
 }
 
 #batchListView .list-cell:odd {
     -fx-control-inner-background: #F2F2F2;
+}
+
+#batchListView .list-cell:empty {
+    -fx-opacity: 0;
 }
 
 .conflicted-semester {
@@ -50,32 +39,37 @@
     -fx-border-color: black;
     -fx-border-width: 1;
 }
+
 .matrix-cell {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, white;
 }
+
 /* TODO: remove these and use color classes below, once we update the matrix cells directly */
 .matrix-cell-ignored {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, #BDBDBD;
 }
+
 .matrix-cell-impossible {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, #FA80AA;
 }
+
 .matrix-cell-failure {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, #FFBABA;
 }
+
 .matrix-cell-timeout {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, #FEEFB3;
 }
+
 .matrix-cell-success {
     -fx-background-insets: 0, 0 1 1 0;
     -fx-background-color: black, #DFF2BF;
 }
-
 
 #gridPaneLegend {
     -fx-border-style: solid inside;
@@ -91,6 +85,7 @@
 .impossible {
     -fx-background-color: #fa80aa;
 }
+
 .infeasible, .failure {
     -fx-background-color: #FFBABA;
 }
@@ -120,10 +115,10 @@
     -fx-font-weight: bold;
 }
 
-
 .h1 {
     -fx-font-size: 30;
 }
+
 .h2 {
     -fx-font-size: 20;
 }
@@ -138,13 +133,19 @@
     -fx-faint-focus-color: transparent;
 }
 
+.sideBarTabPane {
+    -fx-tab-min-width: 70px;
+    -fx-tab-max-width: 70px;
+    -fx-tab-min-height: 20px;
+    -fx-tab-max-height: 20px;
+    -fx-text-alignment: left;
+}
+
 .sideBarTabLayout {
     -fx-background-color: #DFDFDF;
     -fx-border-width: 1 1 0 1;
     -fx-border-color: #BDBDBD;
     -fx-padding: 5 5 5 5;
-    -fx-tab-width: 100px;
-    -fx-tab-height: 20px;
 }
 
 .sideBarTabVisible:selected, .sideBarTabVisible:hover {
@@ -172,3 +173,7 @@
     -fx-padding: 10px 10px 10px 10px;
 }
 
+.table-view:focused, .list-view:focused, .tree-view:focused, .button:focused, .tree-table-view:focused {
+    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+}

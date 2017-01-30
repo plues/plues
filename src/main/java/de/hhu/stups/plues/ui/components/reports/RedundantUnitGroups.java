@@ -8,8 +8,10 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -21,6 +23,15 @@ public class RedundantUnitGroups extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableView<Unit> tableViewRedundantUnitGroups;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Unit, String> tableColumnUnitKey;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Unit, String> tableColumnUnitTitle;
+  @FXML
+  @SuppressWarnings("unused")
+  private Text txtExplanation;
 
   @Inject
   public RedundantUnitGroups(final Inflater inflater) {
@@ -28,9 +39,21 @@ public class RedundantUnitGroups extends VBox implements Initializable {
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {}
+  public void initialize(final URL location, final ResourceBundle resources) {
+    txtExplanation.wrappingWidthProperty().bind(
+        tableViewRedundantUnitGroups.widthProperty().subtract(25.0));
 
-  public void setData(Set<Unit> redundantUnitGroups) {
+    bindTableColumnsWidth();
+  }
+
+  private void bindTableColumnsWidth() {
+    tableColumnUnitKey.prefWidthProperty().bind(
+        tableViewRedundantUnitGroups.widthProperty().multiply(0.2));
+    tableColumnUnitTitle.prefWidthProperty().bind(
+        tableViewRedundantUnitGroups.widthProperty().multiply(0.76));
+  }
+
+  public void setData(final Set<Unit> redundantUnitGroups) {
     tableViewRedundantUnitGroups.setItems(
         FXCollections.observableList(new ArrayList<>(redundantUnitGroups)));
   }

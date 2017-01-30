@@ -11,6 +11,7 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.StringBinding;
@@ -37,34 +38,41 @@ public class SessionDetailView extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private Label session;
+  private Label lbSession;
   @FXML
   @SuppressWarnings("unused")
-  private Label title;
+  private Label lbTitle;
   @FXML
   @SuppressWarnings("unused")
-  private Label group;
+  private Label lbGroup;
   @FXML
   @SuppressWarnings("unused")
-  private Label semesters;
+  private Label lbSemesters;
   @FXML
   @SuppressWarnings("unused")
-  private Label tentative;
+  private Label lbTentative;
   @FXML
   @SuppressWarnings("unused")
   private TableView<CourseTableEntry> courseTable;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<CourseTableEntry, String> courseKey;
+  private TableColumn<CourseTableEntry, String> tableColumnCourseKey;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<CourseTableEntry, String> module;
+  private TableColumn<CourseTableEntry, String> tableColumnModule;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<CourseTableEntry, Integer> abstractUnit;
+  private TableColumn<CourseTableEntry, Integer> tableColumnAbstractUnit;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<CourseTableEntry, Integer> tableColumnSemester;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<CourseTableEntry, Integer> tableColumnType;
 
   /**
    * Constructor.
+   *
    * @param inflater Inflater instance to load FXMl
    */
   @Inject
@@ -89,13 +97,13 @@ public class SessionDetailView extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    this.title.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
+    lbTitle.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
         Bindings.selectString(sessionProperty, "group", "unit", "title")).otherwise(""));
-    this.session.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
+    lbSession.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
         Bindings.selectString(sessionFacadeProperty, "slot")).otherwise(""));
-    this.group.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
+    lbGroup.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
         Bindings.selectString(sessionProperty, "group", "id")).otherwise(""));
-    this.semesters.textProperty().bind(new StringBinding() {
+    lbSemesters.textProperty().bind(new StringBinding() {
       {
         bind(sessionProperty);
       }
@@ -109,7 +117,7 @@ public class SessionDetailView extends VBox implements Initializable {
         return Joiner.on(", ").join(session.getGroup().getUnit().getSemesters());
       }
     });
-    this.tentative.textProperty().bind(Bindings.createStringBinding(() -> {
+    lbTentative.textProperty().bind(Bindings.createStringBinding(() -> {
       final Session session = sessionProperty.get();
       if (session == null) {
         return "?";
@@ -117,6 +125,8 @@ public class SessionDetailView extends VBox implements Initializable {
 
       return session.isTentative() ? "✔︎" : "✗";
     }, sessionProperty));
+
+    bindTableColumnsWidth();
 
     courseTable.itemsProperty().bind(new ListBinding<CourseTableEntry>() {
       {
@@ -134,12 +144,12 @@ public class SessionDetailView extends VBox implements Initializable {
         final ObservableList<CourseTableEntry> result = FXCollections.observableArrayList();
         abstractUnits.forEach(au ->
             au.getModuleAbstractUnitTypes().forEach(entry ->
-              entry.getModule().getCourses().forEach(course -> {
-                final Module entryModule = entry.getModule();
-                final CourseTableEntry tableEntry = new CourseTableEntry(course, entryModule, au,
-                    entryModule.getSemestersForAbstractUnit(au), entry.getType());
-                result.add(tableEntry);
-              })));
+                entry.getModule().getCourses().forEach(course -> {
+                  final Module entryModule = entry.getModule();
+                  final CourseTableEntry tableEntry = new CourseTableEntry(course, entryModule, au,
+                      entryModule.getSemestersForAbstractUnit(au), entry.getType());
+                  result.add(tableEntry);
+                })));
         return result;
       }
     });
@@ -154,18 +164,31 @@ public class SessionDetailView extends VBox implements Initializable {
               = courseTable.getSelectionModel().getSelectedCells().get(0).getTableColumn();
 
 
-          if (column.equals(module)) {
+          if (column.equals(tableColumnModule)) {
             router.transitionTo(RouteNames.MODULE_DETAIL_VIEW, newValue.getModule());
-          } else if (column.equals(abstractUnit)) {
+          } else if (column.equals(tableColumnAbstractUnit)) {
             router.transitionTo(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW, newValue.getAbstractUnit());
-          } else if (column.equals(courseKey)) {
+          } else if (column.equals(tableColumnCourseKey)) {
             router.transitionTo(RouteNames.COURSE_DETAIL_VIEW, newValue.getCourse());
           }
         }));
   }
 
+  private void bindTableColumnsWidth() {
+    tableColumnCourseKey.prefWidthProperty().bind(
+        courseTable.widthProperty().multiply(0.14));
+    tableColumnModule.prefWidthProperty().bind(
+        courseTable.widthProperty().multiply(0.31));
+    tableColumnAbstractUnit.prefWidthProperty().bind(
+        courseTable.widthProperty().multiply(0.31));
+    tableColumnSemester.prefWidthProperty().bind(
+        courseTable.widthProperty().multiply(0.13));
+    tableColumnType.prefWidthProperty().bind(
+        courseTable.widthProperty().multiply(0.07));
+  }
+
   public String getTitle() {
-    return title.getText();
+    return lbTitle.getText();
   }
 
   @SuppressWarnings("WeakerAccess")
@@ -235,12 +258,12 @@ public class SessionDetailView extends VBox implements Initializable {
     @Override
     public String toString() {
       return "CourseTableEntry{"
-        + "courseKey='" + courseKey + '\''
-        + ", module='" + module + '\''
-        + ", abstractUnit='" + abstractUnit + '\''
-        + ", semesters=" + semesters
-        + ", type=" + type
-        + '}';
+          + "courseKey='" + courseKey + '\''
+          + ", module='" + module + '\''
+          + ", abstractUnit='" + abstractUnit + '\''
+          + ", semesters=" + semesters
+          + ", type=" + type
+          + '}';
     }
 
     @SuppressWarnings("unused")
