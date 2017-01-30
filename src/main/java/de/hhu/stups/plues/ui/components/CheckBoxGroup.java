@@ -10,6 +10,9 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -42,9 +45,10 @@ public class CheckBoxGroup extends VBox implements Initializable {
   /**
    * Constructor for a group of checkboxes for a given course, a given module and a list of abstract
    * units.
+   *
    * @param inflater inflater to handle fxml
-   * @param course Given course. Should be a major or minor for the choosen course combination
-   * @param module Given module. Should be one inside major or minor course
+   * @param course   Given course. Should be a major or minor for the choosen course combination
+   * @param module   Given module. Should be one inside major or minor course
    */
   @Inject
   public CheckBoxGroup(final Inflater inflater,
@@ -84,17 +88,19 @@ public class CheckBoxGroup extends VBox implements Initializable {
 
   /**
    * Collect an observable list all selected abstract units.
+   *
    * @return Selected abstract units
    */
   public ObservableList<AbstractUnit> getSelectedAbstractUnits() {
     return FXCollections.observableList(boxToUnit.entrySet().stream()
-      .filter(entry -> entry.getKey().isSelected())
-      .map(Map.Entry::getValue)
-      .collect(Collectors.toList()));
+        .filter(entry -> entry.getKey().isSelected())
+        .map(Map.Entry::getValue)
+        .collect(Collectors.toList()));
   }
 
   /**
    * Return module if selected.
+   *
    * @return Module if selected, else null
    */
   public Module getModule() {
@@ -106,9 +112,16 @@ public class CheckBoxGroup extends VBox implements Initializable {
 
   /**
    * Get course of this module and units.
-   * @return Course object
    */
   public Course getCourse() {
     return course;
+  }
+
+  /**
+   * Set binding value if a checkbox is selected.
+   */
+  public void setOnSelectionChanged(final BooleanProperty selectionChanged) {
+    boxToUnit.forEach((checkBox, abstractUnit) -> checkBox.selectedProperty().addListener(
+        (observable, oldValue, newValue) -> selectionChanged.set(true)));
   }
 }

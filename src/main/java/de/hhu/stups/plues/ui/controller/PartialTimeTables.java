@@ -58,6 +58,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
 
   private final BooleanProperty solverProperty;
   private final BooleanProperty checkRunning;
+  private final BooleanProperty selectionChanged;
 
   private final CheckBoxGroupFactory checkBoxGroupFactory;
   private final ObjectProperty<Store> storeProperty;
@@ -128,6 +129,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     this.storeProperty = new SimpleObjectProperty<>();
     this.solverProperty = new SimpleBooleanProperty(false);
     this.checkRunning = new SimpleBooleanProperty(false);
+    this.selectionChanged = new SimpleBooleanProperty(false);
     this.pdf = new SimpleObjectProperty<>();
     currentTaskProperty = new SimpleObjectProperty<>();
 
@@ -153,8 +155,8 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     btCancel.visibleProperty().bind(btGenerate.visibleProperty());
     btShow.visibleProperty().bind(btGenerate.visibleProperty());
     btSave.visibleProperty().bind(btGenerate.visibleProperty());
-    btShow.disableProperty().bind(pdf.isNull().or(checkRunning));
-    btSave.disableProperty().bind(pdf.isNull().or(checkRunning));
+    btShow.disableProperty().bind(pdf.isNull().or(checkRunning).or(selectionChanged));
+    btSave.disableProperty().bind(pdf.isNull().or(checkRunning).or(selectionChanged));
 
     delayedStore.whenAvailable(s -> {
       PdfRenderingHelper.initializeCourseSelection(s, uiDataService, courseSelection);
@@ -170,6 +172,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   @FXML
   @SuppressWarnings( {"unused", "WeakerAccess"})
   public void btChoosePressed() {
+    selectionChanged.set(false);
     checkRunning.set(false);
     modulesUnits.getChildren().clear();
     scrollPane.setVisible(true);
@@ -235,6 +238,8 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
       }
       final CheckBoxGroup cbg = (CheckBoxGroup) o;
 
+      cbg.setOnSelectionChanged(selectionChanged);
+
       final Module module = cbg.getModule();
       if (module != null) {
         moduleChoice.get(cbg.getCourse()).add(module);
@@ -246,7 +251,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
       final SolverTask<FeasibilityResult> solverTask =
           solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
       final PdfRenderingTask task = getPdfRenderingTask(major, minor, solverTask);
-      currentTaskProperty.setValue(task);
+      currentTaskProperty.set(task);
       bindStateIcon(task);
 
       executor.submit(task);
@@ -259,14 +264,19 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     task.setOnSucceeded(event -> {
       pdf.set((Path) event.getSource().getValue());
       checkRunning.set(false);
+      selectionChanged.set(false);
     });
 
     task.setOnFailed(event -> {
       pdf.set(null);
       checkRunning.set(false);
+      selectionChanged.set(false);
     });
 
-    task.setOnCancelled(event -> checkRunning.set(false));
+    task.setOnCancelled(event -> {
+      checkRunning.set(false);
+      selectionChanged.set(false);
+    });
     return task;
   }
 
@@ -277,7 +287,8 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
     progressIndicator.visibleProperty().bind(task.runningProperty());
 
-    lbIcon.visibleProperty().bind(task.stateProperty().isEqualTo(RUNNING).not());
+    lbIcon.visibleProperty().bind(task.stateProperty().isEqualTo(RUNNING).not()
+        .and(selectionChanged.not()));
   }
 
   @SuppressWarnings("unused")
