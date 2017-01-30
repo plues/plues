@@ -48,6 +48,7 @@
     <logger name="net.sf.ehcache" level="warn" />
     <logger name="org.jtwig" level="warn" />
 
+    <logger name="com.mchange" level="INFO"/>
 
     <root level="debug">
         <appender-ref ref="STDOUT"/>
