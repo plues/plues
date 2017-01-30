@@ -848,13 +848,15 @@ public class MainController implements Initializable {
 
     final Optional<String> result = dialog.showAndWait();
     result.ifPresent(timeout -> {
-      try {
-        initializeCustomTimeoutMenuItem();
-        final int timeoutValue = Integer.parseInt(timeout);
-        setTimeout(timeoutValue);
-        customTimeoutProperty.setValue(timeoutValue);
-      } catch (final NumberFormatException exception) {
-        logger.error("Incorrect input: " + timeout);
+      if (!result.get().isEmpty()) {
+        try {
+          initializeCustomTimeoutMenuItem();
+          final int timeoutValue = Integer.parseInt(timeout);
+          setTimeout(timeoutValue);
+          customTimeoutProperty.setValue(timeoutValue);
+        } catch (final NumberFormatException exception) {
+          logger.error("Incorrect input: " + timeout);
+        }
       }
     });
   }
