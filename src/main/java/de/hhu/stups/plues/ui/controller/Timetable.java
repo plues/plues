@@ -22,6 +22,7 @@ import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.Observable;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.SetBinding;
@@ -59,7 +60,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
   private final UiDataService uiDataService;
-  private double userDefinedDividerPos = 0.65;
+  private double userDefinedDividerPos = 0.15;
   private SplitPane.Divider splitPaneDivider;
 
   @FXML
