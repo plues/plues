@@ -147,7 +147,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
    * Disable the split pane divider for the {@link #timetableSideBar}.
    */
   public void disableDivider(final boolean bool) {
-    final Node divider = lookup("#timetable > .split-pane-divider");
+    final Node divider = lookup(".split-pane-divider");
     if (divider != null) {
       divider.setDisable(bool);
     }
