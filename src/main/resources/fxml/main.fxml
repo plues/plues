@@ -39,19 +39,25 @@
                       mnemonicParsing="false" text="%log" accelerator="Shortcut+L"/>
             <MenuItem fx:id="openReportsMenuItem" onAction="#openReports" disable="true"
                       mnemonicParsing="false" text="%reports" accelerator="Shortcut+R"/>
-            <MenuItem fx:id="close" onAction="#closeWindow" mnemonicParsing="false" text="%close"/>
+            <MenuItem onAction="#closeWindow" mnemonicParsing="false" text="%close"/>
         </Menu>
         <Menu mnemonicParsing="false" text="%edit">
             <Menu fx:id="selectTimeoutMenu" mnemonicParsing="false" text="%timeout.Select">
+                <RadioMenuItem fx:id="fifteenSecondsMenuItem" text="%timeout.fifteenSeconds"
+                               disable="true" selected="true" mnemonicParsing="false"
+                               onAction="#setTimeoutFifteenSeconds"/>
                 <RadioMenuItem fx:id="oneMinuteMenuItem" text="%timeout.oneMinute" disable="true"
-                               selected="true"
-                               mnemonicParsing="false" onAction="#setTimeoutOneMinute"/>
+                               selected="true" mnemonicParsing="false"
+                               onAction="#setTimeoutOneMinute"/>
                 <RadioMenuItem fx:id="threeMinutesMenuItem" text="%timeout.threeMinutes"
-                               disable="true"
-                               mnemonicParsing="false" onAction="#setTimeoutThreeMinutes"/>
+                               disable="true" mnemonicParsing="false"
+                               onAction="#setTimeoutThreeMinutes"/>
                 <RadioMenuItem fx:id="fiveMinutesMenuItem" text="%timeout.fiveMinutes"
-                               disable="true"
-                               mnemonicParsing="false" onAction="#setTimeoutFiveMinutes"/>
+                               disable="true" mnemonicParsing="false"
+                               onAction="#setTimeoutFiveMinutes"/>
+                <RadioMenuItem fx:id="twentyMinutesMenuItem" text="%timeout.twentyMinutes"
+                               disable="true" mnemonicParsing="false"
+                               onAction="#setTimeoutTwentyMinutes"/>
                 <MenuItem fx:id="setTimeoutMenuItem" text="%timeout.Title" disable="true"
                           mnemonicParsing="false" onAction="#setTimeoutCustom"/>
             </Menu>
@@ -77,22 +83,22 @@
         <VBox>
             <TabPane id="tabPane" fx:id="tabPane">
                 <Tab id="tabTimetable" text="%timetable" closable="false">
-                    <Timetable fx:id="timetable"/>
+                    <Timetable/>
                 </Tab>
                 <Tab id="tabPdfTimetables" text="%musterstudienplaene" closable="false">
-                    <Musterstudienplaene fx:id="musterstudienplaene"/>
+                    <Musterstudienplaene/>
                 </Tab>
                 <Tab id="tabPartialTimetables" text="%partial" closable="false">
-                    <PartialTimeTables fx:id="partialTimetables"/>
+                    <PartialTimeTables/>
                 </Tab>
                 <Tab id="tabBatchGeneration" text="%batch" closable="false">
-                    <BatchTimetableGeneration fx:id="batchTimetableGeneration"/>
+                    <BatchTimetableGeneration/>
                 </Tab>
                 <Tab id="tabConflictMatrix" text="%conflictMatrix" closable="false">
-                    <ConflictMatrix fx:id="conflictMatrix"/>
+                    <ConflictMatrix/>
                 </Tab>
                 <Tab id="tabUnsatCore" text="%tab.unsatCore" closable="false">
-                    <UnsatCore fx:id="unsatCore"/>
+                    <UnsatCore/>
                 </Tab>
             </TabPane>
         </VBox>
@@ -105,7 +111,7 @@
     </SplitPane>
     <StatusBar fx:id="mainStatusBar">
         <padding>
-            <Insets top="0.0" right="10.0" bottom="0.0" left="10.0"/>
+            <Insets right="10.0" left="10.0"/>
         </padding>
         <rightItems>
             <Label fx:id="lbRunningTasks" id="statusBarLabel"/>

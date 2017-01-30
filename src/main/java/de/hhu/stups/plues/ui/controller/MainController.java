@@ -28,6 +28,7 @@ import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -70,6 +71,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
 import org.slf4j.Logger;
@@ -154,11 +156,15 @@ public class MainController implements Initializable {
   @FXML
   private MenuItem setTimeoutMenuItem;
   @FXML
+  private RadioMenuItem fifteenSecondsMenuItem;
+  @FXML
   private RadioMenuItem oneMinuteMenuItem;
   @FXML
   private RadioMenuItem threeMinutesMenuItem;
   @FXML
   private RadioMenuItem fiveMinutesMenuItem;
+  @FXML
+  private RadioMenuItem twentyMinutesMenuItem;
   @FXML
   private MenuItem openChangeLog;
   @FXML
@@ -203,7 +209,7 @@ public class MainController implements Initializable {
       return null;
     }
   };
-  public static final String SESSION_FORMAT_PREF_KEY = "sessionFormat";
+  private static final String SESSION_FORMAT_PREF_KEY = "sessionFormat";
 
   /**
    * MainController component.
@@ -329,9 +335,11 @@ public class MainController implements Initializable {
     delayedSolverService.whenAvailable(solverService -> {
       openReportsMenuItem.setDisable(false);
       setTimeoutMenuItem.setDisable(false);
-      oneMinuteMenuItem.disableProperty().bind(oneMinuteMenuItem.selectedProperty());
-      threeMinutesMenuItem.disableProperty().bind(threeMinutesMenuItem.selectedProperty());
-      fiveMinutesMenuItem.disableProperty().bind(fiveMinutesMenuItem.selectedProperty());
+      fifteenSecondsMenuItem.setDisable(false);
+      oneMinuteMenuItem.setDisable(false);
+      threeMinutesMenuItem.setDisable(false);
+      fiveMinutesMenuItem.setDisable(false);
+      twentyMinutesMenuItem.setDisable(false);
     });
 
     delayedStore.whenAvailable(s -> {
@@ -549,15 +557,17 @@ public class MainController implements Initializable {
     }
     sessionPreferenceToggle.selectedToggleProperty().addListener(this::updateSessionDisplayFormat);
 
+    fifteenSecondsMenuItem.setToggleGroup(timeoutPreferenceToggle);
     oneMinuteMenuItem.setToggleGroup(timeoutPreferenceToggle);
     threeMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
     fiveMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
+    twentyMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
   }
 
   private SessionDisplayFormat getSessionDisplayFormatFromPreferences() {
     final String preference
         = userPreferences.get(SESSION_FORMAT_PREF_KEY,
-            String.valueOf(SessionDisplayFormat.UNIT_KEY));
+        String.valueOf(SessionDisplayFormat.UNIT_KEY));
 
     SessionDisplayFormat userFormat;
     try {
@@ -570,8 +580,9 @@ public class MainController implements Initializable {
     return userFormat;
   }
 
+  @SuppressWarnings("unused")
   private void updateSessionDisplayFormat(final ObservableValue<? extends Toggle> observable,
-      final Toggle oldValue, final Toggle newValue) {
+                                          final Toggle oldValue, final Toggle newValue) {
 
     if (newValue == null) {
       return;
@@ -794,6 +805,13 @@ public class MainController implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
+  private void setTimeoutFifteenSeconds() {
+    fifteenSecondsMenuItem.setSelected(true);
+    setTimeout(15);
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
   private void setTimeoutOneMinute() {
     oneMinuteMenuItem.setSelected(true);
     setTimeout(60);
@@ -811,6 +829,13 @@ public class MainController implements Initializable {
   private void setTimeoutFiveMinutes() {
     fiveMinutesMenuItem.setSelected(true);
     setTimeout(300);
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
+  private void setTimeoutTwentyMinutes() {
+    twentyMinutesMenuItem.setSelected(true);
+    setTimeout(1200);
   }
 
   @FXML
@@ -840,8 +865,10 @@ public class MainController implements Initializable {
     }
     customTimeoutItem = new RadioMenuItem();
     customTimeoutItem.setToggleGroup(timeoutPreferenceToggle);
-    customTimeoutItem.disableProperty().bind(customTimeoutItem.selectedProperty());
-    selectTimeoutMenu.getItems().add(customTimeoutItem);
+
+    final int lastButOne = selectTimeoutMenu.getItems().size() - 1;
+    selectTimeoutMenu.getItems().add(lastButOne, customTimeoutItem);
+
     customTimeoutItem.addEventHandler(MouseEvent.MOUSE_CLICKED, event ->
         setTimeout(customTimeoutProperty.get()));
 
