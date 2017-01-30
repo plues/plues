@@ -33,7 +33,7 @@
                 </SemesterChooser>
             </HBox>
 
-            <GridPane maxHeight="Infinity" maxWidth="Infinity" fx:id="timeTable">
+            <GridPane maxHeight="Infinity" maxWidth="Infinity" fx:id="timeTablePane">
                 <columnConstraints>
                     <ColumnConstraints fillWidth="true" hgrow="NEVER" minWidth="50.0"
                                        prefWidth="50.0"/>
