@@ -33,7 +33,7 @@ public class StoreLoaderTask extends Task<Store> {
   private final String path;
 
   /**
-   * Constuctor to create store loader task.
+   * Constructor to create store loader task.
    * @param storePath Path where to find store
    */
   @Inject
