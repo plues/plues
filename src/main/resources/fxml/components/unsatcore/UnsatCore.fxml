@@ -15,16 +15,17 @@
     <Accordion fx:id="stepwisePanesAccordion" expandedPane="$courseSelectionPane"
                GridPane.rowIndex="1" GridPane.columnIndex="0">
         <panes>
-            <TitledPane fx:id="modulesPane" text="%modulesPaneTitle">
+            <TitledPane fx:id="modulesPane" text="%modulesPaneTitle" minWidth="0" minHeight="0">
                 <ModuleUnsatCore fx:id="moduleUnsatCore"/>
             </TitledPane>
-            <TitledPane fx:id="abstractUnitsPane" text="%abstractUnitsPaneTitle">
+            <TitledPane fx:id="abstractUnitsPane" text="%abstractUnitsPaneTitle" minWidth="0"
+                        minHeight="0">
                 <AbstractUnitUnsatCore fx:id="abstractUnitUnsatCore"/>
             </TitledPane>
-            <TitledPane fx:id="groupPane" text="%groupsPaneTitle">
+            <TitledPane fx:id="groupPane" text="%groupsPaneTitle" minWidth="0" minHeight="0">
                 <GroupUnsatCore fx:id="groupUnsatCore"/>
             </TitledPane>
-            <TitledPane fx:id="sessionPane" text="%sessionsPaneTitle">
+            <TitledPane fx:id="sessionPane" text="%sessionsPaneTitle" minWidth="0" minHeight="0">
                 <SessionUnsatCore fx:id="sessionUnsatCore"/>
             </TitledPane>
         </panes>

@@ -51,7 +51,8 @@
     <Accordion fx:id="accordionConflictMatrices" prefHeight="Infinity" prefWidth="Infinity"
                GridPane.columnIndex="0" GridPane.rowIndex="3">
         <panes>
-            <TitledPane fx:id="titledPaneCombinableCourses" text="%headCombinable">
+            <TitledPane fx:id="titledPaneCombinableCourses" text="%headCombinable" minWidth="0"
+                        minHeight="0">
                 <ScrollPane>
                     <VBox>
                         <Label text="%explanationCombinable">
@@ -64,7 +65,8 @@
                     </VBox>
                 </ScrollPane>
             </TitledPane>
-            <TitledPane fx:id="titledPaneStandaloneCourses" text="%headStandalone">
+            <TitledPane fx:id="titledPaneStandaloneCourses" text="%headStandalone" minWidth="0"
+                        minHeight="0">
                 <ScrollPane>
                     <VBox>
                         <Label text="%explanationStandalone">
@@ -77,7 +79,8 @@
                     </VBox>
                 </ScrollPane>
             </TitledPane>
-            <TitledPane fx:id="titledPaneSingleCourses" text="%headSingleCourse">
+            <TitledPane fx:id="titledPaneSingleCourses" text="%headSingleCourse" minWidth="0"
+                        minHeight="0">
                 <ScrollPane fx:id="scrollPaneSingleCourses">
                     <VBox>
                         <Label text="%explanationSingleCourse">

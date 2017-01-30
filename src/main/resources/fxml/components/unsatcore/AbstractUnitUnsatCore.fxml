@@ -10,7 +10,7 @@
 <fx:root type="VBox" spacing="10.0" styleClass="windowPadding" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
     <Text fx:id="txtExplanation" text="%abstractUnitsPaneExplanation"/>
-    <TableView fx:id="abstractUnitsTable">
+    <TableView fx:id="abstractUnitsTable" minWidth="0" minHeight="0">
         <columns>
             <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey" resizable="false">
                 <cellValueFactory>

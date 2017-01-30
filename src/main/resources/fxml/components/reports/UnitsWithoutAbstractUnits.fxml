@@ -10,7 +10,7 @@
     <VBox styleClass="windowPaddingSmall" spacing="10.0">
         <Text fx:id="txtExplanation" text="%explain.UnitsWithoutAbstractUnits"/>
     </VBox>
-    <TableView fx:id="tableViewUnits">
+    <TableView fx:id="tableViewUnits" minWidth="0" minHeight="0">
         <columns>
             <TableColumn fx:id="tableColumnUnitKey" text="%columnKey" resizable="false">
                 <cellValueFactory>

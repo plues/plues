@@ -9,7 +9,7 @@
 <fx:root type="VBox" spacing="10.0" styleClass="windowPadding" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
     <Text fx:id="txtExplanation" text="%sessionsPaneExplanation"/>
-    <TableView fx:id="sessionsTable">
+    <TableView fx:id="sessionsTable" minWidth="0" minHeight="0">
         <columns>
             <TableColumn fx:id="tableColumnSessionDay" text="%columnDay" resizable="false">
                 <cellValueFactory>

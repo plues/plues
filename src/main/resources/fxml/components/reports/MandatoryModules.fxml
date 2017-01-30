@@ -10,7 +10,7 @@
     <VBox styleClass="windowPaddingSmall" spacing="10.0">
         <Text fx:id="txtExplanation" text="%explain.MandatoryModules"/>
     </VBox>
-    <TableView fx:id="tableViewCourses">
+    <TableView fx:id="tableViewCourses" minWidth="0" minHeight="0">
         <columns>
             <TableColumn fx:id="tableColumnCourseKey" text="%columnKey" resizable="false">
                 <cellValueFactory>
@@ -24,7 +24,7 @@
             </TableColumn>
         </columns>
     </TableView>
-    <TableView fx:id="tableViewMandatoryModules">
+    <TableView fx:id="tableViewMandatoryModules" minWidth="0" minHeight="0">
         <columns>
             <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr" resizable="false">
                 <cellValueFactory>
