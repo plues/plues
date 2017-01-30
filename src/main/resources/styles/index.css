@@ -2,27 +2,12 @@
     -fx-background-color: white;
 }
 
-#timeTable .headerLabel {
+#timeTablePane .headerLabel {
     -fx-font-weight: bold;
     -fx-text-alignment: center;
 }
 
-#timeTable .time {
-    -fx-background-color: black, white;
-    -fx-background-insets: 0, 0 1 0 0;
-}
-
-#timeTable .day {
-    -fx-background-color: black, white;
-    -fx-background-insets: 0, 0 0 1 0;
-}
-
-#timeTable .list-view {
-    -fx-background-color: black, white;
-    -fx-background-insets: 0, 0 1 1 0;
-}
-
-#timeTable .dragged-over .list-cell {
+#timeTablePane .dragged-over .list-cell {
     -fx-background-color: #eaeef7;
 }
 
