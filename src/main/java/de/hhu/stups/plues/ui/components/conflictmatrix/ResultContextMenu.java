@@ -52,6 +52,9 @@ class ResultContextMenu extends ContextMenu {
 
   private void updateMenu(final ResultState resultState) {
     getItems().clear();
+    if (resultState == null) {
+      return;
+    }
     switch (resultState) {
       case SUCCEEDED:
         if (courses.length == 1 && courses[0].isCombinable()) {

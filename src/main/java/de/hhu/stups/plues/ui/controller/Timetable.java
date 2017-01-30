@@ -181,6 +181,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     filteredSessions.predicateProperty().bind(new FilteredSessionsPredicateBinding());
 
     view.itemsProperty().bind(new SimpleListProperty<>(filteredSessions));
+    view.setFocusTraversable(false);
+
     return view;
   }
 
@@ -241,11 +243,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     }
 
     final Integer first = Collections.min(unitSemesters);
-    semesterToggle.getButtons().forEach(button -> {
-      if (button.getUserData().equals(String.valueOf(first))) {
-        button.setSelected(true);
-      }
-    });
+    semesterToggle.getButtons().forEach(button
+        -> button.setSelected(button.getUserData().equals(String.valueOf(first))));
   }
 
   public SplitPane.Divider getDivider() {

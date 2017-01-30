@@ -3,7 +3,7 @@
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{full} - %msg%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
             <evaluator>
@@ -28,7 +28,7 @@
         </rollingPolicy>
 
         <encoder>
-            <pattern>%d %-4relative [%thread] %-5level %logger{35} Method:
+            <pattern>%d %-4relative [%thread] %-5level %logger Method:
                 %method Line: %line - %msg%n%ex{full}
             </pattern>
         </encoder>
@@ -48,6 +48,7 @@
     <logger name="net.sf.ehcache" level="warn" />
     <logger name="org.jtwig" level="warn" />
 
+    <logger name="com.mchange" level="INFO"/>
 
     <root level="debug">
         <appender-ref ref="STDOUT"/>

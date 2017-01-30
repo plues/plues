@@ -13,6 +13,7 @@ import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -91,6 +92,11 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
     btGenerate.disableProperty().bind(solverProperty.not());
 
     resultBoxWrapper.visibleProperty().bind(Bindings.isEmpty(resultBoxWrapper.getItems()).not());
+
+    // disable list-view selection
+    resultBoxWrapper.getSelectionModel().selectedIndexProperty().addListener(
+        (observable, oldvalue, newValue) ->
+            Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
 
     delayedStore.whenAvailable(store ->
         PdfRenderingHelper.initializeCourseSelection(store, uiDataService, courseSelection));

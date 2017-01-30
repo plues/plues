@@ -21,7 +21,7 @@
     <Label text="Joshua Schmidt" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
     <Label text="%ui" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
 
-    <Label text="Niklas Betram" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+    <Label text="Niklas Bertram" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
     <Label text="%handbook" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
 
     <Label GridPane.rowIndex="9" GridPane.columnIndex="0" GridPane.columnSpan="2"/>

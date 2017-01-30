@@ -107,10 +107,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   }
 
   private void initializeCourseUnsatCore() {
-    courseUnsatCore.coursesProperty().addListener((observable, oldValue, newValue) -> {
-      moduleUnsatCore.setModules(FXCollections.emptyObservableList());
-      moduleUnsatCore.resetTaskState();
-    });
+    courseUnsatCore.coursesProperty().addListener((observable, oldValue, newValue) ->
+        resetModuleUnsatCore());
 
     final BooleanBinding binding = solverService.isNull()
         .or(courseUnsatCore.coursesProperty().emptyProperty())
@@ -119,6 +117,11 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     final UnsatCoreButtonBar unsatCoreButtonBar = courseUnsatCore.getUnsatCoreButtonBar();
     unsatCoreButtonBar.disableProperty().bind(binding);
     unsatCoreButtonBar.setOnAction(this::computeUnsatCoreModules);
+  }
+
+  private void resetModuleUnsatCore() {
+    moduleUnsatCore.setModules(FXCollections.emptyObservableList());
+    moduleUnsatCore.resetTaskState();
   }
 
   private void initializeModuleUnsatCore() {
@@ -205,7 +208,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   private void computeUnsatCoreGroups(final ActionEvent actionEvent) {
     final SolverTask<Set<Integer>> task
         = getSolverService().unsatCoreGroups(abstractUnitUnsatCore.getAbstractUnits(),
-            moduleUnsatCore.getModules());
+        moduleUnsatCore.getModules());
 
     task.setOnSucceeded(succeeded -> {
       final Set<Integer> groupIds = task.getValue();
@@ -248,6 +251,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
    */
   @Override
   public void activateController(final RouteNames routeName, final Object... args) {
+    resetModuleUnsatCore();
     courseUnsatCore.selectCourses(getCoursesFromArray(args));
     computeUnsatCoreModules(null);
   }
