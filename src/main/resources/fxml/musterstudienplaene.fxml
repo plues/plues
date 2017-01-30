@@ -23,5 +23,5 @@
             GridPane.halignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1"
             defaultButton="true"/>
     <ListView fx:id="resultBoxWrapper" id="batchListView" maxWidth="Infinity" maxHeight="Infinity"
-              GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+              GridPane.columnIndex="0" GridPane.rowIndex="2" focusTraversable="false"/>
 </fx:root>

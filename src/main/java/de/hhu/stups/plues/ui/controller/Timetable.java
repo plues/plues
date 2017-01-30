@@ -181,6 +181,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     filteredSessions.predicateProperty().bind(new FilteredSessionsPredicateBinding());
 
     view.itemsProperty().bind(new SimpleListProperty<>(filteredSessions));
+    view.setFocusTraversable(false);
+
     return view;
   }
 
