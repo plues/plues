@@ -241,11 +241,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     }
 
     final Integer first = Collections.min(unitSemesters);
-    semesterToggle.getButtons().forEach(button -> {
-      if (button.getUserData().equals(String.valueOf(first))) {
-        button.setSelected(true);
-      }
-    });
+    semesterToggle.getButtons().forEach(button
+        -> button.setSelected(button.getUserData().equals(String.valueOf(first))));
   }
 
   public SplitPane.Divider getDivider() {
