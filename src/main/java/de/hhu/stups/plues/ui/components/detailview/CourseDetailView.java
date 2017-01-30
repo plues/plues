@@ -36,6 +36,10 @@ public class CourseDetailView extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private Label degree;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private Label creditPoints;
+
   /**
    * Default constructor.
    */
@@ -70,5 +74,8 @@ public class CourseDetailView extends VBox implements Initializable {
 
     this.degree.textProperty().bind(Bindings.when(courseProperty.isNotNull()).then(
         Bindings.selectString(courseProperty, "degree")).otherwise(""));
+
+    this.creditPoints.textProperty().bind(Bindings.when(courseProperty.isNotNull()).then(
+        Bindings.selectString(courseProperty, "creditPoints")).otherwise(""));
   }
 }
