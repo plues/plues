@@ -180,19 +180,34 @@ public class TimetableSideBar extends TabPane implements Initializable {
     final Course[] courses = (Course[]) args[0];
     final ResultState resultState = (ResultState) args[1];
     setOfCourseSelection.setSelectedCourses(Arrays.asList(courses));
+
+    if (resultState == null) {
+      return;
+    }
+
+    final boolean bringToFront = args.length != 3 || (boolean) args[2];
     switch (resultState) {
       case FAILED:
-        selectSideBarTab(tabCheckFeasibility);
-        checkCourseFeasibility.selectCourses(courses);
+        selectCheckFeasibility(courses);
+        break;
+      case UNKNOWN:
+        selectCheckFeasibility(courses);
+        if (!bringToFront) {
+          checkCourseFeasibility.checkFeasibility();
+        }
         break;
       case TIMEOUT:
-        selectSideBarTab(tabCheckFeasibility);
-        checkCourseFeasibility.selectCourses(courses);
+        selectCheckFeasibility(courses);
         checkCourseFeasibility.checkFeasibility();
         break;
       default:
         selectSideBarTab(tabCourseFilters);
     }
+  }
+
+  private void selectCheckFeasibility(final Course[] courses) {
+    selectSideBarTab(tabCheckFeasibility);
+    checkCourseFeasibility.selectCourses(courses);
   }
 
   static {

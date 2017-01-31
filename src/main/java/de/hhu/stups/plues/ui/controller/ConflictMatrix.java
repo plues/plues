@@ -16,6 +16,7 @@ import de.hhu.stups.plues.ui.batchgeneration.CollectFeasibilityTasksTask;
 import de.hhu.stups.plues.ui.components.conflictmatrix.CourseGridCell;
 import de.hhu.stups.plues.ui.components.conflictmatrix.ResultGridCell;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.LongProperty;
@@ -75,40 +76,58 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private final LongProperty impossibleCoursesAmount;
 
   @FXML
+  @SuppressWarnings("unused")
   private Accordion accordionConflictMatrices;
   @FXML
+  @SuppressWarnings("unused")
   private TitledPane titledPaneCombinableCourses;
   @FXML
+  @SuppressWarnings("unused")
   private TitledPane titledPaneStandaloneCourses;
   @FXML
+  @SuppressWarnings("unused")
   private TitledPane titledPaneSingleCourses;
   @FXML
+  @SuppressWarnings("unused")
   private GridPane gridPaneCombinable;
   @FXML
+  @SuppressWarnings("unused")
   private GridPane gridPaneStandalone;
   @FXML
+  @SuppressWarnings("unused")
   private GridPane gridPaneSingleCourses;
   @FXML
+  @SuppressWarnings("unused")
   private Label lbFeasibleCourseAmount;
   @FXML
+  @SuppressWarnings("unused")
   private Label lbInfeasibleCourseAmount;
   @FXML
+  @SuppressWarnings("unused")
   private Label lblImpossibleCoursesAmount;
   @FXML
+  @SuppressWarnings("unused")
   private Label lbTimeoutCourseAmount;
   @FXML
+  @SuppressWarnings("unused")
   private Button btCheckAll;
   @FXML
+  @SuppressWarnings("unused")
   private Button btCancelCheckAll;
   @FXML
+  @SuppressWarnings("unused")
   private Pane paneLegendSuccess;
   @FXML
+  @SuppressWarnings("unused")
   private Pane paneLegendFailure;
   @FXML
+  @SuppressWarnings("unused")
   private Pane paneLegendTimeout;
   @FXML
+  @SuppressWarnings("unused")
   private Pane paneLegendImpossible;
   @FXML
+  @SuppressWarnings("unused")
   private Pane paneLegendInfeasible;
 
   /**
@@ -192,27 +211,27 @@ public class ConflictMatrix extends GridPane implements Initializable {
     // single courses are ignored.
     lbTimeoutCourseAmount.textProperty().bind(
         Bindings.createStringBinding(() -> String.valueOf(
-          results.entrySet().parallelStream()
-            .filter(entry -> entry.getKey().isCurriculum()
-              && entry.getValue().timedOut()).count()), results));
+            results.entrySet().parallelStream()
+                .filter(entry -> entry.getKey().isCurriculum()
+                    && entry.getValue().timedOut()).count()), results));
 
     lbFeasibleCourseAmount.textProperty().bind(
         Bindings.createStringBinding(() -> String.valueOf(
-          results.entrySet().parallelStream()
-            .filter(entry -> entry.getKey().isCurriculum()
-              &&  entry.getValue().succeeded()).count()), results));
+            results.entrySet().parallelStream()
+                .filter(entry -> entry.getKey().isCurriculum()
+                    && entry.getValue().succeeded()).count()), results));
 
     lbInfeasibleCourseAmount.textProperty().bind(
-        Bindings.createStringBinding( () -> String.valueOf(
-          results.entrySet().parallelStream()
-            .filter(entry -> {
-              CourseSelection cs = entry.getKey();
-              ResultState result = entry.getValue();
+        Bindings.createStringBinding(() -> String.valueOf(
+            results.entrySet().parallelStream()
+                .filter(entry -> {
+                  CourseSelection cs = entry.getKey();
+                  ResultState result = entry.getValue();
 
-              return cs.isCurriculum()
-                  && cs.getCourses().stream().noneMatch(impossibleCourses::contains)
-                  && result.failed();
-            }).count()), results));
+                  return cs.isCurriculum()
+                      && cs.getCourses().stream().noneMatch(impossibleCourses::contains)
+                      && result.failed();
+                }).count()), results));
 
     lblImpossibleCoursesAmount.textProperty().bind(Bindings.convert(impossibleCoursesAmount));
   }
@@ -267,8 +286,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
     impossibleCoursesAmount.set(cellMap.entrySet().stream().filter(entry ->
         entry.getKey().isCurriculum()
-          && entry.getValue().getResultState() != null
-          && entry.getValue().getResultState().isImpossible()).count());
+            && entry.getValue().getResultState() != null
+            && entry.getValue().getResultState().isImpossible()).count());
   }
 
   /**
@@ -307,7 +326,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
             .forEach(row -> {
               final Course majorCourse = combinableMajorCourses.get(col);
               final Course minorCourse = combinableMinorCourses.get(row);
-              final ResultGridCell gridCell = new ResultGridCell(null, majorCourse,
+              final ResultGridCell gridCell = new ResultGridCell(ResultState.UNKNOWN, majorCourse,
                   minorCourse);
               gridCell.setRouter(router);
               cellMap.put(
@@ -330,7 +349,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
     IntStream.range(0, courses.size()).forEach(index -> {
       final Course course = courses.get(index);
-      final ResultGridCell gridCell = new ResultGridCell(null, course);
+      final ResultGridCell gridCell = new ResultGridCell(ResultState.UNKNOWN, course);
       gridCell.setRouter(router);
       cellMap.put(new CourseSelection(course), gridCell);
       gridPane.add(gridCell, 1, index);

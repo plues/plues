@@ -19,6 +19,8 @@ import de.hhu.stups.plues.routes.UnitDetailViewRoute;
 
 public class RouterProvider implements Provider<Router> {
 
+  private static final String TAB_TIMETABLE = "tabTimetable";
+
   private final ControllerRouteFactory controllerRouteFactory;
   private final HandbookRouteFactory handbookRouteFactory;
   private Router cache;
@@ -77,9 +79,11 @@ public class RouterProvider implements Provider<Router> {
       cache.put(RouteNames.HANDBOOK_HTML, handbookRouteFactory.create(HandbookRoute.Format.HTML));
       cache.put(RouteNames.HANDBOOK_PDF, handbookRouteFactory.create(HandbookRoute.Format.PDF));
       cache.put(RouteNames.TIMETABLE,
-          controllerRouteFactory.create("tabTimetable"));
+          controllerRouteFactory.create(TAB_TIMETABLE));
       cache.put(RouteNames.SESSION_IN_TIMETABLE,
-          controllerRouteFactory.create("tabTimetable"));
+          controllerRouteFactory.create(TAB_TIMETABLE));
+      cache.put(RouteNames.CHECK_FEASIBILITY_TIMETABLE,
+          controllerRouteFactory.create(TAB_TIMETABLE));
       cache.put(RouteNames.PDF_TIMETABLES,
           controllerRouteFactory.create("tabPdfTimetables"));
       cache.put(RouteNames.PARTIAL_TIMETABLES,

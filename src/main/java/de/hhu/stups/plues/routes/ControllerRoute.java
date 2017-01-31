@@ -30,14 +30,28 @@ public class ControllerRoute implements Route {
     this.tabId = tabId;
   }
 
+  /**
+   * @param routeName The {@link RouteNames route name}.
+   * @param args First param is an array of strings, i.e. the courses. Second parameter is the
+   *             {@link de.hhu.stups.plues.prob.ResultState}. Third parameter is an optional boolean
+   *             value defining if the corresponding controller should be brought to front or e.g.
+   *             some task should run in background. The default value is true.
+   */
   @Override
-  public void transition(RouteNames routeName, final Object... args) {
+  public void transition(final RouteNames routeName, final Object... args) {
     final TabPane tabPane = (TabPane) stage.getScene().lookup("#tabPane");
     final Optional<Tab> optionalTab = tabPane.getTabs().stream()
         .filter(tab -> tabId.equals(tab.getId())).findFirst();
     if (optionalTab.isPresent()) {
-      tabPane.getSelectionModel().select(optionalTab.get());
+      selectTab(tabPane, optionalTab.get(), args);
       ((Activatable) optionalTab.get().getContent()).activateController(routeName, args);
+    }
+  }
+
+  private void selectTab(final TabPane tabPane, final Tab tab, final Object... args) {
+    final boolean bringToFront = args.length != 3 || (boolean) args[2];
+    if (bringToFront) {
+      tabPane.getSelectionModel().select(tab);
     }
   }
 }

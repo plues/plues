@@ -20,6 +20,7 @@ class ResultContextMenu extends ContextMenu {
   private final MenuItem itemComputeConflict;
   private final MenuItem itemGeneratePdf;
   private final MenuItem itemRecomputeFeasibility;
+  private final MenuItem itemCheckFeasibility;
 
   /**
    * The context menu for a {@link ResultGridCell} in the {@link de.hhu.stups.plues.ui.controller
@@ -37,8 +38,10 @@ class ResultContextMenu extends ContextMenu {
     itemComputeConflict = new MenuItem(resources.getString("computeConflict"));
     itemGeneratePdf = new MenuItem(resources.getString("generatePdf"));
     itemRecomputeFeasibility = new MenuItem(resources.getString("recomputeFeasibility"));
+    itemCheckFeasibility = new MenuItem(resources.getString("checkFeasibility"));
 
     resultState.addListener((observable, oldValue, newValue) -> updateMenu(newValue));
+    updateMenu(resultState.get());
 
     itemGeneratePdf.setOnAction(event ->
         router.transitionTo(RouteNames.PDF_TIMETABLES, (Object[]) courses));
@@ -48,6 +51,9 @@ class ResultContextMenu extends ContextMenu {
         router.transitionTo(RouteNames.PARTIAL_TIMETABLES, (Object[]) courses));
     itemRecomputeFeasibility.setOnAction(event ->
         router.transitionTo(RouteNames.TIMETABLE, courses, ResultState.TIMEOUT));
+    itemCheckFeasibility.setOnAction(event ->
+        router.transitionTo(RouteNames.CHECK_FEASIBILITY_TIMETABLE, courses,
+            ResultState.UNKNOWN, false));
   }
 
   private void updateMenu(final ResultState resultState) {
@@ -57,13 +63,7 @@ class ResultContextMenu extends ContextMenu {
     }
     switch (resultState) {
       case SUCCEEDED:
-        if (courses.length == 1 && courses[0].isCombinable()) {
-          getItems().add(itemShowInTimetable);
-        } else {
-          getItems().addAll(itemShowInTimetable, itemGeneratePartialTimetable, itemGeneratePdf);
-        }
-        itemShowInTimetable.setOnAction(event ->
-            router.transitionTo(RouteNames.TIMETABLE, courses, ResultState.SUCCEEDED));
+        updateToSucceedingState();
         break;
       case IMPOSSIBLE:
         getItems().addAll(itemShowInTimetable);
@@ -78,8 +78,24 @@ class ResultContextMenu extends ContextMenu {
       case TIMEOUT:
         getItems().add(itemRecomputeFeasibility);
         break;
+      case UNKNOWN:
+        getItems().addAll(itemCheckFeasibility, itemShowInTimetable);
+        itemShowInTimetable.setOnAction(event ->
+            // do not open timetable view but run check feasibility task in background
+            router.transitionTo(RouteNames.TIMETABLE, courses, ResultState.UNKNOWN));
+        break;
       default:
         break;
     }
+  }
+
+  private void updateToSucceedingState() {
+    if (courses.length == 1 && courses[0].isCombinable()) {
+      getItems().add(itemShowInTimetable);
+    } else {
+      getItems().addAll(itemShowInTimetable, itemGeneratePartialTimetable, itemGeneratePdf);
+    }
+    itemShowInTimetable.setOnAction(event ->
+        router.transitionTo(RouteNames.TIMETABLE, courses, ResultState.SUCCEEDED));
   }
 }
