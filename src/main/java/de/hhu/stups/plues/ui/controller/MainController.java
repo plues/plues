@@ -848,7 +848,7 @@ public class MainController implements Initializable {
 
     final Optional<String> result = dialog.showAndWait();
     result.ifPresent(timeout -> {
-      if (!result.get().isEmpty()) {
+      if (!timeout.isEmpty()) {
         try {
           initializeCustomTimeoutMenuItem();
           final int timeoutValue = Integer.parseInt(timeout);
