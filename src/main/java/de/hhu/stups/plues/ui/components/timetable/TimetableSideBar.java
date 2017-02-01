@@ -1,8 +1,5 @@
 package de.hhu.stups.plues.ui.components.timetable;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.ObservableStore;
@@ -14,7 +11,6 @@ import de.hhu.stups.plues.ui.components.CheckCourseFeasibility;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
 import de.hhu.stups.plues.ui.controller.Timetable;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -36,14 +32,11 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.ResourceBundle;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 
 public class TimetableSideBar extends TabPane implements Initializable {
 
   private static final String SIDE_BAR_TAB_LAYOUT = "sideBarTabLayout";
-  private static final ListeningExecutorService EXECUTOR_SERVICE;
 
   private final UiDataService uiDataService;
   private Node selectedSubTab;
@@ -212,15 +205,6 @@ public class TimetableSideBar extends TabPane implements Initializable {
     checkCourseFeasibility.selectCourses(courses);
   }
 
-  static {
-    final ThreadFactory threadFactoryBuilder = new ThreadFactoryBuilder().setDaemon(true)
-        .setNameFormat("task-progress-hide-runner-%d").build();
-
-    EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
-        Executors.newSingleThreadExecutor(threadFactoryBuilder));
-  }
-
-
   /**
    * Fade-in or fade-out the {@link this TimetableSideBar} by moving the {@link #parent
    * Timetables's} split pane divider to the destination.
@@ -231,25 +215,23 @@ public class TimetableSideBar extends TabPane implements Initializable {
         handleTabVisibility(false);
       }
       parent.disableDivider(hide);
-      EXECUTOR_SERVICE.execute(() -> {
-        fadingInProgress = true;
+      fadingInProgress = true;
 
-        final Timeline timeline = new Timeline();
-        final double destination = hide ? getMinWidth() / parent.getWidth()
-            : parent.getUserDefinedDividerPos();
+      final Timeline timeline = new Timeline();
+      final double destination = hide ? getMinWidth() / parent.getWidth()
+          : parent.getUserDefinedDividerPos();
 
-        final KeyValue dividerPosition =
-            new KeyValue(parent.getDivider().positionProperty(), destination);
+      final KeyValue dividerPosition =
+          new KeyValue(parent.getDivider().positionProperty(), destination);
 
-        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250), dividerPosition));
-        timeline.setOnFinished(event -> {
-          fadingInProgress = false;
-          if (hide) {
-            handleTabVisibility(true);
-          }
-        });
-        Platform.runLater(timeline::play);
+      timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250), dividerPosition));
+      timeline.setOnFinished(event -> {
+        fadingInProgress = false;
+        if (hide) {
+          handleTabVisibility(true);
+        }
       });
+      Platform.runLater(timeline::play);
     }
   }
 
