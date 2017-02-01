@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.ui.controller;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -28,7 +27,6 @@ import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -71,7 +69,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
 import org.slf4j.Logger;
@@ -111,7 +108,6 @@ public class MainController implements Initializable {
   private static final String DB_PATH = "dbpath";
   private static final String TEMP_DB_PATH = "tempDBpath";
   private static final ListeningScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE;
-  private static final ListeningExecutorService EXECUTOR_SERVICE;
 
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
@@ -442,8 +438,6 @@ public class MainController implements Initializable {
 
     SCHEDULED_EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
         Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
-    EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
-        Executors.newSingleThreadExecutor(threadFactoryBuilder));
   }
 
   /**
@@ -468,20 +462,18 @@ public class MainController implements Initializable {
     if ((!hide || mainSplitPane.getItems().contains(boxTaskProgress)) && !fadingInProgress) {
       setStatusBarText(taskProgress.getTasks().size(), hide);
       disableDivider(hide);
-      EXECUTOR_SERVICE.execute(() -> {
-        fadingInProgress = true;
+      fadingInProgress = true;
 
-        final Timeline timeline = new Timeline();
-        final double destination = hide ? 1.0 : visibleDividerPos;
+      final Timeline timeline = new Timeline();
+      final double destination = hide ? 1.0 : visibleDividerPos;
 
-        final KeyValue dividerPosition =
-            new KeyValue(mainSplitPaneDivider.positionProperty(), destination);
+      final KeyValue dividerPosition =
+          new KeyValue(mainSplitPaneDivider.positionProperty(), destination);
 
-        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250), dividerPosition));
-        timeline.setOnFinished(event -> fadingInProgress = false);
+      timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250), dividerPosition));
+      timeline.setOnFinished(event -> fadingInProgress = false);
 
-        Platform.runLater(timeline::play);
-      });
+      Platform.runLater(timeline::play);
     }
   }
 
