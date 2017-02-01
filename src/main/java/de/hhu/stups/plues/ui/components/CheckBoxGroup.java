@@ -44,7 +44,7 @@ public class CheckBoxGroup extends VBox implements Initializable {
    * units.
    *
    * @param inflater inflater to handle fxml
-   * @param course   Given course. Should be a major or minor for the choosen course combination
+   * @param course   Given course. Should be a major or minor for the chosen course combination
    * @param module   Given module. Should be one inside major or minor course
    */
   @Inject
