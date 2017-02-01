@@ -4,10 +4,8 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
-import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerBinding;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
