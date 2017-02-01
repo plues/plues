@@ -394,8 +394,14 @@ public class MainController implements Initializable {
       }
     });
 
-    final EventHandler<MouseEvent> mouseEventEventHandler = event ->
-        taskBoxCollapsed.setValue(!taskBoxCollapsed.get());
+    final EventHandler<MouseEvent> mouseEventEventHandler = event -> {
+      if (fadingInProgress) {
+        event.consume();
+        return;
+      }
+      taskBoxCollapsed.setValue(!taskBoxCollapsed.get());
+    };
+
     lbRunningTasks.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
     mainProgressBar.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
   }
