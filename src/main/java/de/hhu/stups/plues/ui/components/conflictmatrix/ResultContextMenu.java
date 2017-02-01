@@ -52,6 +52,7 @@ class ResultContextMenu extends ContextMenu {
     itemRecomputeFeasibility.setOnAction(event ->
         router.transitionTo(RouteNames.TIMETABLE, courses, ResultState.TIMEOUT));
     itemCheckFeasibility.setOnAction(event ->
+        // do not open timetable view but run check feasibility task in background
         router.transitionTo(RouteNames.CHECK_FEASIBILITY_TIMETABLE, courses,
             ResultState.UNKNOWN, false));
   }
@@ -81,7 +82,6 @@ class ResultContextMenu extends ContextMenu {
       case UNKNOWN:
         getItems().addAll(itemCheckFeasibility, itemShowInTimetable);
         itemShowInTimetable.setOnAction(event ->
-            // do not open timetable view but run check feasibility task in background
             router.transitionTo(RouteNames.TIMETABLE, courses, ResultState.UNKNOWN));
         break;
       default:
