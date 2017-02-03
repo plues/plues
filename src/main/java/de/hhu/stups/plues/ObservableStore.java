@@ -153,4 +153,14 @@ public class ObservableStore extends Observable implements Store {
   public Session getSessionById(final int id) {
     return store.getSessionById(id);
   }
+
+  @Override
+  public List<Course> getMajors() {
+    return store.getMajors();
+  }
+
+  @Override
+  public List<Course> getMinors() {
+    return store.getMinors();
+  }
 }

@@ -87,6 +87,16 @@ public class MockStore implements Store {
   }
 
   @Override
+  public List<Course> getMajors() {
+    throw  new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<Course> getMinors() {
+    throw  new UnsupportedOperationException();
+  }
+
+  @Override
   public Course getCourseByKey(final String key) {
     final Course course = new Course();
     course.setKey(key);
