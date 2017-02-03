@@ -18,20 +18,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
-  private final List<Course> courses;
   private final SolverService solverService;
   private final PdfRenderingTaskFactory taskFactory;
   private final Logger logger = LoggerFactory.logger(getClass());
+  private final List<Course> majors;
+  private final List<Course> minors;
 
   @Inject
   CollectPdfRenderingTasksTask(final Delayed<Store> store,
                                final Delayed<SolverService> solverService,
                                final PdfRenderingTaskFactory factory) {
 
-    this.courses = store.get().getCourses();
+    this.majors = store.get().getMajors();
+    this.minors = store.get().getMinors();
     this.solverService = solverService.get();
     this.taskFactory = factory;
 
@@ -41,37 +42,26 @@ public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
 
   @Override
   protected Set<PdfRenderingTask> call() throws Exception {
-    final List<Course> majorCourseList = courses.stream()
-        .filter(Course::isMajor)
-        .collect(Collectors.toList());
-
-    final List<Course> minorCourseList = courses.stream()
-        .filter(Course::isMinor)
-        .collect(Collectors.toList());
-
-    return combineMajorsMinors(majorCourseList, minorCourseList);
+    return combineMajorsMinors();
   }
 
   /**
    * Generate all possible combinations of the given major course and all minor courses (one at
    * a time). If the major course is not combinable just generate a single pdf for this course.
    *
-   * @param majorCourseList The list of all major courses.
-   * @param minorCourseList The list of all minor courses.
    */
-  private Set<PdfRenderingTask> combineMajorsMinors(final List<Course> majorCourseList,
-                                                    final List<Course> minorCourseList) {
+  private Set<PdfRenderingTask> combineMajorsMinors() {
     final Set<PdfRenderingTask> tasks
-        = new HashSet<>(majorCourseList.size() * minorCourseList.size());
+        = new HashSet<>(majors.size() * minors.size());
 
-    for (final Course majorCourse : majorCourseList) {
+    for (final Course majorCourse : majors) {
       SolverTask<FeasibilityResult> solverTask;
       if (!majorCourse.isCombinable()) {
         solverTask = solverService.computeFeasibilityTask(majorCourse);
         final PdfRenderingTask task = taskFactory.create(majorCourse, null, solverTask);
         tasks.add(task);
       } else {
-        for (final Course minorCourse : minorCourseList) {
+        for (final Course minorCourse : minors) {
           if (!majorCourse.isCombinableWith(minorCourse)) {
             continue;
           }

@@ -163,12 +163,13 @@ public class ConflictMatrix extends GridPane implements Initializable {
     delayedStore.whenAvailable(store -> {
       courses.addAll(store.getCourses().stream()
           .sorted(Comparator.comparing(Course::getShortName)).collect(Collectors.toList()));
-      combinableMajorCourses.addAll(courses.stream()
-          .filter(c -> c.isMajor() && c.isCombinable()).collect(Collectors.toList()));
-      combinableMinorCourses.addAll(courses.stream()
-          .filter(c -> c.isMinor() && c.isCombinable()).collect(Collectors.toList()));
       standaloneCourses.addAll(courses.stream()
           .filter(c -> !c.isCombinable()).collect(Collectors.toList()));
+
+      combinableMajorCourses.addAll(store.getMajors().stream()
+        .filter(Course::isCombinable).collect(Collectors.toList()));
+      combinableMinorCourses.addAll(store.getMinors().stream()
+        .filter(Course::isCombinable).collect(Collectors.toList()));
       setInitialGridPaneVisibility();
     });
 

@@ -198,15 +198,9 @@ public class PdfRenderingHelper {
                                         // TODO: this should not be parameter
                                         // but instead be constructed here and returned
                                         final MajorMinorCourseSelection courseSelection) {
-    final List<Course> courses = store.getCourses();
 
-    final List<Course> majorCourseList = courses.stream()
-        .filter(Course::isMajor)
-        .collect(Collectors.toList());
-
-    final List<Course> minorCourseList = courses.stream()
-        .filter(Course::isMinor)
-        .collect(Collectors.toList());
+    final List<Course> majorCourseList = store.getMajors();
+    final List<Course> minorCourseList = store.getMinors();
 
     courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
     courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
