@@ -12,7 +12,6 @@ import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -25,7 +24,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class Musterstudienplaene extends GridPane implements Initializable, Activatable {
