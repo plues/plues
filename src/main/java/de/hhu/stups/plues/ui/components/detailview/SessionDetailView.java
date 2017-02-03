@@ -11,10 +11,8 @@ import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -24,11 +22,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SessionDetailView extends VBox implements Initializable {
 
@@ -99,8 +99,10 @@ public class SessionDetailView extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     lbTitle.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
         Bindings.selectString(sessionProperty, "group", "unit", "title")).otherwise(""));
+
     lbSession.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
         Bindings.selectString(sessionFacadeProperty, "slot")).otherwise(""));
+
     lbGroup.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
         Bindings.selectString(sessionProperty, "group", "id")).otherwise(""));
 
@@ -123,31 +125,8 @@ public class SessionDetailView extends VBox implements Initializable {
 
     bindTableColumnsWidth();
 
-    courseTable.itemsProperty().bind(new ListBinding<CourseTableEntry>() {
-      {
-        bind(sessionProperty);
-      }
+    courseTable.itemsProperty().bind(new CourseTableItemsBinding());
 
-      @Override
-      protected ObservableList<CourseTableEntry> computeValue() {
-        final Session session = sessionProperty.get();
-        if (session == null) {
-          return FXCollections.observableArrayList();
-        }
-        final Set<AbstractUnit> abstractUnits
-            = session.getGroup().getUnit().getAbstractUnits();
-        final ObservableList<CourseTableEntry> result = FXCollections.observableArrayList();
-        abstractUnits.forEach(au ->
-            au.getModuleAbstractUnitTypes().forEach(entry ->
-                entry.getModule().getCourses().forEach(course -> {
-                  final Module entryModule = entry.getModule();
-                  final CourseTableEntry tableEntry = new CourseTableEntry(course, entryModule, au,
-                      entryModule.getSemestersForAbstractUnit(au), entry.getType());
-                  result.add(tableEntry);
-                })));
-        return result;
-      }
-    });
     courseTable.setOnMouseClicked(this::handleMouseClicked);
   }
 
@@ -305,6 +284,31 @@ public class SessionDetailView extends VBox implements Initializable {
 
     public Course getCourse() {
       return course;
+    }
+  }
+
+  private class CourseTableItemsBinding extends ListBinding<CourseTableEntry> {
+    {
+      bind(sessionProperty);
+    }
+
+    @Override
+    protected ObservableList<CourseTableEntry> computeValue() {
+      System.out.println("Computing binding");
+      final Session session = sessionProperty.get();
+      if (session == null) {
+        return FXCollections.emptyObservableList();
+      }
+      final Set<AbstractUnit> abstractUnits
+          = session.getGroup().getUnit().getAbstractUnits();
+      return abstractUnits.stream().flatMap(au ->
+          au.getModuleAbstractUnitTypes().stream().flatMap(entry ->
+              entry.getModule().getCourses().stream().map(course -> {
+                final Module entryModule = entry.getModule();
+                return new CourseTableEntry(course, entryModule, au,
+                    entryModule.getSemestersForAbstractUnit(au), entry.getType());
+              }))).collect(
+                Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
     }
   }
 }
