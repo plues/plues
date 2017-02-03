@@ -148,25 +148,29 @@ public class SessionDetailView extends VBox implements Initializable {
         return result;
       }
     });
+    courseTable.setOnMouseClicked(this::handleMouseClicked);
+  }
 
-    courseTable.getSelectionModel().selectedItemProperty().addListener(
-        (observable, oldValue, newValue) -> courseTable.setOnMouseClicked(event -> {
-          if (event.getClickCount() < 2) {
-            return;
-          }
+  private void handleMouseClicked(final MouseEvent mouseEvent) {
+    if (mouseEvent.getClickCount() < 2) {
+      return;
+    }
 
-          final TableColumn column
-              = courseTable.getSelectionModel().getSelectedCells().get(0).getTableColumn();
+    final CourseTableEntry tableEntry = courseTable.getSelectionModel().getSelectedItem();
+    if (tableEntry == null) {
+      return;
+    }
 
+    final TableColumn column
+        = courseTable.getSelectionModel().getSelectedCells().get(0).getTableColumn();
 
-          if (column.equals(tableColumnModule)) {
-            router.transitionTo(RouteNames.MODULE_DETAIL_VIEW, newValue.getModule());
-          } else if (column.equals(tableColumnAbstractUnit)) {
-            router.transitionTo(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW, newValue.getAbstractUnit());
-          } else if (column.equals(tableColumnCourseKey)) {
-            router.transitionTo(RouteNames.COURSE_DETAIL_VIEW, newValue.getCourse());
-          }
-        }));
+    if (column.equals(tableColumnModule)) {
+      router.transitionTo(RouteNames.MODULE_DETAIL_VIEW, tableEntry.getModule());
+    } else if (column.equals(tableColumnAbstractUnit)) {
+      router.transitionTo(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW, tableEntry.getAbstractUnit());
+    } else if (column.equals(tableColumnCourseKey)) {
+      router.transitionTo(RouteNames.COURSE_DETAIL_VIEW, tableEntry.getCourse());
+    }
   }
 
   private void bindTableColumnsWidth() {
