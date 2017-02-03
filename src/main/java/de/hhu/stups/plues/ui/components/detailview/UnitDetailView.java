@@ -8,10 +8,8 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
@@ -27,7 +25,6 @@ import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UnitDetailView extends VBox implements Initializable {
@@ -89,68 +86,33 @@ public class UnitDetailView extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    key.textProperty().bind(Bindings.when(unitProperty.isNotNull()).then(
-        Bindings.selectString(unitProperty, "key")).otherwise(""));
-    title.textProperty().bind(Bindings.when(unitProperty.isNotNull()).then(
-        Bindings.selectString(unitProperty, "title")).otherwise(""));
-    semesters.textProperty().bind(new StringBinding() {
-      {
-        bind(unitProperty);
+    key.textProperty().bind(Bindings.selectString(unitProperty, "key"));
+
+    title.textProperty().bind(Bindings.selectString(unitProperty, "title"));
+
+    semesters.textProperty().bind(Bindings.createStringBinding(() -> {
+      final Unit unit = unitProperty.get();
+      if (unit == null) {
+        return "";
       }
 
-      @Override
-      protected String computeValue() {
-        final Unit unit = unitProperty.get();
-        if (unit == null) {
-          return "";
-        }
+      return Joiner.on(", ").join(unit.getSemesters());
+    }, unitProperty));
 
-        return Joiner.on(", ").join(unit.getSemesters());
-      }
-    });
+    tableColumnSessionDay.setCellValueFactory(param
+        -> new ReadOnlyObjectWrapper<>(resources.getString(param.getValue().getDay())));
 
-    tableColumnSessionDay.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
-        resources.getString(param.getValue().getDay())));
     tableColumnSessionDay.setCellFactory(param -> new SessionStringTableCell());
 
-    tableColumnSessionTime.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
-        String.valueOf(6 + param.getValue().getTime() * 2) + ":30"));
+    tableColumnSessionTime.setCellValueFactory(param
+        -> new ReadOnlyObjectWrapper<>(String.valueOf(6 + param.getValue().getTime() * 2) + ":30"));
+
     tableColumnSessionTime.setCellFactory(param -> new SessionStringTableCell());
 
     bindTableColumnsWidth();
 
-    abstractUnitTableView.itemsProperty().bind(new ListBinding<AbstractUnit>() {
-      {
-        bind(unitProperty);
-      }
-
-      @Override
-      protected ObservableList<AbstractUnit> computeValue() {
-        Unit unit = unitProperty.get();
-        if (unit == null) {
-          return FXCollections.emptyObservableList();
-        }
-
-        return FXCollections.observableArrayList(unit.getAbstractUnits());
-      }
-    });
-    sessionTableView.itemsProperty().bind(new ListBinding<Session>() {
-      {
-        bind(unitProperty);
-      }
-
-      @Override
-      protected ObservableList<Session> computeValue() {
-        Unit unit = unitProperty.get();
-        if (unit == null) {
-          return FXCollections.emptyObservableList();
-        }
-
-        final Set<Session> sessions = unit.getGroups().stream()
-            .flatMap(group -> group.getSessions().stream()).collect(Collectors.toSet());
-        return FXCollections.observableArrayList(sessions);
-      }
-    });
+    abstractUnitTableView.itemsProperty().bind(new AbstractUnitTableItemsBinding());
+    sessionTableView.itemsProperty().bind(new SessionTableItemsBinding());
 
     abstractUnitTableView.setOnMouseClicked(DetailViewHelper.getAbstractUnitMouseHandler(
         abstractUnitTableView, router));
@@ -177,7 +139,7 @@ public class UnitDetailView extends VBox implements Initializable {
 
   private static class SessionStringTableCell extends TableCell<Session, String> {
     @Override
-    protected void updateItem(String day, boolean empty) {
+    protected void updateItem(final String day, final boolean empty) {
       super.updateItem(day, empty);
       if (day == null || empty) {
         setText(null);
@@ -185,6 +147,41 @@ public class UnitDetailView extends VBox implements Initializable {
       }
 
       setText(day);
+    }
+  }
+
+  private class SessionTableItemsBinding extends ListBinding<Session> {
+    {
+      bind(unitProperty);
+    }
+
+    @Override
+    protected ObservableList<Session> computeValue() {
+      final Unit unit = unitProperty.get();
+      if (unit == null) {
+        return FXCollections.emptyObservableList();
+      }
+
+      return unit.getGroups().stream()
+          .flatMap(group -> group.getSessions().stream())
+          .collect(
+              Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
+    }
+  }
+
+  private class AbstractUnitTableItemsBinding extends ListBinding<AbstractUnit> {
+    {
+      bind(unitProperty);
+    }
+
+    @Override
+    protected ObservableList<AbstractUnit> computeValue() {
+      final Unit unit = unitProperty.get();
+      if (unit == null) {
+        return FXCollections.emptyObservableList();
+      }
+
+      return FXCollections.observableArrayList(unit.getAbstractUnits());
     }
   }
 }
