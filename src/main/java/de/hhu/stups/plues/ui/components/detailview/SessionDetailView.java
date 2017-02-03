@@ -294,7 +294,6 @@ public class SessionDetailView extends VBox implements Initializable {
 
     @Override
     protected ObservableList<CourseTableEntry> computeValue() {
-      System.out.println("Computing binding");
       final Session session = sessionProperty.get();
       if (session == null) {
         return FXCollections.emptyObservableList();
