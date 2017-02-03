@@ -156,6 +156,9 @@ public class UnitDetailView extends VBox implements Initializable {
         abstractUnitTableView, router));
     sessionTableView.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
         sessionTableView, router));
+
+    tableColumnSessionId.setCellValueFactory(param
+        -> new ReadOnlyObjectWrapper<>(String.valueOf(param.getValue().getGroup().getId())));
   }
 
   private void bindTableColumnsWidth() {

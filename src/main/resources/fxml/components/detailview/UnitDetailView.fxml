@@ -40,11 +40,7 @@
     <Label text="%sessions" styleClass="h2"/>
     <TableView fx:id="sessionTableView">
         <columns>
-            <TableColumn fx:id="tableColumnSessionId" text="%columnId" resizable="false">
-                <cellValueFactory>
-                    <PropertyValueFactory property="id"/>
-                </cellValueFactory>
-            </TableColumn>
+            <TableColumn fx:id="tableColumnSessionId" text="%columnId" resizable="false"/>
             <TableColumn fx:id="tableColumnSessionDay" text="%columnDay" resizable="false"/>
             <TableColumn fx:id="tableColumnSessionTime" text="%columnTime" resizable="false"/>
         </columns>
