@@ -103,20 +103,15 @@ public class SessionDetailView extends VBox implements Initializable {
         Bindings.selectString(sessionFacadeProperty, "slot")).otherwise(""));
     lbGroup.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
         Bindings.selectString(sessionProperty, "group", "id")).otherwise(""));
-    lbSemesters.textProperty().bind(new StringBinding() {
-      {
-        bind(sessionProperty);
-      }
 
-      @Override
-      protected String computeValue() {
-        final Session session = sessionProperty.get();
-        if (session == null) {
-          return "";
-        }
-        return Joiner.on(", ").join(session.getGroup().getUnit().getSemesters());
+    lbSemesters.textProperty().bind(Bindings.createStringBinding(() -> {
+      final Session session = sessionProperty.get();
+      if (session == null) {
+        return "";
       }
-    });
+      return Joiner.on(", ").join(session.getGroup().getUnit().getSemesters());
+    }, sessionProperty));
+
     lbTentative.textProperty().bind(Bindings.createStringBinding(() -> {
       final Session session = sessionProperty.get();
       if (session == null) {
