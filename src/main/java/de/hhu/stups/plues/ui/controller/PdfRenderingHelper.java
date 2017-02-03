@@ -1,14 +1,8 @@
 package de.hhu.stups.plues.ui.controller;
 
-import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.services.UiDataService;
-import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
-
-import javafx.collections.FXCollections;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
-
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.xmlgraphics.util.MimeConstants;
@@ -26,10 +20,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
-import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
@@ -182,30 +174,4 @@ public class PdfRenderingHelper {
     //
     return pdf;
   }
-
-
-  // TODO: ggf. wieder woanders hin
-
-  /**
-   * Initialize course selection object of each class using it.
-   *
-   * @param store                Store object to collect courses
-   * @param uiDataService        UiDataService instance
-   * @param courseSelection      Object to save selection.
-   */
-  static void initializeCourseSelection(final Store store,
-                                        final UiDataService uiDataService,
-                                        // TODO: this should not be parameter
-                                        // but instead be constructed here and returned
-                                        final MajorMinorCourseSelection courseSelection) {
-
-    final List<Course> majorCourseList = store.getMajors();
-    final List<Course> minorCourseList = store.getMinors();
-
-    courseSelection.setMajorCourseList(FXCollections.observableList(majorCourseList));
-    courseSelection.setMinorCourseList(FXCollections.observableList(minorCourseList));
-
-    courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
-  }
-
 }

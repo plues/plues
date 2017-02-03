@@ -28,6 +28,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -158,10 +159,14 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     btShow.disableProperty().bind(pdf.isNull().or(checkRunning).or(selectionChanged));
     btSave.disableProperty().bind(pdf.isNull().or(checkRunning).or(selectionChanged));
 
-    delayedStore.whenAvailable(s -> {
-      PdfRenderingHelper.initializeCourseSelection(s, uiDataService, courseSelection);
-      this.storeProperty.set(s);
+    delayedStore.whenAvailable(store -> {
+      courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors()));
+      courseSelection.setMinorCourseList(FXCollections.observableList(store.getMinors()));
+
+      this.storeProperty.set(store);
     });
+
+    courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
   }

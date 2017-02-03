@@ -17,6 +17,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -24,6 +25,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class Musterstudienplaene extends GridPane implements Initializable, Activatable {
@@ -98,8 +100,12 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
         (observable, oldValue, newValue) ->
             Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
 
-    delayedStore.whenAvailable(store ->
-        PdfRenderingHelper.initializeCourseSelection(store, uiDataService, courseSelection));
+    delayedStore.whenAvailable(store -> {
+        courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors()));
+        courseSelection.setMinorCourseList(FXCollections.observableList(store.getMinors()));
+      });
+
+    courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
   }
