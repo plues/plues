@@ -167,9 +167,9 @@ public class ConflictMatrix extends GridPane implements Initializable {
           .filter(c -> !c.isCombinable()).collect(Collectors.toList()));
 
       combinableMajorCourses.addAll(store.getMajors().stream()
-        .filter(Course::isCombinable).collect(Collectors.toList()));
+          .filter(Course::isCombinable).collect(Collectors.toList()));
       combinableMinorCourses.addAll(store.getMinors().stream()
-        .filter(Course::isCombinable).collect(Collectors.toList()));
+          .filter(Course::isCombinable).collect(Collectors.toList()));
       setInitialGridPaneVisibility();
     });
 

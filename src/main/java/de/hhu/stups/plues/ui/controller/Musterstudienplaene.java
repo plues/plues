@@ -101,9 +101,9 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
             Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
 
     delayedStore.whenAvailable(store -> {
-        courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors()));
-        courseSelection.setMinorCourseList(FXCollections.observableList(store.getMinors()));
-      });
+      courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors()));
+      courseSelection.setMinorCourseList(FXCollections.observableList(store.getMinors()));
+    });
 
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 
@@ -115,7 +115,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
    * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
    */
   @Override
-  public void activateController(final RouteNames routeName, Object... courses) {
+  public void activateController(final RouteNames routeName, final Object... courses) {
     if (courses.length > 0) {
       courseSelection.selectCourse((Course) courses[0]);
     }
