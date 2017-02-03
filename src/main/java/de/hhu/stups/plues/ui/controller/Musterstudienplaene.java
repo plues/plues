@@ -95,7 +95,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
 
     // disable list-view selection
     resultBoxWrapper.getSelectionModel().selectedIndexProperty().addListener(
-        (observable, oldvalue, newValue) ->
+        (observable, oldValue, newValue) ->
             Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
 
     delayedStore.whenAvailable(store ->
