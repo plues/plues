@@ -12,13 +12,13 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.Tooltip?>
 <fx:root minHeight="600" type="javafx.scene.control.SplitPane" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1" dividerPositions="0.15">
     <TimetableSideBar fx:id="timetableSideBar"/>
     <VBox>
-        <HBox>
+        <HBox styleClass="windowPaddingTiny" spacing="5.0">
             <Label text="%semester"/>
-
             <SemesterChooser fx:id="semesterToggle">
                 <buttons>
                     <ToggleButton text="1" userData="1" selected="true"/>
@@ -29,6 +29,11 @@
                     <ToggleButton text="6" userData="6"/>
                 </buttons>
             </SemesterChooser>
+            <Label fx:id="multipleSelectionInfo" alignment="TOP_LEFT">
+                <tooltip>
+                    <Tooltip fx:id="multipleSelectionHint" text="%multipleSelectionHint"/>
+                </tooltip>
+            </Label>
         </HBox>
 
         <GridPane maxHeight="Infinity" maxWidth="Infinity" fx:id="timeTablePane">
@@ -58,45 +63,45 @@
                 <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
             </rowConstraints>
 
-            <StackPane styleClass="time" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="1">
                 <Label text="08:30" styleClass="headerLabel"/>
             </StackPane>
-            <StackPane styleClass="time" GridPane.columnIndex="0" GridPane.rowIndex="2">
+            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="2">
                 <Label text="10:30" styleClass="headerLabel"/>
             </StackPane>
-            <StackPane styleClass="time" GridPane.columnIndex="0" GridPane.rowIndex="3">
+            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="3">
                 <Label text="12:30" styleClass="headerLabel"/>
             </StackPane>
-            <StackPane styleClass="time" GridPane.columnIndex="0" GridPane.rowIndex="4">
+            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="4">
                 <Label text="14:30" styleClass="headerLabel"/>
             </StackPane>
-            <StackPane styleClass="time" GridPane.columnIndex="0" GridPane.rowIndex="5">
+            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="5">
                 <Label text="16:30" styleClass="headerLabel"/>
             </StackPane>
-            <StackPane styleClass="time" GridPane.columnIndex="0" GridPane.rowIndex="6">
+            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="6">
                 <Label text="18:30" styleClass="headerLabel"/>
             </StackPane>
-            <StackPane styleClass="time" GridPane.columnIndex="0" GridPane.rowIndex="7">
+            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="7">
                 <Label text="20:30" styleClass="headerLabel"/>
             </StackPane>
 
-            <StackPane styleClass="day" GridPane.rowIndex="0" GridPane.columnIndex="1">
+            <StackPane GridPane.rowIndex="0" GridPane.columnIndex="1">
                 <Label GridPane.rowIndex="0" GridPane.columnIndex="1" text="%monday"
                        styleClass="headerLabel"/>
             </StackPane>
-            <StackPane styleClass="day" GridPane.rowIndex="0" GridPane.columnIndex="2">
+            <StackPane GridPane.rowIndex="0" GridPane.columnIndex="2">
                 <Label GridPane.rowIndex="0" GridPane.columnIndex="2" text="%tuesday"
                        styleClass="headerLabel"/>
             </StackPane>
-            <StackPane styleClass="day" GridPane.rowIndex="0" GridPane.columnIndex="3">
+            <StackPane GridPane.rowIndex="0" GridPane.columnIndex="3">
                 <Label GridPane.rowIndex="0" GridPane.columnIndex="3" text="%wednesday"
                        styleClass="headerLabel"/>
             </StackPane>
-            <StackPane styleClass="day" GridPane.rowIndex="0" GridPane.columnIndex="4">
+            <StackPane GridPane.rowIndex="0" GridPane.columnIndex="4">
                 <Label GridPane.rowIndex="0" GridPane.columnIndex="4" text="%thursday"
                        styleClass="headerLabel"/>
             </StackPane>
-            <StackPane styleClass="day" GridPane.rowIndex="0" GridPane.columnIndex="5">
+            <StackPane GridPane.rowIndex="0" GridPane.columnIndex="5">
                 <Label GridPane.rowIndex="0" GridPane.columnIndex="5" text="%friday"
                        styleClass="headerLabel"/>
             </StackPane>

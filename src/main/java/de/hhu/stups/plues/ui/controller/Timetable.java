@@ -22,8 +22,11 @@ import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.SetBinding;
 import javafx.beans.property.ListProperty;
@@ -36,9 +39,12 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
@@ -69,6 +75,12 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   @FXML
   @SuppressWarnings("unused")
   private SemesterChooser semesterToggle;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label multipleSelectionInfo;
+  @FXML
+  @SuppressWarnings("unused")
+  private Tooltip multipleSelectionHint;
   @FXML
   @SuppressWarnings("unused")
   private TimetableSideBar timetableSideBar;
@@ -104,6 +116,17 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     });
 
     timetableSideBar.setParent(this);
+
+    multipleSelectionInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
+        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "12")));
+
+    multipleSelectionInfo.setOnMouseEntered(event -> {
+      final Point2D pos = multipleSelectionInfo.localToScreen(
+          multipleSelectionInfo.getLayoutBounds().getMaxX(),
+          multipleSelectionInfo.getLayoutBounds().getMaxY());
+      multipleSelectionHint.show(multipleSelectionInfo, pos.getX(), pos.getY());
+    });
+    multipleSelectionInfo.setOnMouseExited(event -> multipleSelectionHint.hide());
 
     splitPaneDivider = getDividers().get(0);
 
