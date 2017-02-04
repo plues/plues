@@ -26,13 +26,14 @@
     </TableView>
     <TableView fx:id="tableViewAbstractUnits" minWidth="0" minHeight="0">
         <columns>
-            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey" resizable="false">
+            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey" resizable="false"
+                         minWidth="0">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
             <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnAbstractUnit"
-                         resizable="false">
+                         minWidth="0" resizable="false">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>

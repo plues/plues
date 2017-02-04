@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.TableColumn?>
 <?import org.controlsfx.control.SegmentedButton?>
 <?import javafx.geometry.Insets?>
@@ -11,27 +12,33 @@
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <VBox styleClass="windowPaddingSmall" spacing="10.0">
-        <SegmentedButton fx:id="segmentedButtons">
-            <padding>
-                <Insets left="20" right="20"/>
-            </padding>
-            <buttons>
-                <ToggleButton fx:id="buttonIncompleteModules" text="%button.IncompleteModules"
-                              selected="true"/>
-                <ToggleButton fx:id="buttonMissingElectiveAbstractUnits"
-                              text="%button.MissingElectiveAbstractUnits"/>
-            </buttons>
-        </SegmentedButton>
+        <HBox>
+            <SegmentedButton fx:id="segmentedButtons">
+                <padding>
+                    <Insets left="20" right="20"/>
+                </padding>
+                <buttons>
+                    <ToggleButton fx:id="buttonIncompleteModules" text="%button.IncompleteModules"
+                                  selected="true" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                                  prefWidth="200.0"/>
+                    <ToggleButton fx:id="buttonMissingElectiveAbstractUnits" HBox.hgrow="ALWAYS"
+                                  text="%button.MissingElectiveAbstractUnits" maxWidth="Infinity"
+                                  prefWidth="400.0"/>
+                </buttons>
+            </SegmentedButton>
+        </HBox>
         <Text fx:id="txtExplanation"/>
     </VBox>
     <TableView fx:id="tableViewModules" minWidth="0" minHeight="0">
         <columns>
-            <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr" resizable="false">
+            <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr" resizable="false"
+                         minWidth="0">
                 <cellValueFactory>
                     <PropertyValueFactory property="pordnr"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnModuleTitle" text="%columnTitle" resizable="false">
+            <TableColumn fx:id="tableColumnModuleTitle" text="%columnTitle" resizable="false"
+                         minWidth="0">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>

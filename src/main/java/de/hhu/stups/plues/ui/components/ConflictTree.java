@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components;
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
@@ -172,13 +173,16 @@ public class ConflictTree extends VBox implements Initializable {
     return sortedSessionsByTime;
   }
 
-  void setConflictSessions(final List<Session> conflictSessions) {
+  private void setConflictSessions(final List<Session> conflictSessions) {
     this.conflictSessions = conflictSessions;
     showConflictResult(conflictSessions);
   }
 
-  void setUnsatCoreProperty(final ListProperty<Integer> unsatCoreProperty) {
+  void setUnsatCoreProperty(final ListProperty<Integer> unsatCoreProperty, final Store store) {
     this.unsatCoreProperty = unsatCoreProperty;
+    setConflictSessions(unsatCoreProperty.get()
+        .stream().map(store::getSessionById)
+        .collect(Collectors.toList()));
   }
 
   private void initTreeTableViewValueFactories() {

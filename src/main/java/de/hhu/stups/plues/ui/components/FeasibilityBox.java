@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -229,14 +228,18 @@ public class FeasibilityBox extends VBox implements Initializable {
       parent.getItems().remove(this);
     }
     if (selectedItem.equals(cancelString)) {
-      if (feasibilityTask.isRunning()) {
-        interrupt();
-        cbAction.setItems(FXCollections.observableList(
-            Arrays.asList(openInTimetable, restartComputation, removeString)));
-        cbAction.getSelectionModel().selectFirst();
-      } else if (unsatCoreTask.isRunning()) {
-        unsatCoreTask.cancel(true);
-      }
+      cancelAction();
+    }
+  }
+
+  private void cancelAction() {
+    if (feasibilityTask.isRunning()) {
+      interrupt();
+      cbAction.setItems(FXCollections.observableList(
+          Arrays.asList(openInTimetable, restartComputation, removeString)));
+      cbAction.getSelectionModel().selectFirst();
+    } else if (unsatCoreTask.isRunning()) {
+      unsatCoreTask.cancel(true);
     }
   }
 
@@ -259,12 +262,7 @@ public class FeasibilityBox extends VBox implements Initializable {
     unsatCoreTask.setOnSucceeded(unsatCore -> {
       unsatCoreProperty.set(FXCollections.observableArrayList(unsatCoreTask.getValue()));
       final ConflictTree conflictTree = conflictTreeProvider.get();
-      // TODO: move to conflict tree
-      conflictTree.setConflictSessions(
-          unsatCoreProperty.get()
-              .stream().map(delayedStore.get()::getSessionById)
-              .collect(Collectors.toList()));
-      conflictTree.setUnsatCoreProperty(unsatCoreProperty);
+      conflictTree.setUnsatCoreProperty(unsatCoreProperty, delayedStore.get());
       getChildren().add(conflictTree);
       cbAction.setItems(FXCollections.observableArrayList(
           openInTimetable, stepwiseUnsatCore, removeString));

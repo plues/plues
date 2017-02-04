@@ -12,12 +12,14 @@
     </VBox>
     <TableView fx:id="tableViewUnits" minWidth="0" minHeight="0">
         <columns>
-            <TableColumn fx:id="tableColumnUnitKey" text="%columnKey" resizable="false">
+            <TableColumn fx:id="tableColumnUnitKey" text="%columnKey" resizable="false"
+                         minWidth="0">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnUnitTitle" text="%columnTitle" resizable="false">
+            <TableColumn fx:id="tableColumnUnitTitle" text="%columnTitle" resizable="false"
+                         minWidth="0">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
