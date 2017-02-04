@@ -175,6 +175,12 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     bindTableColumnsWidth();
   }
 
+  @FXML
+  @SuppressWarnings("unused")
+  private void btClearSelectionSubmit() {
+    selectableCourses.forEach(course -> course.setSelected(false));
+  }
+
   private void bindTableColumnsWidth() {
     tableColumnMasterCheckBox.prefWidthProperty().bind(
         tableViewBachelorCourse.widthProperty().multiply(0.07));

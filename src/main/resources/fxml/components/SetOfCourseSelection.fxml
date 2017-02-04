@@ -5,11 +5,17 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.Button?>
 
 <fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
-    <TextField fx:id="txtQuery" promptText="%searchCourse"/>
+    <HBox spacing="5.0">
+        <TextField fx:id="txtQuery" promptText="%searchCourse" HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btClearSelection" text="%clear" onAction="#btClearSelectionSubmit"
+                HBox.hgrow="ALWAYS"/>
+    </HBox>
     <TitledPane fx:id="titledPaneMasterCourse" expanded="false" text="%master">
         <TableView fx:id="tableViewMasterCourse" prefWidth="500.0" editable="true">
             <columns>
