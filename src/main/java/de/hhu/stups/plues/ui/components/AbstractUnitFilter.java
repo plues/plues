@@ -9,8 +9,11 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
@@ -23,6 +26,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
@@ -61,6 +65,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private RadioButton rbAll;
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btClearSelection;
   @FXML
   @SuppressWarnings("unused")
   private CheckBox cbSelectedCoursesOnly;
@@ -154,6 +161,8 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     selectableAbstractUnits.bind(new SelectableAbstractUnitListBinding());
 
+    btClearSelection.graphicProperty().bind(Bindings.createObjectBinding(() ->
+        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.UNDO, "12")));
 
     final FilteredList<SelectableAbstractUnit> filteredUnits
         = new FilteredList<>(selectableAbstractUnits);

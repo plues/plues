@@ -4,8 +4,11 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
@@ -19,6 +22,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -45,6 +49,9 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TextField txtQuery;
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btClearSelection;
   @FXML
   @SuppressWarnings("unused")
   private TitledPane titledPaneMasterCourse;
@@ -106,6 +113,9 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
     tableViewMasterCourse.setId("batchListView");
     tableViewBachelorCourse.setId("batchListView");
+
+    btClearSelection.graphicProperty().bind(Bindings.createObjectBinding(() ->
+        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.UNDO, "12")));
 
     selectableCourses.bind(new ListBinding<SelectableCourse>() {
       {
