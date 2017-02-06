@@ -188,6 +188,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void btClearSelectionSubmit() {
+    txtQuery.clear();
     selectableCourses.forEach(course -> course.setSelected(false));
   }
 
