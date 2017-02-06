@@ -28,6 +28,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -53,6 +54,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   private final SimpleListProperty<SelectableAbstractUnit> selectableAbstractUnits;
   private final SimpleListProperty<Course> courseFilter;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private Label searchSymbol;
   @FXML
   @SuppressWarnings("unused")
   private TextField txtQuery;
@@ -161,8 +165,10 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     selectableAbstractUnits.bind(new SelectableAbstractUnitListBinding());
 
-    btClearSelection.graphicProperty().bind(Bindings.createObjectBinding(() ->
-        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.UNDO, "12")));
+    FontAwesomeIconFactory fontAwesomeIconFactory = FontAwesomeIconFactory.get();
+    fontAwesomeIconFactory.setIcon(searchSymbol, FontAwesomeIcon.SEARCH, "15");
+    btClearSelection.graphicProperty().bind(Bindings.createObjectBinding(()
+        -> fontAwesomeIconFactory.createIcon(FontAwesomeIcon.TIMES_CIRCLE, "15")));
 
     final FilteredList<SelectableAbstractUnit> filteredUnits
         = new FilteredList<>(selectableAbstractUnits);

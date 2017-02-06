@@ -23,6 +23,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -46,6 +47,9 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   private final ListProperty<Course> courses;
   private final ListProperty<SelectableCourse> selectableCourses;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private Label searchSymbol;
   @FXML
   @SuppressWarnings("unused")
   private TextField txtQuery;
@@ -114,8 +118,11 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     tableViewMasterCourse.setId("batchListView");
     tableViewBachelorCourse.setId("batchListView");
 
-    btClearSelection.graphicProperty().bind(Bindings.createObjectBinding(() ->
-        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.UNDO, "12")));
+
+    FontAwesomeIconFactory fontAwesomeIconFactory = FontAwesomeIconFactory.get();
+    fontAwesomeIconFactory.setIcon(searchSymbol, FontAwesomeIcon.SEARCH, "15");
+    btClearSelection.graphicProperty().bind(Bindings.createObjectBinding(()
+        -> fontAwesomeIconFactory.createIcon(FontAwesomeIcon.TIMES_CIRCLE, "15")));
 
     selectableCourses.bind(new ListBinding<SelectableCourse>() {
       {
