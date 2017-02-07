@@ -118,28 +118,11 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     tableViewMasterCourse.setId("batchListView");
     tableViewBachelorCourse.setId("batchListView");
 
-
-    FontAwesomeIconFactory fontAwesomeIconFactory = FontAwesomeIconFactory.get();
-    fontAwesomeIconFactory.setIcon(searchSymbol, FontAwesomeIcon.SEARCH, "15");
-    btClearSelection.graphicProperty().bind(Bindings.createObjectBinding(()
-        -> fontAwesomeIconFactory.createIcon(FontAwesomeIcon.TIMES_CIRCLE, "15")));
+    initializeSearch();
 
     selectableCourses.bind(new SelectableCoursesBinding());
 
-    courses.addListener((observable, oldValue, newValue) -> {
-      final boolean hasMaster = courses.stream().anyMatch(Course::isMaster);
-      final boolean hasBachelor = courses.stream().anyMatch(Course::isBachelor);
-      if (!hasMaster) {
-        getChildren().remove(titledPaneMasterCourse);
-      } else if (!getChildren().contains(titledPaneMasterCourse)) {
-        getChildren().add(2, titledPaneMasterCourse);
-      }
-      if (!hasBachelor) {
-        getChildren().remove(titledPaneBachelorCourse);
-      } else if (!getChildren().contains(titledPaneBachelorCourse)) {
-        getChildren().add(titledPaneBachelorCourse);
-      }
-    });
+    courses.addListener((observable, oldValue, newValue) -> hideEmptyCourseList());
 
     tableViewMasterCourse.itemsProperty().bind(newFilteredProperty(SelectableCourse::isMaster));
     tableViewBachelorCourse.itemsProperty().bind(newFilteredProperty(SelectableCourse::isBachelor));
@@ -154,6 +137,29 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     bindTableColumnsWidth();
   }
 
+  private void initializeSearch() {
+    FontAwesomeIconFactory fontAwesomeIconFactory = FontAwesomeIconFactory.get();
+    fontAwesomeIconFactory.setIcon(searchSymbol, FontAwesomeIcon.SEARCH, "15");
+    btClearSelection.graphicProperty().bind(Bindings.createObjectBinding(()
+        -> fontAwesomeIconFactory.createIcon(FontAwesomeIcon.TIMES_CIRCLE, "15")));
+  }
+
+  private void hideEmptyCourseList() {
+    final boolean hasMaster = courses.stream().anyMatch(Course::isMaster);
+    final boolean hasBachelor = courses.stream().anyMatch(Course::isBachelor);
+    if (!hasMaster) {
+      getChildren().remove(titledPaneMasterCourse);
+    } else if (!getChildren().contains(titledPaneMasterCourse)) {
+      getChildren().add(2, titledPaneMasterCourse);
+    }
+
+    if (!hasBachelor) {
+      getChildren().remove(titledPaneBachelorCourse);
+    } else if (!getChildren().contains(titledPaneBachelorCourse)) {
+      getChildren().add(titledPaneBachelorCourse);
+    }
+  }
+
   @FXML
   @SuppressWarnings("unused")
   private void btClearSelectionSubmit() {
@@ -162,19 +168,26 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   }
 
   private void bindTableColumnsWidth() {
-    tableColumnMasterCheckBox.prefWidthProperty().bind(
-        tableViewBachelorCourse.widthProperty().multiply(0.07));
-    tableColumnMasterCourseKey.prefWidthProperty().bind(
-        tableViewBachelorCourse.widthProperty().multiply(0.2));
-    tableColumnMasterCourseTitle.prefWidthProperty().bind(
-        tableViewBachelorCourse.widthProperty().multiply(0.69));
+    bindTableColumnsWidthMaster();
+    bindTableColumnsWidthBachelor();
+  }
 
+  private void bindTableColumnsWidthBachelor() {
     tableColumnBachelorCheckBox.prefWidthProperty().bind(
         tableViewBachelorCourse.widthProperty().multiply(0.07));
     tableColumnBachelorCourseKey.prefWidthProperty().bind(
         tableViewBachelorCourse.widthProperty().multiply(0.2));
     tableColumnBachelorCourseTitle.prefWidthProperty().bind(
         tableViewBachelorCourse.widthProperty().multiply(0.69));
+  }
+
+  private void bindTableColumnsWidthMaster() {
+    tableColumnMasterCheckBox.prefWidthProperty().bind(
+        tableViewMasterCourse.widthProperty().multiply(0.07));
+    tableColumnMasterCourseKey.prefWidthProperty().bind(
+        tableViewMasterCourse.widthProperty().multiply(0.2));
+    tableColumnMasterCourseTitle.prefWidthProperty().bind(
+        tableViewMasterCourse.widthProperty().multiply(0.69));
   }
 
   private ListProperty<SelectableCourse> newFilteredProperty(
