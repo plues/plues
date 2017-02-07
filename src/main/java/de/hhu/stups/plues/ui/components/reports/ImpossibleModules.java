@@ -74,25 +74,26 @@ public class ImpossibleModules extends VBox implements Initializable {
     final ListBinding<Module> binding = new ModuleListBinding();
     tableViewModules.itemsProperty().bind(binding);
 
-    Callable<String> func = () -> {
-      if (buttonIncompleteModules.isSelected()) {
-        return resources.getString("explain.IncompleteModules");
-      }
-      if (buttonMissingElectiveAbstractUnits.isSelected()) {
-        return resources.getString(
-          "explain.ImpossibleModulesBecauseOfMissingElectiveAbstractUnits");
-      }
-
-      return null;
-    };
-
-    final StringBinding stringBinding = Bindings.createStringBinding(func, buttonIncompleteModules.selectedProperty(),
+    final StringBinding stringBinding = Bindings.createStringBinding(() -> getExplanation(resources),
+        buttonIncompleteModules.selectedProperty(),
         buttonMissingElectiveAbstractUnits.selectedProperty());
 
     txtExplanation.textProperty().bind(stringBinding);
     txtExplanation.wrappingWidthProperty().bind(tableViewModules.widthProperty().subtract(25.0));
 
     bindTableColumnsWidth();
+  }
+
+  private String getExplanation(ResourceBundle resources) {
+    if (buttonIncompleteModules.isSelected()) {
+      return resources.getString("explain.IncompleteModules");
+    }
+    if (buttonMissingElectiveAbstractUnits.isSelected()) {
+      return resources.getString(
+        "explain.ImpossibleModulesBecauseOfMissingElectiveAbstractUnits");
+    }
+
+    return null;
   }
 
   private void bindTableColumnsWidth() {
