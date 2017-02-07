@@ -102,41 +102,11 @@ public class ModuleDetailView extends VBox implements Initializable {
 
     bindTableColumnsWidth();
 
-    courseTableView.itemsProperty().bind(new ListBinding<Course>() {
-      {
-        bind(moduleProperty);
-      }
-
-      @Override
-      protected ObservableList<Course> computeValue() {
-        final Module module = moduleProperty.get();
-        if (module == null) {
-          return FXCollections.emptyObservableList();
-        }
-
-        return FXCollections.observableArrayList(module.getCourses());
-      }
-    });
-
-    abstractUnitTableView.itemsProperty().bind(new ListBinding<AbstractUnit>() {
-      {
-        bind(moduleProperty);
-      }
-
-      @Override
-      protected ObservableList<AbstractUnit> computeValue() {
-        final Module module = moduleProperty.get();
-        if (module == null) {
-          return FXCollections.emptyObservableList();
-        }
-
-        return FXCollections.observableArrayList(module.getAbstractUnits());
-      }
-    });
-
+    courseTableView.itemsProperty().bind(new CourseTableBinding());
     courseTableView.setOnMouseClicked(DetailViewHelper.getCourseMouseHandler(
         courseTableView, router));
 
+    abstractUnitTableView.itemsProperty().bind(new AbstractUnitTableBinding());
     abstractUnitTableView.setOnMouseClicked(DetailViewHelper.getAbstractUnitMouseHandler(
         abstractUnitTableView, router));
   }
@@ -160,5 +130,37 @@ public class ModuleDetailView extends VBox implements Initializable {
 
   public String getTitle() {
     return moduleProperty.get().getTitle();
+  }
+
+  private class CourseTableBinding extends ListBinding<Course> {
+    CourseTableBinding() {
+      bind(moduleProperty);
+    }
+
+    @Override
+    protected ObservableList<Course> computeValue() {
+      final Module module = moduleProperty.get();
+      if (module == null) {
+        return FXCollections.emptyObservableList();
+      }
+
+      return FXCollections.observableArrayList(module.getCourses());
+    }
+  }
+
+  private class AbstractUnitTableBinding extends ListBinding<AbstractUnit> {
+    AbstractUnitTableBinding() {
+      bind(moduleProperty);
+    }
+
+    @Override
+    protected ObservableList<AbstractUnit> computeValue() {
+      final Module module = moduleProperty.get();
+      if (module == null) {
+        return FXCollections.emptyObservableList();
+      }
+
+      return FXCollections.observableArrayList(module.getAbstractUnits());
+    }
   }
 }
