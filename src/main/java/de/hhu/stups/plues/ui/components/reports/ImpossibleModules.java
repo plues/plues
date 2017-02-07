@@ -74,9 +74,10 @@ public class ImpossibleModules extends VBox implements Initializable {
 
     tableViewModules.itemsProperty().bind(new ModuleListBinding());
 
-    txtExplanation.textProperty().bind(Bindings.createStringBinding(() -> getExplanation(resources),
-        buttonIncompleteModules.selectedProperty(),
-        buttonMissingElectiveAbstractUnits.selectedProperty()));
+    txtExplanation.textProperty().bind(
+        Bindings.createStringBinding(() -> getExplanation(resources),
+            buttonIncompleteModules.selectedProperty(),
+            buttonMissingElectiveAbstractUnits.selectedProperty()));
     txtExplanation.wrappingWidthProperty().bind(tableViewModules.widthProperty().subtract(25.0));
 
     bindTableColumnsWidth();
