@@ -202,7 +202,8 @@ public class PdfRenderingTask extends Task<Path> {
       logger.error("RenderingException rendering PDF", exc.getCause());
       throw exc;
     } catch (IOException exc) {
-      RenderingException renderingException = new RenderingException("IOException rendering PDF", exc);
+      RenderingException renderingException
+          = new RenderingException("IOException rendering PDF", exc);
       logger.error("IOException rendering PDF", renderingException);
       throw renderingException;
     }
