@@ -4,21 +4,13 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
-
-import org.apache.fop.apps.Fop;
-import org.apache.fop.apps.FopFactory;
-import org.apache.xmlgraphics.util.MimeConstants;
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import org.jtwig.environment.EnvironmentConfiguration;
 import org.jtwig.environment.EnvironmentConfigurationBuilder;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -29,8 +21,6 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 public class Renderer {
 
@@ -125,9 +115,11 @@ public class Renderer {
     return PdfRenderingHelper.toPdf(out);
   }
 
-  public final ByteArrayOutputStream getResult()
-      throws ParserConfigurationException, SAXException, IOException {
-    return this.render();
+  public final ByteArrayOutputStream getResult() throws RenderingException {
+    try {
+      return this.render();
+    } catch (final IOException | ParserConfigurationException | SAXException exc) {
+      throw new RenderingException(exc);
+    }
   }
-
 }
