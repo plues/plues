@@ -115,6 +115,11 @@ public class Renderer {
     return PdfRenderingHelper.toPdf(out);
   }
 
+  /**
+   * Render the current document and return the result as a ByteArrayOutputStream.
+   * @return ByteArrayOutputStream byte stream representing the rendered pdf.
+   * @throws RenderingException if an error occurred.
+   */
   public final ByteArrayOutputStream getResult() throws RenderingException {
     try {
       return this.render();
