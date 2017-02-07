@@ -5,6 +5,10 @@ import javafx.scene.Scene;
 
 public class SceneFactory {
 
+  private SceneFactory() {
+    throw new IllegalAccessError("Utility class");
+  }
+
   /**
    * mach ich gleich.
    */
