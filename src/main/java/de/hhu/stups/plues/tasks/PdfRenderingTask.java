@@ -16,7 +16,6 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.hibernate.annotations.common.util.impl.LoggerFactory;
 import org.jboss.logging.Logger;
-import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,7 +29,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
-import javax.xml.parsers.ParserConfigurationException;
 
 public class PdfRenderingTask extends Task<Path> {
 
