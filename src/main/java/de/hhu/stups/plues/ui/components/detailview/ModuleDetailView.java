@@ -88,14 +88,13 @@ public class ModuleDetailView extends VBox implements Initializable {
         Bindings.selectString(moduleProperty, "title")).otherwise(""));
     name.textProperty().bind(Bindings.when(moduleProperty.isNotNull()).then(
         Bindings.selectString(moduleProperty, "name")).otherwise(""));
-    mandatory.textProperty().bind(Bindings.createStringBinding(() -> {
-      final Module module = moduleProperty.get();
-      if (module == null) {
-        return "?";
-      }
 
-      return module.getMandatory() ? "✔︎" : "✗";
-    }, moduleProperty));
+    mandatory.textProperty().bind(Bindings.when(moduleProperty.isNotNull())
+        .then(Bindings.when(Bindings.selectBoolean(moduleProperty, "mandatory"))
+            .then("✔︎")
+            .otherwise("✗"))
+        .otherwise("?"));
+
     creditPoints.textProperty().bind(Bindings.when(moduleProperty.isNotNull()).then(
         Bindings.selectString(moduleProperty, "creditPoints")).otherwise(""));
     electiveUnits.textProperty().bind(Bindings.when(moduleProperty.isNotNull()).then(
