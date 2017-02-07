@@ -6,6 +6,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleListProperty;
@@ -24,6 +25,7 @@ import org.controlsfx.control.SegmentedButton;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.Callable;
 
 public class ImpossibleModules extends VBox implements Initializable {
 
@@ -69,52 +71,23 @@ public class ImpossibleModules extends VBox implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     segmentedButtons.setToggleGroup(new PersistentToggleGroup());
-    final ListBinding<Module> binding = new ListBinding<Module>() {
-      {
-        bind(buttonIncompleteModules.selectedProperty());
-        bind(buttonMissingElectiveAbstractUnits.selectedProperty());
-        bind(incompleteModules);
-        bind(impossibleModulesBecauseOfMissingElectiveAbstractUnits);
-      }
-
-      @Override
-      protected ObservableList<Module> computeValue() {
-        if (buttonIncompleteModules.isSelected()) {
-          return incompleteModules;
-        } else {
-          if (buttonMissingElectiveAbstractUnits.isSelected()) {
-            return impossibleModulesBecauseOfMissingElectiveAbstractUnits;
-          } else {
-            return null;
-          }
-        }
-      }
-    };
+    final ListBinding<Module> binding = new ModuleListBinding();
     tableViewModules.itemsProperty().bind(binding);
 
-    final StringBinding stringBinding = new StringBinding() {
-      {
-        bind(buttonIncompleteModules.selectedProperty());
-        bind(buttonMissingElectiveAbstractUnits.selectedProperty());
+    Callable<String> func = () -> {
+      if (buttonIncompleteModules.isSelected()) {
+        return resources.getString("explain.IncompleteModules");
+      }
+      if (buttonMissingElectiveAbstractUnits.isSelected()) {
+        return resources.getString(
+          "explain.ImpossibleModulesBecauseOfMissingElectiveAbstractUnits");
       }
 
-      @Override
-      protected String computeValue() {
-        final String string;
-        if (buttonIncompleteModules.isSelected()) {
-          string = resources.getString("explain.IncompleteModules");
-        } else {
-          if (buttonMissingElectiveAbstractUnits.isSelected()) {
-            string = resources.getString(
-                "explain.ImpossibleModulesBecauseOfMissingElectiveAbstractUnits");
-          } else {
-            string = null;
-          }
-        }
-
-        return string;
-      }
+      return null;
     };
+
+    final StringBinding stringBinding = Bindings.createStringBinding(func, buttonIncompleteModules.selectedProperty(),
+        buttonMissingElectiveAbstractUnits.selectedProperty());
 
     txtExplanation.textProperty().bind(stringBinding);
     txtExplanation.wrappingWidthProperty().bind(tableViewModules.widthProperty().subtract(25.0));
@@ -137,5 +110,28 @@ public class ImpossibleModules extends VBox implements Initializable {
     this.incompleteModules.setAll(incompleteModules);
     this.impossibleModulesBecauseOfMissingElectiveAbstractUnits.setAll(
         impossibleModulesBecauseOfMissingElectiveAbstractUnits);
+  }
+
+  private class ModuleListBinding extends ListBinding<Module> {
+
+    ModuleListBinding() {
+      bind(buttonIncompleteModules.selectedProperty());
+      bind(buttonMissingElectiveAbstractUnits.selectedProperty());
+      bind(incompleteModules);
+      bind(impossibleModulesBecauseOfMissingElectiveAbstractUnits);
+    }
+
+    @Override
+    protected ObservableList<Module> computeValue() {
+      if (buttonIncompleteModules.isSelected()) {
+        return incompleteModules;
+      }
+
+      if (buttonMissingElectiveAbstractUnits.isSelected()) {
+        return impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+      }
+
+      return null;
+    }
   }
 }
