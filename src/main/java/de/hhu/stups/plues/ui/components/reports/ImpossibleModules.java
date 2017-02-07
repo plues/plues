@@ -71,14 +71,12 @@ public class ImpossibleModules extends VBox implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     segmentedButtons.setToggleGroup(new PersistentToggleGroup());
-    final ListBinding<Module> binding = new ModuleListBinding();
-    tableViewModules.itemsProperty().bind(binding);
 
-    final StringBinding stringBinding = Bindings.createStringBinding(() -> getExplanation(resources),
+    tableViewModules.itemsProperty().bind(new ModuleListBinding());
+
+    txtExplanation.textProperty().bind(Bindings.createStringBinding(() -> getExplanation(resources),
         buttonIncompleteModules.selectedProperty(),
-        buttonMissingElectiveAbstractUnits.selectedProperty());
-
-    txtExplanation.textProperty().bind(stringBinding);
+        buttonMissingElectiveAbstractUnits.selectedProperty()));
     txtExplanation.wrappingWidthProperty().bind(tableViewModules.widthProperty().subtract(25.0));
 
     bindTableColumnsWidth();
