@@ -124,26 +124,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     btClearSelection.graphicProperty().bind(Bindings.createObjectBinding(()
         -> fontAwesomeIconFactory.createIcon(FontAwesomeIcon.TIMES_CIRCLE, "15")));
 
-    selectableCourses.bind(new ListBinding<SelectableCourse>() {
-      {
-        bind(courses);
-      }
-
-      @Override
-      public void dispose() {
-        super.dispose();
-        unbind(courses);
-      }
-
-      // NOTE: A change to the courses list, this binding is bound to, will recreate all
-      // SelectableCourses objects. This behaviour will loose the state of all selectedProperties.
-      @Override
-      protected ObservableList<SelectableCourse> computeValue() {
-        return FXCollections.observableList(
-            courses.stream().map(SelectableCourse::new)
-                .collect(Collectors.toList()), SelectableCourse.getExtractor());
-      }
-    });
+    selectableCourses.bind(new SelectableCoursesBinding());
 
     courses.addListener((observable, oldValue, newValue) -> {
       final boolean hasMaster = courses.stream().anyMatch(Course::isMaster);
@@ -168,26 +149,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     tableViewBachelorCourse.itemsProperty().addListener(observable
         -> titledPaneBachelorCourse.setExpanded(!tableViewBachelorCourse.getItems().isEmpty()));
 
-    selectedCourses.bind(new ListBinding<Course>() {
-      {
-        bind(selectableCourses);
-      }
-
-      @Override
-      public void dispose() {
-        super.dispose();
-        unbind(selectableCourses);
-      }
-
-      @Override
-      protected ObservableList<Course> computeValue() {
-        return selectableCourses.stream()
-            .filter(SelectableCourse::isSelected)
-            .map(SelectableCourse::getCourse)
-            .collect(Collectors.collectingAndThen(Collectors.toList(),
-                FXCollections::observableArrayList));
-      }
-    });
+    selectedCourses.bind(new SelectedCoursesBinding());
 
     bindTableColumnsWidth();
   }
@@ -221,23 +183,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     final FilteredList<SelectableCourse> filter
         = new FilteredList<>(selectableCourses.filtered(predicate));
 
-    filter.predicateProperty().bind(new ObjectBinding<Predicate<? super SelectableCourse>>() {
-      {
-        bind(txtQuery.textProperty());
-      }
-
-      @Override
-      public void dispose() {
-        super.dispose();
-        unbind(txtQuery.textProperty());
-      }
-
-      @Override
-      protected Predicate<? super SelectableCourse> computeValue() {
-        final String query = txtQuery.getText().toLowerCase();
-        return row -> row.matches(query);
-      }
-    });
+    filter.predicateProperty().bind(new FilterPredicateBinding());
     return new SimpleListProperty<>(filter);
   }
 
@@ -335,6 +281,69 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     private boolean matches(final String query) {
       return this.getName().toLowerCase().contains(query)
           || this.getKey().toLowerCase().contains(query);
+    }
+  }
+
+  private class SelectedCoursesBinding extends ListBinding<Course> {
+
+    SelectedCoursesBinding() {
+      bind(selectableCourses);
+    }
+
+    @Override
+    public void dispose() {
+      super.dispose();
+      unbind(selectableCourses);
+    }
+
+    @Override
+    protected ObservableList<Course> computeValue() {
+      return selectableCourses.stream()
+          .filter(SelectableCourse::isSelected)
+          .map(SelectableCourse::getCourse)
+          .collect(Collectors.collectingAndThen(Collectors.toList(),
+              FXCollections::observableArrayList));
+    }
+  }
+
+  private class SelectableCoursesBinding extends ListBinding<SelectableCourse> {
+
+    SelectableCoursesBinding() {
+      bind(courses);
+    }
+
+    @Override
+    public void dispose() {
+      super.dispose();
+      unbind(courses);
+    }
+
+    // NOTE: A change to the courses list, this binding is bound to, will recreate all
+    // SelectableCourses objects. This behaviour will loose the state of all selectedProperties.
+    @Override
+    protected ObservableList<SelectableCourse> computeValue() {
+      return FXCollections.observableList(
+          courses.stream().map(SelectableCourse::new)
+              .collect(Collectors.toList()), SelectableCourse.getExtractor());
+    }
+  }
+
+  private class FilterPredicateBinding extends ObjectBinding<Predicate<? super SelectableCourse>> {
+
+    FilterPredicateBinding() {
+      bind(txtQuery.textProperty());
+    }
+
+    @Override
+    public void dispose() {
+      super.dispose();
+      unbind(txtQuery.textProperty());
+    }
+
+    @Override
+    protected Predicate<? super SelectableCourse> computeValue() {
+      final String query = txtQuery.getText().toLowerCase();
+      return row -> row.matches(query);
     }
   }
 }
