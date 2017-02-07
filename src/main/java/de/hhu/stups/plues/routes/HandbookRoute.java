@@ -40,13 +40,7 @@ public class HandbookRoute implements Route {
         final String url = this.properties.getProperty(this.format.getPropertyName());
 
         // open url in browser
-        SwingUtilities.invokeLater(() -> {
-          try {
-            Desktop.getDesktop().browse(new URI(url));
-          } catch (IOException | URISyntaxException exception) {
-            logger.error("browsing to handbook" + handbook, exception);
-          }
-        });
+        SwingUtilities.invokeLater(() -> openUrl(handbook, url));
         return;
       }
       //
@@ -55,17 +49,27 @@ public class HandbookRoute implements Route {
       output.toFile().deleteOnExit();
       Files.copy(stream, output, StandardCopyOption.REPLACE_EXISTING);
 
-      SwingUtilities.invokeLater(() -> {
-        try {
-          Desktop.getDesktop().open(output.toFile());
-        } catch (final IOException exception) {
-          logger.error("showing " + handbook, exception);
-        }
-      });
+      SwingUtilities.invokeLater(() -> openFile(handbook, output));
     } catch (final IOException exception) {
       logger.error("showHandbook", exception);
     }
 
+  }
+
+  private void openFile(String handbook, Path output) {
+    try {
+      Desktop.getDesktop().open(output.toFile());
+    } catch (final IOException exception) {
+      logger.error("showing " + handbook, exception);
+    }
+  }
+
+  private void openUrl(String handbook, String url) {
+    try {
+      Desktop.getDesktop().browse(new URI(url));
+    } catch (IOException | URISyntaxException exception) {
+      logger.error("browsing to handbook" + handbook, exception);
+    }
   }
 
   public enum Format {
