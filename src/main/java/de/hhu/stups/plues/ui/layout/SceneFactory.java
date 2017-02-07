@@ -10,7 +10,9 @@ public class SceneFactory {
   }
 
   /**
-   * mach ich gleich.
+   * Create a scene around a given component and set the default stylesheet.
+   * @param component Parent the root of the scene
+   * @return Scene new Scene with default style
    */
   public static Scene create(final Parent component) {
     final  Scene scene = new Scene(component);
