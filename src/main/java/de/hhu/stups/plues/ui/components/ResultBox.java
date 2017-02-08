@@ -21,7 +21,10 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
@@ -32,8 +35,6 @@ import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
@@ -44,26 +45,33 @@ public class ResultBox extends VBox implements Initializable {
   private static final String WORKING_COLOR = "#BDE5F8";
   private static final String ICON_SIZE = "50";
   private ResourceBundle resources;
-  private String remove;
 
+  private String removeString;
+  private String cancelString;
   private String openInTimetable;
   private String generatePartial;
   private String restartComputation;
   private String show;
   private String saveAs;
-  private String cancel;
   private PdfRenderingTask task;
   private ResultState resultState;
 
   private final Router router;
   private final ObjectProperty<Course> majorCourseProperty;
+  private final ObjectProperty<ObservableList<String>> cbActionItemsProperty;
+  private final StringProperty errorMsgProperty;
   private final ExecutorService executorService;
   private final ObjectProperty<Course> minorCourseProperty;
-  private final ExecutorService executor;
-  private final Delayed<SolverService> solverService;
+  private final Delayed<SolverService> delayedSolverService;
   private final PdfRenderingTaskFactory renderingTaskFactory;
   private final ListView<ResultBox> parent;
   private final ObjectProperty<Path> pdf;
+
+  // lists of actions for each possible state
+  private final ObservableList<String> succeededActions = FXCollections.observableArrayList();
+  private final ObservableList<String> failedActions = FXCollections.observableArrayList();
+  private final ObservableList<String> cancelledActions = FXCollections.observableArrayList();
+  private final ObservableList<String> scheduledActions = FXCollections.observableArrayList();
 
   @FXML
   @SuppressWarnings("unused")
@@ -105,14 +113,15 @@ public class ResultBox extends VBox implements Initializable {
                    @Assisted("parent") final ListView<ResultBox> parent) {
     super();
     this.router = router;
-    this.solverService = delayedSolverService;
+    this.parent = parent;
+    this.delayedSolverService = delayedSolverService;
     this.executorService = executorService;
     this.renderingTaskFactory = renderingTaskFactory;
-    this.majorCourseProperty = new SimpleObjectProperty<>(major);
-    this.minorCourseProperty = new SimpleObjectProperty<>(minor);
-    this.pdf = new SimpleObjectProperty<>();
-    this.executor = executorService;
-    this.parent = parent;
+    majorCourseProperty = new SimpleObjectProperty<>(major);
+    minorCourseProperty = new SimpleObjectProperty<>(minor);
+    cbActionItemsProperty = new SimpleObjectProperty<>();
+    errorMsgProperty = new SimpleStringProperty();
+    pdf = new SimpleObjectProperty<>();
 
     inflater.inflate("components/resultbox", this, this, "resultbox");
   }
@@ -120,25 +129,34 @@ public class ResultBox extends VBox implements Initializable {
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
-    remove = resources.getString("remove");
+    removeString = resources.getString("remove");
     openInTimetable = resources.getString("openInTimetable");
     generatePartial = resources.getString("generatePartial");
     restartComputation = resources.getString("restartComputation");
     show = resources.getString("show");
     saveAs = resources.getString("saveAs");
-    cancel = resources.getString("cancel");
+    cancelString = resources.getString("cancel");
 
     lbMajor.textProperty().bind(Bindings.selectString(majorCourseProperty, "fullName"));
     lbMinor.textProperty().bind(Bindings.selectString(minorCourseProperty, "fullName"));
 
-    solverService.whenAvailable(solver -> {
+    // initialize the lists of actions
+    succeededActions.addAll(show, saveAs, openInTimetable, generatePartial, removeString);
+    failedActions.addAll(openInTimetable, removeString);
+    cancelledActions.addAll(openInTimetable, restartComputation, removeString);
+    scheduledActions.addAll(cancelString);
+
+    delayedSolverService.whenAvailable(solver -> {
       initSolverTask(solver);
-      executor.submit(task);
+      executorService.submit(task);
     });
     lbErrorMsg.visibleProperty().bind(pdf.isNull());
+    lbErrorMsg.textProperty().bind(errorMsgProperty);
 
-    cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancel)));
-    cbAction.getSelectionModel().selectFirst();
+    cbAction.itemsProperty().bind(cbActionItemsProperty);
+    cbActionItemsProperty.addListener((observable, oldValue, newValue) ->
+        cbAction.getSelectionModel().selectFirst());
+    cbActionItemsProperty.setValue(scheduledActions);
   }
 
   private void initSolverTask(final SolverService solverService) {
@@ -153,30 +171,22 @@ public class ResultBox extends VBox implements Initializable {
     task = renderingTaskFactory.create(cMajor, cMinor, solverTask);
     task.setOnSucceeded(event -> Platform.runLater(() -> {
       pdf.set((Path) event.getSource().getValue());
-      cbAction.setItems(FXCollections.observableList(
-          Arrays.asList(show, saveAs, openInTimetable, generatePartial, remove)));
-      cbAction.getSelectionModel().selectFirst();
+      cbActionItemsProperty.setValue(succeededActions);
       resultState = ResultState.SUCCEEDED;
     }));
 
     task.setOnFailed(event -> {
-      cbAction.setItems(FXCollections.observableList(Arrays.asList(openInTimetable, remove)));
-      cbAction.getSelectionModel().selectFirst();
-      lbErrorMsg.setText(resources.getString("error_gen"));
+      cbActionItemsProperty.setValue(failedActions);
+      errorMsgProperty.setValue(resources.getString("error_gen"));
       resultState = ResultState.FAILED;
     });
 
     task.setOnCancelled(event -> {
-      cbAction.setItems(FXCollections.observableList(
-          Arrays.asList(openInTimetable, restartComputation, remove)));
-      cbAction.getSelectionModel().selectFirst();
+      cbActionItemsProperty.setValue(cancelledActions);
       resultState = ResultState.FAILED;
     });
 
-    task.setOnScheduled(event -> {
-      cbAction.setItems(FXCollections.observableList(Collections.singletonList(cancel)));
-      cbAction.getSelectionModel().selectFirst();
-    });
+    task.setOnScheduled(event -> cbActionItemsProperty.setValue(scheduledActions));
 
     progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
     progressIndicator.visibleProperty().bind(task.runningProperty());
@@ -201,7 +211,7 @@ public class ResultBox extends VBox implements Initializable {
       router.transitionTo(RouteNames.PARTIAL_TIMETABLES, majorCourse, minorCourse);
     }
     if (selectedItem.equals(restartComputation)) {
-      initSolverTask(solverService.get());
+      initSolverTask(delayedSolverService.get());
       executorService.submit(task);
     }
     if (selectedItem.equals(show)) {
@@ -210,10 +220,10 @@ public class ResultBox extends VBox implements Initializable {
     if (selectedItem.equals(saveAs)) {
       savePdf();
     }
-    if (selectedItem.equals(remove)) {
+    if (selectedItem.equals(removeString)) {
       parent.getItems().remove(this);
     }
-    if (selectedItem.equals(cancel)) {
+    if (selectedItem.equals(cancelString)) {
       interrupt();
     }
   }
@@ -221,7 +231,7 @@ public class ResultBox extends VBox implements Initializable {
   @FXML
   private void showPdf() {
     PdfRenderingHelper.showPdf(pdf.get(),
-        e -> lbErrorMsg.setText(resources.getString("error_temp")));
+        e -> errorMsgProperty.setValue(resources.getString("error_temp")));
   }
 
   @FXML
