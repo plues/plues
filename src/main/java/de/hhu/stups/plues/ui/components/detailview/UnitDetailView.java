@@ -151,7 +151,7 @@ public class UnitDetailView extends VBox implements Initializable {
   }
 
   private class SessionTableItemsBinding extends ListBinding<Session> {
-    {
+    private AbstractUnitTableItemsBinding() {
       bind(unitProperty);
     }
 
@@ -170,7 +170,7 @@ public class UnitDetailView extends VBox implements Initializable {
   }
 
   private class AbstractUnitTableItemsBinding extends ListBinding<AbstractUnit> {
-    {
+    private AbstractUnitTableItemsBinding() {
       bind(unitProperty);
     }
 
