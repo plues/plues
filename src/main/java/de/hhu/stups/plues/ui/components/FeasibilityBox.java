@@ -74,6 +74,20 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   private final ListView<FeasibilityBox> parent;
   private final ListProperty<Integer> unsatCoreProperty = new SimpleListProperty<>();
+
+  // lists of actions for each possible state
+  private final ObservableList<String> succeededActionsMajorMinor =
+      FXCollections.observableArrayList();
+  private final ObservableList<String> succeededActionsMajorOnly =
+      FXCollections.observableArrayList();
+  private final ObservableList<String> failedWithConflictActions =
+      FXCollections.observableArrayList();
+  private final ObservableList<String> conflictActions = FXCollections.observableArrayList();
+  private final ObservableList<String> cancelledActions = FXCollections.observableArrayList();
+  private final ObservableList<String> scheduledActions = FXCollections.observableArrayList();
+  private final ObservableList<String> impossibleActions = FXCollections.observableArrayList();
+  private final ObservableList<String> timeoutActions = FXCollections.observableArrayList();
+
   @FXML
   @SuppressWarnings("unused")
   private ProgressIndicator progressIndicator;
@@ -92,18 +106,6 @@ public class FeasibilityBox extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<String> cbAction;
-  // lists of actions for each possible state
-  private final ObservableList<String> succeededActionsMajorMinor =
-      FXCollections.observableArrayList();
-  private final ObservableList<String> succeededActionsMajorOnly =
-      FXCollections.observableArrayList();
-  private final ObservableList<String> failedWithConflictActions =
-      FXCollections.observableArrayList();
-  private final ObservableList<String> conflictActions = FXCollections.observableArrayList();
-  private final ObservableList<String> cancelledActions = FXCollections.observableArrayList();
-  private final ObservableList<String> scheduledActions = FXCollections.observableArrayList();
-  private final ObservableList<String> impossibleActions = FXCollections.observableArrayList();
-  private final ObservableList<String> timeoutActions = FXCollections.observableArrayList();
 
   /**
    * A container to display the feasibility of a combination of courses or a single one. For
