@@ -38,6 +38,8 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
+import org.controlsfx.control.textfield.CustomTextField;
+
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -59,7 +61,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   private Label searchSymbol;
   @FXML
   @SuppressWarnings("unused")
-  private TextField txtQuery;
+  private CustomTextField txtQuery;
   @FXML
   @SuppressWarnings("unused")
   private RadioButton rbSelected;
@@ -157,6 +159,8 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    txtQuery.setLeft(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SEARCH, "12"));
+
     rbSelected.setToggleGroup(filterGroup);
     rbNotSelected.setToggleGroup(filterGroup);
     rbAll.setToggleGroup(filterGroup);
@@ -165,10 +169,8 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     selectableAbstractUnits.bind(new SelectableAbstractUnitListBinding());
 
-    FontAwesomeIconFactory fontAwesomeIconFactory = FontAwesomeIconFactory.get();
-    fontAwesomeIconFactory.setIcon(searchSymbol, FontAwesomeIcon.SEARCH, "15");
     btClearSelection.graphicProperty().bind(Bindings.createObjectBinding(()
-        -> fontAwesomeIconFactory.createIcon(FontAwesomeIcon.TIMES_CIRCLE, "15")));
+        -> FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.TIMES_CIRCLE, "15")));
 
     final FilteredList<SelectableAbstractUnit> filteredUnits
         = new FilteredList<>(selectableAbstractUnits);
