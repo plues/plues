@@ -7,10 +7,10 @@
 <?import javafx.scene.text.Text?>
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
-    <VBox styleClass="windowPaddingSmall" spacing="10.0">
+    <VBox styleClass="windowPaddingSmall" spacing="10.0" minWidth="0" maxWidth="Infinity">
         <Text fx:id="txtExplanation" text="%explain.UnitsWithoutAbstractUnits"/>
     </VBox>
-    <TableView fx:id="tableViewUnits" minWidth="0" minHeight="0">
+    <TableView fx:id="tableViewUnits" minWidth="0" minHeight="0" maxWidth="Infinity">
         <columns>
             <TableColumn fx:id="tableColumnUnitKey" text="%columnKey" resizable="false"
                          minWidth="0">
