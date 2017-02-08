@@ -23,14 +23,14 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+
+import org.controlsfx.control.textfield.CustomTextField;
 
 import java.net.URL;
 import java.util.HashSet;
@@ -49,10 +49,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private Label searchSymbol;
-  @FXML
-  @SuppressWarnings("unused")
-  private TextField txtQuery;
+  private CustomTextField txtQuery;
   @FXML
   @SuppressWarnings("unused")
   private Button btClearSelection;
@@ -105,6 +102,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    txtQuery.setLeft(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SEARCH, "12"));
 
     tableColumnMasterCheckBox.setCellFactory(
         CheckBoxTableCell.forTableColumn(tableColumnMasterCheckBox));
@@ -138,10 +136,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   }
 
   private void initializeSearch() {
-    FontAwesomeIconFactory fontAwesomeIconFactory = FontAwesomeIconFactory.get();
-    fontAwesomeIconFactory.setIcon(searchSymbol, FontAwesomeIcon.SEARCH, "15");
     btClearSelection.graphicProperty().bind(Bindings.createObjectBinding(()
-        -> fontAwesomeIconFactory.createIcon(FontAwesomeIcon.TIMES_CIRCLE, "15")));
+        -> FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.TIMES_CIRCLE, "15")));
   }
 
   private void hideEmptyCourseList() {
