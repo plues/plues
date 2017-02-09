@@ -4,11 +4,10 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import de.hhu.stups.plues.data.entities.Session;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.ui.components.detailview.SessionDetailView;
+import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
 import de.hhu.stups.plues.ui.layout.SceneFactory;
 
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class SessionDetailViewRoute implements Route {

@@ -7,9 +7,9 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
@@ -130,6 +130,7 @@ public class SessionDetailView extends VBox implements Initializable {
     courseTable.setOnMouseClicked(this::handleMouseClicked);
   }
 
+  @SuppressWarnings("unused")
   private void handleMouseClicked(final MouseEvent mouseEvent) {
     if (mouseEvent.getClickCount() < 2) {
       return;

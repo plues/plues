@@ -1,7 +1,5 @@
 package de.hhu.stups.plues.ui.components.timetable;
 
-import de.hhu.stups.plues.data.sessions.SessionFacade;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -48,6 +46,7 @@ public class SessionHelper {
    * WiWi data like 'W-WiWi' or 'W-Wichem' and for all other data remove the first letter in the
    * key, e.g. 'P-..'.
    */
+  @SuppressWarnings("unused")
   private static String trimUnitKey(final String unitKey) {
     final List<String> splittedKey = Arrays.asList(unitKey.split("-"));
     if ("w".equalsIgnoreCase(splittedKey.get(0))) {

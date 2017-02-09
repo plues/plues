@@ -13,10 +13,10 @@ import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Session;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.timetable.SemesterChooser;
+import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
 import de.hhu.stups.plues.ui.components.timetable.SessionHelper;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
@@ -216,6 +216,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     return new SessionFacade.Slot(days[index % widthX], times[index / widthX]);
   }
 
+  @SuppressWarnings("unused")
   private void setSessions(final List<SessionFacade> sessions) {
     sessions.forEach(SessionFacade::initSlotProperty);
     this.sessions.set(FXCollections.observableList(sessions,
