@@ -18,7 +18,6 @@ import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyMapProperty;
