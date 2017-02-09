@@ -69,7 +69,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
 
     this.solverProperty = new SimpleBooleanProperty(false);
 
-    inflater.inflate("musterstudienplaene", this, this, "musterstudienplaene");
+    inflater.inflate("Musterstudienplaene", this, this, "musterstudienplaene");
   }
 
   /**

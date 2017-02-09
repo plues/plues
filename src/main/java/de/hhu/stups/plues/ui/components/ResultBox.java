@@ -123,7 +123,7 @@ public class ResultBox extends VBox implements Initializable {
     errorMsgProperty = new SimpleStringProperty();
     pdf = new SimpleObjectProperty<>();
 
-    inflater.inflate("components/resultbox", this, this, "resultbox");
+    inflater.inflate("components/Resultbox", this, this, "resultbox");
   }
 
   @Override
