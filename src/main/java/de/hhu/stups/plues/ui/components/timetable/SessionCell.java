@@ -3,7 +3,6 @@ package de.hhu.stups.plues.ui.components.timetable;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
@@ -27,7 +26,7 @@ import java.util.ResourceBundle;
 
 class SessionCell extends ListCell<SessionFacade> implements Initializable {
 
-  public static final String CONFLICTED_SESSION = "conflicted-session";
+  private static final String CONFLICTED_SESSION = "conflicted-session";
   private final Router router;
   private final Delayed<SolverService> delayedSolverService;
 
@@ -38,9 +37,11 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
   private volatile boolean solverIsLoaded = false;
 
   @FXML
+  @SuppressWarnings("unused")
   private Label sessionCellText;
 
   @FXML
+  @SuppressWarnings("unused")
   private Text sessionCellIsTentative;
 
   @Inject
@@ -146,6 +147,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
     getStyleClass().remove(CONFLICTED_SESSION);
   }
 
+  @SuppressWarnings("unused")
   private String displayText(final SessionFacade sessionFacade) {
     final SessionDisplayFormat displayFormat = uiDataService.sessionDisplayFormatProperty().get();
     return SessionHelper.displayText(displayFormat, sessionFacade);
