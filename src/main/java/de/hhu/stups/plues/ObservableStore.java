@@ -36,7 +36,7 @@ public class ObservableStore extends Observable implements Store {
   }
 
   @Override
-  public void moveSession(final int sessionId, final String targetDay, final String targetTime) {
+  public void moveSession(final int sessionId, final String targetDay, final Integer targetTime) {
     store.moveSession(sessionId, targetDay, targetTime);
     //
     setChanged();
