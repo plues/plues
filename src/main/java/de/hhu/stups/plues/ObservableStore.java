@@ -13,7 +13,6 @@ import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 
 import java.util.List;
 import java.util.Observable;
@@ -37,8 +36,8 @@ public class ObservableStore extends Observable implements Store {
   }
 
   @Override
-  public void moveSession(final SessionFacade sessionFacade, final SessionFacade.Slot slot) {
-    store.moveSession(sessionFacade, slot);
+  public void moveSession(final int sessionId, final String targetDay, final String targetTime) {
+    store.moveSession(sessionId, targetDay, targetTime);
     //
     setChanged();
     notifyObservers();
