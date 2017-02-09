@@ -11,7 +11,6 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.keys.CourseSelection;
 import de.hhu.stups.plues.prob.Alternative;
 import de.hhu.stups.plues.prob.FeasibilityResult;
@@ -19,6 +18,7 @@ import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyMapProperty;
@@ -352,15 +352,14 @@ public class SolverService {
    * Clears all caches as a side-effect.
    *
    * @param sessionId The id of the session to be moved
-   * @param slot      the target slot (tay time)
+   * @param targetDay The target slot's day.
+   * @param targetTime The target slot's time.
    * @return SolverTask object for moving a session
    */
-  public SolverTask<Void> moveSessionTask(final int sessionId, final SessionFacade.Slot slot) {
+  public SolverTask<Void> moveSessionTask(final int sessionId, final String targetDay,
+                                          final String targetTime) {
     return new SolverTask<>(resources.getString("moving"), solver, () -> {
-      solver.move(
-          String.valueOf(sessionId),
-          slot.getDayString(),
-          slot.getTime().toString());
+      solver.move(String.valueOf(sessionId), targetDay, targetTime);
       Platform.runLater(courseSelectionResults::clear);
       return null;
     }, timeout);
