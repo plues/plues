@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// TODO: move SessionFacade to de.hhu.stups.plues.ui.components.timetable
 public class SessionHelper {
 
   private SessionHelper() {
@@ -21,6 +20,7 @@ public class SessionHelper {
    * @param sessionFacade SessionFacade
    * @return String text representation of SessionFacade
    */
+  @SuppressWarnings("WeakerAccess")
   public static String displayText(final SessionDisplayFormat displayFormat,
                                    final SessionFacade sessionFacade) {
     final String representation;
@@ -31,7 +31,6 @@ public class SessionHelper {
       case ABSTRACT_UNIT_KEYS:
         final String unitKeys = sessionFacade.getAbstractUnitKeys().stream()
             .map(SessionHelper::trimUnitKey).collect(Collectors.joining(", "));
-
         // display session title if there are no abstract units
         representation = unitKeys.isEmpty() ? sessionFacade.toString() : unitKeys;
         break;
