@@ -14,9 +14,9 @@ import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.detailview.SessionDetailView.CourseTableEntry;
+import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.hhu.stups.plues.ui.layout.SceneFactory;
 
@@ -24,7 +24,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
