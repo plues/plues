@@ -80,24 +80,32 @@ public class TimetableSideBar extends TabPane implements Initializable {
 
     addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
       final Node clickedTab = getClickedTab(mouseEvent);
-      if (clickedTab == null || fadingInProgress) {
-        mouseEvent.consume();
+      if (clickedTab == null) {
         return;
       }
-      if (selectedSubTab == null) {
-        selectedSubTab = this.lookup(".tab:first-child");
-      }
-      if (selectedSubTab.equals(clickedTab)) { // switch state
-        mouseEvent.consume();
-        this.collapsed.set(!this.collapsed.get());
-        if (this.collapsed.get()) {
-          selectedSubTab = null;
-        }
-      } else { // switch tab and make visible
-        selectedSubTab = clickedTab;
-        this.collapsed.set(false);
-      }
+      handleTabClicked(mouseEvent, clickedTab);
     });
+  }
+
+  private void handleTabClicked(MouseEvent mouseEvent, Node clickedTab) {
+    if (fadingInProgress) {
+      mouseEvent.consume();
+      return;
+    }
+
+    if (selectedSubTab == null) {
+      selectedSubTab = this.lookup(".tab:first-child");
+    }
+    if (selectedSubTab.equals(clickedTab)) { // switch state
+      mouseEvent.consume();
+      this.collapsed.set(!this.collapsed.get());
+      if (this.collapsed.get()) {
+        selectedSubTab = null;
+      }
+    } else { // switch tab and make visible
+      selectedSubTab = clickedTab;
+      this.collapsed.set(false);
+    }
   }
 
   /**
