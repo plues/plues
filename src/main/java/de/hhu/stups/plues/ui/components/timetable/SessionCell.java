@@ -73,12 +73,13 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
     uiDataService.conflictMarkedSessionsProperty()
         .addListener((observable, oldValue, newValue) -> setConflictedStyleClass(newValue));
 
-    itemProperty().addListener((observable, oldValue, newValue) -> {
-      sessionCellIsTentative.setText("");
+    sessionCellIsTentative.textProperty().bind(Bindings.createStringBinding(() -> {
+      SessionFacade newValue = getItem();
       if (newValue != null && newValue.isTentative()) {
-        sessionCellIsTentative.setText("T: ");
+        return "T: ";
       }
-    });
+      return "";
+    }, itemProperty()));
 
     sessionCellText.textProperty().bind(Bindings.createStringBinding(() -> {
       if (getItem() == null) {
