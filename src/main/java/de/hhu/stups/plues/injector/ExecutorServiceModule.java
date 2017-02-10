@@ -3,7 +3,6 @@ package de.hhu.stups.plues.injector;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
 
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 
