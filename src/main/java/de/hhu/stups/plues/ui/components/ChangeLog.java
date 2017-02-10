@@ -12,6 +12,7 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -20,10 +21,12 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 
 import java.net.URL;
 import java.util.Date;
@@ -85,14 +88,22 @@ public class ChangeLog extends VBox implements Initializable, Observer {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>> srcColumnCallback
+        = param -> new ReadOnlyStringWrapper(
+            String.format("%s %d", param.getValue().getSrcDay(), param.getValue().getSrcTime()));
+
+    Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
+        targetColumnCallback = param -> new ReadOnlyStringWrapper(
+              String.format("%s %d", param.getValue().getSrcDay(), param.getValue().getSrcTime()));
+
     tableColumnSessionTemporary.setCellValueFactory(new PropertyValueFactory<>("session"));
-    tableColumnSourceTemporary.setCellValueFactory(new PropertyValueFactory<>("src"));
-    tableColumnTargetTemporary.setCellValueFactory(new PropertyValueFactory<>("target"));
+    tableColumnSourceTemporary.setCellValueFactory(srcColumnCallback);
+    tableColumnTargetTemporary.setCellValueFactory(targetColumnCallback);
     tableColumnDateTemporary.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
     tableColumnSessionPersistent.setCellValueFactory(new PropertyValueFactory<>("session"));
-    tableColumnSourcePersistent.setCellValueFactory(new PropertyValueFactory<>("src"));
-    tableColumnTargetPersistent.setCellValueFactory(new PropertyValueFactory<>("target"));
+    tableColumnSourcePersistent.setCellValueFactory(srcColumnCallback);
+    tableColumnTargetPersistent.setCellValueFactory(targetColumnCallback);
     tableColumnDatePersistent.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
     updateBinding();
