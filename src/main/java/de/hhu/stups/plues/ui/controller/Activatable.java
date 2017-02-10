@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.ui.controller;
 
-import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 
