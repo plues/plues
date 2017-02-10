@@ -8,6 +8,7 @@ import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -79,21 +80,12 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
       }
     });
 
-    sessionCellText.textProperty().bind(new StringBinding() {
-      {
-        bind(itemProperty());
-        bind(uiDataService.sessionDisplayFormatProperty());
+    sessionCellText.textProperty().bind(Bindings.createStringBinding(() -> {
+      if (getItem() == null) {
+        return null;
       }
-
-      @Override
-      protected String computeValue() {
-        if (getItem() == null) {
-          return null;
-        }
-
-        return displayText(getItem());
-      }
-    });
+      return displayText(getItem());
+    }, itemProperty(), uiDataService.sessionDisplayFormatProperty()));
   }
 
   private void setConflictedStyleClass(final List<Integer> sessionIDs) {
