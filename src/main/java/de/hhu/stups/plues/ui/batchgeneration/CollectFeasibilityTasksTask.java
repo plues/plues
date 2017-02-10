@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> {
 
-  private final ResourceBundle resources;
   private final SolverService solverService;
   private final List<Course> majorCourses;
   private final List<Course> minorCourses;
@@ -49,7 +48,7 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
     this.standaloneCourses = standaloneCourses;
     this.results = results;
     this.impossibleCourses = impossibleCourses;
-    resources = ResourceBundle.getBundle("lang.conflictMatrix");
+    ResourceBundle resources = ResourceBundle.getBundle("lang.conflictMatrix");
 
     updateTitle(resources.getString("preparing"));
     updateProgress(0, 100);
