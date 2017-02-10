@@ -17,7 +17,6 @@ import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.timetable.SemesterChooser;
 import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
-import de.hhu.stups.plues.ui.components.timetable.SessionHelper;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
@@ -391,7 +390,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     @Override
     protected Comparator<SessionFacade> computeValue() {
-      return SessionHelper.comparator(uiDataService.getSessionDisplayFormat());
+      return SessionFacade.displayTextComparator(uiDataService.getSessionDisplayFormat());
     }
   }
 }

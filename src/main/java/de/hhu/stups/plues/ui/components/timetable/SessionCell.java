@@ -150,6 +150,6 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
   @SuppressWarnings("unused")
   private String displayText(final SessionFacade sessionFacade) {
     final SessionDisplayFormat displayFormat = uiDataService.sessionDisplayFormatProperty().get();
-    return SessionHelper.displayText(displayFormat, sessionFacade);
+    return sessionFacade.displayText(displayFormat);
   }
 }

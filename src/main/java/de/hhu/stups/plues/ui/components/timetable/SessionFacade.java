@@ -10,6 +10,8 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 import java.time.DayOfWeek;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
@@ -95,6 +97,69 @@ public class SessionFacade {
 
   public String getTitle() {
     return session.getGroup().getUnit().getTitle();
+  }
+
+  /**
+   * Compute a text representation for the current session based on a given
+   * {@link de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat}.
+   * @param displayFormat SessionDisplayFormat
+   * @return String representation of the session
+   */
+  public String displayText(SessionDisplayFormat displayFormat) {
+    final String representation;
+    switch (displayFormat) {
+      case TITLE:
+        representation = this.getTitle();
+        break;
+      case ABSTRACT_UNIT_KEYS:
+        final String unitKeys = this.getAbstractUnitKeys().stream()
+              .map(SessionFacade::trimUnitKey).collect(Collectors.joining(", "));
+        // display session title if there are no abstract units
+        representation = unitKeys.isEmpty() ? this.toString() : unitKeys;
+        break;
+      case UNIT_KEY:
+      default:
+        representation = String.format("%s/%d", this.getUnitKey(), this.getGroupId());
+        break;
+    }
+    return representation;
+  }
+
+  /**
+   * Adapt a unit key to be displayed within the timetable view, i.e. remove the key's prefix for
+   * WiWi data like 'W-WiWi' or 'W-Wichem' and for all other data remove the first letter in the
+   * key, e.g. 'P-..'.
+   */
+  @SuppressWarnings("unused")
+  private static String trimUnitKey(final String unitKey) {
+    final List<String> splittedKey = Arrays.asList(unitKey.split("-"));
+    if ("w".equalsIgnoreCase(splittedKey.get(0))) {
+      return splittedKey.subList(2, splittedKey.size()).stream()
+        .collect(Collectors.joining("-"));
+    } else {
+      return splittedKey.subList(1, splittedKey.size()).stream()
+        .collect(Collectors.joining("-"));
+    }
+  }
+
+  /**
+   * Build a displayTextComparator to compare sessionFacade objects based on a given
+   * SessionDisplayFormat.
+   * @param sessionDisplayFormat SessionDisplayFormat
+   * @return Comparator for SessionFacade objects
+   */
+  public static Comparator<SessionFacade> displayTextComparator(
+        final SessionDisplayFormat sessionDisplayFormat) {
+
+    switch (sessionDisplayFormat) {
+      case TITLE:
+        return Comparator.comparing(SessionFacade::getTitle);
+      case ABSTRACT_UNIT_KEYS:
+        return Comparator.comparing(facade -> facade.getAbstractUnitKeys().toString());
+      case UNIT_KEY:
+      default:
+        return Comparator.comparing(SessionFacade::getUnitKey);
+    }
   }
 
   public static class Slot {
