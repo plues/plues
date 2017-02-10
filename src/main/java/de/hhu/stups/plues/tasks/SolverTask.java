@@ -94,7 +94,7 @@ public class SolverTask<T> extends Task<T> {
 
     synchronized (SolverTask.class) {
       if (this.isCancelled()) {
-        logger.info("cancelled");
+        logger.info("Task cancelled");
         updateMessage(this.reason);
         return null;
       }
@@ -113,7 +113,7 @@ public class SolverTask<T> extends Task<T> {
         percentage = (percentage + 2) % 90;
         updateProgress(percentage, 100);
         if (this.isCancelled()) {
-          logger.info("cancelled");
+          logger.info("Task cancelled");
           updateMessage(this.reason);
           return null;
         }
