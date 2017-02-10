@@ -27,6 +27,7 @@ import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -69,6 +70,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
 import org.slf4j.Logger;
@@ -759,15 +761,13 @@ public class MainController implements Initializable {
   }
 
   private void showCriticalExceptionDialog(final Throwable ex, final String message) {
-    Platform.runLater(() -> {
-      final ExceptionDialog ed = new ExceptionDialog();
+    final ExceptionDialog ed = new ExceptionDialog();
 
-      ed.setTitle(resources.getString("edTitle"));
-      ed.setHeaderText(message);
-      ed.setException(ex);
+    ed.setTitle(resources.getString("edTitle"));
+    ed.setHeaderText(message);
+    ed.setException(ex);
 
-      ed.showAndWait();
-    });
+    ed.showAndWait();
   }
 
   private void submitTask(final Task<?> task, final ExecutorService exec) {
