@@ -5,9 +5,6 @@ import com.google.inject.assistedinject.Assisted;
 import de.hhu.stups.plues.data.entities.Course;
 
 import javafx.scene.control.ListView;
-import javafx.scene.layout.VBox;
-
-import java.util.Set;
 
 @FunctionalInterface
 public interface FeasibilityBoxFactory {
