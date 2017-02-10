@@ -91,7 +91,8 @@ public class ChangeLog extends VBox implements Initializable, Observer {
 
     Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
         targetColumnCallback = param -> new ReadOnlyStringWrapper(
-              String.format("%s %d", param.getValue().getSrcDay(), param.getValue().getSrcTime()));
+              String.format("%s %d",
+                  param.getValue().getTargetDay(), param.getValue().getTargetTime()));
 
     tableColumnSessionTemporary.setCellValueFactory(new PropertyValueFactory<>("session"));
     tableColumnSourceTemporary.setCellValueFactory(srcColumnCallback);
