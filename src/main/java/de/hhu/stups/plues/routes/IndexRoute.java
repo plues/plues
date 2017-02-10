@@ -2,7 +2,6 @@ package de.hhu.stups.plues.routes;
 
 import com.google.inject.Inject;
 
-import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.scene.Parent;

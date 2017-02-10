@@ -5,11 +5,8 @@ import com.google.inject.Provider;
 
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.components.detailview.ModuleDetailView;
-import de.hhu.stups.plues.ui.layout.Inflater;
 import de.hhu.stups.plues.ui.layout.SceneFactory;
 
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class ModuleDetailViewRoute implements Route {

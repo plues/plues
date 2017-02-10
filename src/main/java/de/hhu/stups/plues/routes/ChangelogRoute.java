@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import de.hhu.stups.plues.ui.components.ChangeLog;
-import de.hhu.stups.plues.ui.controller.Reports;
 import de.hhu.stups.plues.ui.layout.SceneFactory;
 
 import javafx.stage.Stage;

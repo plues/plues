@@ -7,7 +7,6 @@ import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.ui.components.detailview.UnitDetailView;
 import de.hhu.stups.plues.ui.layout.SceneFactory;
 
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class UnitDetailViewRoute implements Route {
