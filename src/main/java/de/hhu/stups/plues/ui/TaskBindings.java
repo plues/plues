@@ -12,6 +12,10 @@ public class TaskBindings {
 
   private static final String ICON_SIZE = "50";
 
+  TaskBindings() {
+    throw new IllegalAccessError("Utility class");
+  }
+
   /**
    * Wrapper for collecting the icon binding for a given task that uses the default icon size.
    *
