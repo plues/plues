@@ -148,7 +148,7 @@ public class SessionListView extends ListView<SessionFacade> {
       store.moveSession(sessionId, slot.getDayString(), slot.getTime());
       Optional<SessionFacade> optionalSessionFacade =
           sessions.stream().filter(sessionFacade -> sessionFacade.getId() == sessionId).findFirst();
-      optionalSessionFacade.ifPresent(sessionFacade -> sessionFacade.slotProperty().setValue(slot));
+      optionalSessionFacade.ifPresent(sessionFacade -> sessionFacade.setSlot(slot));
     });
   }
 

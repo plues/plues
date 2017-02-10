@@ -71,13 +71,15 @@ public class SessionFacade {
 
 
   /**
-   * Set slot of session by defining day and time.
+   * Set slot of SessionFacade and session.
+   * @param slot SessionFacade.Slot
    */
-  public void setSlot(final String day, final String time) {
-    session.setDay(day);
-    session.setTime(Integer.parseInt(time));
-    Platform.runLater(() -> slotObjectProperty.set(new Slot(getDayOfWeek(), session.getTime())));
+  public void setSlot(Slot slot) {
+    session.setDay(slot.getDayString());
+    session.setTime(slot.getTime());
+    Platform.runLater(() -> slotObjectProperty.set(slot));
   }
+
 
   public Session getSession() {
     return session;
