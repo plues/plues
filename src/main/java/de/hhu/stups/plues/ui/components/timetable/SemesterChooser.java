@@ -49,8 +49,8 @@ public class SemesterChooser extends SegmentedButton {
     selectedSemestersBinding = new SelectedSemestersBinding();
     selectedSemesters.bind(selectedSemestersBinding);
 
-    EventHandler<MouseEvent> handleMouseClicked = this::handleMouseClicked;
-    EventHandler<KeyEvent> handleKeyPressed = this::handleKeyPressed;
+    final EventHandler<MouseEvent> handleMouseClicked = this::handleMouseClicked;
+    final EventHandler<KeyEvent> handleKeyPressed = this::handleKeyPressed;
 
     getButtons().addListener((ListChangeListener<ToggleButton>) c -> {
       while (c.next()) {
