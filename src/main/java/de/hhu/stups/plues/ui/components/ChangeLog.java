@@ -10,9 +10,14 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.ListBinding;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
@@ -25,6 +30,7 @@ import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ChangeLog extends VBox implements Initializable, Observer {
@@ -126,36 +132,36 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   }
 
   private void updateBinding() {
-    final ListBinding<Log> persistentBinding = new ListBinding<Log>() {
+    final SortedList<Log> sortedList
+          = logs.sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+
+    final FilteredList<Log> persistentList = new FilteredList<>(sortedList);
+    persistentList.predicateProperty().bind(new ObjectBinding<Predicate<Log>>() {
       {
-        bind(logs, compare);
+        bind(compare);
       }
 
       @Override
-      protected ObservableList<Log> computeValue() {
-        return logs.stream()
-          .filter(log -> log.getCreatedAt().compareTo(compare.get()) < 0)
-          .sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()))
-          .collect(Collectors.toCollection(FXCollections::observableArrayList));
+      protected Predicate<Log> computeValue() {
+        return log -> log.getCreatedAt().compareTo(compare.get()) < 0;
       }
-    };
+    });
 
-    final ListBinding<Log> tempBinding = new ListBinding<Log>() {
+    final FilteredList<Log> tempList = new FilteredList<>(sortedList);
+    tempList.predicateProperty().bind(new ObjectBinding<Predicate<Log>>() {
       {
-        bind(logs, compare);
+        bind(compare);
       }
 
       @Override
-      protected ObservableList<Log> computeValue() {
-        return logs.stream()
-          .filter(log -> log.getCreatedAt().compareTo(compare.get()) > 0)
-          .sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()))
-          .collect(Collectors.toCollection(FXCollections::observableArrayList));
+      protected Predicate<Log> computeValue() {
+        return log -> log.getCreatedAt().compareTo(compare.get()) > 0;
       }
-    };
+    });
 
-    getPersistentTable().itemsProperty().bind(persistentBinding);
-    getTempTable().itemsProperty().bind(tempBinding);
+
+    getPersistentTable().itemsProperty().bind(new SimpleListProperty<>(persistentList));
+    getTempTable().itemsProperty().bind(new SimpleListProperty<>(tempList));
   }
 
   TableView<Log> getPersistentTable() {
