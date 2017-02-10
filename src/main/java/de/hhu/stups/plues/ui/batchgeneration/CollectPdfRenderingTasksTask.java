@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
   private final SolverService solverService;
@@ -54,23 +55,26 @@ public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
     final Set<PdfRenderingTask> tasks
         = new HashSet<>(majors.size() * minors.size());
 
-    for (final Course majorCourse : majors) {
-      SolverTask<FeasibilityResult> solverTask;
+    majors.forEach(majorCourse -> {
       if (!majorCourse.isCombinable()) {
-        solverTask = solverService.computeFeasibilityTask(majorCourse);
-        final PdfRenderingTask task = taskFactory.create(majorCourse, null, solverTask);
+        final PdfRenderingTask task
+            = taskFactory.create(majorCourse, null,
+                solverService.computeFeasibilityTask(majorCourse));
         tasks.add(task);
       } else {
-        for (final Course minorCourse : minors) {
-          if (!majorCourse.isCombinableWith(minorCourse)) {
-            continue;
-          }
-          solverTask = solverService.computeFeasibilityTask(majorCourse, minorCourse);
-          tasks.add(taskFactory.create(majorCourse, minorCourse, solverTask));
-        }
+        tasks.addAll(collectCourseCombinationTasks(majorCourse));
       }
-    }
+    });
     return tasks;
+  }
+
+  private List<PdfRenderingTask> collectCourseCombinationTasks(Course majorCourse) {
+    return minors.stream()
+        .filter(majorCourse::isCombinableWith)
+        .map(minorCourse -> taskFactory.create(
+            majorCourse, minorCourse,
+            solverService.computeFeasibilityTask(majorCourse, minorCourse)))
+        .collect(Collectors.toList());
   }
 
   @Override
