@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,7 +23,6 @@ public class Inflater {
 
   private final FXMLLoader loader;
   private static final ResourceBundle MAIN_BUNDLE = ResourceBundle.getBundle("lang.main");
-  private final Logger logger = LoggerFactory.logger(getClass());
 
   @Inject
   public Inflater(final FXMLLoader loader) {
@@ -96,6 +94,7 @@ public class Inflater {
     try {
       return loader.load();
     } catch (final IOException ignored) {
+      final Logger logger = LoggerFactory.logger(getClass());
       logger.error("Exception in FXML Loader", ignored);
       throw new InflaterException(ignored);
     }
