@@ -354,15 +354,16 @@ public class FeasibilityBox extends VBox implements Initializable {
     UNSAT_CORE("unsatCore"),
     CANCEL("cancel");
 
-    public String getKey() {
-      return key;
-    }
-
     private final String key;
 
     Actions(String key) {
       this.key = key;
     }
+
+    public String getKey() {
+      return key;
+    }
+
   }
 
   private static class ActionsStringConverter extends StringConverter<Actions> {
