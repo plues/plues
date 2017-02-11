@@ -227,8 +227,7 @@ public class FeasibilityBox extends VBox implements Initializable {
 
     switch (selectedItem) {
       case OPEN_IN_TIMETABLE:
-        router.transitionTo(RouteNames.TIMETABLE, new Course[] {this.major, this.minor},
-              resultState);
+        openInTimetableAction();
         break;
       case RESTART_COMPUTATION:
         initFeasibilityTask();
@@ -255,6 +254,17 @@ public class FeasibilityBox extends VBox implements Initializable {
       default:
         break;
     }
+  }
+
+  private void openInTimetableAction() {
+    final Course[] courses;
+    if (this.minor != null) {
+      courses = new Course[] {this.major, this.minor};
+    } else {
+      courses = new Course[] {this.major};
+    }
+    router.transitionTo(RouteNames.TIMETABLE, courses,
+          resultState);
   }
 
   private void stepwiseUnsatCoreAction() {
