@@ -18,7 +18,6 @@ import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -49,6 +48,8 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   private final Provider<ConflictTree> conflictTreeProvider;
   private static final String ICON_SIZE = "50";
+  private final Course major;
+  private final Course minor;
 
   private String impossibleCourseString;
   private String noConflictString;
@@ -56,8 +57,6 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   private SolverTask<Set<Integer>> unsatCoreTask;
   private SolverTask<Boolean> feasibilityTask;
-  private final ObjectProperty<Course> majorCourseProperty;
-  private final ObjectProperty<Course> minorCourseProperty;
   private final ObjectProperty<ObservableList<Actions>> cbActionItemsProperty;
   private final StringProperty errorMsgProperty;
   private final ExecutorService executorService;
@@ -151,8 +150,8 @@ public class FeasibilityBox extends VBox implements Initializable {
     this.impossibleCourses = uiDataService.getImpossibleCoures();
     this.parent = parent;
 
-    majorCourseProperty = new SimpleObjectProperty<>(majorCourse);
-    minorCourseProperty = new SimpleObjectProperty<>(minorCourse);
+    major = majorCourse;
+    minor = minorCourse;
     cbActionItemsProperty = new SimpleObjectProperty<>();
     errorMsgProperty = new SimpleStringProperty();
 
@@ -165,10 +164,12 @@ public class FeasibilityBox extends VBox implements Initializable {
     impossibleCourseString = resources.getString("impossibleCourse");
     noConflictString = resources.getString("noConflict");
 
-    lbMajor.textProperty()
-        .bind(Bindings.selectString(majorCourseProperty, "fullName"));
-    lbMinor.textProperty()
-        .bind(Bindings.selectString(minorCourseProperty, "fullName"));
+    lbMajor.setText(major.getFullName());
+    if (this.minor != null) {
+      lbMinor.setText(minor.getFullName());
+    } else {
+      lbMinor.setText("");
+    }
 
     lbErrorMsg.textProperty().bind(errorMsgProperty);
 
@@ -183,13 +184,10 @@ public class FeasibilityBox extends VBox implements Initializable {
   }
 
   private void initFeasibilityTask(final SolverService solverService) {
-    final Course cMajor = majorCourseProperty.get();
-    final Course cMinor = minorCourseProperty.get();
-
-    if (cMinor != null) {
-      feasibilityTask = solverService.checkFeasibilityTask(cMajor, cMinor);
+    if (this.minor != null) {
+      feasibilityTask = solverService.checkFeasibilityTask(this.major, this.minor);
     } else {
-      feasibilityTask = solverService.checkFeasibilityTask(cMajor);
+      feasibilityTask = solverService.checkFeasibilityTask(this.major);
     }
 
     feasibilityTask.setOnFailed(event -> {
@@ -200,7 +198,7 @@ public class FeasibilityBox extends VBox implements Initializable {
     feasibilityTask.setOnSucceeded(event -> Platform.runLater(() -> {
       final ObservableList<Actions> actions;
       if (feasibilityTask.getValue()) {
-        if (minorCourseProperty.get() != null) {
+        if (this.minor != null) {
           actions = succeededActionsMajorMinor;
         } else {
           actions = succeededActionsMajorOnly;
@@ -232,8 +230,6 @@ public class FeasibilityBox extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private void submitAction() {
     final Actions selectedItem = cbAction.getSelectionModel().getSelectedItem();
-    final Course majorCourse = majorCourseProperty.get();
-    final Course minorCourse = minorCourseProperty.get();
 
     if (selectedItem == null) {
       return;
@@ -241,7 +237,7 @@ public class FeasibilityBox extends VBox implements Initializable {
 
     switch (selectedItem) {
       case OPEN_IN_TIMETABLE:
-        router.transitionTo(RouteNames.TIMETABLE, new Course[] {majorCourse, minorCourse},
+        router.transitionTo(RouteNames.TIMETABLE, new Course[] {this.major, this.minor},
               resultState);
         break;
       case RESTART_COMPUTATION:
@@ -249,16 +245,16 @@ public class FeasibilityBox extends VBox implements Initializable {
         executorService.submit(feasibilityTask);
         break;
       case GENERATE_PDF:
-        router.transitionTo(RouteNames.PDF_TIMETABLES, majorCourse, minorCourse);
+        router.transitionTo(RouteNames.PDF_TIMETABLES, this.major, this.minor);
         break;
       case GENERATE_PARTIAL:
-        router.transitionTo(RouteNames.PARTIAL_TIMETABLES, majorCourse, minorCourse);
+        router.transitionTo(RouteNames.PARTIAL_TIMETABLES, this.major, this.minor);
         break;
       case STEPWISE_UNSAT_CORE:
-        if (minorCourse != null) {
-          router.transitionTo(RouteNames.UNSAT_CORE, majorCourse, minorCourse);
+        if (this.minor != null) {
+          router.transitionTo(RouteNames.UNSAT_CORE, this.major, this.minor);
         } else {
-          router.transitionTo(RouteNames.UNSAT_CORE, majorCourse);
+          router.transitionTo(RouteNames.UNSAT_CORE, this.major);
         }
         break;
       case REMOVE:
@@ -320,13 +316,10 @@ public class FeasibilityBox extends VBox implements Initializable {
   }
 
   private SolverTask<Set<Integer>> buildUnsatCoreTask() {
-    final Course majorCourse = majorCourseProperty.get();
-    final Course minorCourse = minorCourseProperty.get();
-
-    if (minorCourse != null) {
-      return delayedSolverService.get().unsatCore(majorCourse, minorCourse);
+    if (this.minor != null) {
+      return delayedSolverService.get().unsatCore(this.major, this.minor);
     }
-    return delayedSolverService.get().unsatCore(majorCourse);
+    return delayedSolverService.get().unsatCore(this.major);
   }
 
   /**
@@ -335,9 +328,8 @@ public class FeasibilityBox extends VBox implements Initializable {
    * course. Otherwise just offer the possibility to remove the feasibility box.
    */
   private ObservableList<Actions> getActionsForInfeasibleCourse(final String reason) {
-    if (impossibleCourses.contains(majorCourseProperty.get())
-        || (minorCourseProperty.get() != null
-        && impossibleCourses.contains(minorCourseProperty.get()))) {
+    if (impossibleCourses.contains(this.major)
+        || (this.minor != null && impossibleCourses.contains(this.minor))) {
       errorMsgProperty.setValue(impossibleCourseString);
       return impossibleActions;
     } else if (ResourceBundle.getBundle("lang.tasks").getString("timeout").equals(reason)) {
