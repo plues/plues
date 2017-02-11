@@ -71,39 +71,39 @@ public class FeasibilityBox extends VBox implements Initializable {
   private final ListProperty<Integer> unsatCoreProperty = new SimpleListProperty<>();
 
   // lists of actions for each possible state
-  private final ObservableList<Actions> succeededActionsMajorMinor
+  private static final ObservableList<Actions> succeededActionsMajorMinor
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
                                           Actions.GENERATE_PDF,
                                           Actions.GENERATE_PARTIAL,
                                           Actions.REMOVE);
 
-  private final ObservableList<Actions> succeededActionsMajorOnly
+  private static final ObservableList<Actions> succeededActionsMajorOnly
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
                                           Actions.REMOVE);
 
-  private final ObservableList<Actions> failedWithConflictActions
+  private static final ObservableList<Actions> failedWithConflictActions
       = FXCollections.observableArrayList(Actions.UNSAT_CORE,
                                           Actions.OPEN_IN_TIMETABLE,
                                           Actions.STEPWISE_UNSAT_CORE,
                                           Actions.REMOVE);
 
-  private final ObservableList<Actions> conflictActions
+  private static final ObservableList<Actions> conflictActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
                                           Actions.STEPWISE_UNSAT_CORE,
                                           Actions.REMOVE);
 
-  private final ObservableList<Actions> cancelledActions
+  private static final ObservableList<Actions> cancelledActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
                                           Actions.RESTART_COMPUTATION,
                                           Actions.REMOVE);
 
-  private final ObservableList<Actions> scheduledActions
+  private static final ObservableList<Actions> scheduledActions
       = FXCollections.observableArrayList(Actions.CANCEL);
 
-  private final ObservableList<Actions> impossibleActions
+  private static final ObservableList<Actions> impossibleActions
       = FXCollections.observableArrayList(Actions.REMOVE);
 
-  private final ObservableList<Actions> timeoutActions
+  private static final ObservableList<Actions> timeoutActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
                                           Actions.RESTART_COMPUTATION,
                                           Actions.REMOVE);
