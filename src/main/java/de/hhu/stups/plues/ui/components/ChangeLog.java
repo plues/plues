@@ -147,9 +147,9 @@ public class ChangeLog extends VBox implements Initializable, Observer {
     final FilteredList<Log> tempList = new FilteredList<>(sortedList);
 
     persistentList.predicateProperty().bind(Bindings.createObjectBinding(
-        () -> (log -> log.getCreatedAt().compareTo(compare.get()) < 0), compare));
+        () -> log -> log.getCreatedAt().compareTo(compare.get()) < 0, compare));
     tempList.predicateProperty().bind(Bindings.createObjectBinding(
-        () -> (log -> log.getCreatedAt().compareTo(compare.get()) > 0), compare));
+        () -> log -> log.getCreatedAt().compareTo(compare.get()) > 0, compare));
 
     getPersistentTable().itemsProperty().bind(new SimpleListProperty<>(persistentList));
     getTempTable().itemsProperty().bind(new SimpleListProperty<>(tempList));

@@ -192,7 +192,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         = new FilteredList<>(selectableCourses.filtered(predicate));
 
     filter.predicateProperty().bind(Bindings.createObjectBinding(
-        () -> (row -> row.matches(txtQuery.getText().toLowerCase())),txtQuery.textProperty()));
+        () -> row -> row.matches(txtQuery.getText().toLowerCase()),txtQuery.textProperty()));
     return new SimpleListProperty<>(filter);
   }
 
