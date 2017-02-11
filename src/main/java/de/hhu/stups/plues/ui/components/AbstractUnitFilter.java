@@ -291,8 +291,8 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     UnitFilterPredicateBinding() {
       bind(txtQuery.textProperty(), rbAll.selectedProperty(), rbSelected.selectedProperty(),
-          rbNotSelected.selectedProperty());
-      bind(cbSelectedCoursesOnly.selectedProperty(), courseFilter);
+          rbNotSelected.selectedProperty(), cbSelectedCoursesOnly.selectedProperty(),
+          courseFilter);
     }
 
     @Override
