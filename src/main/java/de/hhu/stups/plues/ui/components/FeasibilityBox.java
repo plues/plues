@@ -5,7 +5,6 @@ import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.RouteNames;
@@ -58,13 +57,13 @@ public class FeasibilityBox extends VBox implements Initializable {
   private String noConflictString;
   private ResultState resultState;
 
-  private SolverTask<Set<Integer>> unsatCoreTask;
-  private SolverTask<Boolean> feasibilityTask;
+  private UnsatCoreTaskManager unsatCoreTaskManager;
+  private FeasibilityTaskManager feasibilityTaskManager;
+
   private final ObjectProperty<ObservableList<Actions>> cbActionItemsProperty;
   private final StringProperty errorMsgProperty;
   private final ExecutorService executorService;
   private final Delayed<SolverService> delayedSolverService;
-  private final Delayed<Store> delayedStore;
   private final Set<Course> impossibleCourses;
   private final Router router;
 
@@ -136,7 +135,6 @@ public class FeasibilityBox extends VBox implements Initializable {
   @Inject
   public FeasibilityBox(final Inflater inflater,
                         final Router router,
-                        final Delayed<Store> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final ExecutorService executorService,
                         final Provider<ConflictTree> conflictTreeProvider,
@@ -146,7 +144,6 @@ public class FeasibilityBox extends VBox implements Initializable {
                         @Assisted final ListView<FeasibilityBox> parent) {
     super();
     this.delayedSolverService = delayedSolverService;
-    this.delayedStore = delayedStore;
     this.router = router;
     this.executorService = executorService;
     this.conflictTreeProvider = conflictTreeProvider;
@@ -180,10 +177,7 @@ public class FeasibilityBox extends VBox implements Initializable {
     initializeCourseLabels();
     initializeActionCheckBox(resources);
 
-    delayedSolverService.whenAvailable(solver -> {
-      initFeasibilityTask();
-      executorService.submit(feasibilityTask);
-    });
+    restartComputationAction();
   }
 
   private void initializeCourseLabels() {
@@ -202,48 +196,25 @@ public class FeasibilityBox extends VBox implements Initializable {
         cbAction.getSelectionModel().selectFirst());
   }
 
-  private void initFeasibilityTask() {
-    feasibilityTask = buildFeasibilityTask();
-
-    feasibilityTask.setOnFailed(event -> {
-      cbActionItemsProperty.setValue(getActionsForInfeasibleCourse(feasibilityTask.getReason()));
-      resultState = ResultState.FAILED;
-    });
-
-    feasibilityTask.setOnSucceeded(this::feasibilityCoreTaskSucceeded);
-
-    feasibilityTask.setOnCancelled(event -> {
-      cbActionItemsProperty.setValue(cancelledActions);
-      resultState = ResultState.FAILED;
-    });
-
-    feasibilityTask.setOnScheduled(event -> cbActionItemsProperty.setValue(scheduledActions));
-
-    progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
-    progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
-
-    lbIcon.visibleProperty().bind(feasibilityTask.runningProperty().not());
-    lbIcon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, feasibilityTask));
-    lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(feasibilityTask));
-  }
-
   @FXML
-  @SuppressWarnings({"unused", "RedundantCast"})
   private void submitAction() {
     final Actions selectedItem = cbAction.getSelectionModel().getSelectedItem();
-    Object coursesArray = (Object) courses;
 
     if (selectedItem == null) {
       return;
     }
+    performAction(selectedItem);
+  }
 
+  @SuppressWarnings("RedundantCast")
+  private void performAction(Actions selectedItem) {
+    Object coursesArray = (Object) courses;
     switch (selectedItem) {
       case OPEN_IN_TIMETABLE:
         router.transitionTo(RouteNames.TIMETABLE, this.courses, resultState);
         break;
       case RESTART_COMPUTATION:
-        initFeasibilityTask();
-        executorService.submit(feasibilityTask);
+        restartComputationAction();
         break;
       case GENERATE_PDF:
         router.transitionTo(RouteNames.PDF_TIMETABLES, coursesArray);
@@ -258,7 +229,7 @@ public class FeasibilityBox extends VBox implements Initializable {
         parent.getItems().remove(this);
         break;
       case UNSAT_CORE:
-        initUnsatCoreTask();
+        unsatCoreAction();
         break;
       case CANCEL:
         cancelAction();
@@ -268,87 +239,36 @@ public class FeasibilityBox extends VBox implements Initializable {
     }
   }
 
+  private void unsatCoreAction() {
+    delayedSolverService.whenAvailable(solverService -> {
+      unsatCoreTaskManager = new UnsatCoreTaskManager(solverService);
+      unsatCoreTaskManager.start();
+    });
+  }
+
+  private void restartComputationAction() {
+    delayedSolverService.whenAvailable(solverService -> {
+      feasibilityTaskManager = new FeasibilityTaskManager(solverService);
+      feasibilityTaskManager.start();
+    });
+  }
+
   private void cancelAction() {
-    if (feasibilityTask.isRunning()) {
+    if (feasibilityTaskManager.isRunning()) {
       interrupt();
       cbActionItemsProperty.setValue(cancelledActions);
-    } else if (unsatCoreTask.isRunning()) {
-      unsatCoreTask.cancel(true);
+    } else if (unsatCoreTaskManager.isRunning()) {
+      unsatCoreTaskManager.cancel(true);
     }
   }
 
-  /**
-   * Initialize and submit the {@link #unsatCoreTask task} to compute the unsat core and set all its
-   * necessary listeners. If the task succeeded the {@link ConflictTree} is dynamically added to the
-   * {@link this FeasibilityBox}. Otherwise the unsat core computation failed and an error message
-   * is shown to the user.
-   */
-  private void initUnsatCoreTask() {
-    unsatCoreTask = buildUnsatCoreTask();
 
-    unsatCoreTask.setOnSucceeded(this::unsatCoreTaskSucceeded);
-
-    unsatCoreTask.setOnCancelled(unsatCore -> {
-      if (ResourceBundle.getBundle("lang.tasks").getString("timeout")
-          .equals(unsatCoreTask.getReason())) {
-        errorMsgProperty.setValue(noConflictString);
-      }
-      cbActionItemsProperty.setValue(failedWithConflictActions);
-    });
-
-    unsatCoreTask.setOnFailed(unsatCore -> {
-      errorMsgProperty.setValue(noConflictString);
-      cbActionItemsProperty.setValue(conflictActions);
-    });
-
-    unsatCoreTask.setOnScheduled(unsatCore -> cbActionItemsProperty.setValue(scheduledActions));
-
-    executorService.submit(unsatCoreTask);
-  }
-
-  @SuppressWarnings("unused")
-  private void feasibilityCoreTaskSucceeded(WorkerStateEvent event) {
-    Platform.runLater(() -> {
-      final ObservableList<Actions> actions;
-      boolean feasible = feasibilityTask.getValue();
-
-      if (feasible) {
-        actions = getActionsForFeasibleCourse();
-      } else {
-        actions = getActionsForInfeasibleCourse("");
-      }
-
-      cbActionItemsProperty.setValue(actions);
-      resultState = ResultState.SUCCEEDED;
-    });
-  }
 
   private ObservableList<Actions> getActionsForFeasibleCourse() {
     if (this.minor != null) {
       return succeededActionsMajorMinor;
     }
     return succeededActionsMajorOnly;
-  }
-
-  @SuppressWarnings("unused")
-  private void unsatCoreTaskSucceeded(WorkerStateEvent event) {
-    Platform.runLater(() -> {
-      unsatCoreProperty.set(FXCollections.observableArrayList(unsatCoreTask.getValue()));
-
-      final ConflictTree conflictTree = conflictTreeProvider.get();
-      conflictTree.setUnsatCoreProperty(unsatCoreProperty, delayedStore.get());
-      getChildren().add(conflictTree);
-
-      cbActionItemsProperty.setValue(conflictActions);
-    });
-  }
-
-  private SolverTask<Set<Integer>> buildUnsatCoreTask() {
-    return delayedSolverService.get().unsatCore(this.courses);
-  }
-
-  private SolverTask<Boolean> buildFeasibilityTask() {
-    return delayedSolverService.get().checkFeasibilityTask(this.courses);
   }
 
   /**
@@ -370,7 +290,7 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   @FXML
   private void interrupt() {
-    feasibilityTask.cancel();
+    feasibilityTaskManager.cancel();
   }
 
   private enum Actions {
@@ -411,6 +331,146 @@ public class FeasibilityBox extends VBox implements Initializable {
     @Override
     public Actions fromString(String string) {
       throw new IllegalAccessError("not supported");
+    }
+  }
+
+  /**
+   * Initialize and submit the {@link #unsatCoreTask task} to compute the unsat core and set all its
+   * necessary listeners. If the task succeeded the {@link ConflictTree} is dynamically added to the
+   * {@link this FeasibilityBox}. Otherwise the unsat core computation failed and an error message
+   * is shown to the user.
+   */
+  private class UnsatCoreTaskManager {
+    private final SolverTask<Set<Integer>> unsatCoreTask;
+
+    private UnsatCoreTaskManager(SolverService solverService) {
+      this.unsatCoreTask = solverService.unsatCore(courses);
+
+      unsatCoreTask.setOnSucceeded(this::taskSucceeded);
+      unsatCoreTask.setOnCancelled(this::taskCancelled);
+      unsatCoreTask.setOnFailed(this::taskFailed);
+      unsatCoreTask.setOnScheduled(this::taskScheduled);
+    }
+
+    @SuppressWarnings("unused")
+    private void taskScheduled(WorkerStateEvent workerStateEvent) {
+      cbActionItemsProperty.setValue(scheduledActions);
+    }
+
+    @SuppressWarnings("unused")
+    private void taskFailed(WorkerStateEvent workerStateEvent) {
+      errorMsgProperty.setValue(noConflictString);
+      cbActionItemsProperty.setValue(conflictActions);
+    }
+
+    @SuppressWarnings("unused")
+    private void taskCancelled(WorkerStateEvent workerStateEvent) {
+      if (ResourceBundle.getBundle("lang.tasks").getString("timeout")
+            .equals(unsatCoreTask.getReason())) {
+        errorMsgProperty.setValue(noConflictString);
+      }
+      cbActionItemsProperty.setValue(failedWithConflictActions);
+    }
+
+    @SuppressWarnings("unused")
+    private void taskSucceeded(WorkerStateEvent workerStateEvent) {
+      Platform.runLater(() -> {
+        unsatCoreProperty.set(FXCollections.observableArrayList(unsatCoreTask.getValue()));
+
+        final ConflictTree conflictTree = conflictTreeProvider.get();
+        conflictTree.setUnsatCoreProperty(unsatCoreProperty);
+        getChildren().add(conflictTree);
+
+        cbActionItemsProperty.setValue(conflictActions);
+      });
+    }
+
+    public boolean isRunning() {
+      return (this.unsatCoreTask != null && this.unsatCoreTask.isRunning());
+    }
+
+    public void cancel(boolean mayInterruptIfRunning) {
+      if (this.unsatCoreTask == null) {
+        return;
+      }
+      this.unsatCoreTask.cancel(mayInterruptIfRunning);
+    }
+
+    public void start() {
+      executorService.submit(unsatCoreTask);
+    }
+  }
+
+  private class FeasibilityTaskManager {
+    private final SolverTask<Boolean> feasibilityTask;
+
+    private FeasibilityTaskManager(SolverService solverService) {
+      feasibilityTask = solverService.checkFeasibilityTask(courses);
+
+      feasibilityTask.setOnFailed(this::taskFailed);
+      feasibilityTask.setOnSucceeded(this::taskSucceeded);
+      feasibilityTask.setOnCancelled(this::taskCancelled);
+      feasibilityTask.setOnScheduled(this::taskScheduled);
+
+      setupBindings();
+    }
+
+    private void setupBindings() {
+      progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
+      progressIndicator.visibleProperty().bind(feasibilityTask.runningProperty());
+
+      lbIcon.visibleProperty().bind(feasibilityTask.runningProperty().not());
+      lbIcon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, feasibilityTask));
+      lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(feasibilityTask));
+    }
+
+    @SuppressWarnings("unused")
+    private void taskFailed(WorkerStateEvent workerStateEvent) {
+      cbActionItemsProperty.setValue(getActionsForInfeasibleCourse(feasibilityTask.getReason()));
+      resultState = ResultState.FAILED;
+    }
+
+    @SuppressWarnings("unused")
+    private void taskScheduled(WorkerStateEvent workerStateEvent) {
+      cbActionItemsProperty.setValue(scheduledActions);
+    }
+
+    @SuppressWarnings("unused")
+    private void taskCancelled(WorkerStateEvent workerStateEvent) {
+      cbActionItemsProperty.setValue(cancelledActions);
+      resultState = ResultState.FAILED;
+    }
+
+    @SuppressWarnings("unused")
+    private void taskSucceeded(WorkerStateEvent event) {
+      Platform.runLater(() -> {
+        final ObservableList<Actions> actions;
+        boolean feasible = (boolean) event.getSource().getValue();
+
+        if (feasible) {
+          actions = getActionsForFeasibleCourse();
+        } else {
+          actions = getActionsForInfeasibleCourse("");
+        }
+
+        cbActionItemsProperty.setValue(actions);
+        resultState = ResultState.SUCCEEDED;
+      });
+    }
+
+    public void start() {
+      executorService.submit(feasibilityTask);
+    }
+
+    public boolean isRunning() {
+      return feasibilityTask != null && feasibilityTask.isRunning();
+    }
+
+    public void cancel() {
+      if (feasibilityTask == null) {
+        return;
+      }
+      feasibilityTask.cancel();
     }
   }
 }

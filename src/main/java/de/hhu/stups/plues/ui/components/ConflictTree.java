@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components;
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.RouteNames;
@@ -43,6 +44,7 @@ public class ConflictTree extends VBox implements Initializable {
   private final Map<Integer, String> timeStrings;
   private final UiDataService uiDataService;
   private final Router router;
+  private final Delayed<Store> delayedStore;
 
   private ListProperty<Integer> unsatCoreProperty;
   private ResourceBundle resources;
@@ -69,9 +71,11 @@ public class ConflictTree extends VBox implements Initializable {
    */
   @Inject
   public ConflictTree(final Inflater inflater, final UiDataService uiDataService,
+                      final Delayed<Store> delayedStore,
                       final Router router) {
     this.uiDataService = uiDataService;
     this.router = router;
+    this.delayedStore = delayedStore;
     dayOfWeekStrings = new EnumMap<>(DayOfWeek.class);
     timeStrings = new HashMap<>();
 
@@ -178,11 +182,12 @@ public class ConflictTree extends VBox implements Initializable {
     showConflictResult(conflictSessions);
   }
 
-  void setUnsatCoreProperty(final ListProperty<Integer> unsatCoreProperty, final Store store) {
+  void setUnsatCoreProperty(final ListProperty<Integer> unsatCoreProperty) {
     this.unsatCoreProperty = unsatCoreProperty;
-    setConflictSessions(unsatCoreProperty.get()
-        .stream().map(store::getSessionById)
-        .collect(Collectors.toList()));
+    this.delayedStore.whenAvailable(store ->
+        setConflictSessions(unsatCoreProperty.get()
+            .stream().map(store::getSessionById)
+            .collect(Collectors.toList())));
   }
 
   private void initTreeTableViewValueFactories() {
