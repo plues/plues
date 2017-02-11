@@ -208,22 +208,21 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   @SuppressWarnings("RedundantCast")
   private void performAction(Actions selectedItem) {
-    Object coursesArray = (Object) courses;
     switch (selectedItem) {
       case OPEN_IN_TIMETABLE:
-        router.transitionTo(RouteNames.TIMETABLE, this.courses, resultState);
+        router.transitionTo(RouteNames.TIMETABLE, courses, resultState);
         break;
       case RESTART_COMPUTATION:
         restartComputationAction();
         break;
       case GENERATE_PDF:
-        router.transitionTo(RouteNames.PDF_TIMETABLES, coursesArray);
+        transitionAction(RouteNames.PDF_TIMETABLES);
         break;
       case GENERATE_PARTIAL:
-        router.transitionTo(RouteNames.PARTIAL_TIMETABLES, coursesArray);
+        transitionAction(RouteNames.PARTIAL_TIMETABLES);
         break;
       case STEPWISE_UNSAT_CORE:
-        router.transitionTo(RouteNames.UNSAT_CORE, coursesArray);
+        transitionAction(RouteNames.UNSAT_CORE);
         break;
       case REMOVE:
         parent.getItems().remove(this);
@@ -236,6 +235,14 @@ public class FeasibilityBox extends VBox implements Initializable {
         break;
       default:
         break;
+    }
+  }
+
+  private void transitionAction(RouteNames route) {
+    if (minor == null) {
+      router.transitionTo(route, major);
+    } else {
+      router.transitionTo(route, major, minor);
     }
   }
 
