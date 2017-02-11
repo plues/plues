@@ -270,31 +270,6 @@ public class FeasibilityBox extends VBox implements Initializable {
   }
 
 
-
-  private ObservableList<Actions> getActionsForFeasibleCourse() {
-    if (this.minor != null) {
-      return succeededActionsMajorMinor;
-    }
-    return succeededActionsMajorOnly;
-  }
-
-  /**
-   * Get the strings of the actions in {@link #cbAction} for infeasible courses, i.e. compute the
-   * unsat core if the course is not impossible or the combination does not contain an impossible
-   * course. Otherwise just offer the possibility to remove the feasibility box.
-   */
-  private ObservableList<Actions> getActionsForInfeasibleCourse(final String reason) {
-    if (impossibleCourses.contains(this.major)
-        || (this.minor != null && impossibleCourses.contains(this.minor))) {
-      errorMsgProperty.setValue(impossibleCourseString);
-      return impossibleActions;
-    } else if (ResourceBundle.getBundle("lang.tasks").getString("timeout").equals(reason)) {
-      return timeoutActions;
-    } else {
-      return failedWithConflictActions;
-    }
-  }
-
   @FXML
   private void interrupt() {
     feasibilityTaskManager.cancel();
@@ -464,6 +439,32 @@ public class FeasibilityBox extends VBox implements Initializable {
         resultState = ResultState.SUCCEEDED;
       });
     }
+
+    /**
+     * Get the strings of the actions in {@link #cbAction} for infeasible courses, i.e. compute the
+     * unsat core if the course is not impossible or the combination does not contain an impossible
+     * course. Otherwise just offer the possibility to remove the feasibility box.
+     */
+    private ObservableList<Actions> getActionsForInfeasibleCourse(final String reason) {
+      if (impossibleCourses.contains(major)
+            || (minor != null && impossibleCourses.contains(minor))) {
+        errorMsgProperty.setValue(impossibleCourseString);
+        return impossibleActions;
+      } else if (ResourceBundle.getBundle("lang.tasks").getString("timeout").equals(reason)) {
+        return timeoutActions;
+      } else {
+        return failedWithConflictActions;
+      }
+    }
+
+
+    private ObservableList<Actions> getActionsForFeasibleCourse() {
+      if (minor != null) {
+        return succeededActionsMajorMinor;
+      }
+      return succeededActionsMajorOnly;
+    }
+
 
     public void start() {
       executorService.submit(feasibilityTask);
