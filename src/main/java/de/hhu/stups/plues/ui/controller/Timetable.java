@@ -50,7 +50,6 @@ import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -195,7 +194,9 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     view.setSessions(sessions);
 
     final SortedList<SessionFacade> sortedSessions = sessions.sorted();
-    sortedSessions.comparatorProperty().bind(new ComparatorObjectBinding());
+    sortedSessions.comparatorProperty().bind(Bindings.createObjectBinding(
+        () -> SessionFacade.displayTextComparator(uiDataService.getSessionDisplayFormat()),
+        uiDataService.sessionDisplayFormatProperty()));
 
     final FilteredList<SessionFacade> slotSessions
         = sortedSessions.filtered(facade -> facade.getSlot().equals(slot));
@@ -380,17 +381,6 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
       final Set<Integer> selectedSemesters = semesterToggle.getSelectedSemesters();
 
       return new FilterPredicate(filteredCourses, filteredAbstractUnits, selectedSemesters);
-    }
-  }
-
-  private class ComparatorObjectBinding extends ObjectBinding<Comparator<SessionFacade>> {
-    ComparatorObjectBinding() {
-      bind(uiDataService.sessionDisplayFormatProperty());
-    }
-
-    @Override
-    protected Comparator<SessionFacade> computeValue() {
-      return SessionFacade.displayTextComparator(uiDataService.getSessionDisplayFormat());
     }
   }
 }

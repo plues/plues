@@ -9,7 +9,7 @@ import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
-import javafx.beans.binding.ObjectBinding;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleListProperty;
@@ -31,7 +31,6 @@ import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
-import java.util.function.Predicate;
 
 public class ChangeLog extends VBox implements Initializable, Observer {
 
@@ -145,29 +144,12 @@ public class ChangeLog extends VBox implements Initializable, Observer {
           = logs.sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
 
     final FilteredList<Log> persistentList = new FilteredList<>(sortedList);
-    persistentList.predicateProperty().bind(new ObjectBinding<Predicate<Log>>() {
-      {
-        bind(compare);
-      }
-
-      @Override
-      protected Predicate<Log> computeValue() {
-        return log -> log.getCreatedAt().compareTo(compare.get()) < 0;
-      }
-    });
-
     final FilteredList<Log> tempList = new FilteredList<>(sortedList);
-    tempList.predicateProperty().bind(new ObjectBinding<Predicate<Log>>() {
-      {
-        bind(compare);
-      }
 
-      @Override
-      protected Predicate<Log> computeValue() {
-        return log -> log.getCreatedAt().compareTo(compare.get()) > 0;
-      }
-    });
-
+    persistentList.predicateProperty().bind(Bindings.createObjectBinding(
+        () -> (log -> log.getCreatedAt().compareTo(compare.get()) < 0), compare));
+    tempList.predicateProperty().bind(Bindings.createObjectBinding(
+        () -> (log -> log.getCreatedAt().compareTo(compare.get()) > 0), compare));
 
     getPersistentTable().itemsProperty().bind(new SimpleListProperty<>(persistentList));
     getTempTable().itemsProperty().bind(new SimpleListProperty<>(tempList));

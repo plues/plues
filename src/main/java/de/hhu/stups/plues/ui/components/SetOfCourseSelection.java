@@ -10,7 +10,6 @@ import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
-import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListProperty;
@@ -192,7 +191,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     final FilteredList<SelectableCourse> filter
         = new FilteredList<>(selectableCourses.filtered(predicate));
 
-    filter.predicateProperty().bind(new FilterPredicateBinding());
+    filter.predicateProperty().bind(Bindings.createObjectBinding(
+        () -> (row -> row.matches(txtQuery.getText().toLowerCase())),txtQuery.textProperty()));
     return new SimpleListProperty<>(filter);
   }
 
@@ -334,25 +334,6 @@ public class SetOfCourseSelection extends VBox implements Initializable {
       return FXCollections.observableList(
           courses.stream().map(SelectableCourse::new)
               .collect(Collectors.toList()), SelectableCourse.getExtractor());
-    }
-  }
-
-  private class FilterPredicateBinding extends ObjectBinding<Predicate<? super SelectableCourse>> {
-
-    FilterPredicateBinding() {
-      bind(txtQuery.textProperty());
-    }
-
-    @Override
-    public void dispose() {
-      super.dispose();
-      unbind(txtQuery.textProperty());
-    }
-
-    @Override
-    protected Predicate<? super SelectableCourse> computeValue() {
-      final String query = txtQuery.getText().toLowerCase();
-      return row -> row.matches(query);
     }
   }
 }
