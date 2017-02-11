@@ -49,8 +49,10 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   private final Provider<ConflictTree> conflictTreeProvider;
   private static final String ICON_SIZE = "50";
+
   private final Course major;
   private final Course minor;
+  private final Course[] courses;
 
   private String impossibleCourseString;
   private String noConflictString;
@@ -153,10 +155,19 @@ public class FeasibilityBox extends VBox implements Initializable {
 
     major = majorCourse;
     minor = minorCourse;
+    courses = buildCourses(majorCourse, minorCourse);
+
     cbActionItemsProperty = new SimpleObjectProperty<>();
     errorMsgProperty = new SimpleStringProperty();
 
     inflater.inflate("components/FeasibilityBox", this, this, "feasibilityBox");
+  }
+
+  private Course[] buildCourses(Course major, Course minor) {
+    if (minor == null) {
+      return new Course[] {major};
+    }
+    return new Course[] {major, minor};
   }
 
   @Override
@@ -217,9 +228,10 @@ public class FeasibilityBox extends VBox implements Initializable {
   }
 
   @FXML
-  @SuppressWarnings("unused")
+  @SuppressWarnings({"unused", "RedundantCast"})
   private void submitAction() {
     final Actions selectedItem = cbAction.getSelectionModel().getSelectedItem();
+    Object coursesArray = (Object) courses;
 
     if (selectedItem == null) {
       return;
@@ -227,20 +239,20 @@ public class FeasibilityBox extends VBox implements Initializable {
 
     switch (selectedItem) {
       case OPEN_IN_TIMETABLE:
-        openInTimetableAction();
+        router.transitionTo(RouteNames.TIMETABLE, this.courses, resultState);
         break;
       case RESTART_COMPUTATION:
         initFeasibilityTask();
         executorService.submit(feasibilityTask);
         break;
       case GENERATE_PDF:
-        router.transitionTo(RouteNames.PDF_TIMETABLES, this.major, this.minor);
+        router.transitionTo(RouteNames.PDF_TIMETABLES, coursesArray);
         break;
       case GENERATE_PARTIAL:
-        router.transitionTo(RouteNames.PARTIAL_TIMETABLES, this.major, this.minor);
+        router.transitionTo(RouteNames.PARTIAL_TIMETABLES, coursesArray);
         break;
       case STEPWISE_UNSAT_CORE:
-        stepwiseUnsatCoreAction();
+        router.transitionTo(RouteNames.UNSAT_CORE, coursesArray);
         break;
       case REMOVE:
         parent.getItems().remove(this);
@@ -253,25 +265,6 @@ public class FeasibilityBox extends VBox implements Initializable {
         break;
       default:
         break;
-    }
-  }
-
-  private void openInTimetableAction() {
-    final Course[] courses;
-    if (this.minor != null) {
-      courses = new Course[] {this.major, this.minor};
-    } else {
-      courses = new Course[] {this.major};
-    }
-    router.transitionTo(RouteNames.TIMETABLE, courses,
-          resultState);
-  }
-
-  private void stepwiseUnsatCoreAction() {
-    if (this.minor != null) {
-      router.transitionTo(RouteNames.UNSAT_CORE, this.major, this.minor);
-    } else {
-      router.transitionTo(RouteNames.UNSAT_CORE, this.major);
     }
   }
 
@@ -351,17 +344,11 @@ public class FeasibilityBox extends VBox implements Initializable {
   }
 
   private SolverTask<Set<Integer>> buildUnsatCoreTask() {
-    if (this.minor != null) {
-      return delayedSolverService.get().unsatCore(this.major, this.minor);
-    }
-    return delayedSolverService.get().unsatCore(this.major);
+    return delayedSolverService.get().unsatCore(this.courses);
   }
 
   private SolverTask<Boolean> buildFeasibilityTask() {
-    if (this.minor != null) {
-      return delayedSolverService.get().checkFeasibilityTask(this.major, this.minor);
-    }
-    return delayedSolverService.get().checkFeasibilityTask(this.major);
+    return delayedSolverService.get().checkFeasibilityTask(this.courses);
   }
 
   /**
