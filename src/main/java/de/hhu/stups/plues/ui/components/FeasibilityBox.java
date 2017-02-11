@@ -282,14 +282,7 @@ public class FeasibilityBox extends VBox implements Initializable {
    * is shown to the user.
    */
   private void initUnsatCoreTask() {
-    final Course majorCourse = majorCourseProperty.get();
-    final Course minorCourse = minorCourseProperty.get();
-
-    if (minorCourse != null) {
-      unsatCoreTask = delayedSolverService.get().unsatCore(majorCourse, minorCourse);
-    } else {
-      unsatCoreTask = delayedSolverService.get().unsatCore(majorCourse);
-    }
+    unsatCoreTask = buildUnsatCoreTask();
 
     unsatCoreTask.setOnSucceeded(unsatCore -> {
       unsatCoreProperty.set(FXCollections.observableArrayList(unsatCoreTask.getValue()));
@@ -315,6 +308,16 @@ public class FeasibilityBox extends VBox implements Initializable {
     unsatCoreTask.setOnScheduled(unsatCore -> cbActionItemsProperty.setValue(scheduledActions));
 
     executorService.submit(unsatCoreTask);
+  }
+
+  private SolverTask<Set<Integer>> buildUnsatCoreTask() {
+    final Course majorCourse = majorCourseProperty.get();
+    final Course minorCourse = minorCourseProperty.get();
+
+    if (minorCourse != null) {
+      return delayedSolverService.get().unsatCore(majorCourse, minorCourse);
+    }
+    return delayedSolverService.get().unsatCore(majorCourse);
   }
 
   /**
