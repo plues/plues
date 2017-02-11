@@ -197,10 +197,18 @@ public class FeasibilityBox extends VBox implements Initializable {
     });
 
     feasibilityTask.setOnSucceeded(event -> Platform.runLater(() -> {
-      cbActionItemsProperty.setValue(feasibilityTask.getValue() ? FXCollections.observableList(
-          minorCourseProperty.get() != null ? succeededActionsMajorMinor
-              : succeededActionsMajorOnly)
-          : getActionsForInfeasibleCourse(""));
+      final ObservableList<String> actions;
+      if (feasibilityTask.getValue()) {
+        if (minorCourseProperty.get() != null) {
+          actions = succeededActionsMajorMinor;
+        } else {
+          actions = succeededActionsMajorOnly;
+        }
+      } else {
+        actions = getActionsForInfeasibleCourse("");
+      }
+
+      cbActionItemsProperty.setValue(actions);
       resultState = ResultState.SUCCEEDED;
     }));
 
