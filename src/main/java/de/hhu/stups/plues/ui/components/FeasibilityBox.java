@@ -237,31 +237,24 @@ public class FeasibilityBox extends VBox implements Initializable {
     if (selectedItem.equals(openInTimetable)) {
       router.transitionTo(RouteNames.TIMETABLE, new Course[] {majorCourse, minorCourse},
           resultState);
-    }
-    if (selectedItem.equals(restartComputation)) {
+    } else if (selectedItem.equals(restartComputation)) {
       initFeasibilityTask(delayedSolverService.get());
       executorService.submit(feasibilityTask);
-    }
-    if (selectedItem.equals(generatePdf)) {
+    } else if (selectedItem.equals(generatePdf)) {
       router.transitionTo(RouteNames.PDF_TIMETABLES, majorCourse, minorCourse);
-    }
-    if (selectedItem.equals(generatePartial)) {
+    } else if (selectedItem.equals(generatePartial)) {
       router.transitionTo(RouteNames.PARTIAL_TIMETABLES, majorCourse, minorCourse);
-    }
-    if (selectedItem.equals(stepwiseUnsatCore)) {
+    } else if (selectedItem.equals(stepwiseUnsatCore)) {
       if (minorCourse != null) {
         router.transitionTo(RouteNames.UNSAT_CORE, majorCourse, minorCourse);
       } else {
         router.transitionTo(RouteNames.UNSAT_CORE, majorCourse);
       }
-    }
-    if (selectedItem.equals(unsatCoreString)) {
+    } else if (selectedItem.equals(unsatCoreString)) {
       initUnsatCoreTask();
-    }
-    if (selectedItem.equals(removeString)) {
+    } else if (selectedItem.equals(removeString)) {
       parent.getItems().remove(this);
-    }
-    if (selectedItem.equals(cancelString)) {
+    } else if (selectedItem.equals(cancelString)) {
       cancelAction();
     }
   }
