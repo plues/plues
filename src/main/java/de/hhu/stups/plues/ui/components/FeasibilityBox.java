@@ -382,8 +382,8 @@ public class FeasibilityBox extends VBox implements Initializable {
           return conflictActions;
         case FAILED:
           return scheduledActions;
-        default:
         case CANCELLED:
+        default:
           return failedWithConflictActions;
       }
     }
@@ -408,8 +408,8 @@ public class FeasibilityBox extends VBox implements Initializable {
           return getSucceededActions();
         case FAILED:
           return getActionsForInfeasibleCourse(task.getReason());
-        default:
         case CANCELLED:
+        default:
           return cancelledActions;
       }
     }
