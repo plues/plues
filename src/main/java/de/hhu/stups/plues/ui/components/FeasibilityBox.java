@@ -227,7 +227,7 @@ public class FeasibilityBox extends VBox implements Initializable {
         interrupt();
         break;
       default:
-        throw new RuntimeException("Unexpected enum value");
+        throw new IllegalArgumentException("Unexpected enum value");
     }
   }
 
