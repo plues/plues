@@ -379,9 +379,8 @@ public class FeasibilityBox extends VBox implements Initializable {
         case RUNNING:
           return scheduledActions;
         case SUCCEEDED:
-          return conflictActions;
         case FAILED:
-          return scheduledActions;
+          return conflictActions;
         case CANCELLED:
         default:
           return failedWithConflictActions;
