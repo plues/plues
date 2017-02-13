@@ -218,29 +218,39 @@ public class TimetableSideBar extends TabPane implements Initializable {
    * Timetables's} split pane divider to the destination.
    */
   private void hideSideBar(final boolean hide) {
-    if (!fadingInProgress) {
-      if (!hide) {
-        handleTabVisibility(false);
-      }
-      parent.disableDivider(hide);
-      fadingInProgress = true;
+    if (fadingInProgress) {
+      return;
+    }
+    if (!hide) {
+      handleTabVisibility(false);
+    }
+    parent.disableDivider(hide);
+    fadingInProgress = true;
 
-      final Timeline timeline = new Timeline();
-      final double destination = hide ? getMinWidth() / parent.getWidth()
-          : parent.getUserDefinedDividerPos();
+    runAnimation(hide);
+  }
 
-      final KeyValue dividerPosition =
+  private void runAnimation(boolean hide) {
+    final Timeline timeline = new Timeline();
+    final double destination;
+
+    if (hide) {
+      destination = getMinWidth() / parent.getWidth();
+    } else {
+      destination = parent.getUserDefinedDividerPos();
+    }
+
+    final KeyValue dividerPosition =
           new KeyValue(parent.getDivider().positionProperty(), destination);
 
-      timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250), dividerPosition));
-      timeline.setOnFinished(event -> {
-        fadingInProgress = false;
-        if (hide) {
-          handleTabVisibility(true);
-        }
-      });
-      Platform.runLater(timeline::play);
-    }
+    timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250), dividerPosition));
+    timeline.setOnFinished(event -> {
+      fadingInProgress = false;
+      if (hide) {
+        handleTabVisibility(true);
+      }
+    });
+    Platform.runLater(timeline::play);
   }
 
   private void handleTabVisibility(final boolean hide) {
