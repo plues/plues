@@ -283,7 +283,7 @@ public class TimetableSideBar extends TabPane implements Initializable {
   }
 
   private void selectSideBarTab(final Tab tab) {
-    getSelectionModel().select(getTabs().indexOf(tab));
+    getSelectionModel().select(tab);
     selectedSubTab = lookup(".tab:selected");
     collapsed.set(false);
   }
