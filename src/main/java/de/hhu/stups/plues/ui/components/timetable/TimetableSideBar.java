@@ -255,16 +255,14 @@ public class TimetableSideBar extends TabPane implements Initializable {
 
   private void handleTabVisibility(final boolean hide) {
     if (hide) {
-      getTabs().forEach(sideTab -> {
-        sideTab.getStyleClass().setAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabHidden");
-      });
+      getTabs().forEach(sideTab
+          -> sideTab.getStyleClass().setAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabHidden"));
       setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
       getSelectionModel().select(null);
       selectedSubTab = null;
     } else {
-      getTabs().forEach(sideTab -> {
-        sideTab.getStyleClass().setAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabVisible");
-      });
+      getTabs().forEach(sideTab
+          -> sideTab.getStyleClass().setAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabVisible"));
       setTabClosingPolicy(TabClosingPolicy.SELECTED_TAB);
     }
   }
