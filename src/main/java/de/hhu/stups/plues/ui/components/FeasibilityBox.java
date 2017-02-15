@@ -168,7 +168,7 @@ public class FeasibilityBox extends VBox implements Initializable {
     noConflictString = resources.getString("noConflict");
 
     initializeCourseLabels();
-    initializeActionCheckBox(resources);
+    initializeActionComboBox(resources);
 
     progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
 
@@ -184,7 +184,7 @@ public class FeasibilityBox extends VBox implements Initializable {
     }
   }
 
-  private void initializeActionCheckBox(final ResourceBundle resources) {
+  private void initializeActionComboBox(final ResourceBundle resources) {
     cbAction.setConverter(new ActionsStringConverter(resources));
     cbAction.itemsProperty().addListener((observable, oldValue, newValue) ->
         cbAction.getSelectionModel().selectFirst());
