@@ -62,8 +62,6 @@ public class ResultBox extends VBox implements Initializable {
   private final Delayed<SolverService> delayedSolverService;
   private final PdfRenderingTaskFactory renderingTaskFactory;
 
-  private final ObjectProperty<ObservableList<Actions>> cbActionItemsProperty
-      = new SimpleObjectProperty<>();
   private final StringProperty errorMsgProperty = new SimpleStringProperty();
   private final ObjectProperty<Path> pdf = new SimpleObjectProperty<>();
 
@@ -158,8 +156,7 @@ public class ResultBox extends VBox implements Initializable {
     lbErrorMsg.textProperty().bind(errorMsgProperty);
 
     cbAction.setConverter(new ActionsStringConverter(resources));
-    cbAction.itemsProperty().bind(cbActionItemsProperty);
-    cbActionItemsProperty.addListener((observable, oldValue, newValue) ->
+    cbAction.itemsProperty().addListener((observable, oldValue, newValue) ->
         cbAction.getSelectionModel().selectFirst());
   }
 
@@ -203,8 +200,8 @@ public class ResultBox extends VBox implements Initializable {
   private void taskBindings() {
     progressIndicator.visibleProperty().bind(task.runningProperty());
     //
-    cbActionItemsProperty.unbind();
-    cbActionItemsProperty.bind(new ActionsBinding(task.stateProperty()));
+    cbAction.itemsProperty().unbind();
+    cbAction.itemsProperty().bind(new ActionsBinding(task.stateProperty()));
     //
     lbIcon.visibleProperty().bind(task.runningProperty().not());
     lbIcon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, task));
