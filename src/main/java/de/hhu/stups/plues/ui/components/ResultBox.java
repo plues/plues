@@ -51,8 +51,6 @@ public class ResultBox extends VBox implements Initializable {
   private final Course major;
   private final Course minor;
 
-  private ResourceBundle resources;
-
   private PdfRenderingTask task;
   private ResultState resultState;
 
@@ -144,16 +142,16 @@ public class ResultBox extends VBox implements Initializable {
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
-
     initializeCourseLabels();
 
     runSolverTask();
 
     progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
 
-    lbErrorMsg.visibleProperty().bind(pdf.isNull());
-    lbErrorMsg.textProperty().bind(errorMsgProperty);
+    lbErrorMsg.textProperty().bind(
+        Bindings.createStringBinding(
+            () -> resources.getString(errorMsgProperty.get()),
+            errorMsgProperty));
 
     cbAction.setConverter(new ActionsStringConverter(resources));
     cbAction.itemsProperty().addListener((observable, oldValue, newValue) ->
@@ -188,7 +186,7 @@ public class ResultBox extends VBox implements Initializable {
     }));
 
     task.setOnFailed(event -> {
-      errorMsgProperty.setValue(resources.getString("error_gen"));
+      errorMsgProperty.set("error_gen");
       resultState = ResultState.FAILED;
     });
 
@@ -246,8 +244,7 @@ public class ResultBox extends VBox implements Initializable {
 
   @FXML
   private void showPdf() {
-    PdfRenderingHelper.showPdf(pdf.get(),
-        e -> errorMsgProperty.setValue(resources.getString("error_temp")));
+    PdfRenderingHelper.showPdf(pdf.get(), e -> errorMsgProperty.set("error_temp"));
   }
 
   @FXML
