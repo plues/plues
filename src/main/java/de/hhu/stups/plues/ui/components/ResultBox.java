@@ -150,10 +150,8 @@ public class ResultBox extends VBox implements Initializable {
 
     initializeCourseLabels();
 
-    delayedSolverService.whenAvailable(solver -> {
-      initSolverTask(solver);
-      executorService.submit(task);
-    });
+    runSolverTask();
+
     lbErrorMsg.visibleProperty().bind(pdf.isNull());
     lbErrorMsg.textProperty().bind(errorMsgProperty);
 
@@ -161,6 +159,13 @@ public class ResultBox extends VBox implements Initializable {
     cbAction.itemsProperty().bind(cbActionItemsProperty);
     cbActionItemsProperty.addListener((observable, oldValue, newValue) ->
         cbAction.getSelectionModel().selectFirst());
+  }
+
+  private void runSolverTask() {
+    delayedSolverService.whenAvailable(solver -> {
+      initSolverTask(solver);
+      executorService.submit(task);
+    });
   }
 
   private void initializeCourseLabels() {
@@ -223,8 +228,7 @@ public class ResultBox extends VBox implements Initializable {
         router.transitionTo(RouteNames.TIMETABLE, buildCourses(major, minor) , resultState);
         break;
       case RESTART_COMPUTATION:
-        initSolverTask(delayedSolverService.get());
-        executorService.submit(task);
+        runSolverTask();
         break;
       case REMOVE:
         parent.getItems().remove(this);
