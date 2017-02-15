@@ -19,12 +19,15 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
@@ -151,7 +154,6 @@ public class ResultBox extends VBox implements Initializable {
     cbAction.itemsProperty().bind(cbActionItemsProperty);
     cbActionItemsProperty.addListener((observable, oldValue, newValue) ->
         cbAction.getSelectionModel().selectFirst());
-    cbActionItemsProperty.setValue(scheduledActions);
   }
 
   private void initSolverTask(final SolverService solverService) {
@@ -166,25 +168,20 @@ public class ResultBox extends VBox implements Initializable {
     task = renderingTaskFactory.create(cMajor, cMinor, solverTask);
     task.setOnSucceeded(event -> Platform.runLater(() -> {
       pdf.set((Path) event.getSource().getValue());
-      cbActionItemsProperty.setValue(succeededActions);
       resultState = ResultState.SUCCEEDED;
     }));
 
     task.setOnFailed(event -> {
-      cbActionItemsProperty.setValue(failedActions);
       errorMsgProperty.setValue(resources.getString("error_gen"));
       resultState = ResultState.FAILED;
     });
 
-    task.setOnCancelled(event -> {
-      cbActionItemsProperty.setValue(cancelledActions);
-      resultState = ResultState.FAILED;
-    });
-
-    task.setOnScheduled(event -> cbActionItemsProperty.setValue(scheduledActions));
+    task.setOnCancelled(event -> resultState = ResultState.FAILED);
 
     progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
     progressIndicator.visibleProperty().bind(task.runningProperty());
+
+    cbActionItemsProperty.bind(new ActionsBinding(task.stateProperty()));
 
     lbIcon.visibleProperty().bind(task.runningProperty().not());
     lbIcon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, task));
@@ -281,6 +278,34 @@ public class ResultBox extends VBox implements Initializable {
     @Override
     public Actions fromString(final String string) {
       throw new IllegalAccessError("not supported");
+    }
+  }
+
+  private class ActionsBinding extends ListBinding<Actions> {
+    private final ReadOnlyObjectProperty<Worker.State> property;
+
+    ActionsBinding(final ReadOnlyObjectProperty<Worker.State> property) {
+      this.property = property;
+      bind(property);
+    }
+
+    @Override
+    protected ObservableList<Actions> computeValue() {
+      final Worker.State state = property.get();
+      switch (state) {
+        case SUCCEEDED:
+          return succeededActions;
+        case CANCELLED:
+          return cancelledActions;
+        case FAILED:
+          return failedActions;
+        case READY:
+        case RUNNING:
+        case SCHEDULED:
+        default:
+          return scheduledActions;
+      }
+
     }
   }
 }
