@@ -219,11 +219,7 @@ public class ResultBox extends VBox implements Initializable {
         savePdf();
         break;
       case GENERATE_PARTIAL:
-        if (minor == null) {
-          router.transitionTo(RouteNames.PARTIAL_TIMETABLES, major);
-        } else {
-          router.transitionTo(RouteNames.PARTIAL_TIMETABLES, major, minor);
-        }
+        generatePartialAction();
         break;
       case OPEN_IN_TIMETABLE:
         router.transitionTo(RouteNames.TIMETABLE, buildCourses(major, minor) , resultState);
@@ -239,6 +235,14 @@ public class ResultBox extends VBox implements Initializable {
         break;
       default:
         throw new IllegalArgumentException("Unexpected enum value");
+    }
+  }
+
+  private void generatePartialAction() {
+    if (minor == null) {
+      router.transitionTo(RouteNames.PARTIAL_TIMETABLES, major);
+    } else {
+      router.transitionTo(RouteNames.PARTIAL_TIMETABLES, major, minor);
     }
   }
 
