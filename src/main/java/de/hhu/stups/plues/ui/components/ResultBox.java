@@ -48,6 +48,9 @@ public class ResultBox extends VBox implements Initializable {
 
   private static final String WORKING_COLOR = "#BDE5F8";
   private static final String ICON_SIZE = "50";
+  private final Course major;
+  private final Course minor;
+
   private ResourceBundle resources;
 
   private PdfRenderingTask task;
@@ -59,11 +62,9 @@ public class ResultBox extends VBox implements Initializable {
   private final Delayed<SolverService> delayedSolverService;
   private final PdfRenderingTaskFactory renderingTaskFactory;
 
-  private final ObjectProperty<Course> majorCourseProperty = new SimpleObjectProperty<>();
   private final ObjectProperty<ObservableList<Actions>> cbActionItemsProperty
       = new SimpleObjectProperty<>();
   private final StringProperty errorMsgProperty = new SimpleStringProperty();
-  private final ObjectProperty<Course> minorCourseProperty = new SimpleObjectProperty<>();
   private final ObjectProperty<Path> pdf = new SimpleObjectProperty<>();
 
   // lists of actions for each possible state
@@ -131,17 +132,23 @@ public class ResultBox extends VBox implements Initializable {
     this.executorService = executorService;
     this.renderingTaskFactory = renderingTaskFactory;
 
-    majorCourseProperty.set(major);
-    minorCourseProperty.set(minor);
-
+    this.major = major;
+    this.minor = minor;
     inflater.inflate("components/Resultbox", this, this, "resultbox");
+  }
+
+  private Course[] buildCourses(final Course major, final Course minor) {
+    if (minor == null) {
+      return new Course[] {major};
+    }
+    return new Course[] {major, minor};
   }
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
-    lbMajor.textProperty().bind(Bindings.selectString(majorCourseProperty, "fullName"));
-    lbMinor.textProperty().bind(Bindings.selectString(minorCourseProperty, "fullName"));
+
+    initializeCourseLabels();
 
     delayedSolverService.whenAvailable(solver -> {
       initSolverTask(solver);
@@ -156,16 +163,21 @@ public class ResultBox extends VBox implements Initializable {
         cbAction.getSelectionModel().selectFirst());
   }
 
+  private void initializeCourseLabels() {
+    lbMajor.setText(major.getFullName());
+    if (this.minor != null) {
+      lbMinor.setText(minor.getFullName());
+    } else {
+      lbMinor.setText("");
+    }
+  }
+
   private void initSolverTask(final SolverService solverService) {
     final SolverTask<FeasibilityResult> solverTask;
-    final Course cMajor = majorCourseProperty.get();
-    final Course cMinor = minorCourseProperty.get();
-    if (cMinor != null) {
-      solverTask = solverService.computeFeasibilityTask(cMajor, cMinor);
-    } else {
-      solverTask = solverService.computeFeasibilityTask(cMajor);
-    }
-    task = renderingTaskFactory.create(cMajor, cMinor, solverTask);
+
+    solverTask = solverService.computeFeasibilityTask(buildCourses(major, minor));
+
+    task = renderingTaskFactory.create(major, minor, solverTask);
     task.setOnSucceeded(event -> Platform.runLater(() -> {
       pdf.set((Path) event.getSource().getValue());
       resultState = ResultState.SUCCEEDED;
@@ -192,8 +204,6 @@ public class ResultBox extends VBox implements Initializable {
   @SuppressWarnings("unused")
   private void submitAction() {
     final Actions selectedItem = cbAction.getSelectionModel().getSelectedItem();
-    final Course majorCourse = majorCourseProperty.get();
-    final Course minorCourse = minorCourseProperty.get();
 
     switch (selectedItem) {
       case SHOW:
@@ -203,11 +213,14 @@ public class ResultBox extends VBox implements Initializable {
         savePdf();
         break;
       case GENERATE_PARTIAL:
-        router.transitionTo(RouteNames.PARTIAL_TIMETABLES, majorCourse, minorCourse);
+        if (minor == null) {
+          router.transitionTo(RouteNames.PARTIAL_TIMETABLES, major);
+        } else {
+          router.transitionTo(RouteNames.PARTIAL_TIMETABLES, major, minor);
+        }
         break;
       case OPEN_IN_TIMETABLE:
-        router.transitionTo(RouteNames.TIMETABLE,
-            new Course[]{majorCourse, minorCourse}, resultState);
+        router.transitionTo(RouteNames.TIMETABLE, buildCourses(major, minor) , resultState);
         break;
       case RESTART_COMPUTATION:
         initSolverTask(delayedSolverService.get());
@@ -232,8 +245,7 @@ public class ResultBox extends VBox implements Initializable {
 
   @FXML
   private void savePdf() {
-    PdfRenderingHelper.savePdf(pdf.get(), majorCourseProperty.get(),
-        minorCourseProperty.get(), lbErrorMsg);
+    PdfRenderingHelper.savePdf(pdf.get(), major, minor, lbErrorMsg);
   }
 
   @FXML
