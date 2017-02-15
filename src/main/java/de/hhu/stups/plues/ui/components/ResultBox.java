@@ -149,9 +149,13 @@ public class ResultBox extends VBox implements Initializable {
     progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
 
     lbErrorMsg.textProperty().bind(
-        Bindings.createStringBinding(
-            () -> resources.getString(errorMsgProperty.get()),
-            errorMsgProperty));
+        Bindings.createStringBinding(() -> {
+          final String errorMsg = errorMsgProperty.get();
+          if (errorMsg == null) {
+            return "";
+          }
+          return resources.getString(errorMsg);
+        }, errorMsgProperty));
 
     cbAction.setConverter(new ActionsStringConverter(resources));
     cbAction.itemsProperty().addListener((observable, oldValue, newValue) ->
