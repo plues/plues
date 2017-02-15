@@ -297,7 +297,7 @@ public class ResultBox extends VBox implements Initializable {
     }
   }
 
-  private class ActionsBinding extends ListBinding<Actions> {
+  private static class ActionsBinding extends ListBinding<Actions> {
     private final ReadOnlyObjectProperty<Worker.State> property;
 
     ActionsBinding(final ReadOnlyObjectProperty<Worker.State> property) {
