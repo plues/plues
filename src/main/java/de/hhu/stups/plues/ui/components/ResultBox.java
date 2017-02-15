@@ -57,15 +57,17 @@ public class ResultBox extends VBox implements Initializable {
   private ResultState resultState;
 
   private final Router router;
-  private final ObjectProperty<Course> majorCourseProperty;
-  private final ObjectProperty<ObservableList<String>> cbActionItemsProperty;
-  private final StringProperty errorMsgProperty;
   private final ExecutorService executorService;
-  private final ObjectProperty<Course> minorCourseProperty;
+  private final ListView<ResultBox> parent;
   private final Delayed<SolverService> delayedSolverService;
   private final PdfRenderingTaskFactory renderingTaskFactory;
-  private final ListView<ResultBox> parent;
-  private final ObjectProperty<Path> pdf;
+
+  private final ObjectProperty<Course> majorCourseProperty = new SimpleObjectProperty<>();
+  private final ObjectProperty<ObservableList<String>> cbActionItemsProperty
+      = new SimpleObjectProperty<>();
+  private final StringProperty errorMsgProperty = new SimpleStringProperty();
+  private final ObjectProperty<Course> minorCourseProperty = new SimpleObjectProperty<>();
+  private final ObjectProperty<Path> pdf = new SimpleObjectProperty<>();
 
   // lists of actions for each possible state
   private final ObservableList<String> succeededActions = FXCollections.observableArrayList();
@@ -117,11 +119,9 @@ public class ResultBox extends VBox implements Initializable {
     this.delayedSolverService = delayedSolverService;
     this.executorService = executorService;
     this.renderingTaskFactory = renderingTaskFactory;
-    majorCourseProperty = new SimpleObjectProperty<>(major);
-    minorCourseProperty = new SimpleObjectProperty<>(minor);
-    cbActionItemsProperty = new SimpleObjectProperty<>();
-    errorMsgProperty = new SimpleStringProperty();
-    pdf = new SimpleObjectProperty<>();
+
+    majorCourseProperty.set(major);
+    minorCourseProperty.set(minor);
 
     inflater.inflate("components/Resultbox", this, this, "resultbox");
   }
