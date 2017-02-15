@@ -32,6 +32,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -46,13 +47,6 @@ public class ResultBox extends VBox implements Initializable {
   private static final String ICON_SIZE = "50";
   private ResourceBundle resources;
 
-  private String removeString;
-  private String cancelString;
-  private String openInTimetable;
-  private String generatePartial;
-  private String restartComputation;
-  private String show;
-  private String saveAs;
   private PdfRenderingTask task;
   private ResultState resultState;
 
@@ -63,17 +57,31 @@ public class ResultBox extends VBox implements Initializable {
   private final PdfRenderingTaskFactory renderingTaskFactory;
 
   private final ObjectProperty<Course> majorCourseProperty = new SimpleObjectProperty<>();
-  private final ObjectProperty<ObservableList<String>> cbActionItemsProperty
+  private final ObjectProperty<ObservableList<Actions>> cbActionItemsProperty
       = new SimpleObjectProperty<>();
   private final StringProperty errorMsgProperty = new SimpleStringProperty();
   private final ObjectProperty<Course> minorCourseProperty = new SimpleObjectProperty<>();
   private final ObjectProperty<Path> pdf = new SimpleObjectProperty<>();
 
   // lists of actions for each possible state
-  private final ObservableList<String> succeededActions = FXCollections.observableArrayList();
-  private final ObservableList<String> failedActions = FXCollections.observableArrayList();
-  private final ObservableList<String> cancelledActions = FXCollections.observableArrayList();
-  private final ObservableList<String> scheduledActions = FXCollections.observableArrayList();
+  private static final ObservableList<Actions> succeededActions
+      = FXCollections.observableArrayList(Actions.SHOW,
+                                          Actions.SAVE_AS,
+                                          Actions.OPEN_IN_TIMETABLE,
+                                          Actions.GENERATE_PARTIAL,
+                                          Actions.REMOVE);
+
+  private static final ObservableList<Actions> failedActions
+      = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE, Actions.REMOVE);
+
+  private static final ObservableList<Actions> cancelledActions
+      = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
+                                          Actions.RESTART_COMPUTATION,
+                                          Actions.REMOVE);
+
+  private static final ObservableList<Actions> scheduledActions
+      = FXCollections.observableArrayList(Actions.CANCEL);
+
 
   @FXML
   @SuppressWarnings("unused")
@@ -92,7 +100,7 @@ public class ResultBox extends VBox implements Initializable {
   private Label lbErrorMsg;
   @FXML
   @SuppressWarnings("unused")
-  private ComboBox<String> cbAction;
+  private ComboBox<Actions> cbAction;
 
   /**
    * Constructor for ResultBox.
@@ -129,22 +137,8 @@ public class ResultBox extends VBox implements Initializable {
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
-    removeString = resources.getString("remove");
-    openInTimetable = resources.getString("openInTimetable");
-    generatePartial = resources.getString("generatePartial");
-    restartComputation = resources.getString("restartComputation");
-    show = resources.getString("show");
-    saveAs = resources.getString("saveAs");
-    cancelString = resources.getString("cancel");
-
     lbMajor.textProperty().bind(Bindings.selectString(majorCourseProperty, "fullName"));
     lbMinor.textProperty().bind(Bindings.selectString(minorCourseProperty, "fullName"));
-
-    // initialize the lists of actions
-    succeededActions.addAll(show, saveAs, openInTimetable, generatePartial, removeString);
-    failedActions.addAll(openInTimetable, removeString);
-    cancelledActions.addAll(openInTimetable, restartComputation, removeString);
-    scheduledActions.addAll(cancelString);
 
     delayedSolverService.whenAvailable(solver -> {
       initSolverTask(solver);
@@ -153,6 +147,7 @@ public class ResultBox extends VBox implements Initializable {
     lbErrorMsg.visibleProperty().bind(pdf.isNull());
     lbErrorMsg.textProperty().bind(errorMsgProperty);
 
+    cbAction.setConverter(new ActionsStringConverter(resources));
     cbAction.itemsProperty().bind(cbActionItemsProperty);
     cbActionItemsProperty.addListener((observable, oldValue, newValue) ->
         cbAction.getSelectionModel().selectFirst());
@@ -199,32 +194,36 @@ public class ResultBox extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void submitAction() {
-    final String selectedItem = cbAction.getSelectionModel().getSelectedItem();
+    final Actions selectedItem = cbAction.getSelectionModel().getSelectedItem();
     final Course majorCourse = majorCourseProperty.get();
     final Course minorCourse = minorCourseProperty.get();
 
-    if (selectedItem.equals(openInTimetable)) {
-      router.transitionTo(RouteNames.TIMETABLE, new Course[] {majorCourse, minorCourse},
-          resultState);
-    }
-    if (selectedItem.equals(generatePartial)) {
-      router.transitionTo(RouteNames.PARTIAL_TIMETABLES, majorCourse, minorCourse);
-    }
-    if (selectedItem.equals(restartComputation)) {
-      initSolverTask(delayedSolverService.get());
-      executorService.submit(task);
-    }
-    if (selectedItem.equals(show)) {
-      showPdf();
-    }
-    if (selectedItem.equals(saveAs)) {
-      savePdf();
-    }
-    if (selectedItem.equals(removeString)) {
-      parent.getItems().remove(this);
-    }
-    if (selectedItem.equals(cancelString)) {
-      interrupt();
+    switch (selectedItem) {
+      case SHOW:
+        showPdf();
+        break;
+      case SAVE_AS:
+        savePdf();
+        break;
+      case GENERATE_PARTIAL:
+        router.transitionTo(RouteNames.PARTIAL_TIMETABLES, majorCourse, minorCourse);
+        break;
+      case OPEN_IN_TIMETABLE:
+        router.transitionTo(RouteNames.TIMETABLE,
+            new Course[]{majorCourse, minorCourse}, resultState);
+        break;
+      case RESTART_COMPUTATION:
+        initSolverTask(delayedSolverService.get());
+        executorService.submit(task);
+        break;
+      case REMOVE:
+        parent.getItems().remove(this);
+        break;
+      case CANCEL:
+        interrupt();
+        break;
+      default:
+        throw new IllegalArgumentException("Unexpected enum value");
     }
   }
 
@@ -243,5 +242,45 @@ public class ResultBox extends VBox implements Initializable {
   @FXML
   private void interrupt() {
     task.cancel();
+  }
+
+  private enum Actions {
+
+    CANCEL("cancel"),
+    GENERATE_PARTIAL("generatePartial"),
+    OPEN_IN_TIMETABLE("openInTimetable"),
+    REMOVE("remove"),
+    RESTART_COMPUTATION("restartComputation"),
+    SAVE_AS("saveAs"),
+    SHOW("show");
+
+    private final String key;
+
+    Actions(final String key) {
+      this.key = key;
+    }
+
+    public String getKey() {
+      return key;
+    }
+
+  }
+
+  private static class ActionsStringConverter extends StringConverter<Actions> {
+    private final ResourceBundle resources;
+
+    ActionsStringConverter(final ResourceBundle resources) {
+      this.resources = resources;
+    }
+
+    @Override
+    public String toString(final Actions value) {
+      return resources.getString(value.getKey());
+    }
+
+    @Override
+    public Actions fromString(final String string) {
+      throw new IllegalAccessError("not supported");
+    }
   }
 }
