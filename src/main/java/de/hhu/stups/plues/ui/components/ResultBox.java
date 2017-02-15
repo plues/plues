@@ -152,6 +152,8 @@ public class ResultBox extends VBox implements Initializable {
 
     runSolverTask();
 
+    progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
+
     lbErrorMsg.visibleProperty().bind(pdf.isNull());
     lbErrorMsg.textProperty().bind(errorMsgProperty);
 
@@ -181,8 +183,8 @@ public class ResultBox extends VBox implements Initializable {
     final SolverTask<FeasibilityResult> solverTask;
 
     solverTask = solverService.computeFeasibilityTask(buildCourses(major, minor));
-
     task = renderingTaskFactory.create(major, minor, solverTask);
+
     task.setOnSucceeded(event -> Platform.runLater(() -> {
       pdf.set((Path) event.getSource().getValue());
       resultState = ResultState.SUCCEEDED;
@@ -195,11 +197,15 @@ public class ResultBox extends VBox implements Initializable {
 
     task.setOnCancelled(event -> resultState = ResultState.FAILED);
 
-    progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
+    taskBindings();
+  }
+
+  private void taskBindings() {
     progressIndicator.visibleProperty().bind(task.runningProperty());
-
+    //
+    cbActionItemsProperty.unbind();
     cbActionItemsProperty.bind(new ActionsBinding(task.stateProperty()));
-
+    //
     lbIcon.visibleProperty().bind(task.runningProperty().not());
     lbIcon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, task));
     lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
