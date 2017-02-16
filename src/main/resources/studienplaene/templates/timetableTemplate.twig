@@ -57,7 +57,12 @@
     </fo:page-sequence>
     <fo:page-sequence master-reference="rest">
         <fo:static-content flow-name="footer">
-            <fo:block text-align="center" font-size="10pt">
+            <fo:block text-align="left" margin-left="1.75cm" font-size="10pt">
+                Legende: (A) Jede gerade Woche (B) Jede ungerade Woche
+                (f) Nur in der ersten Semester-Hälfte (s) Nur in der zweiten Semester-Hälfte
+                (b) Block-Seminar
+            </fo:block>
+            <fo:block text-align="center" font-size="9pt">
                 Erstellt mit PlÜS am {{ date }} - Ein
                 Projekt des Lehrstuhls für Softwaretechnik und Programmiersprachen
                 in Zusammenarbeit mit den Studiendekanaten der philosophischen und
@@ -66,7 +71,7 @@
         </fo:static-content>
         <fo:flow flow-name="xsl-region-body">
             {% for semester in semesters %}
-                <fo:table border-style="transperent" width="100%" table-layout="fixed">
+                <fo:table border-style="transparent" width="100%" table-layout="fixed">
                     <fo:table-column column-width="33.3%"/>
                     <fo:table-column column-width="33.3%"/>
                     <fo:table-column column-width="33.3%"/>
