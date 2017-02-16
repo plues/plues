@@ -3,12 +3,14 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -46,10 +48,16 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private TableColumn<Log, Session> tableColumnSessionTemporary;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Log, String> tableColumnSourceTemporary;
+  private TableColumn<Log, String> tableColumnSourceDayTemporary;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Log, String> tableColumnTargetTemporary;
+  private TableColumn<Log, String> tableColumnSourceTimeTemporary;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Log, String> tableColumnTargetDayTemporary;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Log, String> tableColumnTargetTimeTemporary;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Log, Date> tableColumnDateTemporary;
@@ -58,10 +66,16 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private TableColumn<Log, Session> tableColumnSessionPersistent;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Log, String> tableColumnSourcePersistent;
+  private TableColumn<Log, String> tableColumnSourceDayPersistent;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Log, String> tableColumnTargetPersistent;
+  private TableColumn<Log, String> tableColumnSourceTimePersistent;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Log, String> tableColumnTargetDayPersistent;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<Log, String> tableColumnTargetTimePersistent;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Log, Date> tableColumnDatePersistent;
@@ -79,28 +93,37 @@ public class ChangeLog extends VBox implements Initializable, Observer {
     this.compare = uiDataService.lastSavedDateProperty();
     this.logs = FXCollections.observableArrayList();
 
-    inflater.inflate("components/ChangeLog", this, this, "ChangeLog");
+    inflater.inflate("components/ChangeLog", this, this, "ChangeLog", "Days");
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>> srcColumnCallback
-        = param -> new ReadOnlyStringWrapper(
-            String.format("%s %d", param.getValue().getSrcDay(), param.getValue().getSrcTime()));
+    final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
+        srcDayColumnCallback = param -> new ReadOnlyStringWrapper(
+        resources.getString(param.getValue().getSrcDay()));
+    final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
+        srcTimeColumnCallback = param -> new ReadOnlyStringWrapper(
+        Helpers.timeMap.get(param.getValue().getSrcTime()));
 
-    Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
-        targetColumnCallback = param -> new ReadOnlyStringWrapper(
-              String.format("%s %d",
-                  param.getValue().getTargetDay(), param.getValue().getTargetTime()));
+    final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
+        targetDayColumnCallback = param -> new ReadOnlyStringWrapper(
+        resources.getString(param.getValue().getTargetDay()));
+    final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
+        targetTimeColumnCallback = param -> new ReadOnlyStringWrapper(
+        Helpers.timeMap.get(param.getValue().getTargetTime()));
 
     tableColumnSessionTemporary.setCellValueFactory(new PropertyValueFactory<>("session"));
-    tableColumnSourceTemporary.setCellValueFactory(srcColumnCallback);
-    tableColumnTargetTemporary.setCellValueFactory(targetColumnCallback);
+    tableColumnSourceDayTemporary.setCellValueFactory(srcDayColumnCallback);
+    tableColumnSourceTimeTemporary.setCellValueFactory(srcTimeColumnCallback);
+    tableColumnTargetDayTemporary.setCellValueFactory(targetDayColumnCallback);
+    tableColumnTargetTimeTemporary.setCellValueFactory(targetTimeColumnCallback);
     tableColumnDateTemporary.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
     tableColumnSessionPersistent.setCellValueFactory(new PropertyValueFactory<>("session"));
-    tableColumnSourcePersistent.setCellValueFactory(srcColumnCallback);
-    tableColumnTargetPersistent.setCellValueFactory(targetColumnCallback);
+    tableColumnSourceDayPersistent.setCellValueFactory(srcDayColumnCallback);
+    tableColumnSourceTimePersistent.setCellValueFactory(srcTimeColumnCallback);
+    tableColumnTargetDayPersistent.setCellValueFactory(targetDayColumnCallback);
+    tableColumnTargetTimePersistent.setCellValueFactory(targetTimeColumnCallback);
     tableColumnDatePersistent.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
     updateBinding();
@@ -116,18 +139,26 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private void bindTableColumnsWidth() {
     tableColumnSessionTemporary.prefWidthProperty().bind(
         tempTable.widthProperty().multiply(0.46));
-    tableColumnSourceTemporary.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.15));
-    tableColumnTargetTemporary.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.15));
+    tableColumnSourceDayTemporary.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.075));
+    tableColumnSourceTimeTemporary.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.075));
+    tableColumnTargetDayTemporary.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.075));
+    tableColumnTargetTimeTemporary.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.075));
     tableColumnDateTemporary.prefWidthProperty().bind(
         tempTable.widthProperty().multiply(0.2));
     tableColumnSessionPersistent.prefWidthProperty().bind(
         tempTable.widthProperty().multiply(0.46));
-    tableColumnSourcePersistent.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.15));
-    tableColumnTargetPersistent.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.15));
+    tableColumnSourceDayPersistent.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.075));
+    tableColumnSourceTimePersistent.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.075));
+    tableColumnTargetDayPersistent.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.075));
+    tableColumnTargetTimePersistent.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.075));
     tableColumnDatePersistent.prefWidthProperty().bind(
         tempTable.widthProperty().multiply(0.2));
   }
@@ -141,7 +172,7 @@ public class ChangeLog extends VBox implements Initializable, Observer {
 
   private void updateBinding() {
     final SortedList<Log> sortedList
-          = logs.sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+        = logs.sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
 
     final FilteredList<Log> persistentList = new FilteredList<>(sortedList);
     final FilteredList<Log> tempList = new FilteredList<>(sortedList);

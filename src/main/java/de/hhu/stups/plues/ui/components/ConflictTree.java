@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.RouteNames;
@@ -40,14 +41,12 @@ import java.util.stream.Collectors;
  */
 public class ConflictTree extends VBox implements Initializable {
 
-  private final EnumMap<DayOfWeek, String> dayOfWeekStrings;
-  private final Map<Integer, String> timeStrings;
   private final UiDataService uiDataService;
   private final Router router;
   private final Delayed<Store> delayedStore;
+  private ResourceBundle resources;
 
   private ListProperty<Integer> unsatCoreProperty;
-  private ResourceBundle resources;
   private List<Session> conflictSessions;
 
   @FXML
@@ -76,21 +75,14 @@ public class ConflictTree extends VBox implements Initializable {
     this.uiDataService = uiDataService;
     this.router = router;
     this.delayedStore = delayedStore;
-    dayOfWeekStrings = new EnumMap<>(DayOfWeek.class);
-    timeStrings = new HashMap<>();
-
-    inflater.inflate("components/ConflictTree", this, this, "conflictTree", "Days", "Column");
+    inflater.inflate("components/ConflictTree", this, this, "conflictTree", "Column", "Days");
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
-
     conflictTreeTableView.setShowRoot(false);
     conflictTreeTableView.setPrefHeight(175.0);
-
-    initDayOfWeekString();
-    initTimeStrings();
 
     conflictTreeTableView.rootProperty().bind(new ReadOnlyObjectWrapper<>(conflictTreeRootItem));
 
@@ -149,8 +141,8 @@ public class ConflictTree extends VBox implements Initializable {
     // add all conflicting sessions to the TreeView's root grouped by the day of the week and the
     // time of the day
     sortedSessionsByDay.entrySet().forEach(dayOfWeekEntry -> {
-      final TreeItem<Object> dayRootItem = new TreeItem<>(dayOfWeekStrings
-          .get(dayOfWeekEntry.getKey()));
+      final TreeItem<Object> dayRootItem = new TreeItem<>(resources.getString(
+          Helpers.shortDayOfWeekMap.get(dayOfWeekEntry.getKey())));
       dayRootItem.setExpanded(true);
       groupSessionsByTime(sortedSessionsByDay.get(dayOfWeekEntry.getKey())).entrySet()
           .forEach(timeAtDayEntry -> {
@@ -168,7 +160,7 @@ public class ConflictTree extends VBox implements Initializable {
   private Map<String, ArrayList<Session>> groupSessionsByTime(final ArrayList<Session> sessions) {
     final Map<String, ArrayList<Session>> sortedSessionsByTime = new HashMap<>(sessions.size());
     sessions.forEach(session -> {
-      final String timeString = timeStrings.get(session.getTime());
+      final String timeString = Helpers.timeMap.get(session.getTime());
       if (!sortedSessionsByTime.containsKey(timeString)) {
         sortedSessionsByTime.put(timeString, new ArrayList<>());
       }
@@ -177,6 +169,7 @@ public class ConflictTree extends VBox implements Initializable {
     return sortedSessionsByTime;
   }
 
+  @SuppressWarnings("unused")
   private void setConflictSessions(final List<Session> conflictSessions) {
     this.conflictSessions = conflictSessions;
     showConflictResult(conflictSessions);
@@ -214,23 +207,5 @@ public class ConflictTree extends VBox implements Initializable {
                 Joiner.on(", ").join(
                     ((Session) param.getValue().getValue()).getGroup().getUnit().getSemesters())
                 : ""));
-  }
-
-  private void initTimeStrings() {
-    timeStrings.put(1, "08:30");
-    timeStrings.put(2, "10:30");
-    timeStrings.put(3, "12:30");
-    timeStrings.put(4, "14:30");
-    timeStrings.put(5, "16:30");
-    timeStrings.put(6, "18:30");
-    timeStrings.put(7, "20:30");
-  }
-
-  private void initDayOfWeekString() {
-    dayOfWeekStrings.put(DayOfWeek.MONDAY, resources.getString("monday"));
-    dayOfWeekStrings.put(DayOfWeek.TUESDAY, resources.getString("tuesday"));
-    dayOfWeekStrings.put(DayOfWeek.WEDNESDAY, resources.getString("wednesday"));
-    dayOfWeekStrings.put(DayOfWeek.THURSDAY, resources.getString("thursday"));
-    dayOfWeekStrings.put(DayOfWeek.FRIDAY, resources.getString("friday"));
   }
 }

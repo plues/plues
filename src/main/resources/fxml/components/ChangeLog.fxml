@@ -13,9 +13,13 @@
         <columns>
             <TableColumn fx:id="tableColumnSessionTemporary" text="%session" sortable="false"
                          resizable="false"/>
-            <TableColumn fx:id="tableColumnSourceTemporary" text="%source" sortable="false"
+            <TableColumn fx:id="tableColumnSourceDayTemporary" text="%sourceDay" sortable="false"
                          resizable="false"/>
-            <TableColumn fx:id="tableColumnTargetTemporary" text="%target" sortable="false"
+            <TableColumn fx:id="tableColumnSourceTimeTemporary" text="%sourceTime"
+                         sortable="false" resizable="false"/>
+            <TableColumn fx:id="tableColumnTargetDayTemporary" text="%targetDay" sortable="false"
+                         resizable="false"/>
+            <TableColumn fx:id="tableColumnTargetTimeTemporary" text="%targetTime" sortable="false"
                          resizable="false"/>
             <TableColumn fx:id="tableColumnDateTemporary" text="%date" sortable="false"
                          resizable="false"/>
@@ -27,9 +31,13 @@
         <columns>
             <TableColumn fx:id="tableColumnSessionPersistent" text="%session" sortable="false"
                          resizable="false"/>
-            <TableColumn fx:id="tableColumnSourcePersistent" text="%source" sortable="false"
+            <TableColumn fx:id="tableColumnSourceDayPersistent" text="%sourceDay" sortable="false"
                          resizable="false"/>
-            <TableColumn fx:id="tableColumnTargetPersistent" text="%target" sortable="false"
+            <TableColumn fx:id="tableColumnSourceTimePersistent" text="%sourceTime"
+                         sortable="false" resizable="false"/>
+            <TableColumn fx:id="tableColumnTargetDayPersistent" text="%targetDay" sortable="false"
+                         resizable="false"/>
+            <TableColumn fx:id="tableColumnTargetTimePersistent" text="%targetTime" sortable="false"
                          resizable="false"/>
             <TableColumn fx:id="tableColumnDatePersistent" text="%date" sortable="false"
                          resizable="false"/>
