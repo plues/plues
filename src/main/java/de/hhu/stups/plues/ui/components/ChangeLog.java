@@ -48,16 +48,10 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private TableColumn<Log, Session> tableColumnSessionTemporary;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Log, String> tableColumnSourceDayTemporary;
+  private TableColumn<Log, String> tableColumnSourceTemporary;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Log, String> tableColumnSourceTimeTemporary;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<Log, String> tableColumnTargetDayTemporary;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<Log, String> tableColumnTargetTimeTemporary;
+  private TableColumn<Log, String> tableColumnTargetTemporary;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Log, Date> tableColumnDateTemporary;
@@ -66,16 +60,10 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private TableColumn<Log, Session> tableColumnSessionPersistent;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Log, String> tableColumnSourceDayPersistent;
+  private TableColumn<Log, String> tableColumnSourcePersistent;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Log, String> tableColumnSourceTimePersistent;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<Log, String> tableColumnTargetDayPersistent;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableColumn<Log, String> tableColumnTargetTimePersistent;
+  private TableColumn<Log, String> tableColumnTargetPersistent;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Log, Date> tableColumnDatePersistent;
@@ -99,31 +87,23 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
-        srcDayColumnCallback = param -> new ReadOnlyStringWrapper(
-        resources.getString(param.getValue().getSrcDay()));
-    final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
-        srcTimeColumnCallback = param -> new ReadOnlyStringWrapper(
-        Helpers.timeMap.get(param.getValue().getSrcTime()));
+        srcColumnCallback = param -> new ReadOnlyStringWrapper(
+        String.format("%s, %s", resources.getString(param.getValue().getSrcDay()),
+            Helpers.timeMap.get(param.getValue().getSrcTime())));
 
     final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
-        targetDayColumnCallback = param -> new ReadOnlyStringWrapper(
-        resources.getString(param.getValue().getTargetDay()));
-    final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
-        targetTimeColumnCallback = param -> new ReadOnlyStringWrapper(
-        Helpers.timeMap.get(param.getValue().getTargetTime()));
+        targetColumnCallback = param -> new ReadOnlyStringWrapper(
+        String.format("%s, %s", resources.getString(param.getValue().getTargetDay()),
+            Helpers.timeMap.get(param.getValue().getTargetTime())));
 
     tableColumnSessionTemporary.setCellValueFactory(new PropertyValueFactory<>("session"));
-    tableColumnSourceDayTemporary.setCellValueFactory(srcDayColumnCallback);
-    tableColumnSourceTimeTemporary.setCellValueFactory(srcTimeColumnCallback);
-    tableColumnTargetDayTemporary.setCellValueFactory(targetDayColumnCallback);
-    tableColumnTargetTimeTemporary.setCellValueFactory(targetTimeColumnCallback);
+    tableColumnSourceTemporary.setCellValueFactory(srcColumnCallback);
+    tableColumnTargetTemporary.setCellValueFactory(targetColumnCallback);
     tableColumnDateTemporary.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
     tableColumnSessionPersistent.setCellValueFactory(new PropertyValueFactory<>("session"));
-    tableColumnSourceDayPersistent.setCellValueFactory(srcDayColumnCallback);
-    tableColumnSourceTimePersistent.setCellValueFactory(srcTimeColumnCallback);
-    tableColumnTargetDayPersistent.setCellValueFactory(targetDayColumnCallback);
-    tableColumnTargetTimePersistent.setCellValueFactory(targetTimeColumnCallback);
+    tableColumnSourcePersistent.setCellValueFactory(srcColumnCallback);
+    tableColumnTargetPersistent.setCellValueFactory(targetColumnCallback);
     tableColumnDatePersistent.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
     updateBinding();
@@ -139,26 +119,18 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private void bindTableColumnsWidth() {
     tableColumnSessionTemporary.prefWidthProperty().bind(
         tempTable.widthProperty().multiply(0.46));
-    tableColumnSourceDayTemporary.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.075));
-    tableColumnSourceTimeTemporary.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.075));
-    tableColumnTargetDayTemporary.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.075));
-    tableColumnTargetTimeTemporary.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.075));
+    tableColumnSourceTemporary.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.15));
+    tableColumnTargetTemporary.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.15));
     tableColumnDateTemporary.prefWidthProperty().bind(
         tempTable.widthProperty().multiply(0.2));
     tableColumnSessionPersistent.prefWidthProperty().bind(
         tempTable.widthProperty().multiply(0.46));
-    tableColumnSourceDayPersistent.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.075));
-    tableColumnSourceTimePersistent.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.075));
-    tableColumnTargetDayPersistent.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.075));
-    tableColumnTargetTimePersistent.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.075));
+    tableColumnSourcePersistent.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.15));
+    tableColumnTargetPersistent.prefWidthProperty().bind(
+        tempTable.widthProperty().multiply(0.15));
     tableColumnDatePersistent.prefWidthProperty().bind(
         tempTable.widthProperty().multiply(0.2));
   }
