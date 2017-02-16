@@ -144,7 +144,6 @@ public class ResultBox extends VBox implements Initializable {
   public final void initialize(final URL location, final ResourceBundle resources) {
     initializeCourseLabels();
 
-    runSolverTask();
 
     progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
 
@@ -160,6 +159,8 @@ public class ResultBox extends VBox implements Initializable {
     cbAction.setConverter(new ActionsStringConverter(resources));
     cbAction.itemsProperty().addListener((observable, oldValue, newValue) ->
         cbAction.getSelectionModel().selectFirst());
+
+    runSolverTask();
   }
 
   private void runSolverTask() {
