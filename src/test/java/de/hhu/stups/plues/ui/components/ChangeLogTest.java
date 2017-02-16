@@ -49,14 +49,26 @@ public class ChangeLogTest extends ApplicationTest {
     final Log l1 = mock(Log.class);
     final Date d1 = new Calendar.Builder().setDate(2016, 11, 1).build().getTime();
     doReturn(d1).when(l1).getCreatedAt();
+    doReturn("mon").when(l1).getSrcDay();
+    doReturn(1).when(l1).getSrcTime();
+    doReturn("mon").when(l1).getTargetDay();
+    doReturn(2).when(l1).getTargetTime();
 
     final Log l2 = mock(Log.class);
     final Date d2 = new Calendar.Builder().setDate(2016, 10, 2).build().getTime();
     doReturn(d2).when(l2).getCreatedAt();
+    doReturn("tue").when(l2).getSrcDay();
+    doReturn(3).when(l2).getSrcTime();
+    doReturn("tue").when(l2).getTargetDay();
+    doReturn(4).when(l2).getTargetTime();
 
     final Log l3 = mock(Log.class);
     final Date d3 = new Calendar.Builder().setDate(2016, 11, 4).build().getTime();
     doReturn(d3).when(l3).getCreatedAt();
+    doReturn("wed").when(l3).getSrcDay();
+    doReturn(5).when(l3).getSrcTime();
+    doReturn("wed").when(l3).getTargetDay();
+    doReturn(6).when(l3).getTargetTime();
 
     final ObservableStore store = mock(ObservableStore.class);
     doReturn(Arrays.asList(l1, l2, l3)).when(store).getLogEntries();
