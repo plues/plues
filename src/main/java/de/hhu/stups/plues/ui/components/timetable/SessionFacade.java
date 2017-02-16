@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui.components.timetable;
 
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
@@ -12,10 +13,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,7 +64,7 @@ public class SessionFacade {
     return slotObjectProperty.get();
   }
 
-  public List<String> getAbstractUnitKeys() {
+  private List<String> getAbstractUnitKeys() {
     return this.abstractUnitKeys;
   }
 
@@ -89,11 +88,11 @@ public class SessionFacade {
     return session.getId();
   }
 
-  public String getUnitKey() {
+  private String getUnitKey() {
     return session.getGroup().getUnit().getKey();
   }
 
-  public Integer getGroupId() {
+  private Integer getGroupId() {
     return session.getGroup().getId();
   }
 
@@ -107,6 +106,7 @@ public class SessionFacade {
    * @param displayFormat SessionDisplayFormat
    * @return String representation of the session
    */
+  @SuppressWarnings("WeakerAccess")
   public String displayText(SessionDisplayFormat displayFormat) {
     final String representation;
     switch (displayFormat) {
@@ -168,8 +168,6 @@ public class SessionFacade {
     private final DayOfWeek day;
     private final Integer time;
 
-    private final Map<DayOfWeek, String> dayMap = new EnumMap<>(DayOfWeek.class);
-
     /**
      * Create a new Slot object.
      * @param day DayOfWeek for the slot
@@ -178,12 +176,6 @@ public class SessionFacade {
     public Slot(final DayOfWeek day, final Integer time) {
       this.day = day;
       this.time = time;
-
-      dayMap.put(DayOfWeek.MONDAY, "mon");
-      dayMap.put(DayOfWeek.TUESDAY, "tue");
-      dayMap.put(DayOfWeek.WEDNESDAY, "wed");
-      dayMap.put(DayOfWeek.THURSDAY, "thu");
-      dayMap.put(DayOfWeek.FRIDAY, "fri");
     }
 
     @Override
@@ -210,8 +202,9 @@ public class SessionFacade {
      *
      * @return String representation of the day
      */
+    @SuppressWarnings("WeakerAccess")
     public String getDayString() {
-      final String dayString = dayMap.get(day);
+      final String dayString = Helpers.shortDayOfWeekMap.get(day);
 
       if (dayString == null) {
         return "sun";
@@ -231,6 +224,7 @@ public class SessionFacade {
     }
   }
 
+  @SuppressWarnings("WeakerAccess")
   public boolean isTentative() {
     return session.isTentative();
   }
