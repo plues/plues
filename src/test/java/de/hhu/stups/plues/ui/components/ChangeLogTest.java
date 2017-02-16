@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
+@SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
 @RunWith(JUnit4.class)
 public class ChangeLogTest extends ApplicationTest {
 
@@ -83,7 +84,6 @@ public class ChangeLogTest extends ApplicationTest {
     stage.show();
   }
 
-  @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   private UiDataService getUiDataService() {
     final UiDataService dataService = mock(UiDataService.class);
     final Date lastSaveDate = new Calendar.Builder().setDate(2016, 11, 3).build().getTime();
