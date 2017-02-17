@@ -160,6 +160,7 @@ public class TimetableSideBar extends TabPane implements Initializable {
    * #checkCourseFeasibility}.
    */
   public void initializeComponents(final ObservableStore store) {
+    getTabs().forEach(tab -> tabNodes.put(tab, lookup("#" + tab.getId())));
     selectedSubTab = lookup(".tab:first-child");
 
     abstractUnitFilter.setAbstractUnits(store.getAbstractUnits());
@@ -177,9 +178,6 @@ public class TimetableSideBar extends TabPane implements Initializable {
         parent.setDividerPosition(0, getMinWidth() / parent.getWidth());
       }
     });
-
-    tabNodes.put(tabCourseFilters, this.lookup("#tabCourseFilters"));
-    tabNodes.put(tabCheckFeasibility, this.lookup("#tabCheckFeasibility"));
   }
 
   /**
