@@ -112,6 +112,10 @@ public class SemesterChooser extends SegmentedButton {
     return selectedSemesters;
   }
 
+  /**
+   * Set the semesters semesters that should be selected in the component.
+   * @param selection Set of semesters to be selected.
+   */
   public void setSelectedSemesters(final ObservableSet<Integer> selection) {
     selectedSemesters.unbind();
     getButtons().forEach(toggleButton
@@ -120,6 +124,10 @@ public class SemesterChooser extends SegmentedButton {
     selectedSemesters.bind(selectedSemestersBinding);
   }
 
+  /**
+   * Set the semestesr that should be highlighted as containing a conflict.
+   * @param semesters Set of semesters that should be highlighted.
+   */
   public void setConflictedSemesters(final ObservableSet<Integer> semesters) {
     getButtons().forEach(toggle -> {
       final int value = Integer.valueOf((String) toggle.getUserData());
