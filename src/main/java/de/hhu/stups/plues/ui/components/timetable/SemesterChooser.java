@@ -84,7 +84,7 @@ public class SemesterChooser extends Region {
                                          final ObservableSet<Integer> oldValue,
                                          final ObservableSet<Integer> newValue) {
     segmentedButton.getButtons().forEach(toggle -> {
-      final int value = Integer.valueOf((String) toggle.getUserData());
+      final int value = Integer.parseInt((String) toggle.getUserData());
 
       if (newValue.contains(value)) {
         toggle.getStyleClass().add("conflicted-semester");
@@ -182,7 +182,7 @@ public class SemesterChooser extends Region {
     protected ObservableSet<Integer> computeValue() {
       return FXCollections.observableSet(this.binding.stream()
           .filter(ToggleButton::isSelected)
-          .mapToInt(button -> Integer.valueOf((String) button.getUserData())).boxed()
+          .mapToInt(button -> Integer.parseInt((String) button.getUserData())).boxed()
           .collect(Collectors.toSet()));
     }
 
