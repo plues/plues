@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyCode;
@@ -15,6 +16,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class SemesterChooserTest extends ApplicationTest {
@@ -95,6 +99,71 @@ public class SemesterChooserTest extends ApplicationTest {
     assertTrue(selection2.contains(1));
     assertTrue(selection2.contains(3));
     assertTrue(selection2.contains(5));
+  }
+
+
+  @Test
+  public void testSetSelectedSemester() throws Exception {
+    final ObservableSet<Integer> semesters = FXCollections.observableSet(4);
+    this.semesterChooser.setSelectedSemesters(semesters);
+    final ObservableSet<Integer> chosenSemesters = semesterChooser.getSelectedSemesters();
+
+    // set has expected value
+    assertEquals(1, chosenSemesters.size());
+    assertTrue(chosenSemesters.contains(4));
+
+    // selected value
+    final List<?> selectedButtons = this.semesterChooser.getButtons().stream()
+        .filter(ToggleButton::isSelected)
+        .map(Node::getUserData)
+        .collect(Collectors.toList());
+
+    assertEquals(1, selectedButtons.size());
+    assertTrue(selectedButtons.contains("4"));
+  }
+
+  @Test
+  public void testSetConflictedSemesters() throws Exception {
+    final ObservableSet<Integer> semesters = FXCollections.observableSet(4,5);
+    this.semesterChooser.setConflictedSemesters(semesters);
+
+    final List<?> markedButtons = this.semesterChooser.getButtons().stream()
+        .filter(toggleButton -> toggleButton.getStyleClass().contains("conflicted-semester"))
+        .map(Node::getUserData)
+        .collect(Collectors.toList());
+
+    assertEquals(2, markedButtons.size());
+    assertTrue(markedButtons.containsAll(Arrays.asList("4", "5")));
+
+    //
+    this.semesterChooser.setConflictedSemesters(FXCollections.observableSet());
+
+    final List<?> objects = this.semesterChooser.getButtons().stream()
+        .filter(toggleButton -> toggleButton.getStyleClass().contains("conflicted-semester"))
+        .map(Node::getUserData)
+        .collect(Collectors.toList());
+
+    assertEquals(0, objects.size());
+  }
+
+  @Test
+  public void testSelectMultipleSemesters() throws Exception {
+    final ObservableSet<Integer> semesters = FXCollections.observableSet(1, 3, 5);
+    this.semesterChooser.setSelectedSemesters(semesters);
+    final ObservableSet<Integer> chosenSemesters = semesterChooser.getSelectedSemesters();
+
+    // set has expected value
+    assertEquals(3, chosenSemesters.size());
+    assertTrue(chosenSemesters.containsAll(Arrays.asList(1, 3, 5)));
+
+    // set has expected value
+    final List<?> selectedButtons = this.semesterChooser.getButtons().stream()
+        .filter(ToggleButton::isSelected)
+        .map(Node::getUserData)
+        .collect(Collectors.toList());
+    assertEquals(3, selectedButtons.size());
+    assertTrue(selectedButtons.containsAll(Arrays.asList("1", "3", "5")));
+
   }
 
   @Override
