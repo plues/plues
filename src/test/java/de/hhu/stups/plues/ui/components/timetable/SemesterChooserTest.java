@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -19,7 +18,6 @@ import org.testfx.framework.junit.ApplicationTest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class SemesterChooserTest extends ApplicationTest {
   private SemesterChooser semesterChooser;
@@ -168,15 +166,7 @@ public class SemesterChooserTest extends ApplicationTest {
 
   @Override
   public void start(final Stage stage) throws Exception {
-    final ObservableList<ToggleButton> buttons = FXCollections.observableArrayList();
-    IntStream.rangeClosed(1, 6).forEachOrdered(value -> {
-      final String text = String.valueOf(value);
-      final ToggleButton button = new ToggleButton(text);
-      button.setUserData(text);
-      buttons.add(button);
-    });
-    this.semesterChooser
-        = new SemesterChooser(buttons);
+    this.semesterChooser = new SemesterChooser();
 
     stage.setScene(new Scene(semesterChooser));
     stage.show();
