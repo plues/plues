@@ -338,14 +338,17 @@ public class Reports extends VBox implements Initializable {
 
     private void calculateImpossibleCourses(final Store store,
                                             final ReportData reportData) {
-      this.impossibleCourses = reportData.getImpossibleCourses()
-        .stream().map(store::getCourseByKey).collect(Collectors.toList());
-      this.impossibleCoursesBecauseOfImpossibleModules =
-        reportData.getImpossibleCoursesBecauseofImpossibleModules()
-          .stream().map(store::getCourseByKey).collect(Collectors.toList());
-      this.impossibleCoursesBecauseOfImpossibleModuleCombinations =
-        reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations()
-          .stream().map(store::getCourseByKey).collect(Collectors.toList());
+      this.impossibleCourses
+          = getCoursesByKeys(store, reportData.getImpossibleCourses());
+      this.impossibleCoursesBecauseOfImpossibleModules
+          = getCoursesByKeys(store, reportData.getImpossibleCoursesBecauseofImpossibleModules());
+      this.impossibleCoursesBecauseOfImpossibleModuleCombinations
+          = getCoursesByKeys(store,
+              reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations());
+    }
+
+    private List<Course> getCoursesByKeys(final Store store, final Set<String> courseKeys) {
+      return courseKeys.stream().map(store::getCourseByKey).collect(Collectors.toList());
     }
 
     private void calculateImpossibleModules(final Store store,
