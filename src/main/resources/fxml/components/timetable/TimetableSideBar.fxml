@@ -11,7 +11,7 @@
 <fx:root type="javafx.scene.control.TabPane" side="LEFT" prefWidth="300.0"
          styleClass="sideBarTabPane" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
-    <Tab fx:id="tabCourseFilters" text="%tabCourseFilters">
+    <Tab fx:id="tabCourseFilters" id="tabCourseFilters" text="%tabCourseFilters">
         <VBox spacing="20.0">
             <padding>
                 <Insets top="10.0"/>
@@ -20,7 +20,7 @@
             <AbstractUnitFilter fx:id="abstractUnitFilter" VBox.vgrow="ALWAYS"/>
         </VBox>
     </Tab>
-    <Tab fx:id="tabCheckFeasibility" text="%tabCheckFeasibility">
+    <Tab fx:id="tabCheckFeasibility" id="tabCheckFeasibility" text="%tabCheckFeasibility">
         <CheckCourseFeasibility fx:id="checkCourseFeasibility"/>
     </Tab>
 </fx:root>

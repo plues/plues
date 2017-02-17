@@ -31,6 +31,8 @@ import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 
@@ -41,6 +43,8 @@ public class TimetableSideBar extends TabPane implements Initializable {
   private final UiDataService uiDataService;
   private Node selectedSubTab;
   private Timetable parent;
+
+  private final Map<Tab, Node> tabNodes = new HashMap<>(2);
 
   @FXML
   @SuppressWarnings("unused")
@@ -173,6 +177,9 @@ public class TimetableSideBar extends TabPane implements Initializable {
         parent.setDividerPosition(0, getMinWidth() / parent.getWidth());
       }
     });
+
+    tabNodes.put(tabCourseFilters, this.lookup("#tabCourseFilters"));
+    tabNodes.put(tabCheckFeasibility, this.lookup("#tabCheckFeasibility"));
   }
 
   /**
@@ -290,7 +297,7 @@ public class TimetableSideBar extends TabPane implements Initializable {
 
   private void selectSideBarTab(final Tab tab) {
     getSelectionModel().select(tab);
-    selectedSubTab = lookup(".tab:selected");
+    selectedSubTab = tabNodes.get(tab);
     collapsed.set(false);
   }
 
