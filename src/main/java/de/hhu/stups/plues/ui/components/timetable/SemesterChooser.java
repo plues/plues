@@ -62,7 +62,6 @@ public class SemesterChooser extends SegmentedButton {
       c.getRemoved().forEach(o -> {
         o.removeEventFilter(MouseEvent.MOUSE_CLICKED, handleMouseClicked);
         o.removeEventFilter(KeyEvent.KEY_PRESSED, handleKeyPressed);
-
       });
     });
   }
@@ -111,6 +110,14 @@ public class SemesterChooser extends SegmentedButton {
 
   public SetProperty<Integer> selectedSemestersProperty() {
     return selectedSemesters;
+  }
+
+  public void setSelectedSemesters(ObservableSet<Integer> selection) {
+    selectedSemesters.unbind();
+    getButtons().forEach(toggleButton
+        -> toggleButton.setSelected(
+            selection.contains(Integer.parseInt((String) toggleButton.getUserData()))));
+    selectedSemesters.bind(selectedSemestersBinding);
   }
 
   private class SelectedSemestersBinding extends SetBinding<Integer> {
