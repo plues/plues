@@ -112,7 +112,7 @@ public class SemesterChooser extends SegmentedButton {
     return selectedSemesters;
   }
 
-  public void setSelectedSemesters(ObservableSet<Integer> selection) {
+  public void setSelectedSemesters(final ObservableSet<Integer> selection) {
     selectedSemesters.unbind();
     getButtons().forEach(toggleButton
         -> toggleButton.setSelected(
