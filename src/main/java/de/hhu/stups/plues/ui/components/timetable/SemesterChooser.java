@@ -120,6 +120,18 @@ public class SemesterChooser extends SegmentedButton {
     selectedSemesters.bind(selectedSemestersBinding);
   }
 
+  public void setConflictedSemesters(final ObservableSet<Integer> semesters) {
+    getButtons().forEach(toggle -> {
+      final int value = Integer.valueOf((String) toggle.getUserData());
+
+      if (semesters.contains(value)) {
+        toggle.getStyleClass().add("conflicted-semester");
+      } else {
+        toggle.getStyleClass().remove("conflicted-semester");
+      }
+    });
+  }
+
   private class SelectedSemestersBinding extends SetBinding<Integer> {
 
     private final ListBinding<ToggleButton> binding;

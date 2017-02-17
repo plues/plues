@@ -123,6 +123,20 @@ public class SemesterChooserTest extends ApplicationTest {
   }
 
   @Test
+  public void testSetConflictedSemesters() throws Exception {
+    final ObservableSet<Integer> semesters = FXCollections.observableSet(4,5);
+    this.semesterChooser.setConflictedSemesters(semesters);
+
+    final List<?> markedButtons = this.semesterChooser.getButtons().stream()
+      .filter(toggleButton -> toggleButton.getStyleClass().contains("conflicted-semester"))
+      .map(Node::getUserData)
+      .collect(Collectors.toList());
+
+    assertEquals(2, markedButtons.size());
+    assertTrue(markedButtons.containsAll(Arrays.asList("4", "5")));
+  }
+
+  @Test
   public void testSelectMultipleSemesters() throws Exception {
     final ObservableSet<Integer> semesters = FXCollections.observableSet(1, 3, 5);
     this.semesterChooser.setSelectedSemesters(semesters);

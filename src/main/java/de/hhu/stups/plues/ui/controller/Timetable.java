@@ -84,7 +84,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   private TimetableSideBar timetableSideBar;
 
   private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
-  private final SetProperty<String> conflictedSemesters;
+  private final SetProperty<Integer> conflictedSemesters;
 
   /**
    * Timetable component.
@@ -144,24 +144,11 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     });
 
     conflictedSemesters.addListener((observable, oldValue, newValue)
-        -> this.highlightConflictedSemesters(newValue));
+        -> semesterToggle.setConflictedSemesters(newValue));
 
-    this.delayedStore.whenAvailable(store
-        -> conflictedSemesters.bind(new ConflictedSemestersBinding()));
+    conflictedSemesters.bind(new ConflictedSemestersBinding());
 
     initSessionBoxes();
-  }
-
-  private void highlightConflictedSemesters(final ObservableSet<String> semesters) {
-    semesterToggle.getButtons().forEach(toggle -> {
-      final String value = (String) toggle.getUserData();
-
-      if (semesters.contains(value)) {
-        toggle.getStyleClass().add("conflicted-semester");
-      } else {
-        toggle.getStyleClass().remove("conflicted-semester");
-      }
-    });
   }
 
   /**
@@ -261,7 +248,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     final Set<Integer> selectedSemesters = semesterToggle.getSelectedSemesters();
     final Set<Integer> unitSemesters = facade.getUnitSemesters();
 
-    // no semester or on of the unitSemesters is selected, hence all sessions are visible
+    // no semester or one of the unitSemesters is selected, hence all sessions are visible
     if (selectedSemesters.isEmpty() || !Collections.disjoint(selectedSemesters, unitSemesters)) {
       return;
     }
@@ -278,22 +265,20 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     return userDefinedDividerPos;
   }
 
-  private class ConflictedSemestersBinding extends SetBinding<String> {
+  private class ConflictedSemestersBinding extends SetBinding<Integer> {
 
     ConflictedSemestersBinding() {
       bind(uiDataService.conflictMarkedSessionsProperty());
     }
 
     @Override
-    protected ObservableSet<String> computeValue() {
+    protected ObservableSet<Integer> computeValue() {
       final Set<Integer> sessionIds = new HashSet<>(uiDataService.conflictMarkedSessionsProperty());
       return sessions.filtered(facade -> sessionIds.contains(facade.getId())).stream()
           .map(SessionFacade::getUnitSemesters)
           .flatMap(Collection::stream)
           .collect(
-              Collectors.collectingAndThen(
-                  Collectors.mapping(String::valueOf, Collectors.toSet()),
-                  FXCollections::observableSet));
+              Collectors.collectingAndThen(Collectors.toSet(), FXCollections::observableSet));
     }
   }
 
