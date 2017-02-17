@@ -114,9 +114,9 @@ public class SemesterChooserTest extends ApplicationTest {
 
     // selected value
     final List<?> selectedButtons = this.semesterChooser.getButtons().stream()
-      .filter(ToggleButton::isSelected)
-      .map(Node::getUserData)
-      .collect(Collectors.toList());
+        .filter(ToggleButton::isSelected)
+        .map(Node::getUserData)
+        .collect(Collectors.toList());
 
     assertEquals(1, selectedButtons.size());
     assertTrue(selectedButtons.contains("4"));
@@ -128,9 +128,9 @@ public class SemesterChooserTest extends ApplicationTest {
     this.semesterChooser.setConflictedSemesters(semesters);
 
     final List<?> markedButtons = this.semesterChooser.getButtons().stream()
-      .filter(toggleButton -> toggleButton.getStyleClass().contains("conflicted-semester"))
-      .map(Node::getUserData)
-      .collect(Collectors.toList());
+        .filter(toggleButton -> toggleButton.getStyleClass().contains("conflicted-semester"))
+        .map(Node::getUserData)
+        .collect(Collectors.toList());
 
     assertEquals(2, markedButtons.size());
     assertTrue(markedButtons.containsAll(Arrays.asList("4", "5")));
