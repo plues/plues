@@ -467,7 +467,7 @@ public class Reports extends VBox implements Initializable {
       SwingUtilities.invokeLater(() -> {
         try {
           Desktop.getDesktop().open(file);
-        } catch (IOException exc) {
+        } catch (final IOException exc) {
           logger.error("Exception while opening pdf", exc);
         }
       });
