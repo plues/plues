@@ -143,8 +143,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
       }
     });
 
-    conflictedSemesters.addListener((observable, oldValue, newValue)
-        -> semesterToggle.setConflictedSemesters(newValue));
+    semesterToggle.conflictedSemestersProperty().bind(conflictedSemesters);
 
     conflictedSemesters.bind(new ConflictedSemestersBinding());
 

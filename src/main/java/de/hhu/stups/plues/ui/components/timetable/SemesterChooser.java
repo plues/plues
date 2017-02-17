@@ -5,6 +5,7 @@ import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.SetBinding;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleSetProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -24,6 +25,9 @@ import java.util.stream.Collectors;
 public class SemesterChooser extends SegmentedButton {
 
   private final SetProperty<Integer> selectedSemesters = new SimpleSetProperty<>();
+  private final SetProperty<Integer> conflictedSemesters
+      = new SimpleSetProperty<>(FXCollections.observableSet());
+
   private SelectedSemestersBinding selectedSemestersBinding;
 
   @SuppressWarnings("unused")
@@ -63,6 +67,23 @@ public class SemesterChooser extends SegmentedButton {
         o.removeEventFilter(MouseEvent.MOUSE_CLICKED, handleMouseClicked);
         o.removeEventFilter(KeyEvent.KEY_PRESSED, handleKeyPressed);
       });
+    });
+
+    conflictedSemesters.addListener(this::handleConflictedSemesters);
+  }
+
+  @SuppressWarnings("unused")
+  private void handleConflictedSemesters(final ObservableValue<?> observable,
+                                         final ObservableSet<Integer> oldValue,
+                                         final ObservableSet<Integer> newValue) {
+    getButtons().forEach(toggle -> {
+      final int value = Integer.valueOf((String) toggle.getUserData());
+
+      if (newValue.contains(value)) {
+        toggle.getStyleClass().add("conflicted-semester");
+      } else {
+        toggle.getStyleClass().remove("conflicted-semester");
+      }
     });
   }
 
@@ -129,15 +150,11 @@ public class SemesterChooser extends SegmentedButton {
    * @param semesters Set of semesters that should be highlighted.
    */
   public void setConflictedSemesters(final ObservableSet<Integer> semesters) {
-    getButtons().forEach(toggle -> {
-      final int value = Integer.valueOf((String) toggle.getUserData());
+    this.conflictedSemesters.set(semesters);
+  }
 
-      if (semesters.contains(value)) {
-        toggle.getStyleClass().add("conflicted-semester");
-      } else {
-        toggle.getStyleClass().remove("conflicted-semester");
-      }
-    });
+  public SetProperty<Integer> conflictedSemestersProperty() {
+    return this.conflictedSemesters;
   }
 
   private class SelectedSemestersBinding extends SetBinding<Integer> {
