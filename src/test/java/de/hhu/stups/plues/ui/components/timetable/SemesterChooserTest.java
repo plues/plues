@@ -134,6 +134,16 @@ public class SemesterChooserTest extends ApplicationTest {
 
     assertEquals(2, markedButtons.size());
     assertTrue(markedButtons.containsAll(Arrays.asList("4", "5")));
+
+    //
+    this.semesterChooser.setConflictedSemesters(FXCollections.observableSet());
+
+    final List<?> objects = this.semesterChooser.getButtons().stream()
+        .filter(toggleButton -> toggleButton.getStyleClass().contains("conflicted-semester"))
+        .map(Node::getUserData)
+        .collect(Collectors.toList());
+
+    assertEquals(0, objects.size());
   }
 
   @Test
