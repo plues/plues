@@ -91,7 +91,7 @@ public class TimetableSideBar extends TabPane implements Initializable {
     });
   }
 
-  private void handleTabClicked(MouseEvent mouseEvent, Node clickedTab) {
+  private void handleTabClicked(final MouseEvent mouseEvent, final Node clickedTab) {
     if (fadingInProgress) {
       mouseEvent.consume();
       return;
@@ -237,7 +237,7 @@ public class TimetableSideBar extends TabPane implements Initializable {
     runAnimation(hide);
   }
 
-  private void runAnimation(boolean hide) {
+  private void runAnimation(final boolean hide) {
     final Timeline timeline = new Timeline();
     final double destination;
 
