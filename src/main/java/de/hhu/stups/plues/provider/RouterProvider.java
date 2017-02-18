@@ -82,6 +82,8 @@ public class RouterProvider implements Provider<Router> {
           controllerRouteFactory.create(TAB_TIMETABLE));
       cache.put(RouteNames.SESSION_IN_TIMETABLE,
           controllerRouteFactory.create(TAB_TIMETABLE));
+      cache.put(RouteNames.CONFLICT_IN_TIMETABLE,
+          controllerRouteFactory.create(TAB_TIMETABLE));
       cache.put(RouteNames.CHECK_FEASIBILITY_TIMETABLE,
           controllerRouteFactory.create(TAB_TIMETABLE));
       cache.put(RouteNames.PDF_TIMETABLES,
