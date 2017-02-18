@@ -222,10 +222,16 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     if (args.length == 0) {
       return;
     }
-    if (routeName == RouteNames.SESSION_IN_TIMETABLE) {
-      scrollToSession((Session) args[0]);
-    } else {
-      timetableSideBar.activateComponents(args);
+    switch (routeName) {
+      case SESSION_IN_TIMETABLE:
+        scrollToSession((Session) args[0]);
+        break;
+      case CONFLICT_IN_TIMETABLE:
+        timetableSideBar.openCourseFilter();
+        break;
+      default:
+        timetableSideBar.activateComponents(args);
+        break;
     }
   }
 

@@ -213,6 +213,10 @@ public class TimetableSideBar extends TabPane implements Initializable {
     }
   }
 
+  public void openCourseFilter() {
+    selectSideBarTab(tabCourseFilters);
+  }
+
   private void selectCheckFeasibility(final Course[] courses) {
     selectSideBarTab(tabCheckFeasibility);
     checkCourseFeasibility.selectCourses(courses);

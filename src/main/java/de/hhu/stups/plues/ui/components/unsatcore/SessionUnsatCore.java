@@ -117,7 +117,7 @@ public class SessionUnsatCore extends VBox implements Initializable {
   public void highlightInTimetable() {
     uiDataService.setConflictMarkedSessions(FXCollections.observableArrayList(
         sessions.get().stream().map(Session::getId).collect(Collectors.toList())));
-    router.transitionTo(RouteNames.CONFLICT_IN_TIMETABLE);
+    router.transitionTo(RouteNames.CONFLICT_IN_TIMETABLE, sessions);
   }
 
   private void bindTableColumnsWidth() {
