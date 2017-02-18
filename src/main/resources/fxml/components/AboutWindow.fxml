@@ -25,7 +25,8 @@
     <Label text="%handbook" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
 
     <Label GridPane.rowIndex="9" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
-    <Label text="%footer" GridPane.rowIndex="10" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+    <Label text="%footer" wrapText="true" GridPane.rowIndex="10" GridPane.columnIndex="0"
+           GridPane.columnSpan="2"/>
 
     <columnConstraints>
         <ColumnConstraints percentWidth="50"/>
