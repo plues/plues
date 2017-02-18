@@ -17,14 +17,20 @@
 <?import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterConflicts?>
 <?import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits?>
 <?import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Tooltip?>
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" spacing="10.0"
          xmlns:fx="http://javafx.com/fxml/1" styleClass="windowPadding">
-    <Button fx:id="buttonPrint" text="%print" onAction="#printReport" disable="true">
-        <padding>
-            <Insets bottom="10.0" top="10.0" left="10.0" right="10.0"/>
-        </padding>
-    </Button>
+    <HBox spacing="10.0">
+        <Button fx:id="btPrint" text="%print" onAction="#printReport" disable="true"/>
+        <Button fx:id="btRecomputeData" text="%recomputeData" onAction="#recomputeData"/>
+        <Label fx:id="lbOutOfSyncInfo" alignment="TOP_LEFT">
+            <tooltip>
+                <Tooltip fx:id="outOfSyncHint" text="%outOfSyncInfo"/>
+            </tooltip>
+        </Label>
+    </HBox>
     <Accordion expandedPane="$titledPaneStats">
         <panes>
             <TitledPane fx:id="titledPaneStats" text="%stats" minWidth="0" minHeight="0">
