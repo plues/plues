@@ -191,6 +191,7 @@ public class FeasibilityBox extends VBox implements Initializable {
   }
 
   @FXML
+  @SuppressWarnings("unused")
   private void submitAction() {
     final Actions selectedItem = cbAction.getSelectionModel().getSelectedItem();
 
@@ -277,6 +278,7 @@ public class FeasibilityBox extends VBox implements Initializable {
     }, task.stateProperty());
   }
 
+  @SuppressWarnings("unused")
   private void showConflictTree(final Set<Integer> value) {
     unsatCoreProperty.set(FXCollections.observableArrayList(value));
     final ConflictTree conflictTree = conflictTreeProvider.get();
