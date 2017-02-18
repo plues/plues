@@ -796,6 +796,7 @@ public class MainController implements Initializable {
   private void openReports() {
     if (!tabPane.getTabs().contains(reportsTab)) {
       reportsTab.setContent(reportsProvider.get());
+      reportsTab.setOnClosed(event -> reportsProvider.get().dispose());
       tabPane.getTabs().add(reportsTab);
     }
     tabPane.getSelectionModel().select(reportsTab);

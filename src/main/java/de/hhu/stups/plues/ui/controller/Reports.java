@@ -81,6 +81,7 @@ public class Reports extends VBox implements Initializable, Observer {
   private final BooleanProperty dataOutOfSync = new SimpleBooleanProperty(false);
   private final Properties properties;
   private final ExecutorService executorService;
+  private Delayed<ObservableStore> delayedStore;
   private SolverService solverService;
   private int abstractUnitAmount;
   private int groupAmount;
@@ -166,6 +167,7 @@ public class Reports extends VBox implements Initializable, Observer {
                  final Properties properties) {
     this.executorService = executorService;
     this.properties = properties;
+    this.delayedStore = delayedStore;
     resources = new HashMap<>();
 
     delayedStore.whenAvailable(store -> {
@@ -530,5 +532,9 @@ public class Reports extends VBox implements Initializable, Observer {
         }
       });
     }
+  }
+
+  public void dispose() {
+    delayedStore.whenAvailable(store -> store.deleteObserver(this));
   }
 }
