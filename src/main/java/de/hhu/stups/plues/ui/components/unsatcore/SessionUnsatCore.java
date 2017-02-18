@@ -3,7 +3,9 @@ package de.hhu.stups.plues.ui.components.unsatcore;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Session;
+import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -14,6 +16,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -22,12 +25,17 @@ import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class SessionUnsatCore extends VBox implements Initializable {
 
   private final ListProperty<Session> sessions;
   private final Router router;
+  private final UiDataService uiDataService;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btHighlightConflicts;
   @FXML
   @SuppressWarnings("unused")
   private TableView<Session> sessionsTable;
@@ -51,9 +59,12 @@ public class SessionUnsatCore extends VBox implements Initializable {
    * Default constructor.
    */
   @Inject
-  public SessionUnsatCore(final Inflater inflater, final Router router) {
+  public SessionUnsatCore(final Inflater inflater,
+                          final Router router,
+                          final UiDataService uiDataService) {
     sessions = new SimpleListProperty<>(FXCollections.emptyObservableList());
     this.router = router;
+    this.uiDataService = uiDataService;
 
     inflater.inflate("components/unsatcore/SessionUnsatCore",
         this, this, "unsatCore", "Column", "Days");
@@ -61,7 +72,7 @@ public class SessionUnsatCore extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    txtExplanation.wrappingWidthProperty().bind(widthProperty().subtract(150));
+    txtExplanation.wrappingWidthProperty().bind(widthProperty().subtract(300));
 
     sessionsTable.itemsProperty().bind(sessions);
     sessionsTable.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
@@ -96,6 +107,17 @@ public class SessionUnsatCore extends VBox implements Initializable {
         -> Bindings.selectString(param, "value", "group", "unit", "title"));
 
     bindTableColumnsWidth();
+  }
+
+  /**
+   * Highlight the conflicted sessions in the {@link de.hhu.stups.plues.ui.controller.Timetable}.
+   */
+  @FXML
+  @SuppressWarnings("unused")
+  public void highlightInTimetable() {
+    uiDataService.setConflictMarkedSessions(FXCollections.observableArrayList(
+        sessions.get().stream().map(Session::getId).collect(Collectors.toList())));
+    router.transitionTo(RouteNames.CONFLICT_IN_TIMETABLE);
   }
 
   private void bindTableColumnsWidth() {

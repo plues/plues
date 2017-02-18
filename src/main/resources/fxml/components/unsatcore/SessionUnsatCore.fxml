@@ -5,10 +5,16 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
 
 <fx:root type="VBox" spacing="10.0" styleClass="windowPadding" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
-    <Text fx:id="txtExplanation" text="%sessionsPaneExplanation"/>
+    <HBox spacing="10.0">
+        <Text fx:id="txtExplanation" text="%sessionsPaneExplanation"/>
+        <Button fx:id="btHighlightConflicts" text="%highlightConflicts" alignment="CENTER_RIGHT"
+                onAction="#highlightInTimetable"/>
+    </HBox>
     <TableView fx:id="sessionsTable" minWidth="0" minHeight="0">
         <columns>
             <TableColumn fx:id="tableColumnSessionDay" text="%columnDay" resizable="false">
