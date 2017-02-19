@@ -2,6 +2,7 @@ package de.hhu.stups.plues.ui.components.unsatcore;
 
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
@@ -29,7 +30,8 @@ import java.util.stream.Collectors;
 
 public class SessionUnsatCore extends VBox implements Initializable {
 
-  private final ListProperty<Session> sessions;
+  private final ListProperty<Session> sessionsProperty;
+  private final ListProperty<Course> coursesProperty;
   private final Router router;
   private final UiDataService uiDataService;
 
@@ -62,7 +64,8 @@ public class SessionUnsatCore extends VBox implements Initializable {
   public SessionUnsatCore(final Inflater inflater,
                           final Router router,
                           final UiDataService uiDataService) {
-    sessions = new SimpleListProperty<>(FXCollections.emptyObservableList());
+    sessionsProperty = new SimpleListProperty<>(FXCollections.emptyObservableList());
+    coursesProperty = new SimpleListProperty<>(FXCollections.emptyObservableList());
     this.router = router;
     this.uiDataService = uiDataService;
 
@@ -74,7 +77,7 @@ public class SessionUnsatCore extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     txtExplanation.wrappingWidthProperty().bind(widthProperty().subtract(300));
 
-    sessionsTable.itemsProperty().bind(sessions);
+    sessionsTable.itemsProperty().bind(sessionsProperty);
     sessionsTable.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
         sessionsTable, router));
     tableColumnSessionDay.setCellFactory(param -> new TableCell<Session, String>() {
@@ -116,8 +119,12 @@ public class SessionUnsatCore extends VBox implements Initializable {
   @SuppressWarnings("unused")
   public void highlightInTimetable() {
     uiDataService.setConflictMarkedSessions(FXCollections.observableArrayList(
-        sessions.get().stream().map(Session::getId).collect(Collectors.toList())));
-    router.transitionTo(RouteNames.CONFLICT_IN_TIMETABLE, sessions);
+        sessionsProperty.get().stream().map(Session::getId).collect(Collectors.toList())));
+    router.transitionTo(RouteNames.CONFLICT_IN_TIMETABLE, coursesProperty.get().toArray());
+  }
+
+  public ListProperty<Course> coursesProperty() {
+    return coursesProperty;
   }
 
   private void bindTableColumnsWidth() {
@@ -132,14 +139,14 @@ public class SessionUnsatCore extends VBox implements Initializable {
   }
 
   public void setSessions(final ObservableList<Session> sessions) {
-    this.sessions.set(sessions);
+    this.sessionsProperty.set(sessions);
   }
 
   public ObservableList<Session> getSessions() {
-    return sessions.get();
+    return sessionsProperty.get();
   }
 
   public ListProperty<Session> sessionProperty() {
-    return sessions;
+    return sessionsProperty;
   }
 }
