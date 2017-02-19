@@ -218,13 +218,23 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   }
 
   /**
-   * Set the list of currently selected courses (checkobx in the UI is selected).
+   * Set the list of currently selected courses (checkbox in the UI is selected).
    */
   public void setSelectedCourses(final List<Course> courses) {
     // We put the courses in a HashSet here to avoid the linear scan of the list in the membership
-    // check bellow
+    // check below
     final HashSet<Course> courseSet = new HashSet<>(courses);
     selectableCourses.forEach(course -> course.setSelected(courseSet.contains(course.getCourse())));
+    scrollToCourses(courses);
+  }
+
+  private void scrollToCourses(final List<Course> courses) {
+    selectableCourses.stream().filter(selectableCourse ->
+        courses.contains(selectableCourse.getCourse()) && selectableCourse.getCourse().isBachelor())
+        .findFirst().ifPresent(tableViewBachelorCourse::scrollTo);
+    selectableCourses.stream().filter(selectableCourse ->
+        courses.contains(selectableCourse.getCourse()) && selectableCourse.getCourse().isMaster())
+        .findFirst().ifPresent(tableViewMasterCourse::scrollTo);
   }
 
   @SuppressWarnings("unused")
@@ -286,7 +296,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
       return this.course.isBachelor();
     }
 
-
+    @SuppressWarnings("unused")
     private boolean matches(final String query) {
       return this.getName().toLowerCase().contains(query)
           || this.getKey().toLowerCase().contains(query);
