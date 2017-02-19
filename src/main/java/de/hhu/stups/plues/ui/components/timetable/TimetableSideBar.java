@@ -32,6 +32,7 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -213,8 +214,9 @@ public class TimetableSideBar extends TabPane implements Initializable {
     }
   }
 
-  public void openCourseFilter() {
+  public void selectCourseFilter(final List<Course> courses) {
     selectSideBarTab(tabCourseFilters);
+    setOfCourseSelection.setSelectedCourses(courses);
   }
 
   private void selectCheckFeasibility(final Course[] courses) {
