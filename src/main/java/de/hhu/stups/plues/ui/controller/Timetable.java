@@ -228,7 +228,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
         scrollToSession((Session) args[0]);
         break;
       case CONFLICT_IN_TIMETABLE:
-        final List<Course> courses = (args[1] != null)
+        final List<Course> courses = (args.length > 1 && args[1] != null)
             ? Arrays.asList((Course) args[0], (Course) args[1])
             : Collections.singletonList((Course) args[0]);
         timetableSideBar.selectCourseFilter(courses);
