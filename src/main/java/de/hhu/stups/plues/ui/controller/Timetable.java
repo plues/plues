@@ -48,6 +48,7 @@ import javafx.scene.layout.GridPane;
 
 import java.net.URL;
 import java.time.DayOfWeek;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -227,7 +228,10 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
         scrollToSession((Session) args[0]);
         break;
       case CONFLICT_IN_TIMETABLE:
-        timetableSideBar.openCourseFilter();
+        final List<Course> courses = (args[1] != null)
+            ? Arrays.asList((Course) args[0], (Course) args[1])
+            : Collections.singletonList((Course) args[0]);
+        timetableSideBar.selectCourseFilter(courses);
         break;
       default:
         timetableSideBar.activateComponents(args);
