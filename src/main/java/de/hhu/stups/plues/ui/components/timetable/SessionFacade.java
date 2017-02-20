@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components.timetable;
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.Session;
@@ -89,7 +90,11 @@ public class SessionFacade {
   }
 
   private Integer getGroupId() {
-    return session.getGroup().getId();
+    return getGroup().getId();
+  }
+
+  public Group getGroup() {
+    return session.getGroup();
   }
 
   public String getTitle() {

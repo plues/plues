@@ -6,7 +6,6 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
-import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
@@ -32,8 +31,7 @@ import java.util.stream.Collectors;
 
 public class SessionDetailView extends VBox implements Initializable {
 
-  private final ObjectProperty<Session> sessionProperty;
-  private final ObjectProperty<SessionFacade> sessionFacadeProperty;
+  private final ObjectProperty<SessionFacade> sessionProperty = new SimpleObjectProperty<>();
   private final Router router;
 
   @FXML
@@ -77,8 +75,6 @@ public class SessionDetailView extends VBox implements Initializable {
    */
   @Inject
   public SessionDetailView(final Inflater inflater, final Router router) {
-    sessionProperty = new SimpleObjectProperty<>();
-    sessionFacadeProperty = new SimpleObjectProperty<>();
     this.router = router;
 
     inflater.inflate("components/detailview/SessionDetailView", this, this, "detailView");
@@ -91,31 +87,33 @@ public class SessionDetailView extends VBox implements Initializable {
    */
   @SuppressWarnings("WeakerAccess")
   public void setSession(final SessionFacade sessionFacade) {
-    this.sessionProperty.set(sessionFacade.getSession());
-    this.sessionFacadeProperty.set(sessionFacade);
+    this.sessionProperty.set(sessionFacade);
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     lbTitle.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
-        Bindings.selectString(sessionProperty, "group", "unit", "title")).otherwise(""));
+        Bindings.selectString(sessionProperty, "title")).otherwise(""));
 
     lbSession.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
-        Bindings.selectString(sessionFacadeProperty, "slot")).otherwise(""));
+        Bindings.selectString(sessionProperty, "slot")).otherwise(""));
 
     lbGroup.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
         Bindings.selectString(sessionProperty, "group", "id")).otherwise(""));
 
     lbSemesters.textProperty().bind(Bindings.createStringBinding(() -> {
-      final Session session = sessionProperty.get();
+      final SessionFacade session = sessionProperty.get();
       if (session == null) {
         return "";
       }
-      return Joiner.on(", ").join(session.getGroup().getUnit().getSemesters());
+      return session.getUnitSemesters().stream()
+          .sorted()
+          .map(String::valueOf)
+          .collect(Collectors.joining(", "));
     }, sessionProperty));
 
     lbTentative.textProperty().bind(Bindings.createStringBinding(() -> {
-      final Session session = sessionProperty.get();
+      final SessionFacade session = sessionProperty.get();
       if (session == null) {
         return "?";
       }
@@ -295,12 +293,11 @@ public class SessionDetailView extends VBox implements Initializable {
 
     @Override
     protected ObservableList<CourseTableEntry> computeValue() {
-      final Session session = sessionProperty.get();
+      final SessionFacade session = sessionProperty.get();
       if (session == null) {
         return FXCollections.emptyObservableList();
       }
-      final Set<AbstractUnit> abstractUnits
-          = session.getGroup().getUnit().getAbstractUnits();
+      final Set<AbstractUnit> abstractUnits = session.getIntendedAbstractUnits();
       return abstractUnits.stream().flatMap(au ->
           au.getModuleAbstractUnitTypes().stream().flatMap(entry ->
               entry.getModule().getCourses().stream().map(course -> {
