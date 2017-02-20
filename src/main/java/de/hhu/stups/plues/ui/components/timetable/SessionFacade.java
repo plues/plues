@@ -45,15 +45,11 @@ public class SessionFacade {
       .sorted(String::compareTo)
       .collect(Collectors.toList());
 
-    initSlotProperty();
+    slotObjectProperty.set(new Slot(getDayOfWeek(), session.getTime()));
   }
 
   private DayOfWeek getDayOfWeek() {
     return session.getDayOfWeek();
-  }
-
-  public void initSlotProperty() {
-    slotObjectProperty.set(new Slot(getDayOfWeek(), session.getTime()));
   }
 
   public ObjectProperty<Slot> slotProperty() {

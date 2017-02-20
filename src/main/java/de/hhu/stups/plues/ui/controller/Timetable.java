@@ -205,7 +205,6 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
   @SuppressWarnings("unused")
   private void setSessions(final List<SessionFacade> sessions) {
-    sessions.forEach(SessionFacade::initSlotProperty);
     this.sessions.set(FXCollections.observableList(sessions,
         (SessionFacade session) -> new Observable[] {session.slotProperty()}));
   }
