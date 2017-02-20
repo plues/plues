@@ -13,7 +13,6 @@ import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
-import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.detailview.SessionDetailView.CourseTableEntry;
 import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
@@ -51,13 +50,13 @@ public class SessionDetailViewTest extends ApplicationTest {
   /**
    * Test constructor.
    */
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   public SessionDetailViewTest() {
     store = mock(Store.class);
 
     final ObjectProperty<SessionFacade.Slot> slot = new SimpleObjectProperty<>(
         new SessionFacade.Slot(DayOfWeek.MONDAY, 8));
-    final Unit unit = mock(Unit.class, new ThrowsException(new RuntimeException()));
     final Group group = mock(Group.class, new ThrowsException(new RuntimeException()));
     final Session session = mock(Session.class, new ThrowsException(new RuntimeException()));
     sessionFacade = mock(SessionFacade.class, new ThrowsException(new RuntimeException()));
@@ -119,8 +118,10 @@ public class SessionDetailViewTest extends ApplicationTest {
     doReturn(slot).when(sessionFacade).slotProperty();
 
     doReturn("Unit").when(sessionFacade).getTitle();
-    doReturn(new HashSet(Arrays.asList(au1, au2))).when(sessionFacade).getIntendedAbstractUnits();
-    doReturn(new HashSet(Arrays.asList(1,2))).when(sessionFacade).getUnitSemesters();
+    doReturn(new HashSet<>(Arrays.asList(au1, au2)))
+        .when(sessionFacade).getIntendedAbstractUnits();
+    doReturn(new HashSet<>(Arrays.asList(1, 2)))
+        .when(sessionFacade).getUnitSemesters();
 
   }
 
