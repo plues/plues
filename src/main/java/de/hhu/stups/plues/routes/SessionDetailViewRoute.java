@@ -20,14 +20,20 @@ public class SessionDetailViewRoute implements Route {
   }
 
   @Override
-  public void transition(final RouteNames routeName, Object... args) {
+  public void transition(final RouteNames routeName, final Object... args) {
+    final SessionFacade facade;
+    if (args[0] instanceof SessionFacade) {
+      facade = (SessionFacade) args[0];
+    } else {
+      facade = new SessionFacade((Session) args[0]);
+    }
+
     final SessionDetailView sessionDetailView = sessionDetailViewProvider.get();
-    sessionDetailView.setSession(new SessionFacade((Session) args[0]));
+    sessionDetailView.setSession(facade);
 
     final Stage stage = new Stage();
     stage.setTitle(sessionDetailView.getTitle());
     stage.setScene(SceneFactory.create(sessionDetailView));
     stage.show();
-
   }
 }

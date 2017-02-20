@@ -119,7 +119,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
       return;
     }
 
-    router.transitionTo(RouteNames.SESSION_DETAIL_VIEW, getItem().getSession());
+    router.transitionTo(RouteNames.SESSION_DETAIL_VIEW, getItem());
   }
 
   @Override
