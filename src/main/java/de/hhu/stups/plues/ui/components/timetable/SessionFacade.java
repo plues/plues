@@ -35,9 +35,9 @@ public class SessionFacade {
     this.session = session;
     courses = session.getGroup().getUnit().getAbstractUnits().parallelStream()
       .map(AbstractUnit::getModules)
-      .flatMap(Set::parallelStream)
+      .flatMap(Set::stream)
       .map(Module::getCourses)
-      .flatMap(Set::parallelStream)
+      .flatMap(Set::stream)
       .collect(Collectors.toSet());
 
     this.abstractUnitKeys = session.getGroup().getUnit().getAbstractUnits().stream()
