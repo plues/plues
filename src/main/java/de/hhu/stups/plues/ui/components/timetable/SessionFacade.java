@@ -26,6 +26,7 @@ public class SessionFacade {
   private final ObjectProperty<Slot> slotObjectProperty = new SimpleObjectProperty<>();
   private final Set<Course> courses;
   private final List<String> abstractUnitKeys;
+  private HashSet<AbstractUnit> intendedAbstractUnits;
 
   /**
    * A class that facades a session for ui representation.
@@ -34,14 +35,16 @@ public class SessionFacade {
    */
   public SessionFacade(final Session session) {
     this.session = session;
-    courses = session.getGroup().getUnit().getAbstractUnits().parallelStream()
+    Set<AbstractUnit> abstractUnits = this.getIntendedAbstractUnits();
+
+    courses = abstractUnits.stream()
       .map(AbstractUnit::getModules)
       .flatMap(Set::stream)
       .map(Module::getCourses)
       .flatMap(Set::stream)
       .collect(Collectors.toSet());
 
-    this.abstractUnitKeys = session.getGroup().getUnit().getAbstractUnits().stream()
+    abstractUnitKeys = abstractUnits.stream()
       .map(AbstractUnit::getKey)
       .sorted(String::compareTo)
       .collect(Collectors.toList());
@@ -250,7 +253,7 @@ public class SessionFacade {
    */
   @SuppressWarnings("unused")
   public Set<Integer> getIntendedSemesters() {
-    return session.getGroup().getUnit().getAbstractUnits().stream()
+    return getIntendedAbstractUnits().stream()
         .flatMap(abstractUnit -> abstractUnit.getModuleAbstractUnitSemesters().stream()
             .map(ModuleAbstractUnitSemester::getSemester))
         .collect(Collectors.toSet());
@@ -265,7 +268,14 @@ public class SessionFacade {
     return courses;
   }
 
+  /**
+   * Compute all abstract Units this session is associated to.
+   * @return Set of abstract units
+   */
   public Set<AbstractUnit> getIntendedAbstractUnits() {
-    return new HashSet<>(session.getGroup().getUnit().getAbstractUnits());
+    if (intendedAbstractUnits == null) {
+      intendedAbstractUnits = new HashSet<>(session.getGroup().getUnit().getAbstractUnits());
+    }
+    return intendedAbstractUnits;
   }
 }
