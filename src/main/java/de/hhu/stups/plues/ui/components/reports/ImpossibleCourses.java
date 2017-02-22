@@ -3,6 +3,8 @@ package de.hhu.stups.plues.ui.components.reports;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.ListBinding;
@@ -55,6 +57,7 @@ public class ImpossibleCourses extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Course, String> tableColumnCourseName;
+  private Router router;
 
   /**
    * Default constructor.
@@ -62,12 +65,13 @@ public class ImpossibleCourses extends VBox implements Initializable {
    * @param inflater Handle fxml and resources
    */
   @Inject
-  public ImpossibleCourses(final Inflater inflater) {
-    impossibleCoursesList = new SimpleListProperty<>(FXCollections.observableArrayList());
-    impossibleCoursesBecauseOfImpossibleModulesList =
-        new SimpleListProperty<>(FXCollections.observableArrayList());
-    impossibleCoursesBecauseOfImpossibleModuleCombinationsList =
-        new SimpleListProperty<>(FXCollections.observableArrayList());
+  public ImpossibleCourses(final Inflater inflater, final Router router) {
+    this.router = router;
+    this.impossibleCoursesList = new SimpleListProperty<>(FXCollections.observableArrayList());
+    this.impossibleCoursesBecauseOfImpossibleModulesList
+        = new SimpleListProperty<>(FXCollections.observableArrayList());
+    this.impossibleCoursesBecauseOfImpossibleModuleCombinationsList
+        = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     inflater.inflate("components/reports/ImpossibleCourses", this, this, "reports", "Column");
   }
@@ -76,6 +80,9 @@ public class ImpossibleCourses extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     segmentedButtons.setToggleGroup(new PersistentToggleGroup());
     tableViewImpossibleCourses.itemsProperty().bind(new CourseListBinding());
+    tableViewImpossibleCourses.setOnMouseClicked(
+        DetailViewHelper.getCourseMouseHandler(tableViewImpossibleCourses, router));
+
 
     txtExplanation.textProperty().bind(new ExplanationStringBinding(resources));
     txtExplanation.wrappingWidthProperty().bind(
