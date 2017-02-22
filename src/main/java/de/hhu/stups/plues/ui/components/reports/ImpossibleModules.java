@@ -4,6 +4,8 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
@@ -29,6 +31,7 @@ public class ImpossibleModules extends VBox implements Initializable {
 
   private final SimpleListProperty<Module> incompleteModules;
   private final SimpleListProperty<Module> impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+  private final Router router;
 
   @FXML
   @SuppressWarnings("unused")
@@ -58,10 +61,11 @@ public class ImpossibleModules extends VBox implements Initializable {
    * @param inflater Inflater to handle fxml files and resources
    */
   @Inject
-  public ImpossibleModules(final Inflater inflater) {
-    incompleteModules = new SimpleListProperty<>(FXCollections.observableArrayList());
-    impossibleModulesBecauseOfMissingElectiveAbstractUnits = new SimpleListProperty<>(
-        FXCollections.observableArrayList());
+  public ImpossibleModules(final Inflater inflater, final Router router) {
+    this.router = router;
+    this.incompleteModules = new SimpleListProperty<>(FXCollections.observableArrayList());
+    this.impossibleModulesBecauseOfMissingElectiveAbstractUnits
+        = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     inflater.inflate("components/reports/ImpossibleModules", this, this, "reports", "Column");
   }
@@ -72,6 +76,9 @@ public class ImpossibleModules extends VBox implements Initializable {
 
     tableViewModules.itemsProperty().bind(new ModuleListBinding());
 
+    tableViewModules.setOnMouseClicked(
+        DetailViewHelper.getModuleMouseHandler(tableViewModules, router));
+
     txtExplanation.textProperty().bind(
         Bindings.createStringBinding(() -> getExplanation(resources),
             buttonIncompleteModules.selectedProperty(),
@@ -81,7 +88,7 @@ public class ImpossibleModules extends VBox implements Initializable {
     bindTableColumnsWidth();
   }
 
-  private String getExplanation(ResourceBundle resources) {
+  private String getExplanation(final ResourceBundle resources) {
     if (buttonIncompleteModules.isSelected()) {
       return resources.getString("explain.IncompleteModules");
     }
