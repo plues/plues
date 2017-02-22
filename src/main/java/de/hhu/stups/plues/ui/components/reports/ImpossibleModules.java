@@ -59,6 +59,7 @@ public class ImpossibleModules extends VBox implements Initializable {
    * Default constructor for incomplete modules component.
    *
    * @param inflater Inflater to handle fxml files and resources
+   * @param router Router.
    */
   @Inject
   public ImpossibleModules(final Inflater inflater, final Router router) {

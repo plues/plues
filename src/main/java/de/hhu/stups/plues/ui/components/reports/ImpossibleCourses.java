@@ -62,7 +62,8 @@ public class ImpossibleCourses extends VBox implements Initializable {
   /**
    * Default constructor.
    *
-   * @param inflater Handle fxml and resources
+   * @param inflater Handle fxml and resources.
+   * @param router Router.
    */
   @Inject
   public ImpossibleCourses(final Inflater inflater, final Router router) {
