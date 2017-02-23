@@ -4,6 +4,8 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.property.SimpleListProperty;
@@ -25,6 +27,7 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
   private Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnitsMap;
   private final SimpleListProperty<Module> modules;
   private final SimpleListProperty<AbstractUnit> abstractUnits;
+  private final Router router;
 
   @FXML
   @SuppressWarnings("unused")
@@ -54,9 +57,10 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
    * @param inflater Handle fxml and resources
    */
   @Inject
-  public QuasiMandatoryModuleAbstractUnits(final Inflater inflater) {
-    abstractUnits = new SimpleListProperty<>(FXCollections.observableArrayList());
-    modules = new SimpleListProperty<>(FXCollections.observableArrayList());
+  public QuasiMandatoryModuleAbstractUnits(final Inflater inflater, final Router router) {
+    this.router = router;
+    this.abstractUnits = new SimpleListProperty<>(FXCollections.observableArrayList());
+    this.modules = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     inflater.inflate("components/reports/QuasiMandatoryModuleAbstractUnits",
         this, this, "reports", "Column");
@@ -66,6 +70,11 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
   public void initialize(final URL location, final ResourceBundle resources) {
     tableViewQuasiMandatoryModules.itemsProperty().bind(modules);
     tableViewAbstractUnits.itemsProperty().bind(abstractUnits);
+    tableViewAbstractUnits.setOnMouseClicked(
+        DetailViewHelper.getAbstractUnitMouseHandler(tableViewAbstractUnits, router));
+    tableViewQuasiMandatoryModules.setOnMouseClicked(
+        DetailViewHelper.getModuleMouseHandler(tableViewQuasiMandatoryModules, router));
+
 
     tableViewQuasiMandatoryModules.getSelectionModel().selectedItemProperty()
         .addListener((observable, oldValue, newValue) ->
