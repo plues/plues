@@ -1,14 +1,17 @@
 package de.hhu.stups.plues.ui.components.reports;
 
-import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Unit;
+import de.hhu.stups.plues.routes.RouteNames;
+import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.ListBinding;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -17,6 +20,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
@@ -26,11 +30,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Initializable {
 
-  private final SimpleListProperty<Module> modules;
-  private final ObservableMap<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflictsMap;
+  private final SimpleListProperty<Module> modules
+      = new SimpleListProperty<>(FXCollections.observableArrayList());
+  private final ObservableMap<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflictsMap
+      = FXCollections.observableHashMap();
+  private final Router router;
 
   @FXML
   @SuppressWarnings("unused")
@@ -79,9 +87,8 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
    * @param inflater Handle fxml and resources
    */
   @Inject
-  public ModuleAbstractUnitUnitSemesterConflicts(final Inflater inflater) {
-    modules = new SimpleListProperty<>(FXCollections.observableArrayList());
-    moduleAbstractUnitUnitSemesterConflictsMap = FXCollections.observableHashMap();
+  public ModuleAbstractUnitUnitSemesterConflicts(final Inflater inflater, final Router router) {
+    this.router = router;
 
     inflater.inflate("components/reports/ModuleAbstractUnitUnitSemesterConflicts",
         this, this, "reports", "Column");
@@ -89,24 +96,46 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    tableViewAbstractUnitUnitSemesters.itemsProperty().bind(new ListBinding<Conflict>() {
-      {
-        bind(tableViewModules.getSelectionModel().selectedItemProperty());
-      }
-
-      @Override
-      protected ObservableList<Conflict> computeValue() {
-        final Module module = tableViewModules.getSelectionModel().getSelectedItem();
-        return FXCollections.observableList(moduleAbstractUnitUnitSemesterConflictsMap
-            .getOrDefault(module, Collections.emptyList()));
-      }
-    });
+    tableViewAbstractUnitUnitSemesters.itemsProperty().bind(
+        new ConflictListBinding(tableViewModules.getSelectionModel().selectedItemProperty(),
+          moduleAbstractUnitUnitSemesterConflictsMap));
+    tableViewAbstractUnitUnitSemesters.setOnMouseClicked(
+        this::handleTableColumnAbstractUnitClicked);
 
     tableViewModules.itemsProperty().bind(modules);
+    tableViewModules.setOnMouseClicked(
+        DetailViewHelper.getModuleMouseHandler(tableViewModules, router));
 
     txtExplanation.wrappingWidthProperty().bind(tableViewModules.widthProperty().subtract(25.0));
 
     bindTableColumnsWidth();
+  }
+
+  private void handleTableColumnAbstractUnitClicked(final MouseEvent mouseEvent) {
+    if (mouseEvent.getClickCount() < 2) {
+      return;
+    }
+    //
+    final TableView.TableViewSelectionModel<Conflict> selectionModel
+        = tableViewAbstractUnitUnitSemesters.getSelectionModel();
+
+    final Conflict tableEntry = selectionModel.getSelectedItem();
+
+    if (tableEntry == null) {
+      return;
+    }
+    //
+    final TableColumn column = selectionModel.getSelectedCells().get(0).getTableColumn();
+
+    if (column.equals(tableColumnAbstractUnitKey)
+        || column.equals(tableColumnAbstractUnitSemesters)
+        || column.equals(tableColumnAbstractUnitTitle)) {
+      router.transitionTo(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW, tableEntry.getAbstractUnit());
+    } else if (column.equals(tableColumnExplicitUnitKey)
+        || column.equals(tableColumnExplicitUnitSemesters)
+        || column.equals(tableColumnExplicitUnitTitle)) {
+      router.transitionTo(RouteNames.UNIT_DETAIL_VIEW, tableEntry.getUnit());
+    }
   }
 
   private void bindTableColumnsWidth() {
@@ -142,6 +171,7 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
 
   public static final class Conflict {
     private final Set<Integer> semesters;
+
     private final AbstractUnit abstractUnit;
     private final Unit unit;
 
@@ -153,6 +183,14 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
       this.abstractUnit = abstractUnit;
       this.unit = unit;
       this.semesters = abstractUnitSemesters;
+    }
+
+    public AbstractUnit getAbstractUnit() {
+      return abstractUnit;
+    }
+
+    public Unit getUnit() {
+      return unit;
     }
 
     @SuppressWarnings("unused")
@@ -167,12 +205,12 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
 
     @SuppressWarnings("unused")
     public String getAbstractUnitSemesters() {
-      return Joiner.on(",").join(this.semesters);
+      return semesters.stream().map(String::valueOf).collect(Collectors.joining(","));
     }
 
     @SuppressWarnings("unused")
     public String getUnitSemesters() {
-      return Joiner.on(",").join(unit.getSemesters());
+      return unit.getSemesters().stream().map(String::valueOf).collect(Collectors.joining(","));
     }
 
     @SuppressWarnings("unused")
@@ -183,6 +221,24 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
     @SuppressWarnings("unused")
     public String getUnitTitle() {
       return this.unit.getTitle();
+    }
+  }
+
+  private static class ConflictListBinding extends ListBinding<Conflict> {
+    private final ReadOnlyObjectProperty<Module> property;
+    private final ObservableMap<Module, List<Conflict>> map;
+
+    ConflictListBinding(final ReadOnlyObjectProperty<Module> property,
+        final ObservableMap<Module, List<Conflict>> map) {
+      this.property = property;
+      this.map = map;
+      bind(property);
+    }
+
+    @Override
+    protected ObservableList<Conflict> computeValue() {
+      final Module module = property.get();
+      return FXCollections.observableList(map.getOrDefault(module, Collections.emptyList()));
     }
   }
 }
