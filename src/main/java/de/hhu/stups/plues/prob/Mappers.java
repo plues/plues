@@ -122,7 +122,7 @@ final class Mappers {
   }
 
   private static <T> Map<String,Map<Integer,java.util.Set<T>>> wrap(
-      Map<String, Map<Integer, java.util.Set<T>>> result) {
+        final Map<String, Map<Integer, java.util.Set<T>>> result) {
     return Collections.unmodifiableMap(
       result.entrySet().stream().collect(toMap(
         Map.Entry::getKey,
