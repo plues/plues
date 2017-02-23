@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 
 public class ImpossibleCourseModuleAbstractUnitPairs extends VBox implements Initializable {
 
+  private static final String PAIR_FORMAT = "%s, %s";
+
   @FXML
   @SuppressWarnings("unused")
   private TreeView<String> treeViewCourseModuleAbstractUnitPairs;
@@ -66,11 +68,11 @@ public class ImpossibleCourseModuleAbstractUnitPairs extends VBox implements Ini
   }
 
   private String getCourseString(final Course course) {
-    return String.format("%s, %s", course.getKey(), course.getFullName());
+    return String.format(PAIR_FORMAT, course.getKey(), course.getFullName());
   }
 
   private String getModuleString(final Module module) {
-    return String.format("%s, %s", module.getPordnr(), module.getTitle());
+    return String.format(PAIR_FORMAT, module.getPordnr(), module.getTitle());
   }
 
   private String getAbstractUnitString(final AbstractUnit abstractUnit1,
