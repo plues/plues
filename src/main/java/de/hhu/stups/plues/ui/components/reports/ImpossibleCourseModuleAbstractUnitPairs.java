@@ -75,7 +75,7 @@ public class ImpossibleCourseModuleAbstractUnitPairs extends VBox implements Ini
 
   private String getAbstractUnitString(final AbstractUnit abstractUnit1,
       final AbstractUnit abstractUnit2) {
-    return String.format("%s, %s\n%s, %s", abstractUnit1.getKey(), abstractUnit1.getTitle(),
+    return String.format("%s, %s%n%s, %s", abstractUnit1.getKey(), abstractUnit1.getTitle(),
                                            abstractUnit2.getKey(), abstractUnit2.getTitle());
   }
 }
