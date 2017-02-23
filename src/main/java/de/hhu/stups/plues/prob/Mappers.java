@@ -256,7 +256,7 @@ final class Mappers {
     return mapToList(groups, GROUP_PREFIX);
   }
 
-  private static List<String> mapToList(final Collection<?> collection, final String prefix) {
+  private static List<String> mapToList(final Collection<Integer> collection, final String prefix) {
     return collection.stream().map(module -> String.format("%s%d", prefix, module)).collect(
           Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
   }
