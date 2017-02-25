@@ -1,6 +1,5 @@
 package de.hhu.stups.plues;
 
-import de.hhu.stups.plues.data.IncompatibleSchemaError;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.StoreException;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -26,12 +25,12 @@ public class ObservableStore extends Observable implements Store {
   }
 
   @Override
-  public void init() throws IncompatibleSchemaError, StoreException {
+  public void init() throws StoreException {
     store.init();
   }
 
   @Override
-  public void init(final String dbpath) throws IncompatibleSchemaError, StoreException {
+  public void init(final String dbpath) throws StoreException {
     store.init(dbpath);
   }
 

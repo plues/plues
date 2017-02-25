@@ -5,7 +5,6 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ObservableStore;
-import de.hhu.stups.plues.data.IncompatibleSchemaError;
 import de.hhu.stups.plues.data.SqliteStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.StoreException;
@@ -49,7 +48,7 @@ public class StoreLoaderTask extends Task<Store> {
     checkExportDatabase();
     try {
       return new ObservableStore(new SqliteStore(dbWorkingPath.toString()));
-    } catch (IncompatibleSchemaError | StoreException exception) {
+    } catch (StoreException exception) {
       logger.error("An exception was thrown opening the store", exception);
       updateMessage(exception.getMessage());
       throw exception;

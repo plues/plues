@@ -745,8 +745,15 @@ public class MainController implements Initializable {
     //
     storeLoader.setOnFailed(event -> {
       final Throwable ex = event.getSource().getException();
-      logger.error("Database could not be loaded", ex);
-      showCriticalExceptionDialog(ex, "Database could not be loaded");
+      final Throwable cause;
+      if (ex.getCause() == null) {
+        cause = ex;
+      } else {
+        cause = ex.getCause();
+      }
+
+      logger.error("Database could not be loaded", cause);
+      showCriticalExceptionDialog(cause, "Database could not be loaded");
       Platform.exit();
     });
     //
