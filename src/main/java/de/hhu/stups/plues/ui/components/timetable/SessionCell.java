@@ -19,6 +19,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
+import org.fxmisc.easybind.EasyBind;
 
 import java.net.URL;
 import java.util.List;
@@ -72,13 +73,14 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
     uiDataService.conflictMarkedSessionsProperty()
         .addListener((observable, oldValue, newValue) -> setConflictedStyleClass(newValue));
 
-    sessionCellIsTentative.textProperty().bind(Bindings.createStringBinding(() -> {
-      SessionFacade newValue = getItem();
-      if (newValue != null && newValue.isTentative()) {
-        return "T: ";
-      }
-      return "";
-    }, itemProperty()));
+
+    sessionCellIsTentative.textProperty().bind(
+        EasyBind.map(itemProperty(), newValue -> {
+          if (newValue != null && newValue.isTentative()) {
+            return "T: ";
+          }
+          return "";
+        }));
 
     sessionCellText.textProperty().bind(Bindings.createStringBinding(() -> {
       if (getItem() == null) {
