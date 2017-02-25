@@ -8,6 +8,7 @@ jdk:
 addons:
   apt:
     packages:
+    - ant
     - lib32z1
     - lib32ncurses5
     - oracle-java8-installer
