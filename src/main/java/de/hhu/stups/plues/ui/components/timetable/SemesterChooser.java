@@ -1,11 +1,12 @@
 package de.hhu.stups.plues.ui.components.timetable;
 
 import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.SetBinding;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleSetProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -16,6 +17,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import org.controlsfx.control.SegmentedButton;
+import org.fxmisc.easybind.EasyBind;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -36,9 +38,10 @@ public class SemesterChooser extends Region {
    * Create a new semester choosing component.
    * By default values from 1 to 6 are shown.
    */
+  @SuppressWarnings("WeakerAccess")
   public SemesterChooser() {
     super();
-    ObservableList<ToggleButton> buttons = buildButtons();
+    final ObservableList<ToggleButton> buttons = buildButtons();
     segmentedButton = new SegmentedButton(buttons);
     init();
   }
@@ -70,28 +73,22 @@ public class SemesterChooser extends Region {
       o.addEventFilter(KeyEvent.KEY_PRESSED, handleKeyPressed);
     });
 
-    conflictedSemesters.addListener(this::handleConflictedSemesters);
+    EasyBind.subscribe(conflictedSemesters, this::setupSubscription);
+  }
+
+  private void setupSubscription(final ObservableSet<Integer> semesters) {
+    segmentedButton.getButtons().forEach(o -> {
+      final BooleanBinding conflictProperty
+          = Bindings.createBooleanBinding(
+            () -> semesters.contains(Integer.parseInt((String) o.getUserData())), semesters);
+      EasyBind.includeWhen(o.getStyleClass(), "conflicted-semester", conflictProperty);
+    });
   }
 
   private void addSegmentedButton() {
     this.getChildren().add(segmentedButton);
     this.setHeight(segmentedButton.getHeight());
     this.setWidth(segmentedButton.getWidth());
-  }
-
-  @SuppressWarnings("unused")
-  private void handleConflictedSemesters(final ObservableValue<?> observable,
-                                         final ObservableSet<Integer> oldValue,
-                                         final ObservableSet<Integer> newValue) {
-    segmentedButton.getButtons().forEach(toggle -> {
-      final int value = Integer.parseInt((String) toggle.getUserData());
-
-      if (newValue.contains(value)) {
-        toggle.getStyleClass().add("conflicted-semester");
-      } else {
-        toggle.getStyleClass().remove("conflicted-semester");
-      }
-    });
   }
 
   @SuppressWarnings("unused")
