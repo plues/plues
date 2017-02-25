@@ -111,7 +111,7 @@ public class ProBSolverTest {
    * Setup state for test.
    */
   @Before
-  public void setUp() throws IOException, ModelTranslationError, BException {
+  public void setUp() throws SolverException, IOException, ModelTranslationError {
     this.stateSpace = mock(StateSpace.class);
     this.trace = mock(Trace.class);
 

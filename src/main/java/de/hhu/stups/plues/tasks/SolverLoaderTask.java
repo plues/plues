@@ -202,7 +202,7 @@ public class SolverLoaderTask extends Task<Solver> {
     logger.error("Loading solver failed", this.getException());
   }
 
-  private ProBSolver initSolver() throws IOException, BException {
+  private ProBSolver initSolver() throws SolverException {
     final String modelPath = this.modelDirectory.resolve(MODEL_FILE).toString();
     return this.solverFactory.createProbSolver(modelPath);
   }
