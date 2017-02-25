@@ -11,7 +11,7 @@ plugins {
 }
 
 checkstyle {
-    toolVersion = "7.1"
+    toolVersion = "7.5.1"
 }
 
 sourceCompatibility = 1.8
