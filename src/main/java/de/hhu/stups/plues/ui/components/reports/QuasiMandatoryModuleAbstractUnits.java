@@ -77,8 +77,11 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
 
 
     tableViewQuasiMandatoryModules.getSelectionModel().selectedItemProperty()
-        .addListener((observable, oldValue, newValue) ->
-            abstractUnits.setAll(quasiMandatoryModuleAbstractUnitsMap.get(newValue)));
+        .addListener((observable, oldValue, newValue) -> {
+          if (quasiMandatoryModuleAbstractUnitsMap != null) {
+            abstractUnits.setAll(quasiMandatoryModuleAbstractUnitsMap.get(newValue));
+          }
+        });
 
     txtExplanation.wrappingWidthProperty().bind(
         tableViewAbstractUnits.widthProperty().subtract(25.0));
