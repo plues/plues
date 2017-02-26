@@ -70,9 +70,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
   }
 
   private void setupDataService() {
-    uiDataService.conflictMarkedSessionsProperty()
-        .addListener((observable, oldValue, newValue) -> setConflictedStyleClass(newValue));
-
+    EasyBind.subscribe(uiDataService.conflictMarkedSessionsProperty(), this::setConflictedStyleClass);
 
     sessionCellIsTentative.textProperty().bind(
         EasyBind.map(itemProperty(), newValue -> {
