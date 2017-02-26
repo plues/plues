@@ -15,8 +15,10 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.ListChangeListener;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -28,6 +30,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import org.fxmisc.easybind.EasyBind;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -41,11 +44,12 @@ public class TimetableSideBar extends TabPane implements Initializable {
 
   private static final String SIDE_BAR_TAB_LAYOUT = "sideBarTabLayout";
 
-  private final UiDataService uiDataService;
   private Node selectedSubTab;
   private Timetable parent;
-
+  private boolean fadingInProgress = false;
+  private final BooleanProperty collapsed = new SimpleBooleanProperty(false);
   private final Map<Tab, Node> tabNodes = new HashMap<>(2);
+  private final UiDataService uiDataService;
 
   @FXML
   @SuppressWarnings("unused")
@@ -63,9 +67,6 @@ public class TimetableSideBar extends TabPane implements Initializable {
   @SuppressWarnings("unused")
   private CheckCourseFeasibility checkCourseFeasibility;
 
-  private final BooleanProperty collapsed = new SimpleBooleanProperty(false);
-  private boolean fadingInProgress = false;
-
   @Inject
   public TimetableSideBar(final Inflater inflater, final UiDataService uiDataService) {
     this.uiDataService = uiDataService;
@@ -76,13 +77,6 @@ public class TimetableSideBar extends TabPane implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     VBox.setVgrow(this, Priority.ALWAYS);
 
-    getTabs().forEach(sideTab -> {
-      sideTab.getStyleClass().addAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabVisible");
-      sideTab.setOnCloseRequest(Event::consume);
-    });
-
-    this.collapsed.addListener((observable, oldValue, shouldHide) -> hideSideBar(shouldHide));
-
     addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
       final Node clickedTab = getClickedTab(mouseEvent);
       if (clickedTab == null) {
@@ -90,6 +84,33 @@ public class TimetableSideBar extends TabPane implements Initializable {
       }
       handleTabClicked(mouseEvent, clickedTab);
     });
+
+    getTabs().forEach(this::setupTab);
+
+    getTabs().addListener((ListChangeListener<? super Tab>) change ->
+        change.getAddedSubList().forEach(this::setupTab));
+
+    initializeCollapsedBindings();
+  }
+
+  private void initializeCollapsedBindings() {
+    EasyBind.subscribe(collapsed, this::hideSideBar);
+
+    tabClosingPolicyProperty().bind(Bindings.createObjectBinding(() -> {
+      if (collapsed.get()) {
+        return TabClosingPolicy.UNAVAILABLE;
+      } else {
+        return TabClosingPolicy.SELECTED_TAB;
+      }
+    }, collapsed));
+
+  }
+
+  private void setupTab(final Tab tab) {
+    tab.setOnCloseRequest(Event::consume);
+    tab.getStyleClass().setAll(SIDE_BAR_TAB_LAYOUT, "tab");
+    EasyBind.includeWhen(tab.getStyleClass(), "sideBarTabHidden", collapsed);
+    EasyBind.includeWhen(tab.getStyleClass(), "sideBarTabVisible", collapsed.not());
   }
 
   private void handleTabClicked(final MouseEvent mouseEvent, final Node clickedTab) {
@@ -97,19 +118,17 @@ public class TimetableSideBar extends TabPane implements Initializable {
       mouseEvent.consume();
       return;
     }
-
+    //
     if (selectedSubTab == null) {
       selectedSubTab = this.lookup(".tab:first-child");
     }
+    //
     if (selectedSubTab.equals(clickedTab)) { // switch state
       mouseEvent.consume();
       this.collapsed.set(!this.collapsed.get());
-      if (this.collapsed.get()) {
-        selectedSubTab = null;
-      }
     } else { // switch tab and make visible
-      selectedSubTab = clickedTab;
       this.collapsed.set(false);
+      selectedSubTab = clickedTab;
     }
   }
 
@@ -232,8 +251,12 @@ public class TimetableSideBar extends TabPane implements Initializable {
     if (fadingInProgress) {
       return;
     }
-    if (!hide) {
-      handleTabVisibility(false);
+    if (parent == null) {
+      return;
+    }
+    if (hide) {
+      selectedSubTab = null;
+      getSelectionModel().select(null);
     }
     parent.disableDivider(hide);
     fadingInProgress = true;
@@ -255,27 +278,8 @@ public class TimetableSideBar extends TabPane implements Initializable {
           new KeyValue(parent.getDivider().positionProperty(), destination);
 
     timeline.getKeyFrames().add(new KeyFrame(Duration.millis(250), dividerPosition));
-    timeline.setOnFinished(event -> {
-      fadingInProgress = false;
-      if (hide) {
-        handleTabVisibility(true);
-      }
-    });
+    timeline.setOnFinished(event -> fadingInProgress = false);
     Platform.runLater(timeline::play);
-  }
-
-  private void handleTabVisibility(final boolean hide) {
-    if (hide) {
-      getTabs().forEach(sideTab
-          -> sideTab.getStyleClass().setAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabHidden"));
-      setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
-      getSelectionModel().select(null);
-      selectedSubTab = null;
-    } else {
-      getTabs().forEach(sideTab
-          -> sideTab.getStyleClass().setAll(SIDE_BAR_TAB_LAYOUT, "tab", "sideBarTabVisible"));
-      setTabClosingPolicy(TabClosingPolicy.SELECTED_TAB);
-    }
   }
 
   /**
