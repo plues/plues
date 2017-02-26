@@ -10,15 +10,15 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.control.Tooltip?>
+
 <fx:root minHeight="600" type="javafx.scene.control.SplitPane" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1" dividerPositions="0.15">
     <TimetableSideBar fx:id="timetableSideBar"/>
-    <VBox>
+    <VBox spacing="10.0">
         <HBox styleClass="windowPaddingTiny" spacing="5.0">
             <Label text="%semester"/>
-            <SemesterChooser fx:id="semesterToggle" />
+            <SemesterChooser fx:id="semesterToggle"/>
             <Label fx:id="multipleSelectionInfo" alignment="TOP_LEFT">
                 <tooltip>
                     <Tooltip fx:id="multipleSelectionHint" text="%multipleSelectionHint"/>
@@ -28,18 +28,12 @@
 
         <GridPane maxHeight="Infinity" maxWidth="Infinity" fx:id="timeTablePane">
             <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" minWidth="50.0"
-                                   prefWidth="50.0"/>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"
-                                   prefWidth="150.0"/>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"
-                                   prefWidth="150.0"/>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"
-                                   prefWidth="150.0"/>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"
-                                   prefWidth="150.0"/>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"
-                                   prefWidth="150.0"/>
+                <ColumnConstraints hgrow="NEVER" minWidth="50.0" prefWidth="50.0"/>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
             </columnConstraints>
 
             <rowConstraints>
