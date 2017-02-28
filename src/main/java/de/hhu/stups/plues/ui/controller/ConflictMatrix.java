@@ -449,7 +449,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
       if (change.wasAdded()) {
         cell.setResultState(change.getValueAdded());
       } else {
-        cell.setResultState(null);
+        cell.setResultState(ResultState.UNKNOWN);
       }
     };
   }
