@@ -855,10 +855,11 @@ public class MainController implements Initializable {
 
     final Optional<String> result = dialog.showAndWait();
     result.ifPresent(timeout -> {
-      if (!timeout.isEmpty() && NumberUtils.isNumber(timeout) && Integer.valueOf(timeout) > 0) {
+      if (!timeout.isEmpty() && NumberUtils.isNumber(timeout)
+          && Double.valueOf(timeout).intValue() > 0) {
         try {
           initializeCustomTimeoutMenuItem();
-          final int timeoutValue = Integer.parseInt(timeout);
+          final int timeoutValue = Double.valueOf(timeout).intValue();
           setTimeout(timeoutValue);
           customTimeoutProperty.setValue(timeoutValue);
         } catch (final NumberFormatException exception) {
