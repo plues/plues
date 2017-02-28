@@ -71,6 +71,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
 import org.slf4j.Logger;
@@ -854,7 +855,7 @@ public class MainController implements Initializable {
 
     final Optional<String> result = dialog.showAndWait();
     result.ifPresent(timeout -> {
-      if (!timeout.isEmpty()) {
+      if (!timeout.isEmpty() && NumberUtils.isNumber(timeout) && Integer.valueOf(timeout) > 0) {
         try {
           initializeCustomTimeoutMenuItem();
           final int timeoutValue = Integer.parseInt(timeout);
