@@ -95,8 +95,6 @@ public class ModuleDetailView extends VBox implements Initializable {
             .otherwise("✗"))
         .otherwise("?"));
 
-    bindTableColumnsWidth();
-
     tableViewBindings();
   }
 
@@ -114,19 +112,6 @@ public class ModuleDetailView extends VBox implements Initializable {
     stringProperty.bind(Bindings.when(moduleProperty.isNotNull())
         .then(Bindings.selectString(moduleProperty, name))
         .otherwise(""));
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnCourseName.prefWidthProperty().bind(
-        courseTableView.widthProperty().multiply(0.25));
-    tableColumnCourseColumnName.prefWidthProperty().bind(
-        courseTableView.widthProperty().multiply(0.71));
-
-    tableColumnAbstractUnitKey.prefWidthProperty().bind(
-        abstractUnitTableView.widthProperty().multiply(0.25));
-    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
-        abstractUnitTableView.widthProperty().multiply(0.71));
-
   }
 
   public void setModule(final Module module) {

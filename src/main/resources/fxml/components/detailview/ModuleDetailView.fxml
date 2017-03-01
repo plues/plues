@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1"
-         prefWidth="500" prefHeight="500" styleClass="windowPadding" spacing="10.0">
+         prefWidth="700" prefHeight="500" styleClass="windowPadding" spacing="10.0">
     <Label text="%module" styleClass="h1"/>
     <GridPane>
         <Label text="%pordnr" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
@@ -30,14 +30,14 @@
         </columnConstraints>
     </GridPane>
     <Label text="%courseAssignment" styleClass="h2"/>
-    <TableView fx:id="courseTableView">
+    <TableView fx:id="courseTableView" prefWidth="650.0" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="tableColumnCourseName" text="%columnCourseName" resizable="false">
+            <TableColumn fx:id="tableColumnCourseName" prefWidth="150.0" text="%columnCourseName">
                 <cellValueFactory>
                     <PropertyValueFactory property="name"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnCourseColumnName" text="%columnName" resizable="false">
+            <TableColumn fx:id="tableColumnCourseColumnName" prefWidth="500.0" text="%columnName">
                 <cellValueFactory>
                     <PropertyValueFactory property="fullName"/>
                 </cellValueFactory>
@@ -45,14 +45,14 @@
         </columns>
     </TableView>
     <Label text="%abstractUnits" styleClass="h2"/>
-    <TableView fx:id="abstractUnitTableView">
+    <TableView fx:id="abstractUnitTableView" prefWidth="650.0" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey" resizable="false">
+            <TableColumn fx:id="tableColumnAbstractUnitKey" prefWidth="150.0" text="%columnKey">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnTitle" resizable="false">
+            <TableColumn fx:id="tableColumnAbstractUnitTitle" prefWidth="500.0" text="%columnTitle">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>

@@ -96,8 +96,6 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     initializeLabels();
 
-    bindTableColumnsWidth();
-
     tableViewUnits.itemsProperty().bind(new UnitListBinding(abstractUnitProperty));
     tableViewModules.itemsProperty().bind(new ModuleListBinding(abstractUnitProperty));
 
@@ -151,22 +149,6 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
     title.textProperty().bind(Bindings.when(abstractUnitProperty.isNotNull())
         .then(Bindings.selectString(abstractUnitProperty, "title"))
         .otherwise(""));
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnUnitsKey.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.2));
-    tableColumnUnitsTitle.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.76));
-
-    tableColumnModulesPordnr.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.15));
-    tableColumnModulesTitle.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.59));
-    tableColumnModulesSemesters.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.15));
-    tableColumnModulesType.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.07));
   }
 
   private static class UnitListBinding extends ListBinding<Unit> {

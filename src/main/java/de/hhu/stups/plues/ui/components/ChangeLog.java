@@ -112,27 +112,6 @@ public class ChangeLog extends VBox implements Initializable, Observer {
       store.addObserver(this);
       logs.addAll(store.getLogEntries());
     });
-
-    bindTableColumnsWidth();
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnSessionTemporary.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.46));
-    tableColumnSourceTemporary.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.15));
-    tableColumnTargetTemporary.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.15));
-    tableColumnDateTemporary.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.2));
-    tableColumnSessionPersistent.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.46));
-    tableColumnSourcePersistent.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.15));
-    tableColumnTargetPersistent.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.15));
-    tableColumnDatePersistent.prefWidthProperty().bind(
-        tempTable.widthProperty().multiply(0.2));
   }
 
   @Override
