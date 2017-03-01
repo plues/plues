@@ -137,21 +137,6 @@ public class GroupUnsatCore extends VBox implements Initializable {
                     String.format("%n"))));
           }
         });
-
-    bindTableColumnsWidth();
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnGroupUnitKey.prefWidthProperty().bind(
-        groupsTable.widthProperty().multiply(0.1));
-    tableColumnGroupUnitTitle.prefWidthProperty().bind(
-        groupsTable.widthProperty().multiply(0.43));
-    tableColumnGroupUnitSemesters.prefWidthProperty().bind(
-        groupsTable.widthProperty().multiply(0.07));
-    tableColumnGroupSessions.prefWidthProperty().bind(
-        groupsTable.widthProperty().multiply(0.14));
-    tableColumnGroupAbstractUnits.prefWidthProperty().bind(
-        groupsTable.widthProperty().multiply(0.22));
   }
 
   private String getPrefix(final Collection<?> item) {

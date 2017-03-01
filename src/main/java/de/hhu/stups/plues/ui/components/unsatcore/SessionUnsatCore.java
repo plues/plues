@@ -108,8 +108,6 @@ public class SessionUnsatCore extends VBox implements Initializable {
         -> Bindings.selectString(param, "value", "group", "unit", "key"));
     tableColumnSessionUnitTitle.setCellValueFactory(param
         -> Bindings.selectString(param, "value", "group", "unit", "title"));
-
-    bindTableColumnsWidth();
   }
 
   /**
@@ -125,17 +123,6 @@ public class SessionUnsatCore extends VBox implements Initializable {
 
   public ListProperty<Course> coursesProperty() {
     return coursesProperty;
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnSessionDay.prefWidthProperty().bind(
-        sessionsTable.widthProperty().multiply(0.12));
-    tableColumnSessionTime.prefWidthProperty().bind(
-        sessionsTable.widthProperty().multiply(0.12));
-    tableColumnSessionUnitKey.prefWidthProperty().bind(
-        sessionsTable.widthProperty().multiply(0.16));
-    tableColumnSessionUnitTitle.prefWidthProperty().bind(
-        sessionsTable.widthProperty().multiply(0.56));
   }
 
   public void setSessions(final ObservableList<Session> sessions) {
