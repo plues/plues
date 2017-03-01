@@ -165,6 +165,8 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     rbNotSelected.setToggleGroup(filterGroup);
     rbAll.setToggleGroup(filterGroup);
 
+    unitsTable.setSelectionModel(null);
+
     tableColumnCheckBox.setCellFactory(CheckBoxTableCell.forTableColumn(tableColumnCheckBox));
 
     selectableAbstractUnits.bind(new SelectableAbstractUnitListBinding());
