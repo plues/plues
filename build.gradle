@@ -60,9 +60,9 @@ dependencies {
     compile 'com.google.inject.extensions:guice-assistedinject:4.1.0'
 
     // logging
-    compile 'org.slf4j:slf4j-api:1.7.22' // MIT
-    compile 'ch.qos.logback:logback-core:1.1.8' // EPL
-    compile 'ch.qos.logback:logback-classic:1.1.8' // EPL
+    compile 'org.slf4j:slf4j-api:1.7.24' // MIT
+    compile 'ch.qos.logback:logback-core:1.2.1' // EPL
+    compile 'ch.qos.logback:logback-classic:1.2.1' // EPL
     compile group: 'org.codehaus.janino', name: 'janino', version: '3.0.6'
 
     compile project(':model-generator')
