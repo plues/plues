@@ -179,13 +179,12 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     unitsTable.itemsProperty().bind(new SimpleListProperty<>(filteredUnits));
 
     selectedAbstractUnits.bind(new SelectedAbstractUnitListBinding());
-    bindTableColumnsWidth();
-  }
 
-  private void bindTableColumnsWidth() {
-    tableColumnCheckBox.prefWidthProperty().bind(unitsTable.widthProperty().multiply(0.07));
-    tableColumnKey.prefWidthProperty().bind(unitsTable.widthProperty().multiply(0.2));
-    tableColumnTitle.prefWidthProperty().bind(unitsTable.widthProperty().multiply(0.69));
+    tableColumnTitle.prefWidthProperty().bind(
+        unitsTable.widthProperty()
+            .subtract(tableColumnKey.widthProperty())
+            .subtract(tableColumnCheckBox.widthProperty())
+            .subtract(20));
   }
 
   @SuppressWarnings("WeakerAccess")

@@ -29,8 +29,7 @@
                         <PropertyValueFactory property="selected"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn fx:id="tableColumnMasterCourseKey" resizable="false" sortable="false"
-                             text="%key">
+                <TableColumn fx:id="tableColumnMasterCourseKey" sortable="false" text="%key">
                     <cellValueFactory>
                         <PropertyValueFactory property="key"/>
                     </cellValueFactory>
@@ -54,14 +53,13 @@
                         <PropertyValueFactory property="selected"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn fx:id="tableColumnBachelorCourseKey" resizable="false" sortable="false"
-                             text="%key">
+                <TableColumn fx:id="tableColumnBachelorCourseKey" sortable="false" text="%key">
                     <cellValueFactory>
                         <PropertyValueFactory property="key"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn fx:id="tableColumnBachelorCourseTitle" resizable="false"
-                             sortable="false" text="%course">
+                <TableColumn fx:id="tableColumnBachelorCourseTitle" resizable="false" text="%course"
+                             sortable="false">
                     <cellValueFactory>
                         <PropertyValueFactory property="name"/>
                     </cellValueFactory>

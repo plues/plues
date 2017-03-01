@@ -21,7 +21,10 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
@@ -35,6 +38,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -129,9 +133,20 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     tableViewBachelorCourse.itemsProperty().addListener(observable
         -> titledPaneBachelorCourse.setExpanded(!tableViewBachelorCourse.getItems().isEmpty()));
 
-    selectedCourses.bind(new SelectedCoursesBinding());
+    // last column is bound to take the remaining space
+    tableColumnBachelorCourseTitle.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty()
+            .subtract(tableColumnBachelorCheckBox.widthProperty())
+            .subtract(tableColumnBachelorCourseKey.widthProperty())
+            .subtract(20));
 
-    bindTableColumnsWidth();
+    tableColumnMasterCourseTitle.prefWidthProperty().bind(
+        tableViewMasterCourse.widthProperty()
+            .subtract(tableColumnMasterCheckBox.widthProperty())
+            .subtract(tableColumnMasterCourseKey.widthProperty())
+            .subtract(20));
+
+    selectedCourses.bind(new SelectedCoursesBinding());
   }
 
   private void initializeSearch() {
@@ -160,29 +175,6 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   private void btClearSelectionSubmit() {
     txtQuery.clear();
     selectableCourses.forEach(course -> course.setSelected(false));
-  }
-
-  private void bindTableColumnsWidth() {
-    bindTableColumnsWidthMaster();
-    bindTableColumnsWidthBachelor();
-  }
-
-  private void bindTableColumnsWidthBachelor() {
-    tableColumnBachelorCheckBox.prefWidthProperty().bind(
-        tableViewBachelorCourse.widthProperty().multiply(0.07));
-    tableColumnBachelorCourseKey.prefWidthProperty().bind(
-        tableViewBachelorCourse.widthProperty().multiply(0.2));
-    tableColumnBachelorCourseTitle.prefWidthProperty().bind(
-        tableViewBachelorCourse.widthProperty().multiply(0.69));
-  }
-
-  private void bindTableColumnsWidthMaster() {
-    tableColumnMasterCheckBox.prefWidthProperty().bind(
-        tableViewMasterCourse.widthProperty().multiply(0.07));
-    tableColumnMasterCourseKey.prefWidthProperty().bind(
-        tableViewMasterCourse.widthProperty().multiply(0.2));
-    tableColumnMasterCourseTitle.prefWidthProperty().bind(
-        tableViewMasterCourse.widthProperty().multiply(0.69));
   }
 
   private ListProperty<SelectableCourse> newFilteredProperty(
