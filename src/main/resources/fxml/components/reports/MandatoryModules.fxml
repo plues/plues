@@ -15,12 +15,12 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
         </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableColumnCourseKey" text="%columnKey" minWidth="0">
+            <TableColumn fx:id="tableColumnCourseKey" text="%columnKey">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnCourseName" text="%columnCourse" minWidth="0">
+            <TableColumn fx:id="tableColumnCourseName" text="%columnCourse">
                 <cellValueFactory>
                     <PropertyValueFactory property="fullName"/>
                 </cellValueFactory>
@@ -32,7 +32,7 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
         </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr" minWidth="0">
+            <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr">
                 <cellValueFactory>
                     <PropertyValueFactory property="pordnr"/>
                 </cellValueFactory>
@@ -42,7 +42,7 @@
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnElectability" text="%columnElectability" minWidth="0"/>
+            <TableColumn fx:id="tableColumnElectability" text="%columnElectability"/>
         </columns>
     </TableView>
 </fx:root>

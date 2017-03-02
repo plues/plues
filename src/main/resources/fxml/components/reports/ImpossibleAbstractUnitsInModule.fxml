@@ -17,7 +17,7 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
         </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey" minWidth="0">
+            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
