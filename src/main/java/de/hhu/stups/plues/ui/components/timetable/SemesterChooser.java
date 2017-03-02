@@ -19,6 +19,8 @@ import javafx.scene.layout.Region;
 import org.controlsfx.control.SegmentedButton;
 import org.fxmisc.easybind.EasyBind;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -33,6 +35,10 @@ public class SemesterChooser extends Region {
   private final SegmentedButton segmentedButton;
 
   private SelectedSemestersBinding selectedSemestersBinding;
+
+  // List of bindings used to set the styleClass of each toggle button
+  // This field is needed to avoid the bindings getting garbage collected due to weak references
+  private final List<BooleanBinding> bindings = new ArrayList<>();
 
   /**
    * Create a new semester choosing component.
@@ -73,14 +79,19 @@ public class SemesterChooser extends Region {
       o.addEventFilter(KeyEvent.KEY_PRESSED, handleKeyPressed);
     });
 
-    EasyBind.subscribe(conflictedSemesters, this::setupSubscription);
+    this.setupSubscription(conflictedSemesters);
   }
 
   private void setupSubscription(final ObservableSet<Integer> semesters) {
     segmentedButton.getButtons().forEach(o -> {
+      //
       final BooleanBinding conflictProperty
           = Bindings.createBooleanBinding(
             () -> semesters.contains(Integer.parseInt((String) o.getUserData())), semesters);
+      //
+      // collect bindings in an instance variable to avoid collection due to weak references
+      this.bindings.add(conflictProperty);
+      //
       EasyBind.includeWhen(o.getStyleClass(), "conflicted-semester", conflictProperty);
     });
   }
