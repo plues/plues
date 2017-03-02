@@ -7,17 +7,21 @@
 <?import javafx.scene.text.Text?>
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
-    <VBox styleClass="windowPaddingSmall" spacing="10.0" minWidth="0"  maxWidth="Infinity">
+    <VBox styleClass="windowPaddingSmall" spacing="10.0" minWidth="0" maxWidth="Infinity">
         <Text fx:id="txtExplanation" text="%explain.QuasiMandatoryModules"/>
     </VBox>
-    <TableView fx:id="tableViewQuasiMandatoryModules" minWidth="0" minHeight="0" maxWidth="Infinity">
+    <TableView fx:id="tableViewQuasiMandatoryModules" minWidth="0" minHeight="0"
+               maxWidth="Infinity">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr" resizable="false">
+            <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr">
                 <cellValueFactory>
                     <PropertyValueFactory property="pordnr"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnModuleTitle" text="%columnModule" resizable="false">
+            <TableColumn fx:id="tableColumnModuleTitle" text="%columnModule" minWidth="400.0">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
@@ -25,15 +29,17 @@
         </columns>
     </TableView>
     <TableView fx:id="tableViewAbstractUnits" minWidth="0" minHeight="0" maxWidth="Infinity">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey" resizable="false"
-                         minWidth="0">
+            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
             <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnAbstractUnit"
-                         minWidth="0" resizable="false">
+                         minWidth="400.0">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>

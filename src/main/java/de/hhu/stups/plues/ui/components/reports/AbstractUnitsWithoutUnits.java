@@ -54,14 +54,6 @@ public class AbstractUnitsWithoutUnits extends VBox implements Initializable {
         DetailViewHelper.getAbstractUnitMouseHandler(tableViewAbstractUnits, router));
     txtExplanation.wrappingWidthProperty().bind(
         tableViewAbstractUnits.widthProperty().subtract(25.0));
-    bindTableColumnsWidth();
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnAbstractUnitKey.prefWidthProperty().bind(
-        tableViewAbstractUnits.widthProperty().multiply(0.2));
-    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
-        tableViewAbstractUnits.widthProperty().multiply(0.76));
   }
 
   public void setData(final List<AbstractUnit> abstractUnitsWithoutUnits) {

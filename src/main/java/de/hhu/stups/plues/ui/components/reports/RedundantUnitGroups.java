@@ -50,15 +50,6 @@ public class RedundantUnitGroups extends VBox implements Initializable {
     
     tableViewRedundantUnitGroups.setOnMouseClicked(
         DetailViewHelper.getUnitMouseHandler(tableViewRedundantUnitGroups, router));
-
-    bindTableColumnsWidth();
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnUnitKey.prefWidthProperty().bind(
-        tableViewRedundantUnitGroups.widthProperty().multiply(0.2));
-    tableColumnUnitTitle.prefWidthProperty().bind(
-        tableViewRedundantUnitGroups.widthProperty().multiply(0.76));
   }
 
   public void setData(final Set<Unit> redundantUnitGroups) {

@@ -11,15 +11,16 @@
         <Text fx:id="txtExplanation" text="%explain.MandatoryModules"/>
     </VBox>
     <TableView fx:id="tableViewCourses" minWidth="0" minHeight="0" maxWidth="Infinity">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableColumnCourseKey" text="%columnKey" resizable="false"
-                         minWidth="0">
+            <TableColumn fx:id="tableColumnCourseKey" text="%columnKey" minWidth="0">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnCourseName" text="%columnCourse" resizable="false"
-                         minWidth="0">
+            <TableColumn fx:id="tableColumnCourseName" text="%columnCourse" minWidth="0">
                 <cellValueFactory>
                     <PropertyValueFactory property="fullName"/>
                 </cellValueFactory>
@@ -27,21 +28,21 @@
         </columns>
     </TableView>
     <TableView fx:id="tableViewMandatoryModules" minWidth="0" minHeight="0">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr" resizable="false"
-                         minWidth="0">
+            <TableColumn fx:id="tableColumnModulePordnr" text="%columnPordnr" minWidth="0">
                 <cellValueFactory>
                     <PropertyValueFactory property="pordnr"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnModuleTitle" text="%columnModule" resizable="false"
-                         minWidth="0">
+            <TableColumn fx:id="tableColumnModuleTitle" text="%columnModule" minWidth="400.0">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnElectability" text="%columnElectability"
-                         minWidth="0" resizable="false"/>
+            <TableColumn fx:id="tableColumnElectability" text="%columnElectability" minWidth="0"/>
         </columns>
     </TableView>
 </fx:root>

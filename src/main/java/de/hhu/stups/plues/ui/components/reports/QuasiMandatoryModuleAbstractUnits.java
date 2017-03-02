@@ -85,20 +85,6 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
 
     txtExplanation.wrappingWidthProperty().bind(
         tableViewAbstractUnits.widthProperty().subtract(25.0));
-
-    bindTableColumnsWidth();
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnModulePordnr.prefWidthProperty().bind(
-        tableViewQuasiMandatoryModules.widthProperty().multiply(0.2));
-    tableColumnModuleTitle.prefWidthProperty().bind(
-        tableViewQuasiMandatoryModules.widthProperty().multiply(0.76));
-
-    tableColumnAbstractUnitKey.prefWidthProperty().bind(
-        tableViewAbstractUnits.widthProperty().multiply(0.2));
-    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
-        tableViewAbstractUnits.widthProperty().multiply(0.76));
   }
 
   public void setData(final Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnitsMap) {

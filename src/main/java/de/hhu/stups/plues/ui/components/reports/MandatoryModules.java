@@ -85,24 +85,7 @@ public class MandatoryModules extends VBox implements Initializable {
         DetailViewHelper.getModuleMouseHandler(tableViewMandatoryModules, router));
     //
     txtExplanation.wrappingWidthProperty().bind(tableViewCourses.widthProperty().subtract(25.0));
-
-    bindTableColumnsWidth();
   }
-
-
-  private void bindTableColumnsWidth() {
-    tableColumnCourseKey.prefWidthProperty().bind(
-        tableViewCourses.widthProperty().multiply(0.2));
-    tableColumnCourseName.prefWidthProperty().bind(
-        tableViewCourses.widthProperty().multiply(0.76));
-    tableColumnModulePordnr.prefWidthProperty().bind(
-        tableViewMandatoryModules.widthProperty().multiply(0.2));
-    tableColumnModuleTitle.prefWidthProperty().bind(
-        tableViewMandatoryModules.widthProperty().multiply(0.69));
-    tableColumnElectability.prefWidthProperty().bind(
-        tableViewMandatoryModules.widthProperty().multiply(0.07));
-  }
-
 
   public void setData(final Map<Course, Set<Module>> mandatoryModulesMap) {
     this.mandatoryModulesMap.putAll(mandatoryModulesMap);

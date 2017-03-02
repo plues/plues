@@ -11,15 +11,16 @@
         <Text fx:id="txtExplanation" text="%explain.AbstractUnits"/>
     </VBox>
     <TableView fx:id="tableViewAbstractUnits" minWidth="0" minHeight="0" maxWidth="Infinity">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey" resizable="false"
-                         minWidth="0">
+            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnTitle" resizable="false"
-                         minWidth="0">
+            <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnTitle" minWidth="400.0">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>

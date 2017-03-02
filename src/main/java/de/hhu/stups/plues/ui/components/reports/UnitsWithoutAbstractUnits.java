@@ -40,7 +40,7 @@ public class UnitsWithoutAbstractUnits extends VBox implements Initializable {
    * Default constructor.
    *
    * @param inflater Handle fxml and resources.
-   * @param router Router.
+   * @param router   Router.
    */
   @Inject
   public UnitsWithoutAbstractUnits(final Inflater inflater, final Router router) {
@@ -53,12 +53,6 @@ public class UnitsWithoutAbstractUnits extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     tableViewUnits.setOnMouseClicked(DetailViewHelper.getUnitMouseHandler(tableViewUnits, router));
     txtExplanation.wrappingWidthProperty().bind(tableViewUnits.widthProperty().subtract(25.0));
-    bindTableColumnsWidth();
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnUnitKey.prefWidthProperty().bind(tableViewUnits.widthProperty().multiply(0.2));
-    tableColumnUnitTitle.prefWidthProperty().bind(tableViewUnits.widthProperty().multiply(0.76));
   }
 
   public void setData(final List<Unit> unitsWithoutAbstractUnits) {

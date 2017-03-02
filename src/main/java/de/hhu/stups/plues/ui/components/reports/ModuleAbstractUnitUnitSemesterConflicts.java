@@ -107,10 +107,9 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
         DetailViewHelper.getModuleMouseHandler(tableViewModules, router));
 
     txtExplanation.wrappingWidthProperty().bind(tableViewModules.widthProperty().subtract(25.0));
-
-    bindTableColumnsWidth();
   }
 
+  @SuppressWarnings("unused")
   private void handleTableColumnAbstractUnitClicked(final MouseEvent mouseEvent) {
     if (mouseEvent.getClickCount() < 2) {
       return;
@@ -136,32 +135,6 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
         || column.equals(tableColumnExplicitUnitTitle)) {
       router.transitionTo(RouteNames.UNIT_DETAIL_VIEW, tableEntry.getUnit());
     }
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnModulePordnr.prefWidthProperty().bind(
-        tableViewModules.widthProperty().multiply(0.2));
-    tableColumnModuleTitle.prefWidthProperty().bind(
-        tableViewModules.widthProperty().multiply(0.76));
-
-    tableColumnAbstractUnit.prefWidthProperty().bind(
-        tableViewAbstractUnitUnitSemesters.widthProperty().multiply(0.5));
-    tableColumnExplicitUnit.prefWidthProperty().bind(
-        tableViewAbstractUnitUnitSemesters.widthProperty().multiply(0.5));
-
-    tableColumnAbstractUnitKey.prefWidthProperty().bind(
-        tableColumnAbstractUnit.widthProperty().multiply(0.2));
-    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
-        tableColumnAbstractUnit.widthProperty().multiply(0.58));
-    tableColumnAbstractUnitSemesters.prefWidthProperty().bind(
-        tableColumnAbstractUnit.widthProperty().multiply(0.18));
-
-    tableColumnExplicitUnitKey.prefWidthProperty().bind(
-        tableColumnExplicitUnit.widthProperty().multiply(0.2));
-    tableColumnExplicitUnitTitle.prefWidthProperty().bind(
-        tableColumnExplicitUnit.widthProperty().multiply(0.58));
-    tableColumnExplicitUnitSemesters.prefWidthProperty().bind(
-        tableColumnExplicitUnit.widthProperty().multiply(0.18));
   }
 
   public void setData(final Map<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflicts) {

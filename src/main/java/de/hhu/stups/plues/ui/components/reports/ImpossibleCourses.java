@@ -88,15 +88,6 @@ public class ImpossibleCourses extends VBox implements Initializable {
     txtExplanation.textProperty().bind(new ExplanationStringBinding(resources));
     txtExplanation.wrappingWidthProperty().bind(
         tableViewImpossibleCourses.widthProperty().subtract(25.0));
-
-    bindTableColumnsWidth();
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnCourseKey.prefWidthProperty().bind(
-        tableViewImpossibleCourses.widthProperty().multiply(0.2));
-    tableColumnCourseName.prefWidthProperty().bind(
-        tableViewImpossibleCourses.widthProperty().multiply(0.76));
   }
 
   /**

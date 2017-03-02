@@ -13,14 +13,17 @@
     </VBox>
     <ListView fx:id="listViewModules" minWidth="0" minHeight="0" maxWidth="Infinity"/>
     <TableView fx:id="tableViewAbstractUnits" minWidth="0" minHeight="0" maxWidth="Infinity">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey" resizable="false">
+            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey" minWidth="0">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
             <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnAbstractUnit"
-                         resizable="false">
+                         minWidth="400.0">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>

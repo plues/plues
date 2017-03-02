@@ -85,8 +85,6 @@ public class ImpossibleModules extends VBox implements Initializable {
             buttonIncompleteModules.selectedProperty(),
             buttonMissingElectiveAbstractUnits.selectedProperty()));
     txtExplanation.wrappingWidthProperty().bind(tableViewModules.widthProperty().subtract(25.0));
-
-    bindTableColumnsWidth();
   }
 
   private String getExplanation(final ResourceBundle resources) {
@@ -99,13 +97,6 @@ public class ImpossibleModules extends VBox implements Initializable {
     }
 
     return null;
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnModulePordnr.prefWidthProperty().bind(
-        tableViewModules.widthProperty().multiply(0.2));
-    tableColumnModuleTitle.prefWidthProperty().bind(
-        tableViewModules.widthProperty().multiply(0.76));
   }
 
   /**
