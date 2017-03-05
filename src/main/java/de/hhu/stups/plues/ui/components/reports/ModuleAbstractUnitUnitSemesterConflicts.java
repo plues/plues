@@ -18,6 +18,9 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
@@ -39,13 +42,11 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
   private final ObservableMap<Module, List<Conflict>> moduleAbstractUnitUnitSemesterConflictsMap
       = FXCollections.observableHashMap();
   private final Router router;
+  private boolean manualTableViewSelection = false;
 
   @FXML
   @SuppressWarnings("unused")
   private TableView<Module> tableViewModules;
-  @FXML
-  @SuppressWarnings("unused")
-  private TableView<Conflict> tableViewAbstractUnitUnitSemesters;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Module, String> tableColumnModulePordnr;
@@ -54,7 +55,7 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
   private TableColumn<Module, String> tableColumnModuleTitle;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Module, String> tableColumnAbstractUnit;
+  private TableView<Conflict> tableViewAbstractUnit;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Module, String> tableColumnAbstractUnitKey;
@@ -66,7 +67,7 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
   private TableColumn<Module, String> tableColumnAbstractUnitSemesters;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Module, String> tableColumnExplicitUnit;
+  private TableView<Conflict> tableViewExplicitUnit;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Module, String> tableColumnExplicitUnitKey;
@@ -96,27 +97,109 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    tableViewAbstractUnitUnitSemesters.itemsProperty().bind(
-        new ConflictListBinding(tableViewModules.getSelectionModel().selectedItemProperty(),
-          moduleAbstractUnitUnitSemesterConflictsMap));
-    tableViewAbstractUnitUnitSemesters.setOnMouseClicked(
-        this::handleTableColumnAbstractUnitClicked);
-
     tableViewModules.itemsProperty().bind(modules);
     tableViewModules.setOnMouseClicked(
         DetailViewHelper.getModuleMouseHandler(tableViewModules, router));
 
+    initSynchronizedTableViews();
+
     txtExplanation.wrappingWidthProperty().bind(tableViewModules.widthProperty().subtract(25.0));
   }
 
+  private void initSynchronizedTableViews() {
+    tableViewAbstractUnit.itemsProperty().bind(
+        new ConflictListBinding(tableViewModules.getSelectionModel().selectedItemProperty(),
+            moduleAbstractUnitUnitSemesterConflictsMap));
+    tableViewAbstractUnit.setOnMouseClicked(
+        event -> handleTableColumnUnitClicked(event, tableViewAbstractUnit));
+
+    tableViewExplicitUnit.itemsProperty().bind(
+        new ConflictListBinding(tableViewModules.getSelectionModel().selectedItemProperty(),
+            moduleAbstractUnitUnitSemesterConflictsMap));
+    tableViewExplicitUnit.setOnMouseClicked(
+        event -> handleTableColumnUnitClicked(event, tableViewExplicitUnit));
+
+    tableViewAbstractUnit.getSelectionModel().selectedItemProperty()
+        .addListener((observable, oldValue, newValue) ->
+            tableViewSelectionSync(tableViewExplicitUnit, newValue));
+
+    tableViewExplicitUnit.getSelectionModel().selectedItemProperty()
+        .addListener((observable, oldValue, newValue) ->
+            tableViewSelectionSync(tableViewAbstractUnit, newValue));
+
+    tableViewAbstractUnit.itemsProperty().addListener((observable, oldValue, newValue) ->
+        tableViewScrollSync(tableViewAbstractUnit, tableViewExplicitUnit));
+
+    tableViewExplicitUnit.itemsProperty().addListener((observable, oldValue, newValue) ->
+        tableViewScrollSync(tableViewAbstractUnit, tableViewExplicitUnit));
+
+    initTableColumnWidth();
+  }
+
+  private void tableViewSelectionSync(final TableView<Conflict> tableView,
+                                      final Conflict selectedItem) {
+    if (!manualTableViewSelection) {
+      manualTableViewSelection = true;
+      tableView.getSelectionModel().select(selectedItem);
+      return;
+    }
+    manualTableViewSelection = false;
+  }
+
+  private void tableViewScrollSync(final TableView<Conflict> tableView1,
+                                   final TableView<Conflict> tableView2) {
+    final ScrollBar scrollBar1 = getVerticalScrollbar(tableView1);
+    final ScrollBar scrollBar2 = getVerticalScrollbar(tableView2);
+    if (scrollBar1 != null && scrollBar2 != null) {
+      scrollBar1.valueProperty().bindBidirectional(scrollBar2.valueProperty());
+      scrollBar2.valueProperty().bindBidirectional(scrollBar1.valueProperty());
+    }
+  }
+
+  private ScrollBar getVerticalScrollbar(final TableView<?> tableView) {
+    for (Node node : tableView.lookupAll(".scroll-bar")) {
+      if (node instanceof ScrollBar) {
+        final ScrollBar scrollBar = (ScrollBar) node;
+        if (scrollBar.getOrientation().equals(Orientation.VERTICAL)) {
+          return scrollBar;
+        }
+      }
+    }
+    return null;
+  }
+
+  private void initTableColumnWidth() {
+    tableViewAbstractUnit.prefWidthProperty().bind(tableViewModules.widthProperty().divide(2));
+    tableViewExplicitUnit.prefWidthProperty().bind(tableViewModules.widthProperty().divide(2));
+
+    tableViewAbstractUnit.widthProperty().addListener((observable, oldValue, newValue) -> {
+      tableColumnAbstractUnitKey.setPrefWidth(
+          tableViewAbstractUnit.widthProperty().multiply(0.15).get());
+      tableColumnAbstractUnitTitle.setPrefWidth(
+          tableViewAbstractUnit.widthProperty().multiply(0.6).get());
+      tableColumnAbstractUnitSemesters.setPrefWidth(
+          tableViewAbstractUnit.widthProperty().multiply(0.2).get());
+    });
+
+    tableViewExplicitUnit.widthProperty().addListener((observable, oldValue, newValue) -> {
+      tableColumnExplicitUnitKey.setPrefWidth(
+          tableViewExplicitUnit.widthProperty().multiply(0.15).get());
+      tableColumnExplicitUnitTitle.setPrefWidth(
+          tableViewExplicitUnit.widthProperty().multiply(0.6).get());
+      tableColumnExplicitUnitSemesters.setPrefWidth(
+          tableViewExplicitUnit.widthProperty().multiply(0.2).get());
+    });
+  }
+
   @SuppressWarnings("unused")
-  private void handleTableColumnAbstractUnitClicked(final MouseEvent mouseEvent) {
+  private void handleTableColumnUnitClicked(final MouseEvent mouseEvent,
+                                            final TableView<Conflict> tableView) {
     if (mouseEvent.getClickCount() < 2) {
       return;
     }
     //
     final TableView.TableViewSelectionModel<Conflict> selectionModel
-        = tableViewAbstractUnitUnitSemesters.getSelectionModel();
+        = tableView.getSelectionModel();
 
     final Conflict tableEntry = selectionModel.getSelectedItem();
 
@@ -202,7 +285,7 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
     private final ObservableMap<Module, List<Conflict>> map;
 
     ConflictListBinding(final ReadOnlyObjectProperty<Module> property,
-        final ObservableMap<Module, List<Conflict>> map) {
+                        final ObservableMap<Module, List<Conflict>> map) {
       this.property = property;
       this.map = map;
       bind(property);

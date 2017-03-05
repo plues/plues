@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.layout.HBox?>
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <VBox styleClass="windowPaddingSmall" spacing="10.0" minWidth="0" maxWidth="Infinity">
@@ -27,52 +28,44 @@
             </TableColumn>
         </columns>
     </TableView>
-    <TableView fx:id="tableViewAbstractUnitUnitSemesters" minWidth="0" minHeight="0"
-               maxWidth="Infinity">
-        <columnResizePolicy>
-            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-        </columnResizePolicy>
-        <columns>
-            <TableColumn fx:id="tableColumnAbstractUnit" text="%columnAbstractUnit">
-                <columns>
-                    <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="abstractUnitKey"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnTitle"
-                                 minWidth="250.0">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="abstractUnitTitle"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn fx:id="tableColumnAbstractUnitSemesters" text="%columnSemesters">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="abstractUnitSemesters"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                </columns>
-            </TableColumn>
-            <TableColumn fx:id="tableColumnExplicitUnit" text="%columnExplicitUnit">
-                <columns>
-                    <TableColumn fx:id="tableColumnExplicitUnitKey" text="%columnKey">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="unitKey"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn fx:id="tableColumnExplicitUnitTitle" text="%columnTitle"
-                                 minWidth="250.0">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="unitTitle"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn fx:id="tableColumnExplicitUnitSemesters" text="%columnSemesters">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="unitSemesters"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                </columns>
-            </TableColumn>
-        </columns>
-    </TableView>
+    <HBox>
+        <TableView fx:id="tableViewAbstractUnit" minWidth="0" minHeight="0" maxWidth="Infinity">
+            <columns>
+                <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="abstractUnitKey"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%abstractUnit">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="abstractUnitTitle"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="tableColumnAbstractUnitSemesters" text="%columnSemesters">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="abstractUnitSemesters"/>
+                    </cellValueFactory>
+                </TableColumn>
+            </columns>
+        </TableView>
+        <TableView fx:id="tableViewExplicitUnit" minWidth="0" minHeight="0" maxWidth="Infinity">
+            <columns>
+                <TableColumn fx:id="tableColumnExplicitUnitKey" text="%columnKey">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="unitKey"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="tableColumnExplicitUnitTitle" text="%unit">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="unitTitle"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="tableColumnExplicitUnitSemesters" text="%columnSemesters">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="unitSemesters"/>
+                    </cellValueFactory>
+                </TableColumn>
+            </columns>
+        </TableView>
+    </HBox>
 </fx:root>
