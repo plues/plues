@@ -91,7 +91,7 @@ class DataPreparatory {
     for (final Integer mid : courseModules) {
       final Module m = store.getModuleById(mid);
       if (!course.getModules().contains(m)) {
-        throw new AssertionError("Expected course to contain module " + m.getName());
+        throw new AssertionError("Expected course to contain module " + m.getTitle());
       }
       // find if the pair of abstract unit and semester exists for this module
       for (final ModuleAbstractUnitSemester maus : m.getModuleAbstractUnitSemesters()) {

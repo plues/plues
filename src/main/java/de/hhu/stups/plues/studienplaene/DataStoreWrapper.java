@@ -71,7 +71,7 @@ class DataStoreWrapper {
           semesters[semester - 1].put(key, newContent);
           setColorToBlack(values[1]);
         } else {
-          final String moduleName = module.getName();
+          final String moduleName = module.getTitle();
           title.append(';').append(moduleName);
           semesters[semester - 1].put(key, title.toString());
           colorMap.put(moduleName, getColorString(moduleName));
