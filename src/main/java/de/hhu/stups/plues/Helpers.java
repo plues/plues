@@ -47,6 +47,8 @@ public final class Helpers {
     tempMap.put(DayOfWeek.WEDNESDAY, "wed");
     tempMap.put(DayOfWeek.THURSDAY, "thu");
     tempMap.put(DayOfWeek.FRIDAY, "fri");
+    tempMap.put(DayOfWeek.SATURDAY, "sat");
+    tempMap.put(DayOfWeek.SUNDAY, "sun");
     shortDayOfWeekMap = Collections.unmodifiableMap(tempMap);
   }
 
