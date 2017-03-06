@@ -98,10 +98,7 @@ public class MockStore implements Store {
 
   @Override
   public Course getCourseByKey(final String key) {
-    final Course course = new Course();
-    course.setKey(key);
-    course.setModuleLevels(new HashSet<>(this.getModuleLevels()));
-    return course;
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -174,6 +171,9 @@ public class MockStore implements Store {
         } else {
           module.setModuleAbstractUnitSemesters(new HashSet<>());
         }
+        module.getModuleAbstractUnitSemesters().forEach(moduleAbstractUnitSemester -> {
+          moduleAbstractUnitSemester.setModule(module);
+        });
 
         return module;
       }).collect(Collectors.toList());

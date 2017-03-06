@@ -51,8 +51,6 @@ public class TestDataPreperatory extends TestBase {
 
   @Test
   public void testUnitModuleMapping() {
-    final Course course = store.getCourseByKey("foo");
-
     final DataPreparatory dp = new DataPreparatory(store, result, course, null);
 
     final Map<AbstractUnit, Module> um = dp.getUnitModule();
