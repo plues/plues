@@ -13,17 +13,19 @@ import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Session;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.timetable.SemesterChooser;
-import de.hhu.stups.plues.ui.components.timetable.SessionHelper;
+import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.SetBinding;
 import javafx.beans.property.ListProperty;
@@ -36,16 +38,19 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
 import java.time.DayOfWeek;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -71,10 +76,16 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   private SemesterChooser semesterToggle;
   @FXML
   @SuppressWarnings("unused")
+  private Label multipleSelectionInfo;
+  @FXML
+  @SuppressWarnings("unused")
+  private Tooltip multipleSelectionHint;
+  @FXML
+  @SuppressWarnings("unused")
   private TimetableSideBar timetableSideBar;
 
   private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
-  private final SetProperty<String> conflictedSemesters;
+  private final SetProperty<Integer> conflictedSemesters;
 
   /**
    * Timetable component.
@@ -105,6 +116,17 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
     timetableSideBar.setParent(this);
 
+    multipleSelectionInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
+        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "12")));
+
+    multipleSelectionInfo.setOnMouseEntered(event -> {
+      final Point2D pos = multipleSelectionInfo.localToScreen(
+          multipleSelectionInfo.getLayoutBounds().getMaxX(),
+          multipleSelectionInfo.getLayoutBounds().getMaxY());
+      multipleSelectionHint.show(multipleSelectionInfo, pos.getX(), pos.getY());
+    });
+    multipleSelectionInfo.setOnMouseExited(event -> multipleSelectionHint.hide());
+
     splitPaneDivider = getDividers().get(0);
 
     splitPaneDivider.positionProperty().addListener((observable, oldValue, newValue) -> {
@@ -122,25 +144,11 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
       }
     });
 
-    conflictedSemesters.addListener((observable, oldValue, newValue)
-        -> this.highlightConflictedSemesters(newValue));
+    semesterToggle.conflictedSemestersProperty().bind(conflictedSemesters);
 
-    this.delayedStore.whenAvailable(store
-        -> conflictedSemesters.bind(new ConflictedSemestersBinding()));
+    conflictedSemesters.bind(new ConflictedSemestersBinding());
 
     initSessionBoxes();
-  }
-
-  private void highlightConflictedSemesters(final ObservableSet<String> semesters) {
-    semesterToggle.getButtons().forEach(toggle -> {
-      final String value = (String) toggle.getUserData();
-
-      if (semesters.contains(value)) {
-        toggle.getStyleClass().add("conflicted-semester");
-      } else {
-        toggle.getStyleClass().remove("conflicted-semester");
-      }
-    });
   }
 
   /**
@@ -173,7 +181,9 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     view.setSessions(sessions);
 
     final SortedList<SessionFacade> sortedSessions = sessions.sorted();
-    sortedSessions.comparatorProperty().bind(new ComparatorObjectBinding());
+    sortedSessions.comparatorProperty().bind(Bindings.createObjectBinding(
+        () -> SessionFacade.displayTextComparator(uiDataService.getSessionDisplayFormat()),
+        uiDataService.sessionDisplayFormatProperty()));
 
     final FilteredList<SessionFacade> slotSessions
         = sortedSessions.filtered(facade -> facade.getSlot().equals(slot));
@@ -193,8 +203,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     return new SessionFacade.Slot(days[index % widthX], times[index / widthX]);
   }
 
+  @SuppressWarnings("unused")
   private void setSessions(final List<SessionFacade> sessions) {
-    sessions.forEach(SessionFacade::initSlotProperty);
     this.sessions.set(FXCollections.observableList(sessions,
         (SessionFacade session) -> new Observable[] {session.slotProperty()}));
   }
@@ -212,10 +222,19 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     if (args.length == 0) {
       return;
     }
-    if (routeName == RouteNames.SESSION_IN_TIMETABLE) {
-      scrollToSession((Session) args[0]);
-    } else {
-      timetableSideBar.activateComponents(args);
+    switch (routeName) {
+      case SESSION_IN_TIMETABLE:
+        scrollToSession((Session) args[0]);
+        break;
+      case CONFLICT_IN_TIMETABLE:
+        final List<Course> courses = (args.length > 1 && args[1] != null)
+            ? Arrays.asList((Course) args[0], (Course) args[1])
+            : Collections.singletonList((Course) args[0]);
+        timetableSideBar.selectCourseFilter(courses);
+        break;
+      default:
+        timetableSideBar.activateComponents(args);
+        break;
     }
   }
 
@@ -237,14 +256,13 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     final Set<Integer> selectedSemesters = semesterToggle.getSelectedSemesters();
     final Set<Integer> unitSemesters = facade.getUnitSemesters();
 
-    // no semester or on of the unitSemesters is selected, hence all sessions are visible
+    // no semester or one of the unitSemesters is selected, hence all sessions are visible
     if (selectedSemesters.isEmpty() || !Collections.disjoint(selectedSemesters, unitSemesters)) {
       return;
     }
 
     final Integer first = Collections.min(unitSemesters);
-    semesterToggle.getButtons().forEach(button
-        -> button.setSelected(button.getUserData().equals(String.valueOf(first))));
+    semesterToggle.setSelectedSemesters(FXCollections.observableSet(first));
   }
 
   public SplitPane.Divider getDivider() {
@@ -255,22 +273,20 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     return userDefinedDividerPos;
   }
 
-  private class ConflictedSemestersBinding extends SetBinding<String> {
+  private class ConflictedSemestersBinding extends SetBinding<Integer> {
 
     ConflictedSemestersBinding() {
       bind(uiDataService.conflictMarkedSessionsProperty());
     }
 
     @Override
-    protected ObservableSet<String> computeValue() {
+    protected ObservableSet<Integer> computeValue() {
       final Set<Integer> sessionIds = new HashSet<>(uiDataService.conflictMarkedSessionsProperty());
       return sessions.filtered(facade -> sessionIds.contains(facade.getId())).stream()
           .map(SessionFacade::getUnitSemesters)
           .flatMap(Collection::stream)
           .collect(
-              Collectors.collectingAndThen(
-                  Collectors.mapping(String::valueOf, Collectors.toSet()),
-                  FXCollections::observableSet));
+              Collectors.collectingAndThen(Collectors.toSet(), FXCollections::observableSet));
     }
   }
 
@@ -357,17 +373,6 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
       final Set<Integer> selectedSemesters = semesterToggle.getSelectedSemesters();
 
       return new FilterPredicate(filteredCourses, filteredAbstractUnits, selectedSemesters);
-    }
-  }
-
-  private class ComparatorObjectBinding extends ObjectBinding<Comparator<SessionFacade>> {
-    ComparatorObjectBinding() {
-      bind(uiDataService.sessionDisplayFormatProperty());
-    }
-
-    @Override
-    protected Comparator<SessionFacade> computeValue() {
-      return SessionHelper.comparator(uiDataService.getSessionDisplayFormat());
     }
   }
 }

@@ -12,11 +12,11 @@ import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -69,7 +69,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
 
     this.solverProperty = new SimpleBooleanProperty(false);
 
-    inflater.inflate("musterstudienplaene", this, this, "musterstudienplaene");
+    inflater.inflate("Musterstudienplaene", this, this, "musterstudienplaene");
   }
 
   /**
@@ -95,11 +95,15 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
 
     // disable list-view selection
     resultBoxWrapper.getSelectionModel().selectedIndexProperty().addListener(
-        (observable, oldvalue, newValue) ->
+        (observable, oldValue, newValue) ->
             Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
 
-    delayedStore.whenAvailable(store ->
-        PdfRenderingHelper.initializeCourseSelection(store, uiDataService, courseSelection));
+    delayedStore.whenAvailable(store -> {
+      courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors()));
+      courseSelection.setMinorCourseList(FXCollections.observableList(store.getMinors()));
+    });
+
+    courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
   }
@@ -109,7 +113,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
    * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
    */
   @Override
-  public void activateController(final RouteNames routeName, Object... courses) {
+  public void activateController(final RouteNames routeName, final Object... courses) {
     if (courses.length > 0) {
       courseSelection.selectCourse((Course) courses[0]);
     }

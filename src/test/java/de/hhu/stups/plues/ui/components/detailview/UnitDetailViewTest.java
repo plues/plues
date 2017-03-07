@@ -13,19 +13,18 @@ import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.hhu.stups.plues.ui.layout.SceneFactory;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.internal.stubbing.answers.ThrowsException;
 import org.testfx.framework.junit.ApplicationTest;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,6 +40,7 @@ public class UnitDetailViewTest extends ApplicationTest {
   /**
    * Test constructor.
    */
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   public UnitDetailViewTest() {
 
@@ -54,6 +54,8 @@ public class UnitDetailViewTest extends ApplicationTest {
 
     this.abstractUnits = new HashSet<>(Arrays.asList(au1, au2));
     this.sessions = new HashSet<>(Arrays.asList(session1, session2));
+
+    doReturn(123).when(group).getId();
 
     doReturn(1).when(session1).getId();
     doReturn(group).when(session1).getGroup();
@@ -71,7 +73,7 @@ public class UnitDetailViewTest extends ApplicationTest {
     doReturn(TITLE).when(unit).getTitle();
     doReturn(SEMESTERS).when(unit).getSemesters();
     doReturn(abstractUnits).when(unit).getAbstractUnits();
-    doReturn(new HashSet<>(Arrays.asList(group))).when(unit).getGroups();
+    doReturn(new HashSet<>(Collections.singletonList(group))).when(unit).getGroups();
 
     doReturn("AU-1").when(au1).getKey();
     doReturn("Abstract Unit 1").when(au1).getTitle();

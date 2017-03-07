@@ -9,8 +9,11 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
@@ -23,7 +26,9 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -32,6 +37,8 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+
+import org.controlsfx.control.textfield.CustomTextField;
 
 import java.net.URL;
 import java.util.List;
@@ -51,7 +58,10 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private TextField txtQuery;
+  private Label searchSymbol;
+  @FXML
+  @SuppressWarnings("unused")
+  private CustomTextField txtQuery;
   @FXML
   @SuppressWarnings("unused")
   private RadioButton rbSelected;
@@ -61,6 +71,9 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private RadioButton rbAll;
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btClearSelection;
   @FXML
   @SuppressWarnings("unused")
   private CheckBox cbSelectedCoursesOnly;
@@ -146,14 +159,20 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    txtQuery.setLeft(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SEARCH, "12"));
+
     rbSelected.setToggleGroup(filterGroup);
     rbNotSelected.setToggleGroup(filterGroup);
     rbAll.setToggleGroup(filterGroup);
+
+    unitsTable.setSelectionModel(null);
 
     tableColumnCheckBox.setCellFactory(CheckBoxTableCell.forTableColumn(tableColumnCheckBox));
 
     selectableAbstractUnits.bind(new SelectableAbstractUnitListBinding());
 
+    btClearSelection.graphicProperty().bind(Bindings.createObjectBinding(()
+        -> FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.TIMES_CIRCLE, "15")));
 
     final FilteredList<SelectableAbstractUnit> filteredUnits
         = new FilteredList<>(selectableAbstractUnits);
@@ -162,13 +181,12 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     unitsTable.itemsProperty().bind(new SimpleListProperty<>(filteredUnits));
 
     selectedAbstractUnits.bind(new SelectedAbstractUnitListBinding());
-    bindTableColumnsWidth();
-  }
 
-  private void bindTableColumnsWidth() {
-    tableColumnCheckBox.prefWidthProperty().bind(unitsTable.widthProperty().multiply(0.07));
-    tableColumnKey.prefWidthProperty().bind(unitsTable.widthProperty().multiply(0.2));
-    tableColumnTitle.prefWidthProperty().bind(unitsTable.widthProperty().multiply(0.69));
+    tableColumnTitle.prefWidthProperty().bind(
+        unitsTable.widthProperty()
+            .subtract(tableColumnKey.widthProperty())
+            .subtract(tableColumnCheckBox.widthProperty())
+            .subtract(20));
   }
 
   @SuppressWarnings("WeakerAccess")
@@ -274,8 +292,8 @@ public class AbstractUnitFilter extends VBox implements Initializable {
 
     UnitFilterPredicateBinding() {
       bind(txtQuery.textProperty(), rbAll.selectedProperty(), rbSelected.selectedProperty(),
-          rbNotSelected.selectedProperty());
-      bind(cbSelectedCoursesOnly.selectedProperty(), courseFilter);
+          rbNotSelected.selectedProperty(), cbSelectedCoursesOnly.selectedProperty(),
+          courseFilter);
     }
 
     @Override

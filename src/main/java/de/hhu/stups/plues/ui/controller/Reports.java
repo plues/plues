@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.controller;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
@@ -23,14 +24,21 @@ import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnit
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 
 import org.hibernate.annotations.common.util.impl.LoggerFactory;
@@ -56,6 +64,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -65,10 +75,14 @@ import java.util.stream.Collectors;
 import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
 
-public class Reports extends VBox implements Initializable {
+public class Reports extends VBox implements Initializable, Observer {
 
   private final ObjectProperty<ReportData> reportData = new SimpleObjectProperty<>();
+  private final BooleanProperty dataOutOfSync = new SimpleBooleanProperty(false);
   private final Properties properties;
+  private final ExecutorService executorService;
+  private Delayed<ObservableStore> delayedStore;
+  private SolverService solverService;
   private int abstractUnitAmount;
   private int groupAmount;
   private int sessionAmount;
@@ -100,7 +114,16 @@ public class Reports extends VBox implements Initializable {
   private Label lbModelVersion;
   @FXML
   @SuppressWarnings("unused")
-  private Button buttonPrint;
+  private Label lbOutOfSyncInfo;
+  @FXML
+  @SuppressWarnings("unused")
+  private Tooltip outOfSyncHint;
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btPrint;
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btRecomputeData;
   @FXML
   @SuppressWarnings("unused")
   private ImpossibleModules impossibleModules;
@@ -137,12 +160,14 @@ public class Reports extends VBox implements Initializable {
    * etc.
    */
   @Inject
-  public Reports(final Inflater inflater, final Delayed<Store> delayedStore,
+  public Reports(final Inflater inflater,
+                 final Delayed<ObservableStore> delayedStore,
                  final Delayed<SolverService> delayedSolverService,
-                 final ExecutorService executor,
+                 final ExecutorService executorService,
                  final Properties properties) {
-
+    this.executorService = executorService;
     this.properties = properties;
+    this.delayedStore = delayedStore;
     resources = new HashMap<>();
 
     delayedStore.whenAvailable(store -> {
@@ -151,17 +176,17 @@ public class Reports extends VBox implements Initializable {
       courseAmount = store.getCourses().size();
       unitAmount = store.getUnits().size();
       abstractUnitAmount = store.getAbstractUnits().size();
+      store.addObserver(this);
     });
 
-    delayedSolverService.whenAvailable(solverService -> {
-      final SolverTask<ReportData> reportDataTask = solverService.collectReportDataTask();
-      reportDataTask.setOnSucceeded(event -> setReportData(reportDataTask.getValue()));
-      executor.submit(reportDataTask);
+    delayedSolverService.whenAvailable(solverService1 -> {
+      this.solverService = solverService1;
+      recomputeData();
     });
 
     reportData.addListener((observable, oldValue, newValue) ->
         delayedStore.whenAvailable(store -> {
-          buttonPrint.setDisable(false);
+          btPrint.setDisable(false);
           printReportData = new PrintReportData(store, newValue, resources);
           setSpecificData();
           lbImpossibleCoursesAmount.setText(String.valueOf(newValue.getImpossibleCourses().size()));
@@ -192,6 +217,19 @@ public class Reports extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    lbOutOfSyncInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
+        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "12")));
+    lbOutOfSyncInfo.setOnMouseEntered(event -> {
+      final Point2D pos = lbOutOfSyncInfo.localToScreen(
+          lbOutOfSyncInfo.getLayoutBounds().getMaxX(), lbOutOfSyncInfo.getLayoutBounds().getMaxY());
+      outOfSyncHint.show(lbOutOfSyncInfo, pos.getX(), pos.getY());
+    });
+    lbOutOfSyncInfo.setOnMouseExited(event -> outOfSyncHint.hide());
+
+    btRecomputeData.disableProperty().bind(dataOutOfSync.not());
+    btRecomputeData.visibleProperty().bind(dataOutOfSync);
+    lbOutOfSyncInfo.visibleProperty().bind(dataOutOfSync);
+
     lbCourseAmount.setText(String.valueOf(courseAmount));
     lbUnitAmount.setText(String.valueOf(unitAmount));
     lbAbstractUnitAmount.setText(String.valueOf(abstractUnitAmount));
@@ -204,10 +242,29 @@ public class Reports extends VBox implements Initializable {
         .stream().collect(Collectors.toMap(o -> o, resources::getString));
   }
 
+  @Override
+  public void update(final Observable observable, final Object arg) {
+    dataOutOfSync.setValue(true);
+  }
+
   @FXML
   @SuppressWarnings("unused")
   public void printReport() {
     printReportData.print();
+  }
+
+  /**
+   * Compute and update the report data.
+   */
+  @FXML
+  @SuppressWarnings({"unused","WeakerAccess"})
+  public void recomputeData() {
+    final SolverTask<ReportData> reportDataTask = solverService.collectReportDataTask();
+    reportDataTask.setOnSucceeded(event -> setReportData(reportDataTask.getValue()));
+    reportDataTask.setOnCancelled(event -> dataOutOfSync.setValue(true));
+    reportDataTask.setOnFailed(event -> dataOutOfSync.setValue(true));
+    dataOutOfSync.setValue(false);
+    executorService.submit(reportDataTask);
   }
 
   /**
@@ -338,14 +395,17 @@ public class Reports extends VBox implements Initializable {
 
     private void calculateImpossibleCourses(final Store store,
                                             final ReportData reportData) {
-      this.impossibleCourses = reportData.getImpossibleCourses()
-        .stream().map(store::getCourseByKey).collect(Collectors.toList());
-      this.impossibleCoursesBecauseOfImpossibleModules =
-        reportData.getImpossibleCoursesBecauseofImpossibleModules()
-          .stream().map(store::getCourseByKey).collect(Collectors.toList());
-      this.impossibleCoursesBecauseOfImpossibleModuleCombinations =
-        reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations()
-          .stream().map(store::getCourseByKey).collect(Collectors.toList());
+      this.impossibleCourses
+          = getCoursesByKeys(store, reportData.getImpossibleCourses());
+      this.impossibleCoursesBecauseOfImpossibleModules
+          = getCoursesByKeys(store, reportData.getImpossibleCoursesBecauseofImpossibleModules());
+      this.impossibleCoursesBecauseOfImpossibleModuleCombinations
+          = getCoursesByKeys(store,
+              reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations());
+    }
+
+    private List<Course> getCoursesByKeys(final Store store, final Set<String> courseKeys) {
+      return courseKeys.stream().map(store::getCourseByKey).collect(Collectors.toList());
     }
 
     private void calculateImpossibleModules(final Store store,
@@ -467,10 +527,14 @@ public class Reports extends VBox implements Initializable {
       SwingUtilities.invokeLater(() -> {
         try {
           Desktop.getDesktop().open(file);
-        } catch (IOException exc) {
+        } catch (final IOException exc) {
           logger.error("Exception while opening pdf", exc);
         }
       });
     }
+  }
+
+  public void dispose() {
+    delayedStore.whenAvailable(store -> store.deleteObserver(this));
   }
 }

@@ -148,12 +148,11 @@ public class AbstractUnitFilterTest extends ApplicationTest {
     final CheckBoxTableCell cb = (CheckBoxTableCell) units.lookup(".table-row-cell .table-cell");
     clickOn(cb);
     clickOn((RadioButton) lookup("#rbSelected").query());
-    clickOn((Button) lookup("#clearSelection").query());
+    clickOn((Button) lookup("#btClearSelection").query());
     units = lookup("#unitsTable").query();
     Assert.assertEquals(2, units.getItems().size());
     Assert.assertTrue(((RadioButton) lookup("#rbAll").query()).isSelected());
   }
-
 
   @Test
   public void testSelectedItems() {

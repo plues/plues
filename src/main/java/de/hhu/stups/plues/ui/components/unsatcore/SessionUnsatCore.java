@@ -2,8 +2,11 @@ package de.hhu.stups.plues.ui.components.unsatcore;
 
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Session;
+import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -14,6 +17,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -22,12 +26,18 @@ import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class SessionUnsatCore extends VBox implements Initializable {
 
-  private final ListProperty<Session> sessions;
+  private final ListProperty<Session> sessionsProperty;
+  private final ListProperty<Course> coursesProperty;
   private final Router router;
+  private final UiDataService uiDataService;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btHighlightConflicts;
   @FXML
   @SuppressWarnings("unused")
   private TableView<Session> sessionsTable;
@@ -51,9 +61,13 @@ public class SessionUnsatCore extends VBox implements Initializable {
    * Default constructor.
    */
   @Inject
-  public SessionUnsatCore(final Inflater inflater, final Router router) {
-    sessions = new SimpleListProperty<>(FXCollections.emptyObservableList());
+  public SessionUnsatCore(final Inflater inflater,
+                          final Router router,
+                          final UiDataService uiDataService) {
+    sessionsProperty = new SimpleListProperty<>(FXCollections.emptyObservableList());
+    coursesProperty = new SimpleListProperty<>(FXCollections.emptyObservableList());
     this.router = router;
+    this.uiDataService = uiDataService;
 
     inflater.inflate("components/unsatcore/SessionUnsatCore",
         this, this, "unsatCore", "Column", "Days");
@@ -61,9 +75,9 @@ public class SessionUnsatCore extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    txtExplanation.wrappingWidthProperty().bind(widthProperty().subtract(150));
+    txtExplanation.wrappingWidthProperty().bind(widthProperty().subtract(300));
 
-    sessionsTable.itemsProperty().bind(sessions);
+    sessionsTable.itemsProperty().bind(sessionsProperty);
     sessionsTable.setOnMouseClicked(DetailViewHelper.getSessionMouseHandler(
         sessionsTable, router));
     tableColumnSessionDay.setCellFactory(param -> new TableCell<Session, String>() {
@@ -94,30 +108,32 @@ public class SessionUnsatCore extends VBox implements Initializable {
         -> Bindings.selectString(param, "value", "group", "unit", "key"));
     tableColumnSessionUnitTitle.setCellValueFactory(param
         -> Bindings.selectString(param, "value", "group", "unit", "title"));
-
-    bindTableColumnsWidth();
   }
 
-  private void bindTableColumnsWidth() {
-    tableColumnSessionDay.prefWidthProperty().bind(
-        sessionsTable.widthProperty().multiply(0.12));
-    tableColumnSessionTime.prefWidthProperty().bind(
-        sessionsTable.widthProperty().multiply(0.12));
-    tableColumnSessionUnitKey.prefWidthProperty().bind(
-        sessionsTable.widthProperty().multiply(0.16));
-    tableColumnSessionUnitTitle.prefWidthProperty().bind(
-        sessionsTable.widthProperty().multiply(0.56));
+  /**
+   * Highlight the conflicted sessions in the {@link de.hhu.stups.plues.ui.controller.Timetable}.
+   */
+  @FXML
+  @SuppressWarnings("unused")
+  public void highlightInTimetable() {
+    uiDataService.setConflictMarkedSessions(FXCollections.observableArrayList(
+        sessionsProperty.get().stream().map(Session::getId).collect(Collectors.toList())));
+    router.transitionTo(RouteNames.CONFLICT_IN_TIMETABLE, coursesProperty.get().toArray());
+  }
+
+  public ListProperty<Course> coursesProperty() {
+    return coursesProperty;
   }
 
   public void setSessions(final ObservableList<Session> sessions) {
-    this.sessions.set(sessions);
+    this.sessionsProperty.set(sessions);
   }
 
   public ObservableList<Session> getSessions() {
-    return sessions.get();
+    return sessionsProperty.get();
   }
 
   public ListProperty<Session> sessionProperty() {
-    return sessions;
+    return sessionsProperty;
   }
 }

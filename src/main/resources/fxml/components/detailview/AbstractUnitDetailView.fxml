@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1"
-         prefWidth="500" prefHeight="500" styleClass="windowPadding" spacing="10.0">
+         prefWidth="700" prefHeight="500" styleClass="windowPadding" spacing="10.0">
     <Label text="%abstractUnit" styleClass="h1"/>
     <GridPane>
         <Label text="%key" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
@@ -22,14 +22,14 @@
         </columnConstraints>
     </GridPane>
     <Label text="%units" styleClass="h2"/>
-    <TableView fx:id="tableViewUnits">
+    <TableView fx:id="tableViewUnits" prefWidth="650.0" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="tableColumnUnitsKey" text="%columnKey" resizable="false">
+            <TableColumn fx:id="tableColumnUnitsKey" prefWidth="100.0" text="%columnKey">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnUnitsTitle" text="%columnTitle" resizable="false">
+            <TableColumn fx:id="tableColumnUnitsTitle" prefWidth="550.0" text="%columnTitle">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
@@ -37,21 +37,21 @@
         </columns>
     </TableView>
     <Label text="%modules" styleClass="h2"/>
-    <TableView fx:id="tableViewModules">
+    <TableView fx:id="tableViewModules" prefWidth="650.0" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="tableColumnModulesPordnr" text="%columnPordnr" resizable="false">
+            <TableColumn fx:id="tableColumnModulesPordnr" prefWidth="100.0" text="%columnPordnr">
                 <cellValueFactory>
                     <PropertyValueFactory property="pordnr"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnModulesTitle" text="%columnTitle" resizable="false">
+            <TableColumn fx:id="tableColumnModulesTitle" prefWidth="400.0" text="%columnTitle">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnModulesSemesters" text="%columnSemesters"
-                         resizable="false"/>
-            <TableColumn fx:id="tableColumnModulesType" text="%cell.type" resizable="false"/>
+            <TableColumn fx:id="tableColumnModulesSemesters" prefWidth="100.0"
+                         text="%columnSemesters"/>
+            <TableColumn fx:id="tableColumnModulesType" prefWidth="50.0" text="%cell.type"/>
         </columns>
     </TableView>
 </fx:root>

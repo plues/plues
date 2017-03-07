@@ -13,10 +13,9 @@ import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
-import de.hhu.stups.plues.data.entities.Unit;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.detailview.SessionDetailView.CourseTableEntry;
+import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.hhu.stups.plues.ui.layout.SceneFactory;
 
@@ -24,7 +23,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
@@ -52,13 +50,13 @@ public class SessionDetailViewTest extends ApplicationTest {
   /**
    * Test constructor.
    */
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   public SessionDetailViewTest() {
     store = mock(Store.class);
 
     final ObjectProperty<SessionFacade.Slot> slot = new SimpleObjectProperty<>(
         new SessionFacade.Slot(DayOfWeek.MONDAY, 8));
-    final Unit unit = mock(Unit.class, new ThrowsException(new RuntimeException()));
     final Group group = mock(Group.class, new ThrowsException(new RuntimeException()));
     final Session session = mock(Session.class, new ThrowsException(new RuntimeException()));
     sessionFacade = mock(SessionFacade.class, new ThrowsException(new RuntimeException()));
@@ -86,6 +84,7 @@ public class SessionDetailViewTest extends ApplicationTest {
       doReturn(new HashSet<>(Arrays.asList(1, 2))).when(module).getSemestersForAbstractUnit(au1);
       doReturn(new HashSet<>(Arrays.asList(3, 4))).when(module).getSemestersForAbstractUnit(au2);
     });
+
     doReturn("Module 1").when(mod1).getTitle();
     doReturn(1).when(mod1).getId();
     doReturn("Module 2").when(mod2).getTitle();
@@ -97,12 +96,8 @@ public class SessionDetailViewTest extends ApplicationTest {
     doReturn(mod2).when(maut2).getModule();
     doReturn('e').when(maut2).getType();
 
-    doReturn(group).when(session).getGroup();
-    doReturn(unit).when(group).getUnit();
+    doReturn(group).when(sessionFacade).getGroup();
     doReturn(1025).when(group).getId();
-
-    doReturn("Unit").when(unit).getTitle();
-    doReturn(new HashSet<>(Arrays.asList(1, 2))).when(unit).getSemesters();
 
     doReturn(1).when(au1).getId();
     doReturn("AU-1").when(au1).getKey();
@@ -111,8 +106,6 @@ public class SessionDetailViewTest extends ApplicationTest {
     doReturn("AU-2").when(au2).getKey();
     doReturn("AU 2").when(au2).getTitle();
 
-    doReturn(new HashSet<>(Arrays.asList(au1, au2))).when(unit).getAbstractUnits();
-
     doReturn(new HashSet<>(Arrays.asList(maut1, maut2))).when(au1).getModuleAbstractUnitTypes();
     doReturn(new HashSet<>(Arrays.asList(maut1, maut2))).when(au2).getModuleAbstractUnitTypes();
 
@@ -120,9 +113,15 @@ public class SessionDetailViewTest extends ApplicationTest {
     store.getCourses().forEach(course ->
         courseMap.put(course, store.getModuleAbstractUnitSemester()));
 
-    doReturn(false).when(session).isTentative();
+    doReturn(false).when(sessionFacade).isTentative();
     doReturn(session).when(sessionFacade).getSession();
     doReturn(slot).when(sessionFacade).slotProperty();
+
+    doReturn("Unit").when(sessionFacade).getTitle();
+    doReturn(new HashSet<>(Arrays.asList(au1, au2)))
+        .when(sessionFacade).getIntendedAbstractUnits();
+    doReturn(new HashSet<>(Arrays.asList(1, 2)))
+        .when(sessionFacade).getUnitSemesters();
 
   }
 

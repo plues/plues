@@ -12,7 +12,6 @@ import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -42,8 +41,8 @@ public class MockStore implements Store {
   }
 
   @Override
-  public void moveSession(SessionFacade session, SessionFacade.Slot slot) {
-    session.setSlot(slot);
+  public void moveSession(final int sessionId, final String targetDay, final Integer targetTime) {
+    // Todo?
   }
 
   @Override
@@ -83,6 +82,16 @@ public class MockStore implements Store {
 
   @Override
   public List<Course> getCourses() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<Course> getMajors() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<Course> getMinors() {
     throw new UnsupportedOperationException();
   }
 
@@ -241,20 +250,20 @@ public class MockStore implements Store {
     s.setGroup(g);
 
     final Log l = new Log();
-    l.setSrc("mon1");
-    l.setTarget("mon2");
+    l.setSource("mon1", 0);
+    l.setTarget("mon2", 0);
     l.setSession(s);
     l.setCreatedAt(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() - 1));
 
     final Log l2 = new Log();
-    l2.setSrc("tue1");
-    l2.setTarget("tue2");
+    l2.setSource("tue1", 0);
+    l2.setTarget("tue2", 0);
     l2.setSession(s);
     l2.setCreatedAt(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() + 1));
 
     final Log l3 = new Log();
-    l3.setSrc("wed1");
-    l3.setTarget("wed2");
+    l3.setSource("wed1", 0);
+    l3.setTarget("wed2", 0);
     l3.setSession(s);
     l3.setCreatedAt(new Date(ManagementFactory.getRuntimeMXBean().getStartTime() - 10));
 
@@ -269,7 +278,7 @@ public class MockStore implements Store {
   @Override
   public Session getSessionById(int id) {
     return this.getSessions().stream()
-      .filter(session -> session.getId() == id)
-      .findFirst().orElse(null);
+        .filter(session -> session.getId() == id)
+        .findFirst().orElse(null);
   }
 }

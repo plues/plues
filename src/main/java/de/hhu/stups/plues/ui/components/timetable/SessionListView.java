@@ -7,10 +7,10 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
+
 import javafx.application.Platform;
 import javafx.beans.property.ListProperty;
 import javafx.collections.ObservableList;
@@ -73,10 +73,11 @@ public class SessionListView extends ListView<SessionFacade> {
     }
   }
 
+  @SuppressWarnings("unused")
   private boolean hasSessionIdsIn(final ObservableList<Integer> ids) {
     return ids.stream().anyMatch(
-      conflictedId -> getItems().stream().anyMatch(
-        (SessionFacade session) -> session.getSession().getId() == conflictedId));
+        conflictedId -> getItems().stream().anyMatch(
+            (SessionFacade session) -> session.getSession().getId() == conflictedId));
   }
 
   private void initEvents() {
@@ -88,8 +89,8 @@ public class SessionListView extends ListView<SessionFacade> {
 
   private boolean isValidTarget(final DragEvent event) {
     return event.getDragboard().hasString()
-      && event.getGestureSource() != this
-      && getItems().stream().noneMatch(sessionFacade ->
+        && event.getGestureSource() != this
+        && getItems().stream().noneMatch(sessionFacade ->
         String.valueOf(sessionFacade.getId()).equals(event.getDragboard().getString()));
   }
 
@@ -128,7 +129,8 @@ public class SessionListView extends ListView<SessionFacade> {
       final int sessionId = Integer.parseInt(dragboard.getString());
 
       delayedSolverService.whenAvailable(solver -> {
-        final SolverTask<Void> moveSession = solver.moveSessionTask(sessionId, slot);
+        final SolverTask<Void> moveSession = solver.moveSessionTask(sessionId, slot.getDayString(),
+            slot.getTime().toString());
         moveSession.setOnSucceeded(moveSessionEvent -> moveSucceededHandler(sessionId));
         moveSession.setOnFailed(moveSessionEvent -> moveFailedHandler());
         moveSession.setOnCancelled(moveSessionEvent -> moveCancelledHandler());
@@ -142,8 +144,12 @@ public class SessionListView extends ListView<SessionFacade> {
   }
 
   private void moveSucceededHandler(final int sessionId) {
-    delayedStore.whenAvailable(store
-        -> store.moveSession(getSessionFacadeById(sessionId), slot));
+    delayedStore.whenAvailable(store -> {
+      store.moveSession(sessionId, slot.getDayString(), slot.getTime());
+      Optional<SessionFacade> optionalSessionFacade =
+          sessions.stream().filter(sessionFacade -> sessionFacade.getId() == sessionId).findFirst();
+      optionalSessionFacade.ifPresent(sessionFacade -> sessionFacade.setSlot(slot));
+    });
   }
 
   private void moveCancelledHandler() {
@@ -168,13 +174,6 @@ public class SessionListView extends ListView<SessionFacade> {
 
       alert.showAndWait();
     });
-  }
-
-  private SessionFacade getSessionFacadeById(final int sessionId) {
-    final Optional<SessionFacade> session = sessions.stream()
-        .filter(facade -> facade.getId() == sessionId)
-        .findFirst();
-    return session.isPresent() ? session.get() : null;
   }
 
   public void setSessions(final ListProperty<SessionFacade> sessions) {

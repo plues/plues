@@ -1,36 +1,26 @@
 package de.hhu.stups.plues.studienplaene;
 
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
-
-import org.apache.fop.apps.Fop;
-import org.apache.fop.apps.FopFactory;
-import org.apache.xmlgraphics.util.MimeConstants;
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import org.jtwig.environment.EnvironmentConfiguration;
 import org.jtwig.environment.EnvironmentConfigurationBuilder;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 public class Renderer {
 
@@ -39,16 +29,6 @@ public class Renderer {
         .render()
         .withOutputCharset(Charset.forName("utf8"))
         .and().build();
-  private static final LinkedHashMap<String, String> timeMap = new LinkedHashMap<>(6);
-
-  static {
-    timeMap.put("1", "08:30-10:00");
-    timeMap.put("2", "10:30-12:00");
-    timeMap.put("3", "12:30-14:00");
-    timeMap.put("4", "14:30-16:00");
-    timeMap.put("5", "16:30-18:00");
-    timeMap.put("6", "18:30-20:00");
-  }
 
   private String major;
   private Map<String, String>[] semesters;
@@ -112,7 +92,7 @@ public class Renderer {
         .with("minor", minor)
         .with("semesters", this.semesters)
         .with("modules", colorMap)
-        .with("times", timeMap)
+        .with("times", Helpers.timeIntervalMap)
         .with("date", new SimpleDateFormat("dd.MM.yyyy").format(new Date()))
         .with("logo", logo)
         .with("fonts", fonts);
@@ -125,9 +105,16 @@ public class Renderer {
     return PdfRenderingHelper.toPdf(out);
   }
 
-  public final ByteArrayOutputStream getResult()
-      throws ParserConfigurationException, SAXException, IOException {
-    return this.render();
+  /**
+   * Render the current document and return the result as a ByteArrayOutputStream.
+   * @return ByteArrayOutputStream byte stream representing the rendered pdf.
+   * @throws RenderingException if an error occurred.
+   */
+  public final ByteArrayOutputStream getResult() throws RenderingException {
+    try {
+      return this.render();
+    } catch (final IOException | ParserConfigurationException | SAXException exc) {
+      throw new RenderingException(exc);
+    }
   }
-
 }

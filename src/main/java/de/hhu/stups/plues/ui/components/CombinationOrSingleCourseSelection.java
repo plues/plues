@@ -7,7 +7,6 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
-import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.SetProperty;
@@ -19,12 +18,9 @@ import javafx.collections.ObservableSet;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
 
 import java.net.URL;
 import java.util.List;
@@ -77,26 +73,16 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
     majorMinorCourseSelection.setPercentWidth(100.0);
     majorMinorCourseSelection.impossibleCoursesProperty().bind(impossibleCoursesProperty);
 
-    singleCourseSelection.cellFactoryProperty().bind(
-        new ObjectBinding<Callback<ListView<Course>, ListCell<Course>>>() {
-          {
-            bind(impossibleCoursesProperty);
-          }
-
-          @Override
-          protected Callback<ListView<Course>, ListCell<Course>> computeValue() {
-            return
-                majorMinorCourseSelection.getCallbackForImpossibleCourses(getImpossibleCourses());
-          }
-        });
+    impossibleCoursesProperty.addListener((observable, oldValue, newValue)
+        -> singleCourseSelection.setCellFactory(
+            majorMinorCourseSelection.getCallbackForImpossibleCourses(newValue)));
 
     rbCombination.setToggleGroup(toggleGroup);
     rbSingleSelection.setToggleGroup(toggleGroup);
 
     singleCourseSelection.itemsProperty().bind(coursesProperty);
-    singleCourseSelection.itemsProperty().addListener((observable, oldValue, newValue) -> {
-      singleCourseSelection.getSelectionModel().selectFirst();
-    });
+    singleCourseSelection.itemsProperty().addListener((observable, oldValue, newValue)
+        -> singleCourseSelection.getSelectionModel().selectFirst());
 
     rbCombination.disableProperty().bind(coursesProperty.emptyProperty());
     rbSingleSelection.disableProperty().bind(coursesProperty.emptyProperty());
@@ -112,22 +98,8 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
         .bind(new SimpleListProperty<>(coursesProperty.filtered(Course::isMinor)));
 
     selectedCourses.bind(Bindings.when(rbSingleSelection.selectedProperty())
-        .then(new ListBinding<Course>() {
-          {
-            bind(singleCourseSelection.getSelectionModel().selectedItemProperty());
-          }
-
-          @Override
-          protected ObservableList<Course> computeValue() {
-            final Course item = singleCourseSelection.getSelectionModel().getSelectedItem();
-            if (item == null) {
-              return FXCollections.emptyObservableList();
-            }
-            return FXCollections.singletonObservableList(
-                singleCourseSelection.getSelectionModel().getSelectedItem());
-          }
-        }).otherwise(
-            (ObservableList<Course>) majorMinorCourseSelection.selectedCoursesProperty()));
+        .then(new SingleCourseListBinding()).otherwise(
+        (ObservableList<Course>) majorMinorCourseSelection.selectedCoursesProperty()));
   }
 
   /**
@@ -199,4 +171,19 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
   }
 
 
+  private class SingleCourseListBinding extends ListBinding<Course> {
+    private SingleCourseListBinding() {
+      bind(singleCourseSelection.getSelectionModel().selectedItemProperty());
+    }
+
+    @Override
+    protected ObservableList<Course> computeValue() {
+      final Course item = singleCourseSelection.getSelectionModel().getSelectedItem();
+      if (item == null) {
+        return FXCollections.emptyObservableList();
+      }
+      return FXCollections.singletonObservableList(
+          singleCourseSelection.getSelectionModel().getSelectedItem());
+    }
+  }
 }

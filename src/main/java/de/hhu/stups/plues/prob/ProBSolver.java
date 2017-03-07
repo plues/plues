@@ -5,7 +5,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.be4.classicalb.core.parser.exceptions.BCompoundException;
-import de.be4.classicalb.core.parser.exceptions.BException;
 import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.exception.ProBError;
@@ -47,11 +46,15 @@ public class ProBSolver implements Solver {
   private Trace trace;
 
   @Inject
-  ProBSolver(final Api api, @Assisted final String modelPath)
-      throws IOException, BException, ModelTranslationError {
+  ProBSolver(final Api api, @Assisted final String modelPath) throws SolverException {
 
     final long t1 = System.nanoTime();
-    this.stateSpace = api.b_load(modelPath);
+    try {
+      this.stateSpace = api.b_load(modelPath);
+    } catch (final IOException | ModelTranslationError exception) {
+      logger.error("Exception while loading model",exception);
+      throw new SolverException(exception);
+    }
     final long t2 = System.nanoTime();
     logger.info("Loaded machine in " + TimeUnit.NANOSECONDS.toMillis(t2 - t1) + " ms");
     //

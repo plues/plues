@@ -4,10 +4,12 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -29,6 +31,7 @@ public class ImpossibleModules extends VBox implements Initializable {
 
   private final SimpleListProperty<Module> incompleteModules;
   private final SimpleListProperty<Module> impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+  private final Router router;
 
   @FXML
   @SuppressWarnings("unused")
@@ -56,12 +59,14 @@ public class ImpossibleModules extends VBox implements Initializable {
    * Default constructor for incomplete modules component.
    *
    * @param inflater Inflater to handle fxml files and resources
+   * @param router Router.
    */
   @Inject
-  public ImpossibleModules(final Inflater inflater) {
-    incompleteModules = new SimpleListProperty<>(FXCollections.observableArrayList());
-    impossibleModulesBecauseOfMissingElectiveAbstractUnits = new SimpleListProperty<>(
-        FXCollections.observableArrayList());
+  public ImpossibleModules(final Inflater inflater, final Router router) {
+    this.router = router;
+    this.incompleteModules = new SimpleListProperty<>(FXCollections.observableArrayList());
+    this.impossibleModulesBecauseOfMissingElectiveAbstractUnits
+        = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     inflater.inflate("components/reports/ImpossibleModules", this, this, "reports", "Column");
   }
@@ -69,64 +74,29 @@ public class ImpossibleModules extends VBox implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     segmentedButtons.setToggleGroup(new PersistentToggleGroup());
-    final ListBinding<Module> binding = new ListBinding<Module>() {
-      {
-        bind(buttonIncompleteModules.selectedProperty());
-        bind(buttonMissingElectiveAbstractUnits.selectedProperty());
-        bind(incompleteModules);
-        bind(impossibleModulesBecauseOfMissingElectiveAbstractUnits);
-      }
 
-      @Override
-      protected ObservableList<Module> computeValue() {
-        if (buttonIncompleteModules.isSelected()) {
-          return incompleteModules;
-        } else {
-          if (buttonMissingElectiveAbstractUnits.isSelected()) {
-            return impossibleModulesBecauseOfMissingElectiveAbstractUnits;
-          } else {
-            return null;
-          }
-        }
-      }
-    };
-    tableViewModules.itemsProperty().bind(binding);
+    tableViewModules.itemsProperty().bind(new ModuleListBinding());
 
-    final StringBinding stringBinding = new StringBinding() {
-      {
-        bind(buttonIncompleteModules.selectedProperty());
-        bind(buttonMissingElectiveAbstractUnits.selectedProperty());
-      }
+    tableViewModules.setOnMouseClicked(
+        DetailViewHelper.getModuleMouseHandler(tableViewModules, router));
 
-      @Override
-      protected String computeValue() {
-        final String string;
-        if (buttonIncompleteModules.isSelected()) {
-          string = resources.getString("explain.IncompleteModules");
-        } else {
-          if (buttonMissingElectiveAbstractUnits.isSelected()) {
-            string = resources.getString(
-                "explain.ImpossibleModulesBecauseOfMissingElectiveAbstractUnits");
-          } else {
-            string = null;
-          }
-        }
-
-        return string;
-      }
-    };
-
-    txtExplanation.textProperty().bind(stringBinding);
+    txtExplanation.textProperty().bind(
+        Bindings.createStringBinding(() -> getExplanation(resources),
+            buttonIncompleteModules.selectedProperty(),
+            buttonMissingElectiveAbstractUnits.selectedProperty()));
     txtExplanation.wrappingWidthProperty().bind(tableViewModules.widthProperty().subtract(25.0));
-
-    bindTableColumnsWidth();
   }
 
-  private void bindTableColumnsWidth() {
-    tableColumnModulePordnr.prefWidthProperty().bind(
-        tableViewModules.widthProperty().multiply(0.2));
-    tableColumnModuleTitle.prefWidthProperty().bind(
-        tableViewModules.widthProperty().multiply(0.76));
+  private String getExplanation(final ResourceBundle resources) {
+    if (buttonIncompleteModules.isSelected()) {
+      return resources.getString("explain.IncompleteModules");
+    }
+    if (buttonMissingElectiveAbstractUnits.isSelected()) {
+      return resources.getString(
+        "explain.ImpossibleModulesBecauseOfMissingElectiveAbstractUnits");
+    }
+
+    return null;
   }
 
   /**
@@ -137,5 +107,28 @@ public class ImpossibleModules extends VBox implements Initializable {
     this.incompleteModules.setAll(incompleteModules);
     this.impossibleModulesBecauseOfMissingElectiveAbstractUnits.setAll(
         impossibleModulesBecauseOfMissingElectiveAbstractUnits);
+  }
+
+  private class ModuleListBinding extends ListBinding<Module> {
+
+    ModuleListBinding() {
+      bind(buttonIncompleteModules.selectedProperty());
+      bind(buttonMissingElectiveAbstractUnits.selectedProperty());
+      bind(incompleteModules);
+      bind(impossibleModulesBecauseOfMissingElectiveAbstractUnits);
+    }
+
+    @Override
+    protected ObservableList<Module> computeValue() {
+      if (buttonIncompleteModules.isSelected()) {
+        return incompleteModules;
+      }
+
+      if (buttonMissingElectiveAbstractUnits.isSelected()) {
+        return impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+      }
+
+      return null;
+    }
   }
 }

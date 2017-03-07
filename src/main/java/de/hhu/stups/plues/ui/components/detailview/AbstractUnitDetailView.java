@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.ui.components.detailview;
 
-import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -14,6 +13,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,7 +26,6 @@ import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class AbstractUnitDetailView extends VBox implements Initializable {
@@ -95,63 +94,17 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    key.textProperty().bind(Bindings.when(abstractUnitProperty.isNotNull()).then(
-        Bindings.selectString(abstractUnitProperty, "key")).otherwise(""));
-    title.textProperty().bind(Bindings.when(abstractUnitProperty.isNotNull()).then(
-        Bindings.selectString(abstractUnitProperty, "title")).otherwise(""));
+    initializeLabels();
 
-    bindTableColumnsWidth();
+    tableViewUnits.itemsProperty().bind(new UnitListBinding(abstractUnitProperty));
+    tableViewModules.itemsProperty().bind(new ModuleListBinding(abstractUnitProperty));
 
-    tableViewUnits.itemsProperty().bind(new ListBinding<Unit>() {
-      {
-        bind(abstractUnitProperty);
-      }
+    initializeTableColumnModuleSemesters();
+    initializeTableColumnModulesTypes();
+    initializeEventHandlers();
+  }
 
-      @Override
-      protected ObservableList<Unit> computeValue() {
-        AbstractUnit abstractUnit = abstractUnitProperty.get();
-        if (abstractUnit == null) {
-          return FXCollections.emptyObservableList();
-        }
-
-        return FXCollections.observableArrayList(abstractUnit.getUnits());
-      }
-    });
-
-    tableViewModules.itemsProperty().bind(new ListBinding<Module>() {
-      {
-        bind(abstractUnitProperty);
-      }
-
-      @Override
-      protected ObservableList<Module> computeValue() {
-        final AbstractUnit abstractUnit = abstractUnitProperty.get();
-        if (abstractUnit == null) {
-          return FXCollections.emptyObservableList();
-        }
-
-        return FXCollections.observableArrayList(abstractUnit.getModules());
-      }
-    });
-
-    tableColumnModulesSemesters.setCellValueFactory(param -> {
-      final Set<ModuleAbstractUnitSemester> filteredByAbstractUnit =
-          param.getValue().getModuleAbstractUnitSemesters()
-              .stream().filter(moduleAbstractUnitSemester ->
-              this.abstractUnitProperty.get().equals(moduleAbstractUnitSemester.getAbstractUnit()))
-              .collect(Collectors.toSet());
-      final Set<ModuleAbstractUnitSemester> filteredByBoth =
-          filteredByAbstractUnit.stream().filter(moduleAbstractUnitSemester ->
-              this.tableViewModules.getItems().contains(moduleAbstractUnitSemester.getModule()))
-              .collect(Collectors.toSet());
-
-      final Set<Integer> semesters = filteredByBoth.stream()
-          .map(ModuleAbstractUnitSemester::getSemester).collect(Collectors.toSet());
-
-      return new ReadOnlyObjectWrapper<>(Joiner.on(",").join(semesters));
-    });
-    tableColumnModulesSemesters.setCellFactory(param -> DetailViewHelper.createTableCell());
-
+  private void initializeTableColumnModulesTypes() {
     tableColumnModulesType.setCellValueFactory(param -> {
       if (param.getValue().getMandatory()) {
         return new ReadOnlyObjectWrapper<>("m");
@@ -160,26 +113,79 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
       return new ReadOnlyObjectWrapper<>("e");
     });
     tableColumnModulesType.setCellFactory(param -> DetailViewHelper.createTableCell());
+  }
 
+  private void initializeTableColumnModuleSemesters() {
+    tableColumnModulesSemesters.setCellValueFactory(param -> {
+      final AbstractUnit abstractUnit = this.abstractUnitProperty.get();
+      final ObservableList<Module> modules = this.tableViewModules.getItems();
+      final String semesters = param.getValue().getModuleAbstractUnitSemesters().stream()
+          .filter(moduleAbstractUnitSemester
+              -> abstractUnit.equals(moduleAbstractUnitSemester.getAbstractUnit()))
+          .filter(moduleAbstractUnitSemester
+              -> modules.contains(moduleAbstractUnitSemester.getModule()))
+          .map(ModuleAbstractUnitSemester::getSemester)
+          .sorted()
+          .map(String::valueOf)
+          .collect(Collectors.joining(","));
+      return new ReadOnlyStringWrapper(semesters);
+    });
+
+    tableColumnModulesSemesters.setCellFactory(param -> DetailViewHelper.createTableCell());
+  }
+
+  private void initializeEventHandlers() {
     tableViewUnits.setOnMouseClicked(DetailViewHelper.getUnitMouseHandler(
         tableViewUnits, router));
     tableViewModules.setOnMouseClicked(DetailViewHelper.getModuleMouseHandler(
         tableViewModules, router));
   }
 
-  private void bindTableColumnsWidth() {
-    tableColumnUnitsKey.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.2));
-    tableColumnUnitsTitle.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.76));
+  private void initializeLabels() {
+    key.textProperty().bind(Bindings.when(abstractUnitProperty.isNotNull())
+        .then(Bindings.selectString(abstractUnitProperty, "key"))
+        .otherwise(""));
 
-    tableColumnModulesPordnr.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.15));
-    tableColumnModulesTitle.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.59));
-    tableColumnModulesSemesters.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.15));
-    tableColumnModulesType.prefWidthProperty().bind(
-        tableViewUnits.widthProperty().multiply(0.07));
+    title.textProperty().bind(Bindings.when(abstractUnitProperty.isNotNull())
+        .then(Bindings.selectString(abstractUnitProperty, "title"))
+        .otherwise(""));
+  }
+
+  private static class UnitListBinding extends ListBinding<Unit> {
+    private final ObjectProperty<AbstractUnit> property;
+
+    private UnitListBinding(final ObjectProperty<AbstractUnit> abstractUnitProperty) {
+      this.property = abstractUnitProperty;
+      bind(property);
+    }
+
+    @Override
+    protected ObservableList<Unit> computeValue() {
+      final AbstractUnit abstractUnit = property.get();
+      if (abstractUnit == null) {
+        return FXCollections.emptyObservableList();
+      }
+
+      return FXCollections.observableArrayList(abstractUnit.getUnits());
+    }
+  }
+
+  private static class ModuleListBinding extends ListBinding<Module> {
+    private final ObjectProperty<AbstractUnit> property;
+
+    private ModuleListBinding(final ObjectProperty<AbstractUnit> abstractUnitProperty) {
+      this.property = abstractUnitProperty;
+      bind(property);
+    }
+
+    @Override
+    protected ObservableList<Module> computeValue() {
+      final AbstractUnit abstractUnit = property.get();
+      if (abstractUnit == null) {
+        return FXCollections.emptyObservableList();
+      }
+
+      return FXCollections.observableArrayList(abstractUnit.getModules());
+    }
   }
 }

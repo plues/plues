@@ -4,10 +4,12 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
-import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListProperty;
@@ -19,18 +21,24 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
+import org.controlsfx.control.textfield.CustomTextField;
+
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -44,7 +52,10 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private TextField txtQuery;
+  private CustomTextField txtQuery;
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btClearSelection;
   @FXML
   @SuppressWarnings("unused")
   private TitledPane titledPaneMasterCourse;
@@ -94,6 +105,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    txtQuery.setLeft(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SEARCH, "12"));
 
     tableColumnMasterCheckBox.setCellFactory(
         CheckBoxTableCell.forTableColumn(tableColumnMasterCheckBox));
@@ -107,41 +119,11 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     tableViewMasterCourse.setId("batchListView");
     tableViewBachelorCourse.setId("batchListView");
 
-    selectableCourses.bind(new ListBinding<SelectableCourse>() {
-      {
-        bind(courses);
-      }
+    initializeSearch();
 
-      @Override
-      public void dispose() {
-        super.dispose();
-        unbind(courses);
-      }
+    selectableCourses.bind(new SelectableCoursesBinding());
 
-      // NOTE: A change to the courses list, this binding is bound to, will recreate all
-      // SelectableCourses objects. This behaviour will loose the state of all selectedProperties.
-      @Override
-      protected ObservableList<SelectableCourse> computeValue() {
-        return FXCollections.observableList(
-            courses.stream().map(SelectableCourse::new)
-                .collect(Collectors.toList()), SelectableCourse.getExtractor());
-      }
-    });
-
-    courses.addListener((observable, oldValue, newValue) -> {
-      final boolean hasMaster = courses.stream().anyMatch(Course::isMaster);
-      final boolean hasBachelor = courses.stream().anyMatch(Course::isBachelor);
-      if (!hasMaster) {
-        getChildren().remove(titledPaneMasterCourse);
-      } else if (!getChildren().contains(titledPaneMasterCourse)) {
-        getChildren().add(2, titledPaneMasterCourse);
-      }
-      if (!hasBachelor) {
-        getChildren().remove(titledPaneBachelorCourse);
-      } else if (!getChildren().contains(titledPaneBachelorCourse)) {
-        getChildren().add(titledPaneBachelorCourse);
-      }
-    });
+    courses.addListener((observable, oldValue, newValue) -> hideEmptyCourseList());
 
     tableViewMasterCourse.itemsProperty().bind(newFilteredProperty(SelectableCourse::isMaster));
     tableViewBachelorCourse.itemsProperty().bind(newFilteredProperty(SelectableCourse::isBachelor));
@@ -151,44 +133,48 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     tableViewBachelorCourse.itemsProperty().addListener(observable
         -> titledPaneBachelorCourse.setExpanded(!tableViewBachelorCourse.getItems().isEmpty()));
 
-    selectedCourses.bind(new ListBinding<Course>() {
-      {
-        bind(selectableCourses);
-      }
+    // last column is bound to take the remaining space
+    tableColumnBachelorCourseTitle.prefWidthProperty().bind(
+        tableViewBachelorCourse.widthProperty()
+            .subtract(tableColumnBachelorCheckBox.widthProperty())
+            .subtract(tableColumnBachelorCourseKey.widthProperty())
+            .subtract(20));
 
-      @Override
-      public void dispose() {
-        super.dispose();
-        unbind(selectableCourses);
-      }
+    tableColumnMasterCourseTitle.prefWidthProperty().bind(
+        tableViewMasterCourse.widthProperty()
+            .subtract(tableColumnMasterCheckBox.widthProperty())
+            .subtract(tableColumnMasterCourseKey.widthProperty())
+            .subtract(20));
 
-      @Override
-      protected ObservableList<Course> computeValue() {
-        return selectableCourses.stream()
-            .filter(SelectableCourse::isSelected)
-            .map(SelectableCourse::getCourse)
-            .collect(Collectors.collectingAndThen(Collectors.toList(),
-                FXCollections::observableArrayList));
-      }
-    });
-
-    bindTableColumnsWidth();
+    selectedCourses.bind(new SelectedCoursesBinding());
   }
 
-  private void bindTableColumnsWidth() {
-    tableColumnMasterCheckBox.prefWidthProperty().bind(
-        tableViewBachelorCourse.widthProperty().multiply(0.07));
-    tableColumnMasterCourseKey.prefWidthProperty().bind(
-        tableViewBachelorCourse.widthProperty().multiply(0.2));
-    tableColumnMasterCourseTitle.prefWidthProperty().bind(
-        tableViewBachelorCourse.widthProperty().multiply(0.69));
+  private void initializeSearch() {
+    btClearSelection.graphicProperty().bind(Bindings.createObjectBinding(()
+        -> FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.TIMES_CIRCLE, "15")));
+  }
 
-    tableColumnBachelorCheckBox.prefWidthProperty().bind(
-        tableViewBachelorCourse.widthProperty().multiply(0.07));
-    tableColumnBachelorCourseKey.prefWidthProperty().bind(
-        tableViewBachelorCourse.widthProperty().multiply(0.2));
-    tableColumnBachelorCourseTitle.prefWidthProperty().bind(
-        tableViewBachelorCourse.widthProperty().multiply(0.69));
+  private void hideEmptyCourseList() {
+    final boolean hasMaster = courses.stream().anyMatch(Course::isMaster);
+    final boolean hasBachelor = courses.stream().anyMatch(Course::isBachelor);
+    if (!hasMaster) {
+      getChildren().remove(titledPaneMasterCourse);
+    } else if (!getChildren().contains(titledPaneMasterCourse)) {
+      getChildren().add(2, titledPaneMasterCourse);
+    }
+
+    if (!hasBachelor) {
+      getChildren().remove(titledPaneBachelorCourse);
+    } else if (!getChildren().contains(titledPaneBachelorCourse)) {
+      getChildren().add(titledPaneBachelorCourse);
+    }
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
+  private void btClearSelectionSubmit() {
+    txtQuery.clear();
+    selectableCourses.forEach(course -> course.setSelected(false));
   }
 
   private ListProperty<SelectableCourse> newFilteredProperty(
@@ -197,23 +183,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     final FilteredList<SelectableCourse> filter
         = new FilteredList<>(selectableCourses.filtered(predicate));
 
-    filter.predicateProperty().bind(new ObjectBinding<Predicate<? super SelectableCourse>>() {
-      {
-        bind(txtQuery.textProperty());
-      }
-
-      @Override
-      public void dispose() {
-        super.dispose();
-        unbind(txtQuery.textProperty());
-      }
-
-      @Override
-      protected Predicate<? super SelectableCourse> computeValue() {
-        final String query = txtQuery.getText().toLowerCase();
-        return row -> row.matches(query);
-      }
-    });
+    filter.predicateProperty().bind(Bindings.createObjectBinding(
+        () -> row -> row.matches(txtQuery.getText().toLowerCase()),txtQuery.textProperty()));
     return new SimpleListProperty<>(filter);
   }
 
@@ -239,13 +210,23 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   }
 
   /**
-   * Set the list of currently selected courses (checkobx in the UI is selected).
+   * Set the list of currently selected courses (checkbox in the UI is selected).
    */
   public void setSelectedCourses(final List<Course> courses) {
     // We put the courses in a HashSet here to avoid the linear scan of the list in the membership
-    // check bellow
+    // check below
     final HashSet<Course> courseSet = new HashSet<>(courses);
     selectableCourses.forEach(course -> course.setSelected(courseSet.contains(course.getCourse())));
+    scrollToCourses(courses);
+  }
+
+  private void scrollToCourses(final List<Course> courses) {
+    selectableCourses.stream().filter(selectableCourse ->
+        courses.contains(selectableCourse.getCourse()) && selectableCourse.getCourse().isBachelor())
+        .findFirst().ifPresent(tableViewBachelorCourse::scrollTo);
+    selectableCourses.stream().filter(selectableCourse ->
+        courses.contains(selectableCourse.getCourse()) && selectableCourse.getCourse().isMaster())
+        .findFirst().ifPresent(tableViewMasterCourse::scrollTo);
   }
 
   @SuppressWarnings("unused")
@@ -307,10 +288,54 @@ public class SetOfCourseSelection extends VBox implements Initializable {
       return this.course.isBachelor();
     }
 
-
+    @SuppressWarnings("unused")
     private boolean matches(final String query) {
       return this.getName().toLowerCase().contains(query)
           || this.getKey().toLowerCase().contains(query);
+    }
+  }
+
+  private class SelectedCoursesBinding extends ListBinding<Course> {
+
+    SelectedCoursesBinding() {
+      bind(selectableCourses);
+    }
+
+    @Override
+    public void dispose() {
+      super.dispose();
+      unbind(selectableCourses);
+    }
+
+    @Override
+    protected ObservableList<Course> computeValue() {
+      return selectableCourses.stream()
+          .filter(SelectableCourse::isSelected)
+          .map(SelectableCourse::getCourse)
+          .collect(Collectors.collectingAndThen(Collectors.toList(),
+              FXCollections::observableArrayList));
+    }
+  }
+
+  private class SelectableCoursesBinding extends ListBinding<SelectableCourse> {
+
+    SelectableCoursesBinding() {
+      bind(courses);
+    }
+
+    @Override
+    public void dispose() {
+      super.dispose();
+      unbind(courses);
+    }
+
+    // NOTE: A change to the courses list, this binding is bound to, will recreate all
+    // SelectableCourses objects. This behaviour will loose the state of all selectedProperties.
+    @Override
+    protected ObservableList<SelectableCourse> computeValue() {
+      return FXCollections.observableList(
+          courses.stream().map(SelectableCourse::new)
+              .collect(Collectors.toList()), SelectableCourse.getExtractor());
     }
   }
 }

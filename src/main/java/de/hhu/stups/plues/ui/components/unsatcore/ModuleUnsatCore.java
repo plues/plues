@@ -78,17 +78,6 @@ public class ModuleUnsatCore extends VBox implements Initializable {
     });
 
     unsatCoreButtonBar.setText(resources.getString("button.unsatCoreAbstractUnits"));
-
-    bindTableColumnsWidth();
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnModulePordnr.prefWidthProperty().bind(
-        modulesTable.widthProperty().multiply(0.2));
-    tableColumnModuleName.prefWidthProperty().bind(
-        modulesTable.widthProperty().multiply(0.69));
-    tableColumnModuleType.prefWidthProperty().bind(
-        modulesTable.widthProperty().multiply(0.07));
   }
 
   public void resetTaskState() {

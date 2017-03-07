@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components.unsatcore;
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Session;
@@ -72,8 +73,8 @@ public class GroupUnsatCore extends VBox implements Initializable {
     abstractUnits = new SimpleListProperty<>(FXCollections.emptyObservableList());
     this.router = router;
 
-    inflater.inflate("components/unsatcore/GroupUnsatCore",
-        this, this, "unsatCore", "Column", "Days");
+    inflater.inflate("components/unsatcore/GroupUnsatCore", this, this, "unsatCore", "Column",
+        "Days");
   }
 
   @Override
@@ -103,7 +104,8 @@ public class GroupUnsatCore extends VBox implements Initializable {
         final String prefix = getPrefix(item);
         setText(item.stream()
             .map(s -> {
-              String dayString = resources.getString(s.getDay());
+              String dayString = resources.getString(
+                  Helpers.shortDayOfWeekMap.get(s.getDayOfWeekMap().get(s.getDay())));
               String timeString = String.valueOf(6 + s.getTime() * 2) + ":30";
 
               return String.format("%s%s - %s%n", prefix, dayString, timeString);
@@ -135,21 +137,6 @@ public class GroupUnsatCore extends VBox implements Initializable {
                     String.format("%n"))));
           }
         });
-
-    bindTableColumnsWidth();
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnGroupUnitKey.prefWidthProperty().bind(
-        groupsTable.widthProperty().multiply(0.1));
-    tableColumnGroupUnitTitle.prefWidthProperty().bind(
-        groupsTable.widthProperty().multiply(0.43));
-    tableColumnGroupUnitSemesters.prefWidthProperty().bind(
-        groupsTable.widthProperty().multiply(0.07));
-    tableColumnGroupSessions.prefWidthProperty().bind(
-        groupsTable.widthProperty().multiply(0.14));
-    tableColumnGroupAbstractUnits.prefWidthProperty().bind(
-        groupsTable.widthProperty().multiply(0.22));
   }
 
   private String getPrefix(final Collection<?> item) {

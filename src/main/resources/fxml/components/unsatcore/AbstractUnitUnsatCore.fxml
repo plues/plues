@@ -10,22 +10,23 @@
 <fx:root type="VBox" spacing="10.0" styleClass="windowPadding" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
     <Text fx:id="txtExplanation" text="%abstractUnitsPaneExplanation"/>
-    <TableView fx:id="abstractUnitsTable">
+    <TableView fx:id="abstractUnitsTable" minWidth="0" minHeight="0">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey" resizable="false">
+            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnTitle" resizable="false">
+            <TableColumn fx:id="tableColumnAbstractUnitTitle" minWidth="400.0" text="%columnTitle">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnAbstractUnitModuleSemester" text="%columnSemesters"
-                         resizable="false"/>
-            <TableColumn fx:id="tableColumnAbstractUnitModuleType" text="%columnType"
-                         resizable="false"/>
+            <TableColumn fx:id="tableColumnAbstractUnitModuleSemester" text="%columnSemesters"/>
+            <TableColumn fx:id="tableColumnAbstractUnitModuleType" text="%columnType"/>
         </columns>
     </TableView>
     <UnsatCoreButtonBar fx:id="unsatCoreButtonBar"/>

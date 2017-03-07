@@ -1,7 +1,6 @@
 package de.hhu.stups.plues.prob;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
@@ -13,7 +12,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.be4.classicalb.core.parser.exceptions.BCompoundException;
-import de.be4.classicalb.core.parser.exceptions.BException;
 import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.ClassicalB;
 import de.prob.animator.domainobjects.EvalElementType;
@@ -111,7 +109,7 @@ public class ProBSolverTest {
    * Setup state for test.
    */
   @Before
-  public void setUp() throws IOException, ModelTranslationError, BException {
+  public void setUp() throws SolverException, IOException, ModelTranslationError {
     this.stateSpace = mock(StateSpace.class);
     this.trace = mock(Trace.class);
 

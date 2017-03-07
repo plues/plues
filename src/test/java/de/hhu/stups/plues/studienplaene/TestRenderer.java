@@ -4,7 +4,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -12,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import javax.xml.parsers.ParserConfigurationException;
 
 public class TestRenderer extends TestBase {
 
@@ -25,7 +23,7 @@ public class TestRenderer extends TestBase {
   }
 
   @Test
-  public void testItWorksForColor() throws IOException, ParserConfigurationException, SAXException {
+  public void testItWorksForColor() throws RenderingException, IOException {
     final Renderer renderer = new Renderer(store, result, course, ColorChoice.COLOR);
     final ByteArrayOutputStream result = renderer.getResult();
 
@@ -37,8 +35,7 @@ public class TestRenderer extends TestBase {
   }
 
   @Test
-  public void testItWorksForGrayscale()
-      throws IOException, ParserConfigurationException, SAXException {
+  public void testItWorksForGrayscale() throws RenderingException, IOException {
     final Renderer renderer = new Renderer(store, result, course, ColorChoice.GRAYSCALE);
     final ByteArrayOutputStream result = renderer.getResult();
 

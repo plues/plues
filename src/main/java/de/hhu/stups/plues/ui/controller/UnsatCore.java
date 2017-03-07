@@ -103,7 +103,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
         abstractUnitUnsatCore.abstractUnitsProperty().emptyProperty().not());
     groupPane.visibleProperty().bind(groupUnsatCore.groupProperty().emptyProperty().not());
     sessionPane.visibleProperty().bind(sessionUnsatCore.sessionProperty().emptyProperty().not());
-
+    sessionUnsatCore.coursesProperty().bind(courseUnsatCore.coursesProperty());
   }
 
   private void initializeCourseUnsatCore() {

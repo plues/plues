@@ -43,11 +43,10 @@
         </filter>
     </appender>
 
-    <logger name="de.prob" level="info" />
-    <logger name="org.hibernate" level="warn" />
-    <logger name="net.sf.ehcache" level="warn" />
-    <logger name="org.jtwig" level="warn" />
-
+    <logger name="de.prob" level="info"/>
+    <logger name="org.hibernate" level="warn"/>
+    <logger name="net.sf.ehcache" level="warn"/>
+    <logger name="org.jtwig" level="warn"/>
     <logger name="com.mchange" level="INFO"/>
 
     <root level="debug">

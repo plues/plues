@@ -4,7 +4,6 @@
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Accordion?>
 <?import de.hhu.stups.plues.ui.components.reports.ImpossibleModules?>
@@ -17,17 +16,23 @@
 <?import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterConflicts?>
 <?import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits?>
 <?import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Tooltip?>
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" spacing="10.0"
          xmlns:fx="http://javafx.com/fxml/1" styleClass="windowPadding">
-    <Button fx:id="buttonPrint" text="%print" onAction="#printReport" disable="true">
-        <padding>
-            <Insets bottom="10.0" top="10.0" left="10.0" right="10.0"/>
-        </padding>
-    </Button>
+    <HBox spacing="10.0">
+        <Button fx:id="btPrint" text="%print" onAction="#printReport" disable="true"/>
+        <Button fx:id="btRecomputeData" text="%recomputeData" onAction="#recomputeData"/>
+        <Label fx:id="lbOutOfSyncInfo" alignment="TOP_LEFT">
+            <tooltip>
+                <Tooltip fx:id="outOfSyncHint" text="%outOfSyncInfo"/>
+            </tooltip>
+        </Label>
+    </HBox>
     <Accordion expandedPane="$titledPaneStats">
         <panes>
-            <TitledPane fx:id="titledPaneStats" text="%stats">
+            <TitledPane fx:id="titledPaneStats" text="%stats" minWidth="0" minHeight="0">
                 <VBox prefHeight="100.0" styleClass="windowPaddingSmall">
                     <GridPane hgap="5.0" vgap="5.0" alignment="CENTER">
                         <Label text="%amount.course" GridPane.columnIndex="0"
@@ -60,37 +65,39 @@
                     </GridPane>
                 </VBox>
             </TitledPane>
-            <TitledPane text="%title.ImpossibleModules">
+            <TitledPane text="%title.ImpossibleModules" minWidth="0" minHeight="0">
                 <ImpossibleModules fx:id="impossibleModules"/>
             </TitledPane>
-            <TitledPane text="%title.ImpossibleCourses"
-                        fx:id="paneImpossibleCourses">
+            <TitledPane fx:id="paneImpossibleCourses" text="%title.ImpossibleCourses" minWidth="0"
+                        minHeight="0">
                 <ImpossibleCourses fx:id="impossibleCourses"/>
             </TitledPane>
-            <TitledPane text="%title.AbstractUnits">
+            <TitledPane text="%title.AbstractUnits" minWidth="0" minHeight="0">
                 <AbstractUnitsWithoutUnits fx:id="abstractUnitsWithoutUnits"/>
             </TitledPane>
-            <TitledPane text="%title.UnitsWithoutAbstractUnits">
+            <TitledPane text="%title.UnitsWithoutAbstractUnits" minWidth="0" minHeight="0">
                 <UnitsWithoutAbstractUnits fx:id="unitsWithoutAbstractUnits"/>
             </TitledPane>
-            <TitledPane text="%title.AbstractUnitsWithUnits">
+            <TitledPane text="%title.AbstractUnitsWithUnits" minWidth="0" minHeight="0">
                 <ModuleAbstractUnitUnitSemesterConflicts
                         fx:id="moduleAbstractUnitUnitSemesterConflicts"/>
             </TitledPane>
-            <TitledPane text="%title.MandatoryModules">
+            <TitledPane text="%title.MandatoryModules" minWidth="0" minHeight="0">
                 <MandatoryModules fx:id="mandatoryModules"/>
             </TitledPane>
-            <TitledPane text="%title.QuasiMandatoryModules">
+            <TitledPane text="%title.QuasiMandatoryModules" minWidth="0" minHeight="0">
                 <QuasiMandatoryModuleAbstractUnits fx:id="quasiMandatoryModuleAbstractUnits"/>
             </TitledPane>
-            <TitledPane text="%title.RedundantUnitGroups">
+            <TitledPane text="%title.RedundantUnitGroups" minWidth="0" minHeight="0">
                 <RedundantUnitGroups fx:id="redundantUnitGroups"/>
             </TitledPane>
-            <TitledPane text="%title.ImpossibleCourseModuleAbstractUnits">
+            <TitledPane text="%title.ImpossibleCourseModuleAbstractUnits" minWidth="0"
+                        minHeight="0">
                 <ImpossibleCourseModuleAbstractUnits
                         fx:id="impossibleCourseModuleAbstractUnits"/>
             </TitledPane>
-            <TitledPane text="%title.ImpossibleCourseModuleAbstractUnitPairs">
+            <TitledPane text="%title.ImpossibleCourseModuleAbstractUnitPairs" minWidth="0"
+                        minHeight="0">
                 <ImpossibleCourseModuleAbstractUnitPairs
                         fx:id="impossibleCourseModuleAbstractUnitPairs"/>
             </TitledPane>

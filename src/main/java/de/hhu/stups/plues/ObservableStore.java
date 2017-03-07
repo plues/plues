@@ -1,6 +1,5 @@
 package de.hhu.stups.plues;
 
-import de.hhu.stups.plues.data.IncompatibleSchemaError;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.StoreException;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -13,7 +12,6 @@ import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 
 import java.util.List;
 import java.util.Observable;
@@ -27,18 +25,18 @@ public class ObservableStore extends Observable implements Store {
   }
 
   @Override
-  public void init() throws IncompatibleSchemaError, StoreException {
+  public void init() throws StoreException {
     store.init();
   }
 
   @Override
-  public void init(final String dbpath) throws IncompatibleSchemaError, StoreException {
+  public void init(final String dbpath) throws StoreException {
     store.init(dbpath);
   }
 
   @Override
-  public void moveSession(final SessionFacade sessionFacade, final SessionFacade.Slot slot) {
-    store.moveSession(sessionFacade, slot);
+  public void moveSession(final int sessionId, final String targetDay, final Integer targetTime) {
+    store.moveSession(sessionId, targetDay, targetTime);
     //
     setChanged();
     notifyObservers();
@@ -152,5 +150,15 @@ public class ObservableStore extends Observable implements Store {
   @Override
   public Session getSessionById(final int id) {
     return store.getSessionById(id);
+  }
+
+  @Override
+  public List<Course> getMajors() {
+    return store.getMajors();
+  }
+
+  @Override
+  public List<Course> getMinors() {
+    return store.getMinors();
   }
 }

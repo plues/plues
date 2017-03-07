@@ -1,7 +1,7 @@
 package de.hhu.stups.plues.prob;
 
 public enum ResultState {
-  FAILED, SUCCEEDED, INTERRUPTED, TIMEOUT, IMPOSSIBLE, IMPOSSIBLE_COMBINATION;
+  FAILED, SUCCEEDED, INTERRUPTED, TIMEOUT, IMPOSSIBLE, IMPOSSIBLE_COMBINATION, UNKNOWN;
 
   public Boolean failed() {
     return this.equals(FAILED);

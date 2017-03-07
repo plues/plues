@@ -6,15 +6,12 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
-import de.hhu.stups.plues.data.entities.Session;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -24,16 +21,17 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SessionDetailView extends VBox implements Initializable {
 
-  private final ObjectProperty<Session> sessionProperty;
-  private final ObjectProperty<SessionFacade> sessionFacadeProperty;
+  private final ObjectProperty<SessionFacade> sessionProperty = new SimpleObjectProperty<>();
   private final Router router;
 
   @FXML
@@ -77,8 +75,6 @@ public class SessionDetailView extends VBox implements Initializable {
    */
   @Inject
   public SessionDetailView(final Inflater inflater, final Router router) {
-    sessionProperty = new SimpleObjectProperty<>();
-    sessionFacadeProperty = new SimpleObjectProperty<>();
     this.router = router;
 
     inflater.inflate("components/detailview/SessionDetailView", this, this, "detailView");
@@ -91,34 +87,33 @@ public class SessionDetailView extends VBox implements Initializable {
    */
   @SuppressWarnings("WeakerAccess")
   public void setSession(final SessionFacade sessionFacade) {
-    this.sessionProperty.set(sessionFacade.getSession());
-    this.sessionFacadeProperty.set(sessionFacade);
+    this.sessionProperty.set(sessionFacade);
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     lbTitle.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
-        Bindings.selectString(sessionProperty, "group", "unit", "title")).otherwise(""));
+        Bindings.selectString(sessionProperty, "title")).otherwise(""));
+
     lbSession.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
-        Bindings.selectString(sessionFacadeProperty, "slot")).otherwise(""));
+        Bindings.selectString(sessionProperty, "slot")).otherwise(""));
+
     lbGroup.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
         Bindings.selectString(sessionProperty, "group", "id")).otherwise(""));
-    lbSemesters.textProperty().bind(new StringBinding() {
-      {
-        bind(sessionProperty);
-      }
 
-      @Override
-      protected String computeValue() {
-        final Session session = sessionProperty.get();
-        if (session == null) {
-          return "";
-        }
-        return Joiner.on(", ").join(session.getGroup().getUnit().getSemesters());
+    lbSemesters.textProperty().bind(Bindings.createStringBinding(() -> {
+      final SessionFacade session = sessionProperty.get();
+      if (session == null) {
+        return "";
       }
-    });
+      return session.getUnitSemesters().stream()
+          .sorted()
+          .map(String::valueOf)
+          .collect(Collectors.joining(", "));
+    }, sessionProperty));
+
     lbTentative.textProperty().bind(Bindings.createStringBinding(() -> {
-      final Session session = sessionProperty.get();
+      final SessionFacade session = sessionProperty.get();
       if (session == null) {
         return "?";
       }
@@ -126,65 +121,32 @@ public class SessionDetailView extends VBox implements Initializable {
       return session.isTentative() ? "✔︎" : "✗";
     }, sessionProperty));
 
-    bindTableColumnsWidth();
+    courseTable.itemsProperty().bind(new CourseTableItemsBinding());
 
-    courseTable.itemsProperty().bind(new ListBinding<CourseTableEntry>() {
-      {
-        bind(sessionProperty);
-      }
-
-      @Override
-      protected ObservableList<CourseTableEntry> computeValue() {
-        final Session session = sessionProperty.get();
-        if (session == null) {
-          return FXCollections.observableArrayList();
-        }
-        final Set<AbstractUnit> abstractUnits
-            = session.getGroup().getUnit().getAbstractUnits();
-        final ObservableList<CourseTableEntry> result = FXCollections.observableArrayList();
-        abstractUnits.forEach(au ->
-            au.getModuleAbstractUnitTypes().forEach(entry ->
-                entry.getModule().getCourses().forEach(course -> {
-                  final Module entryModule = entry.getModule();
-                  final CourseTableEntry tableEntry = new CourseTableEntry(course, entryModule, au,
-                      entryModule.getSemestersForAbstractUnit(au), entry.getType());
-                  result.add(tableEntry);
-                })));
-        return result;
-      }
-    });
-
-    courseTable.getSelectionModel().selectedItemProperty().addListener(
-        (observable, oldValue, newValue) -> courseTable.setOnMouseClicked(event -> {
-          if (event.getClickCount() < 2) {
-            return;
-          }
-
-          final TableColumn column
-              = courseTable.getSelectionModel().getSelectedCells().get(0).getTableColumn();
-
-
-          if (column.equals(tableColumnModule)) {
-            router.transitionTo(RouteNames.MODULE_DETAIL_VIEW, newValue.getModule());
-          } else if (column.equals(tableColumnAbstractUnit)) {
-            router.transitionTo(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW, newValue.getAbstractUnit());
-          } else if (column.equals(tableColumnCourseKey)) {
-            router.transitionTo(RouteNames.COURSE_DETAIL_VIEW, newValue.getCourse());
-          }
-        }));
+    courseTable.setOnMouseClicked(this::handleMouseClicked);
   }
 
-  private void bindTableColumnsWidth() {
-    tableColumnCourseKey.prefWidthProperty().bind(
-        courseTable.widthProperty().multiply(0.14));
-    tableColumnModule.prefWidthProperty().bind(
-        courseTable.widthProperty().multiply(0.31));
-    tableColumnAbstractUnit.prefWidthProperty().bind(
-        courseTable.widthProperty().multiply(0.31));
-    tableColumnSemester.prefWidthProperty().bind(
-        courseTable.widthProperty().multiply(0.13));
-    tableColumnType.prefWidthProperty().bind(
-        courseTable.widthProperty().multiply(0.07));
+  @SuppressWarnings("unused")
+  private void handleMouseClicked(final MouseEvent mouseEvent) {
+    if (mouseEvent.getClickCount() < 2) {
+      return;
+    }
+
+    final CourseTableEntry tableEntry = courseTable.getSelectionModel().getSelectedItem();
+    if (tableEntry == null) {
+      return;
+    }
+
+    final TableColumn column
+        = courseTable.getSelectionModel().getSelectedCells().get(0).getTableColumn();
+
+    if (column.equals(tableColumnModule)) {
+      router.transitionTo(RouteNames.MODULE_DETAIL_VIEW, tableEntry.getModule());
+    } else if (column.equals(tableColumnAbstractUnit)) {
+      router.transitionTo(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW, tableEntry.getAbstractUnit());
+    } else if (column.equals(tableColumnCourseKey)) {
+      router.transitionTo(RouteNames.COURSE_DETAIL_VIEW, tableEntry.getCourse());
+    }
   }
 
   public String getTitle() {
@@ -306,6 +268,29 @@ public class SessionDetailView extends VBox implements Initializable {
 
     public Course getCourse() {
       return course;
+    }
+  }
+
+  private class CourseTableItemsBinding extends ListBinding<CourseTableEntry> {
+    {
+      bind(sessionProperty);
+    }
+
+    @Override
+    protected ObservableList<CourseTableEntry> computeValue() {
+      final SessionFacade session = sessionProperty.get();
+      if (session == null) {
+        return FXCollections.emptyObservableList();
+      }
+      final Set<AbstractUnit> abstractUnits = session.getIntendedAbstractUnits();
+      return abstractUnits.stream().flatMap(au ->
+          au.getModuleAbstractUnitTypes().stream().flatMap(entry ->
+              entry.getModule().getCourses().stream().map(course -> {
+                final Module entryModule = entry.getModule();
+                return new CourseTableEntry(course, entryModule, au,
+                    entryModule.getSemestersForAbstractUnit(au), entry.getType());
+              }))).collect(
+                Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
     }
   }
 }

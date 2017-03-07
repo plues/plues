@@ -8,12 +8,12 @@
 [![Code Climate](https://codeclimate.com/github/plues/plues/badges/gpa.svg)](https://codeclimate.com/github/plues/plues)
 
 
-**Current Version:** 2.0.0
+**Current Version:** 2.1.0
 
 This is the main application component of the
 [ProB](https://www3.hhu.de/stups/prob/) based timetable validation tool
 [PlÜS](https://github.com/plues) built using the [Prob2
-Java API](https://www3.hhu.de/stups/prob/index.php5/ProB_Java_API).
+Java API](https://www3.hhu.de/stups/prob/index.php/ProB_Java_API).
 
 ## Configuration
 
@@ -72,4 +72,5 @@ The application can be started either by running `./gradlew run` or using your I
 ## License
 
 This project is distributed under the terms of the [ISC License](LICENSE).
+
 

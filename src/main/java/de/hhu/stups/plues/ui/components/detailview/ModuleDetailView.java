@@ -12,6 +12,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -82,77 +83,35 @@ public class ModuleDetailView extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    pordnr.textProperty().bind(Bindings.when(moduleProperty.isNotNull()).then(
-        Bindings.selectString(moduleProperty, "pordnr")).otherwise(""));
-    title.textProperty().bind(Bindings.when(moduleProperty.isNotNull()).then(
-        Bindings.selectString(moduleProperty, "title")).otherwise(""));
-    name.textProperty().bind(Bindings.when(moduleProperty.isNotNull()).then(
-        Bindings.selectString(moduleProperty, "name")).otherwise(""));
-    mandatory.textProperty().bind(Bindings.createStringBinding(() -> {
-      final Module module = moduleProperty.get();
-      if (module == null) {
-        return "?";
-      }
+    bindField(pordnr.textProperty(), "pordnr");
+    bindField(title.textProperty(), "title");
+    bindField(name.textProperty(), "name");
+    bindField(creditPoints.textProperty(), "creditPoints");
+    bindField(electiveUnits.textProperty(), "electiveUnits");
 
-      return module.getMandatory() ? "✔︎" : "✗";
-    }, moduleProperty));
-    creditPoints.textProperty().bind(Bindings.when(moduleProperty.isNotNull()).then(
-        Bindings.selectString(moduleProperty, "creditPoints")).otherwise(""));
-    electiveUnits.textProperty().bind(Bindings.when(moduleProperty.isNotNull()).then(
-        Bindings.selectString(moduleProperty, "electiveUnits")).otherwise(""));
+    mandatory.textProperty().bind(Bindings.when(moduleProperty.isNotNull())
+        .then(Bindings.when(Bindings.selectBoolean(moduleProperty, "mandatory"))
+            .then("✔︎")
+            .otherwise("✗"))
+        .otherwise("?"));
 
-    bindTableColumnsWidth();
+    tableViewBindings();
+  }
 
-    courseTableView.itemsProperty().bind(new ListBinding<Course>() {
-      {
-        bind(moduleProperty);
-      }
-
-      @Override
-      protected ObservableList<Course> computeValue() {
-        final Module module = moduleProperty.get();
-        if (module == null) {
-          return FXCollections.emptyObservableList();
-        }
-
-        return FXCollections.observableArrayList(module.getCourses());
-      }
-    });
-
-    abstractUnitTableView.itemsProperty().bind(new ListBinding<AbstractUnit>() {
-      {
-        bind(moduleProperty);
-      }
-
-      @Override
-      protected ObservableList<AbstractUnit> computeValue() {
-        final Module module = moduleProperty.get();
-        if (module == null) {
-          return FXCollections.emptyObservableList();
-        }
-
-        return FXCollections.observableArrayList(module.getAbstractUnits());
-      }
-    });
-
+  private void tableViewBindings() {
+    courseTableView.itemsProperty().bind(new CourseTableBinding());
     courseTableView.setOnMouseClicked(DetailViewHelper.getCourseMouseHandler(
         courseTableView, router));
 
+    abstractUnitTableView.itemsProperty().bind(new AbstractUnitTableBinding());
     abstractUnitTableView.setOnMouseClicked(DetailViewHelper.getAbstractUnitMouseHandler(
         abstractUnitTableView, router));
   }
 
-  private void bindTableColumnsWidth() {
-    tableColumnCourseName.prefWidthProperty().bind(
-        courseTableView.widthProperty().multiply(0.25));
-    tableColumnCourseColumnName.prefWidthProperty().bind(
-        courseTableView.widthProperty().multiply(0.71));
-
-    tableColumnAbstractUnitKey.prefWidthProperty().bind(
-        abstractUnitTableView.widthProperty().multiply(0.25));
-    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
-        abstractUnitTableView.widthProperty().multiply(0.71));
-
+  private void bindField(StringProperty stringProperty, String name) {
+    stringProperty.bind(Bindings.when(moduleProperty.isNotNull())
+        .then(Bindings.selectString(moduleProperty, name))
+        .otherwise(""));
   }
 
   public void setModule(final Module module) {
@@ -161,5 +120,37 @@ public class ModuleDetailView extends VBox implements Initializable {
 
   public String getTitle() {
     return moduleProperty.get().getTitle();
+  }
+
+  private class CourseTableBinding extends ListBinding<Course> {
+    CourseTableBinding() {
+      bind(moduleProperty);
+    }
+
+    @Override
+    protected ObservableList<Course> computeValue() {
+      final Module module = moduleProperty.get();
+      if (module == null) {
+        return FXCollections.emptyObservableList();
+      }
+
+      return FXCollections.observableArrayList(module.getCourses());
+    }
+  }
+
+  private class AbstractUnitTableBinding extends ListBinding<AbstractUnit> {
+    AbstractUnitTableBinding() {
+      bind(moduleProperty);
+    }
+
+    @Override
+    protected ObservableList<AbstractUnit> computeValue() {
+      final Module module = moduleProperty.get();
+      if (module == null) {
+        return FXCollections.emptyObservableList();
+      }
+
+      return FXCollections.observableArrayList(module.getAbstractUnits());
+    }
   }
 }

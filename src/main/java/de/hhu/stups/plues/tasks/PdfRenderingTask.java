@@ -11,11 +11,11 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.studienplaene.Renderer;
+import de.hhu.stups.plues.studienplaene.RenderingException;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.hibernate.annotations.common.util.impl.LoggerFactory;
 import org.jboss.logging.Logger;
-import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,7 +29,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
-import javax.xml.parsers.ParserConfigurationException;
 
 public class PdfRenderingTask extends Task<Path> {
 
@@ -135,8 +134,7 @@ public class PdfRenderingTask extends Task<Path> {
     }
   }
 
-  private Path renderPdf(final FeasibilityResult result)
-      throws IOException, ParserConfigurationException, SAXException {
+  private Path renderPdf(final FeasibilityResult result) throws RenderingException {
     final Store store = delayedStore.get();
 
     updateMessage(resources.getString("render"));
@@ -185,16 +183,27 @@ public class PdfRenderingTask extends Task<Path> {
    *
    * @param renderer Renderer object to create file
    */
-  private File getTempFile(final Renderer renderer)
-      throws IOException, ParserConfigurationException, SAXException {
+  private File getTempFile(final Renderer renderer) throws RenderingException {
 
-    final File temp = File.createTempFile("timetable", ".pdf");
-    temp.deleteOnExit();
-    try (OutputStream out = new FileOutputStream(temp)) {
+    final File temp;
+    try {
+      temp = File.createTempFile("timetable", ".pdf");
+      temp.deleteOnExit();
+    } catch (IOException exc) {
+      logger.error("IOException creating temp file", exc);
+      throw new RenderingException("IOException creating temp file", exc);
+    }
+
+    try (final OutputStream out = new FileOutputStream(temp)) {
       renderer.getResult().writeTo(out);
-    } catch (final IOException | ParserConfigurationException | SAXException exc) {
-      logger.error("Exception rendering PDF", exc);
+    } catch (RenderingException exc) {
+      logger.error("RenderingException rendering PDF", exc.getCause());
       throw exc;
+    } catch (IOException exc) {
+      RenderingException renderingException
+          = new RenderingException("IOException rendering PDF", exc);
+      logger.error("IOException rendering PDF", renderingException);
+      throw renderingException;
     }
     return temp;
   }

@@ -88,19 +88,6 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
     setAbstractUnitModuleTypeFactories();
 
     unsatCoreButtonBar.setText(resources.getString("button.unsatCoreGroups"));
-
-    bindTableColumnsWidth();
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnAbstractUnitKey.prefWidthProperty().bind(
-        abstractUnitsTable.widthProperty().multiply(0.15));
-    tableColumnAbstractUnitTitle.prefWidthProperty().bind(
-        abstractUnitsTable.widthProperty().multiply(0.59));
-    tableColumnAbstractUnitModuleSemester.prefWidthProperty().bind(
-        abstractUnitsTable.widthProperty().multiply(0.15));
-    tableColumnAbstractUnitModuleType.prefWidthProperty().bind(
-        abstractUnitsTable.widthProperty().multiply(0.07));
   }
 
   private void setAbstractUnitModuleSemesterFactories() {
@@ -135,8 +122,7 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
                 .map(e -> String.format("%s%s: %s",
                     prefix,
                     e.getKey().getPordnr(),
-                    e.getValue().stream()
-                        .sorted()
+                    e.getValue().stream().sorted()
                         .map(String::valueOf)
                         .collect(Collectors.joining(","))))
                 .collect(Collectors.joining("\n")));

@@ -3,6 +3,8 @@ package de.hhu.stups.plues.ui.components.reports;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Unit;
+import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.collections.FXCollections;
@@ -20,6 +22,8 @@ import java.util.Set;
 
 public class RedundantUnitGroups extends VBox implements Initializable {
 
+  private final Router router;
+
   @FXML
   @SuppressWarnings("unused")
   private TableView<Unit> tableViewRedundantUnitGroups;
@@ -34,7 +38,8 @@ public class RedundantUnitGroups extends VBox implements Initializable {
   private Text txtExplanation;
 
   @Inject
-  public RedundantUnitGroups(final Inflater inflater) {
+  public RedundantUnitGroups(final Inflater inflater, final Router router) {
+    this.router = router;
     inflater.inflate("components/reports/RedundantUnitGroups", this, this, "reports", "Column");
   }
 
@@ -42,15 +47,9 @@ public class RedundantUnitGroups extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     txtExplanation.wrappingWidthProperty().bind(
         tableViewRedundantUnitGroups.widthProperty().subtract(25.0));
-
-    bindTableColumnsWidth();
-  }
-
-  private void bindTableColumnsWidth() {
-    tableColumnUnitKey.prefWidthProperty().bind(
-        tableViewRedundantUnitGroups.widthProperty().multiply(0.2));
-    tableColumnUnitTitle.prefWidthProperty().bind(
-        tableViewRedundantUnitGroups.widthProperty().multiply(0.76));
+    
+    tableViewRedundantUnitGroups.setOnMouseClicked(
+        DetailViewHelper.getUnitMouseHandler(tableViewRedundantUnitGroups, router));
   }
 
   public void setData(final Set<Unit> redundantUnitGroups) {

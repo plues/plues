@@ -7,12 +7,9 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -47,7 +44,7 @@ public class CheckBoxGroup extends VBox implements Initializable {
    * units.
    *
    * @param inflater inflater to handle fxml
-   * @param course   Given course. Should be a major or minor for the choosen course combination
+   * @param course   Given course. Should be a major or minor for the chosen course combination
    * @param module   Given module. Should be one inside major or minor course
    */
   @Inject

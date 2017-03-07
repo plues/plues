@@ -173,6 +173,10 @@
     -fx-padding: 10px 10px 10px 10px;
 }
 
+.windowPaddingTiny {
+    -fx-padding: 5px 5px 5px 5px;
+}
+
 .table-view:focused, .list-view:focused, .tree-view:focused, .button:focused, .tree-table-view:focused {
     -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
     -fx-background-insets: 0 0 -1 0, 0, 1, 2;

@@ -1,16 +1,19 @@
 package de.hhu.stups.plues.prob;
 
+import static java.util.stream.Collectors.toMap;
+
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
 import de.prob.translator.types.Tuple;
 
-import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 
 final class Mappers {
 
@@ -37,7 +40,7 @@ final class Mappers {
                                                     final String keyPrefix,
                                                     final String valuePrefix) {
     return set.stream().collect(
-      Collectors.toMap(
+      toMap(
         i -> mapValue(((Tuple) i).getFirst().toString(), keyPrefix),
         i -> mapValue(((Tuple) i).getSecond().toString(), valuePrefix)));
   }
@@ -49,7 +52,7 @@ final class Mappers {
 
   static Map<String, java.util.Set<Integer>> mapModuleChoice(final Set moduleChoice) {
     return moduleChoice.stream().collect(Collectors.collectingAndThen(
-      Collectors.toMap(
+      toMap(
         bObject -> {
           final Tuple mc = (Tuple) bObject;
           return ((de.prob.translator.types.String) mc.getFirst()).getValue();
@@ -68,12 +71,6 @@ final class Mappers {
   static java.util.Set<String> mapCourseSet(final Set value) {
     return value.stream().map(Object::toString).map(Mappers::mapString).collect(
         Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
-  }
-
-  static java.util.Set<Integer> mapSessions(final Set modelResult) {
-    return modelResult.stream().map(
-      v -> mapValue(v.toString(), SESSION_PREFIX)).collect(Collectors.collectingAndThen(
-        Collectors.toSet(), Collections::unmodifiableSet));
   }
 
   static String mapSession(final Integer session) {
@@ -97,9 +94,7 @@ final class Mappers {
   }
 
   static String mapString(final String str) {
-    // XXX Temporary fix, until ProB 2.0 socket encoding has been fixed.
-    return new String(str.substring(1, str.length() - 1).getBytes(Charset.defaultCharset()),
-        Charset.forName("utf8"));
+    return str.substring(1, str.length() - 1);
   }
 
   static Map<String, Map<Integer, java.util.Set<Integer>>> mapCourseModuleAbstractUnits(
@@ -123,13 +118,18 @@ final class Mappers {
       modules.get(module).add(abstractUnit);
     });
 
+    return wrap(result);
+  }
+
+  private static <T> Map<String,Map<Integer,java.util.Set<T>>> wrap(
+        final Map<String, Map<Integer, java.util.Set<T>>> result) {
     return Collections.unmodifiableMap(
-        result.entrySet().stream().collect(Collectors.toMap(
-          Map.Entry::getKey,
-          e -> Collections.unmodifiableMap(
-            e.getValue().entrySet().stream().collect(Collectors.toMap(
-              Map.Entry::getKey,
-              i -> Collections.unmodifiableSet(i.getValue())))))));
+      result.entrySet().stream().collect(toMap(
+        Map.Entry::getKey,
+        e -> Collections.unmodifiableMap(
+          e.getValue().entrySet().stream().collect(toMap(
+            Map.Entry::getKey,
+            i -> Collections.unmodifiableSet(i.getValue())))))));
   }
 
   static Map<String, Map<Integer, java.util.Set<Pair<Integer>>>> mapCourseModuleAbstractUnitPairs(
@@ -157,13 +157,7 @@ final class Mappers {
       modules.get(module).add(new Pair<>(au1, au2));
     });
 
-    return Collections.unmodifiableMap(
-      result.entrySet().stream().collect(Collectors.toMap(
-        Map.Entry::getKey,
-        e -> Collections.unmodifiableMap(
-          e.getValue().entrySet().stream().collect(Collectors.toMap(
-            Map.Entry::getKey,
-            i -> Collections.unmodifiableSet(i.getValue())))))));
+    return wrap(result);
   }
 
   static Map<Integer, java.util.Set<Integer>> mapModuleAbstractUnitPairs(
@@ -234,41 +228,43 @@ final class Mappers {
     }).collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
   }
 
+  static java.util.Set<Integer> mapSessions(final Set modelResult) {
+    return mapToSet(modelResult, SESSION_PREFIX);
+  }
+
   static java.util.Set<Integer> mapModules(final Set modules) {
-    return modules.stream().map(bObject
-        -> mapValue(bObject.toString(), MODULE_PREFIX)).collect(
-          Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
+    return mapToSet(modules, MODULE_PREFIX);
   }
 
   static java.util.Set<Integer> mapAbstractUnits(final Set abstractUnits) {
-    return abstractUnits.stream().map(bObject
-        -> mapValue(bObject.toString(), ABSTRACT_UNIT_PREFIX)).collect(
-          Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
+    return mapToSet(abstractUnits, ABSTRACT_UNIT_PREFIX);
   }
 
   static java.util.Set<Integer> mapGroups(final Set groups) {
-    return groups.stream().map(bObject ->
-        mapValue(bObject.toString(), GROUP_PREFIX)).collect(
-          Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
-
+    return mapToSet(groups, GROUP_PREFIX);
   }
 
   static List<String> mapToModules(final List<Integer> modules) {
-    return modules.stream().map(module
-        -> String.format("%s%d", MODULE_PREFIX, module)).collect(
-          Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-
+    return mapToList(modules, MODULE_PREFIX);
   }
 
   static List<String> mapToAbstractUnits(final List<Integer> abstractUnits) {
-    return abstractUnits.stream().map(module
-        -> String.format("%s%d", ABSTRACT_UNIT_PREFIX, module)).collect(
-          Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+    return mapToList(abstractUnits, ABSTRACT_UNIT_PREFIX);
   }
 
   static List<String> mapToGroups(final List<Integer> groups) {
-    return groups.stream().map(module
-        -> String.format("%s%d", GROUP_PREFIX, module)).collect(
+    return mapToList(groups, GROUP_PREFIX);
+  }
+
+  private static List<String> mapToList(final Collection<Integer> collection, final String prefix) {
+    return collection.stream().map(module -> String.format("%s%d", prefix, module)).collect(
           Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
   }
+
+  private static java.util.Set<Integer> mapToSet(final Collection<?> collection,
+      final String prefix) {
+    return collection.stream().map(bObject -> mapValue(bObject.toString(), prefix)).collect(
+        Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
+  }
+
 }

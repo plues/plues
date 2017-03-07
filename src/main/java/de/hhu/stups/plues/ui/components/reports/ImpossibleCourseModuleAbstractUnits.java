@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.ui.components.reports;
 
-import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -23,6 +22,8 @@ import java.util.stream.Collectors;
 
 public class ImpossibleCourseModuleAbstractUnits extends VBox implements Initializable {
 
+  private static final String PAIR_FORMAT = "%s, %s";
+
   @FXML
   @SuppressWarnings("unused")
   private TreeView<String> treeViewCourseModuleAbstractUnits;
@@ -37,7 +38,7 @@ public class ImpossibleCourseModuleAbstractUnits extends VBox implements Initial
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     treeViewCourseModuleAbstractUnits.setRoot(new TreeItem<>());
     txtExplanation.wrappingWidthProperty().bind(
         treeViewCourseModuleAbstractUnits.widthProperty().subtract(25.0));
@@ -51,11 +52,12 @@ public class ImpossibleCourseModuleAbstractUnits extends VBox implements Initial
   public void setData(final Map<Course, Map<Module, Set<AbstractUnit>>> courseModuleAbstractUnit) {
     treeViewCourseModuleAbstractUnits.getRoot().getChildren().setAll(
         courseModuleAbstractUnit.entrySet().stream().map(courseMapEntry -> {
-          TreeItem<String> courseItem = new TreeItem<>(getCourseString(courseMapEntry.getKey()));
+          final TreeItem<String> courseItem
+              = new TreeItem<>(getCourseString(courseMapEntry.getKey()));
           courseItem.getChildren().setAll(
               courseMapEntry.getValue().entrySet().stream().map(moduleSetEntry -> {
-                TreeItem<String> moduleItem =
-                    new TreeItem<>(getModuleString(moduleSetEntry.getKey()));
+                final TreeItem<String> moduleItem
+                    = new TreeItem<>(getModuleString(moduleSetEntry.getKey()));
                 moduleItem.getChildren().setAll(
                     moduleSetEntry.getValue().stream().map(abstractUnit ->
                         new TreeItem<>(getAbstractUnitString(abstractUnit)))
@@ -66,15 +68,15 @@ public class ImpossibleCourseModuleAbstractUnits extends VBox implements Initial
         }).collect(Collectors.toSet()));
   }
 
-  private String getCourseString(Course course) {
-    return Joiner.on(", ").join(course.getKey(), course.getFullName());
+  private String getCourseString(final Course course) {
+    return String.format(PAIR_FORMAT, course.getKey(), course.getFullName());
   }
 
-  private String getModuleString(Module module) {
-    return Joiner.on(", ").join(module.getPordnr(), module.getTitle());
+  private String getModuleString(final Module module) {
+    return String.format(PAIR_FORMAT, module.getPordnr(), module.getTitle());
   }
 
-  private String getAbstractUnitString(AbstractUnit abstractUnit) {
-    return Joiner.on(", ").join(abstractUnit.getKey(), abstractUnit.getTitle());
+  private String getAbstractUnitString(final AbstractUnit abstractUnit) {
+    return String.format(PAIR_FORMAT, abstractUnit.getKey(), abstractUnit.getTitle());
   }
 }

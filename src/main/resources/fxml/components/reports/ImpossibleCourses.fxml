@@ -1,39 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<?import org.controlsfx.control.SegmentedButton?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.VBox?>
-<?import org.controlsfx.control.SegmentedButton?>
 <?import javafx.scene.control.ToggleButton?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
-    <VBox styleClass="windowPaddingSmall" spacing="10.0">
-        <SegmentedButton fx:id="segmentedButtons">
-            <padding>
-                <Insets left="20" right="20"/>
-            </padding>
-            <buttons>
-                <ToggleButton fx:id="buttonImpossibleCourses" text="%button.MissingData"
-                              minWidth="150.0" selected="true"/>
-                <ToggleButton fx:id="buttonImpossibleCoursesBecauseOfImpossibleModules"
-                              minWidth="150.0" text="%button.ImpossibleModules"/>
-                <ToggleButton fx:id="buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations"
-                              text="%button.ImpossibleModuleCombinations" minWidth="200.0"/>
-            </buttons>
-        </SegmentedButton>
+    <VBox styleClass="windowPaddingSmall" spacing="10.0" minWidth="0" maxWidth="Infinity">
+        <HBox>
+            <SegmentedButton fx:id="segmentedButtons">
+                <padding>
+                    <Insets left="20" right="20"/>
+                </padding>
+                <buttons>
+                    <ToggleButton fx:id="buttonImpossibleCourses" text="%button.MissingData"
+                                  selected="true" HBox.hgrow="ALWAYS" prefWidth="200.0"
+                                  maxWidth="Infinity"/>
+                    <ToggleButton fx:id="buttonImpossibleCoursesBecauseOfImpossibleModules"
+                                  text="%button.ImpossibleModules" HBox.hgrow="ALWAYS"
+                                  maxWidth="Infinity" prefWidth="200.0"/>
+                    <ToggleButton
+                            fx:id="buttonImpossibleCoursesBecauseOfImpossibleModuleCombinations"
+                            text="%button.ImpossibleModuleCombinations" HBox.hgrow="ALWAYS"
+                            maxWidth="Infinity" prefWidth="300.0"/>
+                </buttons>
+            </SegmentedButton>
+        </HBox>
         <Text fx:id="txtExplanation"/>
     </VBox>
-    <TableView fx:id="tableViewImpossibleCourses">
+    <TableView fx:id="tableViewImpossibleCourses" minWidth="0" minHeight="0" maxWidth="Infinity">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableColumnCourseKey" text="%columnKey" resizable="false">
+            <TableColumn fx:id="tableColumnCourseKey" text="%columnKey">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnCourseName" text="%columnName" resizable="false">
+            <TableColumn fx:id="tableColumnCourseName" text="%columnName" minWidth="400.0">
                 <cellValueFactory>
                     <PropertyValueFactory property="fullName"/>
                 </cellValueFactory>

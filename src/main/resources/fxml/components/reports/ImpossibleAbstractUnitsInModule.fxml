@@ -4,27 +4,26 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.text.Text?>
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
-    <VBox styleClass="windowPaddingSmall" spacing="10.0">
+    <VBox styleClass="windowPaddingSmall" spacing="10.0" minWidth="0" maxWidth="Infinity">
         <Text fx:id="txtExplanation" text="%explain.ImpossibleAbstractUnitsInModule"/>
-        <Text text="%modules" style="-fx-font-weight: bold;"/>
     </VBox>
-    <ListView fx:id="listViewModules"/>
-    <VBox styleClass="windowPaddingSmall">
-        <Label text="%abstractUnits" style="-fx-font-weight: bold;"/>
-    </VBox>
-    <TableView fx:id="tableViewAbstractUnits">
+    <ListView fx:id="listViewModules" minWidth="0" minHeight="0" maxWidth="Infinity"/>
+    <TableView fx:id="tableViewAbstractUnits" minWidth="0" minHeight="0" maxWidth="Infinity">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
         <columns>
-            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey" resizable="false">
+            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey">
                 <cellValueFactory>
                     <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnTitle" resizable="false">
+            <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnAbstractUnit"
+                         minWidth="400.0">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>

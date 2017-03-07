@@ -24,6 +24,7 @@ public class CourseDetailViewTest extends ApplicationTest {
   private static final String KZFA = "H";
   private static final String DEGREE = "bk";
   private static final int PO = 2013;
+  private static final int CP = 1234;
   private final Course course;
 
   /**
@@ -38,10 +39,12 @@ public class CourseDetailViewTest extends ApplicationTest {
     doReturn(KZFA).when(course).getKzfa();
     doReturn(DEGREE).when(course).getDegree();
     doReturn(PO).when(course).getPo();
+    doReturn(CP).when(course).getCreditPoints();
   }
 
   @Test
   public void testCourseInfo() {
+
     final Label keyLabel = lookup("#key").query();
     Assert.assertEquals(KEY, keyLabel.getText());
 
@@ -56,6 +59,12 @@ public class CourseDetailViewTest extends ApplicationTest {
 
     final Label degreeLabel = lookup("#degree").query();
     Assert.assertEquals(DEGREE, degreeLabel.getText());
+  }
+
+  @Test
+  public void testCourseCreditPoints() {
+    final Label cpLabel = lookup("#creditPoints").query();
+    Assert.assertEquals(String.valueOf(CP), cpLabel.getText());
   }
 
   @Override

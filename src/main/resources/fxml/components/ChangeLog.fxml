@@ -5,34 +5,33 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.Label?>
 
-<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1" prefWidth="800" prefHeight="600"
-         styleClass="windowPadding">
+<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1"
+         prefWidth="1000" prefHeight="600" styleClass="windowPadding">
     <Label text="%temporary" styleClass="h2"/>
-    <TableView fx:id="tempTable">
+    <TableView fx:id="tempTable" prefWidth="950.0" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="tableColumnSessionTemporary" text="%session" sortable="false"
-                         resizable="false"/>
-            <TableColumn fx:id="tableColumnSourceTemporary" text="%source" sortable="false"
-                         resizable="false"/>
-            <TableColumn fx:id="tableColumnTargetTemporary" text="%target" sortable="false"
-                         resizable="false"/>
-            <TableColumn fx:id="tableColumnDateTemporary" text="%date" sortable="false"
-                         resizable="false"/>
+            <TableColumn fx:id="tableColumnSessionTemporary" prefWidth="400.0" text="%session"
+                         sortable="false"/>
+            <TableColumn fx:id="tableColumnSourceTemporary" prefWidth="150.0" text="%source"
+                         sortable="false"/>
+            <TableColumn fx:id="tableColumnTargetTemporary" prefWidth="150.0" text="%target"
+                         sortable="false"/>
+            <TableColumn fx:id="tableColumnDateTemporary" prefWidth="250.0" text="%date"
+                         sortable="false"/>
         </columns>
     </TableView>
     <Label/>
     <Label text="%persistent" styleClass="h2"/>
-    <TableView fx:id="persistentTable">
+    <TableView fx:id="persistentTable" prefWidth="950.0" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="tableColumnSessionPersistent" text="%session" sortable="false"
-                         resizable="false"/>
-            <TableColumn fx:id="tableColumnSourcePersistent" text="%source" sortable="false"
-                         resizable="false"/>
-            <TableColumn fx:id="tableColumnTargetPersistent" text="%target" sortable="false"
-                         resizable="false"/>
-            <TableColumn fx:id="tableColumnDatePersistent" text="%date" sortable="false"
-                         resizable="false"/>
+            <TableColumn fx:id="tableColumnSessionPersistent" prefWidth="400.0" text="%session"
+                         sortable="false"/>
+            <TableColumn fx:id="tableColumnSourcePersistent" prefWidth="150.0" text="%source"
+                         sortable="false"/>
+            <TableColumn fx:id="tableColumnTargetPersistent" prefWidth="150.0" text="%target"
+                         sortable="false"/>
+            <TableColumn fx:id="tableColumnDatePersistent" prefWidth="250.0" text="%date"
+                         sortable="false"/>
         </columns>
     </TableView>
 </fx:root>

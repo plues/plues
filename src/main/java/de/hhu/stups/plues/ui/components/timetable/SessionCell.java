@@ -3,13 +3,12 @@ package de.hhu.stups.plues.ui.components.timetable;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.data.sessions.SessionFacade;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
-import javafx.beans.binding.StringBinding;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -20,6 +19,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
+import org.fxmisc.easybind.EasyBind;
 
 import java.net.URL;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.ResourceBundle;
 
 class SessionCell extends ListCell<SessionFacade> implements Initializable {
 
-  public static final String CONFLICTED_SESSION = "conflicted-session";
+  private static final String CONFLICTED_SESSION = "conflicted-session";
   private final Router router;
   private final Delayed<SolverService> delayedSolverService;
 
@@ -38,9 +38,11 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
   private volatile boolean solverIsLoaded = false;
 
   @FXML
+  @SuppressWarnings("unused")
   private Label sessionCellText;
 
   @FXML
+  @SuppressWarnings("unused")
   private Text sessionCellIsTentative;
 
   @Inject
@@ -68,31 +70,23 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
   }
 
   private void setupDataService() {
-    uiDataService.conflictMarkedSessionsProperty()
-        .addListener((observable, oldValue, newValue) -> setConflictedStyleClass(newValue));
+    EasyBind.subscribe(uiDataService.conflictMarkedSessionsProperty(),
+        this::setConflictedStyleClass);
 
-    itemProperty().addListener((observable, oldValue, newValue) -> {
-      sessionCellIsTentative.setText("");
-      if (newValue != null && newValue.isTentative()) {
-        sessionCellIsTentative.setText("T: ");
+    sessionCellIsTentative.textProperty().bind(
+        EasyBind.map(itemProperty(), newValue -> {
+          if (newValue != null && newValue.isTentative()) {
+            return "T: ";
+          }
+          return "";
+        }));
+
+    sessionCellText.textProperty().bind(Bindings.createStringBinding(() -> {
+      if (getItem() == null) {
+        return null;
       }
-    });
-
-    sessionCellText.textProperty().bind(new StringBinding() {
-      {
-        bind(itemProperty());
-        bind(uiDataService.sessionDisplayFormatProperty());
-      }
-
-      @Override
-      protected String computeValue() {
-        if (getItem() == null) {
-          return null;
-        }
-
-        return displayText(getItem());
-      }
-    });
+      return displayText(getItem());
+    }, itemProperty(), uiDataService.sessionDisplayFormatProperty()));
   }
 
   private void setConflictedStyleClass(final List<Integer> sessionIDs) {
@@ -126,7 +120,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
       return;
     }
 
-    router.transitionTo(RouteNames.SESSION_DETAIL_VIEW, getItem().getSession());
+    router.transitionTo(RouteNames.SESSION_DETAIL_VIEW, getItem());
   }
 
   @Override
@@ -146,8 +140,9 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
     getStyleClass().remove(CONFLICTED_SESSION);
   }
 
+  @SuppressWarnings("unused")
   private String displayText(final SessionFacade sessionFacade) {
     final SessionDisplayFormat displayFormat = uiDataService.sessionDisplayFormatProperty().get();
-    return SessionHelper.displayText(displayFormat, sessionFacade);
+    return sessionFacade.displayText(displayFormat);
   }
 }
