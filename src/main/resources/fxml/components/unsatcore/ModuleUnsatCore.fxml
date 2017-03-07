@@ -20,14 +20,10 @@
                     <PropertyValueFactory property="pordnr"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnModuleType" text="%columnElectability">
-                <cellValueFactory>
-                    <PropertyValueFactory property="mandatory"/>
-                </cellValueFactory>
-            </TableColumn>
+            <TableColumn fx:id="tableColumnModuleType" text="%columnElectability"/>
             <TableColumn fx:id="tableColumnModuleName" minWidth="400.0" text="%columnName">
                 <cellValueFactory>
-                    <PropertyValueFactory property="name"/>
+                    <PropertyValueFactory property="title"/>
                 </cellValueFactory>
             </TableColumn>
         </columns>

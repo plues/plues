@@ -2,18 +2,20 @@ package de.hhu.stups.plues.ui.components.unsatcore;
 
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.data.entities.ModuleLevel;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.property.ListProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
@@ -21,6 +23,7 @@ import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class ModuleUnsatCore extends VBox implements Initializable {
 
@@ -38,13 +41,14 @@ public class ModuleUnsatCore extends VBox implements Initializable {
   private TableColumn<Module, String> tableColumnModuleName;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Module, Boolean> tableColumnModuleType;
+  private TableColumn<Module, String> tableColumnModuleType;
   @FXML
   @SuppressWarnings("unused")
   private UnsatCoreButtonBar unsatCoreButtonBar;
   @FXML
   @SuppressWarnings("unused")
   private Text txtExplanation;
+  private ObservableList<Course> courses;
 
   /**
    * Default constructor.
@@ -65,17 +69,14 @@ public class ModuleUnsatCore extends VBox implements Initializable {
     modulesTable.itemsProperty().bind(modules);
     modulesTable.setOnMouseClicked(DetailViewHelper.getModuleMouseHandler(
         modulesTable, router));
-    tableColumnModuleType.setCellFactory(param -> new TableCell<Module, Boolean>() {
-      @Override
-      protected void updateItem(final Boolean item, final boolean empty) {
-        super.updateItem(item, empty);
-        if (item == null || empty) {
-          setText(null);
-          return;
-        }
-        setText(item ? "✔︎" : "✗");
-      }
-    });
+    tableColumnModuleType.setCellValueFactory(param -> param.getValue().getModuleLevels().stream()
+          .filter(moduleLevel -> this.courses.contains(moduleLevel.getCourse()))
+          .map(ModuleLevel::getMandatory)
+          .distinct()
+          .map(item -> item ? "✔︎" : "✗")
+          .collect(
+            Collectors.collectingAndThen(
+            Collectors.joining(", "), ReadOnlyStringWrapper::new)));
 
     unsatCoreButtonBar.setText(resources.getString("button.unsatCoreAbstractUnits"));
   }
@@ -98,5 +99,9 @@ public class ModuleUnsatCore extends VBox implements Initializable {
 
   public UnsatCoreButtonBar getUnsatCoreButtonBar() {
     return unsatCoreButtonBar;
+  }
+
+  public void setCourses(ObservableList<Course> courses) {
+    this.courses = courses;
   }
 }
