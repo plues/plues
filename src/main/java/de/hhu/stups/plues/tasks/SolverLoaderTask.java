@@ -3,6 +3,7 @@ package de.hhu.stups.plues.tasks;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import com.sun.nio.zipfs.ZipPath;
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
@@ -98,40 +99,44 @@ public class SolverLoaderTask extends Task<Solver> {
     Files.createDirectory(this.modelDirectory);
     logger.info("Exporting models to " + this.modelDirectory);
     //
-    final ClassLoader classLoader = MainController.class.getClassLoader();
-    final InputStream zipStream = classLoader.getResourceAsStream(MODELS_ZIP);
+    final Path zipPath = moveModelsArchive(tmpDirectory);
     //
-    if (zipStream == null) {
-      throw new MissingResourceException(
-        "Could not find models.zip resource!!",
-        this.getClass().getName(),
-        MODELS_ZIP);
-    }
-    // copy zip-file to tmpDirectory
-    final Path zipPath = tmpDirectory.resolve(MODELS_ZIP);
-    Files.copy(zipStream, zipPath);
-
     // read zip-file entries
-    final ZipFile zipFile = new ZipFile(zipPath.toFile());
-    final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+    try (final ZipFile zipFile = new ZipFile(zipPath.toFile())) {
+      final Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
-    while (entries.hasMoreElements()) {
-      final ZipEntry entry = entries.nextElement();
-      final String name = entry.getName();
+      while (entries.hasMoreElements()) {
+        final ZipEntry entry = entries.nextElement();
+        final String name = entry.getName();
 
-      if ("".equals(name)) {
-        logger.trace("Empty File");
-        continue;
+        if ("".equals(name)) {
+          logger.trace("Empty File");
+          continue;
+        }
+
+        final InputStream stream = zipFile.getInputStream(entry);
+        final Path modelPath = Paths.get(MODEL_PATH).resolve(name);
+
+        logger.info("Exporting " + modelPath);
+        Files.copy(stream, tmpDirectory.resolve(modelPath));
       }
-
-      final InputStream stream = zipFile.getInputStream(entry);
-      final Path modelPath = Paths.get(MODEL_PATH).resolve(name);
-
-      logger.info("Exporting " + modelPath);
-      Files.copy(stream, tmpDirectory.resolve(modelPath));
     }
-    zipFile.close();
     logger.trace("Done exporting model files.");
+  }
+
+  private Path moveModelsArchive(final Path tmpDirectory) throws IOException {
+    final ClassLoader classLoader = MainController.class.getClassLoader();
+    try (final InputStream zipStream = classLoader.getResourceAsStream(MODELS_ZIP)) {
+      //
+      if (zipStream == null) {
+        throw new MissingResourceException("Could not find models.zip resource!!",
+            this.getClass().getName(), MODELS_ZIP);
+      }
+      // copy zip-file to tmpDirectory
+      final Path zipPath = tmpDirectory.resolve(MODELS_ZIP);
+      Files.copy(zipStream, zipPath);
+      return zipPath;
+    }
   }
 
   @Override
