@@ -170,12 +170,12 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   @SuppressWarnings("unused")
   private void computeUnsatCoreModules(final ActionEvent event) {
     final ObservableList<Course> courseList = courseUnsatCore.coursesProperty().get();
-    final Course[] selectedCourses = new Course[courseList.size()];
     final SolverTask<Set<Integer>> task
-        = getSolverService().unsatCoreModules(courseList.toArray(selectedCourses));
+        = getSolverService().unsatCoreModules(courseList.toArray(new Course[0]));
 
     task.setOnSucceeded(succeeded -> {
       final Set<Integer> moduleIds = task.getValue();
+      moduleUnsatCore.setCourses(courseList);
       moduleUnsatCore.setModules(moduleIds.stream().map(getStore()::getModuleById)
           .collect(Collectors.collectingAndThen(Collectors.toList(),
               FXCollections::observableArrayList)));

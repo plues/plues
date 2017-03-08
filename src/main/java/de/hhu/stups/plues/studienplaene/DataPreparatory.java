@@ -21,7 +21,6 @@ class DataPreparatory {
   private Map<AbstractUnit, Integer> unitSemester;
   private Map<AbstractUnit, Group> unitGroup;
 
-  // constructors
   DataPreparatory(final Store store,
                   final FeasibilityResult feasibilityResult,
                   final Course major,
@@ -79,34 +78,33 @@ class DataPreparatory {
   private static Map<AbstractUnit, Module> collectChosenCourseModules(final Store store,
       final FeasibilityResult result, final Course course) {
 
-    final Map<Integer, Integer> sc = result.getSemesterChoice();
-    final Map<String, Set<Integer>> mc = result.getModuleChoice();
+    final Map<Integer, Integer> semesterChoice = result.getSemesterChoice();
+    final Map<String, Set<Integer>> moduleChoice = result.getModuleChoice();
 
-    final HashMap<AbstractUnit, Module> modules = new HashMap<>();
-
-    final java.util.Set<Integer> courseModules = mc.get(course.getKey());
+    final java.util.Set<Integer> courseModules = moduleChoice.get(course.getKey());
     if (courseModules.isEmpty()) {
       throw new AssertionError("courseModules is empty");
     }
-    for (final Integer mid : courseModules) {
-      final Module m = store.getModuleById(mid);
-      if (!course.getModules().contains(m)) {
-        throw new AssertionError("Expected course to contain module " + m.getName());
-      }
-      // find if the pair of abstract unit and semester exists for this module
-      for (final ModuleAbstractUnitSemester maus : m.getModuleAbstractUnitSemesters()) {
+
+    return courseModules.stream()
+      .map(store::getModuleById)
+      .peek(module -> {
+        if (!course.getModules().contains(module)) {
+          throw new AssertionError("Expected course to contain module " + module.getTitle());
+        }
+      })
+      .flatMap(module -> module.getModuleAbstractUnitSemesters().stream())
+      .filter(maus -> {
+        // find if the pair of abstract unit and semester exists for this module
         final AbstractUnit au = maus.getAbstractUnit();
         final Integer s = maus.getSemester();
-
-        // this abstract unit was not chosen at all
-        // or this abstract unit was not chosen in semester s
-        if (!sc.containsKey(au.getId()) || !sc.get(au.getId()).equals(s)) {
-          continue;
-        }
-        modules.put(au, m);
-      }
-    }
-    return modules;
+        return semesterChoice.containsKey(au.getId())
+            && semesterChoice.get(au.getId()).equals(s);
+      })
+      .collect(
+          Collectors.toMap(
+            ModuleAbstractUnitSemester::getAbstractUnit,
+            ModuleAbstractUnitSemester::getModule));
   }
 
   private void readData(final Store store, final FeasibilityResult result,

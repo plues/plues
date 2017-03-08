@@ -10,6 +10,7 @@ import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
+import de.hhu.stups.plues.data.entities.ModuleLevel;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
 
@@ -75,6 +76,11 @@ public class ObservableStore extends Observable implements Store {
   @Override
   public Course getCourseByKey(final String key) {
     return store.getCourseByKey(key);
+  }
+
+  @Override
+  public List<ModuleLevel> getModuleLevels() {
+    return store.getModuleLevels();
   }
 
   @Override

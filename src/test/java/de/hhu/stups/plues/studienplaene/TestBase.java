@@ -1,8 +1,12 @@
 package de.hhu.stups.plues.studienplaene;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.prob.FeasibilityResult;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -12,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+@SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
 public class TestBase {
 
   protected MockStore store;
@@ -20,8 +25,8 @@ public class TestBase {
   protected Map<String, String>[] semesters;
 
   protected void setUp() throws URISyntaxException {
-    store = new MockStore();
-    course = store.getCourseByKey("foo");
+    setupStore();
+    setupCourse();
 
     final Map<Integer, Integer> groupChoice = new HashMap<>();
     groupChoice.put(1, 1);
@@ -46,6 +51,16 @@ public class TestBase {
     result = new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
   }
 
+  private void setupCourse() {
+    course = mock(Course.class);
+    doReturn("foo").when(course).getKey();
+    doReturn(new HashSet<>(store.getModules())).when(course).getModules();
+  }
+
+  private void setupStore() {
+    store = new MockStore();
+  }
+
   protected void wrapper() {
     final DataPreparatory data = new DataPreparatory(store, result, course, null);
     final DataStoreWrapper wrap = new DataStoreWrapper(ColorChoice.COLOR, data);
@@ -65,8 +80,9 @@ public class TestBase {
     integerSet.add(3);
     moduleChoice.put("foo", integerSet);
 
-    final MockStore store = new MockStore();
-    final Course course = store.getCourseByKey("foo");
+    setupStore();
+    setupCourse();
+
     final FeasibilityResult result =
         new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
 

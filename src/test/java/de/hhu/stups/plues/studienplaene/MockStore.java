@@ -10,6 +10,7 @@ import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
+import de.hhu.stups.plues.data.entities.ModuleLevel;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
 
@@ -97,10 +98,16 @@ public class MockStore implements Store {
 
   @Override
   public Course getCourseByKey(final String key) {
-    final Course course = new Course();
-    course.setKey(key);
-    course.setModules(new HashSet<>(this.getModules()));
-    return course;
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<ModuleLevel> getModuleLevels() {
+    return this.getModules().stream().map(module -> {
+      final ModuleLevel moduleLevel = new ModuleLevel();
+      moduleLevel.setModule(module);
+      return moduleLevel;
+    }).collect(Collectors.toList());
   }
 
   @Override
@@ -154,7 +161,7 @@ public class MockStore implements Store {
       this.modules = IntStream.range(1, 5).mapToObj(i -> {
         Module module = new Module();
         module.setId(i);
-        module.setName(String.valueOf(i));
+        module.setTitle(String.valueOf(i));
         if (i == 1) {
           module.setModuleAbstractUnitSemesters(this.getModuleAbstractUnitSemester().stream()
               .filter(j -> j.getAbstractUnit().getId() < 5).collect(Collectors.toSet()));
@@ -164,6 +171,9 @@ public class MockStore implements Store {
         } else {
           module.setModuleAbstractUnitSemesters(new HashSet<>());
         }
+        module.getModuleAbstractUnitSemesters().forEach(moduleAbstractUnitSemester -> {
+          moduleAbstractUnitSemester.setModule(module);
+        });
 
         return module;
       }).collect(Collectors.toList());

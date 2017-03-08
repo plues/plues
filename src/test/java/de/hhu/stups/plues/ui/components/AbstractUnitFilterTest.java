@@ -1,10 +1,14 @@
 package de.hhu.stups.plues.ui.components;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -26,6 +30,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+@SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
 public class AbstractUnitFilterTest extends ApplicationTest {
 
   private final List<AbstractUnit> abstractUnits;
@@ -39,10 +44,11 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   public AbstractUnitFilterTest() {
     abstractUnits = new ArrayList<>();
 
+
     course = new Course();
     course.setKey("Course-1-1-1");
-    Module module = new Module();
-    module.setCourses(FXCollections.observableSet(course));
+    Module module = mock(Module.class);
+    doReturn(FXCollections.observableSet(course)).when(module).getCourses();
 
     this.a1 = new AbstractUnit();
     a1.setTitle("Abstract Unit 1");

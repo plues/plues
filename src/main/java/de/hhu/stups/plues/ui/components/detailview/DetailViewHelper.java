@@ -4,6 +4,7 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.data.entities.ModuleLevel;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.routes.RouteNames;
@@ -47,6 +48,21 @@ public class DetailViewHelper {
       }
       final Course course = courseTableView.getSelectionModel().getSelectedItem();
       router.transitionTo(RouteNames.COURSE_DETAIL_VIEW, course);
+    };
+  }
+
+  /**
+   * Create handler for onClick event for abstract units.
+   */
+  public static EventHandler<MouseEvent> getModuleLevelHandler(
+      final TableView<ModuleLevel> tableView,
+      final Router router) {
+    return event -> {
+      if (event.getClickCount() < 2) {
+        return;
+      }
+      final ModuleLevel moduleLevel = tableView.getSelectionModel().getSelectedItem();
+      router.transitionTo(RouteNames.COURSE_DETAIL_VIEW, moduleLevel);
     };
   }
 
