@@ -3,7 +3,6 @@ package de.hhu.stups.plues.tasks;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import com.sun.nio.zipfs.ZipPath;
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;

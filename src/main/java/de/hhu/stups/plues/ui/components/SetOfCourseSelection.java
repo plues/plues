@@ -21,10 +21,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Orientation;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
@@ -38,7 +35,6 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
