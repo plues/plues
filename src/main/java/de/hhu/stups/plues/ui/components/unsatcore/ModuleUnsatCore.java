@@ -101,7 +101,7 @@ public class ModuleUnsatCore extends VBox implements Initializable {
     return unsatCoreButtonBar;
   }
 
-  public void setCourses(ObservableList<Course> courses) {
+  public void setCourses(final ObservableList<Course> courses) {
     this.courses = courses;
   }
 }
