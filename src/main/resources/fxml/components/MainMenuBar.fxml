@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
+
+<fx:root type="MenuBar" useSystemMenuBar="true" xmlns="http://javafx.com/javafx/8.0.76-ea"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <Menu mnemonicParsing="false" text="%file">
+        <MenuItem fx:id="openFileMenuItem" onAction="#openFile"
+                  mnemonicParsing="false" text="%open" accelerator="Shortcut+O"/>
+        <MenuItem fx:id="saveFileMenuItem" onAction="#saveFile" disable="true"
+                  mnemonicParsing="false" text="%save" accelerator="Shortcut+S"/>
+        <MenuItem fx:id="saveFileAsMenuItem" onAction="#saveFileAs" disable="true"
+                  mnemonicParsing="false" text="%saveAs" accelerator="Shortcut+Shift+S"/>
+        <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState" disable="true"
+                  mnemonicParsing="false" text="%export.start" accelerator="Shortcut+E"/>
+        <MenuItem fx:id="openChangeLogMenuItem" onAction="#openChangeLog" disable="true"
+                  mnemonicParsing="false" text="%log" accelerator="Shortcut+L"/>
+        <MenuItem fx:id="openReportsMenuItem" onAction="#openReports" disable="true"
+                  mnemonicParsing="false" text="%reports" accelerator="Shortcut+R"/>
+        <MenuItem onAction="#closeWindow" mnemonicParsing="false" text="%close"/>
+    </Menu>
+    <Menu mnemonicParsing="false" text="%edit">
+        <Menu fx:id="selectTimeoutMenu" mnemonicParsing="false" text="%timeout.Select">
+            <RadioMenuItem fx:id="fifteenSecondsMenuItem" text="%timeout.fifteenSeconds"
+                           disable="true" selected="true" mnemonicParsing="false"
+                           onAction="#setTimeoutFifteenSeconds"/>
+            <RadioMenuItem fx:id="oneMinuteMenuItem" text="%timeout.oneMinute" disable="true"
+                           selected="true" mnemonicParsing="false"
+                           onAction="#setTimeoutOneMinute"/>
+            <RadioMenuItem fx:id="threeMinutesMenuItem" text="%timeout.threeMinutes"
+                           disable="true" mnemonicParsing="false"
+                           onAction="#setTimeoutThreeMinutes"/>
+            <RadioMenuItem fx:id="fiveMinutesMenuItem" text="%timeout.fiveMinutes"
+                           disable="true" mnemonicParsing="false"
+                           onAction="#setTimeoutFiveMinutes"/>
+            <RadioMenuItem fx:id="twentyMinutesMenuItem" text="%timeout.twentyMinutes"
+                           disable="true" mnemonicParsing="false"
+                           onAction="#setTimeoutTwentyMinutes"/>
+            <MenuItem fx:id="setTimeoutMenuItem" text="%timeout.Title" disable="true"
+                      mnemonicParsing="false" onAction="#setTimeoutCustom"/>
+        </Menu>
+    </Menu>
+    <Menu mnemonicParsing="false" text="%view">
+        <Menu mnemonicParsing="false" text="%timetableView">
+            <RadioMenuItem fx:id="rbMenuItemSessionName" mnemonicParsing="false"
+                           text="%display.UnitTitle" userData="TITLE"/>
+            <RadioMenuItem fx:id="rbMenuItemSessionId" mnemonicParsing="false"
+                           text="%display.UnitId" userData="UNIT_KEY"/>
+            <RadioMenuItem fx:id="rbMenuItemSessionKey" mnemonicParsing="false"
+                           text="%display.AbstractUnitKeys" userData="ABSTRACT_UNIT_KEYS"/>
+        </Menu>
+    </Menu>
+    <Menu mnemonicParsing="false" text="%help">
+        <MenuItem fx:id="aboutMenuItem" onAction="#about" mnemonicParsing="false"
+                  text="%about"/>
+        <MenuItem onAction="#showHtmlHandbook" mnemonicParsing="false" text="%handbookHTML"/>
+        <MenuItem onAction="#showPdfHandbook" mnemonicParsing="false" text="%handbookPDF"/>
+    </Menu>
+</fx:root>
