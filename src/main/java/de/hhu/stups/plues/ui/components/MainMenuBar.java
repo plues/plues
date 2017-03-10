@@ -363,7 +363,8 @@ public class MainMenuBar extends MenuBar implements Initializable {
     //
     if (file != null) {
       try {
-        Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(file.getAbsolutePath()));
+        Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(file.getAbsolutePath()),
+            StandardCopyOption.REPLACE_EXISTING);
         logger.info("File saving finished!");
         uiDataService.setLastSavedDate(new Date());
         return true;
