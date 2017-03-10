@@ -8,6 +8,7 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 import de.hhu.stups.plues.routes.RouteNames;
+import de.hhu.stups.plues.services.MainMenuService;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
@@ -15,7 +16,6 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.ResourceManager;
 import de.hhu.stups.plues.ui.components.MainMenuBar;
-import de.hhu.stups.plues.ui.components.MainMenuService;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 

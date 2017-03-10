@@ -1,14 +1,13 @@
-package de.hhu.stups.plues.ui.components;
+package de.hhu.stups.plues.services;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
-import de.hhu.stups.plues.services.SolverService;
-import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
+import de.hhu.stups.plues.ui.components.ExceptionDialog;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -63,7 +62,8 @@ public class MainMenuService {
   /**
    * Create an exception dialog to show a critical exception.
    */
-  void showCriticalExceptionDialog(final Throwable ex, final String title, final String message) {
+  public void showCriticalExceptionDialog(final Throwable ex, final String title,
+                                          final String message) {
     final ExceptionDialog ed = new ExceptionDialog();
 
     ed.setTitle(title);
@@ -76,7 +76,7 @@ public class MainMenuService {
   /**
    * Create and return a {@link StoreLoaderTask}.
    */
-  StoreLoaderTask getStoreLoaderTask(final String path, final String title) {
+  public StoreLoaderTask getStoreLoaderTask(final String path, final String title) {
     final StoreLoaderTask storeLoader = storeLoaderTaskFactory.create(path);
 
     storeLoader.progressProperty().addListener(
@@ -114,7 +114,7 @@ public class MainMenuService {
    * @param title       The file chooser's title.
    * @param preferences The aggrieved class' preferences.
    */
-  FileChooser prepareFileChooser(final String title, final Preferences preferences) {
+  public FileChooser prepareFileChooser(final String title, final Preferences preferences) {
     final FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle(title);
     //
