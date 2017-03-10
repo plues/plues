@@ -11,6 +11,7 @@ import de.hhu.stups.plues.routes.CourseDetailViewRoute;
 import de.hhu.stups.plues.routes.HandbookRoute;
 import de.hhu.stups.plues.routes.HandbookRouteFactory;
 import de.hhu.stups.plues.routes.IndexRoute;
+import de.hhu.stups.plues.routes.MainControllerRoute;
 import de.hhu.stups.plues.routes.ModuleDetailViewRoute;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
@@ -25,6 +26,7 @@ public class RouterProvider implements Provider<Router> {
   private final HandbookRouteFactory handbookRouteFactory;
   private Router cache;
 
+  private final Provider<MainControllerRoute> mainControllerRouteProvider;
   private final Provider<ChangelogRoute> changelogRouteProvider;
   private final Provider<AboutWindowRoute> aboutWindowRouteProvider;
   private final Provider<ModuleDetailViewRoute> moduleDetailViewRouteProvider;
@@ -47,6 +49,7 @@ public class RouterProvider implements Provider<Router> {
                         final Provider<CourseDetailViewRoute> courseDetailViewRouteProvider,
                         final Provider<AboutWindowRoute> aboutWindowRouteProvider,
                         final Provider<ChangelogRoute> changelogRouteProvider,
+                        final Provider<MainControllerRoute> mainControllerRouteProvider,
                         final ControllerRouteFactory controllerRouteFactory,
                         final HandbookRouteFactory handbookRouteFactory) {
     this.indexRouteProvider = indexRouteProvider;
@@ -57,6 +60,7 @@ public class RouterProvider implements Provider<Router> {
     this.courseDetailViewRouteProvider = courseDetailViewRouteProvider;
     this.aboutWindowRouteProvider = aboutWindowRouteProvider;
     this.changelogRouteProvider = changelogRouteProvider;
+    this.mainControllerRouteProvider = mainControllerRouteProvider;
     this.controllerRouteFactory = controllerRouteFactory;
     this.handbookRouteFactory = handbookRouteFactory;
   }
@@ -92,6 +96,8 @@ public class RouterProvider implements Provider<Router> {
           controllerRouteFactory.create("tabPartialTimetables"));
       cache.put(RouteNames.UNSAT_CORE,
           controllerRouteFactory.create("tabUnsatCore"));
+      cache.put(RouteNames.OPEN_REPORTS, mainControllerRouteProvider.get());
+      cache.put(RouteNames.CLOSE_APP, mainControllerRouteProvider.get());
     }
 
     return cache;
