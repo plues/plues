@@ -221,10 +221,6 @@ public class MainController implements Initializable, Activatable {
 
     reportsTab.setClosable(true);
 
-    mainMenuService.getOpenReportsProperty().addListener((observable, oldValue, newValue) ->
-        openReports());
-    mainMenuService.getCloseWindowProperty().addListener((observable, oldValue, newValue) ->
-        closeWindow(newValue));
     mainMenuService.getDelayedStore().whenAvailable(store -> {
       if (mainSplitPane.getItems().contains(boxTaskProgress)) {
         return;
@@ -235,6 +231,7 @@ public class MainController implements Initializable, Activatable {
       disableDivider(true);
       initializeTaskProgressListener();
     });
+
     mainMenuService.getStoreLoaderProgressProperty().addListener(
         (observable, oldValue, newValue) -> {
           if (mainStatusBar.getRightItems().contains(lbRunningTasks)) {

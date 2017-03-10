@@ -13,11 +13,8 @@ import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.event.Event;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -35,10 +32,8 @@ public class MainMenuService {
   private final Delayed<ObservableStore> delayedStore;
   private final Stage stage;
   private final BooleanProperty databaseChangedProperty;
-  private final BooleanProperty openReportsProperty;
   private final DoubleProperty storeLoaderProgressProperty;
   private final StoreLoaderTaskFactory storeLoaderTaskFactory;
-  private final ObjectProperty<Event> closeWindowProperty;
 
   /**
    * Constructor of the service between the main controller and the menu bar. Mainly just
@@ -55,9 +50,7 @@ public class MainMenuService {
     this.storeLoaderTaskFactory = storeLoaderTaskFactory;
     this.stage = stage;
     databaseChangedProperty = new SimpleBooleanProperty(false);
-    openReportsProperty = new SimpleBooleanProperty(false);
     storeLoaderProgressProperty = new SimpleDoubleProperty(0.0);
-    closeWindowProperty = new SimpleObjectProperty<>();
 
     delayedStore.whenAvailable(store ->
         store.addObserver((object, arg) -> databaseChangedProperty.setValue(true)));
@@ -156,14 +149,6 @@ public class MainMenuService {
 
   public boolean isDatabaseChanged() {
     return databaseChangedProperty.get();
-  }
-
-  public BooleanProperty getOpenReportsProperty() {
-    return openReportsProperty;
-  }
-
-  public ObjectProperty<Event> getCloseWindowProperty() {
-    return closeWindowProperty;
   }
 
   public Stage getStage() {
