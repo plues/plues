@@ -97,7 +97,7 @@ public class CourseUnsatCore extends GridPane implements Initializable {
 
     setCheckFeasibilityButtonBar();
     courseIsInfeasible.addListener((observable, oldValue, newValue) ->
-      unsatCoreButtonBar.setShowIconOnSucceeded(!newValue));
+        unsatCoreButtonBar.setShowIconOnSucceeded(!newValue));
 
     coursesProperty.addListener((observable, oldValue, newValue) -> {
       courseIsInfeasible.set(false);
