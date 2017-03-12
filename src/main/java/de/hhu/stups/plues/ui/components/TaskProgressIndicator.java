@@ -12,8 +12,10 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -29,15 +31,15 @@ import java.util.ResourceBundle;
 
 /**
  * Show the progress of the corresponding {@link #taskProperty task} using a progress indicator and
- * visualize the task's {@link javafx.concurrent.Worker.State} on finished by default. When
- * initializing the component the width and height should be set via {@link #prefWidthProperty()}
- * and {@link #prefHeightProperty()}. The property {@link #showIconOnSucceededProperty} can be set
- * to false to hide the state icon for succeeded tasks.
+ * visualize the task's {@link javafx.concurrent.Worker.State} on succeeded by default. The
+ * component's size can be set by {@link #sizeProperty()}. The property {@link
+ * #showIconOnSucceededProperty} can be set to false to hide the state icon when the task succeeded.
  */
 public class TaskProgressIndicator extends StackPane implements Initializable {
 
-  private final ObjectProperty<Task> taskProperty = new SimpleObjectProperty<>();
-  private final BooleanProperty showIconOnSucceededProperty = new SimpleBooleanProperty(true);
+  private final ObjectProperty<Task> taskProperty;
+  private final BooleanProperty showIconOnSucceededProperty;
+  private final DoubleProperty sizeProperty;
 
   private ResourceBundle resources;
 
@@ -54,8 +56,14 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
   @SuppressWarnings("unused")
   private Tooltip taskStateIconTooltip;
 
+  /**
+   * Initialize properties and component.
+   */
   @Inject
   public TaskProgressIndicator(final Inflater inflater) {
+    taskProperty = new SimpleObjectProperty<>();
+    showIconOnSucceededProperty = new SimpleBooleanProperty(true);
+    sizeProperty = new SimpleDoubleProperty(25.0);
     inflater.inflate("components/TaskProgressIndicator", this, this, "tasks");
   }
 
@@ -66,7 +74,18 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
     showIconOnSucceededProperty().addListener((observable, oldValue, newValue) ->
         bindTaskStateVisibility(taskProperty.get()));
 
+    prefWidthProperty().bind(sizeProperty);
+    prefHeightProperty().bind(sizeProperty);
+    taskStateIcon.prefWidthProperty().bind(sizeProperty);
+    taskStateIcon.prefHeightProperty().bind(sizeProperty);
+    progressIndicator.prefWidthProperty().bind(sizeProperty);
+    progressIndicator.prefHeightProperty().bind(sizeProperty);
+
     taskStateIcon.setOnMouseEntered(event -> {
+      if (taskStateIconTooltip.getText().isEmpty()) {
+        taskStateIconTooltip.hide();
+        return;
+      }
       final Point2D pos = taskStateIcon.localToScreen(
           taskStateIcon.getLayoutBounds().getMaxX(), taskStateIcon.getLayoutBounds().getMaxY());
       taskStateIconTooltip.show(taskStateIcon, pos.getX(), pos.getY());
@@ -94,6 +113,10 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
     return taskProperty;
   }
 
+  public DoubleProperty sizeProperty() {
+    return sizeProperty;
+  }
+
   public BooleanProperty showIconOnSucceededProperty() {
     return showIconOnSucceededProperty;
   }
@@ -108,7 +131,7 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
 
     bindTaskStateVisibility(task);
     taskStateIcon.graphicProperty().bind(
-        TaskBindings.getIconBinding(Double.toString(prefWidthProperty().get()), task));
+        TaskBindings.getIconBinding(Double.toString(sizeProperty.get()), task));
     taskStateIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
     taskStateIconTooltip.textProperty().bind(Bindings.createStringBinding(
         () -> getMessageForTask(task), task.stateProperty()));
