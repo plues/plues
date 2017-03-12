@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.ui.components;
 
 import static javafx.concurrent.Worker.State.RUNNING;
+import static javafx.concurrent.Worker.State.SUCCEEDED;
 
 import com.google.inject.Inject;
 
@@ -9,6 +10,7 @@ import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -29,13 +31,13 @@ import java.util.ResourceBundle;
  * Show the progress of the corresponding {@link #taskProperty task} using a progress indicator and
  * visualize the task's {@link javafx.concurrent.Worker.State} on finished by default. When
  * initializing the component the width and height should be set via {@link #prefWidthProperty()}
- * and {@link #prefHeightProperty()}. The property {@link #showIconOnFinished} can be set to false
- * to only show a running task's progress and hide on finished.
+ * and {@link #prefHeightProperty()}. The property {@link #showIconOnSucceededProperty} can be set
+ * to false to hide the state icon for succeeded tasks.
  */
 public class TaskProgressIndicator extends StackPane implements Initializable {
 
   private final ObjectProperty<Task> taskProperty = new SimpleObjectProperty<>();
-  private final BooleanProperty showIconOnFinished = new SimpleBooleanProperty(true);
+  private final BooleanProperty showIconOnSucceededProperty = new SimpleBooleanProperty(true);
 
   private ResourceBundle resources;
 
@@ -60,6 +62,9 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
+
+    showIconOnSucceededProperty().addListener((observable, oldValue, newValue) ->
+        bindTaskStateVisibility(taskProperty.get()));
 
     taskStateIcon.setOnMouseEntered(event -> {
       final Point2D pos = taskStateIcon.localToScreen(
@@ -89,18 +94,19 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
     return taskProperty;
   }
 
-  public BooleanProperty showIconOnFinished() {
-    return showIconOnFinished;
+  public BooleanProperty showIconOnSucceededProperty() {
+    return showIconOnSucceededProperty;
   }
 
   private void showTaskState(final Task task) {
+    if (task == null) {
+      return;
+    }
     taskStateIcon.graphicProperty().unbind();
     taskStateIcon.styleProperty().unbind();
     taskStateIconTooltip.textProperty().unbind();
 
-    taskStateIcon.visibleProperty().bind(showIconOnFinished.get()
-        ? task.stateProperty().isEqualTo(RUNNING).not()
-        : new SimpleBooleanProperty(false));
+    bindTaskStateVisibility(task);
     taskStateIcon.graphicProperty().bind(
         TaskBindings.getIconBinding(Double.toString(prefWidthProperty().get()), task));
     taskStateIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
@@ -109,6 +115,15 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
 
     progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
     progressIndicator.visibleProperty().bind(task.runningProperty());
+  }
+
+  private void bindTaskStateVisibility(final Task task) {
+    if (task == null) {
+      return;
+    }
+    final BooleanBinding binding = task.stateProperty().isEqualTo(RUNNING).not();
+    taskStateIcon.visibleProperty().bind(showIconOnSucceededProperty.get() ? binding
+        : binding.and(task.stateProperty().isEqualTo(SUCCEEDED).not()));
   }
 
   private void resetTaskState() {
