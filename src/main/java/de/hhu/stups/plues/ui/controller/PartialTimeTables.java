@@ -1,7 +1,5 @@
 package de.hhu.stups.plues.ui.controller;
 
-import static javafx.concurrent.Worker.State.RUNNING;
-
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
@@ -16,11 +14,10 @@ import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.TaskBindings;
-import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
+import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.BooleanBinding;
@@ -34,8 +31,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -96,13 +91,10 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   private Button btCancel;
   @FXML
   @SuppressWarnings("unused")
-  private Label lbIcon;
-  @FXML
-  @SuppressWarnings("unused")
   private HBox buttonBox;
   @FXML
   @SuppressWarnings("unused")
-  private ProgressIndicator progressIndicator;
+  private TaskProgressIndicator taskProgressIndicator;
 
   /**
    * Constructor for partial time table controller.
@@ -147,8 +139,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     courseSelection.addListener(observable -> {
       scrollPane.setVisible(false);
       btGenerate.setVisible(false);
-      lbIcon.visibleProperty().unbind();
-      lbIcon.setVisible(false);
+      taskProgressIndicator.taskProperty().set(null);
     });
 
     btGenerate.disableProperty().bind(solverProperty.not().or(checkRunning));
@@ -169,6 +160,9 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
+
+    taskProgressIndicator.prefWidthProperty().set(25.0);
+    taskProgressIndicator.prefHeightProperty().set(25.0);
   }
 
   /**
@@ -257,7 +251,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
           solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
       final PdfRenderingTask task = getPdfRenderingTask(major, minor, solverTask);
       currentTaskProperty.set(task);
-      bindStateIcon(task);
+      taskProgressIndicator.taskProperty().set(task);
 
       executor.submit(task);
     });
@@ -283,17 +277,6 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
       selectionChanged.set(false);
     });
     return task;
-  }
-
-  private void bindStateIcon(final PdfRenderingTask task) {
-    lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
-    lbIcon.graphicProperty().bind(TaskBindings.getIconBinding("25", task));
-
-    progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
-    progressIndicator.visibleProperty().bind(task.runningProperty());
-
-    lbIcon.visibleProperty().bind(task.stateProperty().isEqualTo(RUNNING).not()
-        .and(selectionChanged.not()));
   }
 
   @SuppressWarnings("unused")
