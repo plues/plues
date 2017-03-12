@@ -41,6 +41,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   private final ObjectProperty<Store> store;
   private final ExecutorService executorService;
 
+  private ResourceBundle resources;
+
   @FXML
   @SuppressWarnings("unused")
   private Accordion stepwisePanesAccordion;
@@ -93,6 +95,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    this.resources = resources;
     initializeCourseUnsatCore();
     initializeModuleUnsatCore();
     initializeAbstractUnitUnsatCore();
@@ -110,13 +113,18 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     courseUnsatCore.coursesProperty().addListener((observable, oldValue, newValue) ->
         resetModuleUnsatCore());
 
-    final BooleanBinding binding = solverService.isNull()
-        .or(courseUnsatCore.coursesProperty().emptyProperty())
-        .or(moduleUnsatCore.moduleProperty().emptyProperty().not());
-
-    final UnsatCoreButtonBar unsatCoreButtonBar = courseUnsatCore.getUnsatCoreButtonBar();
-    unsatCoreButtonBar.disableProperty().bind(binding);
-    unsatCoreButtonBar.setOnAction(this::computeUnsatCoreModules);
+    courseUnsatCore.courseIsInfeasibleProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue) {
+        final BooleanBinding binding = solverService.isNull()
+            .or(courseUnsatCore.coursesProperty().emptyProperty())
+            .or(moduleUnsatCore.moduleProperty().emptyProperty().not());
+        final UnsatCoreButtonBar unsatCoreButtonBar = courseUnsatCore.getUnsatCoreButtonBar();
+        unsatCoreButtonBar.taskProperty().set(null);
+        unsatCoreButtonBar.disableProperty().bind(binding);
+        unsatCoreButtonBar.setSubmitText(resources.getString("button.unsatCoreModules"));
+        unsatCoreButtonBar.setOnAction(event -> computeUnsatCoreModules());
+      }
+    });
   }
 
   private void resetModuleUnsatCore() {
@@ -168,7 +176,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   }
 
   @SuppressWarnings("unused")
-  private void computeUnsatCoreModules(final ActionEvent event) {
+  private void computeUnsatCoreModules() {
     final ObservableList<Course> courseList = courseUnsatCore.coursesProperty().get();
     final SolverTask<Set<Integer>> task
         = getSolverService().unsatCoreModules(courseList.toArray(new Course[0]));
@@ -182,8 +190,9 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
       stepwisePanesAccordion.setExpandedPane(modulesPane);
     });
 
-    courseUnsatCore.getUnsatCoreButtonBar().taskProperty().set(task);
+    courseUnsatCore.taskRunningProperty().bind(task.runningProperty());
 
+    courseUnsatCore.getUnsatCoreButtonBar().taskProperty().set(task);
     executorService.submit(task);
   }
 
@@ -199,6 +208,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
               .collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
       stepwisePanesAccordion.setExpandedPane(abstractUnitsPane);
     });
+
+    courseUnsatCore.taskRunningProperty().bind(task.runningProperty());
 
     moduleUnsatCore.getUnsatCoreButtonBar().taskProperty().set(task);
     executorService.submit(task);
@@ -217,6 +228,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
       stepwisePanesAccordion.setExpandedPane(groupPane);
     });
 
+    courseUnsatCore.taskRunningProperty().bind(task.runningProperty());
+
     abstractUnitUnsatCore.getUnsatCoreButtonBar().taskProperty().set(task);
     executorService.submit(task);
   }
@@ -232,6 +245,8 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
           Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableArrayList)));
       stepwisePanesAccordion.setExpandedPane(sessionPane);
     });
+
+    courseUnsatCore.taskRunningProperty().bind(task.runningProperty());
 
     groupUnsatCore.getUnsatCoreButtonBar().taskProperty().set(task);
     executorService.submit(task);
@@ -253,7 +268,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   public void activateController(final RouteNames routeName, final Object... args) {
     resetModuleUnsatCore();
     courseUnsatCore.selectCourses(getCoursesFromArray(args));
-    computeUnsatCoreModules(null);
+    computeUnsatCoreModules();
   }
 
   private Course[] getCoursesFromArray(final Object[] args) {

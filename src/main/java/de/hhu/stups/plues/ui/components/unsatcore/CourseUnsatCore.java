@@ -5,33 +5,47 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Worker;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
 
 public class CourseUnsatCore extends GridPane implements Initializable {
 
   private final ObjectProperty<Store> storeProperty;
+  private final ObjectProperty<SolverService> solverServiceProperty;
   private final ListProperty<Course> coursesProperty;
   private final UiDataService uiDataService;
+  private final BooleanProperty courseIsInfeasible;
+  private final BooleanProperty taskRunningProperty;
+  private final ExecutorService executorService;
+
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -39,6 +53,9 @@ public class CourseUnsatCore extends GridPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Tooltip unsatCoreInfoTooltip;
+  @FXML
+  @SuppressWarnings("unused")
+  private VBox contentBox;
   @FXML
   @SuppressWarnings("unused")
   private CombinationOrSingleCourseSelection courseSelection;
@@ -50,11 +67,20 @@ public class CourseUnsatCore extends GridPane implements Initializable {
    * Initialize the component.
    */
   @Inject
-  public CourseUnsatCore(final Inflater inflater, final Delayed<Store> delayedStore,
+  public CourseUnsatCore(final Inflater inflater,
+                         final Delayed<Store> delayedStore,
+                         final Delayed<SolverService> delayedSolverService,
+                         final ExecutorService executorService,
                          final UiDataService uiDataService) {
+    this.executorService = executorService;
     this.uiDataService = uiDataService;
-    this.storeProperty = new SimpleObjectProperty<>();
-    delayedStore.whenAvailable(this.storeProperty::set);
+    storeProperty = new SimpleObjectProperty<>();
+    solverServiceProperty = new SimpleObjectProperty<>();
+    courseIsInfeasible = new SimpleBooleanProperty(false);
+    taskRunningProperty = new SimpleBooleanProperty(false);
+
+    delayedStore.whenAvailable(storeProperty::set);
+    delayedSolverService.whenAvailable(solverServiceProperty::set);
 
     coursesProperty = new SimpleListProperty<>(FXCollections.emptyObservableList());
 
@@ -67,6 +93,16 @@ public class CourseUnsatCore extends GridPane implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    this.resources = resources;
+
+    setCheckFeasibilityButtonBar();
+    courseIsInfeasible.addListener((observable, oldValue, newValue) ->
+      unsatCoreButtonBar.setShowIconOnSucceeded(!newValue));
+
+    coursesProperty.addListener((observable, oldValue, newValue) -> {
+      courseIsInfeasible.set(false);
+      setCheckFeasibilityButtonBar();
+    });
 
     unsatCoreInfo.setOnMouseEntered(event -> {
       final Point2D pos = unsatCoreInfo.localToScreen(
@@ -81,15 +117,55 @@ public class CourseUnsatCore extends GridPane implements Initializable {
     storeProperty.addListener((observable, oldValue, store)
         -> courseSelection.setCourses(store.getCourses()));
 
-    courseSelection.disableProperty().bind(storeProperty.isNull());
+    courseSelection.disableProperty().bind(storeProperty.isNull().or(taskRunningProperty));
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
     coursesProperty.bind(courseSelection.selectedCoursesProperty());
+  }
 
-    unsatCoreButtonBar.setSubmitText(resources.getString("button.unsatCoreModules"));
+  private void setCheckFeasibilityButtonBar() {
+    unsatCoreButtonBar.taskProperty().set(null);
+    unsatCoreButtonBar.setShowIconOnSucceeded(true);
+    unsatCoreButtonBar.setSubmitText(resources.getString("checkFeasibility"));
+    unsatCoreButtonBar.disableProperty().bind(solverServiceProperty.isNull());
+    unsatCoreButtonBar.setOnAction(this::checkFeasibility);
+  }
+
+  /**
+   * Check the {@link #coursesProperty selected courses} feasibility and only enable the detailed
+   * conflict search if the course is infeasible.
+   */
+  @SuppressWarnings("unused")
+  public void checkFeasibility(final ActionEvent actionEvent) {
+    if (coursesProperty.get() == null || coursesProperty.size() == 0) {
+      return;
+    }
+    final SolverTask<Boolean> checkFeasibilityTask;
+    if (coursesProperty.size() == 1) {
+      checkFeasibilityTask = solverServiceProperty.get()
+          .checkFeasibilityTask(coursesProperty().get().get(0));
+    } else {
+      checkFeasibilityTask = solverServiceProperty.get()
+          .checkFeasibilityTask(coursesProperty().get().get(0), coursesProperty().get().get(1));
+    }
+    checkFeasibilityTask.setOnFailed(event ->
+        courseIsInfeasible.set(Worker.State.FAILED.equals(checkFeasibilityTask.getState())));
+
+    taskRunningProperty.bind(checkFeasibilityTask.runningProperty());
+    unsatCoreButtonBar.taskProperty().set(checkFeasibilityTask);
+
+    executorService.submit(checkFeasibilityTask);
   }
 
   public ListProperty<Course> coursesProperty() {
     return coursesProperty;
+  }
+
+  public BooleanProperty taskRunningProperty() {
+    return taskRunningProperty;
+  }
+
+  public BooleanProperty courseIsInfeasibleProperty() {
+    return courseIsInfeasible;
   }
 
   public void selectCourses(final Course... courses) {
