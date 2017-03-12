@@ -51,7 +51,7 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
 
   private void runSimpleTask(final int sleep) {
     final Task<Boolean> simpleTask = getSimpleTask(sleep);
-    unsatCoreButtonBar.showTaskState(simpleTask);
+    unsatCoreButtonBar.taskProperty().set(simpleTask);
     executorService.submit(simpleTask);
 
     simpleTask.setOnSucceeded((event -> {
