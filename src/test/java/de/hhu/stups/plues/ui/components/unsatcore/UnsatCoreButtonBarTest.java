@@ -1,9 +1,11 @@
 package de.hhu.stups.plues.ui.components.unsatcore;
 
+import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -78,7 +80,16 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
   @Override
   public void start(Stage stage) throws Exception {
 
-    final Inflater inflater = new Inflater(new FXMLLoader());
+    final FXMLLoader loader = new FXMLLoader();
+    loader.setBuilderFactory(type -> {
+      if (type.equals(TaskProgressIndicator.class)) {
+        return () -> new TaskProgressIndicator(new Inflater(new FXMLLoader()));
+      }
+      return new JavaFXBuilderFactory().getBuilder(type);
+    });
+
+    final Inflater inflater = new Inflater(loader);
+
     unsatCoreButtonBar = new UnsatCoreButtonBar(inflater);
 
     final Scene scene = new Scene(unsatCoreButtonBar, 400, 700);
