@@ -20,8 +20,10 @@ import javafx.scene.layout.HBox;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-
 public class UnsatCoreButtonBar extends HBox implements Initializable {
+
+  private final StringProperty submitTextProperty;
+  private final ObjectProperty<Task> taskProperty;
 
   @FXML
   @SuppressWarnings("unused")
@@ -29,18 +31,19 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Button btCancelTask;
+
   @FXML
   @SuppressWarnings("unused")
   private TaskProgressIndicator taskProgressIndicator;
-
-  private final StringProperty submitTextProperty = new SimpleStringProperty();
-  private ObjectProperty<Task> taskProperty = new SimpleObjectProperty<>();
 
   /**
    * Default constructor.
    */
   @Inject
   public UnsatCoreButtonBar(final Inflater inflater) {
+    submitTextProperty = new SimpleStringProperty();
+    taskProperty = new SimpleObjectProperty<>();
+
     inflater.inflate("components/unsatcore/UnsatCoreButtonBar", this, this, "unsatCore");
   }
 
@@ -54,14 +57,16 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     taskProgressIndicator.prefHeightProperty().set(25.0);
 
     taskProperty.addListener((observable, oldValue, newValue) -> {
-      btCancelTask.disableProperty().bind(newValue.runningProperty().not());
-      btSubmitTask.disableProperty().bind(newValue.runningProperty());
+      if (newValue != null) {
+        btCancelTask.disableProperty().bind(newValue.runningProperty().not());
+        btSubmitTask.disableProperty().bind(newValue.runningProperty());
+      }
     });
 
-    taskProgressIndicator.showIconOnFinished().set(false);
+    taskProgressIndicator.showIconOnSucceededProperty().set(false);
   }
 
-  void setSubmitText(final String text) {
+  public void setSubmitText(final String text) {
     submitTextProperty.set(text);
   }
 
@@ -91,5 +96,9 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
 
   public ObjectProperty<Task> taskProperty() {
     return taskProperty;
+  }
+
+  void setShowIconOnSucceeded(final boolean showIconOnSucceeded) {
+    taskProgressIndicator.showIconOnSucceededProperty().set(showIconOnSucceeded);
   }
 }
