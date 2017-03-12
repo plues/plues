@@ -85,7 +85,7 @@ public class CourseUnsatCore extends GridPane implements Initializable {
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
     coursesProperty.bind(courseSelection.selectedCoursesProperty());
 
-    unsatCoreButtonBar.setText(resources.getString("button.unsatCoreModules"));
+    unsatCoreButtonBar.setSubmitText(resources.getString("button.unsatCoreModules"));
   }
 
   public ListProperty<Course> coursesProperty() {

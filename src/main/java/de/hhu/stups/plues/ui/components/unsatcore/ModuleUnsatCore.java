@@ -48,6 +48,7 @@ public class ModuleUnsatCore extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Text txtExplanation;
+  @SuppressWarnings("unused")
   private ObservableList<Course> courses;
 
   /**
@@ -78,11 +79,11 @@ public class ModuleUnsatCore extends VBox implements Initializable {
             Collectors.collectingAndThen(
             Collectors.joining(", "), ReadOnlyStringWrapper::new)));
 
-    unsatCoreButtonBar.setText(resources.getString("button.unsatCoreAbstractUnits"));
+    unsatCoreButtonBar.setSubmitText(resources.getString("button.unsatCoreAbstractUnits"));
   }
 
   public void resetTaskState() {
-    unsatCoreButtonBar.resetTaskState();
+    unsatCoreButtonBar.taskProperty().set(null);
   }
 
   public void setModules(final ObservableList<Module> modules) {

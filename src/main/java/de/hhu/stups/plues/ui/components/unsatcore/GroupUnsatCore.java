@@ -114,7 +114,7 @@ public class GroupUnsatCore extends VBox implements Initializable {
       }
     });
 
-    unsatCoreButtonBar.setText(resources.getString("button.unsatCoreSession"));
+    unsatCoreButtonBar.setSubmitText(resources.getString("button.unsatCoreSession"));
 
     // extract abstract units associated to group (through unit) in the current abstract unit core
     tableColumnGroupAbstractUnits.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
@@ -147,7 +147,7 @@ public class GroupUnsatCore extends VBox implements Initializable {
   }
 
   public void resetTaskState() {
-    unsatCoreButtonBar.resetTaskState();
+    unsatCoreButtonBar.taskProperty().set(null);
   }
 
   public void setGroups(final ObservableList<Group> groups) {
