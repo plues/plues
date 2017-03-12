@@ -160,9 +160,6 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
-
-    taskProgressIndicator.prefWidthProperty().set(25.0);
-    taskProgressIndicator.prefHeightProperty().set(25.0);
   }
 
   /**

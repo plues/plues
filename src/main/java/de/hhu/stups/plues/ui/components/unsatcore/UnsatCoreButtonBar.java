@@ -53,8 +53,6 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     btSubmitTask.disableProperty().bind(disabledProperty());
 
     taskProgressIndicator.taskProperty().bind(taskProperty);
-    taskProgressIndicator.prefWidthProperty().set(25.0);
-    taskProgressIndicator.prefHeightProperty().set(25.0);
 
     taskProperty.addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
