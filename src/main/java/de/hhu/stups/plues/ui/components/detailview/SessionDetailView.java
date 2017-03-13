@@ -278,7 +278,7 @@ public class SessionDetailView extends VBox implements Initializable {
     }
   }
 
-  private class CourseTableItemsBinding extends ListBinding<CourseTableEntry> {
+  private static class CourseTableItemsBinding extends ListBinding<CourseTableEntry> {
     private final ObjectProperty<SessionFacade> sessionProperty;
 
     private CourseTableItemsBinding(final ObjectProperty<SessionFacade> sessionProperty) {
