@@ -96,7 +96,7 @@ public class SessionDetailView extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     sessionProperty.addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
-        final SessionFacade.Slot slot = sessionProperty.get().getSlot();
+        final SessionFacade.Slot slot = newValue.getSlot();
         lbSession.setText(resources.getString(slot.getDayString()) + ", "
             + Helpers.timeMap.get(slot.getTime()));
       }
@@ -128,7 +128,7 @@ public class SessionDetailView extends VBox implements Initializable {
       return session.isTentative() ? "✔︎" : "✗";
     }, sessionProperty));
 
-    courseTable.itemsProperty().bind(new CourseTableItemsBinding());
+    courseTable.itemsProperty().bind(new CourseTableItemsBinding(sessionProperty));
 
     courseTable.setOnMouseClicked(this::handleMouseClicked);
   }
@@ -279,7 +279,10 @@ public class SessionDetailView extends VBox implements Initializable {
   }
 
   private class CourseTableItemsBinding extends ListBinding<CourseTableEntry> {
-    {
+    private final ObjectProperty<SessionFacade> sessionProperty;
+
+    private CourseTableItemsBinding(final ObjectProperty<SessionFacade> sessionProperty) {
+      this.sessionProperty = sessionProperty;
       bind(sessionProperty);
     }
 
