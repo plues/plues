@@ -26,6 +26,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.internal.stubbing.answers.ThrowsException;
@@ -56,7 +57,7 @@ public class SessionDetailViewTest extends ApplicationTest {
     store = mock(Store.class);
 
     final ObjectProperty<SessionFacade.Slot> slot = new SimpleObjectProperty<>(
-        new SessionFacade.Slot(DayOfWeek.MONDAY, 8));
+        new SessionFacade.Slot(DayOfWeek.MONDAY, 7));
     final Group group = mock(Group.class, new ThrowsException(new RuntimeException()));
     final Session session = mock(Session.class, new ThrowsException(new RuntimeException()));
     sessionFacade = mock(SessionFacade.class, new ThrowsException(new RuntimeException()));
@@ -118,11 +119,11 @@ public class SessionDetailViewTest extends ApplicationTest {
     doReturn(slot).when(sessionFacade).slotProperty();
 
     doReturn("Unit").when(sessionFacade).getTitle();
+    doReturn(slot.get()).when(sessionFacade).getSlot();
     doReturn(new HashSet<>(Arrays.asList(au1, au2)))
         .when(sessionFacade).getIntendedAbstractUnits();
     doReturn(new HashSet<>(Arrays.asList(1, 2)))
         .when(sessionFacade).getUnitSemesters();
-
   }
 
   @Test
@@ -134,7 +135,8 @@ public class SessionDetailViewTest extends ApplicationTest {
   @Test
   public void testSessionInfo() {
     final Label sessionLabel = lookup("#lbSession").query();
-    Assert.assertEquals("mon, 22:30", sessionLabel.getText());
+    Assert.assertTrue(Arrays.asList("Montag, 20:30", "Monday, 20:30")
+        .contains(sessionLabel.getText()));
 
     final Label titleLabel = lookup("#lbTitle").query();
     Assert.assertEquals("Unit", titleLabel.getText());
