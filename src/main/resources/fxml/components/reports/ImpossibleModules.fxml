@@ -24,6 +24,9 @@
                     <ToggleButton fx:id="buttonMissingElectiveAbstractUnits" HBox.hgrow="ALWAYS"
                                   text="%button.MissingElectiveAbstractUnits" maxWidth="Infinity"
                                   prefWidth="400.0"/>
+                    <ToggleButton fx:id="buttonIncompleteQuasiMandatoryAbstractUnits"
+                                  HBox.hgrow="ALWAYS" maxWidth="Infinity" prefWidth="500.0"
+                                  text="%button.IncompleteQuasiMandatoryAbstractUnits"/>
                 </buttons>
             </SegmentedButton>
         </HBox>
@@ -40,6 +43,24 @@
                 </cellValueFactory>
             </TableColumn>
             <TableColumn fx:id="tableColumnModuleTitle" text="%columnTitle" minWidth="400.0">
+                <cellValueFactory>
+                    <PropertyValueFactory property="title"/>
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+    <TableView fx:id="tableViewIncompleteAbstractUnits" minWidth="0" minHeight="0" maxWidth="Infinity">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
+        <columns>
+            <TableColumn fx:id="tableColumnAbstractUnitKey" text="%columnKey">
+                <cellValueFactory>
+                    <PropertyValueFactory property="key"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="tableColumnAbstractUnitTitle" text="%columnAbstractUnit"
+                         minWidth="400.0">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
