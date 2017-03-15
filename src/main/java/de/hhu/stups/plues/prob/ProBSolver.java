@@ -16,6 +16,7 @@ import de.prob.statespace.Transition;
 import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,7 @@ public class ProBSolver implements Solver {
     try {
       this.stateSpace = api.b_load(modelPath);
     } catch (final IOException | ModelTranslationError exception) {
-      logger.error("Exception while loading model",exception);
+      logger.error("Exception while loading model", exception);
       throw new SolverException(exception);
     }
     final long t2 = System.nanoTime();
@@ -364,7 +365,7 @@ public class ProBSolver implements Solver {
   }
 
   @Override
-  public final synchronized  java.util.Set<Integer> unsatCoreSessions(final List<Integer> groups)
+  public final synchronized java.util.Set<Integer> unsatCoreSessions(final List<Integer> groups)
       throws SolverException {
 
     final String predicate = "uc_groups={"
@@ -381,7 +382,7 @@ public class ProBSolver implements Solver {
    *
    * @param sessionId the ID of the Session
    * @param day       String day, valid values are "1".."7"
-   * @param slot      Sting representing the selected time slot, valid values are "1".."8".
+   * @param slot      String representing the selected time slot, valid values are "1".."7".
    */
   @Override
   public final synchronized void move(final String sessionId,
@@ -476,6 +477,10 @@ public class ProBSolver implements Solver {
     report.setModuleAbstractUnitUnitSemesterConflicts(
         Mappers.mapModuleAbstractUnitUnitSemesterMismatch(
             (Set) data.get("module_abstract_unit_unit_semester_mismatch")));
+
+    report.setImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits(
+        Mappers.mapQuasiMandatoryModuleAbstractUnits((Set) data.get(
+            "impossible_modules_because_of_incomplte_quasi_mandatory_abstract_units")));
 
     return report;
   }
