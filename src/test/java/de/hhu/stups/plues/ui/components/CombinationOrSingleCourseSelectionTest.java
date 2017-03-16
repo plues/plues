@@ -101,29 +101,21 @@ public class CombinationOrSingleCourseSelectionTest extends ApplicationTest {
     Assert.assertEquals(courseList.get(2), courseSelection.getSelectedCourses().get(0));
   }
 
-  private Course createCourse(final String shortName, final String degree, final String kzfa) {
-    final Course course = new Course();
-    course.setShortName(shortName);
-    course.setLongName(shortName);
-    course.setDegree(degree);
-    course.setKzfa(kzfa);
-    return course;
-  }
 
   @Override
   public void start(final Stage stage) throws Exception {
     courseList = new ArrayList<>();
-    courseList.add(createCourse("shortName1", "bk", "H"));
-    courseList.add(createCourse("shortName2", "ba", "H"));
-    courseList.add(createCourse("shortName3", "bk", "N"));
-    courseList.add(createCourse("shortName4", "bk", "N"));
-    courseList.add(createCourse("shortName5", "bk", "H"));
-    courseList.add(createCourse("shortName6", "bk", "N"));
-    courseList.add(createCourse("shortName7", "ma", "N"));
-    courseList.add(createCourse("shortName8", "ma", "N"));
-    courseList.add(createCourse("shortName9", "bk", "H"));
-    courseList.add(createCourse("shortName10", "ma", "H"));
-    courseList.add(createCourse("shortName11", "ma", "H"));
+    courseList.add(UiTestHelper.createCourse("shortName1", "bk", "H"));
+    courseList.add(UiTestHelper.createCourse("shortName2", "ba", "H"));
+    courseList.add(UiTestHelper.createCourse("shortName3", "bk", "N"));
+    courseList.add(UiTestHelper.createCourse("shortName4", "bk", "N"));
+    courseList.add(UiTestHelper.createCourse("shortName5", "bk", "H"));
+    courseList.add(UiTestHelper.createCourse("shortName6", "bk", "N"));
+    courseList.add(UiTestHelper.createCourse("shortName7", "ma", "N"));
+    courseList.add(UiTestHelper.createCourse("shortName8", "ma", "N"));
+    courseList.add(UiTestHelper.createCourse("shortName9", "bk", "H"));
+    courseList.add(UiTestHelper.createCourse("shortName10", "ma", "H"));
+    courseList.add(UiTestHelper.createCourse("shortName11", "ma", "H"));
 
     final FXMLLoader loader = new FXMLLoader();
     loader.setBuilderFactory(type -> {

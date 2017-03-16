@@ -7,14 +7,12 @@ import static org.mockito.Mockito.when;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
-import de.hhu.stups.plues.prob.ProBSolver;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
-import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
+import de.hhu.stups.plues.ui.components.UiTestHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.fxml.FXMLLoader;
@@ -29,10 +27,7 @@ import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -109,60 +104,19 @@ public class CourseUnsatCoreTest extends ApplicationTest {
     Assert.assertFalse(courseSelection.getSingleCourseSelection().isDisabled());
   }
 
-  private Course createCourse(final String shortName, final String degree, final String kzfa) {
-    final Course course = new Course();
-    course.setShortName(shortName);
-    course.setDegree(degree);
-    course.setKzfa(kzfa);
-    return course;
-  }
-
-  private SolverTask<Boolean> getSimpleSolverTask() {
-    return new SolverTask<Boolean>("", mock(ProBSolver.class), (() -> true), 2) {
-      @Override
-      protected Boolean call() throws InterruptedException, ExecutionException {
-        TimeUnit.SECONDS.sleep(2);
-        return true;
-      }
-    };
-  }
-
-  private SolverTask<FeasibilityResult> getSimpleSolverComputeTask() {
-    final FeasibilityResult feasibilityResult = mock(FeasibilityResult.class);
-    return new SolverTask<FeasibilityResult>("", mock(ProBSolver.class),
-        (() -> feasibilityResult), 2) {
-      @Override
-      protected FeasibilityResult call() throws InterruptedException, ExecutionException {
-        TimeUnit.SECONDS.sleep(2);
-        return feasibilityResult;
-      }
-    };
-  }
-
-  private SolverTask<Set<String>> getSimpleImpossibleTask() {
-    return new SolverTask<Set<String>>("", mock(ProBSolver.class),
-        (HashSet::new), 2) {
-      @Override
-      protected Set<String> call() throws InterruptedException, ExecutionException {
-        TimeUnit.SECONDS.sleep(2);
-        return new HashSet<>();
-      }
-    };
-  }
-
   @Override
-  public void start(Stage stage) throws Exception {
+  public void start(final Stage stage) throws Exception {
     courseList = new ArrayList<>();
-    courseList.add(createCourse("shortName1", "bk", "H"));
-    courseList.add(createCourse("shortName2", "ba", "H"));
-    courseList.add(createCourse("shortName3", "bk", "N"));
-    courseList.add(createCourse("shortName4", "bk", "N"));
-    courseList.add(createCourse("shortName5", "bk", "H"));
-    courseList.add(createCourse("shortName6", "bk", "N"));
-    courseList.add(createCourse("shortName7", "ma", "N"));
-    courseList.add(createCourse("shortName8", "ma", "N"));
-    courseList.add(createCourse("shortName9", "bk", "H"));
-    courseList.add(createCourse("shortName10", "ma", "H"));
+    courseList.add(UiTestHelper.createCourse("shortName1", "bk", "H"));
+    courseList.add(UiTestHelper.createCourse("shortName2", "ba", "H"));
+    courseList.add(UiTestHelper.createCourse("shortName3", "bk", "N"));
+    courseList.add(UiTestHelper.createCourse("shortName4", "bk", "N"));
+    courseList.add(UiTestHelper.createCourse("shortName5", "bk", "H"));
+    courseList.add(UiTestHelper.createCourse("shortName6", "bk", "N"));
+    courseList.add(UiTestHelper.createCourse("shortName7", "ma", "N"));
+    courseList.add(UiTestHelper.createCourse("shortName8", "ma", "N"));
+    courseList.add(UiTestHelper.createCourse("shortName9", "bk", "H"));
+    courseList.add(UiTestHelper.createCourse("shortName10", "ma", "H"));
 
     final FXMLLoader loader = new FXMLLoader();
     loader.setBuilderFactory(type -> {
@@ -187,11 +141,13 @@ public class CourseUnsatCoreTest extends ApplicationTest {
 
     final SolverService solverService = mock(SolverService.class);
     when(solverService.computeFeasibilityTask(anyVararg()))
-        .thenReturn(getSimpleSolverComputeTask());
-    when(solverService.checkFeasibilityTask(anyVararg())).thenReturn(getSimpleSolverTask());
+        .thenReturn(UiTestHelper.getSimpleComputeFeasibilityTask());
+    when(solverService.checkFeasibilityTask(anyVararg()))
+        .thenReturn(UiTestHelper.getSimpleCheckFeasibilityTask());
     when(solverService.checkFeasibilityTask(anyVararg(), anyVararg()))
-        .thenReturn(getSimpleSolverTask());
-    when(solverService.impossibleCoursesTask()).thenReturn(getSimpleImpossibleTask());
+        .thenReturn(UiTestHelper.getSimpleCheckFeasibilityTask());
+    when(solverService.impossibleCoursesTask())
+        .thenReturn(UiTestHelper.getSimpleImpossibleCoursesTask());
 
     final Delayed<SolverService> delayedSolverService = new Delayed<>();
     delayedSolverService.set(solverService);

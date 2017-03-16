@@ -81,25 +81,15 @@ public class SetOfCourseSelectionTest extends ApplicationTest {
     Assert.assertTrue(courseSelection.getSelectedCourses().isEmpty());
   }
 
-  private Course createCourse(final String shortName, final String degree) {
-    final Course course = new Course();
-    course.setShortName(shortName);
-    course.setLongName(shortName);
-    course.setDegree(degree);
-    course.setCreditPoints(5);
-    course.setPo(2016);
-    return course;
-  }
-
   @Override
   public void start(final Stage stage) throws Exception {
     courseList = new ArrayList<>();
-    courseList.add(createCourse("shortName1", "bk"));
-    courseList.add(createCourse("shortName2", "bk"));
-    courseList.add(createCourse("shortName3", "bk"));
-    courseList.add(createCourse("shortName4", "ba"));
-    courseList.add(createCourse("shortName5", "ma"));
-    courseList.add(createCourse("shortName6", "ma"));
+    courseList.add(UiTestHelper.createCourse("shortName1", "bk", ""));
+    courseList.add(UiTestHelper.createCourse("shortName2", "bk", ""));
+    courseList.add(UiTestHelper.createCourse("shortName3", "bk", ""));
+    courseList.add(UiTestHelper.createCourse("shortName4", "ba", ""));
+    courseList.add(UiTestHelper.createCourse("shortName5", "ma", ""));
+    courseList.add(UiTestHelper.createCourse("shortName6", "ma", ""));
 
     final Inflater inflater = new Inflater(new FXMLLoader());
     courseSelection = new SetOfCourseSelection(inflater);

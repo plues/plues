@@ -88,15 +88,6 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
     Assert.assertEquals(0, courseSelection.getMinorComboBox().getItems().size());
   }
 
-  // degree: "bk" is combinable, "ba" is not
-  private Course createCourse(final String shortName, final String degree) {
-    final Course course = new Course();
-    course.setShortName(shortName);
-    course.setLongName(shortName);
-    course.setDegree(degree);
-    return course;
-  }
-
   @Test
   public void selectionStateWhenDisabled() {
     final Course major = courseSelection.getSelectedMajor();
@@ -119,10 +110,10 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
   public void start(final Stage stage) throws Exception {
 
     majorCourseList = new ArrayList<>();
-    majorCourseList.add(createCourse("shortName1", "bk"));
-    majorCourseList.add(createCourse("shortName2", "bk"));
-    majorCourseList.add(createCourse("shortName3", "bk"));
-    majorCourseList.add(createCourse("shortName4", "ba"));
+    majorCourseList.add(UiTestHelper.createCourse("shortName1", "bk", ""));
+    majorCourseList.add(UiTestHelper.createCourse("shortName2", "bk", ""));
+    majorCourseList.add(UiTestHelper.createCourse("shortName3", "bk", ""));
+    majorCourseList.add(UiTestHelper.createCourse("shortName4", "ba", ""));
 
     minorCourseList = majorCourseList;
 

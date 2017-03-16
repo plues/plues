@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.ui.components.unsatcore;
 
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
+import de.hhu.stups.plues.ui.components.UiTestHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.concurrent.Task;
@@ -15,7 +16,6 @@ import org.testfx.framework.junit.ApplicationTest;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class UnsatCoreButtonBarTest extends ApplicationTest {
 
@@ -52,7 +52,7 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
   }
 
   private void runSimpleTask(final int sleep) {
-    final Task<Boolean> simpleTask = getSimpleTask(sleep);
+    final Task<Boolean> simpleTask = UiTestHelper.getSimpleTask(sleep);
     unsatCoreButtonBar.taskProperty().set(simpleTask);
     executorService.submit(simpleTask);
 
@@ -65,16 +65,6 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
       Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
       Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
     }));
-  }
-
-  private Task<Boolean> getSimpleTask(final int sleep) {
-    return new Task<Boolean>() {
-      @Override
-      protected Boolean call() throws Exception {
-        TimeUnit.SECONDS.sleep(sleep);
-        return true;
-      }
-    };
   }
 
   @Override
