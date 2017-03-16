@@ -30,7 +30,7 @@
             </fo:block>
         </fo:flow>
     </fo:page-sequence>
-    {% if (incompleteModules|length > 0) or (impossibleModulesBecauseOfMissingElectiveAbstractUnits|length > 0) %}
+    {% if (incompleteModules|length > 0) or (impossibleModulesBecauseOfMissingElectiveAbstractUnits|length > 0) or (impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits|length > 0) %}
         <fo:page-sequence master-reference="hoch">
             <fo:flow flow-name="xsl-region-body">
                 <fo:block font-size="18pt">
@@ -38,13 +38,24 @@
                 </fo:block>
                 {% if incompleteModules|length > 0 %}
                     {% include '/reports/templates/IncompleteModules.twig' with { modules: incompleteModules, resources: resources } only  %}
-                {% endif %} 
+                {% endif %}
                 {% if impossibleModulesBecauseOfMissingElectiveAbstractUnits|length > 0 %}
                     {% include '/reports/templates/ImpossibleModulesBecauseOfMissingElectiveAbstractUnits.twig' with
                         { modules: impossibleModulesBecauseOfMissingElectiveAbstractUnits, resources: resources } only %}
                 {% endif %}
             </fo:flow>
         </fo:page-sequence>
+        {% if impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits|length > 0 %}
+            <fo:page-sequence master-reference="quer">
+                <fo:flow flow-name="xsl-region-body">
+                    <fo:block font-size="18pt">
+                        1.3 {{ resources.get("title.ImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits") }}
+                    </fo:block>
+                    {% include '/reports/templates/QuasiMandatoryModuleAbstractUnits.twig' with
+                    { modules: impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits, resources: resources } only %}
+                </fo:flow>
+            </fo:page-sequence>
+        {% endif %}
     {% endif %}
     {% if (impossibleCourses|length > 0) or (impossibleCoursesBecauseOfImpossibleModules|length > 0) or (impossibleCoursesBecauseOfImpossibleModuleCombinations|length > 0) %}
         <fo:page-sequence master-reference="hoch">
