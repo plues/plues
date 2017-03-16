@@ -509,6 +509,8 @@ public class Reports extends VBox implements Initializable, Observer {
             .with("incompleteModules", incompleteModules)
             .with("impossibleModulesBecauseOfMissingElectiveAbstractUnits",
                 impossibleModulesBecauseOfMissingElectiveAbstractUnits)
+            .with("impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits",
+                impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits)
             .with("impossibleCourses", impossibleCourses)
             .with("impossibleCoursesBecauseOfImpossibleModules",
                 impossibleCoursesBecauseOfImpossibleModules)
