@@ -68,7 +68,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
    * @param inflater Inflater to handle fxml.
    */
   @Inject
-  MajorMinorCourseSelection(final Inflater inflater) {
+  public MajorMinorCourseSelection(final Inflater inflater) {
     inflater.inflate("components/MajorMinorCourseSelection", this, this);
   }
 
@@ -153,11 +153,11 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     return new ListViewListCellCallback(impossibleCourses);
   }
 
-  ComboBox<Course> getMajorComboBox() {
+  public ComboBox<Course> getMajorComboBox() {
     return this.cbMajor;
   }
 
-  ComboBox<Course> getMinorComboBox() {
+  public ComboBox<Course> getMinorComboBox() {
     return this.cbMinor;
   }
 

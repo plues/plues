@@ -276,7 +276,7 @@ public class SolverService {
    *
    * @return SolverTask
    */
-  SolverTask<Set<String>> impossibleCoursesTask() {
+  public SolverTask<Set<String>> impossibleCoursesTask() {
 
     return new SolverTask<>(resources.getString("impossible"), solver,
         solver::getImpossibleCourses, timeout);

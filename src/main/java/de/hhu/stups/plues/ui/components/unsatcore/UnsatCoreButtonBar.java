@@ -99,4 +99,8 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   void setShowIconOnSucceeded(final boolean showIconOnSucceeded) {
     taskProgressIndicator.showIconOnSucceededProperty().set(showIconOnSucceeded);
   }
+
+  Button getBtSubmitTask() {
+    return btSubmitTask;
+  }
 }

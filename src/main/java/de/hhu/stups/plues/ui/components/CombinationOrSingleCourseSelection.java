@@ -170,19 +170,19 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
     return this.impossibleCoursesProperty;
   }
 
-  RadioButton getRbCombination() {
+  public RadioButton getRbCombination() {
     return rbCombination;
   }
 
-  RadioButton getRbSingleSelection() {
+  public RadioButton getRbSingleSelection() {
     return rbSingleSelection;
   }
 
-  MajorMinorCourseSelection getMajorMinorCourseSelection() {
+  public MajorMinorCourseSelection getMajorMinorCourseSelection() {
     return majorMinorCourseSelection;
   }
 
-  ComboBox<Course> getSingleCourseSelection() {
+  public ComboBox<Course> getSingleCourseSelection() {
     return singleCourseSelection;
   }
 
