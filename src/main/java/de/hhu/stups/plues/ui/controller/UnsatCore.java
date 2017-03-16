@@ -41,8 +41,6 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   private final ObjectProperty<Store> store;
   private final ExecutorService executorService;
 
-  private ResourceBundle resources;
-
   @FXML
   @SuppressWarnings("unused")
   private Accordion stepwisePanesAccordion;
@@ -95,7 +93,6 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
     initializeCourseUnsatCore();
     initializeModuleUnsatCore();
     initializeAbstractUnitUnsatCore();
@@ -121,7 +118,6 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
         final UnsatCoreButtonBar unsatCoreButtonBar = courseUnsatCore.getUnsatCoreButtonBar();
         unsatCoreButtonBar.taskProperty().set(null);
         unsatCoreButtonBar.disableProperty().bind(binding);
-        unsatCoreButtonBar.setSubmitText(resources.getString("button.unsatCoreModules"));
         unsatCoreButtonBar.setOnAction(event -> computeUnsatCoreModules());
       }
     });
