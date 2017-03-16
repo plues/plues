@@ -13,6 +13,7 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
@@ -96,13 +97,17 @@ public class CourseUnsatCore extends GridPane implements Initializable {
     this.resources = resources;
 
     setCheckFeasibilityButtonBar();
-    courseIsInfeasible.addListener((observable, oldValue, newValue) ->
-        unsatCoreButtonBar.setShowIconOnSucceeded(!newValue));
-
-    coursesProperty.addListener((observable, oldValue, newValue) -> {
-      courseIsInfeasible.set(false);
+    courseIsInfeasible.addListener((observable, oldValue, newValue) -> {
+      unsatCoreButtonBar.setShowIconOnSucceeded(!newValue);
+      if (newValue) {
+        Platform.runLater(() ->
+            unsatCoreButtonBar.setSubmitText(resources.getString("button.unsatCoreModules")));
+        return;
+      }
       setCheckFeasibilityButtonBar();
     });
+
+    coursesProperty.addListener((observable, oldValue, newValue) -> courseIsInfeasible.set(false));
 
     unsatCoreInfo.setOnMouseEntered(event -> {
       final Point2D pos = unsatCoreInfo.localToScreen(
