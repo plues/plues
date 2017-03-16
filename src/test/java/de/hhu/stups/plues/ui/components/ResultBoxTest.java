@@ -14,6 +14,7 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -73,7 +74,8 @@ public abstract class ResultBoxTest extends ApplicationTest {
   public void testIcon() {
     final Text mark = this.icon;
 
-    final Label icon = lookup("#lbIcon").query();
+    final TaskProgressIndicator taskProgressIndicator = lookup("#taskProgressIndicator").query();
+    final Label icon = taskProgressIndicator.getTaskStateIcon();
     final Text graphic = (Text) icon.getGraphic();
     Assert.assertEquals(mark.getText(), graphic.getText());
   }
@@ -84,8 +86,16 @@ public abstract class ResultBoxTest extends ApplicationTest {
     final SolverService solverService = mock(SolverService.class);
     when(solverService.computeFeasibilityTask(anyVararg())).thenReturn(mock(SolverTask.class));
 
+    final FXMLLoader loader = new FXMLLoader();
+    loader.setBuilderFactory(type -> {
+      if (type.equals(TaskProgressIndicator.class)) {
+        return () -> new TaskProgressIndicator(new Inflater(new FXMLLoader()));
+      }
+      return new JavaFXBuilderFactory().getBuilder(type);
+    });
+
     final Delayed<SolverService> solver = new Delayed<>();
-    final Inflater inflater = new Inflater(new FXMLLoader());
+    final Inflater inflater = new Inflater(loader);
 
     solver.set(solverService);
 
