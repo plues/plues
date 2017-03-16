@@ -12,8 +12,6 @@ import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.TaskBindings;
-import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
@@ -31,7 +29,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
@@ -48,7 +45,6 @@ import javax.annotation.Nullable;
 public class FeasibilityBox extends VBox implements Initializable {
 
   private final Provider<ConflictTree> conflictTreeProvider;
-  private static final String ICON_SIZE = "50";
 
   private final Course major;
   private final Course minor;
@@ -108,10 +104,7 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private ProgressIndicator progressIndicator;
-  @FXML
-  @SuppressWarnings("unused")
-  private Label lbIcon;
+  private TaskProgressIndicator taskProgressIndicator;
   @FXML
   @SuppressWarnings("unused")
   private Label lbMajor;
@@ -169,8 +162,6 @@ public class FeasibilityBox extends VBox implements Initializable {
 
     initializeCourseLabels();
     initializeActionComboBox(resources);
-
-    progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
 
     restartComputationAction();
   }
@@ -310,10 +301,8 @@ public class FeasibilityBox extends VBox implements Initializable {
     });
     task.setOnCancelled(event -> resultState = ResultState.FAILED);
 
-    progressIndicator.visibleProperty().bind(task.runningProperty());
-    lbIcon.visibleProperty().bind(task.runningProperty().not());
-    lbIcon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, task));
-    lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
+    taskProgressIndicator.taskProperty().set(task);
+    taskProgressIndicator.sizeProperty().set(50.0);
   }
 
   @FXML
