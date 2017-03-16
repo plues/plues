@@ -13,7 +13,6 @@ import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -33,7 +32,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
@@ -46,8 +44,6 @@ import javax.annotation.Nullable;
 
 public class ResultBox extends VBox implements Initializable {
 
-  private static final String WORKING_COLOR = "#BDE5F8";
-  private static final String ICON_SIZE = "50";
   private final Course major;
   private final Course minor;
 
@@ -85,10 +81,7 @@ public class ResultBox extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private ProgressIndicator progressIndicator;
-  @FXML
-  @SuppressWarnings("unused")
-  private Label lbIcon;
+  private TaskProgressIndicator taskProgressIndicator;
   @FXML
   @SuppressWarnings("unused")
   private Label lbMajor;
@@ -144,9 +137,6 @@ public class ResultBox extends VBox implements Initializable {
   public final void initialize(final URL location, final ResourceBundle resources) {
     initializeCourseLabels();
 
-
-    progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
-
     lbErrorMsg.textProperty().bind(
         Bindings.createStringBinding(() -> {
           final String errorMsg = errorMsgProperty.get();
@@ -201,14 +191,10 @@ public class ResultBox extends VBox implements Initializable {
   }
 
   private void taskBindings() {
-    progressIndicator.visibleProperty().bind(task.runningProperty());
-    //
     cbAction.itemsProperty().unbind();
     cbAction.itemsProperty().bind(new ActionsBinding(task.stateProperty()));
-    //
-    lbIcon.visibleProperty().bind(task.runningProperty().not());
-    lbIcon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, task));
-    lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
+    taskProgressIndicator.taskProperty().set(task);
+    taskProgressIndicator.sizeProperty().set(75.0);
   }
 
   @FXML
