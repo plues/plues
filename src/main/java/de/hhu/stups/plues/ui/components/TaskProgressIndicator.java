@@ -199,4 +199,8 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
     }
     return msg;
   }
+
+  public Label getTaskStateIcon() {
+    return taskStateIcon;
+  }
 }
