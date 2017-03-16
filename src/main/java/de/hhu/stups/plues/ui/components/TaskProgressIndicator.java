@@ -25,6 +25,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -34,6 +35,7 @@ import java.util.ResourceBundle;
  * visualize the task's {@link javafx.concurrent.Worker.State} on succeeded by default. The
  * component's size can be set by {@link #sizeProperty()}. The property {@link
  * #showIconOnSucceededProperty} can be set to false to hide the state icon when the task succeeded.
+ * When adjusting the {@link #sizeProperty} the {@link #taskProperty} should be set prior to that.
  */
 public class TaskProgressIndicator extends StackPane implements Initializable {
 
@@ -46,6 +48,9 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ProgressIndicator progressIndicator;
+  @FXML
+  @SuppressWarnings("unused")
+  private VBox boxProgressIndicator;
   @FXML
   @SuppressWarnings("unused")
   private Tooltip taskRunningTooltip;
@@ -78,8 +83,8 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
     prefHeightProperty().bind(sizeProperty);
     taskStateIcon.prefWidthProperty().bind(sizeProperty);
     taskStateIcon.prefHeightProperty().bind(sizeProperty);
-    progressIndicator.prefWidthProperty().bind(sizeProperty);
-    progressIndicator.prefHeightProperty().bind(sizeProperty);
+    boxProgressIndicator.prefWidthProperty().bind(sizeProperty);
+    boxProgressIndicator.prefHeightProperty().bind(sizeProperty);
 
     taskStateIcon.setOnMouseEntered(event -> {
       if (taskStateIconTooltip.getText().isEmpty()) {
@@ -106,6 +111,15 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
         return;
       }
       showTaskState(newValue);
+    });
+
+    sizeProperty().addListener((observable, oldValue, newValue) -> {
+      if (taskProperty().get() == null) {
+        return;
+      }
+      taskStateIcon.graphicProperty().unbind();
+      taskStateIcon.graphicProperty().bind(TaskBindings.getIconBinding(
+          Double.toString(newValue.doubleValue()), taskProperty.get()));
     });
   }
 
