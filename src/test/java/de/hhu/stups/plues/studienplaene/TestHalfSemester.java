@@ -2,32 +2,61 @@ package de.hhu.stups.plues.studienplaene;
 
 import static org.junit.Assert.assertEquals;
 
+import de.hhu.stups.plues.prob.FeasibilityResult;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 public class TestHalfSemester extends TestBase {
+
+  private Map<String, String>[] semesters;
 
   /**
    * Test setup.
    */
   @Before
   public void setUp() throws URISyntaxException {
-    super.halfSemester();
+    super.setUp();
+
+    final Map<Integer, Integer> groupChoice = new HashMap<>();
+    IntStream.rangeClosed(1, 9).forEach(i -> groupChoice.put(i, i));
+
+    final Map<Integer, Integer> semesterChoice = new HashMap<>();
+    IntStream.rangeClosed(1, 9).forEach(i -> semesterChoice.put(i, 1));
+
+    final Map<String, Set<Integer>> moduleChoice = new HashMap<>();
+    final Set<Integer> integerSet = new HashSet<>();
+    integerSet.add(1);
+    integerSet.add(3);
+    moduleChoice.put("foo", integerSet);
+
+
+    final FeasibilityResult result =
+        new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
+
+    final DataPreparatory data = new DataPreparatory(store, result, course, null);
+    final DataStoreWrapper wrap = new DataStoreWrapper(ColorChoice.COLOR, data);
+
+    semesters = wrap.getSemesters();
   }
 
   @Test
   public void testRhythm() {
-    assertEquals(semesters[0].get("mon3"), "Abstract Unit: 3 (A);1");
-    assertEquals(semesters[0].get("mon4"), "Abstract Unit: 4 (B);1");
-    assertEquals(semesters[0].get("mon5"), "Abstract Unit: 5 (b);3");
+    assertEquals("Abstract Unit: 3 (A);1", semesters[0].get("mon3"));
+    assertEquals("Abstract Unit: 4 (B);1", semesters[0].get("mon4"));
+    assertEquals("Abstract Unit: 5 (b);3", semesters[0].get("mon5"));
   }
 
   @Test
   public void testHalfSemester() {
-    assertEquals(semesters[0].get("mon2"), "Abstract Unit: 2 (s);1");
-    assertEquals(semesters[0].get("mon1"), "Abstract Unit: 1 (f);1");
+    assertEquals("Abstract Unit: 2 (s);1", semesters[0].get("mon2"));
+    assertEquals("Abstract Unit: 1 (f);1", semesters[0].get("mon1"));
   }
 
 }
