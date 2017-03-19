@@ -144,11 +144,27 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
       }
     });
 
+    delayedStore.whenAvailable(store -> {
+      final List<Integer> range = getSemesterRange(store);
+
+      semesterToggle.setSemesters(range);
+
+    });
     semesterToggle.conflictedSemestersProperty().bind(conflictedSemesters);
 
     conflictedSemesters.bind(new ConflictedSemestersBinding());
 
     initSessionBoxes();
+  }
+
+  private List<Integer> getSemesterRange(final Store store) {
+    final List<Integer> semesters = store.getUnits().stream()
+        .flatMap(unit -> unit.getSemesters().stream())
+        .distinct()
+        .collect(Collectors.toList());
+    final Integer min = Collections.min(semesters);
+    final Integer max = Collections.max(semesters);
+    return IntStream.rangeClosed(min, max).boxed().collect(Collectors.toList());
   }
 
   /**
