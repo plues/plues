@@ -15,14 +15,6 @@ import java.util.List;
 class GetOperationByPredicateCommandDelegate extends AbstractCommand
     implements IStateSpaceModifier {
 
-  public List<String> getErrors() {
-    return command.getErrors();
-  }
-
-  public boolean hasErrors() {
-    return command.hasErrors();
-  }
-
   private final GetOperationByPredicateCommand command;
 
   public GetOperationByPredicateCommandDelegate(final StateSpace stateSpace,
@@ -34,6 +26,15 @@ class GetOperationByPredicateCommandDelegate extends AbstractCommand
     this.command
         = new GetOperationByPredicateCommand(stateSpace, stateId, op, evalElement, nrOfSolutions);
   }
+
+  public List<String> getErrors() {
+    return command.getErrors();
+  }
+
+  public boolean hasErrors() {
+    return command.hasErrors();
+  }
+
 
   @Override
   public void writeCommand(final IPrologTermOutput pto) {
