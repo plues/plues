@@ -167,6 +167,7 @@ public class SemesterChooserTest extends ApplicationTest {
   @Override
   public void start(final Stage stage) throws Exception {
     this.semesterChooser = new SemesterChooser();
+    semesterChooser.setSemesters(Arrays.asList(1,2,3,4,5,6));
 
     stage.setScene(new Scene(semesterChooser));
     stage.show();
