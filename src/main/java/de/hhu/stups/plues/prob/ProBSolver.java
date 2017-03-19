@@ -5,7 +5,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.be4.classicalb.core.parser.exceptions.BCompoundException;
-import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.exception.ProBError;
 import de.prob.scripting.Api;
@@ -17,7 +16,6 @@ import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
 
-import net.sf.ehcache.transaction.xa.commands.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +47,7 @@ public class ProBSolver implements Solver {
   private Trace trace;
 
   @Inject
-  ProBSolver(final Api api, CommandFactory commandFactory, @Assisted final String modelPath)
+  ProBSolver(final Api api, final CommandFactory commandFactory, @Assisted final String modelPath)
       throws SolverException {
 
     this.operationExecutionCache = new SolverCache<>(100);
