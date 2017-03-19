@@ -17,6 +17,7 @@ import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
 
+import net.sf.ehcache.transaction.xa.commands.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +45,15 @@ public class ProBSolver implements Solver {
   private final StateSpace stateSpace;
   private final SolverCache<SolverResult> operationExecutionCache;
   private final Logger logger = LoggerFactory.getLogger(getClass());
+  private final CommandFactory commandFactory;
   private Trace trace;
 
   @Inject
-  ProBSolver(final Api api, @Assisted final String modelPath) throws SolverException {
+  ProBSolver(final Api api, CommandFactory commandFactory, @Assisted final String modelPath)
+      throws SolverException {
+
+    this.operationExecutionCache = new SolverCache<>(100);
+    this.commandFactory = commandFactory;
 
     final long t1 = System.nanoTime();
     try {
@@ -61,8 +67,6 @@ public class ProBSolver implements Solver {
     //
     this.stateSpace.getSubscribedFormulas()
         .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
-
-    this.operationExecutionCache = new SolverCache<>(100);
 
     final long t3 = System.nanoTime();
     this.trace = traceFrom(stateSpace);
@@ -78,19 +82,19 @@ public class ProBSolver implements Solver {
   }
 
   private Trace traceFrom(final StateSpace space) {
-    Trace tracefromSpace = (Trace) space.asType(Trace.class);
+    Trace traceFromSpace = (Trace) space.asType(Trace.class);
 
     final long start = System.nanoTime();
-    tracefromSpace = tracefromSpace.execute("$setup_constants");
+    traceFromSpace = traceFromSpace.execute("$setup_constants");
 
     final long t = System.nanoTime();
 
-    tracefromSpace = tracefromSpace.execute("$initialise_machine");
+    traceFromSpace = traceFromSpace.execute("$initialise_machine");
     final long end = System.nanoTime();
 
     logger.info("$setup_constants took " + TimeUnit.NANOSECONDS.toMillis(t - start) + " ms");
     logger.info("$initialise_machine took " + TimeUnit.NANOSECONDS.toMillis(end - t) + " ms");
-    return tracefromSpace;
+    return traceFromSpace;
   }
 
   private SolverResult executeOperation(final String op, final String predicate)
@@ -107,8 +111,8 @@ public class ProBSolver implements Solver {
 
     final IEvalElement evalElement = stateSpace.getModel().parseFormula(predicate);
     final String stateId = trace.getCurrentState().getId();
-    final GetOperationByPredicateCommand cmd
-        = new GetOperationByPredicateCommand(this.stateSpace, stateId, op, evalElement, 1);
+    final GetOperationByPredicateCommandDelegate cmd
+        = commandFactory.create(this.stateSpace, stateId, op, evalElement, 1);
     //
     final SolverResult solverResult = new SolverResult();
 
