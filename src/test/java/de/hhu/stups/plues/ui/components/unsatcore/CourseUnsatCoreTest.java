@@ -1,6 +1,6 @@
 package de.hhu.stups.plues.ui.components.unsatcore;
 
-import static org.mockito.Matchers.anyVararg;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -140,11 +140,11 @@ public class CourseUnsatCoreTest extends ApplicationTest {
     unsatCoreButtonBar = new UnsatCoreButtonBar(inflater);
 
     final SolverService solverService = mock(SolverService.class);
-    when(solverService.computeFeasibilityTask(anyVararg()))
+    when(solverService.computeFeasibilityTask(any()))
         .thenReturn(UiTestHelper.getSimpleComputeFeasibilityTask());
-    when(solverService.checkFeasibilityTask(anyVararg()))
+    when(solverService.checkFeasibilityTask(any()))
         .thenReturn(UiTestHelper.getSimpleCheckFeasibilityTask());
-    when(solverService.checkFeasibilityTask(anyVararg(), anyVararg()))
+    when(solverService.checkFeasibilityTask(any(), any()))
         .thenReturn(UiTestHelper.getSimpleCheckFeasibilityTask());
     when(solverService.impossibleCoursesTask())
         .thenReturn(UiTestHelper.getSimpleImpossibleCoursesTask());

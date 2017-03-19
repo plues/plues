@@ -2,17 +2,15 @@ package de.hhu.stups.plues.prob;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.be4.classicalb.core.parser.exceptions.BCompoundException;
-import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.ClassicalB;
 import de.prob.animator.domainobjects.EvalElementType;
 import de.prob.animator.domainobjects.FormulaExpand;
@@ -125,7 +123,7 @@ public class ProBSolverTest {
     when(trace.getCurrentState()).thenReturn(state);
     when(state.getId()).thenReturn("TEST-STATE-ID");
 
-    when(trace.addTransitions(anyListOf(Transition.class))).thenReturn(trace);
+    when(trace.addTransitions(anyList())).thenReturn(trace);
 
     when(trace.execute("$setup_constants")).thenReturn(trace);
     when(trace.execute("$initialise_machine")).thenReturn(trace);

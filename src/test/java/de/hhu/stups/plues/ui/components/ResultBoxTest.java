@@ -1,6 +1,6 @@
 package de.hhu.stups.plues.ui.components;
 
-import static org.mockito.Matchers.anyVararg;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -84,7 +84,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
   @SuppressWarnings("unchecked")
   public void start(final Stage stage) throws Exception {
     final SolverService solverService = mock(SolverService.class);
-    when(solverService.computeFeasibilityTask(anyVararg())).thenReturn(mock(SolverTask.class));
+    when(solverService.computeFeasibilityTask(any())).thenReturn(mock(SolverTask.class));
 
     final FXMLLoader loader = new FXMLLoader();
     loader.setBuilderFactory(type -> {

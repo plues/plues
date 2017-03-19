@@ -1,8 +1,8 @@
 package de.hhu.stups.plues.studienplaene;
 
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.when;
 
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -64,8 +64,8 @@ public class TestBase {
 
   private void setupCourse() {
     course = mock(Course.class);
-    stub(course.getKey()).toReturn("foo");
-    stub(course.getModules()).toReturn(modules);
+    when(course.getKey()).thenReturn("foo");
+    when(course.getModules()).thenReturn(modules);
   }
 
   private List<Group> getGroups() {
@@ -73,8 +73,8 @@ public class TestBase {
       this.groups = IntStream.range(1, 15).mapToObj(i -> {
         final Group group = mock(Group.class);
         //
-        stub(group.getId()).toReturn(i);
-        stub(group.getHalfSemester()).toAnswer(invocation -> {
+        when(group.getId()).thenReturn(i);
+        when(group.getHalfSemester()).thenAnswer(invocation -> {
           switch (i) {
             case 1:
             case 2:
@@ -85,9 +85,9 @@ public class TestBase {
         });
         //
         final Unit unit = getUnit(i);
-        stub(group.getUnit()).toReturn(unit);
+        when(group.getUnit()).thenReturn(unit);
         //
-        stub(group.getSessions()).toAnswer(invocation
+        when(group.getSessions()).thenAnswer(invocation
             -> IntStream.builder().add(i * 5).build().mapToObj(j
                 -> getSession(i, j)).collect(Collectors.toSet()));
         return group;
@@ -99,7 +99,7 @@ public class TestBase {
   private Session getSession(final int groupId, final int sessionId) {
     if (this.sessions.get(sessionId) == null) {
       final Session session = mock(Session.class);
-      stub(session.getId()).toReturn(sessionId);
+      when(session.getId()).thenReturn(sessionId);
       final int rhythm;
       switch (groupId) {
         case 3:
@@ -115,9 +115,9 @@ public class TestBase {
           rhythm = 0;
           break;
       }
-      stub(session.getRhythm()).toReturn(rhythm);
-      stub(session.getDay()).toReturn("mon");
-      stub(session.getTime()).toReturn(groupId);
+      when(session.getRhythm()).thenReturn(rhythm);
+      when(session.getDay()).thenReturn("mon");
+      when(session.getTime()).thenReturn(groupId);
       this.sessions.put(sessionId, session);
     }
     return this.sessions.get(sessionId);
@@ -126,7 +126,7 @@ public class TestBase {
   private Unit getUnit(final int groupId) {
     final Unit unit = mock(Unit.class);
 
-    stub(unit.getId()).toAnswer(invocation -> {
+    when(unit.getId()).thenAnswer(invocation -> {
       final int id;
       switch (groupId) {
         case 12:
@@ -152,12 +152,12 @@ public class TestBase {
       final Set<Module> modules = IntStream.range(1, 5).mapToObj(i -> {
         Module module = mock(Module.class);
         //
-        stub(module.getId()).toReturn(i);
-        stub(module.getTitle()).toReturn(String.valueOf(i));
+        when(module.getId()).thenReturn(i);
+        when(module.getTitle()).thenReturn(String.valueOf(i));
         //
         // abstract units with IDs < 5 are linked to the module with ID 1
         // abstract units with IDs >= 5 are linked to the module with ID 3
-        stub(module.getModuleAbstractUnitSemesters()).toAnswer(invocation -> {
+        when(module.getModuleAbstractUnitSemesters()).thenAnswer(invocation -> {
           if (i == 1) {
             return maus.stream()
               .filter(j -> j.getAbstractUnit().getId() < 5)
@@ -176,7 +176,7 @@ public class TestBase {
       }).collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
 
       maus.forEach(moduleAbstractUnitSemester
-          -> stub(moduleAbstractUnitSemester.getModule()).toAnswer(invocation -> {
+          -> when(moduleAbstractUnitSemester.getModule()).thenAnswer(invocation -> {
             if (moduleAbstractUnitSemester.getAbstractUnit().getId() < 5) {
               return modules.stream().filter(module -> module.getId() == 1).findFirst().get();
             } else {
@@ -194,9 +194,9 @@ public class TestBase {
       this.moduleAbstractUnitSemesters = IntStream.range(1, 10).mapToObj(i -> {
         final ModuleAbstractUnitSemester moduleAbstractUnitSemester
             = mock(ModuleAbstractUnitSemester.class);
-        stub(moduleAbstractUnitSemester.getAbstractUnit())
-            .toAnswer(invocation -> abstractUnits.get(i - 1));
-        stub(moduleAbstractUnitSemester.getSemester()).toReturn(1);
+        when(moduleAbstractUnitSemester.getAbstractUnit())
+            .thenAnswer(invocation -> abstractUnits.get(i - 1));
+        when(moduleAbstractUnitSemester.getSemester()).thenReturn(1);
         return moduleAbstractUnitSemester;
       }).collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
     }
@@ -207,8 +207,8 @@ public class TestBase {
     if (this.abstractUnits == null) {
       this.abstractUnits = IntStream.range(1, 10).mapToObj(i -> {
         AbstractUnit abstractUnit = mock(AbstractUnit.class);
-        stub(abstractUnit.getId()).toReturn(i);
-        stub(abstractUnit.getTitle()).toReturn("Abstract Unit: " + String.valueOf(i));
+        when(abstractUnit.getId()).thenReturn(i);
+        when(abstractUnit.getTitle()).thenReturn("Abstract Unit: " + String.valueOf(i));
         return abstractUnit;
       }).collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
     }
@@ -223,18 +223,18 @@ public class TestBase {
     //
     store = mock(Store.class);
     //
-    stub(store.getModuleById(anyInt())).toAnswer(invocation -> {
-      final Integer arg = invocation.getArgumentAt(0, Integer.class);
+    when(store.getModuleById(anyInt())).thenAnswer(invocation -> {
+      final Integer arg = invocation.getArgument(0);
       return modules.stream().filter(module -> module.getId() == arg).findFirst().get();
     });
-    stub(store.getAbstractUnitById(anyInt())).toAnswer(invocation -> {
-      final Integer arg = invocation.getArgumentAt(0, Integer.class);
+    when(store.getAbstractUnitById(anyInt())).thenAnswer(invocation -> {
+      final Integer arg = invocation.getArgument(0);
       return abstractUnits.stream()
         .filter(abstractUnit -> abstractUnit.getId().equals(arg))
         .findFirst().get();
     });
-    stub(store.getGroupById(anyInt())).toAnswer(invocation -> {
-      final Integer arg = invocation.getArgumentAt(0, Integer.class);
+    when(store.getGroupById(anyInt())).thenAnswer(invocation -> {
+      final Integer arg = invocation.getArgument(0);
       return groups.stream()
         .filter(group -> group.getId() == arg)
         .findFirst().get();
