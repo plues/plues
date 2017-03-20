@@ -13,7 +13,6 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
@@ -46,8 +45,6 @@ public class CourseUnsatCore extends GridPane implements Initializable {
   private final BooleanProperty taskRunningProperty;
   private final ExecutorService executorService;
 
-  private ResourceBundle resources;
-
   @FXML
   @SuppressWarnings("unused")
   private Label unsatCoreInfo;
@@ -60,6 +57,9 @@ public class CourseUnsatCore extends GridPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private CombinationOrSingleCourseSelection courseSelection;
+  @FXML
+  @SuppressWarnings("unused")
+  private UnsatCoreButtonBar checkFeasibilityButtonBar;
   @FXML
   @SuppressWarnings("unused")
   private UnsatCoreButtonBar unsatCoreButtonBar;
@@ -94,20 +94,21 @@ public class CourseUnsatCore extends GridPane implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
+    checkFeasibilityButtonBar.setSubmitText(resources.getString("checkFeasibility"));
+    checkFeasibilityButtonBar.setShowIconOnSucceeded(true);
+    checkFeasibilityButtonBar.disableProperty().bind(solverServiceProperty.isNull()
+        .or(courseIsInfeasible));
+    checkFeasibilityButtonBar.setOnAction(this::checkFeasibility);
 
-    setCheckFeasibilityButtonBar();
-    courseIsInfeasible.addListener((observable, oldValue, newValue) -> {
-      unsatCoreButtonBar.setShowIconOnSucceeded(!newValue);
-      if (newValue) {
-        Platform.runLater(() ->
-            unsatCoreButtonBar.setSubmitText(resources.getString("button.unsatCoreModules")));
-        return;
-      }
-      setCheckFeasibilityButtonBar();
+    unsatCoreButtonBar.setSubmitText(resources.getString("button.unsatCoreModules"));
+    unsatCoreButtonBar.visibleProperty().bind(courseIsInfeasible);
+    unsatCoreButtonBar.disableProperty().bind(solverServiceProperty.isNull()
+        .or(courseIsInfeasible.not()));
+
+    coursesProperty.addListener((observable, oldValue, newValue) -> {
+      courseIsInfeasible.set(false);
+      checkFeasibilityButtonBar.taskProperty().set(null);
     });
-
-    coursesProperty.addListener((observable, oldValue, newValue) -> courseIsInfeasible.set(false));
 
     unsatCoreInfo.setOnMouseEntered(event -> {
       final Point2D pos = unsatCoreInfo.localToScreen(
@@ -125,14 +126,6 @@ public class CourseUnsatCore extends GridPane implements Initializable {
     courseSelection.disableProperty().bind(storeProperty.isNull().or(taskRunningProperty));
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
     coursesProperty.bind(courseSelection.selectedCoursesProperty());
-  }
-
-  private void setCheckFeasibilityButtonBar() {
-    unsatCoreButtonBar.taskProperty().set(null);
-    unsatCoreButtonBar.setShowIconOnSucceeded(true);
-    unsatCoreButtonBar.setSubmitText(resources.getString("checkFeasibility"));
-    unsatCoreButtonBar.disableProperty().bind(solverServiceProperty.isNull());
-    unsatCoreButtonBar.setOnAction(this::checkFeasibility);
   }
 
   /**
@@ -156,7 +149,7 @@ public class CourseUnsatCore extends GridPane implements Initializable {
         courseIsInfeasible.set(Worker.State.FAILED.equals(checkFeasibilityTask.getState())));
 
     taskRunningProperty.bind(checkFeasibilityTask.runningProperty());
-    unsatCoreButtonBar.taskProperty().set(checkFeasibilityTask);
+    checkFeasibilityButtonBar.taskProperty().set(checkFeasibilityTask);
 
     executorService.submit(checkFeasibilityTask);
   }

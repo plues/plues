@@ -13,6 +13,7 @@
          xmlns:fx="http://javafx.com/fxml/1">
     <VBox fx:id="contentBox" GridPane.rowIndex="0" GridPane.columnIndex="0" spacing="10.0">
         <CombinationOrSingleCourseSelection fx:id="courseSelection"/>
+        <UnsatCoreButtonBar fx:id="checkFeasibilityButtonBar"/>
         <UnsatCoreButtonBar fx:id="unsatCoreButtonBar"/>
     </VBox>
     <Label fx:id="unsatCoreInfo" GridPane.rowIndex="0" GridPane.columnIndex="1"
