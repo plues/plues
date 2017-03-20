@@ -114,9 +114,9 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
       if (newValue) {
         final BooleanBinding binding = solverService.isNull()
             .or(courseUnsatCore.coursesProperty().emptyProperty())
-            .or(moduleUnsatCore.moduleProperty().emptyProperty().not());
+            .or(moduleUnsatCore.moduleProperty().emptyProperty().not())
+            .or(courseUnsatCore.courseIsInfeasibleProperty().not());
         final UnsatCoreButtonBar unsatCoreButtonBar = courseUnsatCore.getUnsatCoreButtonBar();
-        unsatCoreButtonBar.taskProperty().set(null);
         unsatCoreButtonBar.disableProperty().bind(binding);
         unsatCoreButtonBar.setOnAction(event -> computeUnsatCoreModules());
       }
