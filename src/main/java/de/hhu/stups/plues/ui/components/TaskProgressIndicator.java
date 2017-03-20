@@ -86,6 +86,9 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
     boxProgressIndicator.prefWidthProperty().bind(sizeProperty);
     boxProgressIndicator.prefHeightProperty().bind(sizeProperty);
 
+    taskStateIcon.visibleProperty().bind(visibleProperty());
+    boxProgressIndicator.visibleProperty().bind(visibleProperty());
+
     taskStateIcon.setOnMouseEntered(event -> {
       if (taskStateIconTooltip.getText().isEmpty()) {
         taskStateIconTooltip.hide();
