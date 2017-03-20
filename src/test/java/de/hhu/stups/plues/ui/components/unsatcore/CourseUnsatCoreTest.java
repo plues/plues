@@ -37,7 +37,6 @@ public class CourseUnsatCoreTest extends ApplicationTest {
   private CombinationOrSingleCourseSelection courseSelection;
   private List<Course> courseList;
 
-  private UnsatCoreButtonBar unsatCoreButtonBar;
   private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
   private CourseUnsatCore courseUnsatCore;
@@ -52,7 +51,7 @@ public class CourseUnsatCoreTest extends ApplicationTest {
     Assert.assertFalse(courseSelection.isDisabled());
     Assert.assertFalse(courseUnsatCore.courseIsInfeasibleProperty().get());
     Assert.assertFalse(courseUnsatCore.taskRunningProperty().get());
-    clickOn(((UnsatCoreButtonBar) lookup("#unsatCoreButtonBar").query()).getBtSubmitTask(),
+    clickOn(((UnsatCoreButtonBar) lookup("#checkFeasibilityButtonBar").query()).getBtSubmitTask(),
         MouseButton.PRIMARY);
     Assert.assertTrue(courseUnsatCore.taskRunningProperty().get());
     Assert.assertTrue(courseSelection.isDisabled());
@@ -60,19 +59,20 @@ public class CourseUnsatCoreTest extends ApplicationTest {
     Assert.assertFalse(courseUnsatCore.taskRunningProperty().get());
   }
 
-  /**
-   * When the selected course is infeasible the button bar switches to unsat core computation. If
-   * the selection changes the check feasibility button is restored and unsat core search disabled.
-   */
   @Test
-  public void testCheckFeasibilityBeforeUnsatCore() {
-    final String btCheckFeasibilityText = unsatCoreButtonBar.getBtSubmitTask().getText();
-    Assert.assertFalse(courseUnsatCore.courseIsInfeasibleProperty().get());
+  public void testCheckFeasibilityBeforeModuleUnsatCore() {
+    final UnsatCoreButtonBar checkFeasibilityButtonBar =
+        lookup("#checkFeasibilityButtonBar").query();
+    final UnsatCoreButtonBar unsatCoreButtonBar = lookup("#unsatCoreButtonBar").query();
+    Assert.assertFalse(checkFeasibilityButtonBar.isDisabled());
+    Assert.assertFalse(unsatCoreButtonBar.isVisible());
+    Assert.assertTrue(unsatCoreButtonBar.isDisabled());
+    clickOn(checkFeasibilityButtonBar.getBtSubmitTask());
+    sleep(5, TimeUnit.SECONDS);
     courseUnsatCore.courseIsInfeasibleProperty().set(true);
-    sleep(1, TimeUnit.SECONDS);
-    Assert.assertNotEquals(btCheckFeasibilityText, unsatCoreButtonBar.getBtSubmitTask().getText());
-    clickOn(courseSelection.lookup("#rbSingleSelection"), MouseButton.PRIMARY);
-    Assert.assertEquals(btCheckFeasibilityText, unsatCoreButtonBar.getBtSubmitTask().getText());
+    Assert.assertTrue(checkFeasibilityButtonBar.isDisabled());
+    Assert.assertFalse(unsatCoreButtonBar.isDisabled());
+    Assert.assertTrue(unsatCoreButtonBar.isVisible());
   }
 
   @Test
@@ -118,6 +118,14 @@ public class CourseUnsatCoreTest extends ApplicationTest {
     courseList.add(UiTestHelper.createCourse("shortName9", "bk", "H"));
     courseList.add(UiTestHelper.createCourse("shortName10", "ma", "H"));
 
+    final FXMLLoader subLoader = new FXMLLoader();
+    subLoader.setBuilderFactory(type -> {
+      if (type.equals(TaskProgressIndicator.class)) {
+        return () -> new TaskProgressIndicator(new Inflater(new FXMLLoader()));
+      }
+      return new JavaFXBuilderFactory().getBuilder(type);
+    });
+
     final FXMLLoader loader = new FXMLLoader();
     loader.setBuilderFactory(type -> {
       if (type.equals(MajorMinorCourseSelection.class)) {
@@ -127,7 +135,7 @@ public class CourseUnsatCoreTest extends ApplicationTest {
       } else if (type.equals(TaskProgressIndicator.class)) {
         return () -> new TaskProgressIndicator(new Inflater(new FXMLLoader()));
       } else if (type.equals(UnsatCoreButtonBar.class)) {
-        return () -> unsatCoreButtonBar;
+        return () -> new UnsatCoreButtonBar(new Inflater(subLoader));
       }
       return new JavaFXBuilderFactory().getBuilder(type);
     });
@@ -136,8 +144,6 @@ public class CourseUnsatCoreTest extends ApplicationTest {
 
     courseSelection = new CombinationOrSingleCourseSelection(inflater);
     courseSelection.setCourses(courseList);
-
-    unsatCoreButtonBar = new UnsatCoreButtonBar(inflater);
 
     final SolverService solverService = mock(SolverService.class);
     when(solverService.computeFeasibilityTask(any()))
