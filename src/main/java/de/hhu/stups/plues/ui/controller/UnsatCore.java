@@ -186,7 +186,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
       stepwisePanesAccordion.setExpandedPane(modulesPane);
     });
 
-    courseUnsatCore.taskRunningProperty().bind(task.runningProperty());
+    courseUnsatCore.registerTask(task);
 
     courseUnsatCore.getUnsatCoreButtonBar().taskProperty().set(task);
     executorService.submit(task);
@@ -205,7 +205,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
       stepwisePanesAccordion.setExpandedPane(abstractUnitsPane);
     });
 
-    courseUnsatCore.taskRunningProperty().bind(task.runningProperty());
+    courseUnsatCore.registerTask(task);
 
     moduleUnsatCore.getUnsatCoreButtonBar().taskProperty().set(task);
     executorService.submit(task);
@@ -224,7 +224,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
       stepwisePanesAccordion.setExpandedPane(groupPane);
     });
 
-    courseUnsatCore.taskRunningProperty().bind(task.runningProperty());
+    courseUnsatCore.registerTask(task);
 
     abstractUnitUnsatCore.getUnsatCoreButtonBar().taskProperty().set(task);
     executorService.submit(task);
@@ -242,7 +242,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
       stepwisePanesAccordion.setExpandedPane(sessionPane);
     });
 
-    courseUnsatCore.taskRunningProperty().bind(task.runningProperty());
+    courseUnsatCore.registerTask(task);
 
     groupUnsatCore.getUnsatCoreButtonBar().taskProperty().set(task);
     executorService.submit(task);
