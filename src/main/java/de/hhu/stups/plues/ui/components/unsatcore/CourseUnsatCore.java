@@ -35,6 +35,13 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * Select a course and check its feasibility. If the course is infeasible, the {@link
+ * #unsatCoreButtonBar} is enabled and the unsat core modules can be computed. When running another
+ * unsat core task from the {@link de.hhu.stups.plues.ui.controller.UnsatCore} the task should be
+ * registered using {@link #registerTask(SolverTask)} in order to disable the {@link
+ * #courseSelection}.
+ */
 public class CourseUnsatCore extends GridPane implements Initializable {
 
   private final ObjectProperty<Store> storeProperty;
@@ -43,6 +50,7 @@ public class CourseUnsatCore extends GridPane implements Initializable {
   private final UiDataService uiDataService;
   private final BooleanProperty courseIsInfeasible;
   private final BooleanProperty taskRunningProperty;
+  private final BooleanProperty taskScheduledProperty;
   private final ExecutorService executorService;
 
   @FXML
@@ -79,6 +87,7 @@ public class CourseUnsatCore extends GridPane implements Initializable {
     solverServiceProperty = new SimpleObjectProperty<>();
     courseIsInfeasible = new SimpleBooleanProperty(false);
     taskRunningProperty = new SimpleBooleanProperty(false);
+    taskScheduledProperty = new SimpleBooleanProperty(false);
 
     delayedStore.whenAvailable(storeProperty::set);
     delayedSolverService.whenAvailable(solverServiceProperty::set);
@@ -123,7 +132,8 @@ public class CourseUnsatCore extends GridPane implements Initializable {
     storeProperty.addListener((observable, oldValue, store)
         -> courseSelection.setCourses(store.getCourses()));
 
-    courseSelection.disableProperty().bind(storeProperty.isNull().or(taskRunningProperty));
+    courseSelection.disableProperty().bind(storeProperty.isNull().or(taskRunningProperty)
+        .or(taskScheduledProperty));
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
     coursesProperty.bind(courseSelection.selectedCoursesProperty());
   }
@@ -148,10 +158,25 @@ public class CourseUnsatCore extends GridPane implements Initializable {
     checkFeasibilityTask.setOnFailed(event ->
         courseIsInfeasible.set(Worker.State.FAILED.equals(checkFeasibilityTask.getState())));
 
-    taskRunningProperty.bind(checkFeasibilityTask.runningProperty());
+    registerTask(checkFeasibilityTask);
+
     checkFeasibilityButtonBar.taskProperty().set(checkFeasibilityTask);
 
     executorService.submit(checkFeasibilityTask);
+  }
+
+  /**
+   * Register a task, i.e. set listeners to disable the {@link #courseSelection} when a task is
+   * scheduled or running.
+   */
+  public void registerTask(final SolverTask<?> task) {
+    taskScheduledProperty.set(true);
+    task.setOnRunning(event -> taskScheduledProperty.set(false));
+    task.setOnCancelled(event -> {
+      taskScheduledProperty.set(false);
+      taskRunningProperty.unbind();
+    });
+    taskRunningProperty.bind(task.runningProperty());
   }
 
   public ListProperty<Course> coursesProperty() {
@@ -160,6 +185,10 @@ public class CourseUnsatCore extends GridPane implements Initializable {
 
   public BooleanProperty taskRunningProperty() {
     return taskRunningProperty;
+  }
+
+  public BooleanProperty taskScheduledProperty() {
+    return taskScheduledProperty;
   }
 
   public BooleanProperty courseIsInfeasibleProperty() {
