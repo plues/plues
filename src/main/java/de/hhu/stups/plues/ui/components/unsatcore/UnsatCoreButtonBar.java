@@ -91,7 +91,7 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   /**
    * Set the {@link #taskScheduled} true until the corresponding task is done or cancelled.
    */
-  public void setTaskScheduled(final Task task) {
+  private void setTaskScheduled(final Task<?> task) {
     taskScheduled.set(true);
     task.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, event ->
         taskScheduled.set(false));
