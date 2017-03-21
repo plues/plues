@@ -5,11 +5,14 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -24,6 +27,7 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
 
   private final StringProperty submitTextProperty;
   private final ObjectProperty<Task> taskProperty;
+  private final BooleanProperty taskScheduled;
 
   @FXML
   @SuppressWarnings("unused")
@@ -43,6 +47,7 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   public UnsatCoreButtonBar(final Inflater inflater) {
     submitTextProperty = new SimpleStringProperty();
     taskProperty = new SimpleObjectProperty<>();
+    taskScheduled = new SimpleBooleanProperty();
 
     inflater.inflate("components/unsatcore/UnsatCoreButtonBar", this, this, "unsatCore");
   }
@@ -60,8 +65,9 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
 
     taskProperty.addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
-        btCancelTask.disableProperty().bind(newValue.runningProperty().not().or(disableProperty()));
-        btSubmitTask.disableProperty().bind(newValue.runningProperty().or(disableProperty()));
+        setTaskScheduled(newValue);
+        btCancelTask.disableProperty().bind(taskScheduled.not().or(disableProperty()));
+        btSubmitTask.disableProperty().bind(taskScheduled.or(disableProperty()));
       }
     });
 
@@ -80,6 +86,19 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   @SuppressWarnings("unused")
   public void cancelTask() {
     taskProperty.get().cancel(true);
+  }
+
+  /**
+   * Set the {@link #taskScheduled} true until the corresponding task is done or cancelled.
+   */
+  public void setTaskScheduled(final Task task) {
+    taskScheduled.set(true);
+    task.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, event ->
+        taskScheduled.set(false));
+    task.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, event ->
+        taskScheduled.set(false));
+    task.addEventHandler(WorkerStateEvent.WORKER_STATE_CANCELLED, event ->
+        taskScheduled.set(false));
   }
 
   public Task getTask() {
