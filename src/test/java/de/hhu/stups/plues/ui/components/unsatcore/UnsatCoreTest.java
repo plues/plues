@@ -73,7 +73,7 @@ public class UnsatCoreTest extends ApplicationTest {
     clickOn(((UnsatCoreButtonBar) courseUnsatCore.lookup("#checkFeasibilityButtonBar"))
             .getBtSubmitTask(),
         MouseButton.PRIMARY);
-    sleep(1, TimeUnit.SECONDS);
+    sleep(2, TimeUnit.SECONDS);
     Assert.assertTrue(courseUnsatCore.taskRunningProperty().get());
     Assert.assertTrue(courseSelection.isDisabled());
   }
