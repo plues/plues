@@ -63,11 +63,11 @@ public class TaskBindings {
         break;
       case READY:
       case SCHEDULED:
-        symbol = FontAwesomeIcon.DOT_CIRCLE_ALT;
+        symbol = FontAwesomeIcon.CLOCK_ALT;
         break;
       case RUNNING:
       default:
-        symbol = FontAwesomeIcon.CLOCK_ALT;
+        symbol = FontAwesomeIcon.SPINNER;
         break;
     }
     return symbol;
