@@ -51,6 +51,28 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
     clickOn(unsatCoreButtonBar.getCancelTask());
   }
 
+  @Test
+  public void cancelWaitingTaskTest() {
+    Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
+    Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
+
+    executorService.submit(UiTestHelper.getSimpleTask(5));
+    unsatCoreButtonBar.setOnAction((event) -> runSimpleTask(3));
+    Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
+    Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
+    Assert.assertEquals(unsatCoreButtonBar.getTask(), null);
+
+    clickOn(unsatCoreButtonBar.getSubmitTask());
+    Assert.assertNotEquals(unsatCoreButtonBar.getTask(), null);
+    Assert.assertFalse(unsatCoreButtonBar.getCancelTask().isDisabled());
+    Assert.assertTrue(unsatCoreButtonBar.getSubmitTask().isDisabled());
+
+    clickOn(unsatCoreButtonBar.getCancelTask());
+    Assert.assertNotEquals(unsatCoreButtonBar.getTask(), null);
+    Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
+    Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
+  }
+
   private void runSimpleTask(final int sleep) {
     final Task<Boolean> simpleTask = UiTestHelper.getSimpleTask(sleep);
     unsatCoreButtonBar.taskProperty().set(simpleTask);
