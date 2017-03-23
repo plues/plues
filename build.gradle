@@ -138,9 +138,5 @@ jacocoTestReport {
 
 if (System.getenv('TRAVIS')) {
     println "Running on Travis"
-    test {
-        exclude 'de/hhu/stups/plues/tasks/SolverTaskTest.class'
-    }
-
     check.dependsOn jacocoTestReport
 }
