@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,12 +38,14 @@ public class SemesterChooserTest extends ApplicationTest {
     final ObservableSet<Integer> selection1 = semesterChooser.getSelectedSemesters();
     assertEquals(0, selection1.size());
 
-
     clickOn(semesterChooser.getButtons().get(0))
-      .type(KeyCode.SPACE)
-      .type(KeyCode.TAB)
-      .type(KeyCode.TAB)
-      .type(KeyCode.CONTROL, KeyCode.SPACE);
+        .type(KeyCode.SPACE)
+        .type(KeyCode.SPACE)
+        .type(KeyCode.TAB)
+        .type(KeyCode.TAB)
+        .press(KeyCode.CONTROL)
+        .type(KeyCode.SPACE)
+        .release(KeyCode.CONTROL);
 
     final ObservableSet<Integer> selection2 = semesterChooser.getSelectedSemesters();
 
@@ -56,7 +59,7 @@ public class SemesterChooserTest extends ApplicationTest {
     final ObservableSet<Integer> selection1 = semesterChooser.getSelectedSemesters();
     assertEquals(0, selection1.size());
 
-    clickOn(semesterChooser)
+    clickOn(semesterChooser.getButtons().get(0))
         .push(KeyCode.TAB)
         .push(KeyCode.TAB)
         .push(KeyCode.TAB)
@@ -87,10 +90,10 @@ public class SemesterChooserTest extends ApplicationTest {
     assertEquals(0, selection1.size());
 
     clickOn(semesterChooser.getButtons().get(2))
-        .type(KeyCode.CONTROL)
+        .press(KeyCode.CONTROL)
         .clickOn(semesterChooser.getButtons().get(4))
-        .type(KeyCode.CONTROL)
-        .clickOn(semesterChooser.getButtons().get(0));
+        .clickOn(semesterChooser.getButtons().get(0))
+        .release(KeyCode.CONTROL);
 
     final ObservableSet<Integer> selection2 = semesterChooser.getSelectedSemesters();
     assertEquals(3, selection2.size());
@@ -122,7 +125,7 @@ public class SemesterChooserTest extends ApplicationTest {
 
   @Test
   public void testSetConflictedSemesters() throws Exception {
-    final ObservableSet<Integer> semesters = FXCollections.observableSet(4,5);
+    final ObservableSet<Integer> semesters = FXCollections.observableSet(4, 5);
     this.semesterChooser.setConflictedSemesters(semesters);
 
     final List<?> markedButtons = this.semesterChooser.getButtons().stream()
@@ -167,7 +170,7 @@ public class SemesterChooserTest extends ApplicationTest {
   @Override
   public void start(final Stage stage) throws Exception {
     this.semesterChooser = new SemesterChooser();
-    semesterChooser.setSemesters(Arrays.asList(1,2,3,4,5,6));
+    semesterChooser.setSemesters(Arrays.asList(1, 2, 3, 4, 5, 6));
 
     stage.setScene(new Scene(semesterChooser));
     stage.show();
