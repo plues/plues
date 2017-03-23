@@ -141,6 +141,3 @@ if(System.getenv('TRAVIS')) {
 
   check.dependsOn jacocoTestReport
 }
-test {
-  exclude 'de/hhu/stups/plues/ui/components/timetable/SemesterChooserTest.class'
-}
