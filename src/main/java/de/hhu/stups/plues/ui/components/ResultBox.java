@@ -62,18 +62,18 @@ public class ResultBox extends VBox implements Initializable {
   // lists of actions for each possible state
   private static final ObservableList<Actions> succeededActions
       = FXCollections.observableArrayList(Actions.SHOW,
-                                          Actions.SAVE_AS,
-                                          Actions.OPEN_IN_TIMETABLE,
-                                          Actions.GENERATE_PARTIAL,
-                                          Actions.REMOVE);
+      Actions.SAVE_AS,
+      Actions.OPEN_IN_TIMETABLE,
+      Actions.GENERATE_PARTIAL,
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> failedActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE, Actions.REMOVE);
 
   private static final ObservableList<Actions> cancelledActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
-                                          Actions.RESTART_COMPUTATION,
-                                          Actions.REMOVE);
+      Actions.RESTART_COMPUTATION,
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> scheduledActions
       = FXCollections.observableArrayList(Actions.CANCEL);
@@ -153,7 +153,11 @@ public class ResultBox extends VBox implements Initializable {
     runSolverTask();
   }
 
-  private void runSolverTask() {
+  /**
+   * Run or restart the solver {@link #task}.
+   */
+  public void runSolverTask() {
+    interrupt();
     delayedSolverService.whenAvailable(solver -> {
       initSolverTask(solver);
       executorService.submit(task);
@@ -213,7 +217,7 @@ public class ResultBox extends VBox implements Initializable {
         generatePartialAction();
         break;
       case OPEN_IN_TIMETABLE:
-        router.transitionTo(RouteNames.TIMETABLE, buildCourses(major, minor) , resultState);
+        router.transitionTo(RouteNames.TIMETABLE, buildCourses(major, minor), resultState);
         break;
       case RESTART_COMPUTATION:
         runSolverTask();
@@ -249,7 +253,18 @@ public class ResultBox extends VBox implements Initializable {
 
   @FXML
   private void interrupt() {
-    task.cancel();
+    if (task == null) {
+      return;
+    }
+    task.cancel(true);
+  }
+
+  public Course getMajorCourse() {
+    return major;
+  }
+
+  public Course getMinorCourse() {
+    return minor;
   }
 
   private enum Actions {
