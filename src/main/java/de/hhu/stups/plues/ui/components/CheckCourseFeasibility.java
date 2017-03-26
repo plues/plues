@@ -105,27 +105,22 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
       return;
     }
     final Course majorCourse = selectedCourses.get(0);
+    final Course minorCourse;
     if (selectedCourses.size() == 2) {
-      final Course minorCourse = selectedCourses.get(1);
-      final Optional<FeasibilityBox> containsBox = feasibilityBoxWrapper.getItems().stream().filter(
-          feasibilityBox -> majorCourse.equals(feasibilityBox.getMajorCourse())
-              && minorCourse.equals(feasibilityBox.getMinorCourse())).findFirst();
-      if (containsBox.isPresent()) {
-        toTopOfListview(containsBox.get());
-        return;
-      }
-      feasibilityBoxWrapper.getItems().add(0, feasibilityBoxFactory.create(majorCourse, minorCourse,
-          feasibilityBoxWrapper));
+      minorCourse = selectedCourses.get(1);
     } else {
-      final Optional<FeasibilityBox> containsBox = feasibilityBoxWrapper.getItems().stream().filter(
-          feasibilityBox -> majorCourse.equals(feasibilityBox.getMajorCourse())).findFirst();
-      if (containsBox.isPresent()) {
-        toTopOfListview(containsBox.get());
-        return;
-      }
-      feasibilityBoxWrapper.getItems().add(0, feasibilityBoxFactory.create(majorCourse, null,
-          feasibilityBoxWrapper));
+      minorCourse = null;
     }
+    final Optional<FeasibilityBox> containsBox = feasibilityBoxWrapper.getItems().stream().filter(
+        feasibilityBox -> majorCourse.equals(feasibilityBox.getMajorCourse())
+            && (minorCourse == null || minorCourse.equals(feasibilityBox.getMinorCourse())))
+        .findFirst();
+    if (containsBox.isPresent()) {
+      toTopOfListview(containsBox.get());
+      return;
+    }
+    feasibilityBoxWrapper.getItems().add(0, feasibilityBoxFactory.create(majorCourse, minorCourse,
+        feasibilityBoxWrapper));
     feasibilityBoxWrapper.scrollTo(0);
   }
 
