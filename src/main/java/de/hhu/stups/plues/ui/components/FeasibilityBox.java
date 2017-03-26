@@ -67,29 +67,29 @@ public class FeasibilityBox extends VBox implements Initializable {
   // lists of actions for each possible state
   private static final ObservableList<Actions> succeededActionsMajorMinor
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
-                                          Actions.GENERATE_PDF,
-                                          Actions.GENERATE_PARTIAL,
-                                          Actions.REMOVE);
+      Actions.GENERATE_PDF,
+      Actions.GENERATE_PARTIAL,
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> succeededActionsMajorOnly
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
-                                          Actions.REMOVE);
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> failedWithConflictActions
       = FXCollections.observableArrayList(Actions.UNSAT_CORE,
-                                          Actions.OPEN_IN_TIMETABLE,
-                                          Actions.STEPWISE_UNSAT_CORE,
-                                          Actions.REMOVE);
+      Actions.OPEN_IN_TIMETABLE,
+      Actions.STEPWISE_UNSAT_CORE,
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> conflictActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
-                                          Actions.STEPWISE_UNSAT_CORE,
-                                          Actions.REMOVE);
+      Actions.STEPWISE_UNSAT_CORE,
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> cancelledActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
-                                          Actions.RESTART_COMPUTATION,
-                                          Actions.REMOVE);
+      Actions.RESTART_COMPUTATION,
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> scheduledActions
       = FXCollections.observableArrayList(Actions.CANCEL);
@@ -99,8 +99,8 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   private static final ObservableList<Actions> timeoutActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
-                                          Actions.RESTART_COMPUTATION,
-                                          Actions.REMOVE);
+      Actions.RESTART_COMPUTATION,
+      Actions.REMOVE);
 
   @FXML
   @SuppressWarnings("unused")
@@ -257,7 +257,7 @@ public class FeasibilityBox extends VBox implements Initializable {
       switch (task.getState()) {
         case CANCELLED:
           if (ResourceBundle.getBundle("lang.tasks").getString("timeout")
-                .equals(task.getReason())) {
+              .equals(task.getReason())) {
             return noConflictString;
           }
           return "";
@@ -278,8 +278,12 @@ public class FeasibilityBox extends VBox implements Initializable {
     getChildren().add(conflictTree);
   }
 
-  private void restartComputationAction() {
+  /**
+   * Restart the check feasibility computation.
+   */
+  public void restartComputationAction() {
     delayedSolverService.whenAvailable(solverService -> {
+      interrupt();
       final SolverTask<Boolean> task = solverService.checkFeasibilityTask(courses);
       feasibilityTaskBindings(task);
 
@@ -311,6 +315,14 @@ public class FeasibilityBox extends VBox implements Initializable {
       return;
     }
     solverTask.cancel(true);
+  }
+
+  public Course getMajorCourse() {
+    return major;
+  }
+
+  public Course getMinorCourse() {
+    return minor;
   }
 
   private enum Actions {
