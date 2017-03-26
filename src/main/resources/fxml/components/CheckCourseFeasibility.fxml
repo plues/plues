@@ -16,6 +16,6 @@
                     onAction="#unhighlightConflicts"/>
         </HBox>
     </VBox>
-    <ListView fx:id="resultBoxWrapper" id="batchListView" focusTraversable="false"
+    <ListView fx:id="feasibilityBoxWrapper" id="batchListView" focusTraversable="false"
               VBox.vgrow="ALWAYS"/>
 </fx:root>
