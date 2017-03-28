@@ -138,6 +138,10 @@ public class ResultGridCell extends Pane {
     return resultState.get();
   }
 
+  ContextMenu getContextMenu() {
+    return contextMenu;
+  }
+
   @SuppressWarnings("unused")
   public ObjectProperty<ResultState> resultStateProperty() {
     return resultState;
