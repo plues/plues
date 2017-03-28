@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
 
@@ -24,6 +25,8 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
 
   @Test
   public void submitTaskTest() {
+    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
+
     Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
     Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
 
@@ -40,6 +43,8 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
 
   @Test
   public void cancelTaskTest() {
+    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
+
     unsatCoreButtonBar.setOnAction((event) -> runSimpleTask(10));
     Assert.assertEquals(unsatCoreButtonBar.getTask(), null);
 

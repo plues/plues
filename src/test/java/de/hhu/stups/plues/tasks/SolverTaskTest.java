@@ -17,7 +17,6 @@ import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.stage.Stage;
 
-import org.hamcrest.Matchers;
 import org.junit.Assume;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -55,7 +54,7 @@ public class SolverTaskTest extends ApplicationTest {
   public void testCallableIsSuccessful() throws ExecutionException, InterruptedException {
     // don't run this test on travis since it is non-deterministic whereat it should
     // succeed all the time
-    Assume.assumeThat(System.getenv("TRAVIS"), Matchers.equalTo(false));
+    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
 
     final CountDownLatch latch = new CountDownLatch(1);
     final SolverTask<Integer> solverTask
@@ -66,7 +65,7 @@ public class SolverTaskTest extends ApplicationTest {
       solverTask.setOnSucceeded(event -> {
         taskProperties.setMessage(solverTask.getMessage());
         taskProperties.setTitle(solverTask.getTitle());
-        taskProperties.setDone(solverTask.isDone());
+        taskProperties.setDone(true);
         taskProperties.setValue(solverTask.getValue());
         latch.countDown();
       });
@@ -160,7 +159,7 @@ public class SolverTaskTest extends ApplicationTest {
   public void testTaskTimeout() throws InterruptedException {
     // don't run this test on travis since it is non-deterministic whereat it should
     // succeed all the time
-    Assume.assumeThat(System.getenv("TRAVIS"), Matchers.equalTo(false));
+    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
 
     final Callable<Integer> c = () -> {
       TimeUnit.DAYS.sleep(365);
@@ -182,6 +181,7 @@ public class SolverTaskTest extends ApplicationTest {
       assertEquals(TITLE, taskProperties.getTitle());
 
       assertTrue(taskProperties.isDone());
+
       assertEquals(taskProperties.getState(), Worker.State.CANCELLED);
       assertTrue(taskProperties.isCancelled());
 

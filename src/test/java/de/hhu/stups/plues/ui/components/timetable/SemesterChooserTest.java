@@ -11,7 +11,6 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -37,6 +36,8 @@ public class SemesterChooserTest extends ApplicationTest {
 
   @Test
   public void testMultipleSelectionKeyboard() throws Exception {
+    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
+
     final ObservableSet<Integer> selection1 = semesterChooser.getSelectedSemesters();
     assertEquals(0, selection1.size());
 
@@ -58,6 +59,8 @@ public class SemesterChooserTest extends ApplicationTest {
 
   @Test
   public void testSingleSelectionKeyboard() throws Exception {
+    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
+
     final ObservableSet<Integer> selection1 = semesterChooser.getSelectedSemesters();
     assertEquals(0, selection1.size());
 
@@ -75,6 +78,8 @@ public class SemesterChooserTest extends ApplicationTest {
 
   @Test
   public void testSingleSelectionMouse() throws Exception {
+    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
+
     final ObservableSet<Integer> selection1 = semesterChooser.getSelectedSemesters();
     assertEquals(0, selection1.size());
 
@@ -90,7 +95,7 @@ public class SemesterChooserTest extends ApplicationTest {
   public void testMultipleSelectionMouse() throws Exception {
     // don't run this test in headless mode since it fails for unknown reasons, nevertheless, the
     // test succeeds in a headful testing environment
-    Assume.assumeThat(System.getenv("HEADLESS"), Matchers.equalTo(false));
+    Assume.assumeFalse("true".equals(System.getenv("HEADLESS")));
 
     final ObservableSet<Integer> selection1 = semesterChooser.getSelectedSemesters();
     assertEquals(0, selection1.size());
