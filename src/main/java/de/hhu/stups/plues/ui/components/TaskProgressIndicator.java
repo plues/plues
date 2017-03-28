@@ -9,6 +9,7 @@ import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -113,7 +114,7 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
         resetTaskState();
         return;
       }
-      showTaskState(newValue);
+      Platform.runLater(() -> showTaskState(newValue));
     });
 
     sizeProperty().addListener((observable, oldValue, newValue) -> {
