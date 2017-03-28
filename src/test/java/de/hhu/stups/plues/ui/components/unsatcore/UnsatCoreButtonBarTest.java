@@ -58,6 +58,8 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
 
   @Test
   public void cancelWaitingTaskTest() {
+    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
+
     Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
     Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
 
