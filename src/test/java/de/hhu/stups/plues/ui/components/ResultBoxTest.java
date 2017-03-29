@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testfx.api.FxAssert.verifyThat;
+import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
@@ -21,11 +22,13 @@ import javafx.scene.control.ListView;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.matcher.control.LabeledMatchers;
+import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -78,6 +81,12 @@ public abstract class ResultBoxTest extends ApplicationTest {
     final Label icon = taskProgressIndicator.getTaskStateIcon();
     final Text graphic = (Text) icon.getGraphic();
     Assert.assertEquals(mark.getText(), graphic.getText());
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
   }
 
   @Override

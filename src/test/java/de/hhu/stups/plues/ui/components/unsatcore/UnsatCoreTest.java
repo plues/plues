@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components.unsatcore;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
@@ -31,9 +32,11 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -295,6 +298,12 @@ public class UnsatCoreTest extends ApplicationTest {
     Assert.assertTrue(abstractUnitUnsatCore.abstractUnitsProperty().isEmpty());
     Assert.assertTrue(groupUnsatCore.groupProperty().isEmpty());
     Assert.assertTrue(sessionUnsatCore.sessionProperty().isEmpty());
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
   }
 
   @Override

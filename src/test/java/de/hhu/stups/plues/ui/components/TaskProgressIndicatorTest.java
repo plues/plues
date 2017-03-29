@@ -8,13 +8,17 @@ import javafx.scene.Scene;
 import javafx.scene.control.ProgressIndicator;
 import javafx.stage.Stage;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import static org.testfx.api.FxToolkit.setupStage;
 
 public class TaskProgressIndicatorTest extends ApplicationTest {
 
@@ -55,6 +59,12 @@ public class TaskProgressIndicatorTest extends ApplicationTest {
     executorService.submit(simpleTask);
     sleep(4,TimeUnit.SECONDS);
     Assert.assertFalse(taskProgressIndicator.getTaskStateIcon().isVisible());
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
   }
 
   @Override

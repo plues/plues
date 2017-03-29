@@ -9,14 +9,18 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.testfx.api.FxToolkit.setupStage;
 
 @RunWith(JUnit4.class)
 public class CombinationOrSingleCourseSelectionTest extends ApplicationTest {
@@ -101,6 +105,11 @@ public class CombinationOrSingleCourseSelectionTest extends ApplicationTest {
     Assert.assertEquals(courseList.get(2), courseSelection.getSelectedCourses().get(0));
   }
 
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
+  }
 
   @Override
   public void start(final Stage stage) throws Exception {

@@ -31,11 +31,6 @@ public class SemesterChooserTest extends ApplicationTest {
     semesterChooser.getButtons().forEach(toggleButton -> toggleButton.setSelected(false));
   }
 
-  @After
-  public void tearDown() throws Exception {
-
-  }
-
   @Test
   public void testMultipleSelectionKeyboard() throws Exception {
     final ObservableSet<Integer> selection1 = semesterChooser.getSelectedSemesters();

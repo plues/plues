@@ -1,7 +1,8 @@
 package de.hhu.stups.plues.ui.components;
 
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
@@ -21,9 +22,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.stage.Stage;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,12 +46,10 @@ public class AbstractUnitFilterTest extends ApplicationTest {
    */
   public AbstractUnitFilterTest() {
     abstractUnits = new ArrayList<>();
-
-
     course = new Course();
     course.setKey("Course-1-1-1");
     Module module = mock(Module.class);
-    doReturn(FXCollections.observableSet(course)).when(module).getCourses();
+    when(module.getCourses()).thenReturn(FXCollections.observableSet(course));
 
     this.a1 = new AbstractUnit();
     a1.setTitle("Abstract Unit 1");
@@ -175,6 +176,12 @@ public class AbstractUnitFilterTest extends ApplicationTest {
     final AbstractUnit item = items.get(0);
     Assert.assertEquals(a1, item);
 
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
   }
 
   @Override

@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.ui.components;
 
 import static javafx.collections.FXCollections.observableList;
+import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -11,11 +12,13 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,6 +107,12 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
     Assert.assertEquals(minor, courseSelection.getSelectedMinor());
     Assert.assertEquals(courses, courseSelection.getSelectedCourses());
 
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
   }
 
   @Override
