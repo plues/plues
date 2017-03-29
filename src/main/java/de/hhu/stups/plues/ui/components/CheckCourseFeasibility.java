@@ -91,7 +91,8 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   public void checkFeasibility() {
-    addOrRestartFeasibilityBox(combinationOrSingleCourseSelection.getSelectedCourses());
+    Platform.runLater(() ->
+        addOrRestartFeasibilityBox(combinationOrSingleCourseSelection.getSelectedCourses()));
   }
 
   /**
@@ -152,5 +153,9 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
 
   public Set<Course> getImpossibleCourses() {
     return combinationOrSingleCourseSelection.getImpossibleCourses();
+  }
+
+  public ListView<FeasibilityBox> getFeasibilityBoxWrapper() {
+    return feasibilityBoxWrapper;
   }
 }
