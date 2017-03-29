@@ -1,5 +1,7 @@
 package de.hhu.stups.plues.ui.components;
 
+import static org.testfx.api.FxToolkit.setupStage;
+
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -18,7 +20,6 @@ import org.testfx.util.WaitForAsyncUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.testfx.api.FxToolkit.setupStage;
 
 public class SetOfCourseSelectionTest extends ApplicationTest {
   private SetOfCourseSelection courseSelection;

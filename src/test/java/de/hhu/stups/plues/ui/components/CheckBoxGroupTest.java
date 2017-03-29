@@ -1,5 +1,7 @@
 package de.hhu.stups.plues.ui.components;
 
+import static org.testfx.api.FxToolkit.setupStage;
+
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
@@ -23,7 +25,6 @@ import org.testfx.util.WaitForAsyncUtils;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.testfx.api.FxToolkit.setupStage;
 
 @RunWith(JUnit4.class)
 public class CheckBoxGroupTest extends ApplicationTest {

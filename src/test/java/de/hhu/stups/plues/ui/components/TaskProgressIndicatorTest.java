@@ -1,5 +1,7 @@
 package de.hhu.stups.plues.ui.components;
 
+import static org.testfx.api.FxToolkit.setupStage;
+
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.concurrent.Task;
@@ -18,7 +20,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.testfx.api.FxToolkit.setupStage;
 
 public class TaskProgressIndicatorTest extends ApplicationTest {
 
@@ -46,7 +47,7 @@ public class TaskProgressIndicatorTest extends ApplicationTest {
     taskProgressIndicator.taskProperty().set(simpleTask);
     Assert.assertEquals(simpleTask, taskProgressIndicator.taskProperty().get());
     executorService.submit(simpleTask);
-    sleep(4,TimeUnit.SECONDS);
+    sleep(4, TimeUnit.SECONDS);
     Assert.assertTrue(taskProgressIndicator.getTaskStateIcon().isVisible());
   }
 
@@ -57,7 +58,7 @@ public class TaskProgressIndicatorTest extends ApplicationTest {
     taskProgressIndicator.taskProperty().set(simpleTask);
     Assert.assertEquals(simpleTask, taskProgressIndicator.taskProperty().get());
     executorService.submit(simpleTask);
-    sleep(4,TimeUnit.SECONDS);
+    sleep(4, TimeUnit.SECONDS);
     Assert.assertFalse(taskProgressIndicator.getTaskStateIcon().isVisible());
   }
 
