@@ -6,7 +6,6 @@ import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.UiTestHelper;
 
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -23,11 +22,9 @@ public class ResultGridCellTest extends ApplicationTest {
   private final VBox box = new VBox();
   private ResultGridCell resultGridCell;
   private ResultGridCell resultGridCellSingleCourse;
-  private Stage stage;
 
   @Test
   public void succeededGridCell() {
-    reloadStage();
     resultGridCell.setResultState(ResultState.SUCCEEDED);
     resultGridCellSingleCourse.setResultState(ResultState.SUCCEEDED);
     Assert.assertFalse(resultGridCell.getContextMenu().isShowing());
@@ -42,7 +39,6 @@ public class ResultGridCellTest extends ApplicationTest {
 
   @Test
   public void failedGridCell() {
-    reloadStage();
     resultGridCell.setResultState(ResultState.FAILED);
     Assert.assertFalse(resultGridCell.getContextMenu().isShowing());
     clickOn(resultGridCell);
@@ -52,7 +48,6 @@ public class ResultGridCellTest extends ApplicationTest {
 
   @Test
   public void timeoutGridCell() {
-    reloadStage();
     resultGridCell.setResultState(ResultState.TIMEOUT);
     Assert.assertFalse(resultGridCell.getContextMenu().isShowing());
     clickOn(resultGridCell);
@@ -62,7 +57,6 @@ public class ResultGridCellTest extends ApplicationTest {
 
   @Test
   public void impossibleGridCell() {
-    reloadStage();
     resultGridCell.setResultState(ResultState.IMPOSSIBLE);
     Assert.assertFalse(resultGridCell.getContextMenu().isShowing());
     clickOn(resultGridCell);
@@ -72,19 +66,11 @@ public class ResultGridCellTest extends ApplicationTest {
 
   @Test
   public void impossibleCombinationGridCell() {
-    reloadStage();
     resultGridCell.setResultState(ResultState.IMPOSSIBLE_COMBINATION);
     Assert.assertFalse(resultGridCell.getContextMenu().isShowing());
     clickOn(resultGridCell);
     Assert.assertFalse(resultGridCell.getContextMenu().isShowing());
     Assert.assertTrue(resultGridCell.getContextMenu().getItems().isEmpty());
-  }
-
-  private void reloadStage() {
-    Platform.runLater(() -> {
-      stage.close();
-      stage.show();
-    });
   }
 
   @After
@@ -110,6 +96,5 @@ public class ResultGridCellTest extends ApplicationTest {
 
     stage.setScene(scene);
     stage.show();
-    this.stage = stage;
   }
 }
