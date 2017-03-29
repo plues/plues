@@ -1,5 +1,7 @@
 package de.hhu.stups.plues.ui.components.unsatcore;
 
+import static org.testfx.api.FxToolkit.setupStage;
+
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.components.UiTestHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -10,13 +12,15 @@ import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 
 public class UnsatCoreButtonBarTest extends ApplicationTest {
 
@@ -25,8 +29,6 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
 
   @Test
   public void submitTaskTest() {
-    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
-
     Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
     Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
 
@@ -43,8 +45,6 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
 
   @Test
   public void cancelTaskTest() {
-    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
-
     unsatCoreButtonBar.setOnAction((event) -> runSimpleTask(10));
     Assert.assertEquals(unsatCoreButtonBar.getTask(), null);
 
@@ -58,8 +58,6 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
 
   @Test
   public void cancelWaitingTaskTest() {
-    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
-
     Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
     Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
 
@@ -94,6 +92,12 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
       Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
       Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
     }));
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
   }
 
   @Override

@@ -1,5 +1,7 @@
 package de.hhu.stups.plues.ui.components.conflictmatrix;
 
+import static org.testfx.api.FxToolkit.setupStage;
+
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.UiTestHelper;
@@ -9,9 +11,12 @@ import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
+
 
 public class ResultGridCellTest extends ApplicationTest {
 
@@ -80,6 +85,12 @@ public class ResultGridCellTest extends ApplicationTest {
       stage.close();
       stage.show();
     });
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
   }
 
   @Override

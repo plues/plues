@@ -2,6 +2,7 @@ package de.hhu.stups.plues.ui.components.timetable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.testfx.api.FxToolkit.setupStage;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
@@ -16,6 +17,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,8 +38,6 @@ public class SemesterChooserTest extends ApplicationTest {
 
   @Test
   public void testMultipleSelectionKeyboard() throws Exception {
-    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
-
     final ObservableSet<Integer> selection1 = semesterChooser.getSelectedSemesters();
     assertEquals(0, selection1.size());
 
@@ -59,8 +59,6 @@ public class SemesterChooserTest extends ApplicationTest {
 
   @Test
   public void testSingleSelectionKeyboard() throws Exception {
-    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
-
     final ObservableSet<Integer> selection1 = semesterChooser.getSelectedSemesters();
     assertEquals(0, selection1.size());
 
@@ -78,8 +76,6 @@ public class SemesterChooserTest extends ApplicationTest {
 
   @Test
   public void testSingleSelectionMouse() throws Exception {
-    Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
-
     final ObservableSet<Integer> selection1 = semesterChooser.getSelectedSemesters();
     assertEquals(0, selection1.size());
 
@@ -176,6 +172,12 @@ public class SemesterChooserTest extends ApplicationTest {
     assertEquals(3, selectedButtons.size());
     assertTrue(selectedButtons.containsAll(Arrays.asList("1", "3", "5")));
 
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
   }
 
   @Override
