@@ -71,9 +71,9 @@ dependencies {
     testCompile 'org.mockito:mockito-core:2.7.+'
 
     // provides org.testfx.api, org.testfx.matcher to the test source set.
-    testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.4-alpha")
+    testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.6-alpha")
     // provides org.testfx.framework.junit to the test source set.
-    testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.4-alpha")
+    testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.6-alpha")
     testRuntime 'org.testfx:openjfx-monocle:1.8.0_20'
 }
 
