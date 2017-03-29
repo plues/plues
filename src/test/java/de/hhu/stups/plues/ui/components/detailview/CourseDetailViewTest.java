@@ -31,6 +31,7 @@ public class CourseDetailViewTest extends ApplicationTest {
    * Test constructor.
    */
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   public CourseDetailViewTest() {
     course = mock(Course.class, new ThrowsException(new RuntimeException()));
 

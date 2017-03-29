@@ -40,6 +40,7 @@ public class AbstractUnitDetailViewTest extends ApplicationTest {
    * Test constructor.
    */
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   public AbstractUnitDetailViewTest() {
     abstractUnit = mock(AbstractUnit.class, new ThrowsException(new RuntimeException()));
     final Module mod1 = mock(Module.class, new ThrowsException(new RuntimeException()));

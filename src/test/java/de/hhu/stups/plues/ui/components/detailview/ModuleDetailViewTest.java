@@ -25,6 +25,7 @@ import org.mockito.internal.stubbing.answers.ThrowsException;
 import org.testfx.framework.junit.ApplicationTest;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -32,10 +33,7 @@ public class ModuleDetailViewTest extends ApplicationTest {
 
   private static final String TITLE = "Module 1";
   private static final int PORDNR = 1;
-  private static final String MANDATORY = "✗";
-  private static final int CREDIT_POINTS = 100;
   private static final int ELECTIVE_UNITS = 0;
-  private final List<Course> courses;
   private final List<AbstractUnit> abstractUnits;
   private final List<ModuleLevel> moduleLevels;
   private Module module;
@@ -44,6 +42,7 @@ public class ModuleDetailViewTest extends ApplicationTest {
    * Test constructor.
    */
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   public ModuleDetailViewTest() {
     final AbstractUnit au1 = mock(AbstractUnit.class, new ThrowsException(new RuntimeException()));
     final AbstractUnit au2 = mock(AbstractUnit.class, new ThrowsException(new RuntimeException()));
@@ -51,9 +50,9 @@ public class ModuleDetailViewTest extends ApplicationTest {
     final Course course1 = mock(Course.class, new ThrowsException(new RuntimeException()));
     final Course course2 = mock(Course.class, new ThrowsException(new RuntimeException()));
 
-    this.courses = Arrays.asList(course1, course2);
+    final List<Course> courses = Arrays.asList(course1, course2);
     this.abstractUnits = Arrays.asList(au1, au2);
-    this.moduleLevels = Arrays.asList(new ModuleLevel());
+    this.moduleLevels = Collections.singletonList(new ModuleLevel());
 
     doReturn("Course 1").when(course1).getName();
     doReturn("BK-Course-1").when(course1).getFullName();
