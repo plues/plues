@@ -1,6 +1,6 @@
 package de.hhu.stups.plues.ui.components.detailview;
 
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
