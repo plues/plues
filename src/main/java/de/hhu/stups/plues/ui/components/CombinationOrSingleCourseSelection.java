@@ -83,6 +83,14 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
       }
     });
 
+    // when the single course selection is activated unbind the property and set the selected
+    // minor course to null
+    rbSingleSelection.setOnAction(event -> {
+      majorMinorCourseSelection.selectedMinorProperty().unbind();
+      majorMinorCourseSelection.selectedMinorProperty().set(null);
+    });
+    rbCombination.setOnAction(event -> majorMinorCourseSelection.resetSelectedMinorProperty());
+
     majorMinorCourseSelection.setPercentWidth(100.0);
     majorMinorCourseSelection.impossibleCoursesProperty().bind(impossibleCoursesProperty);
 

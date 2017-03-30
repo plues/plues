@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
@@ -17,6 +18,7 @@ import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleSetProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -49,6 +51,9 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private final ObjectProperty<Course> selectedMajor = new SimpleObjectProperty<>();
   private final ObjectProperty<Course> selectedMinor = new SimpleObjectProperty<>();
   private final ListProperty<Course> selectedCourses = new SimpleListProperty<>();
+  private final ObservableValue<? extends ObservableList<Course>> selectedCoursesListBinding =
+      new SelectedCoursesListBinding();
+
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<Course> cbMajor;
@@ -138,7 +143,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
         .then(new SimpleObjectProperty<Course>(null))
         .otherwise(cbMinor.getSelectionModel().selectedItemProperty()));
 
-    this.selectedCourses.bind(new SelectedCoursesListBinding());
+    this.selectedCourses.bind(selectedCoursesListBinding);
   }
 
   /**
@@ -224,6 +229,13 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     this.minorCourseList.set(minorCourseList);
   }
 
+  /**
+   * Reset the selected minor property to match the selected minor course.
+   */
+  void resetSelectedMinorProperty() {
+    this.selectedCourses.bind(selectedCoursesListBinding);
+  }
+
   private static class ListViewListCellCallback
       implements Callback<ListView<Course>, ListCell<Course>> {
 
@@ -290,7 +302,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
       return minorCourseList.stream()
           .filter(major::isCombinableWith)
           .collect(
-            Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
+              Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
     }
   }
 
