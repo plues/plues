@@ -97,6 +97,7 @@ public class CheckCourseFeasibilityTest extends ApplicationTest {
     checkCourseFeasibility.checkFeasibility();
     sleep(500, TimeUnit.MILLISECONDS);
     assertEquals(1, feasibilityBoxWrapper.getItems().size());
+    final FeasibilityBox combinableBox = feasibilityBoxWrapper.getItems().get(0);
     clickOn(courseSelection.getRbSingleSelection());
     checkCourseFeasibility.checkFeasibility();
     sleep(500, TimeUnit.MILLISECONDS);
@@ -105,6 +106,7 @@ public class CheckCourseFeasibilityTest extends ApplicationTest {
     checkCourseFeasibility.checkFeasibility();
     sleep(500, TimeUnit.MILLISECONDS);
     assertEquals(2, feasibilityBoxWrapper.getItems().size());
+    assertEquals(combinableBox, feasibilityBoxWrapper.getItems().get(0));
   }
 
   @Test
@@ -182,7 +184,9 @@ public class CheckCourseFeasibilityTest extends ApplicationTest {
             new FeasibilityBox(inflater, router, delayedSolverService, executorService,
                 () -> null, uiDataService,
                 courseSelection.getMajorMinorCourseSelection().getSelectedMajor(),
-                courseSelection.getMajorMinorCourseSelection().getSelectedMinor(),
+                courseSelection.getRbCombination().isSelected()
+                    ? courseSelection.getMajorMinorCourseSelection().getSelectedMinor()
+                    : null,
                 feasibilityBoxWrapper));
 
     checkCourseFeasibility = new CheckCourseFeasibility(inflater, feasibilityBoxFactory,
