@@ -18,7 +18,6 @@ import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleSetProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -40,6 +39,12 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Create the component containing the combo boxes to choose major and minor courses. When using
+ * the component we need to initially call {@link #setMajorCourseList(ObservableList)} and {@link
+ * #setMinorCourseList(ObservableList)}. As soon as the solver is available the impossible courses
+ * can be highlighted via the {@link #impossibleCoursesProperty} property.
+ */
 public class MajorMinorCourseSelection extends GridPane implements Initializable, Observable {
 
   private final List<InvalidationListener> listeners = new ArrayList<>();
@@ -51,8 +56,6 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private final ObjectProperty<Course> selectedMajor = new SimpleObjectProperty<>();
   private final ObjectProperty<Course> selectedMinor = new SimpleObjectProperty<>();
   private final ListProperty<Course> selectedCourses = new SimpleListProperty<>();
-  private final ObservableValue<? extends ObservableList<Course>> selectedCoursesListBinding =
-      new SelectedCoursesListBinding();
 
   @FXML
   @SuppressWarnings("unused")
@@ -64,14 +67,6 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   @SuppressWarnings("unused")
   private ColumnConstraints columnConstraints;
 
-  /**
-   * Create the component containing the combo boxes to choose major and minor courses. When using
-   * the component we need to initially call {@link #setMajorCourseList(ObservableList)} and {@link
-   * #setMinorCourseList(ObservableList)}. As soon as the solver is available the impossible courses
-   * can be highlighted via the {@link #impossibleCoursesProperty} property.
-   *
-   * @param inflater Inflater to handle fxml.
-   */
   @Inject
   public MajorMinorCourseSelection(final Inflater inflater) {
     inflater.inflate("components/MajorMinorCourseSelection", this, this);
@@ -93,7 +88,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   }
 
   @SuppressWarnings("unused")
-  public ObjectProperty<Course> selectedMinorProperty() {
+  ObjectProperty<Course> selectedMinorProperty() {
     return selectedMinor;
   }
 
@@ -103,7 +98,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   }
 
   @SuppressWarnings("unused")
-  public ReadOnlyListProperty<Course> selectedCoursesProperty() {
+  ReadOnlyListProperty<Course> selectedCoursesProperty() {
     return selectedCourses;
   }
 
@@ -143,7 +138,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
         .then(new SimpleObjectProperty<Course>(null))
         .otherwise(cbMinor.getSelectionModel().selectedItemProperty()));
 
-    this.selectedCourses.bind(selectedCoursesListBinding);
+    this.selectedCourses.bind(new SelectedCoursesListBinding());
   }
 
   /**
@@ -227,13 +222,6 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
 
   public void setMinorCourseList(final ObservableList<Course> minorCourseList) {
     this.minorCourseList.set(minorCourseList);
-  }
-
-  /**
-   * Reset the selected minor property to match the selected minor course.
-   */
-  void resetSelectedMinorProperty() {
-    this.selectedCourses.bind(selectedCoursesListBinding);
   }
 
   private static class ListViewListCellCallback
