@@ -135,7 +135,7 @@ public class SolverTask<T> extends Task<T> {
 
   private void sleep() throws InterruptedException {
     try {
-      TimeUnit.MILLISECONDS.sleep(100);
+      TimeUnit.MILLISECONDS.sleep(200);
     } catch (final InterruptedException interrupted) {
       if (isCancelled()) {
         updateMessage(this.reason);
