@@ -55,7 +55,7 @@ public class CheckCourseFeasibilityTest extends ApplicationTest {
     assertFalse(feasibilityBoxWrapper.isVisible());
     assertEquals(0, feasibilityBoxWrapper.getItems().size());
     checkCourseFeasibility.checkFeasibility();
-    sleep(1, TimeUnit.SECONDS);
+    sleep(500, TimeUnit.MILLISECONDS);
     assertEquals(1, feasibilityBoxWrapper.getItems().size());
     assertTrue(feasibilityBoxWrapper.isVisible());
 
@@ -63,7 +63,7 @@ public class CheckCourseFeasibilityTest extends ApplicationTest {
         .type(KeyCode.DOWN)
         .type(KeyCode.ENTER);
     checkCourseFeasibility.checkFeasibility();
-    sleep(1, TimeUnit.SECONDS);
+    sleep(500, TimeUnit.MILLISECONDS);
     assertEquals(2, feasibilityBoxWrapper.getItems().size());
   }
 
@@ -74,11 +74,11 @@ public class CheckCourseFeasibilityTest extends ApplicationTest {
         .type(KeyCode.ENTER);
     assertFalse(feasibilityBoxWrapper.isVisible());
     checkCourseFeasibility.checkFeasibility();
-    sleep(1, TimeUnit.SECONDS);
+    sleep(500, TimeUnit.MILLISECONDS);
     assertEquals(1, feasibilityBoxWrapper.getItems().size());
     assertTrue(feasibilityBoxWrapper.isVisible());
     checkCourseFeasibility.checkFeasibility();
-    sleep(1, TimeUnit.SECONDS);
+    sleep(500, TimeUnit.MILLISECONDS);
     assertEquals(1, feasibilityBoxWrapper.getItems().size());
     assertTrue(feasibilityBoxWrapper.isVisible());
 
@@ -86,9 +86,25 @@ public class CheckCourseFeasibilityTest extends ApplicationTest {
         .type(KeyCode.UP)
         .type(KeyCode.ENTER);
     checkCourseFeasibility.checkFeasibility();
-    sleep(1, TimeUnit.SECONDS);
+    sleep(500, TimeUnit.MILLISECONDS);
     assertEquals(2, feasibilityBoxWrapper.getItems().size());
     assertTrue(feasibilityBoxWrapper.isVisible());
+  }
+
+  @Test
+  public void testDifferentBoxForCombinedAndSingleMajorCourse() {
+    assertFalse(feasibilityBoxWrapper.isVisible());
+    checkCourseFeasibility.checkFeasibility();
+    sleep(500, TimeUnit.MILLISECONDS);
+    assertEquals(1, feasibilityBoxWrapper.getItems().size());
+    clickOn(courseSelection.getRbSingleSelection());
+    checkCourseFeasibility.checkFeasibility();
+    sleep(500, TimeUnit.MILLISECONDS);
+    assertEquals(2, feasibilityBoxWrapper.getItems().size());
+    clickOn(courseSelection.getRbCombination());
+    checkCourseFeasibility.checkFeasibility();
+    sleep(500, TimeUnit.MILLISECONDS);
+    assertEquals(2, feasibilityBoxWrapper.getItems().size());
   }
 
   @Test
@@ -99,7 +115,7 @@ public class CheckCourseFeasibilityTest extends ApplicationTest {
         .type(KeyCode.DOWN)
         .type(KeyCode.ENTER);
     checkCourseFeasibility.checkFeasibility();
-    sleep(1, TimeUnit.SECONDS);
+    sleep(500, TimeUnit.MILLISECONDS);
     assertEquals(2, feasibilityBoxWrapper.getItems().size());
     assertTrue(feasibilityBoxWrapper.isVisible());
     final FeasibilityBox existingFeasibilityBox = feasibilityBoxWrapper.getItems().get(1);
@@ -107,13 +123,13 @@ public class CheckCourseFeasibilityTest extends ApplicationTest {
         .type(KeyCode.UP)
         .type(KeyCode.ENTER);
     checkCourseFeasibility.checkFeasibility();
-    sleep(1, TimeUnit.SECONDS);
+    sleep(500, TimeUnit.MILLISECONDS);
     assertEquals(existingFeasibilityBox, feasibilityBoxWrapper.getItems().get(0));
     clickOn(courseSelection.getMajorMinorCourseSelection().getMajorComboBox())
         .type(KeyCode.DOWN)
         .type(KeyCode.ENTER);
     checkCourseFeasibility.checkFeasibility();
-    sleep(1, TimeUnit.SECONDS);
+    sleep(500, TimeUnit.MILLISECONDS);
     assertEquals(existingFeasibilityBox, feasibilityBoxWrapper.getItems().get(1));
   }
 
