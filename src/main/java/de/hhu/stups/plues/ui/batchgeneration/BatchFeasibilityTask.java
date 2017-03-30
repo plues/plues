@@ -55,7 +55,8 @@ public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> 
       try {
         TimeUnit.MILLISECONDS.sleep(500);
       } catch (final InterruptedException exception) {
-        logger.error("Task interrupted during sleep", exception);
+        logger.error("BatchFeasibilityTask interrupted during sleep", exception);
+        throw exception;
       }
 
     }
