@@ -114,7 +114,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     }
     final Optional<FeasibilityBox> containsBox = feasibilityBoxWrapper.getItems().stream().filter(
         feasibilityBox -> majorCourse.equals(feasibilityBox.getMajorCourse())
-            && (minorCourse == null || minorCourse.equals(feasibilityBox.getMinorCourse())))
+            && equalMinorCourses(minorCourse, feasibilityBox.getMinorCourse()))
         .findFirst();
     if (containsBox.isPresent()) {
       toTopOfListview(containsBox.get());
@@ -123,6 +123,11 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     feasibilityBoxWrapper.getItems().add(0, feasibilityBoxFactory.create(majorCourse, minorCourse,
         feasibilityBoxWrapper));
     feasibilityBoxWrapper.scrollTo(0);
+  }
+
+  private boolean equalMinorCourses(final Course minorCourse1, final Course minorCourse2) {
+    return (minorCourse1 == null && minorCourse2 == null)
+        || (minorCourse1 != null && minorCourse1.equals(minorCourse2));
   }
 
   private void toTopOfListview(final FeasibilityBox feasibilityBox) {
@@ -155,7 +160,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     return combinationOrSingleCourseSelection.getImpossibleCourses();
   }
 
-  public ListView<FeasibilityBox> getFeasibilityBoxWrapper() {
+  ListView<FeasibilityBox> getFeasibilityBoxWrapper() {
     return feasibilityBoxWrapper;
   }
 }
