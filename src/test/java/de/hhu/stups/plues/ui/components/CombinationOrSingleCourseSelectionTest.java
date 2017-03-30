@@ -5,6 +5,7 @@ import static org.testfx.api.FxToolkit.setupStage;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Scene;
@@ -19,14 +20,10 @@ import org.junit.runners.JUnit4;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
 @RunWith(JUnit4.class)
 public class CombinationOrSingleCourseSelectionTest extends ApplicationTest {
   private CombinationOrSingleCourseSelection courseSelection;
-  private List<Course> courseList;
+  private ObservableList<Course> courseList = UiTestHelper.createCourseList();
 
   @Test
   public void enabledTest() {
@@ -83,7 +80,7 @@ public class CombinationOrSingleCourseSelectionTest extends ApplicationTest {
         .type(KeyCode.UP)
         .type(KeyCode.UP)
         .type(KeyCode.ENTER);
-    Assert.assertEquals(courseList.get(8), courseSelection.getSelectedCourses().get(0));
+    Assert.assertEquals(courseList.get(4), courseSelection.getSelectedCourses().get(0));
     Assert.assertEquals(courseList.get(2), courseSelection.getSelectedCourses().get(1));
 
     clickOn(courseSelection.getRbSingleSelection());
@@ -114,19 +111,6 @@ public class CombinationOrSingleCourseSelectionTest extends ApplicationTest {
 
   @Override
   public void start(final Stage stage) throws Exception {
-    courseList = new ArrayList<>();
-    courseList.add(UiTestHelper.createCourse("shortName1", "bk", "H"));
-    courseList.add(UiTestHelper.createCourse("shortName2", "ba", "H"));
-    courseList.add(UiTestHelper.createCourse("shortName3", "bk", "N"));
-    courseList.add(UiTestHelper.createCourse("shortName4", "bk", "N"));
-    courseList.add(UiTestHelper.createCourse("shortName5", "bk", "H"));
-    courseList.add(UiTestHelper.createCourse("shortName6", "bk", "N"));
-    courseList.add(UiTestHelper.createCourse("shortName7", "ma", "N"));
-    courseList.add(UiTestHelper.createCourse("shortName8", "ma", "N"));
-    courseList.add(UiTestHelper.createCourse("shortName9", "bk", "H"));
-    courseList.add(UiTestHelper.createCourse("shortName10", "ma", "H"));
-    courseList.add(UiTestHelper.createCourse("shortName11", "ma", "H"));
-
     final FXMLLoader loader = new FXMLLoader();
     loader.setBuilderFactory(type -> {
       if (type.equals(MajorMinorCourseSelection.class)) {

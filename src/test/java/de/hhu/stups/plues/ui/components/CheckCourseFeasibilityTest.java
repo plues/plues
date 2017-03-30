@@ -16,7 +16,6 @@ import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
@@ -37,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class CheckCourseFeasibilityTest extends ApplicationTest {
 
   private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-  private final ObservableList<Course> courseList = FXCollections.observableArrayList();
+  private final ObservableList<Course> courseList = UiTestHelper.createCourseList();
   private final Store store;
 
   private CheckCourseFeasibility checkCourseFeasibility;
@@ -126,14 +125,6 @@ public class CheckCourseFeasibilityTest extends ApplicationTest {
 
   @Override
   public void start(final Stage stage) throws Exception {
-    courseList.add(UiTestHelper.createCourse("shortName1", "bk", "H"));
-    courseList.add(UiTestHelper.createCourse("shortName2", "ba", "H"));
-    courseList.add(UiTestHelper.createCourse("shortName3", "bk", "N"));
-    courseList.add(UiTestHelper.createCourse("shortName4", "ma", "N"));
-    courseList.add(UiTestHelper.createCourse("shortName5", "ma", "N"));
-    courseList.add(UiTestHelper.createCourse("shortName6", "bk", "H"));
-    courseList.add(UiTestHelper.createCourse("shortName7", "ma", "H"));
-
     final FXMLLoader loader = new FXMLLoader();
     loader.setBuilderFactory(type -> {
       if (type.equals(MajorMinorCourseSelection.class)) {

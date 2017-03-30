@@ -7,9 +7,13 @@ import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.ProBSolver;
 import de.hhu.stups.plues.tasks.SolverTask;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -86,5 +90,23 @@ public final class UiTestHelper {
         return true;
       }
     };
+  }
+
+  /**
+   * Create a list of courses to use in the tests.
+   */
+  public static ObservableList<Course> createCourseList() {
+    final List<Course> courseList = new ArrayList<>(10);
+    courseList.add(createCourse("shortName1", "bk", "H"));
+    courseList.add(createCourse("shortName2", "ba", "H"));
+    courseList.add(createCourse("shortName3", "bk", "N"));
+    courseList.add(createCourse("shortName4", "bk", "N"));
+    courseList.add(createCourse("shortName5", "bk", "H"));
+    courseList.add(createCourse("shortName6", "bk", "N"));
+    courseList.add(createCourse("shortName7", "ma", "N"));
+    courseList.add(createCourse("shortName8", "ma", "N"));
+    courseList.add(createCourse("shortName9", "bk", "H"));
+    courseList.add(createCourse("shortName10", "ma", "H"));
+    return FXCollections.observableArrayList(courseList);
   }
 }

@@ -5,6 +5,7 @@ import static org.testfx.api.FxToolkit.setupStage;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -23,7 +24,7 @@ import java.util.List;
 
 public class SetOfCourseSelectionTest extends ApplicationTest {
   private SetOfCourseSelection courseSelection;
-  private List<Course> courseList;
+  private ObservableList<Course> courseList = UiTestHelper.createCourseList();
 
   private List<Node> masterCheckBoxes;
   private List<Node> bachelorCheckBoxes;
@@ -45,13 +46,13 @@ public class SetOfCourseSelectionTest extends ApplicationTest {
     Assert.assertEquals(3, courseSelection.getSelectedCourses().size());
     Assert.assertTrue(courseSelection.getSelectedCourses().contains(courseList.get(0)));
     Assert.assertTrue(courseSelection.getSelectedCourses().contains(courseList.get(1)));
-    Assert.assertTrue(courseSelection.getSelectedCourses().contains(courseList.get(4)));
+    Assert.assertTrue(courseSelection.getSelectedCourses().contains(courseList.get(6)));
 
     clickOn(bachelorCheckBoxes.get(1));
 
     Assert.assertEquals(2, courseSelection.getSelectedCourses().size());
     Assert.assertTrue(courseSelection.getSelectedCourses().contains(courseList.get(0)));
-    Assert.assertTrue(courseSelection.getSelectedCourses().contains(courseList.get(4)));
+    Assert.assertTrue(courseSelection.getSelectedCourses().contains(courseList.get(6)));
 
     clickOn(bachelorCheckBoxes.get(0));
     clickOn(masterCheckBoxes.get(0));
@@ -94,14 +95,6 @@ public class SetOfCourseSelectionTest extends ApplicationTest {
 
   @Override
   public void start(final Stage stage) throws Exception {
-    courseList = new ArrayList<>();
-    courseList.add(UiTestHelper.createCourse("shortName1", "bk", ""));
-    courseList.add(UiTestHelper.createCourse("shortName2", "bk", ""));
-    courseList.add(UiTestHelper.createCourse("shortName3", "bk", ""));
-    courseList.add(UiTestHelper.createCourse("shortName4", "ba", ""));
-    courseList.add(UiTestHelper.createCourse("shortName5", "ma", ""));
-    courseList.add(UiTestHelper.createCourse("shortName6", "ma", ""));
-
     final Inflater inflater = new Inflater(new FXMLLoader());
     courseSelection = new SetOfCourseSelection(inflater);
 
