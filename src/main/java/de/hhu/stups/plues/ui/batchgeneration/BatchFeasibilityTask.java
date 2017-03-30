@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> {
@@ -43,12 +44,18 @@ public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> 
 
     long finishedTasks;
     do {
-      finishedTasks = futurePool.stream().filter(Future::isDone).count();
-      updateProgress(finishedTasks, totalTasks);
-
       if (isCancelled()) {
         updateMessage(resources.getString("cancelAllMsg"));
         break;
+      }
+
+      finishedTasks = futurePool.stream().filter(Future::isDone).count();
+      updateProgress(finishedTasks, totalTasks);
+
+      try {
+        TimeUnit.MILLISECONDS.sleep(500);
+      } catch (final InterruptedException exception) {
+        logger.error("Task interrupted during sleep", exception);
       }
 
     }
