@@ -74,7 +74,7 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     taskProgressIndicator.showIconOnSucceededProperty().set(false);
   }
 
-  public void setSubmitText(final String text) {
+  void setSubmitText(final String text) {
     submitTextProperty.set(text);
   }
 
@@ -123,7 +123,7 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     taskProgressIndicator.showIconOnSucceededProperty().set(showIconOnSucceeded);
   }
 
-  Button getBtSubmitTask() {
+  public Button getBtSubmitTask() {
     return btSubmitTask;
   }
 }
