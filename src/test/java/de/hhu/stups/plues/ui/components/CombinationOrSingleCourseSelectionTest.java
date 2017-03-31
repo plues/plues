@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components;
 import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.ui.UiTestHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.collections.ObservableList;

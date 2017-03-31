@@ -4,7 +4,7 @@ import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.Router;
-import de.hhu.stups.plues.ui.components.UiTestHelper;
+import de.hhu.stups.plues.ui.UiTestHelper;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;

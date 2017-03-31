@@ -14,6 +14,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.ui.UiTestHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.collections.ObservableList;
@@ -156,13 +157,7 @@ public class CheckCourseFeasibilityTest extends ApplicationTest {
     });
 
     final Inflater inflater = new Inflater(loader);
-    final SolverService solverService = mock(SolverService.class);
-    when(solverService.checkFeasibilityTask(any()))
-        .thenReturn(UiTestHelper.getSimpleCheckFeasibilityTask());
-    when(solverService.checkFeasibilityTask(any(), any()))
-        .thenReturn(UiTestHelper.getSimpleCheckFeasibilityTask());
-    when(solverService.impossibleCoursesTask())
-        .thenReturn(UiTestHelper.getSimpleImpossibleCoursesTask());
+    final SolverService solverService = UiTestHelper.getMockedSolverService();
 
     final Delayed<SolverService> delayedSolverService = new Delayed<>();
     delayedSolverService.set(solverService);

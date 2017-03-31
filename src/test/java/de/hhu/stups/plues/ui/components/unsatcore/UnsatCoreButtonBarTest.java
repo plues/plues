@@ -3,7 +3,7 @@ package de.hhu.stups.plues.ui.components.unsatcore;
 import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
-import de.hhu.stups.plues.ui.components.UiTestHelper;
+import de.hhu.stups.plues.ui.UiTestHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.concurrent.Task;
