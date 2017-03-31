@@ -2,6 +2,7 @@ package de.hhu.stups.plues.studienplaene;
 
 import static org.junit.Assert.assertNotNull;
 
+import de.hhu.stups.plues.ui.exceptions.RenderingException;
 import org.junit.Before;
 import org.junit.Test;
 

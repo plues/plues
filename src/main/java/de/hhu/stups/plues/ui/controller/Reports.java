@@ -23,6 +23,7 @@ import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterCo
 import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
+import de.hhu.stups.plues.ui.exceptions.RenderingException;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
@@ -47,7 +48,6 @@ import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import org.jtwig.environment.EnvironmentConfiguration;
 import org.jtwig.environment.EnvironmentConfigurationBuilder;
-import org.xml.sax.SAXException;
 
 import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
@@ -73,7 +73,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
-import javax.xml.parsers.ParserConfigurationException;
 
 public class Reports extends VBox implements Initializable, Observer {
 
@@ -541,7 +540,7 @@ public class Reports extends VBox implements Initializable, Observer {
           pdf.writeTo(stream);
           tryOpenFile(file);
         }
-      } catch (SAXException | ParserConfigurationException | IOException exc) {
+      } catch (RenderingException | IOException exc) {
         logger.error("Exception while rendering reports", exc);
       }
     }

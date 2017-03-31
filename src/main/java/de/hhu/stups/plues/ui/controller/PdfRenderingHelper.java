@@ -1,8 +1,10 @@
 package de.hhu.stups.plues.ui.controller;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.ui.exceptions.RenderingException;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
+import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.xmlgraphics.util.MimeConstants;
@@ -11,6 +13,7 @@ import org.jboss.logging.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 import java.awt.Desktop;
 import java.io.ByteArrayInputStream;
@@ -153,25 +156,58 @@ public class PdfRenderingHelper {
    * Convert OutputStream to pdf using sax.
    * @param out The output stream to be converted.
    * @return Finished pdf
-   * @throws SAXException Thrown if problems with sax rendering
-   * @throws ParserConfigurationException  Thrown in cases of parsing problems
-   * @throws IOException IOException
+   * @throws RenderingException encapsulating error cause
    */
   public static ByteArrayOutputStream toPdf(final ByteArrayOutputStream out)
-      throws SAXException, ParserConfigurationException, IOException {
-    final FopFactory fopFactory
-        = FopFactory.newInstance(new File(".").toURI());
-    final ByteArrayOutputStream pdf = new ByteArrayOutputStream();
-    final Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, pdf);
-    //
-    final SAXParserFactory spf = SAXParserFactory.newInstance();
-    spf.setNamespaceAware(true);
-    final SAXParser saxParser = spf.newSAXParser();
+      throws RenderingException {
 
-    final XMLReader xmlReader = saxParser.getXMLReader();
-    xmlReader.setContentHandler(fop.getDefaultHandler());
-    xmlReader.parse(new InputSource(new ByteArrayInputStream(out.toByteArray())));
+    final ByteArrayOutputStream pdf = new ByteArrayOutputStream();
+
+    final DefaultHandler handler = getFopHandler(pdf);
+    final SAXParser saxParser = getSaxParser();
+    final InputSource input = new InputSource(new ByteArrayInputStream(out.toByteArray()));
+
+    try {
+      final XMLReader xmlReader = saxParser.getXMLReader();
+      xmlReader.setContentHandler(handler);
+      xmlReader.parse(input);
+    } catch (final SAXException | IOException exc) {
+      logger.error("Error with SAX parser", exc);
+      throw new RenderingException(exc);
+    }
     //
     return pdf;
+  }
+
+  private static DefaultHandler getFopHandler(final ByteArrayOutputStream pdf)
+      throws RenderingException {
+
+    final DefaultHandler handler;
+    final FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
+
+    try {
+      final Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, pdf);
+      handler = fop.getDefaultHandler();
+    } catch (final FOPException exc) {
+      logger.error("Error creating Fop object", exc);
+      throw new RenderingException(exc);
+    }
+
+    return handler;
+  }
+
+  private static SAXParser getSaxParser() throws RenderingException {
+    final SAXParserFactory spf = SAXParserFactory.newInstance();
+    spf.setNamespaceAware(true);
+    final SAXParser saxParser;
+
+    try {
+      saxParser = spf.newSAXParser();
+    } catch (ParserConfigurationException | SAXException exc) {
+      logger.error("Error creating SAX parser", exc);
+      throw new RenderingException(exc);
+    }
+
+    return saxParser;
   }
 }
