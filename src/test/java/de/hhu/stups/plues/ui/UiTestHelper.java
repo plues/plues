@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.components;
+package de.hhu.stups.plues.ui;
 
 import static org.mockito.Mockito.mock;
 

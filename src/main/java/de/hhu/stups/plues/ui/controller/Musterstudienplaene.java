@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.controller;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.RouteNames;
@@ -122,8 +123,8 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
       minorCourse = null;
     }
     final Optional<ResultBox> containsBox = resultBoxWrapper.getItems().stream().filter(
-        feasibilityBox -> majorCourse.equals(feasibilityBox.getMajorCourse())
-            && (minorCourse == null || minorCourse.equals(feasibilityBox.getMinorCourse())))
+        resultBox -> majorCourse.equals(resultBox.getMajorCourse())
+            && Helpers.equalCoursesOrNull(minorCourse, resultBox.getMinorCourse()))
         .findFirst();
     if (containsBox.isPresent()) {
       toTopOfListview(containsBox.get());
@@ -156,5 +157,13 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
     if (courses.length == 2) {
       btGeneratePressed();
     }
+  }
+
+  ListView<ResultBox> getResultBoxWrapper() {
+    return resultBoxWrapper;
+  }
+
+  Button getBtGenerate() {
+    return btGenerate;
   }
 }

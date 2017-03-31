@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
@@ -114,7 +115,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     }
     final Optional<FeasibilityBox> containsBox = feasibilityBoxWrapper.getItems().stream().filter(
         feasibilityBox -> majorCourse.equals(feasibilityBox.getMajorCourse())
-            && equalMinorCourses(minorCourse, feasibilityBox.getMinorCourse()))
+            && Helpers.equalCoursesOrNull(minorCourse, feasibilityBox.getMinorCourse()))
         .findFirst();
     if (containsBox.isPresent()) {
       toTopOfListview(containsBox.get());
@@ -123,11 +124,6 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     feasibilityBoxWrapper.getItems().add(0, feasibilityBoxFactory.create(majorCourse, minorCourse,
         feasibilityBoxWrapper));
     feasibilityBoxWrapper.scrollTo(0);
-  }
-
-  private boolean equalMinorCourses(final Course minorCourse1, final Course minorCourse2) {
-    return (minorCourse1 == null && minorCourse2 == null)
-        || (minorCourse1 != null && minorCourse1.equals(minorCourse2));
   }
 
   private void toTopOfListview(final FeasibilityBox feasibilityBox) {
