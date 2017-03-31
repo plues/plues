@@ -37,7 +37,7 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
 
     Assert.assertEquals(courseList, courseSelection.getMajorComboBox().getItems());
     Assert.assertEquals(courseList.filtered(
-            course -> course.isCombinableWith(courseList.get(0))),
+        course -> course.isCombinableWith(courseList.get(0))),
         courseSelection.getMinorComboBox().getItems());
   }
 

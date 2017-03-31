@@ -2,8 +2,8 @@ package de.hhu.stups.plues.ui.components.unsatcore;
 
 import static org.testfx.api.FxToolkit.setupStage;
 
-import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.concurrent.Task;
@@ -20,7 +20,6 @@ import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 
 public class UnsatCoreButtonBarTest extends ApplicationTest {
 

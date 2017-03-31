@@ -133,12 +133,18 @@ public final class UiTestHelper {
     return solverService;
   }
 
+  /**
+   * Return a mocked major course.
+   */
   public static Course getMockedMajorCourse(final Set<Module> modules) {
     final Course majorCourse = getMockedCourse(modules);
     when(majorCourse.getKzfa()).thenReturn("H");
     return majorCourse;
   }
 
+  /**
+   * Return a mocked minor course.
+   */
   public static Course getMockedMinorCourse(final Set<Module> modules) {
     final Course majorCourse = getMockedCourse(modules);
     when(majorCourse.getKzfa()).thenReturn("N");
