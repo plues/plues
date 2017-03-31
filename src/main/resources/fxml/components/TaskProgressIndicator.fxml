@@ -6,7 +6,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 
-<fx:root type="StackPane" xmlns="http://javafx.com/javafx/8.0.112"
+<fx:root type="StackPane" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
     <VBox fx:id="boxProgressIndicator" alignment="CENTER">
         <ProgressIndicator fx:id="progressIndicator" visible="false">
