@@ -138,7 +138,7 @@ public class FeasibilityBox extends VBox implements Initializable {
     this.router = router;
     this.executorService = executorService;
     this.conflictTreeProvider = conflictTreeProvider;
-    this.impossibleCourses = uiDataService.getImpossibleCoures();
+    this.impossibleCourses = uiDataService.getImpossibleCourses();
     this.parent = parent;
 
     major = majorCourse;
