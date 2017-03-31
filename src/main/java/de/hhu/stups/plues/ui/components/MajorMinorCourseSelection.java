@@ -113,7 +113,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
         -> fireListenerEvents());
 
     majorCourseList.addListener((observable, oldValue, newValue)
-        -> cbMajor.getSelectionModel().select(0));
+        -> cbMajor.getSelectionModel().selectFirst());
 
     cbMinor.itemsProperty().addListener((observable, oldValue, newValue)
         -> cbMinor.getSelectionModel().selectFirst());
@@ -154,11 +154,11 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   }
 
   public ComboBox<Course> getMajorComboBox() {
-    return this.cbMajor;
+    return cbMajor;
   }
 
   public ComboBox<Course> getMinorComboBox() {
-    return this.cbMinor;
+    return cbMinor;
   }
 
   /**
