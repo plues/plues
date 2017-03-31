@@ -119,11 +119,4 @@ public class UiDataService {
     return conflictMarkedSessionsProperty;
   }
 
-  private ObservableSet<Course> getImpossibleCoursesProperty() {
-    return impossibleCoursesProperty.get();
-  }
-
-  public SetProperty<Course> impossibleCoursesPropertyProperty() {
-    return impossibleCoursesProperty;
-  }
 }
