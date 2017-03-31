@@ -1,6 +1,5 @@
-package de.hhu.stups.plues.ui.components.unsatcore;
+package de.hhu.stups.plues.ui.controller;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testfx.api.FxToolkit.setupStage;
@@ -18,8 +17,13 @@ import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
-import de.hhu.stups.plues.ui.components.UiTestHelper;
-import de.hhu.stups.plues.ui.controller.UnsatCore;
+import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.components.unsatcore.AbstractUnitUnsatCore;
+import de.hhu.stups.plues.ui.components.unsatcore.CourseUnsatCore;
+import de.hhu.stups.plues.ui.components.unsatcore.GroupUnsatCore;
+import de.hhu.stups.plues.ui.components.unsatcore.ModuleUnsatCore;
+import de.hhu.stups.plues.ui.components.unsatcore.SessionUnsatCore;
+import de.hhu.stups.plues.ui.components.unsatcore.UnsatCoreButtonBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.collections.FXCollections;
@@ -339,15 +343,7 @@ public class UnsatCoreTest extends ApplicationTest {
     courseSelection = new CombinationOrSingleCourseSelection(inflater);
     courseSelection.setCourses(courseList);
 
-    final SolverService solverService = mock(SolverService.class);
-    when(solverService.computeFeasibilityTask(any()))
-        .thenReturn(UiTestHelper.getSimpleComputeFeasibilityTask());
-    when(solverService.checkFeasibilityTask(any()))
-        .thenReturn(UiTestHelper.getSimpleCheckFeasibilityTask());
-    when(solverService.checkFeasibilityTask(any(), any()))
-        .thenReturn(UiTestHelper.getSimpleCheckFeasibilityTask());
-    when(solverService.impossibleCoursesTask())
-        .thenReturn(UiTestHelper.getSimpleImpossibleCoursesTask());
+    final SolverService solverService = UiTestHelper.getMockedSolverService();
 
     final Delayed<SolverService> delayedSolverService = new Delayed<>();
     delayedSolverService.set(solverService);
