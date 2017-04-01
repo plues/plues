@@ -105,10 +105,16 @@ class DataPreparatory {
         return semesterChoice.containsKey(au.getId())
             && semesterChoice.get(au.getId()).equals(s);
       })
+      // See: https://github.com/plues/plues/issues/211
       .collect(
-          Collectors.toMap(
-            ModuleAbstractUnitSemester::getAbstractUnit,
-            ModuleAbstractUnitSemester::getModule));
+        Collectors.toMap(
+          ModuleAbstractUnitSemester::getAbstractUnit,
+          ModuleAbstractUnitSemester::getModule,
+          (module1, module2) -> {
+            logger.warn("Key Conflict for modules {} and {}",
+                module1.getPordnr(), module2.getPordnr());
+            return module2;
+          }));
   }
 
   private void readData(final Store store, final FeasibilityResult result,
