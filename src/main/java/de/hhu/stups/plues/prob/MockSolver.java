@@ -1,7 +1,7 @@
 package de.hhu.stups.plues.prob;
 
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MockSolver implements Solver {
 
-  private final Logger logger = LoggerFactory.logger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   MockSolver() {
     try {

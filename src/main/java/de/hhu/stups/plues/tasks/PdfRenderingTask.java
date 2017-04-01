@@ -14,8 +14,8 @@ import de.hhu.stups.plues.studienplaene.Renderer;
 import de.hhu.stups.plues.ui.exceptions.RenderingException;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,7 +37,7 @@ public class PdfRenderingTask extends Task<Path> {
   private final Course minor;
   private final SolverTask<FeasibilityResult> solverTask;
 
-  private final Logger logger = LoggerFactory.logger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
   private final ResourceBundle resources;
   private static final ListeningExecutorService EXECUTOR_SERVICE;
 

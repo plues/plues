@@ -61,7 +61,7 @@ public class ProBSolver implements Solver {
       throw new SolverException(exception);
     }
     final long t2 = System.nanoTime();
-    logger.info("Loaded machine in " + TimeUnit.NANOSECONDS.toMillis(t2 - t1) + " ms");
+    logger.info("Loaded machine in {} ms.", TimeUnit.NANOSECONDS.toMillis(t2 - t1));
     //
     this.stateSpace.getSubscribedFormulas()
         .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
@@ -69,7 +69,7 @@ public class ProBSolver implements Solver {
     final long t3 = System.nanoTime();
     this.trace = traceFrom(stateSpace);
     final long t4 = System.nanoTime();
-    logger.info("Loaded trace in " + TimeUnit.NANOSECONDS.toMillis(t4 - t3) + " ms");
+    logger.info("Loaded trace in {} ms.", TimeUnit.NANOSECONDS.toMillis(t4 - t3));
   }
 
   private static String getFeasibilityPredicate(final String[] courses) {
@@ -90,8 +90,8 @@ public class ProBSolver implements Solver {
     traceFromSpace = traceFromSpace.execute("$initialise_machine");
     final long end = System.nanoTime();
 
-    logger.info("$setup_constants took " + TimeUnit.NANOSECONDS.toMillis(t - start) + " ms");
-    logger.info("$initialise_machine took " + TimeUnit.NANOSECONDS.toMillis(end - t) + " ms");
+    logger.info("$setup_constants took {} ms.", TimeUnit.NANOSECONDS.toMillis(t - start));
+    logger.info("$initialise_machine took {} ms.", TimeUnit.NANOSECONDS.toMillis(end - t));
     return traceFromSpace;
   }
 
@@ -102,7 +102,7 @@ public class ProBSolver implements Solver {
     synchronized (operationExecutionCache) {
       final SolverResult cacheObject = operationExecutionCache.get(key);
       if (cacheObject != null) {
-        logger.info(String.format("Solver cache hit for key %s", key));
+        logger.info("Solver cache hit for key {}", key);
         return cacheObject;
       }
     }
@@ -119,8 +119,8 @@ public class ProBSolver implements Solver {
       if (cmd.isInterrupted() || !cmd.isCompleted()) {
         solverResult.setState(ResultState.INTERRUPTED);
 
-        logger.debug(String.format("RESULT %s %s = TIMEOUT/CANCEL // interrupted %s completed %s",
-            op, predicate, cmd.isInterrupted(), cmd.isCompleted()));
+        logger.debug("RESULT {} {} = TIMEOUT/CANCEL // interrupted {} completed {}",
+            op, predicate, cmd.isInterrupted(), cmd.isCompleted());
         return solverResult;
       } else if (cmd.hasErrors()) {
         solverResult.setState(ResultState.FAILED);
@@ -143,7 +143,7 @@ public class ProBSolver implements Solver {
     }
 
 
-    logger.debug(String.format("RESULT %s %s = %s", op, predicate, solverResult));
+    logger.debug("RESULT {} {} = {}", op, predicate, solverResult);
 
     return solverResult;
   }

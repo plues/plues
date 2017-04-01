@@ -8,8 +8,8 @@ import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.xmlgraphics.util.MimeConstants;
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -36,7 +36,7 @@ public class PdfRenderingHelper {
   private static final String PDF_SAVE_DIR = "LAST_PDF_SAVE_DIR";
   private static final String MSG = "Error! Copying of temporary file into target file failed.";
 
-  private static final Logger logger = LoggerFactory.logger(PdfRenderingHelper.class);
+  private static final Logger logger = LoggerFactory.getLogger(PdfRenderingHelper.class);
 
   private PdfRenderingHelper() {}
 

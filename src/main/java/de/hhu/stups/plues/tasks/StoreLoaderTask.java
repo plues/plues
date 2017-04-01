@@ -8,10 +8,9 @@ import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.SqliteStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.StoreException;
-
 import javafx.concurrent.Task;
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,7 +19,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 
 public class StoreLoaderTask extends Task<Store> {
-  private final Logger logger = LoggerFactory.logger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private static final long MAX_STEPS = 3;
   private static final String PLUES = "plues";
@@ -48,7 +47,7 @@ public class StoreLoaderTask extends Task<Store> {
     checkExportDatabase();
     try {
       return new ObservableStore(new SqliteStore(dbWorkingPath.toString()));
-    } catch (StoreException exception) {
+    } catch (final StoreException exception) {
       logger.error("An exception was thrown opening the store", exception);
       updateMessage(exception.getMessage());
       throw exception;

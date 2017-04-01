@@ -27,13 +27,11 @@ import de.hhu.stups.plues.ui.exceptions.RenderingException;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
@@ -41,13 +39,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
-
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import org.jtwig.environment.EnvironmentConfiguration;
 import org.jtwig.environment.EnvironmentConfigurationBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
@@ -80,7 +77,7 @@ public class Reports extends VBox implements Initializable, Observer {
   private final BooleanProperty dataOutOfSync = new SimpleBooleanProperty(false);
   private final Properties properties;
   private final ExecutorService executorService;
-  private Delayed<ObservableStore> delayedStore;
+  private final Delayed<ObservableStore> delayedStore;
   private SolverService solverService;
   private int abstractUnitAmount;
   private int groupAmount;
@@ -296,7 +293,7 @@ public class Reports extends VBox implements Initializable, Observer {
     private Map<Module, Set<AbstractUnit>>
         impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits;
 
-    private final Logger logger = LoggerFactory.logger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final String faculty;
     private final Map<String, String> resources;
 

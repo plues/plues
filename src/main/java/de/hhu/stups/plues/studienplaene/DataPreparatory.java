@@ -7,6 +7,8 @@ import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.prob.FeasibilityResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 class DataPreparatory {
+
+  private static final Logger logger = LoggerFactory.getLogger(DataPreparatory.class);
 
   private Map<AbstractUnit, Module> unitModule;
   private Map<AbstractUnit, Integer> unitSemester;

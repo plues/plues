@@ -9,8 +9,8 @@ import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import javafx.concurrent.Task;
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
   private final SolverService solverService;
   private final PdfRenderingTaskFactory taskFactory;
-  private final Logger logger = LoggerFactory.logger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
   private final List<Course> majors;
   private final List<Course> minors;
 
@@ -66,7 +66,7 @@ public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
     return tasks;
   }
 
-  private List<PdfRenderingTask> collectCourseCombinationTasks(Course majorCourse) {
+  private List<PdfRenderingTask> collectCourseCombinationTasks(final Course majorCourse) {
     return minors.stream()
         .filter(majorCourse::isCombinableWith)
         .map(minorCourse -> taskFactory.create(

@@ -5,8 +5,8 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -15,7 +15,7 @@ public class ResourceManager {
   private final Delayed<Store> delayedStore;
   private final ExecutorService executorService;
 
-  private final Logger logger = LoggerFactory.logger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   /**
    * ResourceManager class used to manage resources that need to be closed when shutting down the

@@ -4,7 +4,8 @@ import static java.lang.Thread.currentThread;
 
 import com.google.inject.AbstractModule;
 
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +30,7 @@ class PropertiesModule extends AbstractModule {
 
   private static Properties loadProperties(final Properties properties,
                                            final String... propertyFiles) {
-    final org.jboss.logging.Logger logger = LoggerFactory.logger(PropertiesModule.class);
+    final Logger logger = LoggerFactory.getLogger(PropertiesModule.class);
     for (final String propertyFile : propertyFiles) {
       try {
         final ClassLoader classLoader = currentThread().getContextClassLoader();
