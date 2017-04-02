@@ -19,7 +19,6 @@ import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -36,12 +35,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import org.hibernate.annotations.Check;
 
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
