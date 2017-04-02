@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class ProBSolver implements Solver {
   private static final String CHECK = "check";
@@ -258,10 +259,13 @@ public class ProBSolver implements Solver {
     final Map<Integer, Integer> groupChoice = Mappers.mapGroupChoice(
         (Set) modelResult.get(1));
 
+    final Map<Integer, java.util.Set<Integer>> abstractUnitChoice
+        = Mappers.mapAbstractUnitChoice((Set) modelResult.get(2));
+
     final Map<String, java.util.Set<Integer>> moduleChoice
-        = Mappers.mapModuleChoice((Set) modelResult.get(2));
+        = Mappers.mapModuleChoice((Set) modelResult.get(3));
     //
-    return new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
+    return new FeasibilityResult(moduleChoice, abstractUnitChoice, semesterChoice, groupChoice);
   }
 
   /**
@@ -271,7 +275,7 @@ public class ProBSolver implements Solver {
    * @param courses            List of course keys as String
    * @param moduleChoice       map of course key to a set of module IDs already completed in that
    *                           course.
-   * @param abstractUnitChoice List of abstract unit IDs already compleated
+   * @param abstractUnitChoice List of abstract unit IDs already completed
    * @return FeasibilityResult
    * @throws SolverException if no result could be found or the solver did not exit cleanly (e.g.
    *                         interrupt)
@@ -279,11 +283,13 @@ public class ProBSolver implements Solver {
   @Override
   public final synchronized FeasibilityResult computePartialFeasibility(
       final List<String> courses, final Map<String, List<Integer>> moduleChoice,
-      final List<Integer> abstractUnitChoice) throws SolverException {
+      final Map<Integer, List<Integer>> abstractUnitChoice) throws SolverException {
 
     final String mc = Mappers.mapToModuleChoice(moduleChoice);
-    final String ac = Joiner.on(',').join(
-        abstractUnitChoice.stream().map(i -> "au" + i).iterator());
+    final String ac = abstractUnitChoice.entrySet().stream()
+        .flatMap(auc -> auc.getValue().stream()
+            .map(value -> String.format("(mod%s, au%s)", auc.getKey(), value)))
+        .collect(Collectors.joining(", "));
 
     final String predicate = getFeasibilityPredicate(courses.toArray(new String[0]))
         + " & partialModuleChoice=" + mc
@@ -303,11 +309,14 @@ public class ProBSolver implements Solver {
     final Map<Integer, Integer> computedGroupChoice
         = Mappers.mapGroupChoice((Set) modelResult.get(1));
 
+    final Map<Integer, java.util.Set<Integer>> computedAbstractUnitChoice
+        = Mappers.mapAbstractUnitChoice((Set) modelResult.get(2));
+
     final Map<String, java.util.Set<Integer>> computedModuleChoice
-        = Mappers.mapModuleChoice((Set) modelResult.get(2));
+        = Mappers.mapModuleChoice((Set) modelResult.get(3));
     //
-    return new FeasibilityResult(
-        computedModuleChoice, computedSemesterChoice, computedGroupChoice);
+    return new FeasibilityResult(computedModuleChoice, computedAbstractUnitChoice,
+        computedSemesterChoice, computedGroupChoice);
   }
 
   /**

@@ -15,6 +15,7 @@ import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,7 +60,12 @@ public class TestBase {
     integerSet.add(3);
     moduleChoice.put("foo", integerSet);
 
-    result = new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
+
+    final Map<Integer, Set<Integer>> abstractUnitChoice = new HashMap<>();
+    abstractUnitChoice.put(1, IntStream.range(1,5).boxed().collect(Collectors.toSet()));
+    abstractUnitChoice.put(3, IntStream.rangeClosed(5,9).boxed().collect(Collectors.toSet()));
+
+    result = new FeasibilityResult(moduleChoice, abstractUnitChoice, semesterChoice, groupChoice);
   }
 
   private void setupCourse() {

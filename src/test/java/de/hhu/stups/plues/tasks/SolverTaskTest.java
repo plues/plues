@@ -235,9 +235,9 @@ public class SolverTaskTest extends ApplicationTest {
 
     @Override
     public FeasibilityResult computePartialFeasibility(final List<String> courses,
-                                                       final Map<String, List<Integer>>
-                                                           moduleChoice,
-                                                       final List<Integer> abstractUnitChoice) {
+        final Map<String, List<Integer>> moduleChoice,
+        final Map<Integer, List<Integer>> abstractUnitChoice) {
+
       return null;
     }
 

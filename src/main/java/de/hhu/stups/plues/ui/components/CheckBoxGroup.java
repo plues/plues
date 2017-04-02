@@ -95,21 +95,10 @@ public class CheckBoxGroup extends VBox implements Initializable {
         .collect(Collectors.toList()));
   }
 
-  /**
-   * Return module if selected.
-   *
-   * @return Module if selected, else null
-   */
   public Module getModule() {
-    if (moduleBox.isSelected()) {
-      return module;
-    }
-    return null;
+    return module;
   }
 
-  /**
-   * Get course of this module and units.
-   */
   public Course getCourse() {
     return course;
   }

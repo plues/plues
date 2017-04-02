@@ -222,7 +222,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     final Course minor = courseSelection.getSelectedMinor();
 
     final Map<Course, List<Module>> moduleChoice = new HashMap<>();
-    final List<AbstractUnit> unitChoice = new ArrayList<>();
+    final Map<Module, List<AbstractUnit>> unitChoice = new HashMap<>();
 
     for (final Course course : courses) {
       moduleChoice.put(course, new ArrayList<>());
@@ -236,11 +236,14 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
 
       cbg.setOnSelectionChanged(selectionChanged);
 
-      final Module module = cbg.getModule();
-      if (module != null) {
-        moduleChoice.get(cbg.getCourse()).add(module);
+      final ObservableList<AbstractUnit> selectedAbstractUnits = cbg.getSelectedAbstractUnits();
+      if (selectedAbstractUnits.isEmpty()) {
+        continue;
       }
-      unitChoice.addAll(cbg.getSelectedAbstractUnits());
+
+      final Module module = cbg.getModule();
+      unitChoice.put(module, selectedAbstractUnits);
+      moduleChoice.get(cbg.getCourse()).add(module);
     }
 
     delayedSolverService.whenAvailable(solverService -> {

@@ -29,7 +29,7 @@ public class TestDataPreperatory extends TestBase {
 
   @Test
   public void testGetUnitGroup() {
-    final DataPreparatory data = new DataPreparatory(store, result, course, null);
+    final DataPreparatory data = new DataPreparatory(store, result);
 
     final Map<AbstractUnit, Group> groups = data.getUnitGroup();
 
@@ -51,7 +51,7 @@ public class TestDataPreperatory extends TestBase {
 
   @Test
   public void testUnitModuleMapping() {
-    final DataPreparatory dp = new DataPreparatory(store, result, course, null);
+    final DataPreparatory dp = new DataPreparatory(store, result);
 
     final Map<AbstractUnit, Module> um = dp.getUnitModule();
     final Map<Integer, Integer> ids = um.entrySet().stream().collect(Collectors.toMap(
