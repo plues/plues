@@ -36,6 +36,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import org.hibernate.annotations.Check;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 
 public class PartialTimeTables extends GridPane implements Initializable, Activatable {
@@ -221,30 +223,24 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     final Course major = courseSelection.getSelectedMajor();
     final Course minor = courseSelection.getSelectedMinor();
 
-    final Map<Course, List<Module>> moduleChoice = new HashMap<>();
-    final Map<Module, List<AbstractUnit>> unitChoice = new HashMap<>();
-
-    for (final Course course : courses) {
-      moduleChoice.put(course, new ArrayList<>());
-    }
-
-    for (final Object o : modulesUnits.getChildren()) {
-      if (!(o instanceof CheckBoxGroup)) {
-        continue;
-      }
-      final CheckBoxGroup cbg = (CheckBoxGroup) o;
-
-      cbg.setOnSelectionChanged(selectionChanged);
-
-      final ObservableList<AbstractUnit> selectedAbstractUnits = cbg.getSelectedAbstractUnits();
-      if (selectedAbstractUnits.isEmpty()) {
-        continue;
-      }
-
-      final Module module = cbg.getModule();
-      unitChoice.put(module, selectedAbstractUnits);
-      moduleChoice.get(cbg.getCourse()).add(module);
-    }
+    final List<CheckBoxGroup> cbgs = modulesUnits.getChildren().stream()
+        .filter(node -> node instanceof CheckBoxGroup)
+        .map(o -> (CheckBoxGroup) o)
+        .peek(cbg -> cbg.setOnSelectionChanged(selectionChanged))
+        .filter(cbg -> !cbg.getSelectedAbstractUnits().isEmpty())
+        .collect(Collectors.toList());
+    //
+    final Map<Module, List<AbstractUnit>> unitChoice
+        = cbgs.stream().collect(Collectors.toMap(
+            CheckBoxGroup::getModule,
+            CheckBoxGroup::getSelectedAbstractUnits));
+    //
+    final Map<Course, List<Module>> moduleChoice
+        = cbgs.stream()
+          .collect(Collectors.groupingBy(
+              CheckBoxGroup::getCourse,
+              Collectors.mapping(
+                  CheckBoxGroup::getModule, Collectors.toList())));
 
     delayedSolverService.whenAvailable(solverService -> {
       final SolverTask<FeasibilityResult> solverTask =
