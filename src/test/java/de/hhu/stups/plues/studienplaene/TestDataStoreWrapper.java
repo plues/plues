@@ -19,7 +19,7 @@ public class TestDataStoreWrapper extends TestBase {
   @Before
   public void setUp() throws URISyntaxException {
     super.setUp();
-    final DataPreparatory data = new DataPreparatory(store, result, course, null);
+    final DataPreparatory data = new DataPreparatory(store, result);
     final DataStoreWrapper wrap = new DataStoreWrapper(ColorChoice.COLOR, data);
     semesters = wrap.getSemesters();
   }

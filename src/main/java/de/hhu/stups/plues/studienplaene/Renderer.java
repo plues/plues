@@ -67,7 +67,7 @@ public class Renderer {
                      final Course major,
                      @Nullable final Course minor,
                      final ColorChoice colorChoice) {
-    final DataPreparatory prep = new DataPreparatory(store, feasibilityResult, major, minor);
+    final DataPreparatory prep = new DataPreparatory(store, feasibilityResult);
     final DataStoreWrapper wrap = new DataStoreWrapper(colorChoice, prep);
 
     this.major = major.getLongName();

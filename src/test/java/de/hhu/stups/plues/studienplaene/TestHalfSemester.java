@@ -7,10 +7,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TestHalfSemester extends TestBase {
@@ -36,11 +38,15 @@ public class TestHalfSemester extends TestBase {
     integerSet.add(3);
     moduleChoice.put("foo", integerSet);
 
+    final Map<Integer, Set<Integer>> abstractUnitChoice = new HashMap<>();
+    abstractUnitChoice.put(1, IntStream.range(1,5).boxed().collect(Collectors.toSet()));
+    abstractUnitChoice.put(3, IntStream.rangeClosed(5,9).boxed().collect(Collectors.toSet()));
+
 
     final FeasibilityResult result =
-        new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
+        new FeasibilityResult(moduleChoice, abstractUnitChoice, semesterChoice, groupChoice);
 
-    final DataPreparatory data = new DataPreparatory(store, result, course, null);
+    final DataPreparatory data = new DataPreparatory(store, result);
     final DataStoreWrapper wrap = new DataStoreWrapper(ColorChoice.COLOR, data);
 
     semesters = wrap.getSemesters();
