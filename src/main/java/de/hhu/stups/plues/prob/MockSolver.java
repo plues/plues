@@ -42,10 +42,7 @@ public class MockSolver implements Solver {
 
   @Override
   public FeasibilityResult computeFeasibility(final String... courses) throws SolverException {
-    final Map<String, Set<Integer>> moduleChoice = Collections.emptyMap();
-    final Map<Integer, Integer> semesterChoice = Collections.emptyMap();
-    final Map<Integer, Integer> groupChoice = Collections.emptyMap();
-    return new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
+    return emptResult();
   }
 
   @Override
@@ -54,11 +51,16 @@ public class MockSolver implements Solver {
       final Map<String, List<Integer>> moduleChoice,
       final List<Integer> abstractUnitChoice) throws SolverException {
 
+    return emptResult();
+  }
+
+  private FeasibilityResult emptResult() {
     final Map<String, Set<Integer>> mc = Collections.emptyMap();
+    final Map<Integer, Set<Integer>> abstractUnitChoice = Collections.emptyMap();
     final Map<Integer, Integer> semesterChoice = Collections.emptyMap();
     final Map<Integer, Integer> groupChoice = Collections.emptyMap();
 
-    return new FeasibilityResult(mc, semesterChoice, groupChoice);
+    return new FeasibilityResult(mc, abstractUnitChoice, semesterChoice, groupChoice);
   }
 
   @Override

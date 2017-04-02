@@ -267,4 +267,13 @@ final class Mappers {
         Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
   }
 
+  static Map<Integer, java.util.Set<Integer>> mapAbstractUnitChoice(final Set abstractUnitChoice) {
+    return abstractUnitChoice.stream().collect(
+          Collectors.groupingBy(
+            bObject -> mapValue(((Tuple) bObject).getFirst().toString(), MODULE_PREFIX),
+                Collectors.mapping(
+                    bObject
+                      -> mapValue(((Tuple) bObject).getSecond().toString(), ABSTRACT_UNIT_PREFIX),
+                      Collectors.toSet())));
+  }
 }

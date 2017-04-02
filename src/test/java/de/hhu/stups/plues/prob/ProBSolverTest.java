@@ -173,15 +173,17 @@ public class ProBSolverTest {
     final String op = "check";
     final String predicate = "ccss={\"foo\", \"bar\"}";
     final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(au3,group4)}",
-      "{\"foo\" |-> {mod5,mod6}}"};
+      "{(mod5 |-> au1), (mod5 |-> au2)}", "{\"foo\" |-> {mod5,mod6}}"};
 
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
     final Map<Integer, Integer> gc = new HashMap<>();
     final Map<Integer, Integer> sc = new HashMap<>();
+    final Map<Integer, Set<Integer>> ac = new HashMap<>();
     final Map<String, Set<Integer>> mc = new HashMap<>();
     final Set<Integer> modules = new HashSet<>();
 
+    ac.put(5, new HashSet<>(Arrays.asList(1, 2)));
     gc.put(3, 4);
     sc.put(1, 2);
     modules.add(5);
@@ -194,6 +196,7 @@ public class ProBSolverTest {
     assertEquals(result.getGroupChoice(), gc);
     assertEquals(result.getSemesterChoice(), sc);
     assertEquals(result.getModuleChoice(), mc);
+    assertEquals(result.getAbstractUnitChoice(), ac);
   }
 
   @Test
@@ -203,17 +206,19 @@ public class ProBSolverTest {
         + "partialModuleChoice={(\"foo\" |-> {mod5})} & "
         + "partialAbstractUnitChoice={au7}";
     final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(au3,group4)}",
-      "{\"foo\" |-> {mod5,mod6}}"};
+      "{(mod5, au1), (mod5, au11)}", "{\"foo\" |-> {mod5,mod6}}"};
 
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
     final Map<Integer, Integer> gc = new HashMap<>();
     final Map<Integer, Integer> sc = new HashMap<>();
     final Map<String, Set<Integer>> mc = new HashMap<>();
+    final Map<Integer, Set<Integer>> ac = new HashMap<>();
     final Set<Integer> modules = new HashSet<>();
 
     gc.put(3, 4);
     sc.put(1, 2);
+    ac.put(5, new HashSet<>(Arrays.asList(1, 11)));
     modules.add(5);
     modules.add(6);
     mc.put("foo", modules);
@@ -238,6 +243,7 @@ public class ProBSolverTest {
     assertEquals(result.getGroupChoice(), gc);
     assertEquals(result.getSemesterChoice(), sc);
     assertEquals(result.getModuleChoice(), mc);
+    assertEquals(result.getAbstractUnitChoice(), ac);
 
     assertTrue(solver.getOperationExecutionCache().containsKey(
         new OperationPredicateKey(op, predicate)));
