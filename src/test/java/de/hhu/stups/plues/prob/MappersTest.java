@@ -12,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -232,9 +233,36 @@ public class MappersTest {
     final java.util.Set<Pair<Integer>> aup = maup.get(273);
     assertEquals(1, aup.size());
     assertTrue(aup.contains(new Pair<>(530, 531)));
-
   }
 
+  @Test
+  public void testMapAbstractUnitChoice() throws BCompoundException {
+    final String input = "{(mod34|->au45),(mod34|->au46),(mod34|->au47),"
+                       + "(mod34|->au48),(mod35|->au49),(mod35|->au50),(mod36|->au51)}";
+    final BObject translated = Translator.translate(input);
+    final Map<Integer, java.util.Set<Integer>> result
+        = Mappers.mapAbstractUnitChoice((Set) translated);
+
+    Assert.assertEquals(new HashSet<>(Arrays.asList(34,35,36)), result.keySet());
+
+    Assert.assertEquals(new HashSet<>(Arrays.asList(45,46,47,48)), result.get(34));
+    Assert.assertEquals(new HashSet<>(Arrays.asList(49,50)), result.get(35));
+    Assert.assertEquals(new HashSet<>(Collections.singletonList(51)), result.get(36));
+  }
+
+  @Test(expected = Exception.class)
+  public void testMapAbstractUnitChoiceInvalidValue() throws BCompoundException {
+    final String input = "{(mod34|->wrong45)}";
+    final BObject translated = Translator.translate(input);
+    Mappers.mapAbstractUnitChoice((Set) translated);
+  }
+
+  @Test(expected = Exception.class)
+  public void testMapAbstractUnitChoiceInvalidKey() throws BCompoundException {
+    final String input = "{(wrong34|->au45)}";
+    final BObject translated = Translator.translate(input);
+    Mappers.mapAbstractUnitChoice((Set) translated);
+  }
 
 
 
