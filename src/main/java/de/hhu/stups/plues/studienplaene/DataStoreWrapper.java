@@ -150,11 +150,11 @@ class DataStoreWrapper {
     colorMap.put(module, "#000000");
   }
 
-  private String getFontColor(final Color backgroundcolor) {
+  private String getFontColor(final Color backgroundColor) {
     final double brightness
-        = 1 - (0.299 * backgroundcolor.getRed()
-          + 0.587 * backgroundcolor.getGreen()
-          + 0.114 * backgroundcolor.getBlue()) / 255;
+        = 1 - (0.299 * backgroundColor.getRed()
+          + 0.587 * backgroundColor.getGreen()
+          + 0.114 * backgroundColor.getBlue()) / 255;
 
     return (brightness < 0.5) ? "black" : "white";
   }
