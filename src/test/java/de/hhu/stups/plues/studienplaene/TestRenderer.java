@@ -28,7 +28,7 @@ public class TestRenderer extends TestBase {
     final Renderer renderer = new Renderer(store, result, course, ColorChoice.COLOR);
     final ByteArrayOutputStream result = renderer.getResult();
 
-    File pdf = File.createTempFile("color", ".pdf");
+    final File pdf = File.createTempFile("color", ".pdf");
     try (FileOutputStream outputStream = new FileOutputStream(pdf.getAbsoluteFile())) {
       result.writeTo(outputStream);
     }
@@ -40,7 +40,7 @@ public class TestRenderer extends TestBase {
     final Renderer renderer = new Renderer(store, result, course, ColorChoice.GRAYSCALE);
     final ByteArrayOutputStream result = renderer.getResult();
 
-    File pdf = File.createTempFile("gray", ".pdf");
+    final File pdf = File.createTempFile("gray", ".pdf");
     try (FileOutputStream stream = new FileOutputStream(pdf.getAbsoluteFile())) {
       result.writeTo(stream);
     }
