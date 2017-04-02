@@ -28,6 +28,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -202,9 +203,9 @@ public class ProBSolverTest {
   @Test
   public void computePartialFeasiblity() throws Exception {
     final String op = "checkPartial";
-    final String predicate = "ccss={\"foo\", \"bar\"} & "
-        + "partialModuleChoice={(\"foo\" |-> {mod5})} & "
-        + "partialAbstractUnitChoice={au7}";
+    final String predicate = "ccss={\"foo\", \"bar\"} "
+                           + "& partialModuleChoice={(\"foo\" |-> {mod5})}"
+                           + " & partialAbstractUnitChoice={(mod5, au7)}";
     final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(au3,group4)}",
       "{(mod5, au1), (mod5, au11)}", "{\"foo\" |-> {mod5,mod6}}"};
 
@@ -233,8 +234,8 @@ public class ProBSolverTest {
     partialModules.add(5);
     partialMc.put("foo", partialModules);
 
-    final List<Integer> partialAuc = new ArrayList<>();
-    partialAuc.add(7);
+    final Map<Integer, List<Integer>> partialAuc = new HashMap<>();
+    partialAuc.put(5, Collections.singletonList(7));
 
 
     final FeasibilityResult result

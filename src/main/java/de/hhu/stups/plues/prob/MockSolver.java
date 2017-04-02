@@ -49,7 +49,7 @@ public class MockSolver implements Solver {
   public FeasibilityResult computePartialFeasibility(
       final List<String> courses,
       final Map<String, List<Integer>> moduleChoice,
-      final List<Integer> abstractUnitChoice) throws SolverException {
+      final Map<Integer, List<Integer>> abstractUnitChoice) throws SolverException {
 
     return emptResult();
   }

@@ -42,7 +42,7 @@ public interface Solver {
    */
   FeasibilityResult computePartialFeasibility(final List<String> courses,
                                               final Map<String, List<Integer>> moduleChoice,
-                                              final List<Integer> abstractUnitChoice)
+                                              final Map<Integer, List<Integer>> abstractUnitChoice)
       throws SolverException;
 
   /**

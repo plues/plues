@@ -130,7 +130,7 @@ public class SolverService {
   public SolverTask<FeasibilityResult> computePartialFeasibility(
       final List<Course> courses,
       final Map<Course, List<Module>> moduleChoice,
-      final List<AbstractUnit> abstractUnitChoice) {
+      final Map<Module, List<AbstractUnit>> abstractUnitChoice) {
 
     final List<String> names = courses.stream()
         .map(Course::getName)
@@ -144,9 +144,12 @@ public class SolverService {
                 .map(Module::getId)
                 .collect(Collectors.toList())));
 
-    final List<Integer> auc = abstractUnitChoice.stream()
-        .map(AbstractUnit::getId)
-        .collect(Collectors.toList());
+    final Map<Integer, List<Integer>> auc = abstractUnitChoice.entrySet().stream()
+        .collect(Collectors.toMap(
+            keyMapper -> keyMapper.getKey().getId(),
+            valueMapper -> valueMapper.getValue().stream()
+                .map(AbstractUnit::getId)
+                .collect(Collectors.toList())));
 
     final String msg = getMessage(names);
     final String title = String.format(resources.getString("compute"), msg);
