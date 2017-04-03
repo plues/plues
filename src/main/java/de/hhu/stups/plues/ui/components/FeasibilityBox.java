@@ -284,6 +284,7 @@ public class FeasibilityBox extends VBox implements Initializable {
   public void restartComputationAction() {
     delayedSolverService.whenAvailable(solverService -> {
       interrupt();
+      removeConflictTree();
       final SolverTask<Boolean> task = solverService.checkFeasibilityTask(courses);
       feasibilityTaskBindings(task);
 
@@ -293,6 +294,16 @@ public class FeasibilityBox extends VBox implements Initializable {
       this.solverTask = task;
       executorService.submit(task);
     });
+  }
+
+  /**
+   * Remove the conflict tree, i.e. the second children of the feasibility box, when a computation
+   * is restarted.
+   */
+  private void removeConflictTree() {
+    if (getChildren().size() == 2) {
+      getChildren().remove(1);
+    }
   }
 
   private void feasibilityTaskBindings(final SolverTask<Boolean> task) {
