@@ -257,13 +257,17 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   }
 
   /**
-   * Select the given courses within the {@link #courseUnsatCore} when the user navigates to the
-   * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
+   * Assuming the given courses are infeasible, otherwise it should not even be possible to navigate
+   * to this controller. Select the courses within the {@link #courseUnsatCore} when the user
+   * navigates to the view via the {@link de.hhu.stups.plues.routes.ControllerRoute}. Furthermore,
+   * set the {@link CourseUnsatCore#courseIsInfeasibleProperty()} true since we know the course is
+   * infeasible.
    */
   @Override
   public void activateController(final RouteNames routeName, final Object... args) {
     resetModuleUnsatCore();
     courseUnsatCore.selectCourses(getCoursesFromArray(args));
+    courseUnsatCore.courseIsInfeasibleProperty().set(true);
     computeUnsatCoreModules();
   }
 
