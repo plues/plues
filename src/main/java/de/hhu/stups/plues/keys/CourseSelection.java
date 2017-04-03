@@ -1,13 +1,12 @@
 package de.hhu.stups.plues.keys;
 
-import com.google.common.base.Joiner;
-
 import de.hhu.stups.plues.data.entities.Course;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * CourseSelection represents encapsulates choices and combinations of courses.
@@ -106,6 +105,8 @@ public class CourseSelection {
 
   @Override
   public String toString() {
-    return String.format("CourseSelection[%s]", Joiner.on(", ").join(courses));
+    return String.format("CourseSelection[%s]", courses.stream()
+      .map(Course::toString)
+      .collect(Collectors.joining(", ")));
   }
 }

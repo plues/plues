@@ -4,8 +4,6 @@ import static javafx.concurrent.WorkerStateEvent.WORKER_STATE_CANCELLED;
 import static javafx.concurrent.WorkerStateEvent.WORKER_STATE_FAILED;
 import static javafx.concurrent.WorkerStateEvent.WORKER_STATE_SUCCEEDED;
 
-import com.google.common.base.Joiner;
-
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Group;
@@ -18,12 +16,12 @@ import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.SolverTask;
-
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyMapProperty;
 import javafx.beans.property.ReadOnlyMapWrapper;
 import javafx.collections.FXCollections;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -292,11 +290,11 @@ public class SolverService {
   }
 
   private String getMessage(final String[] names) {
-    return Joiner.on(", ").join(names);
+    return Arrays.stream(names).collect(Collectors.joining(", "));
   }
 
   private String getMessage(final List<String> names) {
-    return Joiner.on(", ").join(names);
+    return names.stream().collect(Collectors.joining(", "));
   }
 
 

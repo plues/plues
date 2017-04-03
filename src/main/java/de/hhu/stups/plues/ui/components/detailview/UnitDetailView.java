@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.ui.components.detailview;
 
-import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -96,7 +95,7 @@ public class UnitDetailView extends VBox implements Initializable {
         return "";
       }
 
-      return Joiner.on(", ").join(unit.getSemesters());
+      return unit.getSemesters().stream().map(String::valueOf).collect(Collectors.joining(", "));
     }, unitProperty));
 
     tableColumnSessionDay.setCellValueFactory(param

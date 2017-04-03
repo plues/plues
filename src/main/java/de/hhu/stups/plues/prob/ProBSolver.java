@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.prob;
 
-import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -15,14 +14,12 @@ import de.prob.statespace.Transition;
 import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -74,10 +71,11 @@ public class ProBSolver implements Solver {
   }
 
   private static String getFeasibilityPredicate(final String[] courses) {
-    final Iterator<String> iterator = Arrays.stream(courses)
+    final String ccss = Arrays.stream(courses)
         .filter(it -> it != null && !"".equals(it))
-        .map(it -> "\"" + it + "\"").iterator();
-    return "ccss={" + Joiner.on(", ").join(iterator) + "}";
+        .map(it -> "\"" + it + "\"")
+        .collect(Collectors.joining(", "));
+    return String.format("ccss={%s}", ccss);
   }
 
   private Trace traceFrom(final StateSpace space) {
@@ -354,8 +352,9 @@ public class ProBSolver implements Solver {
   public final synchronized java.util.Set<Integer> unsatCoreAbstractUnits(
       final List<Integer> modules) throws SolverException {
 
-    final String predicate = "uc_modules={"
-        + Joiner.on(", ").join(Mappers.mapToModules(modules)) + "}";
+    final String predicate
+        = String.format("uc_modules={%s}",
+            Mappers.mapToModules(modules).stream().collect(Collectors.joining(", ")));
     //
     final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_ABSTRACT_UNITS, predicate);
     //
@@ -366,9 +365,13 @@ public class ProBSolver implements Solver {
   public final synchronized java.util.Set<Integer> unsatCoreGroups(
       final List<Integer> abstractUnits, final List<Integer> modules) throws SolverException {
 
-    final String predicate = "uc_modules={" + Joiner.on(", ").join(Mappers.mapToModules(modules))
-        + "} & uc_abstract_units={"
-        + Joiner.on(", ").join(Mappers.mapToAbstractUnits(abstractUnits)) + "}";
+    final String ucModules
+        = Mappers.mapToModules(modules).stream().collect(Collectors.joining(", "));
+    final String ucAbstractUnits
+        = Mappers.mapToAbstractUnits(abstractUnits).stream().collect(Collectors.joining(", "));
+
+    final String predicate
+        = String.format("uc_modules={%s} & uc_abstract_units={%s}", ucModules, ucAbstractUnits);
     //
     final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_GROUPS, predicate);
     //
@@ -379,8 +382,9 @@ public class ProBSolver implements Solver {
   public final synchronized java.util.Set<Integer> unsatCoreSessions(final List<Integer> groups)
       throws SolverException {
 
-    final String predicate = "uc_groups={"
-        + Joiner.on(", ").join(Mappers.mapToGroups(groups)) + "}";
+    final String predicate
+        = String.format("uc_groups={%s}",
+            Mappers.mapToGroups(groups).stream().collect(Collectors.joining(", ")));
     //
     final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_SESSIONS, predicate);
     //

@@ -4,8 +4,6 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.base.Joiner;
-
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Session;
@@ -27,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UnitDetailViewTest extends ApplicationTest {
 
@@ -99,7 +98,9 @@ public class UnitDetailViewTest extends ApplicationTest {
     Assert.assertEquals(TITLE, titleLabel.getText());
 
     final Label semesterLabel = lookup("#semesters").query();
-    Assert.assertEquals(Joiner.on(", ").join(SEMESTERS), semesterLabel.getText());
+    Assert.assertEquals(
+        SEMESTERS.stream().map(String::valueOf).collect(Collectors.joining(", ")),
+        semesterLabel.getText());
   }
 
   @Test

@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.ui.components.detailview;
 
-import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Helpers;
@@ -11,7 +10,6 @@ import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ObjectProperty;
@@ -266,7 +264,7 @@ public class SessionDetailView extends VBox implements Initializable {
      * @return String with comma separated semesters.
      */
     public String getSemesters() {
-      return Joiner.on(',').join(semesters);
+      return semesters.stream().map(String::valueOf).collect(Collectors.joining(", "));
     }
 
     public Character getType() {
