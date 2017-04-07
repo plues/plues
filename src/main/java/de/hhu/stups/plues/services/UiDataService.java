@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -55,7 +54,7 @@ public class UiDataService {
    */
   @Inject
   public UiDataService(final Delayed<SolverService> solverServiceDelayed,
-                       final Delayed<ObservableStore> delayedStore,
+                       final Delayed<Store> delayedStore,
                        final ExecutorService executorService) {
     this.executorService = executorService;
     delayedStore.whenAvailable(store ->
