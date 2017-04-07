@@ -9,6 +9,7 @@ import static java.time.DayOfWeek.WEDNESDAY;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
@@ -53,6 +54,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Observer;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -60,9 +62,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Timetable extends SplitPane implements Initializable, Activatable {
+public class Timetable extends SplitPane implements Initializable, Activatable, Observer {
 
-  private final Delayed<Store> delayedStore;
+  private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
   private final UiDataService uiDataService;
   private double userDefinedDividerPos = 0.15;
@@ -91,7 +93,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
    * Timetable component.
    */
   @Inject
-  public Timetable(final Inflater inflater, final Delayed<Store> delayedStore,
+  public Timetable(final Inflater inflater,
+                   final Delayed<ObservableStore> delayedStore,
                    final UiDataService uiDataService,
                    final SessionListViewFactory sessionListViewFactory) {
     this.delayedStore = delayedStore;
@@ -107,6 +110,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.delayedStore.whenAvailable(store -> {
+      store.addObserver(this);
       timetableSideBar.initializeComponents(store);
       setSessions(store.getSessions()
           .stream()
@@ -287,6 +291,14 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
   public double getUserDefinedDividerPos() {
     return userDefinedDividerPos;
+  }
+
+  @Override
+  public void update(final java.util.Observable observable, final Object arg) {
+    delayedStore.whenAvailable(store -> setSessions(store.getSessions()
+        .stream()
+        .map(SessionFacade::new)
+        .collect(Collectors.toList())));
   }
 
   private class ConflictedSemestersBinding extends SetBinding<Integer> {
