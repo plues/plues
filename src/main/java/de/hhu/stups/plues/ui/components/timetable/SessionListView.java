@@ -7,6 +7,7 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.services.HistoryManager;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -29,6 +30,7 @@ public class SessionListView extends ListView<SessionFacade> {
   private final Delayed<SolverService> delayedSolverService;
   private final ListeningExecutorService executorService;
   private final UiDataService uiDataService;
+  private final HistoryManager historyManager;
   private ListProperty<SessionFacade> sessions;
 
   /**
@@ -45,12 +47,14 @@ public class SessionListView extends ListView<SessionFacade> {
                          final Delayed<SolverService> delayedSolverService,
                          final ListeningExecutorService executorService,
                          final Provider<SessionCell> cellProvider,
-                         final UiDataService uiDataService) {
+                         final UiDataService uiDataService,
+                         final HistoryManager historyManager) {
     this.slot = slot;
     this.delayedStore = delayedStore;
     this.executorService = executorService;
     this.delayedSolverService = delayedSolverService;
     this.uiDataService = uiDataService;
+    this.historyManager = historyManager;
 
     setCellFactory(param -> cellProvider.get());
 
@@ -99,7 +103,6 @@ public class SessionListView extends ListView<SessionFacade> {
     if (isValidTarget(event)) {
       event.acceptTransferModes(TransferMode.MOVE);
     }
-
     event.consume();
   }
 
@@ -107,6 +110,7 @@ public class SessionListView extends ListView<SessionFacade> {
   private void dragEntered(final DragEvent event) {
     if (isValidTarget(event)) {
       getStyleClass().add("dragged-over");
+      historyManager.historyEnabledProperty().set(false);
     }
   }
 
@@ -114,10 +118,11 @@ public class SessionListView extends ListView<SessionFacade> {
   private void dragExited(final DragEvent event) {
     if (isValidTarget(event)) {
       getStyleClass().remove("dragged-over");
+      historyManager.historyEnabledProperty().set(true);
     }
   }
 
-  @SuppressWarnings("unused")
+  @SuppressWarnings( {"unused", "ResultOfMethodCallIgnored"})
   private void dropped(final DragEvent event) {
     boolean success = false;
 
@@ -139,6 +144,11 @@ public class SessionListView extends ListView<SessionFacade> {
       });
     }
 
+    // clear the redo history when a session is moved BY THE USER, we do this right here since we
+    // also have undo changes to the history but we don't want to delete the redo history for
+    // those actions
+    historyManager.clearRedoHistory();
+
     event.setDropCompleted(success);
     event.consume();
   }
@@ -149,6 +159,7 @@ public class SessionListView extends ListView<SessionFacade> {
       Optional<SessionFacade> optionalSessionFacade =
           sessions.stream().filter(sessionFacade -> sessionFacade.getId() == sessionId).findFirst();
       optionalSessionFacade.ifPresent(sessionFacade -> sessionFacade.setSlot(slot));
+      historyManager.push(store.getLastLogEntry());
     });
   }
 
