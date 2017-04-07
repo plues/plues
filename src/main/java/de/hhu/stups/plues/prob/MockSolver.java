@@ -36,6 +36,16 @@ public class MockSolver implements Solver {
   }
 
   @Override
+  public void undoLastMoveOperation() {
+    //
+  }
+
+  @Override
+  public void redoLastMoveOperation() {
+    //
+  }
+
+  @Override
   public Boolean checkFeasibility(final String... courses) throws SolverException {
     throw new SolverException("failed");
   }
@@ -87,12 +97,12 @@ public class MockSolver implements Solver {
       logger.error("test", exception);
       throw new RuntimeException(exception);
     }
-    return new HashSet<>(Arrays.asList(1,2,5,6,11));
+    return new HashSet<>(Arrays.asList(1, 2, 5, 6, 11));
   }
 
   @Override
   public Set<Integer> unsatCoreGroups(final List<Integer> abstractUnits,
-      final List<Integer> modules) throws SolverException {
+                                      final List<Integer> modules) throws SolverException {
     return new HashSet<>(Arrays.asList(452, 455, 459, 456, 429, 426, 1527));
   }
 
@@ -104,7 +114,7 @@ public class MockSolver implements Solver {
       logger.error("test", exception);
       throw new RuntimeException(exception);
     }
-    return new HashSet<>(Arrays.asList(1,100,1000));
+    return new HashSet<>(Arrays.asList(1, 100, 1000));
   }
 
   @Override
