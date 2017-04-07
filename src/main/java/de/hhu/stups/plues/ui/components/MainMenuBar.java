@@ -84,6 +84,15 @@ public class MainMenuBar extends MenuBar implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
+  private MenuItem undoLastMenuItem;
+  @FXML
+  @SuppressWarnings("unused")
+  private MenuItem undoAllMenuItem;
+  @FXML
+  @SuppressWarnings("unused")
+  private MenuItem redoLastMenuItem;
+  @FXML
+  @SuppressWarnings("unused")
   private MenuItem saveFileMenuItem;
   @FXML
   @SuppressWarnings("unused")
@@ -163,6 +172,13 @@ public class MainMenuBar extends MenuBar implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
     initializeMenu();
+
+    undoLastMenuItem.disableProperty().bind(
+        mainMenuService.getHistoryManager().undoHistoryEmptyProperty());
+    undoAllMenuItem.disableProperty().bind(
+        mainMenuService.getHistoryManager().undoHistoryEmptyProperty());
+    redoLastMenuItem.disableProperty().bind(
+        mainMenuService.getHistoryManager().redoHistoryEmptyProperty());
 
     mainMenuService.getDelayedSolverService().whenAvailable(solverService -> {
       openReportsMenuItem.setDisable(false);
@@ -335,6 +351,24 @@ public class MainMenuBar extends MenuBar implements Initializable {
   @SuppressWarnings("unused")
   private void closeWindow(final Event event) {
     router.transitionTo(RouteNames.CLOSE_APP, event);
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
+  private void undoLastMoveOperation() {
+    mainMenuService.getHistoryManager().undoLastMoveOperation();
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
+  private void undoAllMoveOperations() {
+    mainMenuService.getHistoryManager().undoAllMoveOperations();
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
+  private void redoLastMoveOperation() {
+    mainMenuService.getHistoryManager().redoLastMoveOperation();
   }
 
   /**
