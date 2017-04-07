@@ -2,6 +2,7 @@ package de.hhu.stups.plues.injector;
 
 import com.google.inject.AbstractModule;
 
+import de.hhu.stups.plues.services.HistoryManager;
 import de.hhu.stups.plues.ui.components.AboutWindow;
 import de.hhu.stups.plues.ui.components.AbstractUnitFilter;
 import de.hhu.stups.plues.ui.components.ChangeLog;
@@ -84,5 +85,6 @@ class ComponentsModule extends AbstractModule {
     bind(UnsatCore.class);
     bind(MainMenuBar.class);
     bind(TaskProgressIndicator.class);
+    bind(HistoryManager.class);
   }
 }
