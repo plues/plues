@@ -224,6 +224,16 @@ public class SolverTaskTest extends ApplicationTest {
     }
 
     @Override
+    public void undoLastMoveOperation() {
+      //
+    }
+
+    @Override
+    public void redoLastMoveOperation() {
+      //
+    }
+
+    @Override
     public Boolean checkFeasibility(final String... courses) {
       return false;
     }
@@ -235,8 +245,8 @@ public class SolverTaskTest extends ApplicationTest {
 
     @Override
     public FeasibilityResult computePartialFeasibility(final List<String> courses,
-        final Map<String, List<Integer>> moduleChoice,
-        final Map<Integer, List<Integer>> abstractUnitChoice) {
+                                                       final Map<String, List<Integer>> moduleChoice,
+                                                       final Map<Integer, List<Integer>> abstractUnitChoice) {
 
       return null;
     }
