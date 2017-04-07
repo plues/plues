@@ -114,11 +114,16 @@ public class ChangeLog extends VBox implements Initializable, Observer {
     });
   }
 
+  /**
+   * Add or remove log entries from the {@link #logs}.
+   */
   @Override
   public void update(final Observable observable, final Object arg) {
-    final Store store = (Store) observable;
-    final Log log = store.getLastLogEntry();
-    logs.add(log);
+    if ("removed".equals(arg)) {
+      logs.remove(logs.size() - 1);
+      return;
+    }
+    logs.add(((Store) observable).getLastLogEntry());
   }
 
   private void updateBinding() {
