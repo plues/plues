@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
@@ -14,6 +15,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -22,6 +24,7 @@ import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -40,7 +43,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   private Button btCheckFeasibility;
   @FXML
   @SuppressWarnings("unused")
-  private ListView<FeasibilityBox> resultBoxWrapper;
+  private ListView<FeasibilityBox> feasibilityBoxWrapper;
   @FXML
   @SuppressWarnings("unused")
   private Button btUnhighlightAllConflicts;
@@ -48,8 +51,8 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   /**
    * Component to select a combination of courses or a single subject obtained by {@link
    * CombinationOrSingleCourseSelection} and check its feasibility. The results are displayed in
-   * {@link FeasibilityBox result boxes} within {@link #resultBoxWrapper a VBox}. When using the
-   * component we need to initialize the courses via {@link #setCourses(List)} and optionally
+   * {@link FeasibilityBox result boxes} within {@link #feasibilityBoxWrapper a VBox}. When using
+   * the component we need to initialize the courses via {@link #setCourses(List)} and optionally
    * highlight the impossible courses with the use of {@link #impossibleCoursesProperty()}. As soon
    * as the solver is available the {@link #solverAvailableProperty} is set to true to enable
    * computations like {@link #btCheckFeasibility}.
@@ -70,11 +73,12 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    resultBoxWrapper.visibleProperty().bind(Bindings.isEmpty(resultBoxWrapper.getItems()).not());
+    feasibilityBoxWrapper.visibleProperty().bind(
+        Bindings.isEmpty(feasibilityBoxWrapper.getItems()).not());
     // disable list-view selection
-    resultBoxWrapper.getSelectionModel().selectedIndexProperty().addListener(
+    feasibilityBoxWrapper.getSelectionModel().selectedIndexProperty().addListener(
         (observable, oldvalue, newValue) ->
-            Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
+            Platform.runLater(() -> feasibilityBoxWrapper.getSelectionModel().select(-1)));
 
     btCheckFeasibility.disableProperty().bind(solverAvailableProperty.not());
     btUnhighlightAllConflicts.visibleProperty().bind(this.uiDataService
@@ -88,16 +92,45 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   public void checkFeasibility() {
-    if (combinationOrSingleCourseSelection.getSelectedCourses().size() == 2) {
-      resultBoxWrapper.getItems().add(0, feasibilityBoxFactory.create(
-          combinationOrSingleCourseSelection.getSelectedCourses().get(0),
-          combinationOrSingleCourseSelection.getSelectedCourses().get(1),
-          resultBoxWrapper));
-    } else {
-      resultBoxWrapper.getItems().add(0, feasibilityBoxFactory.create(
-          combinationOrSingleCourseSelection.getSelectedCourses().get(0), null,
-          resultBoxWrapper));
+    Platform.runLater(() ->
+        addOrRestartFeasibilityBox(combinationOrSingleCourseSelection.getSelectedCourses()));
+  }
+
+  /**
+   * In case the {@link #feasibilityBoxWrapper} already contains a {@link FeasibilityBox} with the
+   * selected courses we restart this box and bring it to the top of the list view.
+   * Otherwise, a new feasibility box is created.
+   */
+  @SuppressWarnings("unused")
+  private void addOrRestartFeasibilityBox(final ObservableList<Course> selectedCourses) {
+    if (selectedCourses.size() == 0) {
+      return;
     }
+    final Course majorCourse = selectedCourses.get(0);
+    final Course minorCourse;
+    if (selectedCourses.size() == 2) {
+      minorCourse = selectedCourses.get(1);
+    } else {
+      minorCourse = null;
+    }
+    final Optional<FeasibilityBox> containsBox = feasibilityBoxWrapper.getItems().stream().filter(
+        feasibilityBox -> majorCourse.equals(feasibilityBox.getMajorCourse())
+            && Helpers.equalCoursesOrNull(minorCourse, feasibilityBox.getMinorCourse()))
+        .findFirst();
+    if (containsBox.isPresent()) {
+      toTopOfListview(containsBox.get());
+      return;
+    }
+    feasibilityBoxWrapper.getItems().add(0, feasibilityBoxFactory.create(majorCourse, minorCourse,
+        feasibilityBoxWrapper));
+    feasibilityBoxWrapper.scrollTo(0);
+  }
+
+  private void toTopOfListview(final FeasibilityBox feasibilityBox) {
+    feasibilityBoxWrapper.getItems().remove(feasibilityBox);
+    feasibilityBoxWrapper.getItems().add(0, feasibilityBox);
+    feasibilityBoxWrapper.scrollTo(0);
+    feasibilityBox.restartComputationAction();
   }
 
   public void setCourses(final List<Course> courses) {
@@ -121,5 +154,9 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
 
   public Set<Course> getImpossibleCourses() {
     return combinationOrSingleCourseSelection.getImpossibleCourses();
+  }
+
+  ListView<FeasibilityBox> getFeasibilityBoxWrapper() {
+    return feasibilityBoxWrapper;
   }
 }

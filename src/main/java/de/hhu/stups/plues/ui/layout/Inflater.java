@@ -5,8 +5,8 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.ui.exceptions.InflaterException;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -94,7 +94,7 @@ public class Inflater {
     try {
       return loader.load();
     } catch (final IOException ignored) {
-      final Logger logger = LoggerFactory.logger(getClass());
+      final Logger logger = LoggerFactory.getLogger(getClass());
       logger.error("Exception in FXML Loader", ignored);
       throw new InflaterException(ignored);
     }

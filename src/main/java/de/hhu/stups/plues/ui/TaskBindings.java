@@ -2,6 +2,7 @@ package de.hhu.stups.plues.ui;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
@@ -62,11 +63,11 @@ public class TaskBindings {
         break;
       case READY:
       case SCHEDULED:
-        symbol = FontAwesomeIcon.DOT_CIRCLE_ALT;
+        symbol = FontAwesomeIcon.CLOCK_ALT;
         break;
       case RUNNING:
       default:
-        symbol = FontAwesomeIcon.CLOCK_ALT;
+        symbol = FontAwesomeIcon.SPINNER;
         break;
     }
     return symbol;
@@ -81,11 +82,11 @@ public class TaskBindings {
   public static StringBinding getStyleBinding(final Task<?> task) {
     return Bindings.createStringBinding(() -> {
       final String color = getColor(task);
-
+      final String centerIcon = "-fx-alignment: center;";
       if (color == null) {
-        return "";
+        return centerIcon;
       }
-      return "-fx-background-color: " + color;
+      return "-fx-background-color: " + color + "; " + centerIcon;
     }, task.stateProperty());
   }
 

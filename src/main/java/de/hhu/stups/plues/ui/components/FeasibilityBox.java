@@ -12,8 +12,6 @@ import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.TaskBindings;
-import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
@@ -31,7 +29,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
@@ -48,7 +45,6 @@ import javax.annotation.Nullable;
 public class FeasibilityBox extends VBox implements Initializable {
 
   private final Provider<ConflictTree> conflictTreeProvider;
-  private static final String ICON_SIZE = "50";
 
   private final Course major;
   private final Course minor;
@@ -71,29 +67,29 @@ public class FeasibilityBox extends VBox implements Initializable {
   // lists of actions for each possible state
   private static final ObservableList<Actions> succeededActionsMajorMinor
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
-                                          Actions.GENERATE_PDF,
-                                          Actions.GENERATE_PARTIAL,
-                                          Actions.REMOVE);
+      Actions.GENERATE_PDF,
+      Actions.GENERATE_PARTIAL,
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> succeededActionsMajorOnly
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
-                                          Actions.REMOVE);
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> failedWithConflictActions
       = FXCollections.observableArrayList(Actions.UNSAT_CORE,
-                                          Actions.OPEN_IN_TIMETABLE,
-                                          Actions.STEPWISE_UNSAT_CORE,
-                                          Actions.REMOVE);
+      Actions.OPEN_IN_TIMETABLE,
+      Actions.STEPWISE_UNSAT_CORE,
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> conflictActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
-                                          Actions.STEPWISE_UNSAT_CORE,
-                                          Actions.REMOVE);
+      Actions.STEPWISE_UNSAT_CORE,
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> cancelledActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
-                                          Actions.RESTART_COMPUTATION,
-                                          Actions.REMOVE);
+      Actions.RESTART_COMPUTATION,
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> scheduledActions
       = FXCollections.observableArrayList(Actions.CANCEL);
@@ -103,15 +99,12 @@ public class FeasibilityBox extends VBox implements Initializable {
 
   private static final ObservableList<Actions> timeoutActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
-                                          Actions.RESTART_COMPUTATION,
-                                          Actions.REMOVE);
+      Actions.RESTART_COMPUTATION,
+      Actions.REMOVE);
 
   @FXML
   @SuppressWarnings("unused")
-  private ProgressIndicator progressIndicator;
-  @FXML
-  @SuppressWarnings("unused")
-  private Label lbIcon;
+  private TaskProgressIndicator taskProgressIndicator;
   @FXML
   @SuppressWarnings("unused")
   private Label lbMajor;
@@ -145,7 +138,7 @@ public class FeasibilityBox extends VBox implements Initializable {
     this.router = router;
     this.executorService = executorService;
     this.conflictTreeProvider = conflictTreeProvider;
-    this.impossibleCourses = uiDataService.getImpossibleCoures();
+    this.impossibleCourses = uiDataService.getImpossibleCourses();
     this.parent = parent;
 
     major = majorCourse;
@@ -169,8 +162,6 @@ public class FeasibilityBox extends VBox implements Initializable {
 
     initializeCourseLabels();
     initializeActionComboBox(resources);
-
-    progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
 
     restartComputationAction();
   }
@@ -266,7 +257,7 @@ public class FeasibilityBox extends VBox implements Initializable {
       switch (task.getState()) {
         case CANCELLED:
           if (ResourceBundle.getBundle("lang.tasks").getString("timeout")
-                .equals(task.getReason())) {
+              .equals(task.getReason())) {
             return noConflictString;
           }
           return "";
@@ -287,8 +278,13 @@ public class FeasibilityBox extends VBox implements Initializable {
     getChildren().add(conflictTree);
   }
 
-  private void restartComputationAction() {
+  /**
+   * Restart the check feasibility computation.
+   */
+  public void restartComputationAction() {
     delayedSolverService.whenAvailable(solverService -> {
+      interrupt();
+      removeConflictTree();
       final SolverTask<Boolean> task = solverService.checkFeasibilityTask(courses);
       feasibilityTaskBindings(task);
 
@@ -298,6 +294,16 @@ public class FeasibilityBox extends VBox implements Initializable {
       this.solverTask = task;
       executorService.submit(task);
     });
+  }
+
+  /**
+   * Remove the conflict tree, i.e. the second children of the feasibility box, when a computation
+   * is restarted.
+   */
+  private void removeConflictTree() {
+    if (getChildren().size() == 2) {
+      getChildren().remove(1);
+    }
   }
 
   private void feasibilityTaskBindings(final SolverTask<Boolean> task) {
@@ -310,10 +316,8 @@ public class FeasibilityBox extends VBox implements Initializable {
     });
     task.setOnCancelled(event -> resultState = ResultState.FAILED);
 
-    progressIndicator.visibleProperty().bind(task.runningProperty());
-    lbIcon.visibleProperty().bind(task.runningProperty().not());
-    lbIcon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, task));
-    lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
+    taskProgressIndicator.taskProperty().set(task);
+    taskProgressIndicator.sizeProperty().set(50.0);
   }
 
   @FXML
@@ -322,6 +326,14 @@ public class FeasibilityBox extends VBox implements Initializable {
       return;
     }
     solverTask.cancel(true);
+  }
+
+  public Course getMajorCourse() {
+    return major;
+  }
+
+  public Course getMinorCourse() {
+    return minor;
   }
 
   private enum Actions {

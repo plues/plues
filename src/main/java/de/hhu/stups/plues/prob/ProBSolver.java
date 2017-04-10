@@ -1,11 +1,9 @@
 package de.hhu.stups.plues.prob;
 
-import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.be4.classicalb.core.parser.exceptions.BCompoundException;
-import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.exception.ProBError;
 import de.prob.scripting.Api;
@@ -22,10 +20,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class ProBSolver implements Solver {
   private static final String CHECK = "check";
@@ -43,53 +41,57 @@ public class ProBSolver implements Solver {
   private final StateSpace stateSpace;
   private final SolverCache<SolverResult> operationExecutionCache;
   private final Logger logger = LoggerFactory.getLogger(getClass());
+  private final CommandFactory commandFactory;
   private Trace trace;
 
   @Inject
-  ProBSolver(final Api api, @Assisted final String modelPath) throws SolverException {
+  ProBSolver(final Api api, final CommandFactory commandFactory, @Assisted final String modelPath)
+      throws SolverException {
+
+    this.operationExecutionCache = new SolverCache<>(100);
+    this.commandFactory = commandFactory;
 
     final long t1 = System.nanoTime();
     try {
       this.stateSpace = api.b_load(modelPath);
     } catch (final IOException | ModelTranslationError exception) {
-      logger.error("Exception while loading model",exception);
+      logger.error("Exception while loading model", exception);
       throw new SolverException(exception);
     }
     final long t2 = System.nanoTime();
-    logger.info("Loaded machine in " + TimeUnit.NANOSECONDS.toMillis(t2 - t1) + " ms");
+    logger.info("Loaded machine in {} ms.", TimeUnit.NANOSECONDS.toMillis(t2 - t1));
     //
     this.stateSpace.getSubscribedFormulas()
         .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
 
-    this.operationExecutionCache = new SolverCache<>(100);
-
     final long t3 = System.nanoTime();
     this.trace = traceFrom(stateSpace);
     final long t4 = System.nanoTime();
-    logger.info("Loaded trace in " + TimeUnit.NANOSECONDS.toMillis(t4 - t3) + " ms");
+    logger.info("Loaded trace in {} ms.", TimeUnit.NANOSECONDS.toMillis(t4 - t3));
   }
 
   private static String getFeasibilityPredicate(final String[] courses) {
-    final Iterator<String> iterator = Arrays.stream(courses)
+    final String ccss = Arrays.stream(courses)
         .filter(it -> it != null && !"".equals(it))
-        .map(it -> "\"" + it + "\"").iterator();
-    return "ccss={" + Joiner.on(", ").join(iterator) + "}";
+        .map(it -> "\"" + it + "\"")
+        .collect(Collectors.joining(", "));
+    return String.format("ccss={%s}", ccss);
   }
 
   private Trace traceFrom(final StateSpace space) {
-    Trace tracefromSpace = (Trace) space.asType(Trace.class);
+    Trace traceFromSpace = (Trace) space.asType(Trace.class);
 
     final long start = System.nanoTime();
-    tracefromSpace = tracefromSpace.execute("$setup_constants");
+    traceFromSpace = traceFromSpace.execute("$setup_constants");
 
     final long t = System.nanoTime();
 
-    tracefromSpace = tracefromSpace.execute("$initialise_machine");
+    traceFromSpace = traceFromSpace.execute("$initialise_machine");
     final long end = System.nanoTime();
 
-    logger.info("$setup_constants took " + TimeUnit.NANOSECONDS.toMillis(t - start) + " ms");
-    logger.info("$initialise_machine took " + TimeUnit.NANOSECONDS.toMillis(end - t) + " ms");
-    return tracefromSpace;
+    logger.info("$setup_constants took {} ms.", TimeUnit.NANOSECONDS.toMillis(t - start));
+    logger.info("$initialise_machine took {} ms.", TimeUnit.NANOSECONDS.toMillis(end - t));
+    return traceFromSpace;
   }
 
   private SolverResult executeOperation(final String op, final String predicate)
@@ -99,15 +101,15 @@ public class ProBSolver implements Solver {
     synchronized (operationExecutionCache) {
       final SolverResult cacheObject = operationExecutionCache.get(key);
       if (cacheObject != null) {
-        logger.info(String.format("Solver cache hit for key %s", key));
+        logger.info("Solver cache hit for key {}", key);
         return cacheObject;
       }
     }
 
     final IEvalElement evalElement = stateSpace.getModel().parseFormula(predicate);
     final String stateId = trace.getCurrentState().getId();
-    final GetOperationByPredicateCommand cmd
-        = new GetOperationByPredicateCommand(this.stateSpace, stateId, op, evalElement, 1);
+    final GetOperationByPredicateCommandDelegate cmd
+        = commandFactory.create(this.stateSpace, stateId, op, evalElement, 1);
     //
     final SolverResult solverResult = new SolverResult();
 
@@ -116,8 +118,8 @@ public class ProBSolver implements Solver {
       if (cmd.isInterrupted() || !cmd.isCompleted()) {
         solverResult.setState(ResultState.INTERRUPTED);
 
-        logger.debug(String.format("RESULT %s %s = TIMEOUT/CANCEL // interrupted %s completed %s",
-            op, predicate, cmd.isInterrupted(), cmd.isCompleted()));
+        logger.debug("RESULT {} {} = TIMEOUT/CANCEL // interrupted {} completed {}",
+            op, predicate, cmd.isInterrupted(), cmd.isCompleted());
         return solverResult;
       } else if (cmd.hasErrors()) {
         solverResult.setState(ResultState.FAILED);
@@ -140,7 +142,7 @@ public class ProBSolver implements Solver {
     }
 
 
-    logger.debug(String.format("RESULT %s %s = %s", op, predicate, solverResult));
+    logger.debug("RESULT {} {} = {}", op, predicate, solverResult);
 
     return solverResult;
   }
@@ -255,10 +257,13 @@ public class ProBSolver implements Solver {
     final Map<Integer, Integer> groupChoice = Mappers.mapGroupChoice(
         (Set) modelResult.get(1));
 
+    final Map<Integer, java.util.Set<Integer>> abstractUnitChoice
+        = Mappers.mapAbstractUnitChoice((Set) modelResult.get(2));
+
     final Map<String, java.util.Set<Integer>> moduleChoice
-        = Mappers.mapModuleChoice((Set) modelResult.get(2));
+        = Mappers.mapModuleChoice((Set) modelResult.get(3));
     //
-    return new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
+    return new FeasibilityResult(moduleChoice, abstractUnitChoice, semesterChoice, groupChoice);
   }
 
   /**
@@ -268,7 +273,7 @@ public class ProBSolver implements Solver {
    * @param courses            List of course keys as String
    * @param moduleChoice       map of course key to a set of module IDs already completed in that
    *                           course.
-   * @param abstractUnitChoice List of abstract unit IDs already compleated
+   * @param abstractUnitChoice List of abstract unit IDs already completed
    * @return FeasibilityResult
    * @throws SolverException if no result could be found or the solver did not exit cleanly (e.g.
    *                         interrupt)
@@ -276,11 +281,13 @@ public class ProBSolver implements Solver {
   @Override
   public final synchronized FeasibilityResult computePartialFeasibility(
       final List<String> courses, final Map<String, List<Integer>> moduleChoice,
-      final List<Integer> abstractUnitChoice) throws SolverException {
+      final Map<Integer, List<Integer>> abstractUnitChoice) throws SolverException {
 
     final String mc = Mappers.mapToModuleChoice(moduleChoice);
-    final String ac = Joiner.on(',').join(
-        abstractUnitChoice.stream().map(i -> "au" + i).iterator());
+    final String ac = abstractUnitChoice.entrySet().stream()
+        .flatMap(auc -> auc.getValue().stream()
+            .map(value -> String.format("(mod%s, au%s)", auc.getKey(), value)))
+        .collect(Collectors.joining(", "));
 
     final String predicate = getFeasibilityPredicate(courses.toArray(new String[0]))
         + " & partialModuleChoice=" + mc
@@ -300,11 +307,14 @@ public class ProBSolver implements Solver {
     final Map<Integer, Integer> computedGroupChoice
         = Mappers.mapGroupChoice((Set) modelResult.get(1));
 
+    final Map<Integer, java.util.Set<Integer>> computedAbstractUnitChoice
+        = Mappers.mapAbstractUnitChoice((Set) modelResult.get(2));
+
     final Map<String, java.util.Set<Integer>> computedModuleChoice
-        = Mappers.mapModuleChoice((Set) modelResult.get(2));
+        = Mappers.mapModuleChoice((Set) modelResult.get(3));
     //
-    return new FeasibilityResult(
-        computedModuleChoice, computedSemesterChoice, computedGroupChoice);
+    return new FeasibilityResult(computedModuleChoice, computedAbstractUnitChoice,
+        computedSemesterChoice, computedGroupChoice);
   }
 
   /**
@@ -342,8 +352,9 @@ public class ProBSolver implements Solver {
   public final synchronized java.util.Set<Integer> unsatCoreAbstractUnits(
       final List<Integer> modules) throws SolverException {
 
-    final String predicate = "uc_modules={"
-        + Joiner.on(", ").join(Mappers.mapToModules(modules)) + "}";
+    final String predicate
+        = String.format("uc_modules={%s}",
+            Mappers.mapToModules(modules).stream().collect(Collectors.joining(", ")));
     //
     final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_ABSTRACT_UNITS, predicate);
     //
@@ -354,9 +365,13 @@ public class ProBSolver implements Solver {
   public final synchronized java.util.Set<Integer> unsatCoreGroups(
       final List<Integer> abstractUnits, final List<Integer> modules) throws SolverException {
 
-    final String predicate = "uc_modules={" + Joiner.on(", ").join(Mappers.mapToModules(modules))
-        + "} & uc_abstract_units={"
-        + Joiner.on(", ").join(Mappers.mapToAbstractUnits(abstractUnits)) + "}";
+    final String ucModules
+        = Mappers.mapToModules(modules).stream().collect(Collectors.joining(", "));
+    final String ucAbstractUnits
+        = Mappers.mapToAbstractUnits(abstractUnits).stream().collect(Collectors.joining(", "));
+
+    final String predicate
+        = String.format("uc_modules={%s} & uc_abstract_units={%s}", ucModules, ucAbstractUnits);
     //
     final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_GROUPS, predicate);
     //
@@ -364,11 +379,12 @@ public class ProBSolver implements Solver {
   }
 
   @Override
-  public final synchronized  java.util.Set<Integer> unsatCoreSessions(final List<Integer> groups)
+  public final synchronized java.util.Set<Integer> unsatCoreSessions(final List<Integer> groups)
       throws SolverException {
 
-    final String predicate = "uc_groups={"
-        + Joiner.on(", ").join(Mappers.mapToGroups(groups)) + "}";
+    final String predicate
+        = String.format("uc_groups={%s}",
+            Mappers.mapToGroups(groups).stream().collect(Collectors.joining(", ")));
     //
     final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_SESSIONS, predicate);
     //
@@ -381,7 +397,7 @@ public class ProBSolver implements Solver {
    *
    * @param sessionId the ID of the Session
    * @param day       String day, valid values are "1".."7"
-   * @param slot      Sting representing the selected time slot, valid values are "1".."8".
+   * @param slot      String representing the selected time slot, valid values are "1".."7".
    */
   @Override
   public final synchronized void move(final String sessionId,
@@ -476,6 +492,10 @@ public class ProBSolver implements Solver {
     report.setModuleAbstractUnitUnitSemesterConflicts(
         Mappers.mapModuleAbstractUnitUnitSemesterMismatch(
             (Set) data.get("module_abstract_unit_unit_semester_mismatch")));
+
+    report.setImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits(
+        Mappers.mapQuasiMandatoryModuleAbstractUnits((Set) data.get(
+            "impossible_modules_because_of_incomplte_quasi_mandatory_abstract_units")));
 
     return report;
   }

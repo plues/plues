@@ -5,13 +5,12 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
@@ -19,17 +18,11 @@ import java.util.ResourceBundle;
 
 public class BatchResultBox extends GridPane implements Initializable {
 
-  private static final String ICON_SIZE = "15";
-  private static final String WORKING_COLOR = "#BDE5F8";
-
   private final PdfRenderingTask task;
 
   @FXML
   @SuppressWarnings("unused")
-  private ProgressIndicator progressIndicator;
-  @FXML
-  @SuppressWarnings("unused")
-  private Label icon;
+  private TaskProgressIndicator taskProgressIndicator;
   @FXML
   @SuppressWarnings("unused")
   private Label lbMajor;
@@ -52,24 +45,20 @@ public class BatchResultBox extends GridPane implements Initializable {
     super();
     assert task != null;
     this.task = task;
-    this.setHgap(10.0);
 
     inflater.inflate("components/BatchResultBox", this, this, "batchTimetable");
   }
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
-    this.lbMajor.textProperty().bind(Bindings.selectString(task.getMajor(), "fullName"));
-    //
+    taskProgressIndicator.sizeProperty().set(30.0);
+    taskProgressIndicator.taskProperty().set(task);
+
+    lbMajor.textProperty().bind(Bindings.selectString(task.getMajor(), "fullName"));
+
     final Course minor = task.getMinor();
     if (minor != null) {
-      this.lbMinor.textProperty().bind(Bindings.selectString(minor, "fullName"));
+      lbMinor.textProperty().bind(Bindings.selectString(minor, "fullName"));
     }
-
-    this.progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
-    this.progressIndicator.visibleProperty().bind(task.runningProperty());
-    this.icon.visibleProperty().bind(task.runningProperty().not());
-    this.icon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, this.task));
-    this.icon.styleProperty().bind(TaskBindings.getStyleBinding(this.task));
   }
 }

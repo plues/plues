@@ -1,8 +1,9 @@
 package de.hhu.stups.plues.ui.components;
 
-import static javafx.collections.FXCollections.observableList;
+import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.ui.UiTestHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.collections.ObservableList;
@@ -11,57 +12,52 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.testfx.framework.junit.ApplicationTest;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.testfx.util.WaitForAsyncUtils;
 
 @RunWith(JUnit4.class)
 public class MajorMinorCourseSelectionTest extends ApplicationTest {
   private MajorMinorCourseSelection courseSelection;
-  private List<Course> majorCourseList;
-  private List<Course> minorCourseList;
+  private ObservableList<Course> courseList = UiTestHelper.createCourseList();
 
   @Test
   public void initialisationTest() {
 
     Assert.assertFalse(courseSelection.getMinorComboBox().isDisabled());
-    Assert.assertEquals(majorCourseList.get(0), courseSelection.getSelectedMajor());
-    Assert.assertEquals(4, courseSelection.getMajorComboBox().getItems().size());
+    Assert.assertEquals(courseList.get(0), courseSelection.getSelectedMajor());
+    Assert.assertEquals(10, courseSelection.getMajorComboBox().getItems().size());
 
     Assert.assertTrue(courseSelection.getSelectedMajor().isCombinable());
-    Assert.assertEquals(2, courseSelection.getMinorComboBox().getItems().size());
+    Assert.assertEquals(5, courseSelection.getMinorComboBox().getItems().size());
 
-    Assert.assertEquals(
-        observableList(majorCourseList),
-        courseSelection.getMajorComboBox().getItems());
-    Assert.assertEquals(
-        observableList(minorCourseList).filtered(
-            course -> course.isCombinableWith(majorCourseList.get(0))),
+    Assert.assertEquals(courseList, courseSelection.getMajorComboBox().getItems());
+    Assert.assertEquals(courseList.filtered(
+        course -> course.isCombinableWith(courseList.get(0))),
         courseSelection.getMinorComboBox().getItems());
   }
 
   @Test
   public void selectionTestCombinableCourse() {
-
     // select combinable course
     clickOn(courseSelection.getMajorComboBox())
+        .type(KeyCode.DOWN)
         .type(KeyCode.DOWN)
         .type(KeyCode.ENTER);
 
     Assert.assertFalse(courseSelection.getMinorComboBox().isDisabled());
 
     final Course major = courseSelection.getSelectedMajor();
-    Assert.assertEquals(majorCourseList.get(1), major);
+    Assert.assertEquals(major, courseList.get(2));
     final Course minor = courseSelection.getSelectedMinor();
-    Assert.assertEquals(minorCourseList.get(0), minor);
+    Assert.assertEquals(minor, courseList.get(0));
 
-    Assert.assertEquals(4, courseSelection.getMajorComboBox().getItems().size());
-    Assert.assertEquals(2, courseSelection.getMinorComboBox().getItems().size());
+    Assert.assertEquals(10, courseSelection.getMajorComboBox().getItems().size());
+    Assert.assertEquals(5, courseSelection.getMinorComboBox().getItems().size());
 
     final ObservableList<Course> courses = courseSelection.getSelectedCourses();
     Assert.assertEquals(2, courses.size());
@@ -75,26 +71,15 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
     // select not combinable course
     clickOn(courseSelection.getMajorComboBox())
         .type(KeyCode.DOWN)
-        .type(KeyCode.DOWN)
-        .type(KeyCode.DOWN)
         .type(KeyCode.ENTER);
 
-    Assert.assertEquals(majorCourseList.get(3), courseSelection.getSelectedMajor());
+    Assert.assertEquals(courseList.get(1), courseSelection.getSelectedMajor());
 
     Assert.assertTrue(courseSelection.getMinorComboBox().isDisabled());
     Assert.assertNull(courseSelection.getSelectedMinor());
 
-    Assert.assertEquals(4, courseSelection.getMajorComboBox().getItems().size());
+    Assert.assertEquals(10, courseSelection.getMajorComboBox().getItems().size());
     Assert.assertEquals(0, courseSelection.getMinorComboBox().getItems().size());
-  }
-
-  // degree: "bk" is combinable, "ba" is not
-  private Course createCourse(final String shortName, final String degree) {
-    final Course course = new Course();
-    course.setShortName(shortName);
-    course.setLongName(shortName);
-    course.setDegree(degree);
-    return course;
   }
 
   @Test
@@ -115,22 +100,18 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
 
   }
 
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
+  }
+
   @Override
   public void start(final Stage stage) throws Exception {
+    courseSelection = new MajorMinorCourseSelection(new Inflater(new FXMLLoader()));
 
-    majorCourseList = new ArrayList<>();
-    majorCourseList.add(createCourse("shortName1", "bk"));
-    majorCourseList.add(createCourse("shortName2", "bk"));
-    majorCourseList.add(createCourse("shortName3", "bk"));
-    majorCourseList.add(createCourse("shortName4", "ba"));
-
-    minorCourseList = majorCourseList;
-
-    final Inflater inflater = new Inflater(new FXMLLoader());
-    courseSelection = new MajorMinorCourseSelection(inflater);
-
-    courseSelection.setMinorCourseList(observableList(minorCourseList));
-    courseSelection.setMajorCourseList(observableList(majorCourseList));
+    courseSelection.setMinorCourseList(courseList);
+    courseSelection.setMajorCourseList(courseList);
 
     final Scene scene = new Scene(this.courseSelection, 100, 100);
 

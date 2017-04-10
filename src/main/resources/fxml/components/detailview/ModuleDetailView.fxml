@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-<?import javafx.scene.layout.ColumnConstraints?>
-
-<fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1"
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<fx:root xmlns:fx="http://javafx.com/fxml/1" type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea"
          prefWidth="700" prefHeight="500" styleClass="windowPadding" spacing="10.0">
     <Label text="%module" styleClass="h1"/>
     <GridPane>
@@ -16,32 +11,20 @@
         <Label fx:id="pordnr" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
         <Label text="%title" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
         <Label fx:id="title" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        <Label text="%name" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-        <Label fx:id="name" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        <Label text="%columnElectability" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-        <Label fx:id="mandatory" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-        <Label text="%creditPoints" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-        <Label fx:id="creditPoints" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-        <Label text="%electiveUnits" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
-        <Label fx:id="electiveUnits" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+        <Label text="%electiveUnits" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <Label fx:id="electiveUnits" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
         <columnConstraints>
             <ColumnConstraints percentWidth="50"/>
             <ColumnConstraints percentWidth="50"/>
         </columnConstraints>
     </GridPane>
     <Label text="%courseAssignment" styleClass="h2"/>
-    <TableView fx:id="courseTableView" prefWidth="650.0" VBox.vgrow="ALWAYS">
+    <TableView fx:id="moduleLevelTableView" prefWidth="650.0" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="tableColumnCourseName" prefWidth="150.0" text="%columnCourseName">
-                <cellValueFactory>
-                    <PropertyValueFactory property="name"/>
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="tableColumnCourseColumnName" prefWidth="500.0" text="%columnName">
-                <cellValueFactory>
-                    <PropertyValueFactory property="fullName"/>
-                </cellValueFactory>
-            </TableColumn>
+            <TableColumn fx:id="tableColumnCourseName" prefWidth="150.0" text="%columnCourseName"/>
+            <TableColumn fx:id="tableColumnCourseColumnName" prefWidth="350.0" text="%columnName"/>
+            <TableColumn fx:id="tableColumnElectability" prefWidth="75.0" text="%columnElectability"/>
+            <TableColumn fx:id="tableColumnCreditPoints" prefWidth="75.0" text="%creditPoints"/>
         </columns>
     </TableView>
     <Label text="%abstractUnits" styleClass="h2"/>

@@ -10,6 +10,8 @@ import com.google.inject.name.Names;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.prob.CommandDelegateFactory;
+import de.hhu.stups.plues.prob.CommandFactory;
 import de.hhu.stups.plues.prob.MockSolver;
 import de.hhu.stups.plues.prob.ProBSolver;
 import de.hhu.stups.plues.prob.Solver;
@@ -99,6 +101,7 @@ public class PluesModule extends AbstractModule {
     bind(ResourceBundle.class).toInstance(bundle);
 
     bind(SolverLoader.class).to(SolverLoaderImpl.class);
+    bind(CommandFactory.class).to(CommandDelegateFactory.class);
 
     final Delayed<ObservableStore> delayedObservableStore = new Delayed<>();
 

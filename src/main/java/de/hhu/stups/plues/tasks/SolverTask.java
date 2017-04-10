@@ -14,8 +14,8 @@ import de.hhu.stups.plues.ui.components.ExceptionDialog;
 import de.prob.exception.CliError;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
@@ -44,7 +44,7 @@ public class SolverTask<T> extends Task<T> {
 
   }
 
-  private final Logger logger = LoggerFactory.logger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
   private final Callable<T> function;
   private final TimeUnit timeUnit;
   private final int timeout;
@@ -81,8 +81,8 @@ public class SolverTask<T> extends Task<T> {
       final long start = System.nanoTime();
       final T result = func.call();
       final long end = System.nanoTime();
-      logger.info("SolverTask " + title + " finished in "
-          + TimeUnit.NANOSECONDS.toMillis(end - start) + " ms.");
+      logger.info("SolverTask {} finished in {} ms.",
+          title, TimeUnit.NANOSECONDS.toMillis(end - start));
       return result;
     };
   }
@@ -135,11 +135,11 @@ public class SolverTask<T> extends Task<T> {
 
   private void sleep() throws InterruptedException {
     try {
-      TimeUnit.MILLISECONDS.sleep(100);
+      TimeUnit.MILLISECONDS.sleep(200);
     } catch (final InterruptedException interrupted) {
       if (isCancelled()) {
         updateMessage(this.reason);
-        logger.info("Task cancelled while sleeping " + this.toString());
+        logger.info("Task cancelled while sleeping {}", this.toString());
         throw interrupted;
       }
     }
@@ -177,7 +177,9 @@ public class SolverTask<T> extends Task<T> {
 
     updateMessage(resources.getString("finished"));
     final T i = this.getValue();
-    logger.info("Result: " + (i != null ? i.toString() : " null"));
+    final String value = i != null ? i.toString() : " null";
+
+    logger.info("Result: {}", value);
   }
 
   @Override
@@ -208,7 +210,7 @@ public class SolverTask<T> extends Task<T> {
         ed.setHeaderText(resources.getString("cliError"));
         ed.setException(this.getException());
 
-        logger.fatal("Fatal CliError", this.getException());
+        logger.error("Fatal CliError", this.getException());
         ed.showAndWait();
         Platform.exit();
       });

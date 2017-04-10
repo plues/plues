@@ -73,7 +73,7 @@ public class UiDataService {
     return lastSavedDate;
   }
 
-  public ObservableSet<Course> getImpossibleCoures() {
+  public ObservableSet<Course> getImpossibleCourses() {
     return this.impossibleCoursesProperty.get();
   }
 
@@ -119,11 +119,4 @@ public class UiDataService {
     return conflictMarkedSessionsProperty;
   }
 
-  private ObservableSet<Course> getImpossibleCoursesProperty() {
-    return impossibleCoursesProperty.get();
-  }
-
-  public SetProperty<Course> impossibleCoursesPropertyProperty() {
-    return impossibleCoursesProperty;
-  }
 }

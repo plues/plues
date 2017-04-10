@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
@@ -38,6 +39,12 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Create the component containing the combo boxes to choose major and minor courses. When using
+ * the component we need to initially call {@link #setMajorCourseList(ObservableList)} and {@link
+ * #setMinorCourseList(ObservableList)}. As soon as the solver is available the impossible courses
+ * can be highlighted via the {@link #impossibleCoursesProperty} property.
+ */
 public class MajorMinorCourseSelection extends GridPane implements Initializable, Observable {
 
   private final List<InvalidationListener> listeners = new ArrayList<>();
@@ -49,6 +56,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private final ObjectProperty<Course> selectedMajor = new SimpleObjectProperty<>();
   private final ObjectProperty<Course> selectedMinor = new SimpleObjectProperty<>();
   private final ListProperty<Course> selectedCourses = new SimpleListProperty<>();
+
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<Course> cbMajor;
@@ -59,16 +67,8 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   @SuppressWarnings("unused")
   private ColumnConstraints columnConstraints;
 
-  /**
-   * Create the component containing the combo boxes to choose major and minor courses. When using
-   * the component we need to initially call {@link #setMajorCourseList(ObservableList)} and {@link
-   * #setMinorCourseList(ObservableList)}. As soon as the solver is available the impossible courses
-   * can be highlighted via the {@link #impossibleCoursesProperty} property.
-   *
-   * @param inflater Inflater to handle fxml.
-   */
   @Inject
-  MajorMinorCourseSelection(final Inflater inflater) {
+  public MajorMinorCourseSelection(final Inflater inflater) {
     inflater.inflate("components/MajorMinorCourseSelection", this, this);
   }
 
@@ -88,7 +88,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   }
 
   @SuppressWarnings("unused")
-  public ObjectProperty<Course> selectedMinorProperty() {
+  ObjectProperty<Course> selectedMinorProperty() {
     return selectedMinor;
   }
 
@@ -98,7 +98,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   }
 
   @SuppressWarnings("unused")
-  public ReadOnlyListProperty<Course> selectedCoursesProperty() {
+  ReadOnlyListProperty<Course> selectedCoursesProperty() {
     return selectedCourses;
   }
 
@@ -113,7 +113,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
         -> fireListenerEvents());
 
     majorCourseList.addListener((observable, oldValue, newValue)
-        -> cbMajor.getSelectionModel().select(0));
+        -> cbMajor.getSelectionModel().selectFirst());
 
     cbMinor.itemsProperty().addListener((observable, oldValue, newValue)
         -> cbMinor.getSelectionModel().selectFirst());
@@ -153,12 +153,12 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     return new ListViewListCellCallback(impossibleCourses);
   }
 
-  ComboBox<Course> getMajorComboBox() {
-    return this.cbMajor;
+  public ComboBox<Course> getMajorComboBox() {
+    return cbMajor;
   }
 
-  ComboBox<Course> getMinorComboBox() {
-    return this.cbMinor;
+  public ComboBox<Course> getMinorComboBox() {
+    return cbMinor;
   }
 
   /**
@@ -290,7 +290,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
       return minorCourseList.stream()
           .filter(major::isCombinableWith)
           .collect(
-            Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
+              Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
     }
   }
 

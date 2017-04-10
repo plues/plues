@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<fx:root type="StackPane" xmlns="http://javafx.com/javafx/8"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <VBox fx:id="boxProgressIndicator" alignment="CENTER">
+        <ProgressIndicator fx:id="progressIndicator" visible="false">
+            <tooltip>
+                <Tooltip fx:id="taskRunningTooltip" text="%computation.Running"/>
+            </tooltip>
+        </ProgressIndicator>
+    </VBox>
+    <Label fx:id="taskStateIcon" alignment="CENTER">
+        <tooltip>
+            <Tooltip fx:id="taskStateIconTooltip"/>
+        </tooltip>
+    </Label>
+</fx:root>

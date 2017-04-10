@@ -1,9 +1,10 @@
 package de.hhu.stups.plues.ui.components;
 
-import static org.mockito.Matchers.anyVararg;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testfx.api.FxAssert.verifyThat;
+import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
@@ -14,17 +15,20 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.matcher.control.LabeledMatchers;
+import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -73,19 +77,34 @@ public abstract class ResultBoxTest extends ApplicationTest {
   public void testIcon() {
     final Text mark = this.icon;
 
-    final Label icon = lookup("#lbIcon").query();
+    final TaskProgressIndicator taskProgressIndicator = lookup("#taskProgressIndicator").query();
+    final Label icon = taskProgressIndicator.getTaskStateIcon();
     final Text graphic = (Text) icon.getGraphic();
     Assert.assertEquals(mark.getText(), graphic.getText());
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public void start(final Stage stage) throws Exception {
     final SolverService solverService = mock(SolverService.class);
-    when(solverService.computeFeasibilityTask(anyVararg())).thenReturn(mock(SolverTask.class));
+    when(solverService.computeFeasibilityTask(any())).thenReturn(mock(SolverTask.class));
+
+    final FXMLLoader loader = new FXMLLoader();
+    loader.setBuilderFactory(type -> {
+      if (type.equals(TaskProgressIndicator.class)) {
+        return () -> new TaskProgressIndicator(new Inflater(new FXMLLoader()));
+      }
+      return new JavaFXBuilderFactory().getBuilder(type);
+    });
 
     final Delayed<SolverService> solver = new Delayed<>();
-    final Inflater inflater = new Inflater(new FXMLLoader());
+    final Inflater inflater = new Inflater(loader);
 
     solver.set(solverService);
 

@@ -5,6 +5,7 @@ import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -40,7 +41,8 @@ class ResultContextMenu extends ContextMenu {
     itemRecomputeFeasibility = new MenuItem(resources.getString("recomputeFeasibility"));
     itemCheckFeasibility = new MenuItem(resources.getString("checkFeasibility"));
 
-    resultState.addListener((observable, oldValue, newValue) -> updateMenu(newValue));
+    resultState.addListener((observable, oldValue, newValue) ->
+        Platform.runLater(() -> updateMenu(newValue)));
     updateMenu(resultState.get());
 
     itemGeneratePdf.setOnAction(event ->

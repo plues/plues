@@ -3,8 +3,8 @@ package de.hhu.stups.plues.ui.components.detailview;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
-import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
+import de.hhu.stups.plues.data.entities.ModuleLevel;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -18,8 +18,10 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -50,16 +52,22 @@ public class ModuleDetailView extends VBox implements Initializable {
   private Label electiveUnits;
   @FXML
   @SuppressWarnings("unused")
-  private TableView<Course> courseTableView;
+  private TableView<ModuleLevel> moduleLevelTableView;
   @FXML
   @SuppressWarnings("unused")
   private TableView<AbstractUnit> abstractUnitTableView;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Course, String> tableColumnCourseName;
+  private TableColumn<ModuleLevel, String> tableColumnCourseName;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Course, String> tableColumnCourseColumnName;
+  private TableColumn<ModuleLevel, String> tableColumnCourseColumnName;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<ModuleLevel, Boolean> tableColumnElectability;
+  @FXML
+  @SuppressWarnings("unused")
+  private TableColumn<ModuleLevel, String>  tableColumnCreditPoints;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<AbstractUnit, String> tableColumnAbstractUnitKey;
@@ -85,24 +93,36 @@ public class ModuleDetailView extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     bindField(pordnr.textProperty(), "pordnr");
     bindField(title.textProperty(), "title");
-    bindField(name.textProperty(), "name");
-    bindField(creditPoints.textProperty(), "creditPoints");
     bindField(electiveUnits.textProperty(), "electiveUnits");
-
-    mandatory.textProperty().bind(Bindings.when(moduleProperty.isNotNull())
-        .then(Bindings.when(Bindings.selectBoolean(moduleProperty, "mandatory"))
-            .then("✔︎")
-            .otherwise("✗"))
-        .otherwise("?"));
 
     tableViewBindings();
   }
 
   private void tableViewBindings() {
-    courseTableView.itemsProperty().bind(new CourseTableBinding());
-    courseTableView.setOnMouseClicked(DetailViewHelper.getCourseMouseHandler(
-        courseTableView, router));
-
+    moduleLevelTableView.itemsProperty().bind(new ModuleLevelTableBinding());
+    //
+    tableColumnCourseName.setCellValueFactory(param
+        -> Bindings.selectString(param.getValue(), "course", "name"));
+    tableColumnCourseColumnName.setCellValueFactory(param
+        -> Bindings.selectString(param.getValue(), "course", "fullName"));
+    tableColumnElectability.setCellValueFactory(new PropertyValueFactory<>("mandatory"));
+    tableColumnCreditPoints.setCellValueFactory(new PropertyValueFactory<>("creditPoints"));
+    //
+    tableColumnElectability.setCellFactory(param -> new TableCell<ModuleLevel, Boolean>() {
+      @Override
+      protected void updateItem(final Boolean item, final boolean empty) {
+        super.updateItem(item, empty);
+        if (item == null || empty) {
+          setText("");
+          return;
+        }
+        setText(item ? "✔︎" : "✗");
+      }
+    });
+    //
+    moduleLevelTableView.setOnMouseClicked(DetailViewHelper.getModuleLevelHandler(
+        moduleLevelTableView, router));
+    //
     abstractUnitTableView.itemsProperty().bind(new AbstractUnitTableBinding());
     abstractUnitTableView.setOnMouseClicked(DetailViewHelper.getAbstractUnitMouseHandler(
         abstractUnitTableView, router));
@@ -122,19 +142,19 @@ public class ModuleDetailView extends VBox implements Initializable {
     return moduleProperty.get().getTitle();
   }
 
-  private class CourseTableBinding extends ListBinding<Course> {
-    CourseTableBinding() {
+  private class ModuleLevelTableBinding extends ListBinding<ModuleLevel> {
+    ModuleLevelTableBinding() {
       bind(moduleProperty);
     }
 
     @Override
-    protected ObservableList<Course> computeValue() {
+    protected ObservableList<ModuleLevel> computeValue() {
       final Module module = moduleProperty.get();
       if (module == null) {
         return FXCollections.emptyObservableList();
       }
 
-      return FXCollections.observableArrayList(module.getCourses());
+      return FXCollections.observableArrayList(module.getModuleLevels());
     }
   }
 

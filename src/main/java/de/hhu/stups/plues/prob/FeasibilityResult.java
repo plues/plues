@@ -7,31 +7,38 @@ public class FeasibilityResult {
   private final Map<Integer, Integer> groupChoice;
   private final Map<String, Set<Integer>> moduleChoice;
   private final Map<Integer, Integer> semesterChoice;
+  private final Map<Integer, Set<Integer>> abstractUnitChoice;
 
   /**
-   * Construtor for feasibility result.
+   * Constructor for feasibility result.
    * @param moduleChoice Maps course id to set of module ids
    * @param semesterChoice Maps abstract unit id to semester
    * @param groupChoice Maps unit id to  group id
    */
   public FeasibilityResult(final Map<String, Set<Integer>> moduleChoice,
+                    final Map<Integer, Set<Integer>> abstractUnitChoice,
                     final Map<Integer, Integer> semesterChoice,
                     final Map<Integer, Integer> groupChoice) {
 
     this.moduleChoice = moduleChoice;
+    this.abstractUnitChoice = abstractUnitChoice;
     this.semesterChoice = semesterChoice;
     this.groupChoice = groupChoice;
   }
 
-  public final Map<Integer, Integer> getGroupChoice() {
+  public Map<Integer, Integer> getGroupChoice() {
     return groupChoice;
   }
 
-  public final Map<String, Set<Integer>> getModuleChoice() {
+  public Map<String, Set<Integer>> getModuleChoice() {
     return moduleChoice;
   }
 
-  public final Map<Integer, Integer> getSemesterChoice() {
+  public Map<Integer, Integer> getSemesterChoice() {
     return semesterChoice;
+  }
+
+  public Map<Integer, Set<Integer>> getAbstractUnitChoice() {
+    return abstractUnitChoice;
   }
 }

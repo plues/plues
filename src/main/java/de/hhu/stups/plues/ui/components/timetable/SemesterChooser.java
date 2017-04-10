@@ -22,14 +22,14 @@ import org.fxmisc.easybind.EasyBind;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * A component to choose semesters.
  */
 public class SemesterChooser extends Region {
 
-  private final SetProperty<Integer> selectedSemesters = new SimpleSetProperty<>();
+  private final SetProperty<Integer> selectedSemesters
+      = new SimpleSetProperty<>(FXCollections.observableSet());
   private final SetProperty<Integer> conflictedSemesters
       = new SimpleSetProperty<>(FXCollections.observableSet());
   private final SegmentedButton segmentedButton;
@@ -38,6 +38,7 @@ public class SemesterChooser extends Region {
 
   // List of bindings used to set the styleClass of each toggle button
   // This field is needed to avoid the bindings getting garbage collected due to weak references
+  @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
   private final List<BooleanBinding> bindings = new ArrayList<>();
 
   /**
@@ -47,17 +48,17 @@ public class SemesterChooser extends Region {
   @SuppressWarnings("WeakerAccess")
   public SemesterChooser() {
     super();
-    final ObservableList<ToggleButton> buttons = buildButtons();
-    segmentedButton = new SegmentedButton(buttons);
-    init();
+    segmentedButton = new SegmentedButton();
   }
 
-  private ObservableList<ToggleButton> buildButtons() {
-    return IntStream.rangeClosed(1, 6).mapToObj(value -> {
+  private ObservableList<ToggleButton> buildButtons(final List<Integer> semesters) {
+    return semesters.stream().map(value -> {
       final String stringVaue = String.valueOf(value);
       final ToggleButton toggleButton = new ToggleButton(stringVaue);
+      //
       toggleButton.setUserData(stringVaue);
       toggleButton.setSelected(value == 1);
+
       return toggleButton;
     }).collect(
         Collectors.collectingAndThen(Collectors.toList(),
@@ -161,7 +162,7 @@ public class SemesterChooser extends Region {
   }
 
   /**
-   * Set the semestesr that should be highlighted as containing a conflict.
+   * Set the semesters that should be highlighted as containing a conflict.
    * @param semesters Set of semesters that should be highlighted.
    */
   public void setConflictedSemesters(final ObservableSet<Integer> semesters) {
@@ -174,6 +175,16 @@ public class SemesterChooser extends Region {
 
   ObservableList<ToggleButton> getButtons() {
     return FXCollections.unmodifiableObservableList(segmentedButton.getButtons());
+  }
+
+  /**
+   * Set the list of semesters to be displayed by the component.
+   * @param semesters List of integers
+   */
+  public void setSemesters(final List<Integer> semesters) {
+    final ObservableList<ToggleButton> buttons = buildButtons(semesters);
+    segmentedButton.getButtons().setAll(buttons);
+    init();
   }
 
   private class SelectedSemestersBinding extends SetBinding<Integer> {

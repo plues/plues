@@ -2,17 +2,15 @@ package de.hhu.stups.plues.prob;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.be4.classicalb.core.parser.exceptions.BCompoundException;
-import de.prob.animator.command.GetOperationByPredicateCommand;
 import de.prob.animator.domainobjects.ClassicalB;
 import de.prob.animator.domainobjects.EvalElementType;
 import de.prob.animator.domainobjects.FormulaExpand;
@@ -26,14 +24,11 @@ import de.prob.statespace.Transition;
 import de.prob.translator.Translator;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,12 +36,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest( {ProBSolver.class, GetOperationByPredicateCommand.class})
 public class ProBSolverTest {
   private ProBSolver solver;
   private Trace trace;
   private StateSpace stateSpace;
+  private CommandFactory commandFactory;
 
   @Test
   public void unsatCoreModules() throws Exception {
@@ -130,12 +124,13 @@ public class ProBSolverTest {
     when(trace.getCurrentState()).thenReturn(state);
     when(state.getId()).thenReturn("TEST-STATE-ID");
 
-    when(trace.addTransitions(anyListOf(Transition.class))).thenReturn(trace);
+    when(trace.addTransitions(anyList())).thenReturn(trace);
 
     when(trace.execute("$setup_constants")).thenReturn(trace);
     when(trace.execute("$initialise_machine")).thenReturn(trace);
 
-    this.solver = new ProBSolver(api, "model");
+    this.commandFactory = mock(CommandFactory.class);
+    this.solver = new ProBSolver(api, commandFactory, "model");
   }
 
   @Test
@@ -179,15 +174,17 @@ public class ProBSolverTest {
     final String op = "check";
     final String predicate = "ccss={\"foo\", \"bar\"}";
     final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(au3,group4)}",
-      "{\"foo\" |-> {mod5,mod6}}"};
+      "{(mod5 |-> au1), (mod5 |-> au2)}", "{\"foo\" |-> {mod5,mod6}}"};
 
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
     final Map<Integer, Integer> gc = new HashMap<>();
     final Map<Integer, Integer> sc = new HashMap<>();
+    final Map<Integer, Set<Integer>> ac = new HashMap<>();
     final Map<String, Set<Integer>> mc = new HashMap<>();
     final Set<Integer> modules = new HashSet<>();
 
+    ac.put(5, new HashSet<>(Arrays.asList(1, 2)));
     gc.put(3, 4);
     sc.put(1, 2);
     modules.add(5);
@@ -200,26 +197,29 @@ public class ProBSolverTest {
     assertEquals(result.getGroupChoice(), gc);
     assertEquals(result.getSemesterChoice(), sc);
     assertEquals(result.getModuleChoice(), mc);
+    assertEquals(result.getAbstractUnitChoice(), ac);
   }
 
   @Test
   public void computePartialFeasiblity() throws Exception {
     final String op = "checkPartial";
-    final String predicate = "ccss={\"foo\", \"bar\"} & "
-        + "partialModuleChoice={(\"foo\" |-> {mod5})} & "
-        + "partialAbstractUnitChoice={au7}";
+    final String predicate = "ccss={\"foo\", \"bar\"} "
+                           + "& partialModuleChoice={(\"foo\" |-> {mod5})}"
+                           + " & partialAbstractUnitChoice={(mod5, au7)}";
     final String[] modelReturnValues = new String[] {"{(au1,sem2)}", "{(au3,group4)}",
-      "{\"foo\" |-> {mod5,mod6}}"};
+      "{(mod5, au1), (mod5, au11)}", "{\"foo\" |-> {mod5,mod6}}"};
 
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
     final Map<Integer, Integer> gc = new HashMap<>();
     final Map<Integer, Integer> sc = new HashMap<>();
     final Map<String, Set<Integer>> mc = new HashMap<>();
+    final Map<Integer, Set<Integer>> ac = new HashMap<>();
     final Set<Integer> modules = new HashSet<>();
 
     gc.put(3, 4);
     sc.put(1, 2);
+    ac.put(5, new HashSet<>(Arrays.asList(1, 11)));
     modules.add(5);
     modules.add(6);
     mc.put("foo", modules);
@@ -234,8 +234,8 @@ public class ProBSolverTest {
     partialModules.add(5);
     partialMc.put("foo", partialModules);
 
-    final List<Integer> partialAuc = new ArrayList<>();
-    partialAuc.add(7);
+    final Map<Integer, List<Integer>> partialAuc = new HashMap<>();
+    partialAuc.put(5, Collections.singletonList(7));
 
 
     final FeasibilityResult result
@@ -244,6 +244,7 @@ public class ProBSolverTest {
     assertEquals(result.getGroupChoice(), gc);
     assertEquals(result.getSemesterChoice(), sc);
     assertEquals(result.getModuleChoice(), mc);
+    assertEquals(result.getAbstractUnitChoice(), ac);
 
     assertTrue(solver.getOperationExecutionCache().containsKey(
         new OperationPredicateKey(op, predicate)));
@@ -296,10 +297,11 @@ public class ProBSolverTest {
 
     solver.move("101", "mon", "8");
     assertTrue(solver.getOperationExecutionCache().isEmpty());
-    PowerMockito.verifyNew(GetOperationByPredicateCommand.class).withArguments(eq(stateSpace),
-        eq("TEST-STATE-ID"), eq(op), anyObject(), eq(1));
 
-    verify(stateSpace).execute(any(GetOperationByPredicateCommand.class));
+    verify(this.commandFactory).create(
+        eq(stateSpace), eq("TEST-STATE-ID"), eq(op), any(ClassicalB.class), eq(1));
+
+    verify(stateSpace).execute(any(GetOperationByPredicateCommandDelegate.class));
   }
 
   @Test
@@ -326,12 +328,11 @@ public class ProBSolverTest {
 
   @SuppressWarnings("UnusedParameters")
   private void setupOperationCannotBeExecuted(final String op, final String pred) throws Exception {
-    final GetOperationByPredicateCommand cmd
-        = PowerMockito.mock(GetOperationByPredicateCommand.class);
+    final GetOperationByPredicateCommandDelegate cmd
+        = mock(GetOperationByPredicateCommandDelegate.class);
 
-    PowerMockito.whenNew(GetOperationByPredicateCommand.class)
-        .withArguments(eq(stateSpace), anyString(), eq(op), any(ClassicalB.class), eq(1))
-        .thenReturn(cmd);
+    when(this.commandFactory.create(
+      eq(stateSpace), anyString(), eq(op), any(ClassicalB.class), eq(1))).thenReturn(cmd);
 
     when(cmd.hasErrors()).thenReturn(true);
     when(cmd.getErrors()).thenReturn(new ArrayList<>());
@@ -357,15 +358,15 @@ public class ProBSolverTest {
           }
         }).collect(Collectors.toList()));
 
-    final GetOperationByPredicateCommand command
-        = PowerMockito.mock(GetOperationByPredicateCommand.class);
-    PowerMockito.whenNew(GetOperationByPredicateCommand.class)
-      .withArguments(eq(stateSpace), anyString(), eq(op), any(ClassicalB.class), eq(1))
-      .thenReturn(command);
+    final GetOperationByPredicateCommandDelegate cmd
+        = mock(GetOperationByPredicateCommandDelegate.class);
 
-    when(command.isCompleted()).thenReturn(true);
-    when(command.isInterrupted()).thenReturn(false);
-    when(command.hasErrors()).thenReturn(false);
+    when(this.commandFactory.create(
+      eq(stateSpace), anyString(), eq(op), any(ClassicalB.class), eq(1))).thenReturn(cmd);
+
+    when(cmd.isCompleted()).thenReturn(true);
+    when(cmd.isInterrupted()).thenReturn(false);
+    when(cmd.hasErrors()).thenReturn(false);
 
 
   }

@@ -14,8 +14,8 @@ import de.hhu.stups.plues.prob.SolverException;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import javafx.concurrent.Task;
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class SolverLoaderTask extends Task<Solver> {
   private final Properties properties;
   private final SolverFactory solverFactory;
   private final Store store;
-  private final Logger logger = LoggerFactory.logger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
   private final ResourceBundle resources;
   private Path modelDirectory;
 
@@ -78,11 +78,11 @@ public class SolverLoaderTask extends Task<Solver> {
     } else {
       final Path p = Helpers.expandPath(modelBase);
       if (!new File(p.toString()).exists()) {
-        logger.fatal("Path does not exist");
+        logger.error("Path does not exist");
         throw new IllegalArgumentException("Path does not exist");
       }
 
-      logger.info("Using models from " + p);
+      logger.info("Using models from {}", p);
       this.modelDirectory = p;
     }
   }
@@ -96,49 +96,53 @@ public class SolverLoaderTask extends Task<Solver> {
     this.modelDirectory = tmpDirectory.resolve(MODEL_PATH);
 
     Files.createDirectory(this.modelDirectory);
-    logger.info("Exporting models to " + this.modelDirectory);
+    logger.info("Exporting models to {}", this.modelDirectory);
     //
-    final ClassLoader classLoader = MainController.class.getClassLoader();
-    final InputStream zipStream = classLoader.getResourceAsStream(MODELS_ZIP);
+    final Path zipPath = moveModelsArchive(tmpDirectory);
     //
-    if (zipStream == null) {
-      throw new MissingResourceException(
-        "Could not find models.zip resource!!",
-        this.getClass().getName(),
-        MODELS_ZIP);
-    }
-    // copy zip-file to tmpDirectory
-    final Path zipPath = tmpDirectory.resolve(MODELS_ZIP);
-    Files.copy(zipStream, zipPath);
-
     // read zip-file entries
-    final ZipFile zipFile = new ZipFile(zipPath.toFile());
-    final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+    try (final ZipFile zipFile = new ZipFile(zipPath.toFile())) {
+      final Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
-    while (entries.hasMoreElements()) {
-      final ZipEntry entry = entries.nextElement();
-      final String name = entry.getName();
+      while (entries.hasMoreElements()) {
+        final ZipEntry entry = entries.nextElement();
+        final String name = entry.getName();
 
-      if ("".equals(name)) {
-        logger.trace("Empty File");
-        continue;
+        if ("".equals(name)) {
+          logger.trace("Empty File");
+          continue;
+        }
+
+        final InputStream stream = zipFile.getInputStream(entry);
+        final Path modelPath = Paths.get(MODEL_PATH).resolve(name);
+
+        logger.info("Exporting {}", modelPath);
+        Files.copy(stream, tmpDirectory.resolve(modelPath));
       }
-
-      final InputStream stream = zipFile.getInputStream(entry);
-      final Path modelPath = Paths.get(MODEL_PATH).resolve(name);
-
-      logger.info("Exporting " + modelPath);
-      Files.copy(stream, tmpDirectory.resolve(modelPath));
     }
-    zipFile.close();
     logger.trace("Done exporting model files.");
+  }
+
+  private Path moveModelsArchive(final Path tmpDirectory) throws IOException {
+    final ClassLoader classLoader = MainController.class.getClassLoader();
+    try (final InputStream zipStream = classLoader.getResourceAsStream(MODELS_ZIP)) {
+      //
+      if (zipStream == null) {
+        throw new MissingResourceException("Could not find models.zip resource!!",
+            this.getClass().getName(), MODELS_ZIP);
+      }
+      // copy zip-file to tmpDirectory
+      final Path zipPath = tmpDirectory.resolve(MODELS_ZIP);
+      Files.copy(zipStream, zipPath);
+      return zipPath;
+    }
   }
 
   @Override
   protected final Solver call() throws Exception {
     final String solverName = (String) this.properties.get("solver");
     //
-    logger.info("Using " + solverName + " solver");
+    logger.info("Using {} solver", solverName);
     //
     if ("mock".equals(solverName)) {
       return this.startMockSolver();
@@ -173,7 +177,7 @@ public class SolverLoaderTask extends Task<Solver> {
     final long end = System.nanoTime();
 
     this.updateProgress(3, MAX_STEPS);
-    logger.info("Loaded solver in " + TimeUnit.NANOSECONDS.toMillis(end - start) + " ms");
+    logger.info("Loaded solver in {} ms.", TimeUnit.NANOSECONDS.toMillis(end - start));
     //
     this.updateMessage(resources.getString("modelVersion"));
     solver.checkModelVersion((String) this.properties.get("model_version"));

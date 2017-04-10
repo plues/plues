@@ -4,8 +4,6 @@ import static javafx.concurrent.WorkerStateEvent.WORKER_STATE_CANCELLED;
 import static javafx.concurrent.WorkerStateEvent.WORKER_STATE_FAILED;
 import static javafx.concurrent.WorkerStateEvent.WORKER_STATE_SUCCEEDED;
 
-import com.google.common.base.Joiner;
-
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Group;
@@ -18,12 +16,12 @@ import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.SolverTask;
-
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyMapProperty;
 import javafx.beans.property.ReadOnlyMapWrapper;
 import javafx.collections.FXCollections;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -130,7 +128,7 @@ public class SolverService {
   public SolverTask<FeasibilityResult> computePartialFeasibility(
       final List<Course> courses,
       final Map<Course, List<Module>> moduleChoice,
-      final List<AbstractUnit> abstractUnitChoice) {
+      final Map<Module, List<AbstractUnit>> abstractUnitChoice) {
 
     final List<String> names = courses.stream()
         .map(Course::getName)
@@ -144,9 +142,12 @@ public class SolverService {
                 .map(Module::getId)
                 .collect(Collectors.toList())));
 
-    final List<Integer> auc = abstractUnitChoice.stream()
-        .map(AbstractUnit::getId)
-        .collect(Collectors.toList());
+    final Map<Integer, List<Integer>> auc = abstractUnitChoice.entrySet().stream()
+        .collect(Collectors.toMap(
+            keyMapper -> keyMapper.getKey().getId(),
+            valueMapper -> valueMapper.getValue().stream()
+                .map(AbstractUnit::getId)
+                .collect(Collectors.toList())));
 
     final String msg = getMessage(names);
     final String title = String.format(resources.getString("compute"), msg);
@@ -276,7 +277,7 @@ public class SolverService {
    *
    * @return SolverTask
    */
-  SolverTask<Set<String>> impossibleCoursesTask() {
+  public SolverTask<Set<String>> impossibleCoursesTask() {
 
     return new SolverTask<>(resources.getString("impossible"), solver,
         solver::getImpossibleCourses, timeout);
@@ -289,11 +290,11 @@ public class SolverService {
   }
 
   private String getMessage(final String[] names) {
-    return Joiner.on(", ").join(names);
+    return Arrays.stream(names).collect(Collectors.joining(", "));
   }
 
   private String getMessage(final List<String> names) {
-    return Joiner.on(", ").join(names);
+    return names.stream().collect(Collectors.joining(", "));
   }
 
 

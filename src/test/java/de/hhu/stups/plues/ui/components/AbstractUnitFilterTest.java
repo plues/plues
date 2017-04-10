@@ -1,10 +1,15 @@
 package de.hhu.stups.plues.ui.components;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.testfx.api.FxToolkit.setupStage;
+
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -17,15 +22,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.stage.Stage;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+@SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
 public class AbstractUnitFilterTest extends ApplicationTest {
 
   private final List<AbstractUnit> abstractUnits;
@@ -38,11 +46,10 @@ public class AbstractUnitFilterTest extends ApplicationTest {
    */
   public AbstractUnitFilterTest() {
     abstractUnits = new ArrayList<>();
-
     course = new Course();
     course.setKey("Course-1-1-1");
-    Module module = new Module();
-    module.setCourses(FXCollections.observableSet(course));
+    Module module = mock(Module.class);
+    when(module.getCourses()).thenReturn(FXCollections.observableSet(course));
 
     this.a1 = new AbstractUnit();
     a1.setTitle("Abstract Unit 1");
@@ -169,6 +176,12 @@ public class AbstractUnitFilterTest extends ApplicationTest {
     final AbstractUnit item = items.get(0);
     Assert.assertEquals(a1, item);
 
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
   }
 
   @Override

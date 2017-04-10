@@ -10,6 +10,7 @@ import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.SetProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
@@ -26,6 +27,14 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * This component offers the {@link MajorMinorCourseSelection} as well as the possibility to
+ * select a single course from a given list. The current selection can be toggled via radio
+ * buttons. When using the component we need to initialize the courses with the use of {@link
+ * #setCourses(List)}. The selected combination of courses or a single course is stored in an
+ * {@link #selectedCourses observable list} and can be accessed via {@link #getSelectedCourses}.
+ * Impossible courses can be initialized via {@link #impossibleCoursesProperty}.
+ */
 public class CombinationOrSingleCourseSelection extends VBox implements Initializable {
 
   private final ListProperty<Course> selectedCourses;
@@ -47,12 +56,7 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
   private ComboBox<Course> singleCourseSelection;
 
   /**
-   * This component offers the {@link MajorMinorCourseSelection} as well as the possibility to
-   * select a single course from a given list. The current selection can be toggled via radio
-   * buttons. When using the component we need to initialize the courses with the use of {@link
-   * #setCourses(List)}. The selected combination of courses or a single course is stored in an
-   * {@link #selectedCourses observable list} and can be accessed via {@link #getSelectedCourses}.
-   * Impossible courses can be initialized via {@link #impossibleCoursesProperty}.
+   * Constructor of CombinationOrSingleCourseSelection.
    */
   @Inject
   public CombinationOrSingleCourseSelection(final Inflater inflater) {
@@ -62,20 +66,29 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
     coursesProperty = new SimpleListProperty<>(FXCollections.emptyObservableList());
     impossibleCoursesProperty = new SimpleSetProperty<>(FXCollections.emptyObservableSet());
 
-    setSpacing(5.0);
-
     inflater.inflate("components/CombinationOrSingleCourseSelection", this, this,
         "combinationOrSingleCourseSelection");
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    disableProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue) {
+        rbCombination.disableProperty().bind(new SimpleBooleanProperty(true));
+        rbSingleSelection.disableProperty().bind(new SimpleBooleanProperty(true));
+        majorMinorCourseSelection.disableProperty().bind(new SimpleBooleanProperty(true));
+        singleCourseSelection.disableProperty().bind(new SimpleBooleanProperty(true));
+      } else {
+        bindDisableProperties();
+      }
+    });
+
     majorMinorCourseSelection.setPercentWidth(100.0);
     majorMinorCourseSelection.impossibleCoursesProperty().bind(impossibleCoursesProperty);
 
     impossibleCoursesProperty.addListener((observable, oldValue, newValue)
         -> singleCourseSelection.setCellFactory(
-            majorMinorCourseSelection.getCallbackForImpossibleCourses(newValue)));
+        majorMinorCourseSelection.getCallbackForImpossibleCourses(newValue)));
 
     rbCombination.setToggleGroup(toggleGroup);
     rbSingleSelection.setToggleGroup(toggleGroup);
@@ -84,13 +97,7 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
     singleCourseSelection.itemsProperty().addListener((observable, oldValue, newValue)
         -> singleCourseSelection.getSelectionModel().selectFirst());
 
-    rbCombination.disableProperty().bind(coursesProperty.emptyProperty());
-    rbSingleSelection.disableProperty().bind(coursesProperty.emptyProperty());
-
-    majorMinorCourseSelection.disableProperty().bind(
-        rbCombination.selectedProperty().not().or(coursesProperty.emptyProperty()));
-    singleCourseSelection.disableProperty().bind(
-        rbSingleSelection.selectedProperty().not().or(coursesProperty.emptyProperty()));
+    bindDisableProperties();
 
     majorMinorCourseSelection.majorCourseListProperty()
         .bind(new SimpleListProperty<>(coursesProperty.filtered(Course::isMajor)));
@@ -99,7 +106,16 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
 
     selectedCourses.bind(Bindings.when(rbSingleSelection.selectedProperty())
         .then(new SingleCourseListBinding()).otherwise(
-        (ObservableList<Course>) majorMinorCourseSelection.selectedCoursesProperty()));
+            (ObservableList<Course>) majorMinorCourseSelection.selectedCoursesProperty()));
+  }
+
+  private void bindDisableProperties() {
+    rbCombination.disableProperty().bind(coursesProperty.emptyProperty());
+    rbSingleSelection.disableProperty().bind(coursesProperty.emptyProperty());
+    majorMinorCourseSelection.disableProperty().bind(
+        rbCombination.selectedProperty().not().or(coursesProperty.emptyProperty()));
+    singleCourseSelection.disableProperty().bind(
+        rbSingleSelection.selectedProperty().not().or(coursesProperty.emptyProperty()));
   }
 
   /**
@@ -154,19 +170,19 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
     return this.impossibleCoursesProperty;
   }
 
-  RadioButton getRbCombination() {
+  public RadioButton getRbCombination() {
     return rbCombination;
   }
 
-  RadioButton getRbSingleSelection() {
+  public RadioButton getRbSingleSelection() {
     return rbSingleSelection;
   }
 
-  MajorMinorCourseSelection getMajorMinorCourseSelection() {
+  public MajorMinorCourseSelection getMajorMinorCourseSelection() {
     return majorMinorCourseSelection;
   }
 
-  ComboBox<Course> getSingleCourseSelection() {
+  public ComboBox<Course> getSingleCourseSelection() {
     return singleCourseSelection;
   }
 

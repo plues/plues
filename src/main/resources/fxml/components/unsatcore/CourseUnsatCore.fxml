@@ -7,12 +7,13 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.RowConstraints?>
-
 <?import javafx.scene.control.Tooltip?>
+
 <fx:root type="GridPane" vgap="10.0" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
-    <VBox GridPane.rowIndex="0" GridPane.columnIndex="0" spacing="10.0">
+    <VBox fx:id="contentBox" GridPane.rowIndex="0" GridPane.columnIndex="0" spacing="10.0">
         <CombinationOrSingleCourseSelection fx:id="courseSelection"/>
+        <UnsatCoreButtonBar fx:id="checkFeasibilityButtonBar"/>
         <UnsatCoreButtonBar fx:id="unsatCoreButtonBar"/>
     </VBox>
     <Label fx:id="unsatCoreInfo" GridPane.rowIndex="0" GridPane.columnIndex="1"

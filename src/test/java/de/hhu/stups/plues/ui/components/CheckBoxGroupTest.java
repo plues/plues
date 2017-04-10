@@ -1,5 +1,7 @@
 package de.hhu.stups.plues.ui.components;
 
+import static org.testfx.api.FxToolkit.setupStage;
+
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
@@ -10,15 +12,19 @@ import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.testfx.api.FxAssert;
 import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.HashSet;
 import java.util.Set;
+
 
 @RunWith(JUnit4.class)
 public class CheckBoxGroupTest extends ApplicationTest {
@@ -58,6 +64,12 @@ public class CheckBoxGroupTest extends ApplicationTest {
     final VBox units = lookup("#unitsBox").query();
     units.getChildren().forEach(node -> clickOn(node));
     Assert.assertTrue(module.isSelected());
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
   }
 
   @Override

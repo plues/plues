@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
+import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -12,7 +13,6 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -106,11 +106,17 @@ public class AbstractUnitDetailView extends VBox implements Initializable {
 
   private void initializeTableColumnModulesTypes() {
     tableColumnModulesType.setCellValueFactory(param -> {
-      if (param.getValue().getMandatory()) {
-        return new ReadOnlyObjectWrapper<>("m");
-      }
-
-      return new ReadOnlyObjectWrapper<>("e");
+      final AbstractUnit abstractUnit = this.abstractUnitProperty.get();
+      final ObservableList<Module> modules = this.tableViewModules.getItems();
+      return  new ReadOnlyStringWrapper(param.getValue().getModuleAbstractUnitTypes().stream()
+        .filter(moduleAbstractUnitSemester
+            -> abstractUnit.equals(moduleAbstractUnitSemester.getAbstractUnit()))
+        .filter(moduleAbstractUnitSemester
+            -> modules.contains(moduleAbstractUnitSemester.getModule()))
+        .map(ModuleAbstractUnitType::getType)
+        .distinct()
+        .map(String::valueOf)
+        .collect(Collectors.joining(", ")));
     });
     tableColumnModulesType.setCellFactory(param -> DetailViewHelper.createTableCell());
   }

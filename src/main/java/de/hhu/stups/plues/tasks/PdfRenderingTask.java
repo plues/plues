@@ -11,11 +11,11 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.studienplaene.Renderer;
-import de.hhu.stups.plues.studienplaene.RenderingException;
+import de.hhu.stups.plues.ui.exceptions.RenderingException;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,7 +37,7 @@ public class PdfRenderingTask extends Task<Path> {
   private final Course minor;
   private final SolverTask<FeasibilityResult> solverTask;
 
-  private final Logger logger = LoggerFactory.logger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
   private final ResourceBundle resources;
   private static final ListeningExecutorService EXECUTOR_SERVICE;
 
@@ -189,18 +189,18 @@ public class PdfRenderingTask extends Task<Path> {
     try {
       temp = File.createTempFile("timetable", ".pdf");
       temp.deleteOnExit();
-    } catch (IOException exc) {
+    } catch (final IOException exc) {
       logger.error("IOException creating temp file", exc);
       throw new RenderingException("IOException creating temp file", exc);
     }
 
     try (final OutputStream out = new FileOutputStream(temp)) {
       renderer.getResult().writeTo(out);
-    } catch (RenderingException exc) {
+    } catch (final RenderingException exc) {
       logger.error("RenderingException rendering PDF", exc.getCause());
       throw exc;
-    } catch (IOException exc) {
-      RenderingException renderingException
+    } catch (final IOException exc) {
+      final RenderingException renderingException
           = new RenderingException("IOException rendering PDF", exc);
       logger.error("IOException rendering PDF", renderingException);
       throw renderingException;

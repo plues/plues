@@ -87,7 +87,7 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
     setAbstractUnitModuleSemesterFactories();
     setAbstractUnitModuleTypeFactories();
 
-    unsatCoreButtonBar.setText(resources.getString("button.unsatCoreGroups"));
+    unsatCoreButtonBar.setSubmitText(resources.getString("button.unsatCoreGroups"));
   }
 
   private void setAbstractUnitModuleSemesterFactories() {
@@ -174,7 +174,7 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
   }
 
   public void resetTaskState() {
-    unsatCoreButtonBar.resetTaskState();
+    unsatCoreButtonBar.taskProperty().set(null);
   }
 
   public void setAbstractUnits(final ObservableList<AbstractUnit> abstractUnits) {

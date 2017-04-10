@@ -17,7 +17,7 @@ checkstyle {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-version = "2.1.0"
+version = "2.2.0"
 
 mainClassName = "de.hhu.stups.plues.ui.Main"
 
@@ -43,6 +43,7 @@ repositories {
         name "releases"
         url "https://oss.sonatype.org/content/repositories/releases"
     }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -52,32 +53,28 @@ dependencies {
 
     compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-3'
     compile 'org.controlsfx:controlsfx:8.40.12'
-    compile 'de.codecentric.centerdevice:centerdevice-nsmenufx:2.1.4'
+    compile 'de.codecentric.centerdevice:centerdevice-nsmenufx:2.1.5'
 
     compile group: 'org.fxmisc.easybind', name: 'easybind', version: '1.0.3'
-    compile group:'de.hhu.stups', name:'de.prob2.kernel', version:'3.1.0'
+    compile group: 'de.hhu.stups', name: 'de.prob2.kernel', version: '3.1.1-SNAPSHOT'
 
     compile 'com.google.inject.extensions:guice-assistedinject:4.1.0'
 
     // logging
-    compile 'org.slf4j:slf4j-api:1.7.24' // MIT
-    compile 'ch.qos.logback:logback-core:1.2.1' // EPL
-    compile 'ch.qos.logback:logback-classic:1.2.1' // EPL
-    compile group: 'org.codehaus.janino', name: 'janino', version: '3.0.6'
+    compile 'org.slf4j:slf4j-api:1.7.25' // MIT
+    compile 'ch.qos.logback:logback-core:1.2.3' // EPL
+    compile 'ch.qos.logback:logback-classic:1.2.3' // EPL
+    compile group: 'org.codehaus.janino', name: 'janino', version: '3.0.7'
 
     compile project(':model-generator')
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile "org.mockito:mockito-core:1.+"
-    testCompile "org.powermock:powermock-module-junit4:1.6.6"
-    testCompile "org.powermock:powermock-module-junit4-rule:1.6.6"
-    testCompile "org.powermock:powermock-api-mockito:1.6.6"
-    testCompile "org.powermock:powermock-classloading-xstream:1.6.6"
+    testCompile 'org.mockito:mockito-core:2.7.+'
 
     // provides org.testfx.api, org.testfx.matcher to the test source set.
-    testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.4-alpha")
+    testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.6-alpha")
     // provides org.testfx.framework.junit to the test source set.
-    testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.4-alpha")
+    testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.6-alpha")
     testRuntime 'org.testfx:openjfx-monocle:1.8.0_20'
 }
 
@@ -94,7 +91,8 @@ launch4j {
 }
 
 task winZip(dependsOn: "launch4j", type: Zip) {
-    def outdir = "${project.buildDir}/launch4j" // project.launch4j.outputDir not working as expected
+    def outdir = "${project.buildDir}/launch4j"
+    // project.launch4j.outputDir not working as expected
     def libdir = "${project.buildDir}/launch4j/${project.launch4j.libraryDir}"
     def zipdir = "${project.buildDir}/distributions/"
 
@@ -113,7 +111,7 @@ task winZip(dependsOn: "launch4j", type: Zip) {
     destinationDir file(zipdir)
 }
 
-macAppBundle{
+macAppBundle {
     appName = appName
     mainClassName = project.mainClassName
     icon = "icon.icns"
@@ -129,7 +127,9 @@ if (project.hasProperty('headless') ? project.headless : false) {
         jvmArgs = ['-Djava.awt.headless=true', '-Dtestfx.robot=glass', '-Dtestfx.headless=true', '-Dprism.order=sw', '-Dprism.text=t2k']
     }
 }
-
+test {
+    environment "HEADLESS", project.hasProperty('headless')
+}
 jacocoTestReport {
     reports {
         xml.enabled = true
@@ -137,14 +137,7 @@ jacocoTestReport {
     }
 }
 
-if(System.getenv('TRAVIS')) {
-  println "Running on Travis"
-  test {
-    exclude 'de/hhu/stups/plues/tasks/SolverTaskTest.class'
-  }
-
-  check.dependsOn jacocoTestReport
-}
-test {
-  exclude 'de/hhu/stups/plues/ui/components/timetable/SemesterChooserTest.class'
+if (System.getenv('TRAVIS')) {
+    println "Running on Travis"
+    check.dependsOn jacocoTestReport
 }

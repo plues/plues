@@ -2,7 +2,7 @@ package de.hhu.stups.plues.ui.components.timetable;
 
 import com.google.inject.Inject;
 
-import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.services.UiDataService;
@@ -179,7 +179,7 @@ public class TimetableSideBar extends TabPane implements Initializable {
    * Initialize the components {@link #abstractUnitFilter}, {@link #setOfCourseSelection} and {@link
    * #checkCourseFeasibility}.
    */
-  public void initializeComponents(final ObservableStore store) {
+  public void initializeComponents(final Store store) {
     getTabs().forEach(tab -> tabNodes.put(tab, lookup("#" + tab.getId())));
     selectedSubTab = lookup(".tab:first-child");
 

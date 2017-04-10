@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.ui.components.unsatcore;
 
-import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Helpers;
@@ -10,7 +9,6 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -89,8 +87,9 @@ public class GroupUnsatCore extends VBox implements Initializable {
     tableColumnGroupUnitTitle.setCellValueFactory(param
         -> Bindings.selectString(param, "value", "unit", "title"));
     tableColumnGroupUnitSemesters.setCellValueFactory(param
-        -> new SimpleStringProperty(
-        Joiner.on(',').join(param.getValue().getUnit().getSemesters())));
+        -> new SimpleStringProperty(param.getValue().getUnit().getSemesters().stream()
+            .map(String::valueOf)
+            .collect(Collectors.joining(","))));
 
     // display a bullet-list of sessions to represent the group
     tableColumnGroupSessions.setCellFactory(param -> new TableCell<Group, Set<Session>>() {
@@ -114,7 +113,7 @@ public class GroupUnsatCore extends VBox implements Initializable {
       }
     });
 
-    unsatCoreButtonBar.setText(resources.getString("button.unsatCoreSession"));
+    unsatCoreButtonBar.setSubmitText(resources.getString("button.unsatCoreSession"));
 
     // extract abstract units associated to group (through unit) in the current abstract unit core
     tableColumnGroupAbstractUnits.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
@@ -147,7 +146,7 @@ public class GroupUnsatCore extends VBox implements Initializable {
   }
 
   public void resetTaskState() {
-    unsatCoreButtonBar.resetTaskState();
+    unsatCoreButtonBar.taskProperty().set(null);
   }
 
   public void setGroups(final ObservableList<Group> groups) {

@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.StackPane?>
+<?import de.hhu.stups.plues.ui.components.TaskProgressIndicator?>
 
-<fx:root prefHeight="30.0" prefWidth="500.0" type="GridPane" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-        <StackPane prefWidth="Infinity" GridPane.columnIndex="0"
-                   GridPane.rowIndex="0" GridPane.rowSpan="2">
-                <ProgressIndicator fx:id="progressIndicator"/>
-                <Label fx:id="icon" prefHeight="30.0" prefWidth="30.0" alignment="CENTER"
-                       contentDisplay="CENTER"/>
-        </StackPane>
-        <Label fx:id="lbMajor" prefWidth="Infinity" prefHeight="Infinity" wrapText="true"
-               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-        <Label fx:id="lbMinor" prefWidth="Infinity" prefHeight="Infinity"
-               wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-    </children>
+<fx:root prefHeight="30.0" prefWidth="500.0" type="GridPane" hgap="10.0"
+         xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <TaskProgressIndicator fx:id="taskProgressIndicator" GridPane.columnIndex="0"
+                           GridPane.rowIndex="0" GridPane.rowSpan="2"/>
+    <Label fx:id="lbMajor" prefWidth="Infinity" prefHeight="Infinity" wrapText="true"
+           GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+    <Label fx:id="lbMinor" prefWidth="Infinity" prefHeight="Infinity"
+           wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
     <columnConstraints>
         <ColumnConstraints percentWidth="5"/>
         <ColumnConstraints percentWidth="95"/>

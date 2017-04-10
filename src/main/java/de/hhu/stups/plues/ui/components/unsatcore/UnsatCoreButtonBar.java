@@ -1,34 +1,33 @@
 package de.hhu.stups.plues.ui.components.unsatcore;
 
-import static javafx.concurrent.Worker.State.RUNNING;
-import static javafx.concurrent.Worker.State.SUCCEEDED;
-
 import com.google.inject.Inject;
 
-import de.hhu.stups.plues.ui.TaskBindings;
-import de.hhu.stups.plues.ui.TaskStateColor;
+import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-
 public class UnsatCoreButtonBar extends HBox implements Initializable {
+
+  private final StringProperty submitTextProperty;
+  private final ObjectProperty<Task> taskProperty;
+  private final BooleanProperty taskScheduled;
 
   @FXML
   @SuppressWarnings("unused")
@@ -36,63 +35,47 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Button btCancelTask;
-  @FXML
-  @SuppressWarnings("unused")
-  private Label taskStateIcon;
-  @FXML
-  @SuppressWarnings("unused")
-  private Tooltip taskStateIconTooltip;
-  @FXML
-  @SuppressWarnings("unused")
-  private Tooltip taskRunningTooltip;
-  @FXML
-  @SuppressWarnings("unused")
-  private ProgressIndicator progressIndicator;
 
-  private final StringProperty text = new SimpleStringProperty();
-  private ResourceBundle resources;
-  private Task<?> task;
+  @FXML
+  @SuppressWarnings("unused")
+  private TaskProgressIndicator taskProgressIndicator;
 
   /**
    * Default constructor.
    */
   @Inject
   public UnsatCoreButtonBar(final Inflater inflater) {
+    submitTextProperty = new SimpleStringProperty();
+    taskProperty = new SimpleObjectProperty<>();
+    taskScheduled = new SimpleBooleanProperty();
+
     inflater.inflate("components/unsatcore/UnsatCoreButtonBar", this, this, "unsatCore");
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
-    btSubmitTask.textProperty().bind(textProperty());
+    btSubmitTask.textProperty().bind(submitTextProperty);
     btSubmitTask.disableProperty().bind(disabledProperty());
 
-    taskStateIcon.setOnMouseEntered(event -> {
-      final Point2D pos = taskStateIcon.localToScreen(
-          taskStateIcon.getLayoutBounds().getMaxX(), taskStateIcon.getLayoutBounds().getMaxY());
-      taskStateIconTooltip.show(taskStateIcon, pos.getX(), pos.getY());
+    btSubmitTask.visibleProperty().bind(visibleProperty());
+    btCancelTask.visibleProperty().bind(visibleProperty());
+    taskProgressIndicator.visibleProperty().bind(visibleProperty());
+
+    taskProgressIndicator.taskProperty().bind(taskProperty);
+
+    taskProperty.addListener((observable, oldValue, newValue) -> {
+      if (newValue != null) {
+        setTaskScheduled(newValue);
+        btCancelTask.disableProperty().bind(taskScheduled.not().or(disableProperty()));
+        btSubmitTask.disableProperty().bind(taskScheduled.or(disableProperty()));
+      }
     });
-    taskStateIcon.setOnMouseExited(event -> taskStateIconTooltip.hide());
 
-    progressIndicator.setOnMouseEntered(event -> {
-      final Point2D pos = progressIndicator.localToScreen(
-          progressIndicator.getLayoutBounds().getMaxX(),
-          progressIndicator.getLayoutBounds().getMaxY());
-      taskRunningTooltip.show(progressIndicator, pos.getX(), pos.getY());
-    });
-    progressIndicator.setOnMouseExited(event -> taskRunningTooltip.hide());
+    taskProgressIndicator.showIconOnSucceededProperty().set(false);
   }
 
-  public String getText() {
-    return this.text.get();
-  }
-
-  public void setText(final String text) {
-    this.text.set(text);
-  }
-
-  public StringProperty textProperty() {
-    return this.text;
+  void setSubmitText(final String text) {
+    submitTextProperty.set(text);
   }
 
   public void setOnAction(final EventHandler<ActionEvent> eventHandler) {
@@ -102,44 +85,24 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   public void cancelTask() {
-    task.cancel(true);
+    taskProperty.get().cancel(true);
   }
 
   /**
-   * Show and set current task state.
+   * Set the {@link #taskScheduled} true until the corresponding task is done or cancelled.
    */
-  public void showTaskState(final Task<?> task) {
-    this.task = task;
-    taskStateIcon.graphicProperty().unbind();
-    taskStateIcon.styleProperty().unbind();
-    taskStateIconTooltip.textProperty().unbind();
-
-    taskStateIcon.visibleProperty().bind(task.stateProperty().isEqualTo(SUCCEEDED).not()
-        .and(task.stateProperty().isEqualTo(RUNNING).not()));
-    taskStateIcon.graphicProperty().bind(TaskBindings.getIconBinding("25", task));
-    taskStateIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
-    taskStateIconTooltip.textProperty().bind(Bindings.createStringBinding(
-        () -> getMessageForTask(task), task.stateProperty()));
-    btCancelTask.disableProperty().bind(task.runningProperty().not());
-    btSubmitTask.disableProperty().bind(task.runningProperty());
-
-    progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
-    progressIndicator.visibleProperty().bind(task.runningProperty());
-  }
-
-  void resetTaskState() {
-    taskStateIcon.styleProperty().unbind();
-    taskStateIcon.setStyle("");
-
-    taskStateIcon.graphicProperty().unbind();
-    taskStateIcon.setGraphic(null);
-
-    taskStateIconTooltip.textProperty().unbind();
-    taskStateIconTooltip.setText("");
+  private void setTaskScheduled(final Task<?> task) {
+    taskScheduled.set(true);
+    task.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, event ->
+        taskScheduled.set(false));
+    task.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, event ->
+        taskScheduled.set(false));
+    task.addEventHandler(WorkerStateEvent.WORKER_STATE_CANCELLED, event ->
+        taskScheduled.set(false));
   }
 
   public Task getTask() {
-    return task;
+    return taskProperty.get();
   }
 
   @SuppressWarnings("WeakerAccess")
@@ -152,27 +115,15 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     return btCancelTask;
   }
 
-  private String getMessageForTask(final Task<?> task) {
-    final String msg;
-    switch (task.getState()) {
-      case RUNNING:
-        msg = resources.getString("task.Running");
-        break;
-      case CANCELLED:
-        msg = resources.getString("task.Cancelled");
-        break;
-      case FAILED:
-        msg = resources.getString("task.Failed");
-        break;
-      case READY:
-      case SCHEDULED:
-        msg = resources.getString("task.Waiting");
-        break;
-      case SUCCEEDED:
-      default:
-        msg = "";
-        break;
-    }
-    return msg;
+  public ObjectProperty<Task> taskProperty() {
+    return taskProperty;
+  }
+
+  void setShowIconOnSucceeded(final boolean showIconOnSucceeded) {
+    taskProgressIndicator.showIconOnSucceededProperty().set(showIconOnSucceeded);
+  }
+
+  public Button getBtSubmitTask() {
+    return btSubmitTask;
   }
 }

@@ -1,8 +1,8 @@
 package de.hhu.stups.plues.ui.components.detailview;
 
-import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
@@ -77,7 +77,7 @@ public class SessionDetailView extends VBox implements Initializable {
   public SessionDetailView(final Inflater inflater, final Router router) {
     this.router = router;
 
-    inflater.inflate("components/detailview/SessionDetailView", this, this, "detailView");
+    inflater.inflate("components/detailview/SessionDetailView", this, this, "detailView", "Days");
   }
 
   /**
@@ -92,11 +92,16 @@ public class SessionDetailView extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    sessionProperty.addListener((observable, oldValue, newValue) -> {
+      if (newValue != null) {
+        final SessionFacade.Slot slot = newValue.getSlot();
+        lbSession.setText(resources.getString(slot.getDayString()) + ", "
+            + Helpers.timeMap.get(slot.getTime()));
+      }
+    });
+
     lbTitle.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
         Bindings.selectString(sessionProperty, "title")).otherwise(""));
-
-    lbSession.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
-        Bindings.selectString(sessionProperty, "slot")).otherwise(""));
 
     lbGroup.textProperty().bind(Bindings.when(sessionProperty.isNotNull()).then(
         Bindings.selectString(sessionProperty, "group", "id")).otherwise(""));
@@ -121,7 +126,7 @@ public class SessionDetailView extends VBox implements Initializable {
       return session.isTentative() ? "✔︎" : "✗";
     }, sessionProperty));
 
-    courseTable.itemsProperty().bind(new CourseTableItemsBinding());
+    courseTable.itemsProperty().bind(new CourseTableItemsBinding(sessionProperty));
 
     courseTable.setOnMouseClicked(this::handleMouseClicked);
   }
@@ -259,7 +264,7 @@ public class SessionDetailView extends VBox implements Initializable {
      * @return String with comma separated semesters.
      */
     public String getSemesters() {
-      return Joiner.on(',').join(semesters);
+      return semesters.stream().map(String::valueOf).collect(Collectors.joining(", "));
     }
 
     public Character getType() {
@@ -271,8 +276,11 @@ public class SessionDetailView extends VBox implements Initializable {
     }
   }
 
-  private class CourseTableItemsBinding extends ListBinding<CourseTableEntry> {
-    {
+  private static class CourseTableItemsBinding extends ListBinding<CourseTableEntry> {
+    private final ObjectProperty<SessionFacade> sessionProperty;
+
+    private CourseTableItemsBinding(final ObjectProperty<SessionFacade> sessionProperty) {
+      this.sessionProperty = sessionProperty;
       bind(sessionProperty);
     }
 
@@ -290,7 +298,7 @@ public class SessionDetailView extends VBox implements Initializable {
                 return new CourseTableEntry(course, entryModule, au,
                     entryModule.getSemestersForAbstractUnit(au), entry.getType());
               }))).collect(
-                Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
+          Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
     }
   }
 }

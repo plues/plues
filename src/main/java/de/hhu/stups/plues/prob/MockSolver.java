@@ -1,7 +1,7 @@
 package de.hhu.stups.plues.prob;
 
-import org.hibernate.annotations.common.util.impl.LoggerFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MockSolver implements Solver {
 
-  private final Logger logger = LoggerFactory.logger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   MockSolver() {
     try {
@@ -42,23 +42,25 @@ public class MockSolver implements Solver {
 
   @Override
   public FeasibilityResult computeFeasibility(final String... courses) throws SolverException {
-    final Map<String, Set<Integer>> moduleChoice = Collections.emptyMap();
-    final Map<Integer, Integer> semesterChoice = Collections.emptyMap();
-    final Map<Integer, Integer> groupChoice = Collections.emptyMap();
-    return new FeasibilityResult(moduleChoice, semesterChoice, groupChoice);
+    return emptResult();
   }
 
   @Override
   public FeasibilityResult computePartialFeasibility(
       final List<String> courses,
       final Map<String, List<Integer>> moduleChoice,
-      final List<Integer> abstractUnitChoice) throws SolverException {
+      final Map<Integer, List<Integer>> abstractUnitChoice) throws SolverException {
 
+    return emptResult();
+  }
+
+  private FeasibilityResult emptResult() {
     final Map<String, Set<Integer>> mc = Collections.emptyMap();
+    final Map<Integer, Set<Integer>> abstractUnitChoice = Collections.emptyMap();
     final Map<Integer, Integer> semesterChoice = Collections.emptyMap();
     final Map<Integer, Integer> groupChoice = Collections.emptyMap();
 
-    return new FeasibilityResult(mc, semesterChoice, groupChoice);
+    return new FeasibilityResult(mc, abstractUnitChoice, semesterChoice, groupChoice);
   }
 
   @Override

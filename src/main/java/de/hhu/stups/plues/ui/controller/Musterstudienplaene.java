@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.controller;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.RouteNames;
@@ -17,6 +18,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -24,6 +26,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class Musterstudienplaene extends GridPane implements Initializable, Activatable {
@@ -72,21 +75,6 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
     inflater.inflate("Musterstudienplaene", this, this, "musterstudienplaene");
   }
 
-  /**
-   * Function to handle generation of resultbox containing result for chosen major and minor.
-   */
-  @FXML
-  @SuppressWarnings( {"unused,WeakerAccess"})
-  public void btGeneratePressed() {
-    final Course selectedMajorCourse = courseSelection.getSelectedMajor();
-    final Course selectedMinorCourse = courseSelection.getSelectedMinor();
-
-    final ResultBox rb
-        = resultBoxFactory.create(selectedMajorCourse, selectedMinorCourse, resultBoxWrapper);
-
-    resultBoxWrapper.getItems().add(0, rb);
-  }
-
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     btGenerate.disableProperty().bind(solverProperty.not());
@@ -109,6 +97,52 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
   }
 
   /**
+   * Function to handle generation of resultbox containing result for chosen major and minor.
+   */
+  @FXML
+  @SuppressWarnings( {"unused,WeakerAccess"})
+  public void btGeneratePressed() {
+    addOrRestartResultBox(courseSelection.getSelectedCourses());
+  }
+
+  /**
+   * In case the {@link #resultBoxWrapper} already contains a {@link ResultBox} with the
+   * selected courses we restart this box and bring it to the top of the list view.
+   * Otherwise, a new result box is created.
+   */
+  @SuppressWarnings("unused")
+  private void addOrRestartResultBox(final ObservableList<Course> selectedCourses) {
+    if (selectedCourses.size() == 0) {
+      return;
+    }
+    final Course majorCourse = selectedCourses.get(0);
+    final Course minorCourse;
+    if (selectedCourses.size() == 2) {
+      minorCourse = selectedCourses.get(1);
+    } else {
+      minorCourse = null;
+    }
+    final Optional<ResultBox> containsBox = resultBoxWrapper.getItems().stream().filter(
+        resultBox -> majorCourse.equals(resultBox.getMajorCourse())
+            && Helpers.equalCoursesOrNull(minorCourse, resultBox.getMinorCourse()))
+        .findFirst();
+    if (containsBox.isPresent()) {
+      toTopOfListview(containsBox.get());
+      return;
+    }
+    resultBoxWrapper.getItems().add(0, resultBoxFactory.create(majorCourse, minorCourse,
+        resultBoxWrapper));
+    resultBoxWrapper.scrollTo(0);
+  }
+
+  private void toTopOfListview(final ResultBox resultBox) {
+    resultBoxWrapper.getItems().remove(resultBox);
+    resultBoxWrapper.getItems().add(0, resultBox);
+    resultBoxWrapper.scrollTo(0);
+    resultBox.runSolverTask();
+  }
+
+  /**
    * Select the given courses within the {@link #courseSelection} when the user navigates to the
    * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
    */
@@ -123,5 +157,13 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
     if (courses.length == 2) {
       btGeneratePressed();
     }
+  }
+
+  ListView<ResultBox> getResultBoxWrapper() {
+    return resultBoxWrapper;
+  }
+
+  Button getBtGenerate() {
+    return btGenerate;
   }
 }

@@ -41,43 +41,69 @@ class DataStoreWrapper {
   }
 
   private void createData(final DataPreparatory data) {
-    Integer semester;
-    Group group; // Need to be checked (getSessions())
-    AbstractUnit abstractUnit;
-    Module module;
-
     for (final Map.Entry<AbstractUnit, Integer> choice : data.getUnitSemester().entrySet()) {
-      abstractUnit = choice.getKey();
-      module = data.getUnitModule().get(abstractUnit);
-      semester = choice.getValue();
-      group = data.getUnitGroup().get(abstractUnit);
+      final AbstractUnit abstractUnit = choice.getKey();
+      final Module module = data.getUnitModule().get(abstractUnit);
+      final Integer semester = choice.getValue();
+      final Group group = data.getUnitGroup().get(abstractUnit);
 
       for (final Session session : group.getSessions()) {
-        final String key = "" + session.getDay() + session.getTime();
-
-
-        final boolean isSpecial = isSpecial(session) || isSpecial(group);
-
-        final StringBuilder title = new StringBuilder(abstractUnit.getTitle());
-        title.append(getTitlePart(session));
-        title.append(getTitlePart(group));
-
-        // check for content
-        final String content = semesters[semester - 1].get(key);
-        if (content != null && isSpecial) {
-          semesters[semester - 1].remove(key);
-          final String[] values = content.split(";");
-          final String newContent = values[0] + " / " + title.toString() + ";" + values[1];
-          semesters[semester - 1].put(key, newContent);
-          setColorToBlack(values[1]);
-        } else {
-          final String moduleName = module.getName();
-          title.append(';').append(moduleName);
-          semesters[semester - 1].put(key, title.toString());
-          colorMap.put(moduleName, getColorString(moduleName));
-        }
+        createSessionData(abstractUnit, module, semester, group, session);
       }
     }
+  }
+
+  private void createSessionData(final AbstractUnit abstractUnit, final Module module,
+      final Integer semester, final Group group, final Session session) {
+
+    final boolean isSpecial = isSpecial(session) || isSpecial(group);
+    final int semesterIndex = semester - 1;
+    //
+    final String key = session.getDay() + session.getTime();
+    final String content = semesters[semesterIndex].get(key);
+    //
+    final StringBuilder title = getTitleBuilder(abstractUnit, group, session);
+    //
+    if (content != null && isSpecial) {
+      handleSpecialContent(key, title.toString(), semesters[semesterIndex], content);
+    } else {
+      handleCommonContent(module.getTitle(), key, title, semesters[semesterIndex]);
+    }
+  }
+
+  private StringBuilder getTitleBuilder(final AbstractUnit abstractUnit, final Group group,
+      final Session session) {
+
+    final StringBuilder title = new StringBuilder(abstractUnit.getTitle());
+
+    title.append(getTitlePart(session));
+    title.append(getTitlePart(group));
+
+    return title;
+  }
+
+  private void handleCommonContent(final String moduleName, final String key,
+      final StringBuilder title, final Map<String, String> semester) {
+
+    final Color c = colors.nextColor();
+
+    title.append(';').append(moduleName);
+    semester.put(key, title.toString());
+
+    colorMap.put(moduleName, getColorString(c));
+    fonts.put(moduleName, getFontColor(c));
+  }
+
+  private void handleSpecialContent(final String key, final String title,
+      final Map<String, String> semester, final String content) {
+
+    final String[] values = content.split(";");
+    final String newContent = String.format("%s / %s / %s", values[0], title, values[1]);
+    //
+    semester.remove(key);
+    semester.put(key, newContent);
+    //
+    setColorToBlack(values[1]);
   }
 
   private String getTitlePart(final Group group) {
@@ -124,26 +150,29 @@ class DataStoreWrapper {
     colorMap.put(module, "#000000");
   }
 
-  private String getColorString(final String module) {
-    final Color c = colors.nextColor();
-    String red = Integer.toHexString(c.getRed());
+  private String getFontColor(final Color backgroundColor) {
+    final double brightness
+        = 1 - (0.299 * backgroundColor.getRed()
+          + 0.587 * backgroundColor.getGreen()
+          + 0.114 * backgroundColor.getBlue()) / 255;
+
+    return (brightness < 0.5) ? "black" : "white";
+  }
+
+  private String getColorString(final Color color) {
+    String red = Integer.toHexString(color.getRed());
     if (red.length() == 1) {
       red = "0" + red;
     }
-    String green = Integer.toHexString(c.getGreen());
+
+    String green = Integer.toHexString(color.getGreen());
     if (green.length() == 1) {
       green = "0" + green;
     }
-    String blue = Integer.toHexString(c.getBlue());
+
+    String blue = Integer.toHexString(color.getBlue());
     if (blue.length() == 1) {
       blue = "0" + blue;
-    }
-    final double brightness = 1 - (0.299 * c.getRed() + 0.587 * c.getGreen()
-        + 0.114 * c.getBlue()) / 255;
-    if (brightness < 0.5) {
-      fonts.put(module, "black");
-    } else {
-      fonts.put(module, "white");
     }
 
     return "#" + red + green + blue;

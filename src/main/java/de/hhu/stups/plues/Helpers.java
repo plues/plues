@@ -1,5 +1,7 @@
 package de.hhu.stups.plues;
 
+import de.hhu.stups.plues.data.entities.Course;
+
 import java.io.File;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -72,5 +74,12 @@ public final class Helpers {
       basePath = base;
     }
     return FileSystems.getDefault().getPath(basePath).toAbsolutePath();
+  }
+
+  /**
+   * Check if two courses are equal or both are null.
+   */
+  public static boolean equalCoursesOrNull(final Course course1, final Course course2) {
+    return (course1 == null && course2 == null) || (course1 != null && course1.equals(course2));
   }
 }

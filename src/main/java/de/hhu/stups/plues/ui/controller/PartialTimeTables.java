@@ -1,7 +1,5 @@
 package de.hhu.stups.plues.ui.controller;
 
-import static javafx.concurrent.Worker.State.RUNNING;
-
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
@@ -16,13 +14,11 @@ import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.TaskBindings;
-import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
+import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -34,8 +30,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -44,12 +38,11 @@ import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 
 public class PartialTimeTables extends GridPane implements Initializable, Activatable {
@@ -96,13 +89,10 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   private Button btCancel;
   @FXML
   @SuppressWarnings("unused")
-  private Label lbIcon;
-  @FXML
-  @SuppressWarnings("unused")
   private HBox buttonBox;
   @FXML
   @SuppressWarnings("unused")
-  private ProgressIndicator progressIndicator;
+  private TaskProgressIndicator taskProgressIndicator;
 
   /**
    * Constructor for partial time table controller.
@@ -147,8 +137,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     courseSelection.addListener(observable -> {
       scrollPane.setVisible(false);
       btGenerate.setVisible(false);
-      lbIcon.visibleProperty().unbind();
-      lbIcon.setVisible(false);
+      taskProgressIndicator.taskProperty().set(null);
     });
 
     btGenerate.disableProperty().bind(solverProperty.not().or(checkRunning));
@@ -230,34 +219,31 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     final Course major = courseSelection.getSelectedMajor();
     final Course minor = courseSelection.getSelectedMinor();
 
-    final Map<Course, List<Module>> moduleChoice = new HashMap<>();
-    final List<AbstractUnit> unitChoice = new ArrayList<>();
-
-    for (final Course course : courses) {
-      moduleChoice.put(course, new ArrayList<>());
-    }
-
-    for (final Object o : modulesUnits.getChildren()) {
-      if (!(o instanceof CheckBoxGroup)) {
-        continue;
-      }
-      final CheckBoxGroup cbg = (CheckBoxGroup) o;
-
-      cbg.setOnSelectionChanged(selectionChanged);
-
-      final Module module = cbg.getModule();
-      if (module != null) {
-        moduleChoice.get(cbg.getCourse()).add(module);
-      }
-      unitChoice.addAll(cbg.getSelectedAbstractUnits());
-    }
+    final List<CheckBoxGroup> cbgs = modulesUnits.getChildren().stream()
+        .filter(node -> node instanceof CheckBoxGroup)
+        .map(o -> (CheckBoxGroup) o)
+        .peek(cbg -> cbg.setOnSelectionChanged(selectionChanged))
+        .filter(cbg -> !cbg.getSelectedAbstractUnits().isEmpty())
+        .collect(Collectors.toList());
+    //
+    final Map<Module, List<AbstractUnit>> unitChoice
+        = cbgs.stream().collect(Collectors.toMap(
+            CheckBoxGroup::getModule,
+            CheckBoxGroup::getSelectedAbstractUnits));
+    //
+    final Map<Course, List<Module>> moduleChoice
+        = cbgs.stream()
+          .collect(Collectors.groupingBy(
+              CheckBoxGroup::getCourse,
+              Collectors.mapping(
+                  CheckBoxGroup::getModule, Collectors.toList())));
 
     delayedSolverService.whenAvailable(solverService -> {
       final SolverTask<FeasibilityResult> solverTask =
           solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
       final PdfRenderingTask task = getPdfRenderingTask(major, minor, solverTask);
       currentTaskProperty.set(task);
-      bindStateIcon(task);
+      taskProgressIndicator.taskProperty().set(task);
 
       executor.submit(task);
     });
@@ -283,17 +269,6 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
       selectionChanged.set(false);
     });
     return task;
-  }
-
-  private void bindStateIcon(final PdfRenderingTask task) {
-    lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
-    lbIcon.graphicProperty().bind(TaskBindings.getIconBinding("25", task));
-
-    progressIndicator.setStyle("-fx-progress-color: " + TaskStateColor.WORKING.getColor());
-    progressIndicator.visibleProperty().bind(task.runningProperty());
-
-    lbIcon.visibleProperty().bind(task.stateProperty().isEqualTo(RUNNING).not()
-        .and(selectionChanged.not()));
   }
 
   @SuppressWarnings("unused")

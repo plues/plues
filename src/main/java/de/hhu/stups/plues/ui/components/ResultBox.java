@@ -13,7 +13,6 @@ import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -33,7 +32,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
@@ -46,8 +44,6 @@ import javax.annotation.Nullable;
 
 public class ResultBox extends VBox implements Initializable {
 
-  private static final String WORKING_COLOR = "#BDE5F8";
-  private static final String ICON_SIZE = "50";
   private final Course major;
   private final Course minor;
 
@@ -66,18 +62,18 @@ public class ResultBox extends VBox implements Initializable {
   // lists of actions for each possible state
   private static final ObservableList<Actions> succeededActions
       = FXCollections.observableArrayList(Actions.SHOW,
-                                          Actions.SAVE_AS,
-                                          Actions.OPEN_IN_TIMETABLE,
-                                          Actions.GENERATE_PARTIAL,
-                                          Actions.REMOVE);
+      Actions.SAVE_AS,
+      Actions.OPEN_IN_TIMETABLE,
+      Actions.GENERATE_PARTIAL,
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> failedActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE, Actions.REMOVE);
 
   private static final ObservableList<Actions> cancelledActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
-                                          Actions.RESTART_COMPUTATION,
-                                          Actions.REMOVE);
+      Actions.RESTART_COMPUTATION,
+      Actions.REMOVE);
 
   private static final ObservableList<Actions> scheduledActions
       = FXCollections.observableArrayList(Actions.CANCEL);
@@ -85,10 +81,7 @@ public class ResultBox extends VBox implements Initializable {
 
   @FXML
   @SuppressWarnings("unused")
-  private ProgressIndicator progressIndicator;
-  @FXML
-  @SuppressWarnings("unused")
-  private Label lbIcon;
+  private TaskProgressIndicator taskProgressIndicator;
   @FXML
   @SuppressWarnings("unused")
   private Label lbMajor;
@@ -144,9 +137,6 @@ public class ResultBox extends VBox implements Initializable {
   public final void initialize(final URL location, final ResourceBundle resources) {
     initializeCourseLabels();
 
-
-    progressIndicator.setStyle(" -fx-progress-color: " + WORKING_COLOR);
-
     lbErrorMsg.textProperty().bind(
         Bindings.createStringBinding(() -> {
           final String errorMsg = errorMsgProperty.get();
@@ -163,7 +153,11 @@ public class ResultBox extends VBox implements Initializable {
     runSolverTask();
   }
 
-  private void runSolverTask() {
+  /**
+   * Run or restart the solver {@link #task}.
+   */
+  public void runSolverTask() {
+    interrupt();
     delayedSolverService.whenAvailable(solver -> {
       initSolverTask(solver);
       executorService.submit(task);
@@ -201,14 +195,10 @@ public class ResultBox extends VBox implements Initializable {
   }
 
   private void taskBindings() {
-    progressIndicator.visibleProperty().bind(task.runningProperty());
-    //
     cbAction.itemsProperty().unbind();
     cbAction.itemsProperty().bind(new ActionsBinding(task.stateProperty()));
-    //
-    lbIcon.visibleProperty().bind(task.runningProperty().not());
-    lbIcon.graphicProperty().bind(TaskBindings.getIconBinding(ICON_SIZE, task));
-    lbIcon.styleProperty().bind(TaskBindings.getStyleBinding(task));
+    taskProgressIndicator.taskProperty().set(task);
+    taskProgressIndicator.sizeProperty().set(75.0);
   }
 
   @FXML
@@ -227,7 +217,7 @@ public class ResultBox extends VBox implements Initializable {
         generatePartialAction();
         break;
       case OPEN_IN_TIMETABLE:
-        router.transitionTo(RouteNames.TIMETABLE, buildCourses(major, minor) , resultState);
+        router.transitionTo(RouteNames.TIMETABLE, buildCourses(major, minor), resultState);
         break;
       case RESTART_COMPUTATION:
         runSolverTask();
@@ -263,7 +253,18 @@ public class ResultBox extends VBox implements Initializable {
 
   @FXML
   private void interrupt() {
-    task.cancel();
+    if (task == null) {
+      return;
+    }
+    task.cancel(true);
+  }
+
+  public Course getMajorCourse() {
+    return major;
+  }
+
+  public Course getMinorCourse() {
+    return minor;
   }
 
   private enum Actions {

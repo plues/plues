@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.ui.components;
 
-import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
@@ -12,7 +11,6 @@ import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.controller.Timetable;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -200,12 +198,17 @@ public class ConflictTree extends VBox implements Initializable {
                 ?
                 ((Session) param.getValue().getValue()).getGroup().getUnit().getKey() : ""));
 
-    treeColumnSemesters.setCellValueFactory(param ->
-        new ReadOnlyStringWrapper(
-            (param.getValue().getValue() instanceof Session)
-                ?
-                Joiner.on(", ").join(
-                    ((Session) param.getValue().getValue()).getGroup().getUnit().getSemesters())
-                : ""));
+    treeColumnSemesters.setCellValueFactory(param -> {
+      final String semesters;
+      if (param.getValue().getValue() instanceof Session) {
+        semesters = ((Session) param.getValue().getValue()).getGroup().getUnit().getSemesters()
+          .stream()
+          .map(String::valueOf)
+          .collect(Collectors.joining(", "));
+      } else {
+        semesters = "";
+      }
+      return new ReadOnlyStringWrapper(semesters);
+    });
   }
 }

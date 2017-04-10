@@ -1,27 +1,30 @@
 package de.hhu.stups.plues.ui.components;
 
+import static org.testfx.api.FxToolkit.setupStage;
+
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.ui.UiTestHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.testfx.framework.junit.ApplicationTest;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.testfx.util.WaitForAsyncUtils;
 
 @RunWith(JUnit4.class)
 public class CombinationOrSingleCourseSelectionTest extends ApplicationTest {
   private CombinationOrSingleCourseSelection courseSelection;
-  private List<Course> courseList;
+  private ObservableList<Course> courseList = UiTestHelper.createCourseList();
 
   @Test
   public void enabledTest() {
@@ -78,7 +81,7 @@ public class CombinationOrSingleCourseSelectionTest extends ApplicationTest {
         .type(KeyCode.UP)
         .type(KeyCode.UP)
         .type(KeyCode.ENTER);
-    Assert.assertEquals(courseList.get(8), courseSelection.getSelectedCourses().get(0));
+    Assert.assertEquals(courseList.get(4), courseSelection.getSelectedCourses().get(0));
     Assert.assertEquals(courseList.get(2), courseSelection.getSelectedCourses().get(1));
 
     clickOn(courseSelection.getRbSingleSelection());
@@ -101,30 +104,14 @@ public class CombinationOrSingleCourseSelectionTest extends ApplicationTest {
     Assert.assertEquals(courseList.get(2), courseSelection.getSelectedCourses().get(0));
   }
 
-  private Course createCourse(final String shortName, final String degree, final String kzfa) {
-    final Course course = new Course();
-    course.setShortName(shortName);
-    course.setLongName(shortName);
-    course.setDegree(degree);
-    course.setKzfa(kzfa);
-    return course;
+  @After
+  public void cleanup() throws Exception {
+    WaitForAsyncUtils.waitForFxEvents();
+    setupStage(Stage::close);
   }
 
   @Override
   public void start(final Stage stage) throws Exception {
-    courseList = new ArrayList<>();
-    courseList.add(createCourse("shortName1", "bk", "H"));
-    courseList.add(createCourse("shortName2", "ba", "H"));
-    courseList.add(createCourse("shortName3", "bk", "N"));
-    courseList.add(createCourse("shortName4", "bk", "N"));
-    courseList.add(createCourse("shortName5", "bk", "H"));
-    courseList.add(createCourse("shortName6", "bk", "N"));
-    courseList.add(createCourse("shortName7", "ma", "N"));
-    courseList.add(createCourse("shortName8", "ma", "N"));
-    courseList.add(createCourse("shortName9", "bk", "H"));
-    courseList.add(createCourse("shortName10", "ma", "H"));
-    courseList.add(createCourse("shortName11", "ma", "H"));
-
     final FXMLLoader loader = new FXMLLoader();
     loader.setBuilderFactory(type -> {
       if (type.equals(MajorMinorCourseSelection.class)) {

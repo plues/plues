@@ -5,16 +5,11 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Button?>
 
 <fx:root type="VBox" spacing="10.0" styleClass="windowPadding" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
-    <HBox spacing="10.0">
-        <Text fx:id="txtExplanation" text="%sessionsPaneExplanation"/>
-        <Button fx:id="btHighlightConflicts" text="%highlightConflicts" alignment="CENTER_RIGHT"
-                onAction="#highlightInTimetable"/>
-    </HBox>
+    <Text fx:id="txtExplanation" text="%sessionsPaneExplanation"/>
     <TableView fx:id="sessionsTable" minWidth="0" minHeight="0">
         <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
@@ -34,4 +29,6 @@
             <TableColumn fx:id="tableColumnSessionUnitTitle" minWidth="400.0" text="%columnTitle"/>
         </columns>
     </TableView>
+    <Button fx:id="btHighlightConflicts" text="%highlightConflicts"
+            onAction="#highlightInTimetable"/>
 </fx:root>

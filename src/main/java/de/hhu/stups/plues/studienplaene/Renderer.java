@@ -5,14 +5,13 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
+import de.hhu.stups.plues.ui.exceptions.RenderingException;
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import org.jtwig.environment.EnvironmentConfiguration;
 import org.jtwig.environment.EnvironmentConfigurationBuilder;
-import org.xml.sax.SAXException;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -20,7 +19,6 @@ import java.util.Date;
 import java.util.Map;
 
 import javax.annotation.Nullable;
-import javax.xml.parsers.ParserConfigurationException;
 
 public class Renderer {
 
@@ -69,7 +67,7 @@ public class Renderer {
                      final Course major,
                      @Nullable final Course minor,
                      final ColorChoice colorChoice) {
-    final DataPreparatory prep = new DataPreparatory(store, feasibilityResult, major, minor);
+    final DataPreparatory prep = new DataPreparatory(store, feasibilityResult);
     final DataStoreWrapper wrap = new DataStoreWrapper(colorChoice, prep);
 
     this.major = major.getLongName();
@@ -83,8 +81,7 @@ public class Renderer {
     this.fonts = wrap.getFonts();
   }
 
-  private ByteArrayOutputStream render()
-      throws SAXException, ParserConfigurationException, IOException {
+  private ByteArrayOutputStream render() throws RenderingException {
     final URL logo = this.getClass().getResource("/images/HHU_Logo.jpeg");
 
     final JtwigModel model = JtwigModel.newModel()
@@ -111,10 +108,6 @@ public class Renderer {
    * @throws RenderingException if an error occurred.
    */
   public final ByteArrayOutputStream getResult() throws RenderingException {
-    try {
-      return this.render();
-    } catch (final IOException | ParserConfigurationException | SAXException exc) {
-      throw new RenderingException(exc);
-    }
+    return this.render();
   }
 }

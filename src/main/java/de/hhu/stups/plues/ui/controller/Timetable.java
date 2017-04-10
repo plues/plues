@@ -9,7 +9,7 @@ import static java.time.DayOfWeek.WEDNESDAY;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Session;
@@ -62,7 +62,7 @@ import java.util.stream.IntStream;
 
 public class Timetable extends SplitPane implements Initializable, Activatable {
 
-  private final Delayed<ObservableStore> delayedStore;
+  private final Delayed<Store> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
   private final UiDataService uiDataService;
   private double userDefinedDividerPos = 0.15;
@@ -91,7 +91,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
    * Timetable component.
    */
   @Inject
-  public Timetable(final Inflater inflater, final Delayed<ObservableStore> delayedStore,
+  public Timetable(final Inflater inflater, final Delayed<Store> delayedStore,
                    final UiDataService uiDataService,
                    final SessionListViewFactory sessionListViewFactory) {
     this.delayedStore = delayedStore;
@@ -144,11 +144,27 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
       }
     });
 
+    delayedStore.whenAvailable(store -> {
+      final List<Integer> range = getSemesterRange(store);
+
+      semesterToggle.setSemesters(range);
+
+    });
     semesterToggle.conflictedSemestersProperty().bind(conflictedSemesters);
 
     conflictedSemesters.bind(new ConflictedSemestersBinding());
 
     initSessionBoxes();
+  }
+
+  private List<Integer> getSemesterRange(final Store store) {
+    final List<Integer> semesters = store.getUnits().stream()
+        .flatMap(unit -> unit.getSemesters().stream())
+        .distinct()
+        .collect(Collectors.toList());
+    final Integer min = Collections.min(semesters);
+    final Integer max = Collections.max(semesters);
+    return IntStream.rangeClosed(min, max).boxed().collect(Collectors.toList());
   }
 
   /**

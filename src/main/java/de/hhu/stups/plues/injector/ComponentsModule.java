@@ -8,8 +8,10 @@ import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.CheckCourseFeasibility;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.components.ConflictTree;
+import de.hhu.stups.plues.ui.components.MainMenuBar;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
+import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.components.detailview.AbstractUnitDetailView;
 import de.hhu.stups.plues.ui.components.detailview.CourseDetailView;
 import de.hhu.stups.plues.ui.components.detailview.ModuleDetailView;
@@ -80,5 +82,7 @@ class ComponentsModule extends AbstractModule {
     bind(SessionUnsatCore.class);
     bind(UnsatCoreButtonBar.class);
     bind(UnsatCore.class);
+    bind(MainMenuBar.class);
+    bind(TaskProgressIndicator.class);
   }
 }

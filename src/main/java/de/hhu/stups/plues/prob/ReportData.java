@@ -15,6 +15,8 @@ public class ReportData {
   private Map<Integer, Set<Integer>> quasiMandatoryModuleAbstractUnits;
   private Map<Integer, Set<Pair<Integer>>> redundantUnitGroups;
   private Set<Integer> impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+  private Map<Integer, Set<Integer>>
+      impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits;
   private Set<String> impossibleCoursesBecauseOfImpossibleModuleCombinations;
   private Set<ModuleAbstractUnitUnitSemesterConflict> moduleAbstractUnitUnitSemesterConflicts;
 
@@ -181,17 +183,17 @@ public class ReportData {
   void setImpossibleModulesBecauseOfMissingElectiveAbstractUnits(
       final Set<Integer> impossibleModulesBecauseOfMissingElectiveAbstractUnits) {
     this.impossibleModulesBecauseOfMissingElectiveAbstractUnits
-      = impossibleModulesBecauseOfMissingElectiveAbstractUnits;
+        = impossibleModulesBecauseOfMissingElectiveAbstractUnits;
   }
 
   /**
    * B: impossible_courses_because_of_impossible_module_combinations.
    * Impossible courses, because all module combinations contain impossible modules
    */
-  void setImpossibleCoursesBecauseOfImpossibleModuleCombinations(final Set<String>
-          impossibleCoursesBecauseOfImpossibleModuleCombinations) {
+  void setImpossibleCoursesBecauseOfImpossibleModuleCombinations(
+      final Set<String> impossibleCoursesBecauseOfImpossibleModuleCombinations) {
     this.impossibleCoursesBecauseOfImpossibleModuleCombinations
-      = impossibleCoursesBecauseOfImpossibleModuleCombinations;
+        = impossibleCoursesBecauseOfImpossibleModuleCombinations;
   }
 
   public Set<String> getImpossibleCoursesBecauseOfImpossibleModuleCombinations() {
@@ -213,4 +215,21 @@ public class ReportData {
     return moduleAbstractUnitUnitSemesterConflicts;
   }
 
+  /**
+   * B: impossible_modules_because_of_incomplte_quasi_mandatory_abstract_units.
+   * Modules that are impossible because they contain quasi-mandatory abstract units that
+   * do not contain any units, and are thus impossible to satisfy.
+   * Relation of module <-> abstract unit
+   */
+  public Map<Integer, Set<Integer>>
+      getImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits() {
+    return impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits;
+  }
+
+  public void setImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits(
+      final Map<Integer, Set<Integer>>
+          impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits) {
+    this.impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits =
+        impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits;
+  }
 }

@@ -1,6 +1,6 @@
 package de.hhu.stups.plues.ui.components.detailview;
 
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -40,6 +40,7 @@ public class AbstractUnitDetailViewTest extends ApplicationTest {
    * Test constructor.
    */
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   public AbstractUnitDetailViewTest() {
     abstractUnit = mock(AbstractUnit.class, new ThrowsException(new RuntimeException()));
     final Module mod1 = mock(Module.class, new ThrowsException(new RuntimeException()));
@@ -71,13 +72,14 @@ public class AbstractUnitDetailViewTest extends ApplicationTest {
     doReturn("Module 1").when(mod1).getTitle();
     doReturn(new HashSet<>(Arrays.asList(maus1, maus2)))
         .when(mod1).getModuleAbstractUnitSemesters();
-    doReturn(true).when(mod1).getMandatory();
 
     doReturn(2).when(mod2).getPordnr();
     doReturn("Module 2").when(mod2).getTitle();
     doReturn(new HashSet<>(Arrays.asList(maus1, maus2)))
         .when(mod2).getModuleAbstractUnitSemesters();
-    doReturn(false).when(mod2).getMandatory();
+
+    doReturn(new HashSet<>()).when(mod1).getModuleAbstractUnitTypes();
+    doReturn(new HashSet<>()).when(mod2).getModuleAbstractUnitTypes();
 
     doReturn(KEY).when(abstractUnit).getKey();
     doReturn(TITLE).when(abstractUnit).getTitle();

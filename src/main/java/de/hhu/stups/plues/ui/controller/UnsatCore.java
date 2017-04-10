@@ -110,13 +110,17 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     courseUnsatCore.coursesProperty().addListener((observable, oldValue, newValue) ->
         resetModuleUnsatCore());
 
-    final BooleanBinding binding = solverService.isNull()
-        .or(courseUnsatCore.coursesProperty().emptyProperty())
-        .or(moduleUnsatCore.moduleProperty().emptyProperty().not());
-
-    final UnsatCoreButtonBar unsatCoreButtonBar = courseUnsatCore.getUnsatCoreButtonBar();
-    unsatCoreButtonBar.disableProperty().bind(binding);
-    unsatCoreButtonBar.setOnAction(this::computeUnsatCoreModules);
+    courseUnsatCore.courseIsInfeasibleProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue) {
+        final BooleanBinding binding = solverService.isNull()
+            .or(courseUnsatCore.coursesProperty().emptyProperty())
+            .or(moduleUnsatCore.moduleProperty().emptyProperty().not())
+            .or(courseUnsatCore.courseIsInfeasibleProperty().not());
+        final UnsatCoreButtonBar unsatCoreButtonBar = courseUnsatCore.getUnsatCoreButtonBar();
+        unsatCoreButtonBar.disableProperty().bind(binding);
+        unsatCoreButtonBar.setOnAction(event -> computeUnsatCoreModules());
+      }
+    });
   }
 
   private void resetModuleUnsatCore() {
@@ -168,22 +172,23 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   }
 
   @SuppressWarnings("unused")
-  private void computeUnsatCoreModules(final ActionEvent event) {
+  private void computeUnsatCoreModules() {
     final ObservableList<Course> courseList = courseUnsatCore.coursesProperty().get();
-    final Course[] selectedCourses = new Course[courseList.size()];
     final SolverTask<Set<Integer>> task
-        = getSolverService().unsatCoreModules(courseList.toArray(selectedCourses));
+        = getSolverService().unsatCoreModules(courseList.toArray(new Course[0]));
 
     task.setOnSucceeded(succeeded -> {
       final Set<Integer> moduleIds = task.getValue();
+      moduleUnsatCore.setCourses(courseList);
       moduleUnsatCore.setModules(moduleIds.stream().map(getStore()::getModuleById)
           .collect(Collectors.collectingAndThen(Collectors.toList(),
               FXCollections::observableArrayList)));
       stepwisePanesAccordion.setExpandedPane(modulesPane);
     });
 
-    courseUnsatCore.getUnsatCoreButtonBar().showTaskState(task);
+    courseUnsatCore.registerTask(task);
 
+    courseUnsatCore.getUnsatCoreButtonBar().taskProperty().set(task);
     executorService.submit(task);
   }
 
@@ -200,7 +205,9 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
       stepwisePanesAccordion.setExpandedPane(abstractUnitsPane);
     });
 
-    moduleUnsatCore.getUnsatCoreButtonBar().showTaskState(task);
+    courseUnsatCore.registerTask(task);
+
+    moduleUnsatCore.getUnsatCoreButtonBar().taskProperty().set(task);
     executorService.submit(task);
   }
 
@@ -217,7 +224,9 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
       stepwisePanesAccordion.setExpandedPane(groupPane);
     });
 
-    abstractUnitUnsatCore.getUnsatCoreButtonBar().showTaskState(task);
+    courseUnsatCore.registerTask(task);
+
+    abstractUnitUnsatCore.getUnsatCoreButtonBar().taskProperty().set(task);
     executorService.submit(task);
   }
 
@@ -233,7 +242,9 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
       stepwisePanesAccordion.setExpandedPane(sessionPane);
     });
 
-    groupUnsatCore.getUnsatCoreButtonBar().showTaskState(task);
+    courseUnsatCore.registerTask(task);
+
+    groupUnsatCore.getUnsatCoreButtonBar().taskProperty().set(task);
     executorService.submit(task);
   }
 
@@ -246,14 +257,18 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
   }
 
   /**
-   * Select the given courses within the {@link #courseUnsatCore} when the user navigates to the
-   * view via the {@link de.hhu.stups.plues.routes.ControllerRoute}.
+   * Assuming the given courses are infeasible, otherwise it should not even be possible to navigate
+   * to this controller. Select the courses within the {@link #courseUnsatCore} when the user
+   * navigates to the view via the {@link de.hhu.stups.plues.routes.ControllerRoute}. Furthermore,
+   * set the {@link CourseUnsatCore#courseIsInfeasibleProperty()} true since we know the course is
+   * infeasible.
    */
   @Override
   public void activateController(final RouteNames routeName, final Object... args) {
     resetModuleUnsatCore();
     courseUnsatCore.selectCourses(getCoursesFromArray(args));
-    computeUnsatCoreModules(null);
+    courseUnsatCore.courseIsInfeasibleProperty().set(true);
+    computeUnsatCoreModules();
   }
 
   private Course[] getCoursesFromArray(final Object[] args) {
