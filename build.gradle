@@ -62,8 +62,8 @@ dependencies {
 
     // logging
     compile 'org.slf4j:slf4j-api:1.7.25' // MIT
-    compile 'ch.qos.logback:logback-core:1.2.2' // EPL
-    compile 'ch.qos.logback:logback-classic:1.2.2' // EPL
+    compile 'ch.qos.logback:logback-core:1.2.3' // EPL
+    compile 'ch.qos.logback:logback-classic:1.2.3' // EPL
     compile group: 'org.codehaus.janino', name: 'janino', version: '3.0.7'
 
     compile project(':model-generator')
