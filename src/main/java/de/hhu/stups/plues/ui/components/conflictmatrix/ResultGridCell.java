@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui.components.conflictmatrix;
 
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.Router;
@@ -80,7 +81,7 @@ public class ResultGridCell extends Pane {
     label.prefWidthProperty().bind(widthProperty());
     label.prefHeightProperty().bind(heightProperty());
     final Tooltip tooltip = new Tooltip(resources.getString("impossibleCombination"));
-    label.setTooltip(tooltip);
+    Helpers.showTooltipOnEnter(label, tooltip, contextMenu.showingProperty());
     getChildren().add(label);
   }
 
@@ -96,7 +97,7 @@ public class ResultGridCell extends Pane {
     label.prefHeightProperty().bind(heightProperty());
     final Tooltip tooltip = new Tooltip(resources.getString("staticallyInfeasible1") + " "
         + courseName + " " + resources.getString("staticallyInfeasible2"));
-    label.setTooltip(tooltip);
+    Helpers.showTooltipOnEnter(label, tooltip, contextMenu.showingProperty());
     getChildren().add(label);
   }
 
@@ -129,7 +130,7 @@ public class ResultGridCell extends Pane {
       final Tooltip tooltip = new Tooltip(resources.getString("major") + " "
           + courseNames[0].getName() + "\n" + resources.getString("minor") + " "
           + courseNames[1].getName());
-      label.setTooltip(tooltip);
+      Helpers.showTooltipOnEnter(label, tooltip, contextMenu.showingProperty());
       getChildren().add(label);
     }
   }
