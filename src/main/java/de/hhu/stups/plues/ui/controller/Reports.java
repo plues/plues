@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.controller;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -34,7 +35,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
@@ -216,12 +216,7 @@ public class Reports extends VBox implements Initializable, Observer {
   public void initialize(final URL location, final ResourceBundle resources) {
     lbOutOfSyncInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
         FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "12")));
-    lbOutOfSyncInfo.setOnMouseEntered(event -> {
-      final Point2D pos = lbOutOfSyncInfo.localToScreen(
-          lbOutOfSyncInfo.getLayoutBounds().getMaxX(), lbOutOfSyncInfo.getLayoutBounds().getMaxY());
-      outOfSyncHint.show(lbOutOfSyncInfo, pos.getX(), pos.getY());
-    });
-    lbOutOfSyncInfo.setOnMouseExited(event -> outOfSyncHint.hide());
+    Helpers.showTooltipOnEnter(lbOutOfSyncInfo, outOfSyncHint, new SimpleBooleanProperty(false));
 
     btRecomputeData.disableProperty().bind(dataOutOfSync.not());
     btRecomputeData.visibleProperty().bind(dataOutOfSync);

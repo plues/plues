@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.components.unsatcore;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.SolverService;
@@ -25,7 +26,6 @@ import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Point2D;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
@@ -119,15 +119,10 @@ public class CourseUnsatCore extends GridPane implements Initializable {
       checkFeasibilityButtonBar.taskProperty().set(null);
     });
 
-    unsatCoreInfo.setOnMouseEntered(event -> {
-      final Point2D pos = unsatCoreInfo.localToScreen(
-          unsatCoreInfo.getLayoutBounds().getMaxX(), unsatCoreInfo.getLayoutBounds().getMaxY());
-      unsatCoreInfoTooltip.show(unsatCoreInfo, pos.getX(), pos.getY());
-    });
-    unsatCoreInfo.setOnMouseExited(event -> unsatCoreInfoTooltip.hide());
-
     unsatCoreInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
         FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "20")));
+    Helpers.showTooltipOnEnter(unsatCoreInfo, unsatCoreInfoTooltip,
+        new SimpleBooleanProperty(false));
 
     storeProperty.addListener((observable, oldValue, store)
         -> courseSelection.setCourses(store.getCourses()));

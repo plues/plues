@@ -9,6 +9,7 @@ import static java.time.DayOfWeek.WEDNESDAY;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -31,6 +32,7 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.SetBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SetProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
@@ -39,7 +41,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -122,14 +123,8 @@ public class Timetable extends SplitPane implements Initializable, Activatable, 
 
     multipleSelectionInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
         FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "12")));
-
-    multipleSelectionInfo.setOnMouseEntered(event -> {
-      final Point2D pos = multipleSelectionInfo.localToScreen(
-          multipleSelectionInfo.getLayoutBounds().getMaxX(),
-          multipleSelectionInfo.getLayoutBounds().getMaxY());
-      multipleSelectionHint.show(multipleSelectionInfo, pos.getX(), pos.getY());
-    });
-    multipleSelectionInfo.setOnMouseExited(event -> multipleSelectionHint.hide());
+    Helpers.showTooltipOnEnter(multipleSelectionInfo, multipleSelectionHint,
+        new SimpleBooleanProperty(false));
 
     splitPaneDivider = getDividers().get(0);
 

@@ -5,6 +5,7 @@ import static javafx.concurrent.Worker.State.SUCCEEDED;
 
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.TaskStateColor;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -21,7 +22,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Point2D;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tooltip;
@@ -90,24 +90,10 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
     taskStateIcon.visibleProperty().bind(visibleProperty());
     boxProgressIndicator.visibleProperty().bind(visibleProperty());
 
-    taskStateIcon.setOnMouseEntered(event -> {
-      if (taskStateIconTooltip.getText().isEmpty()) {
-        taskStateIconTooltip.hide();
-        return;
-      }
-      final Point2D pos = taskStateIcon.localToScreen(
-          taskStateIcon.getLayoutBounds().getMaxX(), taskStateIcon.getLayoutBounds().getMaxY());
-      taskStateIconTooltip.show(taskStateIcon, pos.getX(), pos.getY());
-    });
-    taskStateIcon.setOnMouseExited(event -> taskStateIconTooltip.hide());
-
-    progressIndicator.setOnMouseEntered(event -> {
-      final Point2D pos = progressIndicator.localToScreen(
-          progressIndicator.getLayoutBounds().getMaxX(),
-          progressIndicator.getLayoutBounds().getMaxY());
-      taskRunningTooltip.show(progressIndicator, pos.getX(), pos.getY());
-    });
-    progressIndicator.setOnMouseExited(event -> taskRunningTooltip.hide());
+    Helpers.showTooltipOnEnter(taskStateIcon, taskStateIconTooltip,
+        new SimpleBooleanProperty(false));
+    Helpers.showTooltipOnEnter(progressIndicator, taskRunningTooltip,
+        new SimpleBooleanProperty(false));
 
     taskProperty.addListener((observable, oldValue, newValue) -> {
       if (newValue == null) {
