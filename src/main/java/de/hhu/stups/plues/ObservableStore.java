@@ -35,10 +35,39 @@ public class ObservableStore extends Observable implements Store {
     store.init(dbpath);
   }
 
+  /**
+   * Undo the last move operation.
+   */
+  public void undoLastMoveOperation(final Log lastLog) {
+    if (lastLog == null) {
+      return;
+    }
+    store.moveSession(lastLog.getSession().getId(), lastLog.getSrcDay(),
+        lastLog.getSrcTime());
+    // remove the last two log entries since we have the undo log and the log itself that we
+    // want to undo
+    removeLastLogEntry();
+    removeLastLogEntry();
+    setChanged();
+    notifyObservers("removed");
+  }
+
+  /**
+   * Redo the last move operation.
+   */
+  public void redoLastMoveOperation(final Log lastLog) {
+    if (lastLog == null) {
+      return;
+    }
+    store.moveSession(lastLog.getSession().getId(), lastLog.getTargetDay(),
+        lastLog.getTargetTime());
+    setChanged();
+    notifyObservers();
+  }
+
   @Override
   public void moveSession(final int sessionId, final String targetDay, final Integer targetTime) {
     store.moveSession(sessionId, targetDay, targetTime);
-    //
     setChanged();
     notifyObservers();
   }
@@ -151,6 +180,11 @@ public class ObservableStore extends Observable implements Store {
   @Override
   public Log getLastLogEntry() {
     return store.getLastLogEntry();
+  }
+
+  @Override
+  public void removeLastLogEntry() {
+    store.removeLastLogEntry();
   }
 
   @Override

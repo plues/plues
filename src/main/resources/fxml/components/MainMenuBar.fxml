@@ -23,6 +23,12 @@
         <MenuItem onAction="#closeWindow" mnemonicParsing="false" text="%close"/>
     </Menu>
     <Menu mnemonicParsing="false" text="%edit">
+        <MenuItem fx:id="undoLastMenuItem" onAction="#undoLastMoveOperation"
+                  mnemonicParsing="false" text="%undo" accelerator="Shortcut+Z"/>
+        <MenuItem fx:id="undoAllMenuItem" onAction="#undoAllMoveOperations"
+                  mnemonicParsing="false" text="%undoAll"/>
+        <MenuItem fx:id="redoLastMenuItem" onAction="#redoLastMoveOperation"
+                  mnemonicParsing="false" text="%redo" accelerator="Shortcut+Shift+Z"/>
         <Menu fx:id="selectTimeoutMenu" mnemonicParsing="false" text="%timeout.Select">
             <RadioMenuItem fx:id="fifteenSecondsMenuItem" text="%timeout.fifteenSeconds"
                            disable="true" selected="true" mnemonicParsing="false"

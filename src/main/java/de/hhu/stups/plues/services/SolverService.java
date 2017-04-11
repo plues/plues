@@ -16,6 +16,7 @@ import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.tasks.SolverTask;
+
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyMapProperty;
 import javafx.beans.property.ReadOnlyMapWrapper;
@@ -28,7 +29,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
 public class SolverService {
   private final Solver solver;
   private final ResourceBundle resources = ResourceBundle.getBundle("lang.solverTask");
@@ -37,7 +37,7 @@ public class SolverService {
   private int timeout = 60;
 
   /**
-   * Create an ew SolverService instance. Using executorService to run tasks executed by solver.
+   * Create a new SolverService instance. Using executorService to run tasks executed by solver.
    *
    * @param solver Solver object to execute operations on ProB instance.
    */
@@ -307,6 +307,14 @@ public class SolverService {
     return names;
   }
 
+  final void undoLastMoveOperation() {
+    solver.undoLastMoveOperation();
+  }
+
+  final void redoLastMoveOperation() {
+    solver.redoLastMoveOperation();
+  }
+
   /**
    * Add a {@link ResultState result} to the cache {@link #courseSelectionResults}. A result is
    * replaced if the existing one is {@link ResultState#FAILED failed}.
@@ -351,8 +359,8 @@ public class SolverService {
    * Create a solver task to move a session to a new day/time and thus modifying the model's state.
    * Clears all caches as a side-effect.
    *
-   * @param sessionId The id of the session to be moved
-   * @param targetDay The target slot's day.
+   * @param sessionId  The id of the session to be moved
+   * @param targetDay  The target slot's day.
    * @param targetTime The target slot's time.
    * @return SolverTask object for moving a session
    */

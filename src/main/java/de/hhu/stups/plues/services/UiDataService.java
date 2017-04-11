@@ -8,6 +8,7 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
+
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
@@ -48,8 +49,8 @@ public class UiDataService {
    * Service to provide properties for UI relevant data.
    *
    * @param solverServiceDelayed Delayed SolverService
-   * @param delayedStore Delayed Store
-   * @param executorService ExecutorService
+   * @param delayedStore         Delayed Store
+   * @param executorService      ExecutorService
    */
   @Inject
   public UiDataService(final Delayed<SolverService> solverServiceDelayed,
@@ -61,6 +62,7 @@ public class UiDataService {
             this.loadImpossibleCourses(solverService, store)));
   }
 
+  @SuppressWarnings("unused")
   public Date getLastSavedDate() {
     return lastSavedDate.get();
   }
@@ -99,7 +101,7 @@ public class UiDataService {
   }
 
   public void setSessionDisplayFormatProperty(
-        final SessionDisplayFormat sessionDisplayFormatProperty) {
+      final SessionDisplayFormat sessionDisplayFormatProperty) {
     this.sessionDisplayFormatProperty.set(sessionDisplayFormatProperty);
   }
 
