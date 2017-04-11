@@ -244,7 +244,7 @@ public class MainController implements Initializable, Activatable {
 
     stage.setOnCloseRequest(t -> {
       try {
-        closeWindow(t);
+        closeWindowRequest(t);
         if (!t.isConsumed()) {
           this.resourceManager.close();
         }
@@ -389,9 +389,9 @@ public class MainController implements Initializable, Activatable {
   /**
    * Ask user for permission to close window using Alert. User can save database before closing.
    */
-  private void closeWindow(final Event event) {
+  private void closeWindowRequest(final Event event) {
     if (!mainMenuService.isDatabaseChanged()) {
-      stage.close();
+      closeWindow();
       return;
     }
 
@@ -413,14 +413,22 @@ public class MainController implements Initializable, Activatable {
 
     if (result == save) {
       mainMenuBar.saveFile();
-      stage.close();
+      closeWindow();
     } else if ((result == saveAs && !mainMenuBar.saveFileAs()) || result == cancel) {
       // if the result is to cancel or 'save as' has been canceled we ignore the close request and
       // consume the event, otherwise we close the stage
       event.consume();
     } else {
-      stage.close();
+      closeWindow();
     }
+  }
+
+  /**
+   * Close the application. Should only be called from {@link #closeWindowRequest(Event)}.
+   */
+  private void closeWindow() {
+    stage.close();
+    Platform.exit();
   }
 
   @Override
@@ -431,7 +439,7 @@ public class MainController implements Initializable, Activatable {
       if (args.length == 0) {
         return;
       }
-      closeWindow((Event) args[0]);
+      closeWindowRequest((Event) args[0]);
     }
   }
 }
