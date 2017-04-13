@@ -127,8 +127,8 @@ public class ResultGridCell extends Pane {
       final Label label = new Label();
       label.prefWidthProperty().bind(widthProperty());
       label.prefHeightProperty().bind(heightProperty());
-      final Tooltip tooltip = new Tooltip(resources.getString("major") + " "
-          + courseNames[0].getName() + "\n" + resources.getString("minor") + " "
+      final Tooltip tooltip = new Tooltip(resources.getString("major") + ": "
+          + courseNames[0].getName() + "\n" + resources.getString("minor") + ": "
           + courseNames[1].getName());
       Helpers.showTooltipOnEnter(label, tooltip, contextMenu.showingProperty());
       getChildren().add(label);
