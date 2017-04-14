@@ -59,7 +59,7 @@ public class ResultGridCell extends Pane {
         setActiveGridCellPane(resultState, courses);
         break;
       case IMPOSSIBLE:
-        setStaticImpossibleGridCell(courses[0].getName());
+        setStaticImpossibleGridCell();
         break;
       case IMPOSSIBLE_COMBINATION:
         setImpossibleGridCell();
@@ -80,7 +80,7 @@ public class ResultGridCell extends Pane {
     final Label label = new Label();
     label.prefWidthProperty().bind(widthProperty());
     label.prefHeightProperty().bind(heightProperty());
-    final Tooltip tooltip = new Tooltip(resources.getString("impossibleCombination"));
+    final Tooltip tooltip = new Tooltip(resources.getString("legendImpossible"));
     Helpers.showTooltipOnEnter(label, tooltip, contextMenu.showingProperty());
     getChildren().add(label);
   }
@@ -88,16 +88,15 @@ public class ResultGridCell extends Pane {
   /**
    * Create a grid pane cell for statically known impossible combinations of courses.
    */
-  private void setStaticImpossibleGridCell(final String courseName) {
+  private void setStaticImpossibleGridCell() {
     getChildren().addAll(new Circle(5, 5, 2), new Circle(10, 5, 2), new Circle(5, 10, 2),
         new Circle(10, 10, 2));
     getStyleClass().add("matrix-cell-impossible");
     final Label label = new Label();
     label.prefWidthProperty().bind(widthProperty());
     label.prefHeightProperty().bind(heightProperty());
-    final Tooltip tooltip = new Tooltip(resources.getString("staticallyInfeasible1") + " "
-        + courseName + " " + resources.getString("staticallyInfeasible2"));
-    Helpers.showTooltipOnEnter(label, tooltip, contextMenu.showingProperty());
+    Helpers.showTooltipOnEnter(label, new Tooltip(resources.getString("legendInfeasible")),
+        contextMenu.showingProperty());
     getChildren().add(label);
   }
 
