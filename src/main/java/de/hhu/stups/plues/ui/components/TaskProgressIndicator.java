@@ -58,9 +58,7 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private Label taskStateIcon;
-  @FXML
-  @SuppressWarnings("unused")
-  private Tooltip taskStateIconTooltip;
+  private final Tooltip taskStateIconTooltip = new Tooltip();
 
   /**
    * Initialize properties and component.
@@ -178,7 +176,7 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
         break;
       case READY:
       case SCHEDULED:
-        msg = resources.getString("computation.Waiting");
+        msg = resources.getString("computation.waitingForExecution");
         break;
       case SUCCEEDED:
         msg = resources.getString("computation.Succeeded");
