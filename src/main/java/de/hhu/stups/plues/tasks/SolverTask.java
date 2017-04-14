@@ -89,7 +89,7 @@ public class SolverTask<T> extends Task<T> {
 
   @Override
   protected T call() throws InterruptedException, ExecutionException {
-    this.updateMessage(resources.getString("waiting"));
+    this.updateMessage(resources.getString("waitingForExecution"));
     this.updateProgress(5, -1);
 
     synchronized (SolverTask.class) {

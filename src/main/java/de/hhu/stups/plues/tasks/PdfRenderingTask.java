@@ -84,8 +84,9 @@ public class PdfRenderingTask extends Task<Path> {
       return null;
     }
 
-    updateMessage(resources.getString("waiting"));
+    updateMessage(resources.getString("waitingForExecution"));
     solverTask.setOnRunning(event -> this.updateMessage(resources.getString("running")));
+    //noinspection ResultOfMethodCallIgnored
     EXECUTOR_SERVICE.submit(solverTask);
 
     updateProgress(40, -1);
