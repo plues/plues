@@ -9,10 +9,12 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -26,6 +28,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -41,6 +45,9 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
   @FXML
   @SuppressWarnings("unused")
   private MajorMinorCourseSelection courseSelection;
+  @FXML
+  @SuppressWarnings("unused")
+  private ColorSchemeSelection colorSchemeSelection;
   @FXML
   @SuppressWarnings("unused")
   private Button btGenerate;
@@ -77,6 +84,18 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
+    colorSchemeSelection.addColorScheme("Cottonwool",
+        new HashSet<>(Arrays.asList("#DCBFBE", "#DCD6BE", "#C1DCBE", "#F1EAB4", "#C5CBF1",
+            "#EFF1CB", "#E5CBF1", "#DCF1E9")));
+    colorSchemeSelection.addColorScheme("Jac",
+        new HashSet<>(Arrays.asList("#536D89", "#95B7BF", "#556745", "#A3BC8F", "#956D88",
+            "#C19CB5", "#4F483D", "#BDB7AD")));
+    colorSchemeSelection.addColorScheme("Haviland China",
+        new HashSet<>(Arrays.asList("#8C7678", "#CCEBB7", "#BC9EB6", "#B6AF9C", "#9FA080",
+            "#C5B8B0", "#BEB8BC", "#D9CDD7")));
+    colorSchemeSelection.addColorScheme("Black and white",
+        new HashSet<>(Arrays.asList("#000000", "#FFFFFF")));
+
     btGenerate.disableProperty().bind(solverProperty.not());
 
     resultBoxWrapper.visibleProperty().bind(Bindings.isEmpty(resultBoxWrapper.getItems()).not());
