@@ -15,6 +15,7 @@ import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
@@ -133,6 +134,8 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     loader.setBuilderFactory(type -> {
       if (type.equals(MajorMinorCourseSelection.class)) {
         return () -> courseSelection;
+      } else if (type.equals(ColorSchemeSelection.class)) {
+        return () -> new ColorSchemeSelection(new Inflater(new FXMLLoader()));
       } else if (type.equals(TaskProgressIndicator.class)) {
         return () -> new TaskProgressIndicator(new Inflater(new FXMLLoader()));
       }
