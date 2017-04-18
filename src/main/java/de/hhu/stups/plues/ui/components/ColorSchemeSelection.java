@@ -2,6 +2,8 @@ package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
 
+import de.hhu.stups.plues.studienplaene.ColorChoice;
+import de.hhu.stups.plues.studienplaene.ColorScheme;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -16,22 +18,17 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * Presents a combo box with selectable {@link ColorScheme color schemes}. Mainly used to determine
  * the color for PDFs to be generated.
  */
 public class ColorSchemeSelection extends GridPane implements Initializable {
-
-  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   @FXML
   @SuppressWarnings("unused")
@@ -56,12 +53,17 @@ public class ColorSchemeSelection extends GridPane implements Initializable {
   /**
    * Set the percent width of this component according to the node it is placed in.
    */
-  void setPercentWidth(final double percentWidth) {
+  public void setPercentWidth(final double percentWidth) {
     columnConstraints.setPercentWidth(percentWidth);
   }
 
-  public void addColorScheme(final String name, final Set<String> colors) {
-    cbColorSchemeSelection.getItems().add(new ColorScheme(name, colors));
+  /**
+   * Add a color scheme for a given color choice, i.e. either {@link ColorChoice#COLOR} or {@link
+   * ColorChoice#GRAYSCALE}, and a set of hexadecimal color codes.
+   */
+  @SuppressWarnings("WeakerAccess")
+  public void addColorScheme(final ColorChoice colorChoice, final Set<String> colors) {
+    cbColorSchemeSelection.getItems().add(new ColorScheme(colorChoice, colors));
   }
 
   public ReadOnlyObjectProperty<ColorScheme> selectedColorScheme() {
@@ -88,6 +90,7 @@ public class ColorSchemeSelection extends GridPane implements Initializable {
   /**
    * Create a visualization of the {@link ColorScheme}.
    */
+  @SuppressWarnings("unused")
   private HBox getColorVisualization(final Set<String> colors) {
     final Set<Rectangle> colorRectangles = new HashSet<>(colors.size());
     colors.forEach(color -> {
@@ -104,33 +107,21 @@ public class ColorSchemeSelection extends GridPane implements Initializable {
   }
 
   /**
-   * A color scheme definition yielding a set of hexadecimal colors and a visualization of the
-   * colors.
+   * Default initialization for our intentioned behavior since we use the same color schemes for all
+   * used pdf color scheme selections.
    */
-  private final class ColorScheme {
-
-    private final String name;
-    private final Set<String> colors;
-    private final Pattern hexColorPattern = Pattern.compile("^#(?:[0-9a-fA-F]{3}){1,2}$");
-
-    ColorScheme(final String name, final Set<String> colors) {
-      this.name = name;
-      this.colors = colors;
-      colors.forEach(color -> {
-        if (!hexColorPattern.matcher(color).matches()) {
-          logger.error("Wrong color code definition for " + color + " in class ColorScheme.");
-          throw new InstantiationError();
-        }
-      });
-    }
-
-    Set<String> getColors() {
-      return colors;
-    }
-
-    @Override
-    public String toString() {
-      return name;
-    }
+  public void defaultInitialization() {
+    addColorScheme(ColorChoice.COLOR,
+        new HashSet<>(Arrays.asList("#DCBFBE", "#DCD6BE", "#C1DCBE", "#F1EAB4", "#C5CBF1",
+            "#EFF1CB", "#E5CBF1", "#DCF1E9", "#EFB9B9", "#FFA6A6", "#FCFE80", "#C7FF72",
+            "#9AFFA4", "#9AFFD6", "#9AFFF9", "#94E5FF", "#A4C1FF", "#CFA4FF", "#F2A4FF",
+            "#F6CCFF", "#FFB5F0", "#F7D9E4", "#E78FFB", "#DAFFB4", "#B4FFFD", "#69BCFF",
+            "#FFA361")));
+    addColorScheme(ColorChoice.COLOR,
+        new HashSet<>(Arrays.asList("#889EB7", "#536D89", "#95B7BF", "#556745", "#A3BC8F",
+            "#C19CB5", "#4F483D", "#CCCACB", "#978B95", "#9E8E99", "#6C5B6E", "#B0B398",
+            "#787E64", "#A09C90", "#AAADBE", "#9FA080", "#D9CDD7", "#8C7678", "#CCEBB7", "#C5B8B0",
+            "#A3C46C", "#95DA6A", "#C4C26C", "#F5ECBB", "#FBC796", "#F0A259", "#D7975A")));
+    addColorScheme(ColorChoice.GRAYSCALE, new HashSet<>(Arrays.asList("#000000", "#FFFFFF")));
   }
 }

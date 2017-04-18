@@ -9,6 +9,6 @@
     <ComboBox fx:id="cbColorSchemeSelection" maxWidth="Infinity" GridPane.columnIndex="0"
               GridPane.rowIndex="0"/>
     <columnConstraints>
-        <ColumnConstraints percentWidth="80.0"/>
+        <ColumnConstraints fx:id="columnConstraints" percentWidth="80.0"/>
     </columnConstraints>
 </fx:root>
