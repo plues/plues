@@ -10,13 +10,13 @@ import de.hhu.stups.plues.ui.batchgeneration.BatchPdfRenderingTask;
 import de.hhu.stups.plues.ui.batchgeneration.CollectPdfRenderingTasksTask;
 import de.hhu.stups.plues.ui.components.BatchResultBox;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
+import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -25,6 +25,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +66,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   private final Provider<CollectPdfRenderingTasksTask> collectPdfRenderingTasksTaskProvider;
 
-  private Task<Set<PdfRenderingTask>> fillPoolTask;
+  private CollectPdfRenderingTasksTask fillPoolTask;
   private BatchPdfRenderingTask executePoolTask;
 
   @FXML
@@ -83,6 +84,9 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   @FXML
   @SuppressWarnings("unused")
   private ListView<BatchResultBox> listView;
+  @FXML
+  @SuppressWarnings("unused")
+  private ColorSchemeSelection colorSchemeSelection;
 
   /**
    * Constructor.
@@ -110,6 +114,9 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    colorSchemeSelection.defaultInitialization();
+    colorSchemeSelection.setPercentWidth(40.0);
+
     btGenerateAll.disableProperty().bind(solverProperty.not().or(generationRunning));
     btCancel.disableProperty().bind(
         solverProperty.not().or(btGenerateAll.disabledProperty().not()));
@@ -133,6 +140,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     listView.getItems().clear();
 
     fillPoolTask = collectPdfRenderingTasksTaskProvider.get();
+    fillPoolTask.colorSchemeProperty().set(colorSchemeSelection.selectedColorScheme().get());
 
     fillPoolTask.setOnSucceeded(event -> {
       fillPoolTask.getValue().forEach(task -> {

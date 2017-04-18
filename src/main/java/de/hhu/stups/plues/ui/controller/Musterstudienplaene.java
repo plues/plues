@@ -84,17 +84,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
-    colorSchemeSelection.addColorScheme("Cottonwool",
-        new HashSet<>(Arrays.asList("#DCBFBE", "#DCD6BE", "#C1DCBE", "#F1EAB4", "#C5CBF1",
-            "#EFF1CB", "#E5CBF1", "#DCF1E9")));
-    colorSchemeSelection.addColorScheme("Jac",
-        new HashSet<>(Arrays.asList("#536D89", "#95B7BF", "#556745", "#A3BC8F", "#956D88",
-            "#C19CB5", "#4F483D", "#BDB7AD")));
-    colorSchemeSelection.addColorScheme("Haviland China",
-        new HashSet<>(Arrays.asList("#8C7678", "#CCEBB7", "#BC9EB6", "#B6AF9C", "#9FA080",
-            "#C5B8B0", "#BEB8BC", "#D9CDD7")));
-    colorSchemeSelection.addColorScheme("Black and white",
-        new HashSet<>(Arrays.asList("#000000", "#FFFFFF")));
+    colorSchemeSelection.defaultInitialization();
 
     btGenerate.disableProperty().bind(solverProperty.not());
 
@@ -150,7 +140,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
       return;
     }
     resultBoxWrapper.getItems().add(0, resultBoxFactory.create(majorCourse, minorCourse,
-        resultBoxWrapper));
+        resultBoxWrapper, colorSchemeSelection.selectedColorScheme()));
     resultBoxWrapper.scrollTo(0);
   }
 
