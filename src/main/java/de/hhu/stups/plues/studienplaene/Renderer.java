@@ -6,6 +6,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.exceptions.RenderingException;
+
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import org.jtwig.environment.EnvironmentConfiguration;
@@ -24,9 +25,9 @@ public class Renderer {
 
   private static final EnvironmentConfiguration config
       = EnvironmentConfigurationBuilder.configuration()
-        .render()
-        .withOutputCharset(Charset.forName("utf8"))
-        .and().build();
+      .render()
+      .withOutputCharset(Charset.forName("utf8"))
+      .and().build();
 
   private String major;
   private Map<String, String>[] semesters;
@@ -38,37 +39,24 @@ public class Renderer {
                   final FeasibilityResult feasibilityResult,
                   final Course major,
                   final Course minor,
-                  final ColorChoice colorChoice) {
-    setup(store, feasibilityResult, major, minor, colorChoice);
+                  final ColorScheme colorScheme) {
+    setup(store, feasibilityResult, major, minor, colorScheme);
   }
 
   public Renderer(final Store store,
                   final FeasibilityResult feasibilityResult,
                   final Course major,
-                  final ColorChoice colorChoice) {
-    setup(store, feasibilityResult, major, null, colorChoice);
-  }
-
-  public Renderer(final Store store,
-                  final FeasibilityResult feasibilityResult,
-                  final Course major,
-                  final Course minor) {
-    setup(store, feasibilityResult, major, minor, ColorChoice.COLOR);
-  }
-
-  public Renderer(final Store store,
-                  final FeasibilityResult feasibilityResult,
-                  final Course major) {
-    setup(store, feasibilityResult, major, null, ColorChoice.COLOR);
+                  final ColorScheme colorScheme) {
+    setup(store, feasibilityResult, major, null, colorScheme);
   }
 
   private void setup(final Store store,
                      final FeasibilityResult feasibilityResult,
                      final Course major,
                      @Nullable final Course minor,
-                     final ColorChoice colorChoice) {
+                     final ColorScheme colorScheme) {
     final DataPreparatory prep = new DataPreparatory(store, feasibilityResult);
-    final DataStoreWrapper wrap = new DataStoreWrapper(colorChoice, prep);
+    final DataStoreWrapper wrap = new DataStoreWrapper(colorScheme, prep);
 
     this.major = major.getLongName();
     if (minor != null) {
@@ -104,6 +92,7 @@ public class Renderer {
 
   /**
    * Render the current document and return the result as a ByteArrayOutputStream.
+   *
    * @return ByteArrayOutputStream byte stream representing the rendered pdf.
    * @throws RenderingException if an error occurred.
    */

@@ -18,22 +18,11 @@ class DataStoreWrapper {
   private final Map<String, String> fonts;
   private final ColorPalette colors;
 
-  DataStoreWrapper(final ColorChoice cc, final DataPreparatory data) {
+  DataStoreWrapper(final ColorScheme colorScheme, final DataPreparatory data) {
     for (int k = 0; k < semesters.length; k++) {
       semesters[k] = new HashMap<>();
     }
-
-    switch (cc) {
-      case COLOR:
-        colors = new Colored();
-        break;
-      case GRAYSCALE:
-        colors = new Grayscale();
-        break;
-      default:
-        throw new AssertionError("Unsupported ColorChoice " + cc);
-    }
-
+    colors = colorScheme.isGrayscale() ? new Grayscale() : new Colored(colorScheme.getColors());
     colorMap = new HashMap<>();
     fonts = new HashMap<>();
 
@@ -54,7 +43,7 @@ class DataStoreWrapper {
   }
 
   private void createSessionData(final AbstractUnit abstractUnit, final Module module,
-      final Integer semester, final Group group, final Session session) {
+                                 final Integer semester, final Group group, final Session session) {
 
     final boolean isSpecial = isSpecial(session) || isSpecial(group);
     final int semesterIndex = semester - 1;
@@ -72,7 +61,7 @@ class DataStoreWrapper {
   }
 
   private StringBuilder getTitleBuilder(final AbstractUnit abstractUnit, final Group group,
-      final Session session) {
+                                        final Session session) {
 
     final StringBuilder title = new StringBuilder(abstractUnit.getTitle());
 
@@ -83,7 +72,7 @@ class DataStoreWrapper {
   }
 
   private void handleCommonContent(final String moduleName, final String key,
-      final StringBuilder title, final Map<String, String> semester) {
+                                   final StringBuilder title, final Map<String, String> semester) {
 
     final Color c = colors.nextColor();
 
@@ -95,7 +84,7 @@ class DataStoreWrapper {
   }
 
   private void handleSpecialContent(final String key, final String title,
-      final Map<String, String> semester, final String content) {
+                                    final Map<String, String> semester, final String content) {
 
     final String[] values = content.split(";");
     final String newContent = String.format("%s / %s / %s", values[0], title, values[1]);
@@ -153,8 +142,8 @@ class DataStoreWrapper {
   private String getFontColor(final Color backgroundColor) {
     final double brightness
         = 1 - (0.299 * backgroundColor.getRed()
-          + 0.587 * backgroundColor.getGreen()
-          + 0.114 * backgroundColor.getBlue()) / 255;
+        + 0.587 * backgroundColor.getGreen()
+        + 0.114 * backgroundColor.getBlue()) / 255;
 
     return (brightness < 0.5) ? "black" : "white";
   }
