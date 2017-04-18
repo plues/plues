@@ -9,6 +9,8 @@ import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.prob.ProBSolver;
 import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.studienplaene.ColorChoice;
+import de.hhu.stups.plues.studienplaene.ColorScheme;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverTask;
 
@@ -19,6 +21,7 @@ import javafx.concurrent.Task;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -173,7 +176,7 @@ public final class UiTestHelper {
 
   private static final class TestPdfTask extends PdfRenderingTask {
     TestPdfTask() {
-      super(null, null, null, null);
+      super(null, null, null, null, null);
     }
 
     public Path call() {
@@ -184,5 +187,14 @@ public final class UiTestHelper {
       }
       return Paths.get(".");
     }
+  }
+
+  public static ColorScheme getColorScheme() {
+    return new ColorScheme(ColorChoice.COLOR,
+        new HashSet<>(Arrays.asList("#DCBFBE", "#DCD6BE", "#C1DCBE", "#F1EAB4", "#C5CBF1",
+            "#EFF1CB", "#E5CBF1", "#DCF1E9", "#EFB9B9", "#FFA6A6", "#FCFE80", "#C7FF72",
+            "#9AFFA4", "#9AFFD6", "#9AFFF9", "#94E5FF", "#A4C1FF", "#CFA4FF", "#F2A4FF",
+            "#F6CCFF", "#FFB5F0", "#F7D9E4", "#E78FFB", "#DAFFB4", "#B4FFFD", "#69BCFF",
+            "#FFA361")));
   }
 }

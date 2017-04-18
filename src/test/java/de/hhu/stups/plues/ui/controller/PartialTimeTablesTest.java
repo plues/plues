@@ -149,7 +149,7 @@ public class PartialTimeTablesTest extends ApplicationTest {
     clickOn(btChoose);
     assertFalse(courseSelection.isDisabled());
     clickOn(btGenerate);
-    sleep(200,TimeUnit.MILLISECONDS);
+    sleep(200, TimeUnit.MILLISECONDS);
     assertTrue(courseSelection.isDisabled());
     sleep(3, TimeUnit.SECONDS);
     assertFalse(courseSelection.isDisabled());
@@ -215,7 +215,8 @@ public class PartialTimeTablesTest extends ApplicationTest {
             majorModule));
 
     partialTimeTables = new PartialTimeTables(inflater, delayedStore, delayedSolverService,
-        uiDataService, ((major, minor, solverTask) -> UiTestHelper.getWaitingPdfRenderingTask()),
+        uiDataService,
+        ((major, minor, solverTask, colorScheme) -> UiTestHelper.getWaitingPdfRenderingTask()),
         executorService, checkBoxGroupFactory);
 
     final Scene scene = new Scene(partialTimeTables, 400, 500);

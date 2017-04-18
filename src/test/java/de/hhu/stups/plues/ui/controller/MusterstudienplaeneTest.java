@@ -23,6 +23,7 @@ import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
@@ -164,13 +165,14 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     });
 
     final ResultBoxFactory resultBoxFactory = mock(ResultBoxFactory.class);
-    when(resultBoxFactory.create(any(), any(), any()))
+    when(resultBoxFactory.create(any(), any(), any(), any()))
         .thenAnswer(invocation ->
             new ResultBox(inflater, router, delayedSolverService,
-                (major, minor, solverTask) -> UiTestHelper.getWaitingPdfRenderingTask(),
+                (major, minor, solverTask, colorScheme) ->
+                    UiTestHelper.getWaitingPdfRenderingTask(),
                 executorService, courseSelection.getSelectedMajor(),
                 courseSelection.getSelectedMinor(),
-                resultBoxWrapper));
+                resultBoxWrapper, new SimpleObjectProperty<>(UiTestHelper.getColorScheme())));
 
     musterstudienplaene = new Musterstudienplaene(inflater, delayedStore, delayedSolverService,
         uiDataService, resultBoxFactory);
