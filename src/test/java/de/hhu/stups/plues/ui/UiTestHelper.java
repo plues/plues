@@ -189,6 +189,9 @@ public final class UiTestHelper {
     }
   }
 
+  /**
+   * Create and return a color scheme for colored pdf generation.
+   */
   public static ColorScheme getColorScheme() {
     return new ColorScheme(ColorChoice.COLOR,
         new HashSet<>(Arrays.asList("#DCBFBE", "#DCD6BE", "#C1DCBE", "#F1EAB4", "#C5CBF1",
