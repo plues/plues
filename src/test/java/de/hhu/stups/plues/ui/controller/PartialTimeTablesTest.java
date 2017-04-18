@@ -17,6 +17,7 @@ import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.UiTestHelper;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
+import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -167,6 +168,8 @@ public class PartialTimeTablesTest extends ApplicationTest {
     loader.setBuilderFactory(type -> {
       if (type.equals(TaskProgressIndicator.class)) {
         return () -> new TaskProgressIndicator(new Inflater(new FXMLLoader()));
+      } else if (type.equals(ColorSchemeSelection.class)) {
+        return () -> new ColorSchemeSelection(new Inflater(new FXMLLoader()));
       } else if (type.equals(MajorMinorCourseSelection.class)) {
         return () -> courseSelection;
       }
