@@ -6,10 +6,9 @@ import java.util.Set;
 class Colored implements ColorPalette {
 
   private final Color[] colors;
-  private int pointer;
+  private int pointer = 0;
 
   Colored(final Set<String> initialColors) {
-    pointer = 0;
     colors = new Color[initialColors.size()];
     initialColors.forEach(color -> {
       colors[pointer] = Color.decode(color);
@@ -22,7 +21,7 @@ class Colored implements ColorPalette {
   public Color nextColor() {
     final Color c;
     c = colors[pointer];
-    pointer += 4;
+    pointer++;
     pointer %= colors.length;
     return c;
   }
