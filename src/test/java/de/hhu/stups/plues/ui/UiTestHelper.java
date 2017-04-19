@@ -23,6 +23,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -193,8 +194,8 @@ public final class UiTestHelper {
    * Create and return a color scheme for colored pdf generation.
    */
   public static ColorScheme getColorScheme() {
-    return new ColorScheme(ColorChoice.COLOR,
-        new HashSet<>(Arrays.asList("#DCBFBE", "#DCD6BE", "#C1DCBE", "#F1EAB4", "#C5CBF1",
+    return new ColorScheme("Test color", ColorChoice.COLOR,
+        new LinkedHashSet<>(Arrays.asList("#DCBFBE", "#DCD6BE", "#C1DCBE", "#F1EAB4", "#C5CBF1",
             "#EFF1CB", "#E5CBF1", "#DCF1E9", "#EFB9B9", "#FFA6A6", "#FCFE80", "#C7FF72",
             "#9AFFA4", "#9AFFD6", "#9AFFF9", "#94E5FF", "#A4C1FF", "#CFA4FF", "#F2A4FF",
             "#F6CCFF", "#FFB5F0", "#F7D9E4", "#E78FFB", "#DAFFB4", "#B4FFFD", "#69BCFF",
