@@ -40,7 +40,7 @@ public class TestRenderer extends TestBase {
 
   @Test
   public void testItWorksForGrayscale() throws RenderingException, IOException {
-    final ColorScheme colorScheme = new ColorScheme(ColorChoice.GRAYSCALE, new HashSet<>());
+    final ColorScheme colorScheme = new ColorScheme("", ColorChoice.GRAYSCALE, new HashSet<>());
     final Renderer renderer = new Renderer(store, result, course, colorScheme);
     final ByteArrayOutputStream result = renderer.getResult();
 
