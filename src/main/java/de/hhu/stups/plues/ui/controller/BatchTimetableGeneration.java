@@ -13,6 +13,7 @@ import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -114,10 +115,16 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    // disable list-view selection
+    listView.getSelectionModel().selectedIndexProperty().addListener(
+        (observable, oldvalue, newValue) ->
+            Platform.runLater(() -> listView.getSelectionModel().select(-1)));
+
     colorSchemeSelection.defaultInitialization();
-    colorSchemeSelection.setPercentWidth(40.0);
+    colorSchemeSelection.setPercentWidth(50.0);
 
     btGenerateAll.disableProperty().bind(solverProperty.not().or(generationRunning));
+    colorSchemeSelection.disableProperty().bind(solverProperty.not().or(generationRunning));
     btCancel.disableProperty().bind(
         solverProperty.not().or(btGenerateAll.disabledProperty().not()));
 
