@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 public final class ColorScheme {
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
+  private final String name;
   private final ColorChoice colorChoice;
   private final Set<String> colors;
   private final Pattern hexColorPattern = Pattern.compile("^#(?:[0-9a-fA-F]{3}){1,2}$");
@@ -20,7 +21,8 @@ public final class ColorScheme {
   /**
    * Create a color scheme defined by its name and a set of hex color codes.
    */
-  public ColorScheme(final ColorChoice colorChoice, final Set<String> colors) {
+  public ColorScheme(final String name, final ColorChoice colorChoice, final Set<String> colors) {
+    this.name = name;
     this.colorChoice = colorChoice;
     this.colors = colors;
     colors.forEach(color -> {
@@ -29,6 +31,10 @@ public final class ColorScheme {
         throw new InstantiationError();
       }
     });
+  }
+
+  public String getName() {
+    return name;
   }
 
   public Set<String> getColors() {
