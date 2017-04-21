@@ -93,34 +93,51 @@ public class ColorSchemeSelection extends GridPane implements Initializable {
 
   /**
    * Create a visualization of the {@link ColorScheme} whereat the amount of previewing boxes is
-   * limited.
+   * limited to fit the {@link #cbColorSchemeSelection}.
    */
   @SuppressWarnings("unused")
   private HBox getColorVisualization(final ColorScheme colorScheme) {
-    final Iterator<String> colors = colorScheme.getColors().iterator();
-    final Set<Rectangle> colorRectangles = new LinkedHashSet<>();
+    final double previewRectangleSize = 15.0;
+    final HBox imageBox = new HBox();
+    imageBox.setSpacing(2.0);
+    addColorPreviews(imageBox,
+        Math.round(cbColorSchemeSelection.widthProperty().get() / previewRectangleSize) / 2,
+        previewRectangleSize, colorScheme);
+    cbColorSchemeSelection.widthProperty().addListener((observable, oldValue, newValue) -> {
+      imageBox.getChildren().clear();
+      addColorPreviews(imageBox,
+          Math.round(newValue.doubleValue() / previewRectangleSize) / 2,
+          previewRectangleSize, colorScheme);
+    });
+    return imageBox;
+  }
 
-    final int previewAmount = 20;
+  private void addColorPreviews(final HBox imageBox,
+                                final long previewAmount,
+                                final double previewRectangleSize,
+                                final ColorScheme colorScheme) {
+    final Iterator<String> colors = colorScheme.getColors().iterator();
     int previewCounter = 0;
     while (colors.hasNext()) {
-      final Rectangle rectangle = new Rectangle(15.0, 15.0);
-      rectangle.setFill(Color.web(colors.next()));
-      rectangle.setStroke(Color.BLACK);
-      rectangle.setStrokeWidth(1.0);
-      colorRectangles.add(rectangle);
+      if (colors.hasNext()) {
+        imageBox.getChildren().add(getColorPreview(previewRectangleSize, colors.next()));
+      }
       previewCounter++;
       if (previewCounter == previewAmount) {
         break;
       }
     }
-
-    final HBox imageBox = new HBox();
-    imageBox.setSpacing(2.0);
-    imageBox.getChildren().addAll(colorRectangles);
-    final Label label = new Label(colorScheme.getName());
+    final Label label = new Label(" - " + colorScheme.getName());
     label.setStyle("-fx-text-fill: #000000;");
     imageBox.getChildren().add(imageBox.getChildren().size(), label);
-    return imageBox;
+  }
+
+  private Rectangle getColorPreview(final double rectangleSize, final String hexColorCode) {
+    final Rectangle rectangle = new Rectangle(rectangleSize, rectangleSize);
+    rectangle.setFill(Color.web(hexColorCode));
+    rectangle.setStroke(Color.BLACK);
+    rectangle.setStrokeWidth(1.0);
+    return rectangle;
   }
 
   /**
@@ -128,24 +145,22 @@ public class ColorSchemeSelection extends GridPane implements Initializable {
    * used pdf color scheme selections.
    */
   public void defaultInitialization() {
-    addColorScheme("Intense", ColorChoice.COLOR,
-        new LinkedHashSet<>(Arrays.asList("#aa7959",
-            "#56c33d", "#4691eb", "#a4c230", "#3568b0", "#e0b53b", "#3ba7e5", "#f8bb4a",
-            "#46beda", "#e57f2d", "#6e97d7", "#529d21", "#82bcec", "#d59324", "#3e94bf",
-            "#b3aa2a", "#537ca1", "#45c66a", "#996a21", "#4cc8b7", "#e2835c", "#4ac08c",
-            "#ac6c27", "#448ba0", "#dba04f", "#84a9c8", "#779021", "#5aacaa", "#958220",
-            "#67a194", "#c5b653", "#3d856a", "#dca371", "#419c48", "#d7a48b", "#559340",
-            "#af7d5b", "#81c475", "#83825d", "#8dbe56", "#80793a", "#85b78f", "#9d8042",
-            "#4a8250", "#c1b57f", "#789a5a", "#aab765", "#8d9059", "#73944c", "#5e835e")));
-    addColorScheme("Pastel", ColorChoice.COLOR,
-        new LinkedHashSet<>(Arrays.asList("#acd8ba",
-            "#dbbbec", "#a1c293", "#b7a9d4", "#b5d7a7", "#e8a7ba", "#ccf4cc", "#e4bad9",
-            "#87cdbf", "#e8aa95", "#8ae1f9", "#e3aba7", "#74cce4", "#eddaac", "#9cb8e2",
-            "#dee7bc", "#c9cdf5", "#bbc49a", "#8bc0dd", "#e6c6a6", "#a0d5f2", "#c9ae8e",
-            "#a2e7ed", "#f2c0ce", "#8bb598", "#eed8e4", "#98c3a6", "#bcadc4", "#e9f5d3",
-            "#a8b3c4", "#d0d9ae", "#7fc4ca", "#efcdc2", "#8dd2d8", "#cbbaab", "#b6eee2",
-            "#d5c1d0", "#86bcb1", "#ebe2cf", "#97b1ab", "#d4efe9", "#d7e0b5", "#bacfde",
-            "#c7b794", "#bddfe5", "#a0b099", "#d0e0c8", "#abc5bf", "#adbea6", "#bbcbb3")));
+    addColorScheme("Blue Pastel", ColorChoice.COLOR,
+        new LinkedHashSet<>(Arrays.asList("#caecbc", "#e0cd9f", "#ecd7a0",
+            "#eeae99", "#d7f2e7", "#e2c2f3", "#edf5ca", "#dee7bc", "#9db3d6", "#f5cdaf",
+            "#d7d5e9", "#e6ab9e", "#acd2f2", "#d8b194", "#8dd2d8", "#eab2ae", "#e6bfa2",
+            "#f2def6", "#ddacb9", "#d0e5d7", "#ebc1e0", "#ccc1e2", "#ccd4aa", "#e6d6ee",
+            "#c9d2a8", "#afb9cb", "#f2e6ce", "#bfd1d4", "#fddbd0", "#a7d5be", "#eac4ce",
+            "#c3d3bb", "#efd5dc", "#a1d3c9", "#e8c6bb", "#b4dbe7", "#ffdab3", "#cde8e2",
+            "#c4acb2", "#d7e7cf", "#d2dcee", "#fdfad5", "#b2ccc6", "#d5cdbb", "#adc7a1")));
+    addColorScheme("Yellow Pastel", ColorChoice.COLOR,
+        new LinkedHashSet<>(Arrays.asList("#ffe9db", "#f1c887", "#e7cfc6",
+            "#e3cc55", "#ffd462", "#e1bcb3", "#eece59", "#ffe29a", "#f2a449", "#efdc60",
+            "#f2e3bb", "#fcc358", "#ffde71", "#e8ada2", "#fee77e", "#d5dcbd", "#ffc1b1",
+            "#f2dd82", "#ff9c6e", "#ffc7ae", "#d6efc2", "#ffe0c2", "#ffd2bb", "#ffdd7c",
+            "#ffc671", "#e7ccab", "#ffbe6c", "#f0e2b3", "#f8c291", "#e7d798", "#dfa78b",
+            "#dfcc7f", "#ffb591", "#ffc9ad", "#ffe2ab", "#ffb278", "#e4ecc9", "#cec194",
+            "#ffb384", "#cfd39d", "#e1a782", "#d6c689", "#d8ac77", "#ffd8a5", "#ffd190")));
     addColorScheme("Grayscale", ColorChoice.GRAYSCALE,
         new LinkedHashSet<>(Arrays.asList("#000000", "#FFFFFF")));
   }
