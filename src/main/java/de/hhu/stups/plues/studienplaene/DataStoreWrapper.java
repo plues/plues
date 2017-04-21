@@ -87,12 +87,14 @@ class DataStoreWrapper {
                                     final Map<String, String> semester, final String content) {
 
     final String[] values = content.split(";");
-    final String newContent = String.format("%s / %s / %s", values[0], title, values[1]);
+    final String newContent = String.format("%s;%s;%s", values[0], title, values[1]);
     //
     semester.remove(key);
     semester.put(key, newContent);
     //
-    setColorToBlack(values[1]);
+    final Color c = colors.nextColor();
+    colorMap.put(values[1], getColorString(c));
+    fonts.put(values[1], getFontColor(c));
   }
 
   private String getTitlePart(final Group group) {
@@ -130,13 +132,6 @@ class DataStoreWrapper {
   private boolean isSpecial(final Session session) {
     final Integer rhythm = session.getRhythm();
     return rhythm != 0;
-  }
-
-  private void setColorToBlack(final String module) {
-    fonts.remove(module);
-    fonts.put(module, "white");
-    colorMap.remove(module);
-    colorMap.put(module, "#000000");
   }
 
   private String getFontColor(final Color backgroundColor) {
