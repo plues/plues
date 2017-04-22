@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.hhu.stups.plues.ui.components.ColorSchemeSelection?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.GridPane?>
 
-<fx:root alignment="center" type="javafx.scene.layout.GridPane" vgap="10.0" hgap="10.0"
+<fx:root alignment="center" type="javafx.scene.layout.GridPane" vgap="10.0" hgap="5.0"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <Button fx:id="btGenerateAll" prefWidth="200.0" onAction="#generateAll" text="%generate"
             GridPane.halignment="RIGHT" GridPane.columnIndex="0" GridPane.rowIndex="1"
@@ -18,17 +19,22 @@
             GridPane.rowIndex="2"/>
     <Button fx:id="btSaveToZip" prefWidth="200.0" onAction="#savePersistentZip" text="%zip"
             GridPane.halignment="LEFT" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+    <ColorSchemeSelection fx:id="colorSchemeSelection" GridPane.columnIndex="0"
+                          GridPane.halignment="CENTER" GridPane.rowIndex="3"
+                          GridPane.columnSpan="2"/>
     <ListView fx:id="listView" maxWidth="Infinity" maxHeight="Infinity" id="batchListView"
-              GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
-    </ListView>
+              GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2"
+              focusTraversable="false"/>
     <columnConstraints>
         <ColumnConstraints percentWidth="40"/>
         <ColumnConstraints percentWidth="40"/>
     </columnConstraints>
     <rowConstraints>
-        <RowConstraints percentHeight="2"/>
         <RowConstraints percentHeight="5"/>
         <RowConstraints percentHeight="5"/>
-        <RowConstraints percentHeight="60"/>
+        <RowConstraints percentHeight="5"/>
+        <RowConstraints percentHeight="5"/>
+        <RowConstraints percentHeight="75"/>
+        <RowConstraints percentHeight="5"/>
     </rowConstraints>
 </fx:root>

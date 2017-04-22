@@ -2,7 +2,9 @@ package de.hhu.stups.plues.studienplaene;
 
 import static org.junit.Assert.assertNotNull;
 
+import de.hhu.stups.plues.ui.UiTestHelper;
 import de.hhu.stups.plues.ui.exceptions.RenderingException;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,6 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 
 
 public class TestRenderer extends TestBase {
@@ -25,7 +28,7 @@ public class TestRenderer extends TestBase {
 
   @Test
   public void testItWorksForColor() throws RenderingException, IOException {
-    final Renderer renderer = new Renderer(store, result, course, ColorChoice.COLOR);
+    final Renderer renderer = new Renderer(store, result, course, UiTestHelper.getColorScheme());
     final ByteArrayOutputStream result = renderer.getResult();
 
     final File pdf = File.createTempFile("color", ".pdf");
@@ -37,7 +40,8 @@ public class TestRenderer extends TestBase {
 
   @Test
   public void testItWorksForGrayscale() throws RenderingException, IOException {
-    final Renderer renderer = new Renderer(store, result, course, ColorChoice.GRAYSCALE);
+    final ColorScheme colorScheme = new ColorScheme("", ColorChoice.GRAYSCALE, new HashSet<>());
+    final Renderer renderer = new Renderer(store, result, course, colorScheme);
     final ByteArrayOutputStream result = renderer.getResult();
 
     final File pdf = File.createTempFile("gray", ".pdf");

@@ -17,6 +17,7 @@ import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.UiTestHelper;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
+import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -149,7 +150,7 @@ public class PartialTimeTablesTest extends ApplicationTest {
     clickOn(btChoose);
     assertFalse(courseSelection.isDisabled());
     clickOn(btGenerate);
-    sleep(200,TimeUnit.MILLISECONDS);
+    sleep(200, TimeUnit.MILLISECONDS);
     assertTrue(courseSelection.isDisabled());
     sleep(3, TimeUnit.SECONDS);
     assertFalse(courseSelection.isDisabled());
@@ -167,6 +168,8 @@ public class PartialTimeTablesTest extends ApplicationTest {
     loader.setBuilderFactory(type -> {
       if (type.equals(TaskProgressIndicator.class)) {
         return () -> new TaskProgressIndicator(new Inflater(new FXMLLoader()));
+      } else if (type.equals(ColorSchemeSelection.class)) {
+        return () -> new ColorSchemeSelection(new Inflater(new FXMLLoader()));
       } else if (type.equals(MajorMinorCourseSelection.class)) {
         return () -> courseSelection;
       }
@@ -215,7 +218,8 @@ public class PartialTimeTablesTest extends ApplicationTest {
             majorModule));
 
     partialTimeTables = new PartialTimeTables(inflater, delayedStore, delayedSolverService,
-        uiDataService, ((major, minor, solverTask) -> UiTestHelper.getWaitingPdfRenderingTask()),
+        uiDataService,
+        ((major, minor, solverTask, colorScheme) -> UiTestHelper.getWaitingPdfRenderingTask()),
         executorService, checkBoxGroupFactory);
 
     final Scene scene = new Scene(partialTimeTables, 400, 500);

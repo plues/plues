@@ -16,6 +16,7 @@ import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
+import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -93,6 +94,9 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   @FXML
   @SuppressWarnings("unused")
   private TaskProgressIndicator taskProgressIndicator;
+  @FXML
+  @SuppressWarnings("unused")
+  private ColorSchemeSelection colorSchemeSelection;
 
   /**
    * Constructor for partial time table controller.
@@ -129,6 +133,8 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
+    colorSchemeSelection.defaultInitialization();
+
     final BooleanBinding selectionBinding = storeProperty.isNull().or(checkRunning);
 
     btChoose.disableProperty().bind(selectionBinding);
@@ -251,7 +257,8 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
 
   private PdfRenderingTask getPdfRenderingTask(final Course major, final Course minor,
                                                final SolverTask<FeasibilityResult> solverTask) {
-    final PdfRenderingTask task = renderingTaskFactory.create(major, minor, solverTask);
+    final PdfRenderingTask task = renderingTaskFactory.create(major, minor, solverTask,
+        colorSchemeSelection.selectedColorScheme());
     task.setOnSucceeded(event -> {
       pdf.set((Path) event.getSource().getValue());
       checkRunning.set(false);

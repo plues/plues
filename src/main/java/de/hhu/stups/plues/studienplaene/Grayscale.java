@@ -2,6 +2,9 @@ package de.hhu.stups.plues.studienplaene;
 
 import java.awt.Color;
 
+/**
+ * Not explicitly grayscales but we use simple colors that can be easily printed in grayscale.
+ */
 class Grayscale implements ColorPalette {
 
   private Color[] colors = new Color[8];

@@ -10,6 +10,7 @@ import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
+import de.hhu.stups.plues.studienplaene.ColorScheme;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -55,6 +56,7 @@ public class ResultBox extends VBox implements Initializable {
   private final ListView<ResultBox> parent;
   private final Delayed<SolverService> delayedSolverService;
   private final PdfRenderingTaskFactory renderingTaskFactory;
+  private final ReadOnlyObjectProperty<ColorScheme> colorScheme;
 
   private final StringProperty errorMsgProperty = new SimpleStringProperty();
   private final ObjectProperty<Path> pdf = new SimpleObjectProperty<>();
@@ -103,6 +105,7 @@ public class ResultBox extends VBox implements Initializable {
    * @param major                Major course
    * @param minor                Minor course if present, else null
    * @param parent               The parent wrapper (VBox) to remove a single result box.
+   * @param colorScheme          The selected color scheme for generating a pdf.
    */
   @Inject
   @SuppressWarnings("WeakerAccess")
@@ -113,13 +116,15 @@ public class ResultBox extends VBox implements Initializable {
                    final ExecutorService executorService,
                    @Assisted("major") final Course major,
                    @Nullable @Assisted("minor") final Course minor,
-                   @Assisted("parent") final ListView<ResultBox> parent) {
+                   @Assisted("parent") final ListView<ResultBox> parent,
+                   @Assisted final ReadOnlyObjectProperty<ColorScheme> colorScheme) {
     super();
     this.router = router;
     this.parent = parent;
     this.delayedSolverService = delayedSolverService;
     this.executorService = executorService;
     this.renderingTaskFactory = renderingTaskFactory;
+    this.colorScheme = colorScheme;
 
     this.major = major;
     this.minor = minor;
@@ -177,7 +182,7 @@ public class ResultBox extends VBox implements Initializable {
     final SolverTask<FeasibilityResult> solverTask;
 
     solverTask = solverService.computeFeasibilityTask(buildCourses(major, minor));
-    task = renderingTaskFactory.create(major, minor, solverTask);
+    task = renderingTaskFactory.create(major, minor, solverTask, colorScheme);
 
     task.setOnSucceeded(event -> Platform.runLater(() -> {
       pdf.set((Path) event.getSource().getValue());

@@ -7,6 +7,7 @@ import de.hhu.stups.plues.ui.components.AboutWindow;
 import de.hhu.stups.plues.ui.components.AbstractUnitFilter;
 import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.CheckCourseFeasibility;
+import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.components.ConflictTree;
 import de.hhu.stups.plues.ui.components.MainMenuBar;
@@ -86,5 +87,6 @@ class ComponentsModule extends AbstractModule {
     bind(MainMenuBar.class);
     bind(TaskProgressIndicator.class);
     bind(HistoryManager.class);
+    bind(ColorSchemeSelection.class);
   }
 }
