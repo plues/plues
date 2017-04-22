@@ -32,6 +32,8 @@ import java.util.Set;
  */
 public class ColorSchemeSelection extends GridPane implements Initializable {
 
+  private ResourceBundle resources;
+
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<ColorScheme> cbColorSchemeSelection;
@@ -41,11 +43,13 @@ public class ColorSchemeSelection extends GridPane implements Initializable {
 
   @Inject
   public ColorSchemeSelection(final Inflater inflater) {
-    inflater.inflate("components/ColorSchemeSelection", this, this);
+    inflater.inflate("components/ColorSchemeSelection", this, this, "colorSchemeSelection");
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    this.resources = resources;
+
     cbColorSchemeSelection.setCellFactory(param -> getColorSchemeListCell());
     cbColorSchemeSelection.setButtonCell(getColorSchemeListCell());
     cbColorSchemeSelection.getItems().addListener((ListChangeListener<ColorScheme>) change ->
@@ -119,9 +123,7 @@ public class ColorSchemeSelection extends GridPane implements Initializable {
     final Iterator<String> colors = colorScheme.getColors().iterator();
     int previewCounter = 0;
     while (colors.hasNext()) {
-      if (colors.hasNext()) {
-        imageBox.getChildren().add(getColorPreview(previewRectangleSize, colors.next()));
-      }
+      imageBox.getChildren().add(getColorPreview(previewRectangleSize, colors.next()));
       previewCounter++;
       if (previewCounter == previewAmount) {
         break;
@@ -145,23 +147,23 @@ public class ColorSchemeSelection extends GridPane implements Initializable {
    * used pdf color scheme selections.
    */
   public void defaultInitialization() {
-    addColorScheme("Blue Pastel", ColorChoice.COLOR,
-        new LinkedHashSet<>(Arrays.asList("#caecbc", "#e0cd9f", "#ecd7a0",
-            "#eeae99", "#d7f2e7", "#e2c2f3", "#edf5ca", "#dee7bc", "#9db3d6", "#f5cdaf",
-            "#d7d5e9", "#e6ab9e", "#acd2f2", "#d8b194", "#8dd2d8", "#eab2ae", "#e6bfa2",
-            "#f2def6", "#ddacb9", "#d0e5d7", "#ebc1e0", "#ccc1e2", "#ccd4aa", "#e6d6ee",
+    addColorScheme(resources.getString("bluePastel"), ColorChoice.COLOR,
+        new LinkedHashSet<>(Arrays.asList("#b2ccc6","#afcdee", "#e0cd9f", "#ecd7a0",
+            "#d2dcee","#bcc9f0", "#a2b5ee", "#d7f2e7", "#caecbc", "#edf5ca", "#dee7bc",
+            "#9db3d6", "#f5cdaf", "#d7d5e9", "#e6ab9e", "#acd2f2", "#d8b194", "#8dd2d8",
+            "#eab2ae", "#e6bfa2", "#d0e5d7", "#a8cee5", "#ccc1e2", "#ccd4aa", "#e6d6ee",
             "#c9d2a8", "#afb9cb", "#f2e6ce", "#bfd1d4", "#fddbd0", "#a7d5be", "#eac4ce",
             "#c3d3bb", "#efd5dc", "#a1d3c9", "#e8c6bb", "#b4dbe7", "#ffdab3", "#cde8e2",
-            "#c4acb2", "#d7e7cf", "#d2dcee", "#fdfad5", "#b2ccc6", "#d5cdbb", "#adc7a1")));
-    addColorScheme("Yellow Pastel", ColorChoice.COLOR,
+            "#c4acb2", "#d7e7cf", "#eeae99", "#fdfad5", "#d5cdbb", "#adc7a1")));
+    addColorScheme(resources.getString("yellowPastel"), ColorChoice.COLOR,
         new LinkedHashSet<>(Arrays.asList("#ffe9db", "#f1c887", "#e7cfc6",
-            "#e3cc55", "#ffd462", "#e1bcb3", "#eece59", "#ffe29a", "#f2a449", "#efdc60",
+            "#e3cc55", "#f1c650", "#e1bcb3", "#eece59", "#ffe29a", "#f2a449", "#f1e27e",
             "#f2e3bb", "#fcc358", "#ffde71", "#e8ada2", "#fee77e", "#d5dcbd", "#ffc1b1",
             "#f2dd82", "#ff9c6e", "#ffc7ae", "#d6efc2", "#ffe0c2", "#ffd2bb", "#ffdd7c",
             "#ffc671", "#e7ccab", "#ffbe6c", "#f0e2b3", "#f8c291", "#e7d798", "#dfa78b",
             "#dfcc7f", "#ffb591", "#ffc9ad", "#ffe2ab", "#ffb278", "#e4ecc9", "#cec194",
             "#ffb384", "#cfd39d", "#e1a782", "#d6c689", "#d8ac77", "#ffd8a5", "#ffd190")));
-    addColorScheme("Grayscale", ColorChoice.GRAYSCALE,
+    addColorScheme(resources.getString("grayscale"), ColorChoice.GRAYSCALE,
         new LinkedHashSet<>(Arrays.asList("#000000", "#FFFFFF")));
   }
 }
