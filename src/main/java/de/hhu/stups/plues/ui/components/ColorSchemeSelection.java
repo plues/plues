@@ -148,16 +148,16 @@ public class ColorSchemeSelection extends GridPane implements Initializable {
    */
   public void defaultInitialization() {
     addColorScheme(resources.getString("bluePastel"), ColorChoice.COLOR,
-        new LinkedHashSet<>(Arrays.asList("#b2ccc6","#afcdee", "#e0cd9f", "#ecd7a0",
-            "#d2dcee","#bcc9f0", "#a2b5ee", "#d7f2e7", "#caecbc", "#edf5ca", "#dee7bc",
-            "#9db3d6", "#f5cdaf", "#d7d5e9", "#e6ab9e", "#acd2f2", "#d8b194", "#8dd2d8",
-            "#eab2ae", "#e6bfa2", "#d0e5d7", "#a8cee5", "#ccc1e2", "#ccd4aa", "#e6d6ee",
-            "#c9d2a8", "#afb9cb", "#f2e6ce", "#bfd1d4", "#fddbd0", "#a7d5be", "#eac4ce",
-            "#c3d3bb", "#efd5dc", "#a1d3c9", "#e8c6bb", "#b4dbe7", "#ffdab3", "#cde8e2",
-            "#c4acb2", "#d7e7cf", "#eeae99", "#fdfad5", "#d5cdbb", "#adc7a1")));
+        new LinkedHashSet<>(Arrays.asList("#b2ccc6", "#afcdee", "#e0cd9f",
+            "#ecd7a0", "#d2dcee", "#72bef2", "#8fd3ff", "#b4dffc", "#d7f2e7", "#caecbc",
+            "#edf5ca", "#dee7bc", "#94c2e9", "#aec5da", "#f5cdaf", "#d7d5e9", "#e6ab9e",
+            "#d8b194", "#8dd2d8", "#eab2ae", "#e6bfa2", "#d0e5d7", "#a8cee5", "#ccd4aa",
+            "#b9e7f2", "#c9d2a8", "#afb9cb", "#f2e6ce", "#bfd1d4", "#fddbd0", "#a7d5be",
+            "#c5ebe3", "#c3d3bb", "#c9d8f5", "#a1d3c9", "#e8c6bb", "#b4dbe7", "#ffdab3",
+            "#cde8e2", "#c4acb2", "#d7e7cf", "#eeae99", "#fdfad5", "#d5cdbb", "#adc7a1")));
     addColorScheme(resources.getString("yellowPastel"), ColorChoice.COLOR,
         new LinkedHashSet<>(Arrays.asList("#ffe9db", "#f1c887", "#e7cfc6",
-            "#e3cc55", "#f1c650", "#e1bcb3", "#eece59", "#ffe29a", "#f2a449", "#f1e27e",
+            "#e3cc55", "#f1c650", "#e1bcb3", "#f3d465", "#ffe29a", "#f2a449", "#f1e27e",
             "#f2e3bb", "#fcc358", "#ffde71", "#e8ada2", "#fee77e", "#d5dcbd", "#ffc1b1",
             "#f2dd82", "#ff9c6e", "#ffc7ae", "#d6efc2", "#ffe0c2", "#ffd2bb", "#ffdd7c",
             "#ffc671", "#e7ccab", "#ffbe6c", "#f0e2b3", "#f8c291", "#e7d798", "#dfa78b",
