@@ -33,6 +33,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
@@ -96,6 +97,9 @@ public class ResultBox extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ComboBox<Actions> cbAction;
+  @FXML
+  @SuppressWarnings("unused")
+  private HBox colorPreviewBox;
 
   /**
    * Constructor for ResultBox.
@@ -156,6 +160,14 @@ public class ResultBox extends VBox implements Initializable {
         cbAction.getSelectionModel().selectFirst());
 
     runSolverTask();
+
+    showUsedColorSchemePreview();
+  }
+
+  private void showUsedColorSchemePreview() {
+    colorPreviewBox.getChildren().clear();
+    colorScheme.get().addColorPreviews(colorPreviewBox, 5, 15.0);
+    colorPreviewBox.getChildren().remove(colorPreviewBox.getChildren().size() - 1);
   }
 
   /**
@@ -165,6 +177,7 @@ public class ResultBox extends VBox implements Initializable {
     interrupt();
     delayedSolverService.whenAvailable(solver -> {
       initSolverTask(solver);
+      showUsedColorSchemePreview();
       executorService.submit(task);
     });
   }
