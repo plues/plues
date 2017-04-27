@@ -11,17 +11,13 @@ import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -104,42 +100,16 @@ public class ColorSchemeSelection extends GridPane implements Initializable {
     final double previewRectangleSize = 15.0;
     final HBox imageBox = new HBox();
     imageBox.setSpacing(2.0);
-    addColorPreviews(imageBox,
+    colorScheme.addColorPreviews(imageBox,
         Math.round(cbColorSchemeSelection.widthProperty().get() / previewRectangleSize) / 2,
-        previewRectangleSize, colorScheme);
+        previewRectangleSize);
     cbColorSchemeSelection.widthProperty().addListener((observable, oldValue, newValue) -> {
       imageBox.getChildren().clear();
-      addColorPreviews(imageBox,
+      colorScheme.addColorPreviews(imageBox,
           Math.round(newValue.doubleValue() / previewRectangleSize) / 2,
-          previewRectangleSize, colorScheme);
+          previewRectangleSize);
     });
     return imageBox;
-  }
-
-  private void addColorPreviews(final HBox imageBox,
-                                final long previewAmount,
-                                final double previewRectangleSize,
-                                final ColorScheme colorScheme) {
-    final Iterator<String> colors = colorScheme.getColors().iterator();
-    int previewCounter = 0;
-    while (colors.hasNext()) {
-      imageBox.getChildren().add(getColorPreview(previewRectangleSize, colors.next()));
-      previewCounter++;
-      if (previewCounter == previewAmount) {
-        break;
-      }
-    }
-    final Label label = new Label(" - " + colorScheme.getName());
-    label.setStyle("-fx-text-fill: #000000;");
-    imageBox.getChildren().add(imageBox.getChildren().size(), label);
-  }
-
-  private Rectangle getColorPreview(final double rectangleSize, final String hexColorCode) {
-    final Rectangle rectangle = new Rectangle(rectangleSize, rectangleSize);
-    rectangle.setFill(Color.web(hexColorCode));
-    rectangle.setStroke(Color.BLACK);
-    rectangle.setStrokeWidth(1.0);
-    return rectangle;
   }
 
   /**
