@@ -2,8 +2,10 @@
 
 <?import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar?>
 <?import de.hhu.stups.plues.ui.components.timetable.SemesterChooser?>
+<?import de.hhu.stups.plues.ui.components.timetable.MoveSessionDialog?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -12,83 +14,86 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Tooltip?>
 
-<fx:root minHeight="600" type="javafx.scene.control.SplitPane" xmlns="http://javafx.com/javafx/8"
-         xmlns:fx="http://javafx.com/fxml/1" dividerPositions="0.15">
-    <TimetableSideBar fx:id="timetableSideBar"/>
-    <VBox spacing="10.0">
-        <HBox styleClass="windowPaddingTiny" spacing="5.0">
-            <Label text="%semester"/>
-            <SemesterChooser fx:id="semesterToggle"/>
-            <Label fx:id="multipleSelectionInfo" alignment="TOP_LEFT">
-                <tooltip>
-                    <Tooltip fx:id="multipleSelectionHint" text="%multipleSelectionHint"/>
-                </tooltip>
-            </Label>
-        </HBox>
+<fx:root minHeight="600" type="StackPane" xmlns="http://javafx.com/javafx/8"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <MoveSessionDialog fx:id="moveSessionDialog"/>
+    <SplitPane fx:id="timeTableSplitPane" dividerPositions="0.15">
+        <TimetableSideBar fx:id="timetableSideBar"/>
+        <VBox spacing="10.0">
+            <HBox styleClass="windowPaddingTiny" spacing="5.0">
+                <Label text="%semester"/>
+                <SemesterChooser fx:id="semesterToggle"/>
+                <Label fx:id="multipleSelectionInfo" alignment="TOP_LEFT">
+                    <tooltip>
+                        <Tooltip fx:id="multipleSelectionHint" text="%multipleSelectionHint"/>
+                    </tooltip>
+                </Label>
+            </HBox>
 
-        <GridPane maxHeight="Infinity" maxWidth="Infinity" fx:id="timeTablePane">
-            <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" minWidth="50.0" prefWidth="50.0"/>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
-            </columnConstraints>
+            <GridPane maxHeight="Infinity" maxWidth="Infinity" fx:id="timeTablePane">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="NEVER" minWidth="50.0" prefWidth="50.0"/>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0"/>
+                </columnConstraints>
 
-            <rowConstraints>
-                <RowConstraints vgrow="NEVER" minHeight="20" prefHeight="20"/>
-                <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
-                <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
-                <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
-                <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
-                <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
-                <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
-                <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
-            </rowConstraints>
+                <rowConstraints>
+                    <RowConstraints vgrow="NEVER" minHeight="20" prefHeight="20"/>
+                    <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
+                    <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
+                    <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
+                    <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
+                    <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
+                    <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
+                    <RowConstraints vgrow="ALWAYS" minHeight="20" prefHeight="450"/>
+                </rowConstraints>
 
-            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="1">
-                <Label text="08:30" styleClass="headerLabel"/>
-            </StackPane>
-            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="2">
-                <Label text="10:30" styleClass="headerLabel"/>
-            </StackPane>
-            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="3">
-                <Label text="12:30" styleClass="headerLabel"/>
-            </StackPane>
-            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="4">
-                <Label text="14:30" styleClass="headerLabel"/>
-            </StackPane>
-            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="5">
-                <Label text="16:30" styleClass="headerLabel"/>
-            </StackPane>
-            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="6">
-                <Label text="18:30" styleClass="headerLabel"/>
-            </StackPane>
-            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="7">
-                <Label text="20:30" styleClass="headerLabel"/>
-            </StackPane>
+                <StackPane GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <Label text="08:30" styleClass="headerLabel"/>
+                </StackPane>
+                <StackPane GridPane.columnIndex="0" GridPane.rowIndex="2">
+                    <Label text="10:30" styleClass="headerLabel"/>
+                </StackPane>
+                <StackPane GridPane.columnIndex="0" GridPane.rowIndex="3">
+                    <Label text="12:30" styleClass="headerLabel"/>
+                </StackPane>
+                <StackPane GridPane.columnIndex="0" GridPane.rowIndex="4">
+                    <Label text="14:30" styleClass="headerLabel"/>
+                </StackPane>
+                <StackPane GridPane.columnIndex="0" GridPane.rowIndex="5">
+                    <Label text="16:30" styleClass="headerLabel"/>
+                </StackPane>
+                <StackPane GridPane.columnIndex="0" GridPane.rowIndex="6">
+                    <Label text="18:30" styleClass="headerLabel"/>
+                </StackPane>
+                <StackPane GridPane.columnIndex="0" GridPane.rowIndex="7">
+                    <Label text="20:30" styleClass="headerLabel"/>
+                </StackPane>
 
-            <StackPane GridPane.rowIndex="0" GridPane.columnIndex="1">
-                <Label GridPane.rowIndex="0" GridPane.columnIndex="1" text="%monday"
-                       styleClass="headerLabel"/>
-            </StackPane>
-            <StackPane GridPane.rowIndex="0" GridPane.columnIndex="2">
-                <Label GridPane.rowIndex="0" GridPane.columnIndex="2" text="%tuesday"
-                       styleClass="headerLabel"/>
-            </StackPane>
-            <StackPane GridPane.rowIndex="0" GridPane.columnIndex="3">
-                <Label GridPane.rowIndex="0" GridPane.columnIndex="3" text="%wednesday"
-                       styleClass="headerLabel"/>
-            </StackPane>
-            <StackPane GridPane.rowIndex="0" GridPane.columnIndex="4">
-                <Label GridPane.rowIndex="0" GridPane.columnIndex="4" text="%thursday"
-                       styleClass="headerLabel"/>
-            </StackPane>
-            <StackPane GridPane.rowIndex="0" GridPane.columnIndex="5">
-                <Label GridPane.rowIndex="0" GridPane.columnIndex="5" text="%friday"
-                       styleClass="headerLabel"/>
-            </StackPane>
-        </GridPane>
-    </VBox>
+                <StackPane GridPane.rowIndex="0" GridPane.columnIndex="1">
+                    <Label GridPane.rowIndex="0" GridPane.columnIndex="1" text="%monday"
+                           styleClass="headerLabel"/>
+                </StackPane>
+                <StackPane GridPane.rowIndex="0" GridPane.columnIndex="2">
+                    <Label GridPane.rowIndex="0" GridPane.columnIndex="2" text="%tuesday"
+                           styleClass="headerLabel"/>
+                </StackPane>
+                <StackPane GridPane.rowIndex="0" GridPane.columnIndex="3">
+                    <Label GridPane.rowIndex="0" GridPane.columnIndex="3" text="%wednesday"
+                           styleClass="headerLabel"/>
+                </StackPane>
+                <StackPane GridPane.rowIndex="0" GridPane.columnIndex="4">
+                    <Label GridPane.rowIndex="0" GridPane.columnIndex="4" text="%thursday"
+                           styleClass="headerLabel"/>
+                </StackPane>
+                <StackPane GridPane.rowIndex="0" GridPane.columnIndex="5">
+                    <Label GridPane.rowIndex="0" GridPane.columnIndex="5" text="%friday"
+                           styleClass="headerLabel"/>
+                </StackPane>
+            </GridPane>
+        </VBox>
+    </SplitPane>
 </fx:root>
