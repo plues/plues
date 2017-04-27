@@ -28,9 +28,9 @@ public class SessionListView extends ListView<SessionFacade> {
   private final SessionFacade.Slot slot;
   private final Delayed<ObservableStore> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
-  private final ListeningExecutorService executorService;
   private final UiDataService uiDataService;
   private final HistoryManager historyManager;
+  private final ListeningExecutorService executorService;
   private ListProperty<SessionFacade> sessions;
 
   /**
@@ -45,15 +45,15 @@ public class SessionListView extends ListView<SessionFacade> {
   public SessionListView(@Assisted final SessionFacade.Slot slot,
                          final Delayed<ObservableStore> delayedStore,
                          final Delayed<SolverService> delayedSolverService,
-                         final ListeningExecutorService executorService,
                          final Provider<SessionCell> cellProvider,
                          final UiDataService uiDataService,
+                         final ListeningExecutorService executorService,
                          final HistoryManager historyManager) {
     this.slot = slot;
     this.delayedStore = delayedStore;
-    this.executorService = executorService;
     this.delayedSolverService = delayedSolverService;
     this.uiDataService = uiDataService;
+    this.executorService = executorService;
     this.historyManager = historyManager;
 
     setCellFactory(param -> cellProvider.get());
@@ -109,6 +109,7 @@ public class SessionListView extends ListView<SessionFacade> {
   @SuppressWarnings("unused")
   private void dragEntered(final DragEvent event) {
     if (isValidTarget(event)) {
+      uiDataService.moveSessionTaskProperty().set(null);
       getStyleClass().add("dragged-over");
       historyManager.historyEnabledProperty().set(false);
     }
@@ -139,7 +140,12 @@ public class SessionListView extends ListView<SessionFacade> {
         moveSession.setOnSucceeded(moveSessionEvent -> moveSucceededHandler(sessionId));
         moveSession.setOnFailed(moveSessionEvent -> moveFailedHandler());
         moveSession.setOnCancelled(moveSessionEvent -> moveCancelledHandler());
-
+        if (uiDataService.runningTasksProperty().greaterThan(1).get()) {
+          // set the property to give a warning in the timetable when more than one task is
+          // running instead of executing the move session task right here
+          uiDataService.moveSessionTaskProperty().set(moveSession);
+          return;
+        }
         executorService.submit(moveSession);
       });
     }
