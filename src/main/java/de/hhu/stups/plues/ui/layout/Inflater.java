@@ -3,8 +3,10 @@ package de.hhu.stups.plues.ui.layout;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.ui.exceptions.InflaterException;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +34,7 @@ public class Inflater {
   /**
    * Inflate a fxml resource as a layout from <tt>/fxml/</tt>.
    *
-   * @param name The name of the xml file without the <tt>.fxml</tt> extension.
+   * @param name        The name of the xml file without the <tt>.fxml</tt> extension.
    * @param bundleNames The name of the used bundles. Order of bundles comparable to MRO: First
    *                    specific bundles and later common ones.
    * @return {@link Parent}
@@ -43,6 +45,7 @@ public class Inflater {
 
   /**
    * Inflate without root and controller and resource bundle name.
+   *
    * @param name The name of the fxml file without the <tt>.fxml</tt> extension.
    * @return {@link Parent}
    */
@@ -52,8 +55,9 @@ public class Inflater {
 
   /**
    * Inflate with default bundle name.
-   * @param name The name of the fxml file without the <tt>.fxml</tt> extension.
-   * @param root optional root node to inflate this layout into
+   *
+   * @param name       The name of the fxml file without the <tt>.fxml</tt> extension.
+   * @param root       optional root node to inflate this layout into
    * @param controller controller for the fxml file
    * @return {@link Parent}
    */
@@ -64,9 +68,9 @@ public class Inflater {
   /**
    * Inflate a fxml resource as a layout from <tt>/fxml/</tt>.
    *
-   * @param name The name of the fxml file without the <tt>.fxml</tt> extension.
-   * @param root optional root node to inflate this layout into
-   * @param controller controller for the fxml file
+   * @param name        The name of the fxml file without the <tt>.fxml</tt> extension.
+   * @param root        optional root node to inflate this layout into
+   * @param controller  controller for the fxml file
    * @param bundleNames Name of the i18n resources to bind. Order of bundles comparable to MRO:
    *                    First specific bundles and later common ones.
    */
@@ -84,7 +88,7 @@ public class Inflater {
     }
 
     final ResourceBundle[] bundles = new ResourceBundle[bundleNames.length + 1];
-    for (int i = 0;i < bundleNames.length; i++) {
+    for (int i = 0; i < bundleNames.length; i++) {
       bundles[i] = ResourceBundle.getBundle("lang." + bundleNames[i]);
     }
     bundles[bundleNames.length] = MAIN_BUNDLE;
