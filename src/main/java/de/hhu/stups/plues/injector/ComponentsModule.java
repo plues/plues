@@ -30,6 +30,7 @@ import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterCo
 import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
+import de.hhu.stups.plues.ui.components.timetable.MoveSessionDialog;
 import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
 import de.hhu.stups.plues.ui.components.unsatcore.AbstractUnitUnsatCore;
 import de.hhu.stups.plues.ui.components.unsatcore.CourseUnsatCore;
@@ -88,5 +89,6 @@ class ComponentsModule extends AbstractModule {
     bind(TaskProgressIndicator.class);
     bind(HistoryManager.class);
     bind(ColorSchemeSelection.class);
+    bind(MoveSessionDialog.class);
   }
 }
