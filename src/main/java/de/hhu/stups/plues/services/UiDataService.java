@@ -9,9 +9,13 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleSetProperty;
@@ -26,7 +30,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 /**
- * Stupid data container that can be injected and used by all UI components to store global data.
+ * Simple data container that can be injected and used by all UI components to store and share
+ * global data.
  */
 
 @Singleton
@@ -42,6 +47,14 @@ public class UiDataService {
 
   private final ObjectProperty<Date> lastSavedDate
       = new SimpleObjectProperty<>(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
+
+  // property is set when a session should be moved but tasks are running
+  private final ObjectProperty<SolverTask<Void>> moveSessionTaskProperty
+      = new SimpleObjectProperty<>();
+
+  private final IntegerProperty runningTasksProperty = new SimpleIntegerProperty();
+
+  private final BooleanProperty cancelAllTasksProperty = new SimpleBooleanProperty(false);
 
   private final ExecutorService executorService;
 
@@ -121,4 +134,15 @@ public class UiDataService {
     return conflictMarkedSessionsProperty;
   }
 
+  public ObjectProperty<SolverTask<Void>> moveSessionTaskProperty() {
+    return moveSessionTaskProperty;
+  }
+
+  public IntegerProperty runningTasksProperty() {
+    return runningTasksProperty;
+  }
+
+  public BooleanProperty cancelAllTasksProperty() {
+    return cancelAllTasksProperty;
+  }
 }
