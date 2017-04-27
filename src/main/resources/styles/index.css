@@ -181,3 +181,9 @@
     -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
     -fx-background-insets: 0 0 -1 0, 0, 1, 2;
 }
+
+.moveSessionDialog {
+    -fx-padding: 10px 10px 10px 10px;
+    -fx-background-color: #fefefe;
+    -fx-border-color: #585858;
+}
