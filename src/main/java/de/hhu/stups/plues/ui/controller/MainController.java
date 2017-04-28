@@ -105,6 +105,8 @@ public class MainController implements Initializable, Activatable {
   private ProgressBar mainProgressBar;
   @FXML
   private Label lbRunningTasks;
+  @FXML
+  private Tab tabTimetable;
 
   private final Tab reportsTab = new Tab();
 
@@ -269,6 +271,13 @@ public class MainController implements Initializable, Activatable {
       taskProgress.getTasks().forEach(task -> Platform.runLater(() -> task.cancel(true)));
       uiDataService.cancelAllTasksProperty().set(false);
     });
+
+    // log if the timetable tab is opened which is needed for undo/redo operations
+    tabPane.getSelectionModel().selectedItemProperty().addListener(
+        (observable, oldValue, newValue) ->
+          uiDataService.timetableTabSelected().set(newValue.equals(tabTimetable)));
+    uiDataService.timetableTabSelected().set(
+        tabPane.getSelectionModel().getSelectedItem().equals(tabTimetable));
   }
 
   private void initializeTaskProgressListener() {

@@ -24,8 +24,8 @@
     <MainMenuBar fx:id="mainMenuBar"/>
     <SplitPane fx:id="mainSplitPane" dividerPositions="1.0">
         <VBox>
-            <TabPane id="tabPane" fx:id="tabPane">
-                <Tab id="tabTimetable" text="%timetable" closable="false">
+            <TabPane fx:id="tabPane">
+                <Tab fx:id="tabTimetable" text="%timetable" closable="false">
                     <Timetable/>
                 </Tab>
                 <Tab id="tabPdfTimetables" text="%musterstudienplaene" closable="false">
