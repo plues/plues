@@ -1,5 +1,8 @@
 package de.hhu.stups.plues.ui.components;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 
 import de.codecentric.centerdevice.MenuToolkit;
@@ -19,8 +22,10 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Menu;
@@ -55,6 +60,9 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 
@@ -65,6 +73,7 @@ public class MainMenuBar extends MenuBar implements Initializable {
   private static final String LAST_XML_EXPORT_DIR = "LAST_XML_EXPORT_DIR";
   private static final String TEMP_DB_PATH = "tempDBpath";
   private static final String DB_PATH = "dbpath";
+  private static final ListeningExecutorService EXECUTOR_SERVICE;
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final UiDataService uiDataService;
@@ -353,22 +362,54 @@ public class MainMenuBar extends MenuBar implements Initializable {
     router.transitionTo(RouteNames.CLOSE_APP, event);
   }
 
+  static {
+    final ThreadFactory threadFactoryBuilder = new ThreadFactoryBuilder().setDaemon(true)
+        .setNameFormat("task-progress-hide-runner-%d").build();
+
+    EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
+        Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
+  }
+
+  /**
+   * Navigate to the {@link de.hhu.stups.plues.ui.controller.Timetable} if necessary, i.e.
+   * another tab is currently opened, and execute the specific undo/undoAll/redo operation
+   * afterwards. In case the timetable is already present we just execute the command.
+   */
+  @SuppressWarnings("unused")
+  private void openTimetableUndoRedoTask(final EventHandler<WorkerStateEvent> eventHandler) {
+    final Task openTimetableTask = new Task() {
+      @Override
+      protected Object call() throws Exception {
+        if (uiDataService.timetableTabSelected().get()) {
+          // timetable tab is already present
+          return null;
+        }
+        router.transitionTo(RouteNames.TIMETABLE);
+        // wait a short time to ensure that the tab is opened before executing the command
+        TimeUnit.MILLISECONDS.sleep(200);
+        return null;
+      }
+    };
+    openTimetableTask.setOnSucceeded(eventHandler);
+    EXECUTOR_SERVICE.execute(openTimetableTask);
+  }
+
   @FXML
   @SuppressWarnings("unused")
   private void undoLastMoveOperation() {
-    mainMenuService.getHistoryManager().undoLastMoveOperation();
+    openTimetableUndoRedoTask(event -> mainMenuService.getHistoryManager().undoLastMoveOperation());
   }
 
   @FXML
   @SuppressWarnings("unused")
   private void undoAllMoveOperations() {
-    mainMenuService.getHistoryManager().undoAllMoveOperations();
+    openTimetableUndoRedoTask(event -> mainMenuService.getHistoryManager().undoAllMoveOperations());
   }
 
   @FXML
   @SuppressWarnings("unused")
   private void redoLastMoveOperation() {
-    mainMenuService.getHistoryManager().redoLastMoveOperation();
+    openTimetableUndoRedoTask(event -> mainMenuService.getHistoryManager().redoLastMoveOperation());
   }
 
   /**
