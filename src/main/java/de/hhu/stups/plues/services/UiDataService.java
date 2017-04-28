@@ -56,6 +56,8 @@ public class UiDataService {
 
   private final BooleanProperty cancelAllTasksProperty = new SimpleBooleanProperty(false);
 
+  private final BooleanProperty timetableTabSelected = new SimpleBooleanProperty(false);
+
   private final ExecutorService executorService;
 
   /**
@@ -144,5 +146,9 @@ public class UiDataService {
 
   public BooleanProperty cancelAllTasksProperty() {
     return cancelAllTasksProperty;
+  }
+
+  public BooleanProperty timetableTabSelected() {
+    return timetableTabSelected;
   }
 }
