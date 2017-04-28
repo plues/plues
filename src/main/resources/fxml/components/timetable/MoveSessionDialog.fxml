@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.ColumnConstraints?>
 
-<fx:root prefHeight="150.0" prefWidth="450.0" maxHeight="150.0" maxWidth="450.0" type="GridPane"
+<fx:root prefHeight="150.0" prefWidth="500.0" maxHeight="150.0" maxWidth="500.0" type="GridPane"
          vgap="5.0" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1"
          styleClass="moveSessionDialog">
     <HBox alignment="CENTER">
