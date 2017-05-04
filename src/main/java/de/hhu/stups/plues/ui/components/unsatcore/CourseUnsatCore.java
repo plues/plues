@@ -120,7 +120,8 @@ public class CourseUnsatCore extends GridPane implements Initializable {
     });
 
     unsatCoreInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
-        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "20")));
+        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "18")));
+    unsatCoreInfo.setTooltip(null);
     Helpers.showTooltipOnEnter(unsatCoreInfo, unsatCoreInfoTooltip,
         new SimpleBooleanProperty(false));
 

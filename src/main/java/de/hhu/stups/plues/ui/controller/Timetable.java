@@ -135,7 +135,8 @@ public class Timetable extends StackPane implements Initializable, Activatable, 
     timetableSideBar.setParent(this);
 
     multipleSelectionInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
-        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "12")));
+        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "14")));
+    multipleSelectionInfo.setTooltip(null);
     Helpers.showTooltipOnEnter(multipleSelectionInfo, multipleSelectionHint,
         new SimpleBooleanProperty(false));
 
