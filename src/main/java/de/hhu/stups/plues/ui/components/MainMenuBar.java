@@ -88,6 +88,7 @@ public class MainMenuBar extends MenuBar implements Initializable {
   private final Router router;
   private final MainMenuService mainMenuService;
 
+  private Boolean undoRedoInProgress = false;
   private RadioMenuItem customTimeoutItem;
   private ResourceBundle resources;
 
@@ -380,9 +381,9 @@ public class MainMenuBar extends MenuBar implements Initializable {
    */
   @SuppressWarnings("unused")
   private void openTimetableUndoRedoTask(final EventHandler<WorkerStateEvent> eventHandler) {
-    final Task openTimetableTask = new Task() {
+    final Task<Void> openTimetableTask = new Task<Void>() {
       @Override
-      protected Object call() throws Exception {
+      protected Void call() throws Exception {
         if (uiDataService.timetableTabSelected().get()) {
           // timetable tab is already present
           return null;
@@ -400,7 +401,11 @@ public class MainMenuBar extends MenuBar implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void undoLastMoveOperation() {
+    if (undoRedoInProgress) {
+      return;
+    }
     openTimetableUndoRedoTask(event -> mainMenuService.getHistoryManager().undoLastMoveOperation());
+    blockUndoRedo();
   }
 
   @FXML
@@ -412,7 +417,28 @@ public class MainMenuBar extends MenuBar implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private void redoLastMoveOperation() {
+    if (undoRedoInProgress) {
+      return;
+    }
     openTimetableUndoRedoTask(event -> mainMenuService.getHistoryManager().redoLastMoveOperation());
+    blockUndoRedo();
+  }
+
+  /**
+   * Block undo/redo to prevent holding the corresponding keys which subjectively results in moving
+   * the sessions all at once. Thus, we set a small delay.
+   */
+  private void blockUndoRedo() {
+    executor.execute(() -> {
+      undoRedoInProgress = true;
+      try {
+        TimeUnit.MILLISECONDS.sleep(200);
+      } catch (final InterruptedException exception) {
+        logger.error("Blocking undo/redo session move cancelled.", exception);
+        Thread.currentThread().interrupt();
+      }
+      undoRedoInProgress = false;
+    });
   }
 
   /**
