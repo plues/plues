@@ -183,11 +183,14 @@ public class MainMenuBar extends MenuBar implements Initializable {
     initializeMenu();
 
     undoLastMenuItem.disableProperty().bind(
-        mainMenuService.getHistoryManager().undoHistoryEmptyProperty());
+        mainMenuService.getHistoryManager().undoHistoryEmptyProperty()
+            .or(uiDataService.runningTasksProperty().greaterThan(0)));
     undoAllMenuItem.disableProperty().bind(
-        mainMenuService.getHistoryManager().undoHistoryEmptyProperty());
+        mainMenuService.getHistoryManager().undoHistoryEmptyProperty()
+            .or(uiDataService.runningTasksProperty().greaterThan(0)));
     redoLastMenuItem.disableProperty().bind(
-        mainMenuService.getHistoryManager().redoHistoryEmptyProperty());
+        mainMenuService.getHistoryManager().redoHistoryEmptyProperty()
+            .or(uiDataService.runningTasksProperty().greaterThan(0)));
 
     mainMenuService.getDelayedSolverService().whenAvailable(solverService -> {
       openReportsMenuItem.setDisable(false);
