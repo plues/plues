@@ -21,10 +21,16 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class SessionListView extends ListView<SessionFacade> {
+
+
+  private final Logger logger = LoggerFactory.getLogger(getClass());
   private final SessionFacade.Slot slot;
   private final Delayed<ObservableStore> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
@@ -170,15 +176,7 @@ public class SessionListView extends ListView<SessionFacade> {
   }
 
   private void moveCancelledHandler() {
-    Platform.runLater(() -> {
-      final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
-      final Alert alert = new Alert(Alert.AlertType.WARNING);
-      alert.setTitle(bundle.getString("moveCancelledTitle"));
-      alert.setHeaderText(bundle.getString("moveCancelledHeader"));
-      alert.setContentText(bundle.getString("moveCancelledContent"));
-
-      alert.showAndWait();
-    });
+    logger.info(ResourceBundle.getBundle("lang.timetable").getString("moveCancelledContent"));
   }
 
   private void moveFailedHandler() {
