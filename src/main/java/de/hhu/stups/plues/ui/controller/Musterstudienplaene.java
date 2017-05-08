@@ -14,7 +14,6 @@ import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -28,8 +27,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
