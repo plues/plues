@@ -54,10 +54,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -493,8 +493,12 @@ public class Reports extends VBox implements Initializable, Observer {
         final EnvironmentConfiguration config = EnvironmentConfigurationBuilder.configuration()
             .render().withOutputCharset(Charset.forName("utf8")).and().build();
 
+        final LocalDate date = LocalDate.now();
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        final String formattedDate = date.format(formatter);
+
         final JtwigModel model = JtwigModel.newModel()
-            .with("date", new SimpleDateFormat("dd.MM.yyyy").format(new Date()))
+            .with("date", formattedDate)
             .with("faculty", faculty)
             .with("resources", resources)
             .with("incompleteModules", incompleteModules)
