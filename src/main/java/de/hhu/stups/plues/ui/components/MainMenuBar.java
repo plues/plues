@@ -16,7 +16,6 @@ import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
@@ -52,10 +51,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -584,8 +581,9 @@ public class MainMenuBar extends MenuBar implements Initializable {
   }
 
   private File getXmlExportFile() {
-    final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-    final String dateTime = dateFormat.format(new Date());
+
+    final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
+    final String dateTime = LocalDateTime.now().format(formatter);
 
     final FileChooser fileChooser = new FileChooser();
     //
