@@ -38,7 +38,6 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
-
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +55,7 @@ import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -449,7 +449,7 @@ public class MainMenuBar extends MenuBar implements Initializable {
     try {
       Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(properties.getProperty(DB_PATH)),
           StandardCopyOption.REPLACE_EXISTING);
-      uiDataService.setLastSavedDate(new Date());
+      uiDataService.setLastSavedDate(LocalDateTime.now());
       logger.info("File saving finished!");
     } catch (final IOException exc) {
       logger.error("File saving failed!", exc);
@@ -471,7 +471,7 @@ public class MainMenuBar extends MenuBar implements Initializable {
         Files.copy((Path) properties.get(TEMP_DB_PATH), Paths.get(file.getAbsolutePath()),
             StandardCopyOption.REPLACE_EXISTING);
         logger.info("File saving finished!");
-        uiDataService.setLastSavedDate(new Date());
+        uiDataService.setLastSavedDate(LocalDateTime.now());
         return true;
       } catch (final IOException exception) {
         logger.error("File saving failed!", exception);

@@ -10,7 +10,6 @@ import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -29,7 +28,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import java.net.URL;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
@@ -38,7 +37,7 @@ public class ChangeLog extends VBox implements Initializable, Observer {
 
   private final Delayed<ObservableStore> delayedStore;
   private final ObservableList<Log> logs;
-  private final ObjectProperty<Date> compare;
+  private final ObjectProperty<LocalDateTime> compare;
 
   @FXML
   @SuppressWarnings("unused")
@@ -54,7 +53,7 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private TableColumn<Log, String> tableColumnTargetTemporary;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Log, Date> tableColumnDateTemporary;
+  private TableColumn<Log, LocalDateTime> tableColumnDateTemporary;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Log, Session> tableColumnSessionPersistent;
@@ -66,7 +65,7 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private TableColumn<Log, String> tableColumnTargetPersistent;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Log, Date> tableColumnDatePersistent;
+  private TableColumn<Log, LocalDateTime> tableColumnDatePersistent;
   @FXML
   @SuppressWarnings("unused")
   private TableView<Log> tempTable;
