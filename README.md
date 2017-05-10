@@ -8,7 +8,7 @@
 [![Code Climate](https://codeclimate.com/github/plues/plues/badges/gpa.svg)](https://codeclimate.com/github/plues/plues)
 
 
-**Current Version:** 2.3.0
+**Current Version:** 2.4.0-SNAPSHOT
 
 This is the main application component of the
 [ProB](https://www3.hhu.de/stups/prob/) based timetable validation tool
