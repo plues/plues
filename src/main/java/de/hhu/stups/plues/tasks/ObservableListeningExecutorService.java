@@ -109,6 +109,9 @@ public class ObservableListeningExecutorService extends Observable
 
   @Override
   public void execute(final Runnable command) {
+    if (command == null) {
+      return;
+    }
     this.setChanged();
     this.notifyObservers(command);
     executorService.execute(command);

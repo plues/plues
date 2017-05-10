@@ -12,8 +12,10 @@ import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.UiTestHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Scene;
@@ -109,8 +111,9 @@ public abstract class ResultBoxTest extends ApplicationTest {
     solver.set(solverService);
 
     final ResultBox resultBox = new ResultBox(
-        inflater, new Router(), solver, (major1, minor1, solverTask) -> task,
-        Executors.newSingleThreadExecutor(), major, minor, new ListView<>());
+        inflater, new Router(), solver, (major1, minor1, solverTask, colorScheme) -> task,
+        Executors.newSingleThreadExecutor(), major, minor, new ListView<>(),
+        new SimpleObjectProperty<>(UiTestHelper.getColorScheme()));
 
     final Scene scene = new Scene(resultBox, 200, 200);
     stage.setScene(scene);

@@ -15,9 +15,5 @@
             </tooltip>
         </ProgressIndicator>
     </VBox>
-    <Label fx:id="taskStateIcon" alignment="CENTER">
-        <tooltip>
-            <Tooltip fx:id="taskStateIconTooltip"/>
-        </tooltip>
-    </Label>
+    <Label fx:id="taskStateIcon" alignment="CENTER"/>
 </fx:root>

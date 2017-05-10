@@ -4,26 +4,68 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioMenuItem?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 
 <fx:root type="MenuBar" useSystemMenuBar="true" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
     <Menu mnemonicParsing="false" text="%file">
         <MenuItem fx:id="openFileMenuItem" onAction="#openFile"
-                  mnemonicParsing="false" text="%open" accelerator="Shortcut+O"/>
+                  mnemonicParsing="false" text="%open" accelerator="Shortcut+O">
+            <graphic>
+                <FontAwesomeIconView glyphName="FOLDER_OPEN" size="14"/>
+            </graphic>
+        </MenuItem>
         <MenuItem fx:id="saveFileMenuItem" onAction="#saveFile" disable="true"
-                  mnemonicParsing="false" text="%save" accelerator="Shortcut+S"/>
+                  mnemonicParsing="false" text="%save" accelerator="Shortcut+S">
+            <graphic>
+                <FontAwesomeIconView glyphName="SAVE" size="14"/>
+            </graphic>
+        </MenuItem>
         <MenuItem fx:id="saveFileAsMenuItem" onAction="#saveFileAs" disable="true"
                   mnemonicParsing="false" text="%saveAs" accelerator="Shortcut+Shift+S"/>
         <MenuItem fx:id="exportStateMenuItem" onAction="#exportCurrentDbState" disable="true"
-                  mnemonicParsing="false" text="%export.start" accelerator="Shortcut+E"/>
+                  mnemonicParsing="false" text="%export.start" accelerator="Shortcut+E">
+            <graphic>
+                <FontAwesomeIconView glyphName="SHARE_SQUARE_ALT" size="14"/>
+            </graphic>
+        </MenuItem>
         <MenuItem fx:id="openChangeLogMenuItem" onAction="#openChangeLog" disable="true"
-                  mnemonicParsing="false" text="%log" accelerator="Shortcut+L"/>
+                  mnemonicParsing="false" text="%log" accelerator="Shortcut+L">
+            <graphic>
+                <FontAwesomeIconView glyphName="HISTORY" size="14"/>
+            </graphic>
+        </MenuItem>
         <MenuItem fx:id="openReportsMenuItem" onAction="#openReports" disable="true"
-                  mnemonicParsing="false" text="%reports" accelerator="Shortcut+R"/>
-        <MenuItem onAction="#closeWindow" mnemonicParsing="false" text="%close"/>
+                  mnemonicParsing="false" text="%reports" accelerator="Shortcut+R">
+            <graphic>
+                <FontAwesomeIconView glyphName="LIST_ALT" size="14"/>
+            </graphic>
+        </MenuItem>
+        <MenuItem onAction="#closeWindow" mnemonicParsing="false" text="%close">
+            <graphic>
+                <FontAwesomeIconView glyphName="TIMES" size="14"/>
+            </graphic>
+        </MenuItem>
     </Menu>
     <Menu mnemonicParsing="false" text="%edit">
+        <MenuItem fx:id="undoLastMenuItem" onAction="#undoLastMoveOperation"
+                  mnemonicParsing="false" text="%undo" accelerator="Shortcut+Z">
+            <graphic>
+                <FontAwesomeIconView glyphName="UNDO" size="14"/>
+            </graphic>
+        </MenuItem>
+        <MenuItem fx:id="undoAllMenuItem" onAction="#undoAllMoveOperations"
+                  mnemonicParsing="false" text="%undoAll"/>
+        <MenuItem fx:id="redoLastMenuItem" onAction="#redoLastMoveOperation"
+                  mnemonicParsing="false" text="%redo" accelerator="Shortcut+Shift+Z">
+            <graphic>
+                <FontAwesomeIconView glyphName="REPEAT" size="14"/>
+            </graphic>
+        </MenuItem>
         <Menu fx:id="selectTimeoutMenu" mnemonicParsing="false" text="%timeout.Select">
+            <graphic>
+                <FontAwesomeIconView glyphName="CLOCK_ALT" size="14"/>
+            </graphic>
             <RadioMenuItem fx:id="fifteenSecondsMenuItem" text="%timeout.fifteenSeconds"
                            disable="true" selected="true" mnemonicParsing="false"
                            onAction="#setTimeoutFifteenSeconds"/>
@@ -45,6 +87,9 @@
     </Menu>
     <Menu mnemonicParsing="false" text="%view">
         <Menu mnemonicParsing="false" text="%timetableView">
+            <graphic>
+                <FontAwesomeIconView glyphName="CALENDAR" size="14"/>
+            </graphic>
             <RadioMenuItem fx:id="rbMenuItemSessionName" mnemonicParsing="false"
                            text="%display.UnitTitle" userData="TITLE"/>
             <RadioMenuItem fx:id="rbMenuItemSessionId" mnemonicParsing="false"
@@ -55,8 +100,20 @@
     </Menu>
     <Menu mnemonicParsing="false" text="%help">
         <MenuItem fx:id="aboutMenuItem" onAction="#about" mnemonicParsing="false"
-                  text="%about"/>
-        <MenuItem onAction="#showHtmlHandbook" mnemonicParsing="false" text="%handbookHTML"/>
-        <MenuItem onAction="#showPdfHandbook" mnemonicParsing="false" text="%handbookPDF"/>
+                  text="%about">
+            <graphic>
+                <FontAwesomeIconView glyphName="USER_ALT" size="14"/>
+            </graphic>
+        </MenuItem>
+        <MenuItem onAction="#showHtmlHandbook" mnemonicParsing="false" text="%handbookHTML">
+            <graphic>
+                <FontAwesomeIconView glyphName="FILE_TEXT_ALT" size="14"/>
+            </graphic>
+        </MenuItem>
+        <MenuItem onAction="#showPdfHandbook" mnemonicParsing="false" text="%handbookPDF">
+            <graphic>
+                <FontAwesomeIconView glyphName="FILE_PDF_ALT" size="14"/>
+            </graphic>
+        </MenuItem>
     </Menu>
 </fx:root>

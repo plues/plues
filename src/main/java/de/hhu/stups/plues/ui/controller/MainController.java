@@ -9,6 +9,7 @@ import com.google.inject.Singleton;
 
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.MainMenuService;
+import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
@@ -82,6 +83,8 @@ public class MainController implements Initializable, Activatable {
   private final ResourceManager resourceManager;
   private final Stage stage;
   private final MainMenuService mainMenuService;
+  private final UiDataService uiDataService;
+
   private ResourceBundle resources;
 
   @FXML
@@ -102,6 +105,8 @@ public class MainController implements Initializable, Activatable {
   private ProgressBar mainProgressBar;
   @FXML
   private Label lbRunningTasks;
+  @FXML
+  private Tab tabTimetable;
 
   private final Tab reportsTab = new Tab();
 
@@ -125,11 +130,13 @@ public class MainController implements Initializable, Activatable {
                         final ObservableListeningExecutorService executorService,
                         final ResourceManager resourceManager,
                         final MainMenuService mainMenuService,
+                        final UiDataService uiDataService,
                         final Provider<Reports> reportsProvider) {
     this.stage = stage;
     this.resourceManager = resourceManager;
     this.reportsProvider = reportsProvider;
     this.mainMenuService = mainMenuService;
+    this.uiDataService = uiDataService;
 
     executorService.addObserver((observable, arg) -> this.register(arg));
 
@@ -206,6 +213,9 @@ public class MainController implements Initializable, Activatable {
 
     mainStatusBar.setText("");
 
+    taskProgress.getTasks().addListener((ListChangeListener<Task<?>>) c ->
+        uiDataService.runningTasksProperty().set(taskProgress.getTasks().size()));
+
     clearStatusBar();
 
     taskBoxCollapsed.addListener((observable, oldValue, shouldHide) ->
@@ -244,7 +254,7 @@ public class MainController implements Initializable, Activatable {
 
     stage.setOnCloseRequest(t -> {
       try {
-        closeWindow(t);
+        closeWindowRequest(t);
         if (!t.isConsumed()) {
           this.resourceManager.close();
         }
@@ -253,6 +263,21 @@ public class MainController implements Initializable, Activatable {
         Thread.currentThread().interrupt();
       }
     });
+
+    uiDataService.cancelAllTasksProperty().addListener((observable, oldValue, newValue) -> {
+      if (!newValue) {
+        return;
+      }
+      taskProgress.getTasks().forEach(task -> Platform.runLater(() -> task.cancel(true)));
+      uiDataService.cancelAllTasksProperty().set(false);
+    });
+
+    // log if the timetable tab is opened which is needed for undo/redo operations
+    tabPane.getSelectionModel().selectedItemProperty().addListener(
+        (observable, oldValue, newValue) ->
+          uiDataService.timetableTabSelected().set(newValue.equals(tabTimetable)));
+    uiDataService.timetableTabSelected().set(
+        tabPane.getSelectionModel().getSelectedItem().equals(tabTimetable));
   }
 
   private void initializeTaskProgressListener() {
@@ -326,6 +351,7 @@ public class MainController implements Initializable, Activatable {
    */
   private void removeTaskProgressBox() {
     clearStatusBar();
+    //noinspection ResultOfMethodCallIgnored
     SCHEDULED_EXECUTOR_SERVICE.schedule(() ->
         Platform.runLater(() -> {
           if (taskProgress.getTasks().isEmpty()) {
@@ -389,9 +415,9 @@ public class MainController implements Initializable, Activatable {
   /**
    * Ask user for permission to close window using Alert. User can save database before closing.
    */
-  private void closeWindow(final Event event) {
+  private void closeWindowRequest(final Event event) {
     if (!mainMenuService.isDatabaseChanged()) {
-      stage.close();
+      closeWindow();
       return;
     }
 
@@ -413,14 +439,22 @@ public class MainController implements Initializable, Activatable {
 
     if (result == save) {
       mainMenuBar.saveFile();
-      stage.close();
+      closeWindow();
     } else if ((result == saveAs && !mainMenuBar.saveFileAs()) || result == cancel) {
       // if the result is to cancel or 'save as' has been canceled we ignore the close request and
       // consume the event, otherwise we close the stage
       event.consume();
     } else {
-      stage.close();
+      closeWindow();
     }
+  }
+
+  /**
+   * Close the application. Should only be called from {@link #closeWindowRequest(Event)}.
+   */
+  private void closeWindow() {
+    stage.close();
+    Platform.exit();
   }
 
   @Override
@@ -431,7 +465,7 @@ public class MainController implements Initializable, Activatable {
       if (args.length == 0) {
         return;
       }
-      closeWindow((Event) args[0]);
+      closeWindowRequest((Event) args[0]);
     }
   }
 }

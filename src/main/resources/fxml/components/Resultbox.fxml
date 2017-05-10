@@ -17,6 +17,8 @@
                                GridPane.rowIndex="0" GridPane.rowSpan="4"/>
         <HBox alignment="BOTTOM_RIGHT" prefWidth="230.0" GridPane.columnIndex="1"
               GridPane.rowIndex="0">
+            <HBox fx:id="colorPreviewBox" spacing="2.5" alignment="CENTER"
+                  style="-fx-padding: 0 5.0 0 0;"/>
             <ComboBox fx:id="cbAction" prefWidth="180.0"/>
             <Button onAction="#submitAction" minWidth="50.0" prefWidth="50.0" text="%go"/>
         </HBox>

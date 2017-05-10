@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.hhu.stups.plues.ui.components.ColorSchemeSelection?>
 <?import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection?>
+<?import de.hhu.stups.plues.ui.components.TaskProgressIndicator?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.HBox?>
 
-<?import de.hhu.stups.plues.ui.components.TaskProgressIndicator?>
 <fx:root alignment="center" type="GridPane" vgap="10.0" styleClass="windowPadding"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <columnConstraints>
@@ -18,19 +19,22 @@
     <rowConstraints>
         <RowConstraints percentHeight="10.0"/>
         <RowConstraints percentHeight="5.0"/>
-        <RowConstraints percentHeight="80.0"/>
+        <RowConstraints percentHeight="5.0"/>
+        <RowConstraints percentHeight="75.0"/>
         <RowConstraints percentHeight="5.0"/>
     </rowConstraints>
     <MajorMinorCourseSelection fx:id="courseSelection" GridPane.columnIndex="0"
                                GridPane.halignment="CENTER" GridPane.rowIndex="0"/>
+    <ColorSchemeSelection fx:id="colorSchemeSelection" GridPane.columnIndex="0"
+                          GridPane.halignment="CENTER" GridPane.rowIndex="1"/>
     <Button fx:id="btChoose" onAction="#btChoosePressed" prefWidth="300" text="%choose"
-            GridPane.halignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1"
+            GridPane.halignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="2"
             defaultButton="true"/>
     <ScrollPane fx:id="scrollPane" styleClass="windowPadding" GridPane.columnIndex="0"
-                GridPane.rowIndex="2" visible="false" maxHeight="Infinity" maxWidth="Infinity">
+                GridPane.rowIndex="3" visible="false" maxHeight="Infinity" maxWidth="Infinity">
         <VBox fx:id="modulesUnits" spacing="25"/>
     </ScrollPane>
-    <HBox fx:id="buttonBox" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="3"
+    <HBox fx:id="buttonBox" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="4"
           alignment="CENTER">
         <Button fx:id="btGenerate" onAction="#btGeneratePressed" text="%generate" visible="false"/>
         <Button fx:id="btCancel" onAction="#btCancelPressed" text="%cancel" visible="false"/>

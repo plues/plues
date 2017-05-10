@@ -11,6 +11,10 @@ public interface Solver {
 
   void interrupt();
 
+  void undoLastMoveOperation();
+
+  void redoLastMoveOperation();
+
   /**
    * Check if a combination of major and minor courses is feasible.
    *

@@ -3,11 +3,12 @@ package de.hhu.stups.plues.studienplaene;
 import static org.junit.Assert.assertEquals;
 
 import de.hhu.stups.plues.prob.FeasibilityResult;
+import de.hhu.stups.plues.ui.UiTestHelper;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class TestHalfSemester extends TestBase {
         new FeasibilityResult(moduleChoice, abstractUnitChoice, semesterChoice, groupChoice);
 
     final DataPreparatory data = new DataPreparatory(store, result);
-    final DataStoreWrapper wrap = new DataStoreWrapper(ColorChoice.COLOR, data);
+    final DataStoreWrapper wrap = new DataStoreWrapper(UiTestHelper.getColorScheme(), data);
 
     semesters = wrap.getSemesters();
   }

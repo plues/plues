@@ -14,6 +14,7 @@ import de.prob.statespace.Transition;
 import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,6 +208,25 @@ public class ProBSolver implements Solver {
     this.stateSpace.sendInterrupt();
   }
 
+  /**
+   * Undo the last move operation by going back on the {@link #trace}.
+   */
+  @Override
+  public final void undoLastMoveOperation() {
+    if (trace.canGoBack()) {
+      this.trace = trace.back();
+    }
+  }
+
+  /**
+   * Redo the last move operation by going forward on the {@link #trace}.
+   */
+  @Override
+  public final void redoLastMoveOperation() {
+    if (trace.canGoForward()) {
+      this.trace = trace.forward();
+    }
+  }
 
   // OPERATIONS
 
@@ -354,7 +374,7 @@ public class ProBSolver implements Solver {
 
     final String predicate
         = String.format("uc_modules={%s}",
-            Mappers.mapToModules(modules).stream().collect(Collectors.joining(", ")));
+        Mappers.mapToModules(modules).stream().collect(Collectors.joining(", ")));
     //
     final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_ABSTRACT_UNITS, predicate);
     //
@@ -384,13 +404,12 @@ public class ProBSolver implements Solver {
 
     final String predicate
         = String.format("uc_groups={%s}",
-            Mappers.mapToGroups(groups).stream().collect(Collectors.joining(", ")));
+        Mappers.mapToGroups(groups).stream().collect(Collectors.joining(", ")));
     //
     final Set uc = (Set) executeOperationWithOneResult(UNSAT_CORE_SESSIONS, predicate);
     //
     return Mappers.mapSessions(uc);
   }
-
 
   /**
    * Move a session identified by its ID to a new day and time slot.

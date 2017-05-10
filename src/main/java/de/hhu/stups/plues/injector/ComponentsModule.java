@@ -2,10 +2,12 @@ package de.hhu.stups.plues.injector;
 
 import com.google.inject.AbstractModule;
 
+import de.hhu.stups.plues.services.HistoryManager;
 import de.hhu.stups.plues.ui.components.AboutWindow;
 import de.hhu.stups.plues.ui.components.AbstractUnitFilter;
 import de.hhu.stups.plues.ui.components.ChangeLog;
 import de.hhu.stups.plues.ui.components.CheckCourseFeasibility;
+import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.components.ConflictTree;
 import de.hhu.stups.plues.ui.components.MainMenuBar;
@@ -28,6 +30,7 @@ import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterCo
 import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
+import de.hhu.stups.plues.ui.components.timetable.MoveSessionDialog;
 import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
 import de.hhu.stups.plues.ui.components.unsatcore.AbstractUnitUnsatCore;
 import de.hhu.stups.plues.ui.components.unsatcore.CourseUnsatCore;
@@ -84,5 +87,8 @@ class ComponentsModule extends AbstractModule {
     bind(UnsatCore.class);
     bind(MainMenuBar.class);
     bind(TaskProgressIndicator.class);
+    bind(HistoryManager.class);
+    bind(ColorSchemeSelection.class);
+    bind(MoveSessionDialog.class);
   }
 }

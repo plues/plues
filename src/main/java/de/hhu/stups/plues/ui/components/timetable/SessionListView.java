@@ -7,6 +7,7 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.services.HistoryManager;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
@@ -20,15 +21,22 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class SessionListView extends ListView<SessionFacade> {
+
+
+  private final Logger logger = LoggerFactory.getLogger(getClass());
   private final SessionFacade.Slot slot;
   private final Delayed<ObservableStore> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
-  private final ListeningExecutorService executorService;
   private final UiDataService uiDataService;
+  private final HistoryManager historyManager;
+  private final ListeningExecutorService executorService;
   private ListProperty<SessionFacade> sessions;
 
   /**
@@ -43,14 +51,16 @@ public class SessionListView extends ListView<SessionFacade> {
   public SessionListView(@Assisted final SessionFacade.Slot slot,
                          final Delayed<ObservableStore> delayedStore,
                          final Delayed<SolverService> delayedSolverService,
-                         final ListeningExecutorService executorService,
                          final Provider<SessionCell> cellProvider,
-                         final UiDataService uiDataService) {
+                         final UiDataService uiDataService,
+                         final ListeningExecutorService executorService,
+                         final HistoryManager historyManager) {
     this.slot = slot;
     this.delayedStore = delayedStore;
-    this.executorService = executorService;
     this.delayedSolverService = delayedSolverService;
     this.uiDataService = uiDataService;
+    this.executorService = executorService;
+    this.historyManager = historyManager;
 
     setCellFactory(param -> cellProvider.get());
 
@@ -99,14 +109,15 @@ public class SessionListView extends ListView<SessionFacade> {
     if (isValidTarget(event)) {
       event.acceptTransferModes(TransferMode.MOVE);
     }
-
     event.consume();
   }
 
   @SuppressWarnings("unused")
   private void dragEntered(final DragEvent event) {
     if (isValidTarget(event)) {
+      uiDataService.moveSessionTaskProperty().set(null);
       getStyleClass().add("dragged-over");
+      historyManager.historyEnabledProperty().set(false);
     }
   }
 
@@ -114,10 +125,11 @@ public class SessionListView extends ListView<SessionFacade> {
   private void dragExited(final DragEvent event) {
     if (isValidTarget(event)) {
       getStyleClass().remove("dragged-over");
+      historyManager.historyEnabledProperty().set(true);
     }
   }
 
-  @SuppressWarnings("unused")
+  @SuppressWarnings( {"unused", "ResultOfMethodCallIgnored"})
   private void dropped(final DragEvent event) {
     boolean success = false;
 
@@ -134,10 +146,20 @@ public class SessionListView extends ListView<SessionFacade> {
         moveSession.setOnSucceeded(moveSessionEvent -> moveSucceededHandler(sessionId));
         moveSession.setOnFailed(moveSessionEvent -> moveFailedHandler());
         moveSession.setOnCancelled(moveSessionEvent -> moveCancelledHandler());
-
+        if (uiDataService.runningTasksProperty().greaterThan(1).get()) {
+          // set the property to give a warning in the timetable when more than one task is
+          // running instead of executing the move session task right here
+          uiDataService.moveSessionTaskProperty().set(moveSession);
+          return;
+        }
         executorService.submit(moveSession);
       });
     }
+
+    // clear the redo history when a session is moved BY THE USER, we do this right here since we
+    // also have undo changes to the history but we don't want to delete the redo history for
+    // those actions
+    historyManager.clearRedoHistory();
 
     event.setDropCompleted(success);
     event.consume();
@@ -149,19 +171,12 @@ public class SessionListView extends ListView<SessionFacade> {
       Optional<SessionFacade> optionalSessionFacade =
           sessions.stream().filter(sessionFacade -> sessionFacade.getId() == sessionId).findFirst();
       optionalSessionFacade.ifPresent(sessionFacade -> sessionFacade.setSlot(slot));
+      historyManager.push(store.getLastLogEntry());
     });
   }
 
   private void moveCancelledHandler() {
-    Platform.runLater(() -> {
-      final ResourceBundle bundle = ResourceBundle.getBundle("lang.timetable");
-      final Alert alert = new Alert(Alert.AlertType.WARNING);
-      alert.setTitle(bundle.getString("moveCancelledTitle"));
-      alert.setHeaderText(bundle.getString("moveCancelledHeader"));
-      alert.setContentText(bundle.getString("moveCancelledContent"));
-
-      alert.showAndWait();
-    });
+    logger.info(ResourceBundle.getBundle("lang.timetable").getString("moveCancelledContent"));
   }
 
   private void moveFailedHandler() {

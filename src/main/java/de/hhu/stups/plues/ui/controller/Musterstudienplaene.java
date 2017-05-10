@@ -9,6 +9,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
@@ -41,6 +42,9 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
   @FXML
   @SuppressWarnings("unused")
   private MajorMinorCourseSelection courseSelection;
+  @FXML
+  @SuppressWarnings("unused")
+  private ColorSchemeSelection colorSchemeSelection;
   @FXML
   @SuppressWarnings("unused")
   private Button btGenerate;
@@ -77,6 +81,8 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
+    colorSchemeSelection.defaultInitialization();
+
     btGenerate.disableProperty().bind(solverProperty.not());
 
     resultBoxWrapper.visibleProperty().bind(Bindings.isEmpty(resultBoxWrapper.getItems()).not());
@@ -131,7 +137,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
       return;
     }
     resultBoxWrapper.getItems().add(0, resultBoxFactory.create(majorCourse, minorCourse,
-        resultBoxWrapper));
+        resultBoxWrapper, colorSchemeSelection.selectedColorScheme()));
     resultBoxWrapper.scrollTo(0);
   }
 

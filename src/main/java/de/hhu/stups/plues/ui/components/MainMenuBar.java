@@ -1,5 +1,8 @@
 package de.hhu.stups.plues.ui.components;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 
 import de.codecentric.centerdevice.MenuToolkit;
@@ -19,8 +22,10 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Menu;
@@ -55,6 +60,9 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 
@@ -65,6 +73,7 @@ public class MainMenuBar extends MenuBar implements Initializable {
   private static final String LAST_XML_EXPORT_DIR = "LAST_XML_EXPORT_DIR";
   private static final String TEMP_DB_PATH = "tempDBpath";
   private static final String DB_PATH = "dbpath";
+  private static final ListeningExecutorService EXECUTOR_SERVICE;
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final UiDataService uiDataService;
@@ -79,9 +88,19 @@ public class MainMenuBar extends MenuBar implements Initializable {
   private final Router router;
   private final MainMenuService mainMenuService;
 
+  private Boolean undoRedoInProgress = false;
   private RadioMenuItem customTimeoutItem;
   private ResourceBundle resources;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private MenuItem undoLastMenuItem;
+  @FXML
+  @SuppressWarnings("unused")
+  private MenuItem undoAllMenuItem;
+  @FXML
+  @SuppressWarnings("unused")
+  private MenuItem redoLastMenuItem;
   @FXML
   @SuppressWarnings("unused")
   private MenuItem saveFileMenuItem;
@@ -163,6 +182,16 @@ public class MainMenuBar extends MenuBar implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
     initializeMenu();
+
+    undoLastMenuItem.disableProperty().bind(
+        mainMenuService.getHistoryManager().undoHistoryEmptyProperty()
+            .or(uiDataService.runningTasksProperty().greaterThan(0)));
+    undoAllMenuItem.disableProperty().bind(
+        mainMenuService.getHistoryManager().undoHistoryEmptyProperty()
+            .or(uiDataService.runningTasksProperty().greaterThan(0)));
+    redoLastMenuItem.disableProperty().bind(
+        mainMenuService.getHistoryManager().redoHistoryEmptyProperty()
+            .or(uiDataService.runningTasksProperty().greaterThan(0)));
 
     mainMenuService.getDelayedSolverService().whenAvailable(solverService -> {
       openReportsMenuItem.setDisable(false);
@@ -335,6 +364,81 @@ public class MainMenuBar extends MenuBar implements Initializable {
   @SuppressWarnings("unused")
   private void closeWindow(final Event event) {
     router.transitionTo(RouteNames.CLOSE_APP, event);
+  }
+
+  static {
+    final ThreadFactory threadFactoryBuilder = new ThreadFactoryBuilder().setDaemon(true)
+        .setNameFormat("task-progress-hide-runner-%d").build();
+
+    EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
+        Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
+  }
+
+  /**
+   * Navigate to the {@link de.hhu.stups.plues.ui.controller.Timetable} if necessary, i.e.
+   * another tab is currently opened, and execute the specific undo/undoAll/redo operation
+   * afterwards. In case the timetable is already present we just execute the command.
+   */
+  @SuppressWarnings("unused")
+  private void openTimetableUndoRedoTask(final EventHandler<WorkerStateEvent> eventHandler) {
+    final Task<Void> openTimetableTask = new Task<Void>() {
+      @Override
+      protected Void call() throws Exception {
+        if (uiDataService.timetableTabSelected().get()) {
+          // timetable tab is already present
+          return null;
+        }
+        router.transitionTo(RouteNames.TIMETABLE);
+        // wait a short time to ensure that the tab is opened before executing the command
+        TimeUnit.MILLISECONDS.sleep(200);
+        return null;
+      }
+    };
+    openTimetableTask.setOnSucceeded(eventHandler);
+    EXECUTOR_SERVICE.execute(openTimetableTask);
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
+  private void undoLastMoveOperation() {
+    if (undoRedoInProgress) {
+      return;
+    }
+    openTimetableUndoRedoTask(event -> mainMenuService.getHistoryManager().undoLastMoveOperation());
+    blockUndoRedo();
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
+  private void undoAllMoveOperations() {
+    openTimetableUndoRedoTask(event -> mainMenuService.getHistoryManager().undoAllMoveOperations());
+  }
+
+  @FXML
+  @SuppressWarnings("unused")
+  private void redoLastMoveOperation() {
+    if (undoRedoInProgress) {
+      return;
+    }
+    openTimetableUndoRedoTask(event -> mainMenuService.getHistoryManager().redoLastMoveOperation());
+    blockUndoRedo();
+  }
+
+  /**
+   * Block undo/redo to prevent holding the corresponding keys which subjectively results in moving
+   * the sessions all at once. Thus, we set a small delay.
+   */
+  private void blockUndoRedo() {
+    executor.execute(() -> {
+      undoRedoInProgress = true;
+      try {
+        TimeUnit.MILLISECONDS.sleep(200);
+      } catch (final InterruptedException exception) {
+        logger.error("Blocking undo/redo session move cancelled.", exception);
+        Thread.currentThread().interrupt();
+      }
+      undoRedoInProgress = false;
+    });
   }
 
   /**

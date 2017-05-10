@@ -19,9 +19,12 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.MapProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.collections.FXCollections;
@@ -30,12 +33,15 @@ import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 
@@ -59,22 +65,22 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private final Delayed<SolverService> delayedSolverService;
   private final ExecutorService executor;
   private final Router router;
-  private final MapProperty<CourseSelection, ResultState> results;
-
-  private final Map<CourseSelection, ResultGridCell> cellMap;
-
   private final BooleanProperty solverProperty;
   private final BooleanProperty feasibilityCheckRunning;
+  private final LongProperty impossibleCoursesAmount;
+  private final MapProperty<CourseSelection, ResultState> results;
+  private final Map<CourseSelection, ResultGridCell> cellMap;
   private final List<Course> courses;
   private final List<Course> combinableMajorCourses;
   private final List<Course> combinableMinorCourses;
   private final List<Course> standaloneCourses;
   private final Set<SolverTask<Boolean>> checkFeasibilityTasks = new HashSet<>();
-  private final Set<Course> impossibleCourses;
-  private Task<Set<SolverTask<Boolean>>> prepareFeasibilityCheck;
-  private BatchFeasibilityTask executeFeasibilityCheck;
-  private final LongProperty impossibleCoursesAmount;
 
+  private final Set<Course> impossibleCourses;
+  private ResourceBundle resources;
+  private Task<Set<SolverTask<Boolean>>> prepareFeasibilityCheck;
+
+  private BatchFeasibilityTask executeFeasibilityCheck;
   @FXML
   @SuppressWarnings("unused")
   private Accordion accordionConflictMatrices;
@@ -190,6 +196,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    this.resources = resources;
     initializeStats();
 
     btCheckAll.disableProperty().bind(feasibilityCheckRunning.or(solverProperty.not()));
@@ -310,23 +317,37 @@ public class ConflictMatrix extends GridPane implements Initializable {
   }
 
   private void initializeGridPaneCombinable() {
-    IntStream.range(0, combinableMajorCourses.size())
-        .forEach(index -> {
-          final Course course = combinableMajorCourses.get(index);
-          gridPaneCombinable.add(new CourseGridCell(course.getKey(), course.getFullName(),
-              VERTICAL), index + 1, 0);
-        });
+    final DoubleProperty heightProperty = new SimpleDoubleProperty();
+    final DoubleProperty widthProperty = new SimpleDoubleProperty();
     IntStream.range(0, combinableMinorCourses.size())
         .forEach(index -> {
           final Course course = combinableMinorCourses.get(index);
-          gridPaneCombinable.add(new CourseGridCell(course.getKey(), course.getFullName(), ""),
-              0, index + 1);
+          final CourseGridCell courseGridCell = new CourseGridCell(course.getKey(),
+              course.getFullName(), VERTICAL);
+          gridPaneCombinable.add(courseGridCell, index + 1, 0);
+          // get the height property of a minor names row..
+          if (index == combinableMinorCourses.size() - 1) {
+            heightProperty.bind(courseGridCell.heightProperty());
+          }
         });
-    IntStream.range(0, combinableMajorCourses.size()).forEach(col ->
-        IntStream.range(0, combinableMinorCourses.size())
+    IntStream.range(0, combinableMajorCourses.size())
+        .forEach(index -> {
+          final Course course = combinableMajorCourses.get(index);
+          final CourseGridCell courseGridCell = new CourseGridCell(course.getKey(),
+              course.getFullName(), "");
+          gridPaneCombinable.add(courseGridCell, 0, index + 1);
+          // ..and the width property of a major names column
+          if (index == combinableMajorCourses.size() - 1) {
+            widthProperty.bind(courseGridCell.widthProperty());
+          }
+        });
+    // add legend like cell at position (0,0)
+    gridPaneCombinable.add(getLegendGridCell(heightProperty, widthProperty), 0, 0);
+    IntStream.range(0, combinableMinorCourses.size()).forEach(col ->
+        IntStream.range(0, combinableMajorCourses.size())
             .forEach(row -> {
-              final Course majorCourse = combinableMajorCourses.get(col);
-              final Course minorCourse = combinableMinorCourses.get(row);
+              final Course majorCourse = combinableMajorCourses.get(row);
+              final Course minorCourse = combinableMinorCourses.get(col);
               final ResultGridCell gridCell = new ResultGridCell(ResultState.UNKNOWN, majorCourse,
                   minorCourse);
               gridCell.setRouter(router);
@@ -334,7 +355,29 @@ public class ConflictMatrix extends GridPane implements Initializable {
                   new CourseSelection(majorCourse, minorCourse), gridCell);
               gridPaneCombinable.add(gridCell, col + 1, row + 1);
             }));
-    gridPaneCombinable.add(new CourseGridCell("", "", ""), 0, 0);
+  }
+
+  /**
+   * Create a grid cell for position (0,0) in the conflict matrix yielding a short description on
+   * the column and row content like major/minor.
+   */
+  private Pane getLegendGridCell(final ReadOnlyDoubleProperty heightProperty,
+                                 final ReadOnlyDoubleProperty widthProperty) {
+    final HBox hBox = new HBox();
+    hBox.prefHeightProperty().bind(heightProperty);
+    hBox.prefWidthProperty().bind(widthProperty);
+    hBox.getStyleClass().addAll("matrix-cell", "windowPaddingTiny");
+    final Label minorLabel = new Label(resources.getString("minor"));
+    minorLabel.setRotate(270.0);
+    minorLabel.prefHeightProperty().bind(widthProperty.multiply(0.15));
+    minorLabel.prefWidthProperty().bind(heightProperty.subtract(25.0));
+    final Group group = new Group(minorLabel);
+    final Label majorLabel = new Label(resources.getString("major"));
+    majorLabel.setAlignment(Pos.BOTTOM_CENTER);
+    majorLabel.prefHeightProperty().bind(heightProperty);
+    majorLabel.prefWidthProperty().bind(widthProperty.multiply(0.85));
+    hBox.getChildren().addAll(majorLabel, group);
+    return hBox;
   }
 
   private void initializeGridPaneStandalone() {

@@ -89,6 +89,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
     }, itemProperty(), uiDataService.sessionDisplayFormatProperty()));
   }
 
+  @SuppressWarnings("unused")
   private void setConflictedStyleClass(final List<Integer> sessionIDs) {
     getStyleClass().remove(CONFLICTED_SESSION);
 
@@ -103,6 +104,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
 
   @SuppressWarnings("unused")
   private void dragItem(final MouseEvent event) {
+    uiDataService.moveSessionTaskProperty().set(null);
     if (getItem() == null || !solverIsLoaded) {
       return;
     }
@@ -116,6 +118,7 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
 
   @SuppressWarnings("unused")
   private void clickItem(final MouseEvent event) {
+    uiDataService.moveSessionTaskProperty().set(null);
     if (getItem() == null || event.getClickCount() < 2) {
       return;
     }

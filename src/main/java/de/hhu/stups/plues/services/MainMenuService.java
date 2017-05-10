@@ -33,6 +33,7 @@ public class MainMenuService {
   private final BooleanProperty databaseChangedProperty;
   private final DoubleProperty storeLoaderProgressProperty;
   private final StoreLoaderTaskFactory storeLoaderTaskFactory;
+  private final HistoryManager historyManager;
 
   /**
    * Constructor of the service between the main controller and the menu bar. Mainly just
@@ -43,16 +44,18 @@ public class MainMenuService {
                          final Delayed<ObservableStore> delayedStore,
                          final UiDataService uiDataService,
                          final StoreLoaderTaskFactory storeLoaderTaskFactory,
-                         final Stage stage) {
+                         final Stage stage,
+                         final HistoryManager historyManager) {
     this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
     this.storeLoaderTaskFactory = storeLoaderTaskFactory;
     this.stage = stage;
+    this.historyManager = historyManager;
     databaseChangedProperty = new SimpleBooleanProperty(false);
     storeLoaderProgressProperty = new SimpleDoubleProperty(0.0);
 
-    delayedStore.whenAvailable(store ->
-        store.addObserver((object, arg) -> databaseChangedProperty.setValue(true)));
+    historyManager.undoHistoryEmptyProperty().addListener((observable, oldValue, newValue) ->
+        databaseChangedProperty.setValue(!newValue));
 
     // reset unsaved flag.
     uiDataService.lastSavedDateProperty().addListener(
@@ -153,5 +156,9 @@ public class MainMenuService {
 
   public Stage getStage() {
     return stage;
+  }
+
+  public HistoryManager getHistoryManager() {
+    return historyManager;
   }
 }

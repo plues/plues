@@ -195,7 +195,7 @@ public class TimetableSideBar extends TabPane implements Initializable {
 
     parent.widthProperty().addListener((observable, oldValue, newValue) -> {
       if (selectedSubTab == null) {
-        parent.setDividerPosition(0, getMinWidth() / parent.getWidth());
+        parent.setDividerPosition(getMinWidth() / parent.getWidth());
       }
     });
   }
@@ -247,6 +247,7 @@ public class TimetableSideBar extends TabPane implements Initializable {
    * Fade-in or fade-out the {@link this TimetableSideBar} by moving the {@link #parent
    * Timetables's} split pane divider to the destination.
    */
+  @SuppressWarnings("unused")
   private void hideSideBar(final boolean hide) {
     if (fadingInProgress) {
       return;

@@ -1,6 +1,9 @@
 package de.hhu.stups.plues.ui.components.conflictmatrix;
 
+import de.hhu.stups.plues.Helpers;
+
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
@@ -39,9 +42,9 @@ public class CourseGridCell extends Pane {
     } else {
       setPrefHeight(25.0);
     }
-    final Tooltip tooltip = new Tooltip(courseName);
-    label.setTooltip(tooltip);
-    getChildren().add(new Group(label));
+    final Group group = new Group(label);
+    Helpers.showTooltipOnEnter(group, new Tooltip(courseName), new SimpleBooleanProperty(false));
+    getChildren().add(group);
   }
 
 }

@@ -6,15 +6,20 @@ import static java.time.DayOfWeek.THURSDAY;
 import static java.time.DayOfWeek.TUESDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
+import de.hhu.stups.plues.Helpers;
+import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.components.timetable.MoveSessionDialog;
 import de.hhu.stups.plues.ui.components.timetable.SemesterChooser;
 import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
 import de.hhu.stups.plues.ui.components.timetable.SessionListView;
@@ -30,6 +35,7 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.SetBinding;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SetProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
@@ -38,13 +44,13 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 
 import java.net.URL;
 import java.time.DayOfWeek;
@@ -53,6 +59,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Observer;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -60,14 +67,21 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Timetable extends SplitPane implements Initializable, Activatable {
+public class Timetable extends StackPane implements Initializable, Activatable, Observer {
 
-  private final Delayed<Store> delayedStore;
+  private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
   private final UiDataService uiDataService;
+  private final ListeningExecutorService executorService;
   private double userDefinedDividerPos = 0.15;
   private SplitPane.Divider splitPaneDivider;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private SplitPane timeTableSplitPane;
+  @FXML
+  @SuppressWarnings("unused")
+  private MoveSessionDialog moveSessionDialog;
   @FXML
   @SuppressWarnings("unused")
   private GridPane timeTablePane;
@@ -91,12 +105,15 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
    * Timetable component.
    */
   @Inject
-  public Timetable(final Inflater inflater, final Delayed<Store> delayedStore,
+  public Timetable(final Inflater inflater,
+                   final Delayed<ObservableStore> delayedStore,
                    final UiDataService uiDataService,
-                   final SessionListViewFactory sessionListViewFactory) {
+                   final SessionListViewFactory sessionListViewFactory,
+                   final ListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
     this.sessionListViewFactory = sessionListViewFactory;
     this.uiDataService = uiDataService;
+    this.executorService = executorService;
     conflictedSemesters = new SimpleSetProperty<>(FXCollections.emptyObservableSet());
 
     // TODO: remove controller param if possible
@@ -107,6 +124,7 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.delayedStore.whenAvailable(store -> {
+      store.addObserver(this);
       timetableSideBar.initializeComponents(store);
       setSessions(store.getSessions()
           .stream()
@@ -117,17 +135,12 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     timetableSideBar.setParent(this);
 
     multipleSelectionInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
-        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "12")));
+        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "14")));
+    multipleSelectionInfo.setTooltip(null);
+    Helpers.showTooltipOnEnter(multipleSelectionInfo, multipleSelectionHint,
+        new SimpleBooleanProperty(false));
 
-    multipleSelectionInfo.setOnMouseEntered(event -> {
-      final Point2D pos = multipleSelectionInfo.localToScreen(
-          multipleSelectionInfo.getLayoutBounds().getMaxX(),
-          multipleSelectionInfo.getLayoutBounds().getMaxY());
-      multipleSelectionHint.show(multipleSelectionInfo, pos.getX(), pos.getY());
-    });
-    multipleSelectionInfo.setOnMouseExited(event -> multipleSelectionHint.hide());
-
-    splitPaneDivider = getDividers().get(0);
+    splitPaneDivider = timeTableSplitPane.getDividers().get(0);
 
     splitPaneDivider.positionProperty().addListener((observable, oldValue, newValue) -> {
       // don't store too small divider positions
@@ -155,6 +168,31 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
     conflictedSemesters.bind(new ConflictedSemestersBinding());
 
     initSessionBoxes();
+
+    getChildren().remove(moveSessionDialog);
+    moveSessionDialog.setTranslateZ(1);
+
+    // move session and hide warning automatically when all running tasks finished
+    uiDataService.runningTasksProperty().addListener((observable, oldValue, newValue) -> {
+      final SolverTask<Void> moveSessionTask = uiDataService.moveSessionTaskProperty().get();
+      if (newValue.intValue() == 0 && moveSessionTask != null) {
+        //noinspection ResultOfMethodCallIgnored
+        executorService.submit(moveSessionTask);
+        uiDataService.moveSessionTaskProperty().set(null);
+      }
+    });
+
+    uiDataService.moveSessionTaskProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue == null) {
+        getChildren().remove(moveSessionDialog);
+        return;
+      }
+      if (uiDataService.runningTasksProperty().greaterThan(1).get()) {
+        moveSessionDialog.setLayoutX(getWidth() / 2);
+        moveSessionDialog.setLayoutY(getHeight() / 2);
+        getChildren().add(moveSessionDialog);
+      }
+    });
   }
 
   private List<Integer> getSemesterRange(final Store store) {
@@ -287,6 +325,18 @@ public class Timetable extends SplitPane implements Initializable, Activatable {
 
   public double getUserDefinedDividerPos() {
     return userDefinedDividerPos;
+  }
+
+  @Override
+  public void update(final java.util.Observable observable, final Object arg) {
+    delayedStore.whenAvailable(store -> setSessions(store.getSessions()
+        .stream()
+        .map(SessionFacade::new)
+        .collect(Collectors.toList())));
+  }
+
+  public void setDividerPosition(final double pos) {
+    timeTableSplitPane.setDividerPosition(0, pos);
   }
 
   private class ConflictedSemestersBinding extends SetBinding<Integer> {

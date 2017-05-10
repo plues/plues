@@ -1,11 +1,20 @@
 {#- we use 'only' when including this template to isolate it from the parent env, to avoid variable name clashes -#}
 {%- if (semester is not null) -%}
 {%- set values = split(semester, ";") -%}
-{%- set val = values[1] -%}
+    {%- if values|length == 2 -%}
+        {%- set val = values[1] -%}
+    {%- elseif values|length == 3 -%}
+        {#- handle special content -#}
+        {%- set val = values[2] -%}
+    {% endif %}
 <fo:table-cell border-style="solid" border-width="0.5pt" background-color="{{ modules[val] }}">
     <fo:block text-align="center">
             <fo:inline color="{{ fonts[val] }}">
-                {{ values[0] }}
+                {%- if values|length == 2 -%}
+                    {{ values[0] }}
+                {%- elseif values|length == 3 -%}
+                    {{ [values[0], ' / ', values[1]]|join }}
+                {% endif %}
             </fo:inline>
     </fo:block>
 </fo:table-cell>

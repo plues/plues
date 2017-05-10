@@ -10,10 +10,14 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
+import de.hhu.stups.plues.studienplaene.ColorScheme;
 import de.hhu.stups.plues.studienplaene.Renderer;
 import de.hhu.stups.plues.ui.exceptions.RenderingException;
+
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.concurrent.Task;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +40,7 @@ public class PdfRenderingTask extends Task<Path> {
   private final Course major;
   private final Course minor;
   private final SolverTask<FeasibilityResult> solverTask;
+  private final ReadOnlyObjectProperty<ColorScheme> colorSchemeProperty;
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final ResourceBundle resources;
@@ -44,30 +49,33 @@ public class PdfRenderingTask extends Task<Path> {
   static {
     final ThreadFactory threadFactoryBuilder
         = new ThreadFactoryBuilder().setDaemon(true)
-          .setNameFormat("pdfrendering-task-runner-%d").build();
+        .setNameFormat("pdfrendering-task-runner-%d").build();
 
     EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
-      Executors.newSingleThreadExecutor(threadFactoryBuilder));
+        Executors.newSingleThreadExecutor(threadFactoryBuilder));
   }
 
 
   /**
    * Create a task for rendering a pdf.
    *
-   * @param delayedStore         Store containing necessary data
-   * @param major Course major or integrated course
-   * @param minor Course minor course, can be null
+   * @param delayedStore Store containing necessary data
+   * @param major        Course major or integrated course
+   * @param minor        Course minor course, can be null
    */
   @Inject
   protected PdfRenderingTask(final Delayed<Store> delayedStore,
                              @Assisted("major") final Course major,
                              @Assisted("minor") @Nullable final Course minor,
-                             @Assisted final SolverTask<FeasibilityResult> solverTask) {
+                             @Assisted final SolverTask<FeasibilityResult> solverTask,
+                             @Assisted ReadOnlyObjectProperty<ColorScheme>
+                                 colorSchemeProperty) {
     this.delayedStore = delayedStore;
     this.resources = ResourceBundle.getBundle("lang.tasks");
     this.major = major;
     this.minor = minor;
     this.solverTask = solverTask;
+    this.colorSchemeProperty = colorSchemeProperty;
 
     updateTitle(this.buildTitle());
     updateProgress(0, 100);
@@ -84,8 +92,9 @@ public class PdfRenderingTask extends Task<Path> {
       return null;
     }
 
-    updateMessage(resources.getString("waiting"));
+    updateMessage(resources.getString("waitingForExecution"));
     solverTask.setOnRunning(event -> this.updateMessage(resources.getString("running")));
+    //noinspection ResultOfMethodCallIgnored
     EXECUTOR_SERVICE.submit(solverTask);
 
     updateProgress(40, -1);
@@ -154,7 +163,7 @@ public class PdfRenderingTask extends Task<Path> {
 
   private Renderer getRenderer(final Store store, final FeasibilityResult result) {
     try {
-      return new Renderer(store, result, major, minor);
+      return new Renderer(store, result, major, minor, colorSchemeProperty.get());
     } catch (final NullPointerException exc) {
       logger.error("Exception rendering PDF", exc);
       throw exc;
