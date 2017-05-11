@@ -77,8 +77,8 @@ public class UiDataService {
     this.executorService = executorService;
     //
     final long startStamp = ManagementFactory.getRuntimeMXBean().getStartTime();
-    final LocalDateTime startTime =
-      LocalDateTime.ofInstant(Instant.ofEpochMilli(startStamp), ZoneId.systemDefault());
+    final LocalDateTime startTime
+        = LocalDateTime.ofInstant(Instant.ofEpochMilli(startStamp), ZoneId.systemDefault());
     this.lastSavedDate.set(startTime);
     //
     delayedStore.whenAvailable(store ->
