@@ -6,7 +6,6 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.exceptions.RenderingException;
-
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import org.jtwig.environment.EnvironmentConfiguration;
@@ -15,8 +14,8 @@ import org.jtwig.environment.EnvironmentConfigurationBuilder;
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -72,13 +71,17 @@ public class Renderer {
   private ByteArrayOutputStream render() throws RenderingException {
     final URL logo = this.getClass().getResource("/images/HHU_Logo.jpeg");
 
+    final LocalDate date = LocalDate.now();
+    final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    final String formattedDate = date.format(formatter);
+
     final JtwigModel model = JtwigModel.newModel()
         .with("major", major)
         .with("minor", minor)
         .with("semesters", this.semesters)
         .with("modules", colorMap)
         .with("times", Helpers.timeIntervalMap)
-        .with("date", new SimpleDateFormat("dd.MM.yyyy").format(new Date()))
+        .with("date", formattedDate)
         .with("logo", logo)
         .with("fonts", fonts);
 
