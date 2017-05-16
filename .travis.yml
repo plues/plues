@@ -27,6 +27,7 @@ before_install:
   - sh -e /etc/init.d/xvfb start
 script:
   - ./gradlew --stacktrace -Pheadless=true check
+  - ./gradlew --stacktrace -Pheadless=true jacocoTestReport
   - sonar-scanner -Dsonar.login=$SONAR_TOKEN
 after_success:
   - ./gradlew distZip winZip createApp
