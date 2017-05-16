@@ -43,6 +43,7 @@ import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import org.jtwig.environment.EnvironmentConfiguration;
 import org.jtwig.environment.EnvironmentConfigurationBuilder;
+import org.reactfx.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,8 +62,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -71,13 +70,13 @@ import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
-public class Reports extends VBox implements Initializable, Observer {
+public class Reports extends VBox implements Initializable {
 
   private final ObjectProperty<ReportData> reportData = new SimpleObjectProperty<>();
   private final BooleanProperty dataOutOfSync = new SimpleBooleanProperty(false);
   private final Properties properties;
   private final ExecutorService executorService;
-  private final Delayed<ObservableStore> delayedStore;
+  private Subscription storeChanges;
   private SolverService solverService;
   private int abstractUnitAmount;
   private int groupAmount;
@@ -163,7 +162,6 @@ public class Reports extends VBox implements Initializable, Observer {
                  final Properties properties) {
     this.executorService = executorService;
     this.properties = properties;
-    this.delayedStore = delayedStore;
     resources = new HashMap<>();
 
     delayedStore.whenAvailable(store -> {
@@ -172,7 +170,7 @@ public class Reports extends VBox implements Initializable, Observer {
       courseAmount = store.getCourses().size();
       unitAmount = store.getUnits().size();
       abstractUnitAmount = store.getAbstractUnits().size();
-      store.addObserver(this);
+      storeChanges = store.getChanges().subscribe(s -> dataOutOfSync.setValue(true));
     });
 
     delayedSolverService.whenAvailable(solverService1 -> {
@@ -232,11 +230,6 @@ public class Reports extends VBox implements Initializable, Observer {
     this.resources = resources.keySet().stream()
         .filter(s -> s.startsWith("title.") || s.startsWith("column")).collect(Collectors.toList())
         .stream().collect(Collectors.toMap(o -> o, resources::getString));
-  }
-
-  @Override
-  public void update(final Observable observable, final Object arg) {
-    dataOutOfSync.setValue(true);
   }
 
   @FXML
@@ -552,7 +545,12 @@ public class Reports extends VBox implements Initializable, Observer {
     }
   }
 
+  /**
+   * Free resources held by this component before it is closed.
+   */
   public void dispose() {
-    delayedStore.whenAvailable(store -> store.deleteObserver(this));
+    if (storeChanges != null) {
+      storeChanges.unsubscribe();
+    }
   }
 }
