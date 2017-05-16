@@ -138,7 +138,7 @@ public class MainController implements Initializable, Activatable {
     this.mainMenuService = mainMenuService;
     this.uiDataService = uiDataService;
 
-    executorService.addObserver((observable, arg) -> this.register(arg));
+    executorService.getTasks().subscribe(this::register);
 
     logger.info("Starting PlÜS");
   }
