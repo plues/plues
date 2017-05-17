@@ -138,18 +138,17 @@ public class MainController implements Initializable, Activatable {
     this.mainMenuService = mainMenuService;
     this.uiDataService = uiDataService;
 
-    executorService.getTasks().subscribe(this::register);
+    executorService.getTasks()
+        .filter(o -> o instanceof Task<?>)
+        .map(o -> ((Task<?>) o))
+        .subscribe(this::register);
 
     logger.info("Starting PlÜS");
   }
 
-  private void register(final Object task) {
-    if (task instanceof Task<?>) {
-      logger.trace("registering task for taskview");
-      Platform.runLater(() -> this.taskProgress.getTasks().add((Task<?>) task));
-    } else {
-      logger.trace("ignoring task for taskview");
-    }
+  private void register(final Task<?> task) {
+    logger.trace("registering task for taskview");
+    Platform.runLater(() -> this.taskProgress.getTasks().add(task));
   }
 
   @SuppressWarnings("unused")
