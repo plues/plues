@@ -137,13 +137,13 @@ public class MainController implements Initializable, Activatable {
     this.mainMenuService = mainMenuService;
     this.uiDataService = uiDataService;
 
-    executorService.getTasks().filterMap(either -> {
-      if (either instanceof Task<?>) {
+    executorService.getTasks().filterMap(task -> {
+      if (task instanceof Task<?>) {
         logger.trace("registering task for taskview");
       } else {
         logger.trace("Ignoring non-task runnable for Taskview.");
       }
-      return either instanceof Task<?>;
+      return task instanceof Task<?>;
     }, task -> ((Task<?>) task)).subscribe(this::register);
 
     logger.info("Starting PlÜS");
