@@ -381,10 +381,6 @@ public class MainMenuBar extends MenuBar implements Initializable {
     final Task<Void> openTimetableTask = new Task<Void>() {
       @Override
       protected Void call() throws Exception {
-        if (uiDataService.timetableTabSelected().get()) {
-          // timetable tab is already present
-          return null;
-        }
         router.transitionTo(RouteNames.TIMETABLE);
         // wait a short time to ensure that the tab is opened before executing the command
         TimeUnit.MILLISECONDS.sleep(200);
