@@ -7,7 +7,6 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.routes.RouteNames;
-import de.hhu.stups.plues.routes.Router;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
