@@ -7,7 +7,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
+import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.routes.RouteNames;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.MainMenuService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
@@ -15,7 +17,6 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
-import de.hhu.stups.plues.ui.ResourceManager;
 import de.hhu.stups.plues.ui.components.MainMenuBar;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
@@ -86,10 +87,10 @@ public class MainController implements Initializable, Activatable {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final BooleanProperty taskBoxCollapsed = new SimpleBooleanProperty(true);
-  private final ResourceManager resourceManager;
   private final Stage stage;
   private final MainMenuService mainMenuService;
   private final UiDataService uiDataService;
+  private final RouterProvider routerProvider;
 
   private ResourceBundle resources;
 
@@ -127,15 +128,15 @@ public class MainController implements Initializable, Activatable {
   @Inject
   public MainController(final Stage stage,
                         final ObservableListeningExecutorService executorService,
-                        final ResourceManager resourceManager,
                         final MainMenuService mainMenuService,
                         final UiDataService uiDataService,
-                        final Provider<Reports> reportsProvider) {
+                        final Provider<Reports> reportsProvider,
+                        final RouterProvider routerProvider) {
     this.stage = stage;
-    this.resourceManager = resourceManager;
     this.reportsProvider = reportsProvider;
     this.mainMenuService = mainMenuService;
     this.uiDataService = uiDataService;
+    this.routerProvider = routerProvider;
 
     executorService.getTasks().filterMap(task -> {
       if (task instanceof Task<?>) {
@@ -227,17 +228,7 @@ public class MainController implements Initializable, Activatable {
           mainProgressBar.progressProperty().bind(observable);
         });
 
-    stage.setOnCloseRequest(t -> {
-      try {
-        closeWindowRequest(t);
-        if (!t.isConsumed()) {
-          this.resourceManager.close();
-        }
-      } catch (final InterruptedException exception) {
-        logger.error("Closing resources", exception);
-        Thread.currentThread().interrupt();
-      }
-    });
+    stage.setOnCloseRequest(this::closeWindowRequest);
 
     uiDataService.cancelAllTasksProperty().addListener((observable, oldValue, newValue) -> {
       if (!newValue) {
@@ -406,8 +397,9 @@ public class MainController implements Initializable, Activatable {
    * Ask user for permission to close window using Alert. User can save database before closing.
    */
   private void closeWindowRequest(final Event event) {
+    final Router router = routerProvider.get();
     if (!mainMenuService.isDatabaseChanged()) {
-      closeWindow();
+      router.transitionTo(RouteNames.SHUTDOWN);
       return;
     }
 
@@ -429,22 +421,14 @@ public class MainController implements Initializable, Activatable {
 
     if (result == save) {
       mainMenuBar.saveFile();
-      closeWindow();
+      router.transitionTo(RouteNames.SHUTDOWN);
     } else if ((result == saveAs && !mainMenuBar.saveFileAs()) || result == cancel) {
       // if the result is to cancel or 'save as' has been canceled we ignore the close request and
       // consume the event, otherwise we close the stage
       event.consume();
     } else {
-      closeWindow();
+      router.transitionTo(RouteNames.SHUTDOWN);
     }
-  }
-
-  /**
-   * Close the application. Should only be called from {@link #closeWindowRequest(Event)}.
-   */
-  private void closeWindow() {
-    stage.close();
-    Platform.exit();
   }
 
   @Override

@@ -2,10 +2,13 @@ package de.hhu.stups.plues.ui.components;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.entities.Log;
+import de.hhu.stups.plues.provider.RouterProvider;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -47,6 +50,8 @@ public class ChangeLogTest extends ApplicationTest {
   public void start(final Stage stage) throws Exception {
     final Inflater inflater = new Inflater(new FXMLLoader());
     final Delayed<ObservableStore> delayed = new Delayed<>();
+    final RouterProvider routerProvider = mock(RouterProvider.class);
+    when(routerProvider.get()).thenReturn(mock(Router.class));
 
     final Log l1 = mock(Log.class);
     final LocalDateTime d1 = LocalDate.of(2016, 11, 1).atStartOfDay();
@@ -79,7 +84,7 @@ public class ChangeLogTest extends ApplicationTest {
     final UiDataService dataService = getUiDataService();
 
     delayed.set(store);
-    changeLog = new ChangeLog(inflater, dataService, delayed);
+    changeLog = new ChangeLog(inflater, dataService, delayed, routerProvider);
 
     final Scene scene = new Scene(changeLog, 600, 600);
     stage.setScene(scene);

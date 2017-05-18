@@ -7,6 +7,9 @@ import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Session;
+import de.hhu.stups.plues.provider.RouterProvider;
+import de.hhu.stups.plues.routes.RouteNames;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
@@ -24,6 +27,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.reactfx.Subscription;
 
@@ -36,6 +40,8 @@ public class ChangeLog extends VBox implements Initializable {
   private final Delayed<ObservableStore> delayedStore;
   private final ObservableList<Log> logs;
   private final ObjectProperty<LocalDateTime> compare;
+  private final Router router;
+  private Integer routeId;
 
   @FXML
   @SuppressWarnings("unused")
@@ -74,16 +80,22 @@ public class ChangeLog extends VBox implements Initializable {
    */
   @Inject
   public ChangeLog(final Inflater inflater, final UiDataService uiDataService,
-                   final Delayed<ObservableStore> delayedStore) {
+                   final Delayed<ObservableStore> delayedStore,
+                   final RouterProvider routerProvider) {
     this.delayedStore = delayedStore;
     this.compare = uiDataService.lastSavedDateProperty();
     this.logs = FXCollections.observableArrayList();
+    this.router = routerProvider.get();
 
     inflater.inflate("components/ChangeLog", this, this, "ChangeLog", "Days");
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    this.routeId
+        = this.router.register(RouteNames.SHUTDOWN,
+            (routeName, args) -> ((Stage)this.getScene().getWindow()).close());
+
     final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
         srcColumnCallback = param -> new ReadOnlyStringWrapper(
         String.format("%s, %s", resources.getString(param.getValue().getSrcDay()),
@@ -150,5 +162,6 @@ public class ChangeLog extends VBox implements Initializable {
     if (this.subscriptions != null) {
       this.subscriptions.unsubscribe();
     }
+    this.router.deregister(routeId);
   }
 }

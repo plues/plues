@@ -32,6 +32,9 @@ public class Main extends Application {
     injector.getInstance(de.prob.Main.class);
 
     final Router router = injector.getInstance(Router.class);
+    //noinspection unused
+    final ResourceManager resourceManager = injector.getInstance(ResourceManager.class);
+
     router.transitionTo(RouteNames.INDEX);
 
     primaryStage.setTitle("PlÜS");
