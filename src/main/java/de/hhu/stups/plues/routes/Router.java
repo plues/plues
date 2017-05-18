@@ -69,7 +69,7 @@ public class Router {
     this.subscriptions.remove(routeId).unsubscribe();
   }
 
-  private class NavigationEvent {
+  private static class NavigationEvent {
 
     private final RouteNames routeName;
     private final Object[] args;
