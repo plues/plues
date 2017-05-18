@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.ui;
 
 import static com.google.inject.Stage.DEVELOPMENT;
+import static com.google.inject.Stage.PRODUCTION;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -24,7 +25,7 @@ public class Main extends Application {
   public void start(final Stage primaryStage) throws Exception {
     System.setProperty("logback.configurationFile", "config/logging.xml");
 
-    final Injector injector = Guice.createInjector(DEVELOPMENT, new PluesModule(primaryStage));
+    final Injector injector = Guice.createInjector(PRODUCTION, new PluesModule(primaryStage));
 
     // XXX load an instance of Main.class to ensure Prob 2.0 is properly loaded.
     // Among other things this sets prob.home to load files from the ProB stdlib.
