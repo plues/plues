@@ -51,6 +51,8 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.time.DayOfWeek;
@@ -67,7 +69,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Timetable extends StackPane implements Initializable, Activatable, Observer {
+public class Timetable extends StackPane implements Initializable, Activatable {
 
   private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
@@ -75,6 +77,8 @@ public class Timetable extends StackPane implements Initializable, Activatable, 
   private final ListeningExecutorService executorService;
   private double userDefinedDividerPos = 0.15;
   private SplitPane.Divider splitPaneDivider;
+
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   @FXML
   @SuppressWarnings("unused")
@@ -124,12 +128,10 @@ public class Timetable extends StackPane implements Initializable, Activatable, 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.delayedStore.whenAvailable(store -> {
-      store.addObserver(this);
+      store.getChanges().subscribe(change -> setSessionFacades(store));
+
       timetableSideBar.initializeComponents(store);
-      setSessions(store.getSessions()
-          .stream()
-          .map(SessionFacade::new)
-          .collect(Collectors.toList()));
+      setSessionFacades(store);
     });
 
     timetableSideBar.setParent(this);
@@ -193,6 +195,14 @@ public class Timetable extends StackPane implements Initializable, Activatable, 
         getChildren().add(moveSessionDialog);
       }
     });
+  }
+
+  private void setSessionFacades(final ObservableStore store) {
+    logger.debug("Loading and setting SessionFacades");
+    setSessions(store.getSessions()
+        .stream()
+        .map(SessionFacade::new)
+        .collect(Collectors.toList()));
   }
 
   private List<Integer> getSemesterRange(final Store store) {
@@ -325,14 +335,6 @@ public class Timetable extends StackPane implements Initializable, Activatable, 
 
   public double getUserDefinedDividerPos() {
     return userDefinedDividerPos;
-  }
-
-  @Override
-  public void update(final java.util.Observable observable, final Object arg) {
-    delayedStore.whenAvailable(store -> setSessions(store.getSessions()
-        .stream()
-        .map(SessionFacade::new)
-        .collect(Collectors.toList())));
   }
 
   public void setDividerPosition(final double pos) {
