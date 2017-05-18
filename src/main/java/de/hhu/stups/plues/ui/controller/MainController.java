@@ -19,7 +19,6 @@ import de.hhu.stups.plues.ui.ResourceManager;
 import de.hhu.stups.plues.ui.components.MainMenuBar;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -49,9 +48,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
+import org.reactfx.EventStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,16 +137,19 @@ public class MainController implements Initializable, Activatable {
     this.mainMenuService = mainMenuService;
     this.uiDataService = uiDataService;
 
-    executorService.getTasks()
-        .filter(o -> o instanceof Task<?>)
-        .map(o -> ((Task<?>) o))
-        .subscribe(this::register);
+    executorService.getTasks().filterMap(either -> {
+      if (either instanceof Task<?>) {
+        logger.trace("registering task for taskview");
+      } else {
+        logger.trace("Ignoring non-task runnable for Taskview.");
+      }
+      return either instanceof Task<?>;
+    }, task -> ((Task<?>) task)).subscribe(this::register);
 
     logger.info("Starting PlÜS");
   }
 
   private void register(final Task<?> task) {
-    logger.trace("registering task for taskview");
     Platform.runLater(() -> this.taskProgress.getTasks().add(task));
   }
 
@@ -155,32 +157,6 @@ public class MainController implements Initializable, Activatable {
   private Node getGraphicForTask(final Task<?> task) {
     final FontAwesomeIcon icon = iconMap.getOrDefault(task.getClass(), DEFAULT_ICON);
     return FontAwesomeIconFactory.get().createIcon(icon, "2em");
-  }
-
-  @SuppressWarnings("unused")
-  private void handleKeyPressed(final KeyEvent event) {
-    switch (event.getCode()) {
-      case DIGIT1:
-        tabPane.getSelectionModel().select(0);
-        break;
-      case DIGIT2:
-        tabPane.getSelectionModel().select(1);
-        break;
-      case DIGIT3:
-        tabPane.getSelectionModel().select(2);
-        break;
-      case DIGIT4:
-        tabPane.getSelectionModel().select(3);
-        break;
-      case DIGIT5:
-        tabPane.getSelectionModel().select(4);
-        break;
-      case DIGIT6:
-        tabPane.getSelectionModel().select(5);
-        break;
-      default:
-        break;
-    }
   }
 
   @Override
@@ -226,7 +202,7 @@ public class MainController implements Initializable, Activatable {
     lbRunningTasks.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
     lbRunningTasks.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
 
-    tabPane.setOnKeyPressed(this::handleKeyPressed);
+    initializeKeyPressedHandler();
 
     reportsTab.setClosable(true);
 
@@ -277,6 +253,21 @@ public class MainController implements Initializable, Activatable {
           uiDataService.timetableTabSelected().set(newValue.equals(tabTimetable)));
     uiDataService.timetableTabSelected().set(
         tabPane.getSelectionModel().getSelectedItem().equals(tabTimetable));
+  }
+
+  private void initializeKeyPressedHandler() {
+    EventStreams.eventsOf(stage, KeyEvent.KEY_PRESSED)
+        .map(KeyEvent::getCode)
+        .filterMap(keyCode -> {
+          switch (keyCode) {
+            case DIGIT1: case DIGIT2: case DIGIT3:
+            case DIGIT4: case DIGIT5: case DIGIT6:
+              return true;
+            default:
+              return false;
+          }
+        }, keyCode -> Integer.parseInt(keyCode.getName()) - 1)
+        .subscribe(keyCode -> tabPane.getSelectionModel().select(keyCode));
   }
 
   private void initializeTaskProgressListener() {
