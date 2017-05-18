@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class RouterTest {
-
   private Route mockRoute;
   private Route mockRoute2;
 
@@ -17,6 +16,17 @@ public class RouterTest {
   public void setUp() {
     this.mockRoute = mock(Route.class);
     this.mockRoute2 = mock(Route.class);
+  }
+
+  @Test
+  public void deregister() throws Exception {
+    final Router router = new Router();
+    final Integer idx = router.register(RouteNames.INDEX, mockRoute);
+    router.deregister(idx);
+
+    router.transitionTo(RouteNames.INDEX, "test", 1);
+
+    verify(mockRoute, times(0)).transition(any());
   }
 
   @Test
