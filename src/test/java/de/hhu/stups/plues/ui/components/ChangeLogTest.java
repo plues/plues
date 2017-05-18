@@ -17,6 +17,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.reactfx.EventSource;
 import org.testfx.framework.junit.ApplicationTest;
 
 import java.time.LocalDate;
@@ -72,6 +73,7 @@ public class ChangeLogTest extends ApplicationTest {
     doReturn(6).when(l3).getTargetTime();
 
     final ObservableStore store = mock(ObservableStore.class);
+    doReturn(new EventSource<String>()).when(store).getChanges();
     doReturn(Arrays.asList(l1, l2, l3)).when(store).getLogEntries();
 
     final UiDataService dataService = getUiDataService();
