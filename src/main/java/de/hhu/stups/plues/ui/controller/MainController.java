@@ -70,6 +70,13 @@ public class MainController implements Initializable, Activatable {
   private static final Map<Class, FontAwesomeIcon> iconMap = new HashMap<>();
   private static final FontAwesomeIcon DEFAULT_ICON = FontAwesomeIcon.TASKS;
   private static final ListeningScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE;
+  private static final Task EMPTY_TASK = new Task() {
+    // just an empty task to simulate a pending progress bar
+    @Override
+    protected Object call() throws Exception {
+      return null;
+    }
+  };
 
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
@@ -114,13 +121,6 @@ public class MainController implements Initializable, Activatable {
   private double visibleDividerPos;
   private boolean fadingInProgress = false;
   private final Provider<Reports> reportsProvider;
-  private final Task emptyTask = new Task() {
-    // just an empty task to simulate a pending progress bar
-    @Override
-    protected Object call() throws Exception {
-      return null;
-    }
-  };
 
   /**
    * MainController component.
@@ -332,7 +332,7 @@ public class MainController implements Initializable, Activatable {
     if (scheduledTasks.size() == 1) {
       mainProgressBar.progressProperty().bind(scheduledTasks.get(0).progressProperty());
     } else {
-      mainProgressBar.progressProperty().bind(emptyTask.progressProperty());
+      mainProgressBar.progressProperty().bind(EMPTY_TASK.progressProperty());
     }
   }
 
