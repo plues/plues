@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -41,13 +43,17 @@ public class Router {
   public Integer register(final RouteNames routeName, final Route route) {
     logger.debug(String.format("Registering consumer for route %s ", routeName.name()));
 
-    final Integer idx = this.counter.getAndIncrement();
-    final Subscription subscription = eventSource
-        .filter(navigationEvent -> navigationEvent.getRouteName().equals(routeName))
-        .subscribe(navigationEvent
-            -> route.transition(navigationEvent.routeName, navigationEvent.args));
+    final Integer idx = counter.getAndIncrement();
 
-    this.subscriptions.put(idx, subscription);
+    final Predicate<NavigationEvent> navigationEventPredicate
+        = navigationEvent -> navigationEvent.getRouteName().equals(routeName);
+    final Consumer<NavigationEvent> navigationEventConsumer
+        = navigationEvent -> route.transition(navigationEvent.routeName, navigationEvent.args);
+
+    final Subscription subscription
+        = eventSource.filter(navigationEventPredicate).subscribe(navigationEventConsumer);
+
+    subscriptions.put(idx, subscription);
     return idx;
   }
 
