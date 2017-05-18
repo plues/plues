@@ -9,6 +9,7 @@ import de.codecentric.centerdevice.MenuToolkit;
 import de.hhu.stups.plues.modelgenerator.XmlExporter;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.services.HistoryManager;
 import de.hhu.stups.plues.services.MainMenuService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverLoaderImpl;
@@ -16,6 +17,7 @@ import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
@@ -180,15 +182,16 @@ public class MainMenuBar extends MenuBar implements Initializable {
     this.resources = resources;
     initializeMenu();
 
-    undoLastMenuItem.disableProperty().bind(
-        mainMenuService.getHistoryManager().undoHistoryEmptyProperty()
-            .or(uiDataService.runningTasksProperty().greaterThan(0)));
-    undoAllMenuItem.disableProperty().bind(
-        mainMenuService.getHistoryManager().undoHistoryEmptyProperty()
-            .or(uiDataService.runningTasksProperty().greaterThan(0)));
+    final HistoryManager historyManager = mainMenuService.getHistoryManager();
+    //
+    final BooleanBinding tasksRunning = uiDataService.runningTasksProperty().greaterThan(0);
+    final BooleanBinding canUndo = historyManager.undoHistoryEmptyProperty().or(tasksRunning);
+
+    undoLastMenuItem.disableProperty().bind(canUndo);
+    undoAllMenuItem.disableProperty().bind(canUndo);
     redoLastMenuItem.disableProperty().bind(
-        mainMenuService.getHistoryManager().redoHistoryEmptyProperty()
-            .or(uiDataService.runningTasksProperty().greaterThan(0)));
+        historyManager.redoHistoryEmptyProperty().or(tasksRunning));
+    //
 
     mainMenuService.getDelayedSolverService().whenAvailable(solverService -> {
       openReportsMenuItem.setDisable(false);
