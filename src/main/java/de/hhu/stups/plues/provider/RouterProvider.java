@@ -24,7 +24,7 @@ public class RouterProvider implements Provider<Router> {
 
   private final ControllerRouteFactory controllerRouteFactory;
   private final HandbookRouteFactory handbookRouteFactory;
-  private Router cache;
+  private Router router;
 
   private final Provider<MainControllerRoute> mainControllerRouteProvider;
   private final Provider<ChangelogRoute> changelogRouteProvider;
@@ -67,39 +67,41 @@ public class RouterProvider implements Provider<Router> {
 
   @Override
   public Router get() {
-    if (cache == null) {
-      cache = new Router();
+    if (router == null) {
+      router = new Router();
 
-      cache.put(RouteNames.INDEX, indexRouteProvider.get());
-      cache.put(RouteNames.MODULE_DETAIL_VIEW, moduleDetailViewRouteProvider.get());
-      cache.put(RouteNames.SESSION_DETAIL_VIEW,
+      router.register(RouteNames.INDEX, indexRouteProvider.get());
+      router.register(RouteNames.MODULE_DETAIL_VIEW, moduleDetailViewRouteProvider.get());
+      router.register(RouteNames.SESSION_DETAIL_VIEW,
           sessionDetailViewRouteProvider.get());
-      cache.put(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW,
+      router.register(RouteNames.ABSTRACT_UNIT_DETAIL_VIEW,
           abstractUnitDetailViewRouteProvider.get());
-      cache.put(RouteNames.UNIT_DETAIL_VIEW, unitDetailViewRouteProvider.get());
-      cache.put(RouteNames.COURSE_DETAIL_VIEW, courseDetailViewRouteProvider.get());
-      cache.put(RouteNames.ABOUT_WINDOW, aboutWindowRouteProvider.get());
-      cache.put(RouteNames.CHANGELOG, changelogRouteProvider.get());
-      cache.put(RouteNames.HANDBOOK_HTML, handbookRouteFactory.create(HandbookRoute.Format.HTML));
-      cache.put(RouteNames.HANDBOOK_PDF, handbookRouteFactory.create(HandbookRoute.Format.PDF));
-      cache.put(RouteNames.TIMETABLE,
+      router.register(RouteNames.UNIT_DETAIL_VIEW, unitDetailViewRouteProvider.get());
+      router.register(RouteNames.COURSE_DETAIL_VIEW, courseDetailViewRouteProvider.get());
+      router.register(RouteNames.ABOUT_WINDOW, aboutWindowRouteProvider.get());
+      router.register(RouteNames.CHANGELOG, changelogRouteProvider.get());
+      router.register(RouteNames.HANDBOOK_HTML,
+          handbookRouteFactory.create(HandbookRoute.Format.HTML));
+      router.register(RouteNames.HANDBOOK_PDF,
+          handbookRouteFactory.create(HandbookRoute.Format.PDF));
+      router.register(RouteNames.TIMETABLE,
           controllerRouteFactory.create(TAB_TIMETABLE));
-      cache.put(RouteNames.SESSION_IN_TIMETABLE,
+      router.register(RouteNames.SESSION_IN_TIMETABLE,
           controllerRouteFactory.create(TAB_TIMETABLE));
-      cache.put(RouteNames.CONFLICT_IN_TIMETABLE,
+      router.register(RouteNames.CONFLICT_IN_TIMETABLE,
           controllerRouteFactory.create(TAB_TIMETABLE));
-      cache.put(RouteNames.CHECK_FEASIBILITY_TIMETABLE,
+      router.register(RouteNames.CHECK_FEASIBILITY_TIMETABLE,
           controllerRouteFactory.create(TAB_TIMETABLE));
-      cache.put(RouteNames.PDF_TIMETABLES,
+      router.register(RouteNames.PDF_TIMETABLES,
           controllerRouteFactory.create("tabPdfTimetables"));
-      cache.put(RouteNames.PARTIAL_TIMETABLES,
+      router.register(RouteNames.PARTIAL_TIMETABLES,
           controllerRouteFactory.create("tabPartialTimetables"));
-      cache.put(RouteNames.UNSAT_CORE,
+      router.register(RouteNames.UNSAT_CORE,
           controllerRouteFactory.create("tabUnsatCore"));
-      cache.put(RouteNames.OPEN_REPORTS, mainControllerRouteProvider.get());
-      cache.put(RouteNames.CLOSE_APP, mainControllerRouteProvider.get());
+      router.register(RouteNames.OPEN_REPORTS, mainControllerRouteProvider.get());
+      router.register(RouteNames.CLOSE_APP, mainControllerRouteProvider.get());
     }
 
-    return cache;
+    return router;
   }
 }
