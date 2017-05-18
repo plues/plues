@@ -51,6 +51,8 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
+import org.fxmisc.easybind.EasyBind;
+import org.reactfx.Change;
 import org.reactfx.EventStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,11 +170,7 @@ public class MainController implements Initializable, Activatable {
 
     mainSplitPane.getItems().remove(boxTaskProgress);
 
-    taskProgress.setGraphicFactory(this::getGraphicForTask);
-
-    taskProgress.prefWidthProperty().bind(scrollPaneTaskProgress.widthProperty());
-    taskProgress.prefHeightProperty().bind(scrollPaneTaskProgress.heightProperty());
-
+    initializeTaskProgress();
     boxTaskProgress.maxWidthProperty().bind(mainSplitPane.widthProperty().divide(3.0));
     boxTaskProgress.prefWidth(0);
     boxTaskProgress.prefWidthProperty().bind(mainSplitPane.widthProperty().divide(4.0));
@@ -189,8 +187,6 @@ public class MainController implements Initializable, Activatable {
 
     mainStatusBar.setText("");
 
-    taskProgress.getTasks().addListener((ListChangeListener<Task<?>>) c ->
-        uiDataService.runningTasksProperty().set(taskProgress.getTasks().size()));
 
     clearStatusBar();
 
@@ -229,21 +225,23 @@ public class MainController implements Initializable, Activatable {
         });
 
     stage.setOnCloseRequest(this::closeWindowRequest);
+  }
 
-    uiDataService.cancelAllTasksProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue) {
-        return;
-      }
-      taskProgress.getTasks().forEach(task -> Platform.runLater(() -> task.cancel(true)));
-      uiDataService.cancelAllTasksProperty().set(false);
-    });
-
-    // log if the timetable tab is opened which is needed for undo/redo operations
-    tabPane.getSelectionModel().selectedItemProperty().addListener(
-        (observable, oldValue, newValue) ->
-          uiDataService.timetableTabSelected().set(newValue.equals(tabTimetable)));
-    uiDataService.timetableTabSelected().set(
-        tabPane.getSelectionModel().getSelectedItem().equals(tabTimetable));
+  private void initializeTaskProgress() {
+    taskProgress.setGraphicFactory(this::getGraphicForTask);
+    //
+    taskProgress.prefWidthProperty().bind(scrollPaneTaskProgress.widthProperty());
+    taskProgress.prefHeightProperty().bind(scrollPaneTaskProgress.heightProperty());
+    //
+    uiDataService.runningTasksProperty().bind(
+        EventStreams.sizeOf(taskProgress.getTasks()).toBinding(0));
+    //
+    EventStreams.valuesOf(uiDataService.cancelAllTasksProperty())
+        .filter(shouldCancel -> shouldCancel)
+        .subscribe(newValue -> Platform.runLater(() -> {
+          taskProgress.getTasks().forEach(task -> task.cancel(true));
+          uiDataService.cancelAllTasksProperty().set(false);
+        }));
   }
 
   private void initializeKeyPressedHandler() {
