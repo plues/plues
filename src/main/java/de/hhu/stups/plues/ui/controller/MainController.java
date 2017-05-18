@@ -140,7 +140,7 @@ public class MainController implements Initializable, Activatable {
 
     executorService.getTasks().filterMap(task -> {
       if (task instanceof Task<?>) {
-        logger.trace("registering task for taskview");
+        logger.trace("registering task for Taskview.");
       } else {
         logger.trace("Ignoring non-task runnable for Taskview.");
       }
