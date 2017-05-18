@@ -2,6 +2,7 @@ package de.hhu.stups.plues.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 import de.hhu.stups.plues.routes.AboutWindowRoute;
 import de.hhu.stups.plues.routes.AbstractUnitDetailViewRoute;
@@ -18,6 +19,7 @@ import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.routes.SessionDetailViewRoute;
 import de.hhu.stups.plues.routes.UnitDetailViewRoute;
 
+@Singleton
 public class RouterProvider implements Provider<Router> {
 
   private static final String TAB_TIMETABLE = "tabTimetable";
