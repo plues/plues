@@ -51,8 +51,6 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
-import org.fxmisc.easybind.EasyBind;
-import org.reactfx.Change;
 import org.reactfx.EventStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
