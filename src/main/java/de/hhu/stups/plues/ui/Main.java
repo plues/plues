@@ -9,6 +9,7 @@ import com.google.inject.Injector;
 import de.hhu.stups.plues.injector.PluesModule;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -22,6 +23,7 @@ public class Main extends Application {
   }
 
   @Override
+  @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
   public void start(final Stage primaryStage) throws Exception {
     System.setProperty("logback.configurationFile", "config/logging.xml");
 
