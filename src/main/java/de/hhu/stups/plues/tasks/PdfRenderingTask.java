@@ -68,7 +68,7 @@ public class PdfRenderingTask extends Task<Path> {
                              @Assisted("major") final Course major,
                              @Assisted("minor") @Nullable final Course minor,
                              @Assisted final SolverTask<FeasibilityResult> solverTask,
-                             @Assisted ReadOnlyObjectProperty<ColorScheme>
+                             @Assisted final ReadOnlyObjectProperty<ColorScheme>
                                  colorSchemeProperty) {
     this.delayedStore = delayedStore;
     this.resources = ResourceBundle.getBundle("lang.tasks");
