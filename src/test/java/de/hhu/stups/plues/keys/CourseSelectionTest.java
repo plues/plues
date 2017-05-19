@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.keys;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
@@ -12,6 +13,26 @@ import org.junit.Test;
 
 public class CourseSelectionTest {
 
+  private Course major;
+  private Course minor;
+
+  @Test
+  public void getMajor() throws Exception {
+    assertEquals(major, csSingle.getMajor());
+    assertEquals(major, csCombination.getMajor());
+  }
+
+  @Test
+  public void getMinor() throws Exception {
+    assertEquals(minor, csCombination.getMinor());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void getMinorError() throws Exception {
+    csStandalone.getMinor();
+  }
+
+
   private CourseSelection csSingle;
   private CourseSelection csStandalone;
   private CourseSelection csCombination;
@@ -22,23 +43,23 @@ public class CourseSelectionTest {
   @Before
   @FindBugsSuppressWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   public void setup() {
-    final Course course1 = mock(Course.class);
+    major = mock(Course.class);
     final Course course2 = mock(Course.class);
-    final Course course3 = mock(Course.class);
-    doReturn(true).when(course1).isCombinable();
-    doReturn(true).when(course1).isMajor();
-    doReturn(false).when(course1).isMinor();
+    minor = mock(Course.class);
+    doReturn(true).when(major).isCombinable();
+    doReturn(true).when(major).isMajor();
+    doReturn(false).when(major).isMinor();
 
     doReturn(false).when(course2).isCombinable();
 
-    doReturn(false).when(course3).isMajor();
-    doReturn(true).when(course3).isMinor();
+    doReturn(false).when(minor).isMajor();
+    doReturn(true).when(minor).isMinor();
 
 
 
-    csSingle = new CourseSelection(course1);
+    csSingle = new CourseSelection(major);
     csStandalone = new CourseSelection(course2);
-    csCombination = new CourseSelection(course1, course3);
+    csCombination = new CourseSelection(major, minor);
   }
 
   @Test

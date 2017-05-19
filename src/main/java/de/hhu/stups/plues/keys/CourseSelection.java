@@ -109,4 +109,13 @@ public class CourseSelection {
       .map(Course::toString)
       .collect(Collectors.joining(", ")));
   }
+
+  public Course getMajor() {
+    return courses.stream().filter(Course::isMajor).findFirst().orElse(null);
+  }
+
+  public Course getMinor() {
+    return courses.stream().filter(Course::isMinor).findFirst().orElseThrow(
+        () -> new IllegalArgumentException("Selection does not have a minor"));
+  }
 }
