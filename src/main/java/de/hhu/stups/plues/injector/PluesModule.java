@@ -78,6 +78,25 @@ public class PluesModule extends AbstractModule {
     install(new ComponentsModule());
     install(new ExecutorServiceModule());
 
+    installFactories();
+
+    bind(Stage.class).toInstance(primaryStage);
+    bind(Router.class).toProvider(RouterProvider.class);
+    bind(MainController.class);
+    bind(ResourceBundle.class).toInstance(bundle);
+
+    bind(SolverLoader.class).to(SolverLoaderImpl.class);
+    bind(CommandFactory.class).to(CommandDelegateFactory.class);
+
+    final Delayed<ObservableStore> delayedObservableStore = new Delayed<>();
+
+
+    bind(delayedStoreType).toInstance(convertInstanceOfObject(delayedObservableStore));
+    bind(delayedObservableStoreType).toInstance(delayedObservableStore);
+    bind(delayedSolverServiceType).toInstance(new Delayed<>());
+  }
+
+  private void installFactories() {
     install(new FactoryModuleBuilder().build(SolverLoaderTaskFactory.class));
     install(new FactoryModuleBuilder().build(PdfRenderingTaskFactory.class));
     install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
@@ -94,21 +113,6 @@ public class PluesModule extends AbstractModule {
         .implement(Solver.class, Names.named("prob"), ProBSolver.class)
         .implement(Solver.class, Names.named("mock"), MockSolver.class)
         .build(SolverFactory.class));
-
-    bind(Stage.class).toInstance(primaryStage);
-    bind(Router.class).toProvider(RouterProvider.class);
-    bind(MainController.class);
-    bind(ResourceBundle.class).toInstance(bundle);
-
-    bind(SolverLoader.class).to(SolverLoaderImpl.class);
-    bind(CommandFactory.class).to(CommandDelegateFactory.class);
-
-    final Delayed<ObservableStore> delayedObservableStore = new Delayed<>();
-
-
-    bind(delayedStoreType).toInstance(convertInstanceOfObject(delayedObservableStore));
-    bind(delayedObservableStoreType).toInstance(delayedObservableStore);
-    bind(delayedSolverServiceType).toInstance(new Delayed<>());
   }
 
   @Provides
