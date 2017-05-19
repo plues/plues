@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.ui.components;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -13,8 +14,11 @@ import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.controller.PdfRenderingService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
@@ -94,9 +98,6 @@ public abstract class ResultBoxTest extends ApplicationTest {
   @Override
   @SuppressWarnings("unchecked")
   public void start(final Stage stage) throws Exception {
-    final SolverService solverService = mock(SolverService.class);
-    when(solverService.computeFeasibilityTask(any())).thenReturn(mock(SolverTask.class));
-
     final FXMLLoader loader = new FXMLLoader();
     loader.setBuilderFactory(type -> {
       if (type.equals(TaskProgressIndicator.class)) {
@@ -105,14 +106,20 @@ public abstract class ResultBoxTest extends ApplicationTest {
       return new JavaFXBuilderFactory().getBuilder(type);
     });
 
-    final Delayed<SolverService> solver = new Delayed<>();
     final Inflater inflater = new Inflater(loader);
 
-    solver.set(solverService);
+    final PdfRenderingService pdfRenderingService = mock(PdfRenderingService.class);
+    doAnswer(invocation ->
+      Executors.newSingleThreadExecutor().submit((PdfRenderingTask)invocation.getArgument(0)))
+      .when(pdfRenderingService).submit(any());
+    when(pdfRenderingService.getTask(any())).thenReturn(task);
+    when(pdfRenderingService.colorSchemeProperty()).thenReturn(mock(ObjectProperty.class));
+    when(pdfRenderingService.availableProperty())
+      .thenReturn(new SimpleBooleanProperty(true));
 
     final ResultBox resultBox = new ResultBox(
-        inflater, new Router(), solver, (major1, minor1, solverTask, colorScheme) -> task,
-        Executors.newSingleThreadExecutor(), major, minor, new ListView<>(),
+        inflater, new Router(), pdfRenderingService,
+        major, minor, new ListView<>(),
         new SimpleObjectProperty<>(UiTestHelper.getColorScheme()));
 
     final Scene scene = new Scene(resultBox, 200, 200);

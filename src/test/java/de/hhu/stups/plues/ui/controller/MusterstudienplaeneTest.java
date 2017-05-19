@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testfx.api.FxToolkit.setupStage;
@@ -14,6 +15,8 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.studienplaene.ColorScheme;
+import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.ui.UiTestHelper;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
@@ -23,6 +26,8 @@ import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -164,13 +169,21 @@ public class MusterstudienplaeneTest extends ApplicationTest {
       courseSelection.setMinorCourseList(courseList);
     });
 
+    final PdfRenderingService pdfRenderingService = mock(PdfRenderingService.class);
+    doAnswer(invocation ->
+      executorService.submit((PdfRenderingTask)invocation.getArgument(0)))
+      .when(pdfRenderingService).submit(any());
+    when(pdfRenderingService.getTask(any()))
+      .thenReturn(UiTestHelper.getWaitingPdfRenderingTask());
+    when(pdfRenderingService.colorSchemeProperty()).thenReturn(new SimpleObjectProperty<>());
+    when(pdfRenderingService.availableProperty())
+      .thenReturn(new SimpleBooleanProperty(true));
+
     final ResultBoxFactory resultBoxFactory = mock(ResultBoxFactory.class);
     when(resultBoxFactory.create(any(), any(), any(), any()))
         .thenAnswer(invocation ->
-            new ResultBox(inflater, router, delayedSolverService,
-                (major, minor, solverTask, colorScheme) ->
-                    UiTestHelper.getWaitingPdfRenderingTask(),
-                executorService, courseSelection.getSelectedMajor(),
+            new ResultBox(inflater, router, pdfRenderingService,
+                courseSelection.getSelectedMajor(),
                 courseSelection.getSelectedMinor(),
                 resultBoxWrapper, new SimpleObjectProperty<>(UiTestHelper.getColorScheme())));
 

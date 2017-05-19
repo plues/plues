@@ -3,18 +3,15 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.prob.FeasibilityResult;
+import de.hhu.stups.plues.keys.CourseSelection;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
-import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.studienplaene.ColorScheme;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
-import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
+import de.hhu.stups.plues.ui.controller.PdfRenderingService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
@@ -40,7 +37,6 @@ import javafx.util.StringConverter;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
 
 import javax.annotation.Nullable;
 
@@ -53,10 +49,8 @@ public class ResultBox extends VBox implements Initializable {
   private ResultState resultState;
 
   private final Router router;
-  private final ExecutorService executorService;
+  private final PdfRenderingService pdfRenderingService;
   private final ListView<ResultBox> parent;
-  private final Delayed<SolverService> delayedSolverService;
-  private final PdfRenderingTaskFactory renderingTaskFactory;
   private final ReadOnlyObjectProperty<ColorScheme> colorScheme;
 
   private final StringProperty errorMsgProperty = new SimpleStringProperty();
@@ -105,7 +99,6 @@ public class ResultBox extends VBox implements Initializable {
    * Constructor for ResultBox.
    *
    * @param inflater             Inflater to handle fxml loader tasks
-   * @param renderingTaskFactory PDF Rendering task Factory
    * @param major                Major course
    * @param minor                Minor course if present, else null
    * @param parent               The parent wrapper (VBox) to remove a single result box.
@@ -115,19 +108,15 @@ public class ResultBox extends VBox implements Initializable {
   @SuppressWarnings("WeakerAccess")
   public ResultBox(final Inflater inflater,
                    final Router router,
-                   final Delayed<SolverService> delayedSolverService,
-                   final PdfRenderingTaskFactory renderingTaskFactory,
-                   final ExecutorService executorService,
+                   final PdfRenderingService pdfRenderingService,
                    @Assisted("major") final Course major,
                    @Nullable @Assisted("minor") final Course minor,
                    @Assisted("parent") final ListView<ResultBox> parent,
                    @Assisted final ReadOnlyObjectProperty<ColorScheme> colorScheme) {
     super();
     this.router = router;
+    this.pdfRenderingService = pdfRenderingService;
     this.parent = parent;
-    this.delayedSolverService = delayedSolverService;
-    this.executorService = executorService;
-    this.renderingTaskFactory = renderingTaskFactory;
     this.colorScheme = colorScheme;
 
     this.major = major;
@@ -159,6 +148,7 @@ public class ResultBox extends VBox implements Initializable {
     cbAction.itemsProperty().addListener((observable, oldValue, newValue) ->
         cbAction.getSelectionModel().selectFirst());
 
+    pdfRenderingService.colorSchemeProperty().bind(colorScheme);
     runSolverTask();
 
     showUsedColorSchemePreview();
@@ -175,11 +165,10 @@ public class ResultBox extends VBox implements Initializable {
    */
   public void runSolverTask() {
     interrupt();
-    delayedSolverService.whenAvailable(solver -> {
-      initSolverTask(solver);
-      showUsedColorSchemePreview();
-      executorService.submit(task);
-    });
+    //
+    initSolverTask();
+    showUsedColorSchemePreview();
+    pdfRenderingService.submit(task);
   }
 
   private void initializeCourseLabels() {
@@ -191,11 +180,8 @@ public class ResultBox extends VBox implements Initializable {
     }
   }
 
-  private void initSolverTask(final SolverService solverService) {
-    final SolverTask<FeasibilityResult> solverTask;
-
-    solverTask = solverService.computeFeasibilityTask(buildCourses(major, minor));
-    task = renderingTaskFactory.create(major, minor, solverTask, colorScheme);
+  private void initSolverTask() {
+    task = pdfRenderingService.getTask(new CourseSelection(buildCourses(major, minor)));
 
     task.setOnSucceeded(event -> Platform.runLater(() -> {
       pdf.set((Path) event.getSource().getValue());

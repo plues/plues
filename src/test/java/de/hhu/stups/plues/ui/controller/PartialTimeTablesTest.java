@@ -3,6 +3,7 @@ package de.hhu.stups.plues.ui.controller;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testfx.api.FxToolkit.setupStage;
@@ -14,6 +15,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.ui.UiTestHelper;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
@@ -23,6 +25,9 @@ import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -217,10 +222,18 @@ public class PartialTimeTablesTest extends ApplicationTest {
         .thenAnswer(invocation -> new CheckBoxGroup(inflater, courseSelection.getSelectedMajor(),
             majorModule));
 
-    partialTimeTables = new PartialTimeTables(inflater, delayedStore, delayedSolverService,
-        uiDataService,
-        ((major, minor, solverTask, colorScheme) -> UiTestHelper.getWaitingPdfRenderingTask()),
-        executorService, checkBoxGroupFactory);
+    final PdfRenderingService pdfRenderingService = mock(PdfRenderingService.class);
+    doAnswer(invocation ->
+        executorService.submit((PdfRenderingTask)invocation.getArgument(0)))
+      .when(pdfRenderingService).submit(any());
+    when(pdfRenderingService.getTask(any(), any(), any()))
+      .thenReturn(UiTestHelper.getWaitingPdfRenderingTask());
+    when(pdfRenderingService.colorSchemeProperty()).thenReturn(new SimpleObjectProperty<>());
+    when(pdfRenderingService.availableProperty())
+      .thenReturn(new SimpleBooleanProperty(true));
+
+    partialTimeTables = new PartialTimeTables(inflater, uiDataService, delayedStore,
+        pdfRenderingService, checkBoxGroupFactory);
 
     final Scene scene = new Scene(partialTimeTables, 400, 500);
 

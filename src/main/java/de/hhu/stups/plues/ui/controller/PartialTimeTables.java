@@ -7,13 +7,10 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
-import de.hhu.stups.plues.prob.FeasibilityResult;
+import de.hhu.stups.plues.keys.CourseSelection;
 import de.hhu.stups.plues.routes.RouteNames;
-import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
-import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
@@ -26,7 +23,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -42,14 +38,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 
 public class PartialTimeTables extends GridPane implements Initializable, Activatable {
-
-  private final Delayed<Store> delayedStore;
-  private final Delayed<SolverService> delayedSolverService;
 
   private final BooleanProperty solverProperty;
   private final BooleanProperty checkRunning;
@@ -58,11 +50,11 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   private final CheckBoxGroupFactory checkBoxGroupFactory;
   private final ObjectProperty<Store> storeProperty;
 
-  private final PdfRenderingTaskFactory renderingTaskFactory;
-  private final ExecutorService executor;
   private final UiDataService uiDataService;
   private final ObjectProperty<Path> pdf;
   private final ObjectProperty<PdfRenderingTask> currentTaskProperty;
+  private final Delayed<Store> delayedStore;
+  private final PdfRenderingService pdfRenderingService;
 
   @FXML
   @SuppressWarnings("unused")
@@ -101,25 +93,20 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   /**
    * Constructor for partial time table controller.
    *
-   * @param inflater             TaskLoader to load fxml file and to set controller
    * @param delayedStore         Store containing relevant data
-   * @param delayedSolverService SolverService for usage of ProB solver
+   * @param inflater             TaskLoader to load fxml file and to set controller
    * @param checkBoxGroupFactory Factory to create check box groups
    */
   @Inject
   public PartialTimeTables(final Inflater inflater,
-                           final Delayed<Store> delayedStore,
-                           final Delayed<SolverService> delayedSolverService,
                            final UiDataService uiDataService,
-                           final PdfRenderingTaskFactory renderingTaskFactory,
-                           final ExecutorService executor,
+                           final Delayed<Store> delayedStore,
+                           final PdfRenderingService pdfRenderingService,
                            final CheckBoxGroupFactory checkBoxGroupFactory) {
-    this.delayedStore = delayedStore;
-    this.delayedSolverService = delayedSolverService;
     this.uiDataService = uiDataService;
+    this.delayedStore = delayedStore;
+    this.pdfRenderingService = pdfRenderingService;
     this.checkBoxGroupFactory = checkBoxGroupFactory;
-    this.renderingTaskFactory = renderingTaskFactory;
-    this.executor = executor;
 
     this.storeProperty = new SimpleObjectProperty<>();
     this.solverProperty = new SimpleBooleanProperty(false);
@@ -134,6 +121,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     colorSchemeSelection.defaultInitialization();
+    pdfRenderingService.colorSchemeProperty().bind(colorSchemeSelection.selectedColorScheme());
 
     final BooleanBinding selectionBinding = storeProperty.isNull().or(checkRunning);
 
@@ -163,7 +151,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
 
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 
-    delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
+    this.solverProperty.bind(this.pdfRenderingService.availableProperty());
   }
 
   /**
@@ -221,10 +209,6 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   public void btGeneratePressed() throws InterruptedException {
     checkRunning.set(true);
 
-    final ObservableList<Course> courses = courseSelection.getSelectedCourses();
-    final Course major = courseSelection.getSelectedMajor();
-    final Course minor = courseSelection.getSelectedMinor();
-
     final List<CheckBoxGroup> cbgs = modulesUnits.getChildren().stream()
         .filter(node -> node instanceof CheckBoxGroup)
         .map(o -> (CheckBoxGroup) o)
@@ -244,21 +228,19 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
               Collectors.mapping(
                   CheckBoxGroup::getModule, Collectors.toList())));
 
-    delayedSolverService.whenAvailable(solverService -> {
-      final SolverTask<FeasibilityResult> solverTask =
-          solverService.computePartialFeasibility(courses, moduleChoice, unitChoice);
-      final PdfRenderingTask task = getPdfRenderingTask(major, minor, solverTask);
-      currentTaskProperty.set(task);
-      taskProgressIndicator.taskProperty().set(task);
 
-      executor.submit(task);
-    });
+    final CourseSelection selectedCourses
+        = new CourseSelection(courseSelection.getSelectedCourses().toArray(new Course[0]));
+    final PdfRenderingTask task
+        = pdfRenderingService.getTask(selectedCourses, moduleChoice, unitChoice);
+    wireUpTask(task);
+    pdfRenderingService.submit(task);
   }
 
-  private PdfRenderingTask getPdfRenderingTask(final Course major, final Course minor,
-                                               final SolverTask<FeasibilityResult> solverTask) {
-    final PdfRenderingTask task = renderingTaskFactory.create(major, minor, solverTask,
-        colorSchemeSelection.selectedColorScheme());
+  private void wireUpTask(final PdfRenderingTask task) {
+    currentTaskProperty.set(task);
+    taskProgressIndicator.taskProperty().set(task);
+
     task.setOnSucceeded(event -> {
       pdf.set((Path) event.getSource().getValue());
       checkRunning.set(false);
@@ -275,7 +257,6 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
       checkRunning.set(false);
       selectionChanged.set(false);
     });
-    return task;
   }
 
   @SuppressWarnings("unused")

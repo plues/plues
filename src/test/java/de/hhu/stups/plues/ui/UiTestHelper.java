@@ -182,7 +182,7 @@ public final class UiTestHelper {
 
     public Path call() {
       try {
-        TimeUnit.SECONDS.sleep(2);
+        TimeUnit.SECONDS.sleep(1);
       } catch (final InterruptedException exception) {
         exception.printStackTrace();
       }
