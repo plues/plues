@@ -7,6 +7,11 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 
 public class DelayedTest {
+  @Test(expected = NullPointerException.class)
+  public void testAccessBeforeSet() {
+    new Delayed<>().get();
+  }
+
   @Test
   public void whenAvailableIsNotCalledWhenObjectIsNotSet() {
     final Delayed<Integer> delayed = new Delayed<>();
