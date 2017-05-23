@@ -69,20 +69,16 @@ public class CombinationOrSingleCourseSelectionTest extends ApplicationTest {
         .type(KeyCode.DOWN)
         .type(KeyCode.ENTER);
     Assert.assertEquals(courseList.get(4), courseSelection.getSelectedCourses().get(0));
-    Assert.assertEquals(courseList.get(5), courseSelection.getSelectedCourses().get(1));
+    Assert.assertEquals(courseList.get(7), courseSelection.getSelectedCourses().get(1));
 
     clickOn(courseSelection.getMajorMinorCourseSelection().getMajorComboBox())
-        .type(KeyCode.DOWN)
-        .type(KeyCode.DOWN)
-        .type(KeyCode.DOWN)
         .type(KeyCode.DOWN)
         .type(KeyCode.ENTER);
     clickOn(courseSelection.getMajorMinorCourseSelection().getMinorComboBox())
         .type(KeyCode.UP)
-        .type(KeyCode.UP)
         .type(KeyCode.ENTER);
-    Assert.assertEquals(courseList.get(4), courseSelection.getSelectedCourses().get(0));
-    Assert.assertEquals(courseList.get(2), courseSelection.getSelectedCourses().get(1));
+    Assert.assertEquals(courseList.get(8), courseSelection.getSelectedCourses().get(0));
+    Assert.assertEquals(courseList.get(5), courseSelection.getSelectedCourses().get(1));
 
     clickOn(courseSelection.getRbSingleSelection());
     clickOn(courseSelection.getSingleCourseSelection())
