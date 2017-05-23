@@ -39,7 +39,7 @@ public interface UiTestDataCreator {
    * @param degree "bk" is combinable, "ba" is not
    */
   static Course createCourse(final String shortName, final String degree,
-                                    final String kzfa) {
+                             final String kzfa) {
     return createCourse(shortName, degree, kzfa, Collections.emptySet());
   }
 
@@ -47,7 +47,7 @@ public interface UiTestDataCreator {
    * Create a dummy course with a given set of minor courses.
    */
   static Course createCourse(final String shortName, final String degree,
-                                    final String kzfa, final Set<Course> minorCourses) {
+                             final String kzfa, final Set<Course> minorCourses) {
     final Course course = new Course();
     course.setShortName(shortName);
     course.setLongName(shortName);
@@ -160,6 +160,8 @@ public interface UiTestDataCreator {
   static Course getMockedMajorCourse(final Set<Module> modules) {
     final Course majorCourse = getMockedCourse(modules);
     when(majorCourse.getKzfa()).thenReturn("H");
+    when(majorCourse.isMajor()).thenReturn(true);
+    when(majorCourse.isMinor()).thenReturn(false);
     return majorCourse;
   }
 
@@ -169,6 +171,8 @@ public interface UiTestDataCreator {
   static Course getMockedMinorCourse(final Set<Module> modules) {
     final Course minorCourse = getMockedCourse(modules);
     when(minorCourse.getKzfa()).thenReturn("N");
+    when(minorCourse.isMajor()).thenReturn(false);
+    when(minorCourse.isMinor()).thenReturn(true);
     return minorCourse;
   }
 
