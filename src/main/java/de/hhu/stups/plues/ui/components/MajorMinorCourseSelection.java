@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Create the component containing the combo boxes to choose major and minor courses. When using
@@ -287,10 +286,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
       if (major == null) {
         return minorCourseList;
       }
-      return minorCourseList.stream()
-          .filter(major::isCombinableWith)
-          .collect(
-              Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
+      return FXCollections.observableArrayList(major.getMinorCourses());
     }
   }
 
@@ -307,8 +303,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
 
     @Override
     protected ObservableList<Course> computeValue() {
-      final ObservableList<Course> result
-          = FXCollections.observableArrayList(selectedMajor.get());
+      final ObservableList<Course> result = FXCollections.observableArrayList(selectedMajor.get());
       final Course minor = selectedMinor.get();
       if (minor != null) {
         result.add(minor);
