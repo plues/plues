@@ -3,7 +3,7 @@ package de.hhu.stups.plues.ui.components;
 import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.collections.ObservableList;
@@ -23,7 +23,7 @@ import org.testfx.util.WaitForAsyncUtils;
 @RunWith(JUnit4.class)
 public class MajorMinorCourseSelectionTest extends ApplicationTest {
   private MajorMinorCourseSelection courseSelection;
-  private ObservableList<Course> courseList = UiTestHelper.createCourseList();
+  private ObservableList<Course> courseList = UiTestDataCreator.createCourseList();
 
   @Test
   public void initialisationTest() {

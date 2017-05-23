@@ -3,7 +3,7 @@ package de.hhu.stups.plues.ui.components;
 import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.collections.ObservableList;
@@ -25,7 +25,7 @@ import java.util.List;
 
 public class SetOfCourseSelectionTest extends ApplicationTest {
   private SetOfCourseSelection courseSelection;
-  private ObservableList<Course> courseList = UiTestHelper.createCourseList();
+  private ObservableList<Course> courseList = UiTestDataCreator.createCourseList();
 
   private List<Node> masterCheckBoxes;
   private List<Node> bachelorCheckBoxes;

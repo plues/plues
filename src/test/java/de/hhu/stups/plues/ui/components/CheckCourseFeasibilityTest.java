@@ -14,7 +14,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
-import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.collections.ObservableList;
@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 public class CheckCourseFeasibilityTest extends ApplicationTest {
 
   private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-  private final ObservableList<Course> courseList = UiTestHelper.createCourseList();
+  private final ObservableList<Course> courseList = UiTestDataCreator.createCourseList();
   private final Store store;
 
   private CheckCourseFeasibility checkCourseFeasibility;
@@ -157,7 +157,7 @@ public class CheckCourseFeasibilityTest extends ApplicationTest {
     });
 
     final Inflater inflater = new Inflater(loader);
-    final SolverService solverService = UiTestHelper.getMockedSolverService();
+    final SolverService solverService = UiTestDataCreator.getMockedSolverService();
 
     final Delayed<SolverService> delayedSolverService = new Delayed<>();
     delayedSolverService.set(solverService);

@@ -7,13 +7,10 @@ import static org.mockito.Mockito.when;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.api.FxToolkit.setupStage;
 
-import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.Router;
-import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.controller.PdfRenderingService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -120,7 +117,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
     final ResultBox resultBox = new ResultBox(
         inflater, new Router(), pdfRenderingService,
         major, minor, new ListView<>(),
-        new SimpleObjectProperty<>(UiTestHelper.getColorScheme()));
+        new SimpleObjectProperty<>(UiTestDataCreator.getColorScheme()));
 
     final Scene scene = new Scene(resultBox, 200, 200);
     stage.setScene(scene);

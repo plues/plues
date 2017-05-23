@@ -2,7 +2,7 @@ package de.hhu.stups.plues.studienplaene;
 
 import static org.junit.Assert.assertNotNull;
 
-import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.exceptions.RenderingException;
 
 import org.junit.Before;
@@ -28,7 +28,7 @@ public class TestRenderer extends TestBase {
 
   @Test
   public void testItWorksForColor() throws RenderingException, IOException {
-    final Renderer renderer = new Renderer(store, result, course, UiTestHelper.getColorScheme());
+    final Renderer renderer = new Renderer(store, result, course, UiTestDataCreator.getColorScheme());
     final ByteArrayOutputStream result = renderer.getResult();
 
     final File pdf = File.createTempFile("color", ".pdf");

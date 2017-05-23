@@ -16,7 +16,7 @@ import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
@@ -25,7 +25,6 @@ import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -55,7 +54,7 @@ import java.util.concurrent.TimeUnit;
 public class PartialTimeTablesTest extends ApplicationTest {
 
   private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-  private final ObservableList<Course> courseList = UiTestHelper.createCourseList();
+  private final ObservableList<Course> courseList = UiTestDataCreator.createCourseList();
   private final Store store;
 
   private MajorMinorCourseSelection courseSelection;
@@ -182,7 +181,7 @@ public class PartialTimeTablesTest extends ApplicationTest {
     });
 
     final Inflater inflater = new Inflater(loader);
-    final SolverService solverService = UiTestHelper.getMockedSolverService();
+    final SolverService solverService = UiTestDataCreator.getMockedSolverService();
 
     final Delayed<SolverService> delayedSolverService = new Delayed<>();
     delayedSolverService.set(solverService);
@@ -210,11 +209,11 @@ public class PartialTimeTablesTest extends ApplicationTest {
     courseSelection = new MajorMinorCourseSelection(inflater);
     Platform.runLater(() -> {
       courseSelection.setMajorCourseList(FXCollections.observableArrayList(
-          Arrays.asList(UiTestHelper.getMockedMajorCourse(modules),
-              UiTestHelper.getMockedMajorCourse(modules))));
+          Arrays.asList(UiTestDataCreator.getMockedMajorCourse(modules),
+              UiTestDataCreator.getMockedMajorCourse(modules))));
       courseSelection.setMinorCourseList(FXCollections.observableArrayList(
-          Arrays.asList(UiTestHelper.getMockedMinorCourse(modules),
-              UiTestHelper.getMockedMajorCourse(modules))));
+          Arrays.asList(UiTestDataCreator.getMockedMinorCourse(modules),
+              UiTestDataCreator.getMockedMajorCourse(modules))));
     });
 
     final CheckBoxGroupFactory checkBoxGroupFactory = mock(CheckBoxGroupFactory.class);
@@ -227,7 +226,7 @@ public class PartialTimeTablesTest extends ApplicationTest {
         executorService.submit((PdfRenderingTask)invocation.getArgument(0)))
       .when(pdfRenderingService).submit(any());
     when(pdfRenderingService.getTask(any(), any(), any()))
-      .thenReturn(UiTestHelper.getWaitingPdfRenderingTask());
+      .thenReturn(UiTestDataCreator.getWaitingPdfRenderingTask());
     when(pdfRenderingService.colorSchemeProperty()).thenReturn(new SimpleObjectProperty<>());
     when(pdfRenderingService.availableProperty())
       .thenReturn(new SimpleBooleanProperty(true));

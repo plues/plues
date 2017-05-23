@@ -4,7 +4,7 @@ import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.Router;
-import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.UiTestDataCreator;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
@@ -83,11 +83,11 @@ public class ResultGridCellTest extends ApplicationTest {
   public void start(final Stage stage) throws Exception {
     final Router router = new Router();
     resultGridCell = new ResultGridCell(ResultState.UNKNOWN,
-        UiTestHelper.createCourse("shortName1", "bk", "H"),
-        UiTestHelper.createCourse("shortName2", "bk", "N"));
+        UiTestDataCreator.createCourse("shortName1", "bk", "H"),
+        UiTestDataCreator.createCourse("shortName2", "bk", "N"));
     resultGridCell.setRouter(router);
     resultGridCellSingleCourse = new ResultGridCell(ResultState.UNKNOWN,
-        UiTestHelper.createCourse("shortName1", "bk", "H"));
+        UiTestDataCreator.createCourse("shortName1", "bk", "H"));
     resultGridCellSingleCourse.setRouter(router);
 
     box.getChildren().addAll(resultGridCell, resultGridCellSingleCourse);
