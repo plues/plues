@@ -3,7 +3,6 @@ package de.hhu.stups.plues.tasks;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import de.be4.classicalb.core.parser.exceptions.BException;
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.modelgenerator.FileType;
@@ -158,7 +157,7 @@ public class SolverLoaderTask extends Task<Solver> {
   }
 
   @SuppressWarnings("unused")
-  private Solver startProbSolver() throws IOException, BException, SolverException {
+  private Solver startProbSolver() throws IOException, SolverException {
     ///
     this.updateMessage(resources.getString("prepareModels"));
     this.updateProgress(0, MAX_STEPS);
