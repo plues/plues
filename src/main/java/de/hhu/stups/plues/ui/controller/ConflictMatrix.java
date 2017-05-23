@@ -303,17 +303,17 @@ public class ConflictMatrix extends GridPane implements Initializable {
    */
   private void highlightImpossibleCombinations() {
     IntStream.range(0, combinableMinorCourses.size())
-        .forEach(row -> IntStream.range(0, combinableMajorCourses.size())
-            .forEach(col -> {
-              final Course majorCourse = combinableMajorCourses.get(col);
-              final Course minorCourse = combinableMinorCourses.get(row);
-              if (majorCourse.getShortName()
-                  .equals(minorCourse.getShortName())) {
-                cellMap.get(
-                    new CourseSelection(majorCourse, minorCourse))
-                    .setResultState(ResultState.IMPOSSIBLE_COMBINATION);
-              }
-            }));
+        .forEach(row -> {
+          final Course minorCourse = combinableMinorCourses.get(row);
+          IntStream.range(0, combinableMajorCourses.size())
+              .forEach(col -> {
+                final Course majorCourse = combinableMajorCourses.get(col);
+                if (!majorCourse.getMinorCourses().contains(minorCourse)) {
+                  cellMap.get(new CourseSelection(majorCourse, minorCourse))
+                      .setResultState(ResultState.IMPOSSIBLE_COMBINATION);
+                }
+              });
+        });
   }
 
   private void initializeGridPaneCombinable() {
