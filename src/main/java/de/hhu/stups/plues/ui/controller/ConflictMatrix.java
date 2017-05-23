@@ -143,7 +143,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
    * a {@link ResultGridCell}.
    */
   @Inject
-  public ConflictMatrix(final Inflater inflater, final Delayed<Store> delayedStore,
+  public ConflictMatrix(final Inflater inflater,
+                        final Delayed<Store> delayedStore,
                         final Delayed<SolverService> delayedSolverService,
                         final UiDataService uiDataService,
                         final ExecutorService executorService,
@@ -299,62 +300,72 @@ public class ConflictMatrix extends GridPane implements Initializable {
   }
 
   /**
-   * Highlight impossible combinations, i.e. combinations with the same major and minor course.
+   * Highlight impossible combinations using each major courses' given list of minor courses.
    */
   private void highlightImpossibleCombinations() {
-    IntStream.range(0, combinableMinorCourses.size())
-        .forEach(row -> {
-          final Course minorCourse = combinableMinorCourses.get(row);
-          IntStream.range(0, combinableMajorCourses.size())
-              .forEach(col -> {
-                final Course majorCourse = combinableMajorCourses.get(col);
-                if (!majorCourse.getMinorCourses().contains(minorCourse)) {
-                  cellMap.get(new CourseSelection(majorCourse, minorCourse))
-                      .setResultState(ResultState.IMPOSSIBLE_COMBINATION);
-                }
-              });
-        });
+    IntStream.range(0, combinableMinorCourses.size()).forEach(row -> {
+      final Course minorCourse = combinableMinorCourses.get(row);
+      highlightImpossibleCombinationsForGivenMinor(minorCourse);
+    });
+  }
+
+  private void highlightImpossibleCombinationsForGivenMinor(final Course minorCourse) {
+    IntStream.range(0, combinableMajorCourses.size()).forEach(col -> {
+      final Course majorCourse = combinableMajorCourses.get(col);
+      if (!majorCourse.getMinorCourses().contains(minorCourse)) {
+        cellMap.get(new CourseSelection(majorCourse, minorCourse))
+            .setResultState(ResultState.IMPOSSIBLE_COMBINATION);
+      }
+    });
   }
 
   private void initializeGridPaneCombinable() {
     final DoubleProperty heightProperty = new SimpleDoubleProperty();
     final DoubleProperty widthProperty = new SimpleDoubleProperty();
-    IntStream.range(0, combinableMinorCourses.size())
-        .forEach(index -> {
-          final Course course = combinableMinorCourses.get(index);
-          final CourseGridCell courseGridCell = new CourseGridCell(course.getKey(),
-              course.getFullName(), VERTICAL);
-          gridPaneCombinable.add(courseGridCell, index + 1, 0);
-          // get the height property of a minor names row..
-          if (index == combinableMinorCourses.size() - 1) {
-            heightProperty.bind(courseGridCell.heightProperty());
-          }
-        });
-    IntStream.range(0, combinableMajorCourses.size())
-        .forEach(index -> {
-          final Course course = combinableMajorCourses.get(index);
-          final CourseGridCell courseGridCell = new CourseGridCell(course.getKey(),
-              course.getFullName(), "");
-          gridPaneCombinable.add(courseGridCell, 0, index + 1);
-          // ..and the width property of a major names column
-          if (index == combinableMajorCourses.size() - 1) {
-            widthProperty.bind(courseGridCell.widthProperty());
-          }
-        });
+    initializeMinorCourseNames(heightProperty);
+    initializeMajorCourseNames(widthProperty);
     // add legend like cell at position (0,0)
     gridPaneCombinable.add(getLegendGridCell(heightProperty, widthProperty), 0, 0);
+    initializeResultGridCells();
+  }
+
+  private void initializeMinorCourseNames(final DoubleProperty heightProperty) {
+    IntStream.range(0, combinableMinorCourses.size()).forEach(index -> {
+      final Course course = combinableMinorCourses.get(index);
+      final CourseGridCell courseGridCell = new CourseGridCell(course.getKey(),
+          course.getFullName(), VERTICAL);
+      gridPaneCombinable.add(courseGridCell, index + 1, 0);
+      // get the height property of a minor names row..
+      if (index == combinableMinorCourses.size() - 1) {
+        heightProperty.bind(courseGridCell.heightProperty());
+      }
+    });
+  }
+
+  private void initializeMajorCourseNames(final DoubleProperty widthProperty) {
+    IntStream.range(0, combinableMajorCourses.size()).forEach(index -> {
+      final Course course = combinableMajorCourses.get(index);
+      final CourseGridCell courseGridCell = new CourseGridCell(course.getKey(),
+          course.getFullName(), "");
+      gridPaneCombinable.add(courseGridCell, 0, index + 1);
+      // ..and the width property of a major names column
+      if (index == combinableMajorCourses.size() - 1) {
+        widthProperty.bind(courseGridCell.widthProperty());
+      }
+    });
+  }
+
+  private void initializeResultGridCells() {
     IntStream.range(0, combinableMinorCourses.size()).forEach(col ->
-        IntStream.range(0, combinableMajorCourses.size())
-            .forEach(row -> {
-              final Course majorCourse = combinableMajorCourses.get(row);
-              final Course minorCourse = combinableMinorCourses.get(col);
-              final ResultGridCell gridCell = new ResultGridCell(ResultState.UNKNOWN, majorCourse,
-                  minorCourse);
-              gridCell.setRouter(router);
-              cellMap.put(
-                  new CourseSelection(majorCourse, minorCourse), gridCell);
-              gridPaneCombinable.add(gridCell, col + 1, row + 1);
-            }));
+        IntStream.range(0, combinableMajorCourses.size()).forEach(row -> {
+          final Course majorCourse = combinableMajorCourses.get(row);
+          final Course minorCourse = combinableMinorCourses.get(col);
+          final ResultGridCell gridCell = new ResultGridCell(ResultState.UNKNOWN, majorCourse,
+              minorCourse);
+          gridCell.setRouter(router);
+          cellMap.put(new CourseSelection(majorCourse, minorCourse), gridCell);
+          gridPaneCombinable.add(gridCell, col + 1, row + 1);
+        }));
   }
 
   /**
@@ -417,6 +428,16 @@ public class ConflictMatrix extends GridPane implements Initializable {
   @SuppressWarnings("unused")
   public void checkAll() {
     feasibilityCheckRunning.setValue(true);
+    setPrepareFeasibilityCheck();
+    setExecuteFeasibilityCheck();
+    executor.submit(prepareFeasibilityCheck);
+  }
+
+  /**
+   * Collect all feasibility tasks using {@link CollectFeasibilityTasksTask} and set {@link
+   * #prepareFeasibilityCheck} as well as its listener.
+   */
+  private void setPrepareFeasibilityCheck() {
     prepareFeasibilityCheck = new CollectFeasibilityTasksTask(
         delayedSolverService.get(), combinableMajorCourses,
         combinableMinorCourses, standaloneCourses, results, impossibleCourses);
@@ -431,6 +452,18 @@ public class ConflictMatrix extends GridPane implements Initializable {
       checkFeasibilityTasks.clear();
     });
 
+    prepareFeasibilityCheck.setOnSucceeded(event -> {
+      checkFeasibilityTasks.addAll(prepareFeasibilityCheck.getValue());
+      executeFeasibilityCheck.setTasks(checkFeasibilityTasks);
+      executor.submit(executeFeasibilityCheck);
+    });
+  }
+
+  /**
+   * Create the {@link BatchFeasibilityTask} and set {@link #executeFeasibilityCheck} as well as its
+   * listener.
+   */
+  private void setExecuteFeasibilityCheck() {
     executeFeasibilityCheck = new BatchFeasibilityTask(executor, checkFeasibilityTasks);
 
     executeFeasibilityCheck.setOnCancelled(event -> {
@@ -452,16 +485,6 @@ public class ConflictMatrix extends GridPane implements Initializable {
       feasibilityCheckRunning.setValue(false);
       checkFeasibilityTasks.clear();
     });
-
-    //
-    prepareFeasibilityCheck.setOnSucceeded(event -> {
-      checkFeasibilityTasks.addAll(prepareFeasibilityCheck.getValue());
-      executeFeasibilityCheck.setTasks(checkFeasibilityTasks);
-      executor.submit(executeFeasibilityCheck);
-    });
-
-
-    executor.submit(prepareFeasibilityCheck);
   }
 
   /**
