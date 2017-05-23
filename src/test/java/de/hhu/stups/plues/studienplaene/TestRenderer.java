@@ -28,7 +28,8 @@ public class TestRenderer extends TestBase {
 
   @Test
   public void testItWorksForColor() throws RenderingException, IOException {
-    final Renderer renderer = new Renderer(store, result, course, UiTestDataCreator.getColorScheme());
+    final Renderer renderer =
+        new Renderer(store, result, course, UiTestDataCreator.getColorScheme());
     final ByteArrayOutputStream result = renderer.getResult();
 
     final File pdf = File.createTempFile("color", ".pdf");

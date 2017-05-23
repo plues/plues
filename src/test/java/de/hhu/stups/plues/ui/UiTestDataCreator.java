@@ -43,6 +43,9 @@ public interface UiTestDataCreator {
     return createCourse(shortName, degree, kzfa, Collections.emptySet());
   }
 
+  /**
+   * Create a dummy course with a given set of minor courses.
+   */
   static Course createCourse(final String shortName, final String degree,
                                     final String kzfa, final Set<Course> minorCourses) {
     final Course course = new Course();
