@@ -9,6 +9,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.keys.CourseSelection;
 import de.hhu.stups.plues.routes.RouteNames;
+import de.hhu.stups.plues.services.PdfRenderingService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;

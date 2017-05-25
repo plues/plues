@@ -9,9 +9,9 @@ import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.services.PdfRenderingService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.ui.UiTestDataCreator;
-import de.hhu.stups.plues.ui.controller.PdfRenderingService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.property.ObjectProperty;

@@ -8,10 +8,10 @@ import de.hhu.stups.plues.keys.CourseSelection;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
+import de.hhu.stups.plues.services.PdfRenderingService;
 import de.hhu.stups.plues.studienplaene.ColorScheme;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
-import de.hhu.stups.plues.ui.controller.PdfRenderingService;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
