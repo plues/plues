@@ -208,14 +208,9 @@ public class PartialTimeTablesTest extends ApplicationTest {
     final Set<Module> modules = Collections.singleton(majorModule);
 
     courseSelection = new MajorMinorCourseSelection(inflater);
-    Platform.runLater(() -> {
-      courseSelection.setMajorCourseList(FXCollections.observableArrayList(
-          Arrays.asList(UiTestDataCreator.getMockedMajorCourse(modules),
-              UiTestDataCreator.getMockedMajorCourse(modules))));
-      courseSelection.setMinorCourseList(FXCollections.observableArrayList(
-          Arrays.asList(UiTestDataCreator.getMockedMinorCourse(modules),
-              UiTestDataCreator.getMockedMajorCourse(modules))));
-    });
+    Platform.runLater(() -> courseSelection.setMajorCourseList(FXCollections.observableArrayList(
+        Arrays.asList(UiTestDataCreator.getMockedMajorCourse(modules),
+            UiTestDataCreator.getMockedMajorCourse(modules)))));
 
     final CheckBoxGroupFactory checkBoxGroupFactory = mock(CheckBoxGroupFactory.class);
     when(checkBoxGroupFactory.create(any(), any()))

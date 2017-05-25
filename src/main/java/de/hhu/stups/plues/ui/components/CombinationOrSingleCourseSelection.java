@@ -101,8 +101,6 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
 
     majorMinorCourseSelection.majorCourseListProperty()
         .bind(new SimpleListProperty<>(coursesProperty.filtered(Course::isMajor)));
-    majorMinorCourseSelection.minorCourseListProperty()
-        .bind(new SimpleListProperty<>(coursesProperty.filtered(Course::isMinor)));
 
     selectedCourses.bind(Bindings.when(rbSingleSelection.selectedProperty())
         .then(new SingleCourseListBinding()).otherwise(
@@ -123,7 +121,7 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
    * standalone course is given. If only one combinable course is given use the {@link
    * #singleCourseSelection}.
    */
-  public void selectCourses(Course... courses) {
+  public void selectCourses(final Course... courses) {
     if (courses.length == 1 && courses[0].isCombinable()) {
       rbSingleSelection.setSelected(true);
       singleCourseSelection.getSelectionModel().select(courses[0]);

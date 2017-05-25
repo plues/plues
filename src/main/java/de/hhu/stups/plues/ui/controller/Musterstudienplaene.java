@@ -92,10 +92,8 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
         (observable, oldValue, newValue) ->
             Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
 
-    delayedStore.whenAvailable(store -> {
-      courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors()));
-      courseSelection.setMinorCourseList(FXCollections.observableList(store.getMinors()));
-    });
+    delayedStore.whenAvailable(store
+        -> courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors())));
 
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 

@@ -145,7 +145,6 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
 
     delayedStore.whenAvailable(store -> {
       courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors()));
-      courseSelection.setMinorCourseList(FXCollections.observableList(store.getMinors()));
 
       this.storeProperty.set(store);
     });

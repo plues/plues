@@ -165,7 +165,6 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     courseSelection = new MajorMinorCourseSelection(inflater);
     Platform.runLater(() -> {
       courseSelection.setMajorCourseList(courseList);
-      courseSelection.setMinorCourseList(courseList);
     });
 
     final PdfRenderingService pdfRenderingService = mock(PdfRenderingService.class);

@@ -41,8 +41,8 @@ import java.util.stream.Collectors;
 
 /**
  * Create the component containing the combo boxes to choose major and minor courses. When using
- * the component we need to initially call {@link #setMajorCourseList(ObservableList)} and {@link
- * #setMinorCourseList(ObservableList)}. As soon as the solver is available the impossible courses
+ * the component we need to initially call {@link #setMajorCourseList(ObservableList)}.
+ * As soon as the solver is available the impossible courses
  * can be highlighted via the {@link #impossibleCoursesProperty} property.
  */
 public class MajorMinorCourseSelection extends GridPane implements Initializable, Observable {
@@ -211,19 +211,9 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     return this.majorCourseList;
   }
 
-  @SuppressWarnings("WeakerAccess")
-  public ListProperty<Course> minorCourseListProperty() {
-    return this.minorCourseList;
-  }
-
   public void setMajorCourseList(final ObservableList<Course> majorCourseList) {
     this.majorCourseList.set(FXCollections.observableArrayList(
         majorCourseList.stream().filter(Course::isMajor).collect(Collectors.toList())));
-  }
-
-  public void setMinorCourseList(final ObservableList<Course> minorCourseList) {
-    this.minorCourseList.set(FXCollections.observableArrayList(
-        minorCourseList.stream().filter(Course::isMinor).collect(Collectors.toList())));
   }
 
   private static class ListViewListCellCallback

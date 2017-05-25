@@ -114,7 +114,6 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
   public void start(final Stage stage) throws Exception {
     courseSelection = new MajorMinorCourseSelection(new Inflater(new FXMLLoader()));
 
-    courseSelection.setMinorCourseList(courseList);
     courseSelection.setMajorCourseList(courseList);
 
     final Scene scene = new Scene(this.courseSelection, 100, 100);
