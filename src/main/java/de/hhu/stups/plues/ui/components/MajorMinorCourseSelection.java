@@ -4,9 +4,9 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ListBinding;
@@ -31,6 +31,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import org.reactfx.Change;
+import org.reactfx.EventStreams;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -50,7 +52,6 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private final List<InvalidationListener> listeners = new ArrayList<>();
   // input properties
   private final ListProperty<Course> majorCourseList = new SimpleListProperty<>();
-  private final ListProperty<Course> minorCourseList = new SimpleListProperty<>();
   private final SetProperty<Course> impossibleCoursesProperty = new SimpleSetProperty<>();
   // output properties
   private final ObjectProperty<Course> selectedMajor = new SimpleObjectProperty<>();
@@ -117,9 +118,15 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
 
     cbMinor.itemsProperty().addListener((observable, oldValue, newValue)
         -> cbMinor.getSelectionModel().selectFirst());
+    final Binding<ObservableList<Course>> binding
+        = EventStreams.changesOf(cbMajor.getSelectionModel().selectedItemProperty())
+            .map(Change::getNewValue)
+            .map(Course::getMinorCourses)
+            .map(FXCollections::observableArrayList)
+            .toBinding(FXCollections.emptyObservableList());
 
     cbMajor.itemsProperty().bind(majorCourseList);
-    cbMinor.itemsProperty().bind(new MinorCourseListBinding());
+    cbMinor.itemsProperty().bind(binding);
 
     final ReadOnlyObjectProperty<Course> selectedMajorProperty
         = this.cbMajor.getSelectionModel().selectedItemProperty();
@@ -259,27 +266,6 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     @Override
     public Course fromString(final String string) {
       throw new UnsupportedOperationException();
-    }
-  }
-
-  private class MinorCourseListBinding extends ListBinding<Course> {
-    MinorCourseListBinding() {
-      bind(cbMajor.getSelectionModel().selectedItemProperty(), minorCourseList);
-    }
-
-    @Override
-    public void dispose() {
-      super.dispose();
-      unbind(cbMajor.getSelectionModel().selectedItemProperty(), minorCourseList);
-    }
-
-    @Override
-    protected ObservableList<Course> computeValue() {
-      final Course major = getSelectedMajor();
-      if (major == null) {
-        return minorCourseList;
-      }
-      return FXCollections.observableArrayList(major.getMinorCourses());
     }
   }
 
