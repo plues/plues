@@ -66,19 +66,16 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
       if (!majorCourse.isCombinable() && shouldBeChecked(majorCourse)) {
         feasibilityTasks.add(solverService.checkFeasibilityTask(majorCourse));
       } else {
-        feasibilityTasks.addAll(minorCourses.stream()
-            .filter(majorCourse::isCombinableWith)
+        feasibilityTasks.addAll(majorCourse.getMinorCourses().stream()
             .filter(minorCourse -> shouldBeChecked(majorCourse, minorCourse))
             .map(minorCourse -> solverService.checkFeasibilityTask(majorCourse, minorCourse))
             .collect(Collectors.toList()));
       }
     });
 
-    feasibilityTasks.addAll(collectTasks(standaloneCourses));
-
-    // also check the results for all single courses
     feasibilityTasks.addAll(collectTasks(majorCourses));
     feasibilityTasks.addAll(collectTasks(minorCourses));
+    feasibilityTasks.addAll(collectTasks(standaloneCourses));
 
     return feasibilityTasks;
   }

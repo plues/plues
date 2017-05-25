@@ -29,7 +29,6 @@ public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
   private final PdfRenderingTaskFactory taskFactory;
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final List<Course> majors;
-  private final List<Course> minors;
   private final ObjectProperty<ColorScheme> colorSchemeProperty;
 
   @Inject
@@ -37,7 +36,6 @@ public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
                                final Delayed<SolverService> solverService,
                                final PdfRenderingTaskFactory factory) {
     this.majors = store.get().getMajors();
-    this.minors = store.get().getMinors();
     this.solverService = solverService.get();
     this.taskFactory = factory;
     colorSchemeProperty = new SimpleObjectProperty<>();
@@ -57,7 +55,7 @@ public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
    */
   private Set<PdfRenderingTask> combineMajorsMinors() {
     final Set<PdfRenderingTask> tasks
-        = new HashSet<>(majors.size() * minors.size());
+        = new HashSet<>(majors.size());
 
     majors.forEach(majorCourse -> {
       if (!majorCourse.isCombinable()) {
@@ -73,8 +71,7 @@ public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
   }
 
   private List<PdfRenderingTask> collectCourseCombinationTasks(final Course majorCourse) {
-    return minors.stream()
-        .filter(majorCourse::isCombinableWith)
+    return majorCourse.getMinorCourses().stream()
         .map(minorCourse -> taskFactory.create(
             majorCourse, minorCourse,
             solverService.computeFeasibilityTask(majorCourse, minorCourse), colorSchemeProperty))
