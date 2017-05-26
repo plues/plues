@@ -6,6 +6,7 @@ import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.UiTestDataCreator;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -83,10 +84,12 @@ public class ResultGridCellTest extends ApplicationTest {
   public void start(final Stage stage) throws Exception {
     final Router router = new Router();
     resultGridCell = new ResultGridCell(ResultState.UNKNOWN,
+        new SimpleBooleanProperty(true),
         UiTestDataCreator.createCourse("shortName1", "bk", "H"),
         UiTestDataCreator.createCourse("shortName2", "bk", "N"));
     resultGridCell.setRouter(router);
     resultGridCellSingleCourse = new ResultGridCell(ResultState.UNKNOWN,
+        new SimpleBooleanProperty(true),
         UiTestDataCreator.createCourse("shortName1", "bk", "H"));
     resultGridCellSingleCourse.setRouter(router);
 
