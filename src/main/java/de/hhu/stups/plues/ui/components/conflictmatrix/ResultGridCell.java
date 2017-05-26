@@ -6,12 +6,13 @@ import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.Router;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
@@ -22,17 +23,30 @@ public class ResultGridCell extends Pane {
 
   private final ResourceBundle resources = ResourceBundle.getBundle("lang.conflictMatrix");
   private final ObjectProperty<ResultState> resultState;
-  private ContextMenu contextMenu;
   private final Course[] courses;
+  private final BooleanProperty contextMenuFocusedProperty;
+  private final ObjectProperty<MouseEvent> showContextMenuProperty;
+  private final BooleanProperty enabledProperty;
+
+  private ContextMenu contextMenu;
+  private Tooltip tooltip;
 
   /**
    * A grid cell of the conflict matrix describing a specific result or an empty cell.
    */
-  public ResultGridCell(final ResultState resultState, final Course... courses) {
+  public ResultGridCell(final ResultState resultState,
+                        final BooleanProperty enabledProperty,
+                        final Course... courses) {
     this.resultState = new SimpleObjectProperty<>(resultState);
     this.resultState.addListener((observable, oldValue, newValue) ->
         Platform.runLater(() -> updateResultGridCell(newValue, courses)));
+    this.enabledProperty = enabledProperty;
     this.courses = courses;
+
+    contextMenuFocusedProperty = new SimpleBooleanProperty(false);
+    showContextMenuProperty = new SimpleObjectProperty<>();
+    showContextMenuProperty.addListener((observable, oldValue, newValue) ->
+        showContextMenu(newValue));
 
     getStyleClass().add("matrix-cell");
     prefHeight(25.0);
@@ -41,6 +55,12 @@ public class ResultGridCell extends Pane {
 
   @SuppressWarnings("unused")
   private void showContextMenu(final MouseEvent event) {
+    if (!enabledProperty.get()) {
+      return;
+    }
+    if (tooltip != null) {
+      tooltip.hide();
+    }
     contextMenu.show(this, event.getScreenX(), event.getScreenY());
   }
 
@@ -80,7 +100,7 @@ public class ResultGridCell extends Pane {
     final Label label = new Label();
     label.prefWidthProperty().bind(widthProperty());
     label.prefHeightProperty().bind(heightProperty());
-    final Tooltip tooltip = new Tooltip(resources.getString("legendImpossible"));
+    tooltip = new Tooltip(resources.getString("legendImpossible"));
     Helpers.showTooltipOnEnter(label, tooltip, contextMenu.showingProperty());
     getChildren().add(label);
   }
@@ -95,7 +115,8 @@ public class ResultGridCell extends Pane {
     final Label label = new Label();
     label.prefWidthProperty().bind(widthProperty());
     label.prefHeightProperty().bind(heightProperty());
-    Helpers.showTooltipOnEnter(label, new Tooltip(resources.getString("legendInfeasible")),
+    tooltip = new Tooltip(resources.getString("legendInfeasible"));
+    Helpers.showTooltipOnEnter(label, tooltip,
         contextMenu.showingProperty());
     getChildren().add(label);
   }
@@ -126,7 +147,7 @@ public class ResultGridCell extends Pane {
       final Label label = new Label();
       label.prefWidthProperty().bind(widthProperty());
       label.prefHeightProperty().bind(heightProperty());
-      final Tooltip tooltip = new Tooltip(resources.getString("major") + ": "
+      tooltip = new Tooltip(resources.getString("major") + ": "
           + courseNames[0].getName() + "\n" + resources.getString("minor") + ": "
           + courseNames[1].getName());
       Helpers.showTooltipOnEnter(label, tooltip, contextMenu.showingProperty());
@@ -163,10 +184,7 @@ public class ResultGridCell extends Pane {
    */
   public void setRouter(final Router router) {
     contextMenu = new ResultContextMenu(router, resultState, courses);
-    setOnMouseClicked(event -> {
-      if (event.getButton().equals(MouseButton.PRIMARY)) {
-        showContextMenu(event);
-      }
-    });
+    ContextMenuListeners.setContextMenuListeners(this, contextMenu, contextMenuFocusedProperty,
+        showContextMenuProperty);
   }
 }
