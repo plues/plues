@@ -8,6 +8,7 @@ import de.hhu.stups.plues.tasks.SolverTask;
 
 import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,11 +64,13 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
 
       updateProgress(++count[0], total);
 
-      if (!majorCourse.isCombinable() && shouldBeChecked(majorCourse)) {
+      if (!majorCourse.isCombinable() && CheckCourseCombination
+          .shouldBeChecked(results, impossibleCourses, majorCourse)) {
         feasibilityTasks.add(solverService.checkFeasibilityTask(majorCourse));
       } else {
         feasibilityTasks.addAll(majorCourse.getMinorCourses().stream()
-            .filter(minorCourse -> shouldBeChecked(majorCourse, minorCourse))
+            .filter(minorCourse -> CheckCourseCombination
+                .shouldBeChecked(results, impossibleCourses, majorCourse, minorCourse))
             .map(minorCourse -> solverService.checkFeasibilityTask(majorCourse, minorCourse))
             .collect(Collectors.toList()));
       }
@@ -82,38 +85,10 @@ public class CollectFeasibilityTasksTask extends Task<Set<SolverTask<Boolean>>> 
 
   private List<SolverTask<Boolean>> collectTasks(final List<Course> courses) {
     return courses.stream()
-        .filter(this::shouldBeChecked)
+        .filter(course ->
+            CheckCourseCombination.shouldBeChecked(results, impossibleCourses, course))
         .map(solverService::checkFeasibilityTask)
         .collect(Collectors.toList());
-  }
-
-  /**
-   * Check if the feasibility of a combination of courses or a standalone course has already been
-   * computed or contains an impossible course. The results are stored in {@link
-   * SolverService#courseSelectionResults}. Furthermore, check that the computed result in the
-   * cache is true, because the user could have cancelled a task that is feasible normally.
-   *
-   * @param courses The key of the courses.
-   * @return Return false if {@link SolverService#courseSelectionResults} contains the key and the
-   *         stored result is true or the key contains an impossible course, otherwise return true.
-   */
-  private boolean shouldBeChecked(final Course ... courses) {
-    final CourseSelection courseSelection = new CourseSelection(courses);
-    // if course has been successfully checked we do not want to check it again
-    return !results.getOrDefault(courseSelection, ResultState.FAILED).succeeded()
-        && canBeChecked(courseSelection);
-
-  }
-
-  private boolean canBeChecked(final CourseSelection courseSelection) {
-    // if the given selection contains impossible courses we do not bother to check it.
-    for (final Course course : courseSelection.getCourses()) {
-      if (!impossibleCourses.contains(course)) {
-        continue;
-      }
-      return false;
-    }
-    return true;
   }
 
   @Override
