@@ -41,7 +41,9 @@ public class Router {
    * @param route Route
    */
   public Integer register(final RouteNames routeName, final Route route) {
-    logger.debug(String.format("Registering consumer for route %s ", routeName.name()));
+    if (logger.isDebugEnabled()) {
+      logger.debug(String.format("Registering consumer for route %s ", routeName.name()));
+    }
 
     final Integer idx = counter.getAndIncrement();
 
