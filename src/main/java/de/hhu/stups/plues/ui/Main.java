@@ -1,6 +1,5 @@
 package de.hhu.stups.plues.ui;
 
-import static com.google.inject.Stage.DEVELOPMENT;
 import static com.google.inject.Stage.PRODUCTION;
 
 import com.google.inject.Guice;
