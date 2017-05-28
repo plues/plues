@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -250,23 +251,20 @@ public class ConflictMatrix extends GridPane implements Initializable {
    */
   @SuppressWarnings("unused")
   private void highlightImpossibleCourses(final ObservableSet<Course> courses) {
-    courses.forEach(impossibleCourse -> {
-      if (impossibleCourse.isCombinable()) {
-        if (impossibleCourse.isMajor()) {
-          impossibleCourse.getMinorCourses().forEach(minorCourse -> cellMap
-              .get(new CourseSelection(impossibleCourse, minorCourse))
-              .setResultState(ResultState.IMPOSSIBLE));
+    final List<CourseSelection> courseSelections
+        = courses.stream().map(CourseSelection::new).collect(Collectors.toList());
 
-        } else {
-          impossibleCourse.getMajorCourses().forEach(majorCourse -> cellMap
-              .get(new CourseSelection(majorCourse, impossibleCourse))
-              .setResultState(ResultState.IMPOSSIBLE));
-        }
+    courses.stream().filter(Course::isCombinable).flatMap(course -> {
+      final Set<Course> courseSet;
+      if (course.isMajor()) {
+        courseSet = course.getMinorCourses();
+      } else {
+        courseSet = course.getMajorCourses();
       }
-
-      cellMap.get(new CourseSelection(impossibleCourse))
-          .setResultState(ResultState.IMPOSSIBLE);
-    });
+      return courseSet.stream().map(other -> new CourseSelection(course, other));
+    }).collect(Collectors.toCollection(() -> courseSelections))
+        .forEach(courseSelection
+            -> cellMap.get(courseSelection).setResultState(ResultState.IMPOSSIBLE));
 
     impossibleCoursesAmount.set(cellMap.entrySet().stream().filter(entry ->
         entry.getKey().isCurriculum()
