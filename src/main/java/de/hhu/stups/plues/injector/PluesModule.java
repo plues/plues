@@ -30,6 +30,8 @@ import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.FeasibilityBoxFactory;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
+import de.hhu.stups.plues.ui.components.conflictmatrix.ResultContextMenuFactory;
+import de.hhu.stups.plues.ui.components.conflictmatrix.ResultGridCellFactory;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
@@ -105,6 +107,8 @@ public class PluesModule extends AbstractModule {
     install(new FactoryModuleBuilder().build(CheckBoxGroupFactory.class));
     install(new FactoryModuleBuilder().build(StoreLoaderTaskFactory.class));
     install(new FactoryModuleBuilder().build(SessionListViewFactory.class));
+    install(new FactoryModuleBuilder().build(ResultGridCellFactory.class));
+    install(new FactoryModuleBuilder().build(ResultContextMenuFactory.class));
 
     install(new FactoryModuleBuilder().build(ControllerRouteFactory.class));
     install(new FactoryModuleBuilder().build(HandbookRouteFactory.class));
