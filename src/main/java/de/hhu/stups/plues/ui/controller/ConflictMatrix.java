@@ -217,7 +217,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private void setInitialGridPaneVisibility(final Store store) {
     final List<Course> courses
         = store.getCourses().stream()
-            .sorted(Comparator.comparing(Course::getShortName))
+            .sorted(Comparator.comparing(Course::getPo).thenComparing(Course::getShortName))
             .collect(Collectors.toList());
     final List<Course> standaloneCourses
         = courses.stream().filter(c -> !c.isCombinable()).collect(Collectors.toList());
