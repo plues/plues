@@ -4,7 +4,6 @@ import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.Router;
-
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -26,7 +25,7 @@ public class ResultGridCell extends Pane {
   private final Course[] courses;
   private final BooleanProperty contextMenuFocusedProperty;
   private final ObjectProperty<MouseEvent> showContextMenuProperty;
-  private final BooleanProperty enabledProperty;
+  private final BooleanProperty enabledProperty = new SimpleBooleanProperty(false);
 
   private ContextMenu contextMenu;
   private Tooltip tooltip;
@@ -35,12 +34,10 @@ public class ResultGridCell extends Pane {
    * A grid cell of the conflict matrix describing a specific result or an empty cell.
    */
   public ResultGridCell(final ResultState resultState,
-                        final BooleanProperty enabledProperty,
                         final Course... courses) {
     this.resultState = new SimpleObjectProperty<>(resultState);
     this.resultState.addListener((observable, oldValue, newValue) ->
         Platform.runLater(() -> updateResultGridCell(newValue, courses)));
-    this.enabledProperty = enabledProperty;
     this.courses = courses;
 
     contextMenuFocusedProperty = new SimpleBooleanProperty(false);
@@ -186,5 +183,13 @@ public class ResultGridCell extends Pane {
     contextMenu = new ResultContextMenu(router, resultState, courses);
     ContextMenuListeners.setContextMenuListeners(this, contextMenu, contextMenuFocusedProperty,
         showContextMenuProperty);
+  }
+
+  public BooleanProperty enabledProperty() {
+    return enabledProperty;
+  }
+
+  public void setEnabled(final boolean enabled) {
+    this.enabledProperty.set(enabled);
   }
 }

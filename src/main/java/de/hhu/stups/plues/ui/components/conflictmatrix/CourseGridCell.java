@@ -2,7 +2,6 @@ package de.hhu.stups.plues.ui.components.conflictmatrix;
 
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.Course;
-
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -22,7 +21,20 @@ public class CourseGridCell extends Pane {
   private final String orientation;
   private final CourseContextMenu courseContextMenu;
   private final Tooltip tooltip;
-  private final BooleanProperty enabledProperty;
+
+  private boolean isEnabled() {
+    return enabledProperty.get();
+  }
+
+  public BooleanProperty enabledProperty() {
+    return enabledProperty;
+  }
+
+  private void setEnabled(final boolean enabledProperty) {
+    this.enabledProperty.set(enabledProperty);
+  }
+
+  private final BooleanProperty enabledProperty = new SimpleBooleanProperty(false);
 
   /**
    * Create a grid cell representing a course name.
@@ -31,11 +43,9 @@ public class CourseGridCell extends Pane {
    */
   public CourseGridCell(final Course course,
                         final String orientation,
-                        final ObjectProperty<Course> checkAllCombinationsCourseProperty,
-                        final BooleanProperty enabledProperty) {
+                        final ObjectProperty<Course> checkAllCombinationsCourseProperty) {
     this.course = course;
     this.orientation = orientation;
-    this.enabledProperty = enabledProperty;
     tooltip = new Tooltip(course.getFullName());
 
     final ObjectProperty<MouseEvent> showContextMenuProperty = new SimpleObjectProperty<>();
