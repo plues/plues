@@ -43,9 +43,17 @@ public class ResultGridCell extends Pane {
     EasyBind.subscribe(this.resultState,
         newValue -> Platform.runLater(() -> updateResultGridCell(newValue, courses)));
 
+    contextMenu = resultContextMenuFactory.create(courses);
+    initializeContextMenu();
+
+    getStyleClass().add("matrix-cell");
+    prefHeight(25.0);
+    setMinWidth(40.0);
+  }
+
+  private void initializeContextMenu() {
     final BooleanProperty contextMenuFocusedProperty = new SimpleBooleanProperty(false);
 
-    contextMenu = resultContextMenuFactory.create(courses);
     contextMenu.resultStateProperty().bind(this.resultState);
 
     final ObjectProperty<MouseEvent> showContextMenuProperty = new SimpleObjectProperty<>();
@@ -54,10 +62,6 @@ public class ResultGridCell extends Pane {
 
     ContextMenuListeners.setContextMenuListeners(this, contextMenu,
         contextMenuFocusedProperty, showContextMenuProperty);
-
-    getStyleClass().add("matrix-cell");
-    prefHeight(25.0);
-    setMinWidth(40.0);
   }
 
   @SuppressWarnings("unused")
