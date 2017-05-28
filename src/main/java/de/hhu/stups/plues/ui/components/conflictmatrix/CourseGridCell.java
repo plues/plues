@@ -22,16 +22,8 @@ public class CourseGridCell extends Pane {
   private final CourseContextMenu courseContextMenu;
   private final Tooltip tooltip;
 
-  private boolean isEnabled() {
-    return enabledProperty.get();
-  }
-
   public BooleanProperty enabledProperty() {
     return enabledProperty;
-  }
-
-  private void setEnabled(final boolean enabledProperty) {
-    this.enabledProperty.set(enabledProperty);
   }
 
   private final BooleanProperty enabledProperty = new SimpleBooleanProperty(false);
