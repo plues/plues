@@ -7,7 +7,6 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.keys.CourseSelection;
 import de.hhu.stups.plues.prob.ResultState;
-import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.conflictmatrix.CourseGridCell;
 import de.hhu.stups.plues.ui.components.conflictmatrix.ResultGridCell;
 import de.hhu.stups.plues.ui.components.conflictmatrix.ResultGridCellFactory;
@@ -58,10 +57,12 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
   private final ResultGridCellFactory resultGridCellFactory;
   private final ConflictMatrixService conflictMatrixService;
-  private final LongProperty impossibleCoursesAmount;
-  private final MapProperty<CourseSelection, ResultState> results;
-  private final Map<CourseSelection, ResultGridCell> cellMap;
-  private final ObjectProperty<Course> checkAllCombinationsCourseProperty;
+  private final LongProperty impossibleCoursesAmount = new SimpleLongProperty(0L);
+  private final MapProperty<CourseSelection, ResultState> results
+      = new SimpleMapProperty<>(FXCollections.emptyObservableMap());
+  private final Map<CourseSelection, ResultGridCell> cellMap = new HashMap<>();
+  private final ObjectProperty<Course> checkAllCombinationsCourseProperty
+      = new SimpleObjectProperty<>();
 
   private ResourceBundle resources;
 
@@ -134,22 +135,13 @@ public class ConflictMatrix extends GridPane implements Initializable {
     this.resultGridCellFactory = resultGridCellFactory;
     this.conflictMatrixService = conflictMatrixService;
 
-    results = new SimpleMapProperty<>(FXCollections.emptyObservableMap());
-
-    checkAllCombinationsCourseProperty = new SimpleObjectProperty<>();
-
     checkAllCombinationsCourseProperty.addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
         checkAllCombinations(newValue);
       }
     });
 
-    impossibleCoursesAmount = new SimpleLongProperty(0L);
-
-    cellMap = new HashMap<>();
-
     delayedStore.whenAvailable(this::setInitialGridPaneVisibility);
-
 
     EasyBind.subscribe(conflictMatrixService.impossibleCoursesProperty(),
         this::highlightImpossibleCourses);
