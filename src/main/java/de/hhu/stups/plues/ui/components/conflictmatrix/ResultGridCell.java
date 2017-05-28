@@ -1,9 +1,10 @@
 package de.hhu.stups.plues.ui.components.conflictmatrix;
 
+import com.google.inject.assistedinject.Assisted;
+
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.ResultState;
-import de.hhu.stups.plues.routes.Router;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -15,35 +16,44 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
+import org.fxmisc.easybind.EasyBind;
 
 import java.util.ResourceBundle;
+
+import javax.inject.Inject;
 
 public class ResultGridCell extends Pane {
 
   private final ResourceBundle resources = ResourceBundle.getBundle("lang.conflictMatrix");
-  private final ObjectProperty<ResultState> resultState;
-  private final Course[] courses;
-  private final BooleanProperty contextMenuFocusedProperty;
-  private final ObjectProperty<MouseEvent> showContextMenuProperty;
+  private final ObjectProperty<ResultState> resultState
+      = new SimpleObjectProperty<>(ResultState.UNKNOWN);
+
   private final BooleanProperty enabledProperty = new SimpleBooleanProperty(false);
 
-  private ContextMenu contextMenu;
+  private final ResultContextMenu contextMenu;
   private Tooltip tooltip;
 
   /**
    * A grid cell of the conflict matrix describing a specific result or an empty cell.
    */
-  public ResultGridCell(final ResultState resultState,
-                        final Course... courses) {
-    this.resultState = new SimpleObjectProperty<>(resultState);
-    this.resultState.addListener((observable, oldValue, newValue) ->
-        Platform.runLater(() -> updateResultGridCell(newValue, courses)));
-    this.courses = courses;
+  @Inject
+  public ResultGridCell(final ResultContextMenuFactory resultContextMenuFactory,
+      @Assisted final Course... courses) {
 
-    contextMenuFocusedProperty = new SimpleBooleanProperty(false);
-    showContextMenuProperty = new SimpleObjectProperty<>();
+    EasyBind.subscribe(this.resultState,
+        newValue -> Platform.runLater(() -> updateResultGridCell(newValue, courses)));
+
+    final BooleanProperty contextMenuFocusedProperty = new SimpleBooleanProperty(false);
+
+    contextMenu = resultContextMenuFactory.create(courses);
+    contextMenu.resultStateProperty().bind(this.resultState);
+
+    final ObjectProperty<MouseEvent> showContextMenuProperty = new SimpleObjectProperty<>();
     showContextMenuProperty.addListener((observable, oldValue, newValue) ->
         showContextMenu(newValue));
+
+    ContextMenuListeners.setContextMenuListeners(this, contextMenu,
+        contextMenuFocusedProperty, showContextMenuProperty);
 
     getStyleClass().add("matrix-cell");
     prefHeight(25.0);
@@ -173,16 +183,6 @@ public class ResultGridCell extends Pane {
         || this.resultState.getValue() != ResultState.IMPOSSIBLE_COMBINATION) {
       this.resultState.set(resultState);
     }
-  }
-
-  /**
-   * Create the {@link ResultContextMenu context menu} with the given {@link Router} and set the
-   * cell's mouse event.
-   */
-  public void setRouter(final Router router) {
-    contextMenu = new ResultContextMenu(router, resultState, courses);
-    ContextMenuListeners.setContextMenuListeners(this, contextMenu, contextMenuFocusedProperty,
-        showContextMenuProperty);
   }
 
   public BooleanProperty enabledProperty() {

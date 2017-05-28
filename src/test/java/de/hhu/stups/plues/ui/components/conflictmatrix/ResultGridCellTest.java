@@ -1,7 +1,11 @@
 package de.hhu.stups.plues.ui.components.conflictmatrix;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testfx.api.FxToolkit.setupStage;
 
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.UiTestDataCreator;
@@ -79,15 +83,23 @@ public class ResultGridCellTest extends ApplicationTest {
 
   @Override
   public void start(final Stage stage) throws Exception {
-    final Router router = new Router();
-    resultGridCell = new ResultGridCell(ResultState.UNKNOWN,
-        UiTestDataCreator.createCourse("shortName1", "bk", "H"),
-        UiTestDataCreator.createCourse("shortName2", "bk", "N"));
+    final ResultContextMenuFactory factory = mock(ResultContextMenuFactory.class);
+    final Router router = mock(Router.class);
+    final Course course1 = UiTestDataCreator.createCourse("shortName1", "bk", "H");
+    final Course course2 = UiTestDataCreator.createCourse("shortName2", "bk", "N");
+
+    when(factory.create(any())).thenAnswer(invocation -> {
+      if (invocation.getArguments().length > 1) {
+        return new ResultContextMenu(router, course1, course2);
+      } else {
+        return new ResultContextMenu(router, course1);
+      }
+    });
+
+    resultGridCell = new ResultGridCell(factory, course1, course2);
     resultGridCell.setEnabled(true);
-    resultGridCell.setRouter(router);
-    resultGridCellSingleCourse = new ResultGridCell(ResultState.UNKNOWN,
-        UiTestDataCreator.createCourse("shortName1", "bk", "H"));
-    resultGridCellSingleCourse.setRouter(router);
+
+    resultGridCellSingleCourse = new ResultGridCell(factory, course1);
     resultGridCellSingleCourse.setEnabled(true);
 
     box.getChildren().addAll(resultGridCell, resultGridCellSingleCourse);

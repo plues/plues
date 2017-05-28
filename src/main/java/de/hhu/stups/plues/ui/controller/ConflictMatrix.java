@@ -10,6 +10,7 @@ import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.conflictmatrix.CourseGridCell;
 import de.hhu.stups.plues.ui.components.conflictmatrix.ResultGridCell;
+import de.hhu.stups.plues.ui.components.conflictmatrix.ResultGridCellFactory;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -55,7 +56,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
   private static final String VERTICAL = "vertical";
 
-  private final Router router;
+  private final ResultGridCellFactory resultGridCellFactory;
   private final ConflictMatrixService conflictMatrixService;
   private final LongProperty impossibleCoursesAmount;
   private final MapProperty<CourseSelection, ResultState> results;
@@ -128,9 +129,9 @@ public class ConflictMatrix extends GridPane implements Initializable {
   @Inject
   public ConflictMatrix(final Inflater inflater,
                         final Delayed<Store> delayedStore,
-                        final Router router,
+                        final ResultGridCellFactory resultGridCellFactory,
                         final ConflictMatrixService conflictMatrixService) {
-    this.router = router;
+    this.resultGridCellFactory = resultGridCellFactory;
     this.conflictMatrixService = conflictMatrixService;
 
     results = new SimpleMapProperty<>(FXCollections.emptyObservableMap());
@@ -221,10 +222,13 @@ public class ConflictMatrix extends GridPane implements Initializable {
             .collect(Collectors.toList());
     final List<Course> standaloneCourses
         = courses.stream().filter(c -> !c.isCombinable()).collect(Collectors.toList());
+    final List<Course> combinableCourses
+        = courses.stream().filter(Course::isCombinable).collect(Collectors.toList());
+
     final List<Course> combinableMajorCourses
-        = store.getMajors().stream().filter(Course::isCombinable).collect(Collectors.toList());
+        = combinableCourses.stream().filter(Course::isMajor).collect(Collectors.toList());
     final List<Course> combinableMinorCourses
-        = store.getMinors().stream().filter(Course::isCombinable).collect(Collectors.toList());
+        = combinableCourses.stream().filter(Course::isMinor).collect(Collectors.toList());
 
     if (!standaloneCourses.isEmpty()) {
       initializeGridPaneStandalone(standaloneCourses);
@@ -351,10 +355,9 @@ public class ConflictMatrix extends GridPane implements Initializable {
           final Course majorCourse = combinableMajorCourses.get(row);
           final Course minorCourse = combinableMinorCourses.get(col);
           final ResultGridCell gridCell
-              = new ResultGridCell(ResultState.UNKNOWN, majorCourse, minorCourse);
+              = resultGridCellFactory.create(majorCourse, minorCourse);
 
           gridCell.enabledProperty().bind(conflictMatrixService.availableProperty());
-          gridCell.setRouter(router);
 
           cellMap.put(new CourseSelection(majorCourse, minorCourse), gridCell);
           gridPaneCombinable.add(gridCell, col + 1, row + 1);
@@ -403,9 +406,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
     IntStream.range(0, courses.size()).forEach(index -> {
       final Course course = courses.get(index);
-      final ResultGridCell gridCell = new ResultGridCell(ResultState.UNKNOWN,course);
+      final ResultGridCell gridCell = resultGridCellFactory.create(course);
       gridCell.enabledProperty().bind(conflictMatrixService.availableProperty());
-      gridCell.setRouter(router);
       cellMap.put(new CourseSelection(course), gridCell);
       gridPane.add(gridCell, 1, index);
     });

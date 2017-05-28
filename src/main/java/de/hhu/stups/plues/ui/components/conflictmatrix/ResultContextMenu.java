@@ -1,18 +1,22 @@
 package de.hhu.stups.plues.ui.components.conflictmatrix;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
-
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import org.fxmisc.easybind.EasyBind;
 
 import java.util.ResourceBundle;
 
-class ResultContextMenu extends ContextMenu {
+public class ResultContextMenu extends ContextMenu {
 
   private final Router router;
   private final Course[] courses;
@@ -23,13 +27,15 @@ class ResultContextMenu extends ContextMenu {
   private final MenuItem itemRecomputeFeasibility;
   private final MenuItem itemCheckFeasibility;
 
+  private final ObjectProperty<ResultState> resultState
+      = new SimpleObjectProperty<>(ResultState.UNKNOWN);
+
   /**
    * The context menu for a {@link ResultGridCell} in the {@link de.hhu.stups.plues.ui.controller
    * .ConflictMatrix}.
    */
-
-  ResultContextMenu(final Router router, final ObjectProperty<ResultState> resultState,
-                    final Course... courses) {
+  @Inject
+  ResultContextMenu(final Router router, @Assisted final Course... courses) {
     this.router = router;
     this.courses = courses;
     final ResourceBundle resources = ResourceBundle.getBundle("lang.conflictMatrixContextMenu");
@@ -41,9 +47,7 @@ class ResultContextMenu extends ContextMenu {
     itemRecomputeFeasibility = new MenuItem(resources.getString("recomputeFeasibility"));
     itemCheckFeasibility = new MenuItem(resources.getString("checkFeasibility"));
 
-    resultState.addListener((observable, oldValue, newValue) ->
-        Platform.runLater(() -> updateMenu(newValue)));
-    updateMenu(resultState.get());
+    EasyBind.subscribe(resultState, newValue -> Platform.runLater(() -> updateMenu(newValue)));
 
     itemGeneratePdf.setOnAction(event ->
         router.transitionTo(RouteNames.PDF_TIMETABLES, (Object[]) courses));
@@ -99,5 +103,17 @@ class ResultContextMenu extends ContextMenu {
     }
     itemShowInTimetable.setOnAction(event ->
         router.transitionTo(RouteNames.TIMETABLE, courses, ResultState.SUCCEEDED));
+  }
+
+  public ResultState getResultState() {
+    return resultState.get();
+  }
+
+  public ObjectProperty<ResultState> resultStateProperty() {
+    return resultState;
+  }
+
+  public void setResultState(final ResultState resultState) {
+    this.resultState.set(resultState);
   }
 }
