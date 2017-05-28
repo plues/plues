@@ -1,4 +1,4 @@
-package de.hhu.stups.plues.ui.controller;
+package de.hhu.stups.plues.services;
 
 import com.google.inject.Inject;
 
@@ -7,8 +7,6 @@ import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.keys.CourseSelection;
 import de.hhu.stups.plues.prob.ResultState;
-import de.hhu.stups.plues.services.SolverService;
-import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.batchgeneration.BatchFeasibilityTask;
 import de.hhu.stups.plues.ui.batchgeneration.CollectCombinationFeasibilityTasksTask;
@@ -49,7 +47,7 @@ public class ConflictMatrixService {
   private final List<Course> standaloneCourses;
   private final Set<Course> impossibleCourses;
 
-  MapProperty<CourseSelection, ResultState> resultsProperty() {
+  public MapProperty<CourseSelection, ResultState> resultsProperty() {
     return results;
   }
 
@@ -106,11 +104,11 @@ public class ConflictMatrixService {
         (SetChangeListener<? super Course>) change -> impossibleCourses.addAll(change.getSet()));
   }
 
-  BooleanProperty availableProperty() {
+  public BooleanProperty availableProperty() {
     return this.available;
   }
 
-  BooleanProperty isCheckRunningProperty() {
+  public BooleanProperty isCheckRunningProperty() {
     return this.isCheckRunning;
   }
 
@@ -236,7 +234,7 @@ public class ConflictMatrixService {
     checkFeasibilityTasks.clear();
   }
 
-  SetProperty<Course> impossibleCoursesProperty() {
+  public SetProperty<Course> impossibleCoursesProperty() {
     return uiDataService.impossibleCoursesProperty();
   }
 }
