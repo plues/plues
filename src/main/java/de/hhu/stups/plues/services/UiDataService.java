@@ -6,8 +6,10 @@ import com.google.inject.Singleton;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
@@ -46,6 +48,8 @@ public class UiDataService {
   private final SetProperty<Course> impossibleCoursesProperty
       = new SimpleSetProperty<>(FXCollections.observableSet());
 
+  private final ObjectProperty<Session> highlightSessionProperty =
+      new SimpleObjectProperty<>();
 
   private final ObjectProperty<LocalDateTime> lastSavedDate
       = new SimpleObjectProperty<>();
@@ -153,5 +157,9 @@ public class UiDataService {
 
   public BooleanProperty cancelAllTasksProperty() {
     return cancelAllTasksProperty;
+  }
+
+  public ObjectProperty<Session> highlightSessionProperty() {
+    return highlightSessionProperty;
   }
 }
