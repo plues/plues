@@ -212,20 +212,16 @@ public class ProBSolver implements Solver {
    * Undo the last move operation by going back on the {@link #trace}.
    */
   @Override
-  public final void undoLastMoveOperation() {
-    if (trace.canGoBack()) {
-      this.trace = trace.back();
-    }
+  public final synchronized void undoLastMoveOperation() {
+    this.trace = trace.back();
   }
 
   /**
    * Redo the last move operation by going forward on the {@link #trace}.
    */
   @Override
-  public final void redoLastMoveOperation() {
-    if (trace.canGoForward()) {
-      this.trace = trace.forward();
-    }
+  public final synchronized void redoLastMoveOperation() {
+    this.trace = trace.forward();
   }
 
   // OPERATIONS
