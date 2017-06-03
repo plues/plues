@@ -11,6 +11,7 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.batchgeneration.BatchFeasibilityTask;
 import de.hhu.stups.plues.ui.batchgeneration.CollectCombinationFeasibilityTasksTask;
 import de.hhu.stups.plues.ui.batchgeneration.CollectFeasibilityTasksTask;
+import de.hhu.stups.plues.ui.batchgeneration.CourseSelectionCollector;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.MapProperty;
 import javafx.beans.property.SetProperty;
@@ -36,22 +37,24 @@ public class ConflictMatrixService {
   private final Delayed<SolverService> delayedSolverService;
   private final BooleanProperty isCheckRunning = new SimpleBooleanProperty(false);
   private final UiDataService uiDataService;
+  private final CourseSelectionCollector courseSelectionCollector;
   private final ExecutorService executorService;
-  private Task<Set<SolverTask<Boolean>>> prepareFeasibilityCheck;
+  private Task<List<SolverTask<Boolean>>> prepareFeasibilityCheck;
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final List<Course> courses;
-  private final List<Course> combinableMajorCourses;
-  private final List<Course> combinableMinorCourses;
-  private final List<Course> standaloneCourses;
-  private final Set<Course> impossibleCourses;
+  private final List<Course> courses = new ArrayList<>();
+  private final List<Course> combinableMajorCourses = new ArrayList<>();
+  private final List<Course> combinableMinorCourses = new ArrayList<>();
+  private final List<Course> standaloneCourses = new ArrayList<>();
+  private final Set<Course> impossibleCourses = new HashSet<>();
 
   public MapProperty<CourseSelection, ResultState> resultsProperty() {
     return results;
   }
 
-  private final MapProperty<CourseSelection, ResultState> results;
+  private final MapProperty<CourseSelection, ResultState> results
+      = new SimpleMapProperty<>(FXCollections.emptyObservableMap());
   private BatchFeasibilityTask executeFeasibilityCheck;
   private final Set<SolverTask<Boolean>> checkFeasibilityTasks = new HashSet<>();
 
@@ -68,17 +71,12 @@ public class ConflictMatrixService {
   public ConflictMatrixService(final Delayed<SolverService> delayedSolverService,
                                final Delayed<Store> delayedStore,
                                final UiDataService uiDataService,
+                               final CourseSelectionCollector courseSelectionCollector,
                                final ExecutorService executorService) {
     this.delayedSolverService = delayedSolverService;
     this.uiDataService = uiDataService;
+    this.courseSelectionCollector = courseSelectionCollector;
     this.executorService = executorService;
-
-    courses = new ArrayList<>();
-    combinableMajorCourses = new ArrayList<>();
-    combinableMinorCourses = new ArrayList<>();
-    standaloneCourses = new ArrayList<>();
-    impossibleCourses = new HashSet<>();
-    results = new SimpleMapProperty<>(FXCollections.emptyObservableMap());
 
     delayedSolverService.whenAvailable(store -> {
       logger.debug("MatrixService Available");
@@ -131,8 +129,8 @@ public class ConflictMatrixService {
    */
   private void setPrepareFeasibilityCheck() {
     prepareFeasibilityCheck = new CollectFeasibilityTasksTask(delayedSolverService.get(),
-      combinableMajorCourses, combinableMinorCourses, standaloneCourses, results,
-      impossibleCourses);
+        courses, courseSelectionCollector);
+
     setPrepareFeasibilityTaskListener(prepareFeasibilityCheck);
   }
 
@@ -164,7 +162,7 @@ public class ConflictMatrixService {
     });
   }
 
-  private void setPrepareFeasibilityTaskListener(final Task<Set<SolverTask<Boolean>>> task) {
+  private void setPrepareFeasibilityTaskListener(final Task<List<SolverTask<Boolean>>> task) {
     task.setOnCancelled(event -> {
       isCheckRunning.setValue(false);
       checkFeasibilityTasks.clear();
@@ -191,32 +189,20 @@ public class ConflictMatrixService {
     if (!courseToBeCombined.isCombinable()) {
       return;
     }
-
-    final Set<Course> courseSet;
-    if (courseToBeCombined.isMajor()) {
-      courseSet = courseToBeCombined.getMinorCourses();
-    } else {
-      courseSet = courseToBeCombined.getMajorCourses();
-    }
-
-    final List<CourseSelection> combinations
-        = courseSet.stream().map(other -> new CourseSelection(courseToBeCombined, other))
-                          .collect(Collectors.toList());
-    delayedSolverService.whenAvailable(solverService -> {
-      setExplicitPrepareFeasibilityCheck(combinations);
-      isCheckRunning.setValue(true);
-      setExecuteFeasibilityCheck();
-      executorService.submit(prepareFeasibilityCheck);
-    });
+    setExplicitPrepareFeasibilityCheck(courseToBeCombined);
+    isCheckRunning.setValue(true);
+    setExecuteFeasibilityCheck();
+    executorService.submit(prepareFeasibilityCheck);
   }
 
   /**
    * Collect all feasibility tasks using {@link CollectCombinationFeasibilityTasksTask} for
    * explicitly given combinations of courses.
    */
-  private void setExplicitPrepareFeasibilityCheck(final List<CourseSelection> combinations) {
-    prepareFeasibilityCheck = new CollectCombinationFeasibilityTasksTask(delayedSolverService.get(),
-      combinations, results, impossibleCourses);
+  private void setExplicitPrepareFeasibilityCheck(final Course course) {
+    prepareFeasibilityCheck
+        = new CollectCombinationFeasibilityTasksTask(delayedSolverService.get(), course,
+      courseSelectionCollector);
     setPrepareFeasibilityTaskListener(prepareFeasibilityCheck);
   }
 

@@ -138,7 +138,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
 
     /*
       Check all combinations with a course. Use {@link Course#getMinorCourses()} to create
-      combinations for major courses. Filter all courses to get the combinations with a minor course.
+      combinations for major courses. Filter all courses to get the combinations with
+      a minor course.
      */
     this.checkCourseCombinationsEventSource
         .filter(Objects::nonNull)
