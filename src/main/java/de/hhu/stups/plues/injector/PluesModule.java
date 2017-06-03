@@ -26,6 +26,7 @@ import de.hhu.stups.plues.tasks.SolverLoader;
 import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
+import de.hhu.stups.plues.ui.batchgeneration.CourseSelectionCollector;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.FeasibilityBoxFactory;
@@ -82,6 +83,7 @@ public class PluesModule extends AbstractModule {
 
     installFactories();
 
+    bind(CourseSelectionCollector.class);
     bind(Stage.class).toInstance(primaryStage);
     bind(Router.class).toProvider(RouterProvider.class);
     bind(MainController.class);
