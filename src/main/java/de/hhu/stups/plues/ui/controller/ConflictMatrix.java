@@ -17,12 +17,10 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.MapProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleMapProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableSet;
@@ -40,6 +38,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import org.fxmisc.easybind.EasyBind;
+import org.reactfx.EventSource;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -47,6 +46,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,6 +55,7 @@ import java.util.stream.IntStream;
 public class ConflictMatrix extends GridPane implements Initializable {
 
   private static final String VERTICAL = "vertical";
+  private static final String HORIZONTAL = "";
 
   private final ResultGridCellFactory resultGridCellFactory;
   private final ConflictMatrixService conflictMatrixService;
@@ -62,8 +63,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private final MapProperty<CourseSelection, ResultState> results
       = new SimpleMapProperty<>(FXCollections.emptyObservableMap());
   private final Map<CourseSelection, ResultGridCell> cellMap = new HashMap<>();
-  private final ObjectProperty<Course> checkAllCombinationsCourseProperty
-      = new SimpleObjectProperty<>();
+  private final EventSource<Course> checkCourseCombinationsEventSource = new EventSource<>();
 
   private ResourceBundle resources;
 
@@ -136,11 +136,13 @@ public class ConflictMatrix extends GridPane implements Initializable {
     this.resultGridCellFactory = resultGridCellFactory;
     this.conflictMatrixService = conflictMatrixService;
 
-    checkAllCombinationsCourseProperty.addListener((observable, oldValue, newValue) -> {
-      if (newValue != null) {
-        checkAllCombinations(newValue);
-      }
-    });
+    /*
+      Check all combinations with a course. Use {@link Course#getMinorCourses()} to create
+      combinations for major courses. Filter all courses to get the combinations with a minor course.
+     */
+    this.checkCourseCombinationsEventSource
+        .filter(Objects::nonNull)
+        .subscribe(this.conflictMatrixService::checkAllCombinations);
 
     delayedStore.whenAvailable(this::setInitialGridPaneVisibility);
 
@@ -313,7 +315,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
     IntStream.range(0, combinableMinorCourses.size()).forEach(index -> {
       final Course course = combinableMinorCourses.get(index);
       final CourseGridCell courseGridCell =
-          new CourseGridCell(course, VERTICAL, checkAllCombinationsCourseProperty);
+          new CourseGridCell(course, VERTICAL, checkCourseCombinationsEventSource);
       courseGridCell.enabledProperty().bind(binding);
       gridPaneCombinable.add(courseGridCell, index + 1, 0);
       // get the height property of a minor names row..
@@ -330,7 +332,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
     IntStream.range(0, combinableMajorCourses.size()).forEach(index -> {
       final Course course = combinableMajorCourses.get(index);
       final CourseGridCell courseGridCell =
-          new CourseGridCell(course, "", checkAllCombinationsCourseProperty);
+          new CourseGridCell(course, HORIZONTAL, checkCourseCombinationsEventSource);
       courseGridCell.enabledProperty().bind(binding);
       gridPaneCombinable.add(courseGridCell, 0, index + 1);
       // ..and the width property of a major names column
@@ -392,7 +394,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
     gridPane.addColumn(0, courses.stream()
         .map(course -> {
           final CourseGridCell cell
-              = new CourseGridCell(course, "", checkAllCombinationsCourseProperty);
+              = new CourseGridCell(course, HORIZONTAL, checkCourseCombinationsEventSource);
           cell.enabledProperty().bind(binding);
           return cell;
         }).collect(Collectors.toList()).toArray(new Node[] {}));
@@ -456,13 +458,5 @@ public class ConflictMatrix extends GridPane implements Initializable {
         cell.setResultState(ResultState.UNKNOWN);
       }
     };
-  }
-
-  /**
-   * Check all combinations with a course. Use {@link Course#getMinorCourses()} to create
-   * combinations for major courses. Filter all courses to get the combinations with a minor course.
-   */
-  private void checkAllCombinations(final Course courseToBeCombined) {
-    conflictMatrixService.checkAllCombinations(courseToBeCombined);
   }
 }

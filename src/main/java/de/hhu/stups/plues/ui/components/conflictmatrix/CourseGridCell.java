@@ -12,6 +12,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import org.reactfx.EventSource;
+import org.reactfx.EventStream;
 
 public class CourseGridCell extends Pane {
 
@@ -35,7 +37,7 @@ public class CourseGridCell extends Pane {
    */
   public CourseGridCell(final Course course,
                         final String orientation,
-                        final ObjectProperty<Course> checkAllCombinationsCourseProperty) {
+                        final EventSource<Course> checkCourseCombinations) {
     this.course = course;
     this.orientation = orientation;
     tooltip = new Tooltip(course.getFullName());
@@ -47,7 +49,7 @@ public class CourseGridCell extends Pane {
     Platform.runLater(this::initializeGridCell);
     getStyleClass().add("matrix-cell");
 
-    courseContextMenu = new CourseContextMenu(course, checkAllCombinationsCourseProperty);
+    courseContextMenu = new CourseContextMenu(course, checkCourseCombinations);
     ContextMenuListeners.setContextMenuListeners(this, courseContextMenu,
         new SimpleBooleanProperty(false), showContextMenuProperty);
   }
