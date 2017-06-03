@@ -433,7 +433,9 @@ public class ProBSolver implements Solver {
 
     final Record result = (Record) this.executeOperationWithOneResult(IMPOSSIBLE_COURSES);
 
-    logger.debug(result.toString());
+    if (logger.isDebugEnabled()) {
+      logger.debug(result.toString());
+    }
     return Mappers.mapCourseSet((Set) result.get("courses"));
   }
 
