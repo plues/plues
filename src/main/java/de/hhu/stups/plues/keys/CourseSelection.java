@@ -19,10 +19,6 @@ public class CourseSelection {
   private final boolean isStandalone;
   private final boolean isSingle;
 
-  public CourseSelection(final Course course) {
-    this(new Course[] {course});
-  }
-
   /**
    * create a course selection from a list of 1 or 2 courses.
    * Some basic validation is done on the arguments
