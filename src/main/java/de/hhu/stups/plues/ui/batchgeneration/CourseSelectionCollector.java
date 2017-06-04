@@ -129,7 +129,13 @@ public class CourseSelectionCollector {
             .collect(Collectors.toList()).stream());
   }
 
-  // TODO improve this to avoid building repeated major minor pairs
+  // Note: consider improving the implementation of this method to avoid creating repeated
+  // CourseSelection objects.
+  // Repetition can occur if the list of courses being evaluated contains a major and one of its
+  // minors.
+  // In that case it could happen, that we build the list of minors for the major and the list of
+  // majors for the minor course.
+  // Nevertheless, repeated entries are currently discarded at a later point in the stream method.
   private Set<Course> getCombinableCourses(final Course course) {
     final Set<Course> others;
     if (course.isMajor()) {
