@@ -13,7 +13,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import org.reactfx.EventSource;
-import org.reactfx.EventStream;
 
 public class CourseGridCell extends Pane {
 

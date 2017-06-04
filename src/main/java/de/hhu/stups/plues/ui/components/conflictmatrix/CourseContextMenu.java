@@ -1,12 +1,9 @@
 package de.hhu.stups.plues.ui.components.conflictmatrix;
 
 import de.hhu.stups.plues.data.entities.Course;
-
-import javafx.beans.property.ObjectProperty;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import org.reactfx.EventSource;
-import org.reactfx.EventStream;
 
 import java.util.ResourceBundle;
 
