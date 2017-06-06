@@ -19,7 +19,7 @@ public class UnitDetailViewRoute implements Route {
   }
 
   @Override
-  public void transition(final RouteNames routeName, Object... args) {
+  public void transition(final RouteNames routeName, final Object... args) {
     final UnitDetailView unitDetailView = unitDetailViewProvider.get();
     unitDetailView.setUnit((Unit) args[0]);
 
