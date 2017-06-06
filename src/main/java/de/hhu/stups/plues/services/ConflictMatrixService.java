@@ -1,6 +1,7 @@
 package de.hhu.stups.plues.services;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
@@ -11,7 +12,8 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.batchgeneration.BatchFeasibilityTask;
 import de.hhu.stups.plues.ui.batchgeneration.CollectCombinationFeasibilityTasksTask;
 import de.hhu.stups.plues.ui.batchgeneration.CollectFeasibilityTasksTask;
-import de.hhu.stups.plues.ui.batchgeneration.CourseSelectionCollector;
+import de.hhu.stups.plues.ui.batchgeneration.CombinationFeasibilityTaskCollectionFactory;
+import de.hhu.stups.plues.ui.batchgeneration.FeasiblityTaskCollectionFactory;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.MapProperty;
 import javafx.beans.property.SetProperty;
@@ -34,19 +36,18 @@ import java.util.stream.Collectors;
 
 public class ConflictMatrixService {
   private final BooleanProperty available = new SimpleBooleanProperty(false);
-  private final Delayed<SolverService> delayedSolverService;
   private final BooleanProperty isCheckRunning = new SimpleBooleanProperty(false);
   private final UiDataService uiDataService;
-  private final CourseSelectionCollector courseSelectionCollector;
+  private final Provider<BatchFeasibilityTask> batchFeasibilityTaskProvider;
+  private final FeasiblityTaskCollectionFactory feasiblityTaskCollectionFactory;
+  private final CombinationFeasibilityTaskCollectionFactory
+      combinationFeasibilityTaskCollectionFactory;
   private final ExecutorService executorService;
   private Task<List<SolverTask<Boolean>>> prepareFeasibilityCheck;
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final List<Course> courses = new ArrayList<>();
-  private final List<Course> combinableMajorCourses = new ArrayList<>();
-  private final List<Course> combinableMinorCourses = new ArrayList<>();
-  private final List<Course> standaloneCourses = new ArrayList<>();
   private final Set<Course> impossibleCourses = new HashSet<>();
 
   public MapProperty<CourseSelection, ResultState> resultsProperty() {
@@ -69,13 +70,17 @@ public class ConflictMatrixService {
    */
   @Inject
   public ConflictMatrixService(final Delayed<SolverService> delayedSolverService,
-                               final Delayed<Store> delayedStore,
-                               final UiDataService uiDataService,
-                               final CourseSelectionCollector courseSelectionCollector,
-                               final ExecutorService executorService) {
-    this.delayedSolverService = delayedSolverService;
+      final Delayed<Store> delayedStore,
+      final UiDataService uiDataService,
+      final Provider<BatchFeasibilityTask> batchFeasibilityTaskProvider,
+      final FeasiblityTaskCollectionFactory feasiblityTaskCollectionFactory,
+      final CombinationFeasibilityTaskCollectionFactory combinationFeasibilityTaskCollectionFactory,
+      final ExecutorService executorService) {
+
     this.uiDataService = uiDataService;
-    this.courseSelectionCollector = courseSelectionCollector;
+    this.batchFeasibilityTaskProvider = batchFeasibilityTaskProvider;
+    this.feasiblityTaskCollectionFactory = feasiblityTaskCollectionFactory;
+    this.combinationFeasibilityTaskCollectionFactory = combinationFeasibilityTaskCollectionFactory;
     this.executorService = executorService;
 
     delayedSolverService.whenAvailable(store -> {
@@ -89,13 +94,6 @@ public class ConflictMatrixService {
     delayedStore.whenAvailable(store -> {
       courses.addAll(store.getCourses().stream()
           .sorted(Comparator.comparing(Course::getShortName)).collect(Collectors.toList()));
-      standaloneCourses.addAll(courses.stream()
-          .filter(c -> !c.isCombinable()).collect(Collectors.toList()));
-
-      combinableMajorCourses.addAll(store.getMajors().stream()
-          .filter(Course::isCombinable).collect(Collectors.toList()));
-      combinableMinorCourses.addAll(store.getMinors().stream()
-          .filter(Course::isCombinable).collect(Collectors.toList()));
     });
 
     uiDataService.impossibleCoursesProperty().addListener(
@@ -128,9 +126,7 @@ public class ConflictMatrixService {
    * courses.
    */
   private void setPrepareFeasibilityCheck() {
-    prepareFeasibilityCheck = new CollectFeasibilityTasksTask(delayedSolverService.get(),
-        courses, courseSelectionCollector);
-
+    prepareFeasibilityCheck = feasiblityTaskCollectionFactory.create(courses);
     setPrepareFeasibilityTaskListener(prepareFeasibilityCheck);
   }
 
@@ -139,7 +135,8 @@ public class ConflictMatrixService {
    * listener.
    */
   private void setExecuteFeasibilityCheck() {
-    executeFeasibilityCheck = new BatchFeasibilityTask(executorService, checkFeasibilityTasks);
+    executeFeasibilityCheck = batchFeasibilityTaskProvider.get();
+    executeFeasibilityCheck.setTasks(checkFeasibilityTasks);
 
     executeFeasibilityCheck.setOnCancelled(event -> {
       checkFeasibilityTasks.forEach(task -> {
@@ -200,9 +197,7 @@ public class ConflictMatrixService {
    * explicitly given combinations of courses.
    */
   private void setExplicitPrepareFeasibilityCheck(final Course course) {
-    prepareFeasibilityCheck
-        = new CollectCombinationFeasibilityTasksTask(delayedSolverService.get(), course,
-      courseSelectionCollector);
+    prepareFeasibilityCheck = combinationFeasibilityTaskCollectionFactory.create(course);
     setPrepareFeasibilityTaskListener(prepareFeasibilityCheck);
   }
 

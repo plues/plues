@@ -26,7 +26,12 @@ import de.hhu.stups.plues.tasks.SolverLoader;
 import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
+import de.hhu.stups.plues.ui.batchgeneration.BatchFeasibilityTask;
+import de.hhu.stups.plues.ui.batchgeneration.CollectCombinationFeasibilityTasksTask;
+import de.hhu.stups.plues.ui.batchgeneration.CollectFeasibilityTasksTask;
+import de.hhu.stups.plues.ui.batchgeneration.CombinationFeasibilityTaskCollectionFactory;
 import de.hhu.stups.plues.ui.batchgeneration.CourseSelectionCollector;
+import de.hhu.stups.plues.ui.batchgeneration.FeasiblityTaskCollectionFactory;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.FeasibilityBoxFactory;
@@ -83,11 +88,13 @@ public class PluesModule extends AbstractModule {
 
     installFactories();
 
-    bind(CourseSelectionCollector.class);
     bind(Stage.class).toInstance(primaryStage);
     bind(Router.class).toProvider(RouterProvider.class);
     bind(MainController.class);
     bind(ResourceBundle.class).toInstance(bundle);
+
+    bind(CourseSelectionCollector.class);
+    bind(BatchFeasibilityTask.class);
 
     bind(SolverLoader.class).to(SolverLoaderImpl.class);
     bind(CommandFactory.class).to(CommandDelegateFactory.class);
@@ -114,6 +121,9 @@ public class PluesModule extends AbstractModule {
 
     install(new FactoryModuleBuilder().build(ControllerRouteFactory.class));
     install(new FactoryModuleBuilder().build(HandbookRouteFactory.class));
+
+    install(new FactoryModuleBuilder().build(FeasiblityTaskCollectionFactory.class));
+    install(new FactoryModuleBuilder().build(CombinationFeasibilityTaskCollectionFactory.class));
 
     install(new FactoryModuleBuilder()
         .implement(Solver.class, Names.named("prob"), ProBSolver.class)

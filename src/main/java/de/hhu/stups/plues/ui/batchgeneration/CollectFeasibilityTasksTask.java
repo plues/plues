@@ -1,5 +1,9 @@
 package de.hhu.stups.plues.ui.batchgeneration;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
+import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.keys.CourseSelection;
 import de.hhu.stups.plues.services.SolverService;
@@ -15,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class CollectFeasibilityTasksTask extends Task<List<SolverTask<Boolean>>> {
 
-  private final SolverService solverService;
+  private final Delayed<SolverService> solverService;
   private final CourseSelectionCollector collector;
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -28,9 +32,10 @@ public class CollectFeasibilityTasksTask extends Task<List<SolverTask<Boolean>>>
    * SolverService#courseSelectionResults} does not contain a result evaluated as true for the
    * combination and there is no impossible course given.
    */
-  public CollectFeasibilityTasksTask(final SolverService solverService,
-                                     final List<Course> courses,
-                                     final CourseSelectionCollector collector) {
+  @Inject
+  public CollectFeasibilityTasksTask(final Delayed<SolverService> solverService,
+                                     final CourseSelectionCollector collector,
+                                     @Assisted final List<Course> courses) {
     this.solverService = solverService;
     this.courses = courses;
 
@@ -54,6 +59,7 @@ public class CollectFeasibilityTasksTask extends Task<List<SolverTask<Boolean>>>
   }
 
   private SolverTask<Boolean> createTask(final CourseSelection courseSelection) {
+    final SolverService solverService = this.solverService.get();
     if (courseSelection.isCombination()) {
       return solverService.checkFeasibilityTask(courseSelection.getMajor(),
           courseSelection.getMinor());

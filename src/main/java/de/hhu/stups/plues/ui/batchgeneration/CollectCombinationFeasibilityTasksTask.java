@@ -1,5 +1,9 @@
 package de.hhu.stups.plues.ui.batchgeneration;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
+import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.keys.CourseSelection;
 import de.hhu.stups.plues.services.SolverService;
@@ -16,17 +20,18 @@ import java.util.stream.Collectors;
 public class CollectCombinationFeasibilityTasksTask extends Task<List<SolverTask<Boolean>>> {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
-  private final SolverService solverService;
+  private final Delayed<SolverService> solverService;
   private final Course course;
   private final CourseSelectionCollector taskCollector;
 
   /**
    * Create tasks for each combination of major and minor course.
    */
-  public CollectCombinationFeasibilityTasksTask(final SolverService solverService,
-                                                final Course course,
-                                                final CourseSelectionCollector taskCollector) {
-    this.solverService = solverService;
+  @Inject
+  public CollectCombinationFeasibilityTasksTask(final Delayed<SolverService> delayedSolverService,
+                                                final CourseSelectionCollector taskCollector,
+                                                @Assisted  final Course course) {
+    this.solverService = delayedSolverService;
     this.course = course;
     this.taskCollector = taskCollector;
     final ResourceBundle resources = ResourceBundle.getBundle("lang.conflictMatrix");
@@ -50,7 +55,7 @@ public class CollectCombinationFeasibilityTasksTask extends Task<List<SolverTask
     if (!courseSelection.isCombination()) {
       throw new IllegalArgumentException("Expected a combination of courses");
     }
-    return solverService.checkFeasibilityTask(courseSelection.getMajor(),
+    return solverService.get().checkFeasibilityTask(courseSelection.getMajor(),
         courseSelection.getMinor());
   }
 
