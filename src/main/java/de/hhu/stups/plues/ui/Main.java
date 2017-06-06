@@ -40,9 +40,6 @@ public class Main extends Application {
 
     primaryStage.setTitle("PlÜS");
 
-    Platform.setImplicitExit(true);
-
-
     primaryStage.show();
   }
 }

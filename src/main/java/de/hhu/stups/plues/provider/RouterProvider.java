@@ -18,6 +18,7 @@ import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.routes.SessionDetailViewRoute;
 import de.hhu.stups.plues.routes.UnitDetailViewRoute;
+import javafx.application.Platform;
 
 @Singleton
 public class RouterProvider implements Provider<Router> {
@@ -73,6 +74,7 @@ public class RouterProvider implements Provider<Router> {
       router = new Router();
 
       router.register(RouteNames.INDEX, indexRouteProvider.get());
+      //
       router.register(RouteNames.MODULE_DETAIL_VIEW, moduleDetailViewRouteProvider.get());
       router.register(RouteNames.SESSION_DETAIL_VIEW,
           sessionDetailViewRouteProvider.get());
@@ -80,6 +82,7 @@ public class RouterProvider implements Provider<Router> {
           abstractUnitDetailViewRouteProvider.get());
       router.register(RouteNames.UNIT_DETAIL_VIEW, unitDetailViewRouteProvider.get());
       router.register(RouteNames.COURSE_DETAIL_VIEW, courseDetailViewRouteProvider.get());
+      //
       router.register(RouteNames.ABOUT_WINDOW, aboutWindowRouteProvider.get());
       router.register(RouteNames.CHANGELOG, changelogRouteProvider.get());
       router.register(RouteNames.HANDBOOK_HTML,
@@ -101,7 +104,10 @@ public class RouterProvider implements Provider<Router> {
       router.register(RouteNames.UNSAT_CORE,
           controllerRouteFactory.create("tabUnsatCore"));
       router.register(RouteNames.OPEN_REPORTS, mainControllerRouteProvider.get());
+
       router.register(RouteNames.CLOSE_APP, mainControllerRouteProvider.get());
+
+      router.register(RouteNames.SHUTDOWN, (routeName, args) -> Platform.exit());
     }
 
     return router;
