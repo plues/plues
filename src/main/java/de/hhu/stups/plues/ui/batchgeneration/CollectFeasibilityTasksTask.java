@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class CollectFeasibilityTasksTask extends Task<List<SolverTask<Boolean>>> {
 
-  private final Delayed<SolverService> solverService;
+  private final Delayed<SolverService> solverServiceDelayed;
   private final CourseSelectionCollector collector;
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -33,10 +33,10 @@ public class CollectFeasibilityTasksTask extends Task<List<SolverTask<Boolean>>>
    * combination and there is no impossible course given.
    */
   @Inject
-  public CollectFeasibilityTasksTask(final Delayed<SolverService> solverService,
+  public CollectFeasibilityTasksTask(final Delayed<SolverService> serviceDelayed,
                                      final CourseSelectionCollector collector,
                                      @Assisted final List<Course> courses) {
-    this.solverService = solverService;
+    this.solverServiceDelayed = serviceDelayed;
     this.courses = courses;
 
     this.collector = collector;
@@ -59,7 +59,7 @@ public class CollectFeasibilityTasksTask extends Task<List<SolverTask<Boolean>>>
   }
 
   private SolverTask<Boolean> createTask(final CourseSelection courseSelection) {
-    final SolverService solverService = this.solverService.get();
+    final SolverService solverService = this.solverServiceDelayed.get();
     if (courseSelection.isCombination()) {
       return solverService.checkFeasibilityTask(courseSelection.getMajor(),
           courseSelection.getMinor());

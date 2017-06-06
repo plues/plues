@@ -38,7 +38,6 @@ public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> 
   @Override
   protected Collection<SolverTask<Boolean>> call() throws Exception {
     updateMessage(resources.getString("waitingForResults"));
-    // TODO: try invoke all?
     final List<Future<?>> futurePool
         = tasks.stream().map(executor::submit).collect(Collectors.toList());
 

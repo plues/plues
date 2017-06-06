@@ -91,10 +91,8 @@ public class ConflictMatrixService {
     delayedSolverService.whenAvailable(solverService
         -> results.bind(solverService.courseSelectionResultsProperty()));
 
-    delayedStore.whenAvailable(store -> {
-      courses.addAll(store.getCourses().stream()
-          .sorted(Comparator.comparing(Course::getShortName)).collect(Collectors.toList()));
-    });
+    delayedStore.whenAvailable(store -> courses.addAll(store.getCourses().stream()
+        .sorted(Comparator.comparing(Course::getShortName)).collect(Collectors.toList())));
 
     uiDataService.impossibleCoursesProperty().addListener(
         (SetChangeListener<? super Course>) change -> impossibleCourses.addAll(change.getSet()));
