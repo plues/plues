@@ -27,8 +27,6 @@ import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
 import de.hhu.stups.plues.ui.batchgeneration.BatchFeasibilityTask;
-import de.hhu.stups.plues.ui.batchgeneration.CollectCombinationFeasibilityTasksTask;
-import de.hhu.stups.plues.ui.batchgeneration.CollectFeasibilityTasksTask;
 import de.hhu.stups.plues.ui.batchgeneration.CombinationFeasibilityTaskCollectionFactory;
 import de.hhu.stups.plues.ui.batchgeneration.CourseSelectionCollector;
 import de.hhu.stups.plues.ui.batchgeneration.FeasiblityTaskCollectionFactory;
