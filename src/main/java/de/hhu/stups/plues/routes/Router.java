@@ -69,6 +69,7 @@ public class Router {
    * @param routeId Integer
    * @throws IllegalArgumentException if routeId is invalid
    */
+  @SuppressWarnings("WeakerAccess")
   public void deregister(final Integer routeId) {
     if (!this.subscriptions.containsKey(routeId)) {
       throw new IllegalArgumentException(String.format("Unknown route id %s", routeId));
