@@ -10,7 +10,6 @@ import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.stage.Stage;
 
 
