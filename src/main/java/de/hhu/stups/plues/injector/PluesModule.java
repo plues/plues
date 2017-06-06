@@ -16,8 +16,6 @@ import de.hhu.stups.plues.prob.MockSolver;
 import de.hhu.stups.plues.prob.ProBSolver;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverFactory;
-import de.hhu.stups.plues.routes.ControllerRouteFactory;
-import de.hhu.stups.plues.routes.HandbookRouteFactory;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverLoader;
