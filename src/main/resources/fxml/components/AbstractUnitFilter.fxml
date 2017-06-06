@@ -44,7 +44,7 @@
                 </cellValueFactory>
             </TableColumn>
             <TableColumn fx:id="tableColumnTitle" resizable="false" editable="false"
-                         text="%columnTitle">
+                         text="%columnAbstractUnit">
                 <cellValueFactory>
                     <PropertyValueFactory property="title"/>
                 </cellValueFactory>
