@@ -29,7 +29,9 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SessionDetailView extends VBox implements Initializable {
+import javax.xml.soap.Detail;
+
+public class SessionDetailView extends VBox implements Initializable, DetailView {
 
   private final ObjectProperty<SessionFacade> sessionProperty = new SimpleObjectProperty<>();
   private final Router router;

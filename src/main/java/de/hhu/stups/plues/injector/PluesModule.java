@@ -16,10 +16,8 @@ import de.hhu.stups.plues.prob.MockSolver;
 import de.hhu.stups.plues.prob.ProBSolver;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverFactory;
-import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.routes.ControllerRouteFactory;
 import de.hhu.stups.plues.routes.HandbookRouteFactory;
-import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverLoader;
@@ -83,11 +81,11 @@ public class PluesModule extends AbstractModule {
     install(new PropertiesModule());
     install(new ComponentsModule());
     install(new ExecutorServiceModule());
+    install(new RouterModule());
 
     installFactories();
 
     bind(Stage.class).toInstance(primaryStage);
-    bind(Router.class).toProvider(RouterProvider.class);
     bind(MainController.class);
     bind(ResourceBundle.class).toInstance(bundle);
 
@@ -116,9 +114,6 @@ public class PluesModule extends AbstractModule {
     install(new FactoryModuleBuilder().build(SessionListViewFactory.class));
     install(new FactoryModuleBuilder().build(ResultGridCellFactory.class));
     install(new FactoryModuleBuilder().build(ResultContextMenuFactory.class));
-
-    install(new FactoryModuleBuilder().build(ControllerRouteFactory.class));
-    install(new FactoryModuleBuilder().build(HandbookRouteFactory.class));
 
     install(new FactoryModuleBuilder().build(FeasiblityTaskCollectionFactory.class));
     install(new FactoryModuleBuilder().build(CombinationFeasibilityTaskCollectionFactory.class));

@@ -28,7 +28,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class AbstractUnitDetailView extends VBox implements Initializable {
+public class AbstractUnitDetailView extends VBox implements Initializable, DetailView {
 
   private final ObjectProperty<AbstractUnit> abstractUnitProperty;
   private final Router router;
