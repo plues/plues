@@ -13,15 +13,22 @@ import de.hhu.stups.plues.data.entities.ModuleAbstractUnitType;
 import de.hhu.stups.plues.data.entities.ModuleLevel;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.data.entities.Unit;
+import org.reactfx.EventSource;
 
 import java.util.List;
-import java.util.Observable;
 
-public class ObservableStore extends Observable implements Store {
+public class ObservableStore implements Store {
 
   private final Store store;
 
+  public EventSource<String> getChanges() {
+    return changes;
+  }
+
+  private final EventSource<String> changes;
+
   public ObservableStore(final Store store) {
+    this.changes = new EventSource<>();
     this.store = store;
   }
 
@@ -48,8 +55,8 @@ public class ObservableStore extends Observable implements Store {
     // want to undo
     removeLastLogEntry();
     removeLastLogEntry();
-    setChanged();
-    notifyObservers("removed");
+    //
+    changes.push("removed");
   }
 
   /**
@@ -61,15 +68,13 @@ public class ObservableStore extends Observable implements Store {
     }
     store.moveSession(lastLog.getSession().getId(), lastLog.getTargetDay(),
         lastLog.getTargetTime());
-    setChanged();
-    notifyObservers();
+    changes.push("");
   }
 
   @Override
   public void moveSession(final int sessionId, final String targetDay, final Integer targetTime) {
     store.moveSession(sessionId, targetDay, targetTime);
-    setChanged();
-    notifyObservers();
+    changes.push("");
   }
 
   @Override

@@ -52,6 +52,9 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.Arrays;
@@ -59,7 +62,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Observer;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -67,12 +69,16 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Timetable extends StackPane implements Initializable, Activatable, Observer {
+public class Timetable extends StackPane implements Initializable, Activatable {
 
+  private final Logger logger = LoggerFactory.getLogger(getClass());
   private final Delayed<ObservableStore> delayedStore;
   private final SessionListViewFactory sessionListViewFactory;
   private final UiDataService uiDataService;
   private final ListeningExecutorService executorService;
+  private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
+
+  private final SetProperty<Integer> conflictedSemesters;
   private double userDefinedDividerPos = 0.15;
   private SplitPane.Divider splitPaneDivider;
 
@@ -98,8 +104,6 @@ public class Timetable extends StackPane implements Initializable, Activatable, 
   @SuppressWarnings("unused")
   private TimetableSideBar timetableSideBar;
 
-  private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
-  private final SetProperty<Integer> conflictedSemesters;
 
   /**
    * Timetable component.
@@ -124,12 +128,10 @@ public class Timetable extends StackPane implements Initializable, Activatable, 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.delayedStore.whenAvailable(store -> {
-      store.addObserver(this);
+      store.getChanges().subscribe(change -> setSessionFacades(store));
+
       timetableSideBar.initializeComponents(store);
-      setSessions(store.getSessions()
-          .stream()
-          .map(SessionFacade::new)
-          .collect(Collectors.toList()));
+      setSessionFacades(store);
     });
 
     timetableSideBar.setParent(this);
@@ -172,6 +174,10 @@ public class Timetable extends StackPane implements Initializable, Activatable, 
     getChildren().remove(moveSessionDialog);
     moveSessionDialog.setTranslateZ(1);
 
+    setUiDataServiceListener();
+  }
+
+  private void setUiDataServiceListener() {
     // move session and hide warning automatically when all running tasks finished
     uiDataService.runningTasksProperty().addListener((observable, oldValue, newValue) -> {
       final SolverTask<Void> moveSessionTask = uiDataService.moveSessionTaskProperty().get();
@@ -179,6 +185,13 @@ public class Timetable extends StackPane implements Initializable, Activatable, 
         //noinspection ResultOfMethodCallIgnored
         executorService.submit(moveSessionTask);
         uiDataService.moveSessionTaskProperty().set(null);
+      }
+    });
+
+    uiDataService.highlightSessionProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue != null) {
+        highlightSession(newValue);
+        uiDataService.highlightSessionProperty().set(null);
       }
     });
 
@@ -193,6 +206,14 @@ public class Timetable extends StackPane implements Initializable, Activatable, 
         getChildren().add(moveSessionDialog);
       }
     });
+  }
+
+  private void setSessionFacades(final ObservableStore store) {
+    logger.debug("Loading and setting SessionFacades");
+    setSessions(store.getSessions()
+        .stream()
+        .map(SessionFacade::new)
+        .collect(Collectors.toList()));
   }
 
   private List<Integer> getSemesterRange(final Store store) {
@@ -224,7 +245,6 @@ public class Timetable extends StackPane implements Initializable, Activatable, 
       final SessionFacade.Slot slot = getSlot(i, widthX);
 
       final ListView<SessionFacade> view = getSessionFacadeListView(slot);
-
       timeTablePane.add(view, i % widthX + offX, (i / widthX) + offY);
     });
   }
@@ -292,6 +312,14 @@ public class Timetable extends StackPane implements Initializable, Activatable, 
     }
   }
 
+  private void highlightSession(final Session session) {
+    final Optional<SessionFacade> optionalSessionFacade =
+        sessions.stream().filter(sessionFacade -> sessionFacade.getId() == session.getId())
+            .findFirst();
+    optionalSessionFacade.ifPresent(this::selectSemesterForSession);
+    scrollToSession(session);
+  }
+
   private void scrollToSession(final Session arg) {
     final Optional<SessionFacade> sessionFacade = sessions.stream()
         .filter(facade -> facade.getId() == arg.getId()).findFirst();
@@ -325,14 +353,6 @@ public class Timetable extends StackPane implements Initializable, Activatable, 
 
   public double getUserDefinedDividerPos() {
     return userDefinedDividerPos;
-  }
-
-  @Override
-  public void update(final java.util.Observable observable, final Object arg) {
-    delayedStore.whenAvailable(store -> setSessions(store.getSessions()
-        .stream()
-        .map(SessionFacade::new)
-        .collect(Collectors.toList())));
   }
 
   public void setDividerPosition(final double pos) {

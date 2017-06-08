@@ -17,7 +17,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 
-public class CourseDetailView extends VBox implements Initializable {
+public class CourseDetailView extends VBox implements Initializable, DetailView {
 
   private final ObjectProperty<Course> courseProperty;
 

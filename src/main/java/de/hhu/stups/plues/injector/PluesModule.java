@@ -16,20 +16,22 @@ import de.hhu.stups.plues.prob.MockSolver;
 import de.hhu.stups.plues.prob.ProBSolver;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverFactory;
-import de.hhu.stups.plues.provider.RouterProvider;
-import de.hhu.stups.plues.routes.ControllerRouteFactory;
-import de.hhu.stups.plues.routes.HandbookRouteFactory;
-import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverLoader;
 import de.hhu.stups.plues.tasks.SolverLoaderImpl;
 import de.hhu.stups.plues.tasks.SolverLoaderTaskFactory;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
+import de.hhu.stups.plues.ui.batchgeneration.BatchFeasibilityTask;
+import de.hhu.stups.plues.ui.batchgeneration.CombinationFeasibilityTaskCollectionFactory;
+import de.hhu.stups.plues.ui.batchgeneration.CourseSelectionCollector;
+import de.hhu.stups.plues.ui.batchgeneration.FeasiblityTaskCollectionFactory;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.FeasibilityBoxFactory;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
+import de.hhu.stups.plues.ui.components.conflictmatrix.ResultContextMenuFactory;
+import de.hhu.stups.plues.ui.components.conflictmatrix.ResultGridCellFactory;
 import de.hhu.stups.plues.ui.components.timetable.SessionListViewFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.prob.MainModule;
@@ -77,28 +79,16 @@ public class PluesModule extends AbstractModule {
     install(new PropertiesModule());
     install(new ComponentsModule());
     install(new ExecutorServiceModule());
+    install(new RouterModule());
 
-    install(new FactoryModuleBuilder().build(SolverLoaderTaskFactory.class));
-    install(new FactoryModuleBuilder().build(PdfRenderingTaskFactory.class));
-    install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
-    install(new FactoryModuleBuilder().build(FeasibilityBoxFactory.class));
-    install(new FactoryModuleBuilder().build(BatchResultBoxFactory.class));
-    install(new FactoryModuleBuilder().build(CheckBoxGroupFactory.class));
-    install(new FactoryModuleBuilder().build(StoreLoaderTaskFactory.class));
-    install(new FactoryModuleBuilder().build(SessionListViewFactory.class));
-
-    install(new FactoryModuleBuilder().build(ControllerRouteFactory.class));
-    install(new FactoryModuleBuilder().build(HandbookRouteFactory.class));
-
-    install(new FactoryModuleBuilder()
-        .implement(Solver.class, Names.named("prob"), ProBSolver.class)
-        .implement(Solver.class, Names.named("mock"), MockSolver.class)
-        .build(SolverFactory.class));
+    installFactories();
 
     bind(Stage.class).toInstance(primaryStage);
-    bind(Router.class).toProvider(RouterProvider.class);
     bind(MainController.class);
     bind(ResourceBundle.class).toInstance(bundle);
+
+    bind(CourseSelectionCollector.class);
+    bind(BatchFeasibilityTask.class);
 
     bind(SolverLoader.class).to(SolverLoaderImpl.class);
     bind(CommandFactory.class).to(CommandDelegateFactory.class);
@@ -109,6 +99,27 @@ public class PluesModule extends AbstractModule {
     bind(delayedStoreType).toInstance(convertInstanceOfObject(delayedObservableStore));
     bind(delayedObservableStoreType).toInstance(delayedObservableStore);
     bind(delayedSolverServiceType).toInstance(new Delayed<>());
+  }
+
+  private void installFactories() {
+    install(new FactoryModuleBuilder().build(SolverLoaderTaskFactory.class));
+    install(new FactoryModuleBuilder().build(PdfRenderingTaskFactory.class));
+    install(new FactoryModuleBuilder().build(ResultBoxFactory.class));
+    install(new FactoryModuleBuilder().build(FeasibilityBoxFactory.class));
+    install(new FactoryModuleBuilder().build(BatchResultBoxFactory.class));
+    install(new FactoryModuleBuilder().build(CheckBoxGroupFactory.class));
+    install(new FactoryModuleBuilder().build(StoreLoaderTaskFactory.class));
+    install(new FactoryModuleBuilder().build(SessionListViewFactory.class));
+    install(new FactoryModuleBuilder().build(ResultGridCellFactory.class));
+    install(new FactoryModuleBuilder().build(ResultContextMenuFactory.class));
+
+    install(new FactoryModuleBuilder().build(FeasiblityTaskCollectionFactory.class));
+    install(new FactoryModuleBuilder().build(CombinationFeasibilityTaskCollectionFactory.class));
+
+    install(new FactoryModuleBuilder()
+        .implement(Solver.class, Names.named("prob"), ProBSolver.class)
+        .implement(Solver.class, Names.named("mock"), MockSolver.class)
+        .build(SolverFactory.class));
   }
 
   @Provides

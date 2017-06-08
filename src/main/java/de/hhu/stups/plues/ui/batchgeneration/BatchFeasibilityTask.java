@@ -1,11 +1,14 @@
 package de.hhu.stups.plues.ui.batchgeneration;
 
+import com.google.inject.Inject;
+
 import de.hhu.stups.plues.tasks.SolverTask;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
@@ -16,18 +19,16 @@ import java.util.stream.Collectors;
 public class BatchFeasibilityTask extends Task<Collection<SolverTask<Boolean>>> {
   private final ExecutorService executor;
   private final ResourceBundle resources;
-  private Collection<SolverTask<Boolean>> tasks;
+  private Collection<SolverTask<Boolean>> tasks = Collections.emptyList();
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
   /**
    * Constructor, create a new Task to manage batch execution of SolverTasks on a given executor.
    * @param executor ExecutorService
-   * @param tasks Collection of SolverTask objects.
    */
-  public BatchFeasibilityTask(final ExecutorService executor,
-                              final Collection<SolverTask<Boolean>> tasks) {
+  @Inject
+  public BatchFeasibilityTask(final ExecutorService executor) {
     this.executor = executor;
-    this.tasks = tasks;
     this.resources = ResourceBundle.getBundle("lang.conflictMatrix");
 
     updateTitle(resources.getString("checkAllMsg"));

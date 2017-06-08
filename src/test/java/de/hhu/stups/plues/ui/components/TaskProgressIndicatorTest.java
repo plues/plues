@@ -2,7 +2,7 @@ package de.hhu.stups.plues.ui.components;
 
 import static org.testfx.api.FxToolkit.setupStage;
 
-import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.concurrent.Task;
@@ -26,7 +26,7 @@ public class TaskProgressIndicatorTest extends ApplicationTest {
 
   private TaskProgressIndicator taskProgressIndicator;
   private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-  private final Task simpleTask = UiTestHelper.getSimpleTask(3);
+  private final Task simpleTask = UiTestDataCreator.getSimpleTask(3);
 
   @Test
   public void testScheduledToRunningTask() {

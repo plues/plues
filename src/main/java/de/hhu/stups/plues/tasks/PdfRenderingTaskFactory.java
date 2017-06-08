@@ -17,6 +17,5 @@ public interface PdfRenderingTaskFactory {
   PdfRenderingTask create(@Assisted("major") Course major,
                           @Assisted("minor") @Nullable Course minor,
                           @Assisted SolverTask<FeasibilityResult> solverTask,
-                          @Assisted ReadOnlyObjectProperty<ColorScheme>
-                              colorScheme);
+                          @Assisted ReadOnlyObjectProperty<ColorScheme> colorScheme);
 }

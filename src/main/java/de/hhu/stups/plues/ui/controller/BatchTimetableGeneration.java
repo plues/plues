@@ -27,6 +27,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
+import org.fxmisc.easybind.EasyBind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,9 +117,8 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     // disable list-view selection
-    listView.getSelectionModel().selectedIndexProperty().addListener(
-        (observable, oldvalue, newValue) ->
-            Platform.runLater(() -> listView.getSelectionModel().select(-1)));
+    EasyBind.subscribe(listView.getSelectionModel().selectionModeProperty(),
+        selectionMode -> Platform.runLater(() -> listView.getSelectionModel().select(-1)));
 
     colorSchemeSelection.defaultInitialization();
     colorSchemeSelection.setPercentWidth(50.0);

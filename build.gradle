@@ -17,7 +17,7 @@ checkstyle {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-version = "2.3.0"
+version = "2.4.0"
 
 mainClassName = "de.hhu.stups.plues.ui.Main"
 
@@ -48,7 +48,9 @@ repositories {
 
 dependencies {
     compile 'com.google.code.findbugs:annotations:3.0.1u2'
-    compile 'org.apache.xmlgraphics:fop:2.1'
+    compile 'org.apache.xmlgraphics:fop:2.2'
+    compile 'org.apache.xmlgraphics:batik-i18n:1.9'
+    compile 'org.apache.xmlgraphics:batik-constants:1.9'
     compile 'org.jtwig:jtwig-core:5.58'
 
     compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-3'
@@ -60,6 +62,9 @@ dependencies {
 
     compile 'com.google.inject.extensions:guice-assistedinject:4.1.0'
 
+    compile group: 'org.reactfx', name: 'reactfx', version: '2.0-M5'
+
+
     // logging
     compile 'org.slf4j:slf4j-api:1.7.25' // MIT
     compile 'ch.qos.logback:logback-core:1.2.3' // EPL
@@ -69,7 +74,7 @@ dependencies {
     compile project(':model-generator')
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile 'org.mockito:mockito-core:2.7.+'
+    testCompile 'org.mockito:mockito-core:2.8.+'
 
     // provides org.testfx.api, org.testfx.matcher to the test source set.
     testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.6-alpha")
@@ -134,6 +139,11 @@ jacocoTestReport {
     reports {
         xml.enabled = true
         html.enabled = true
+    }
+    afterEvaluate {
+      classDirectories = files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: ['**/data/entities/**'])
+      })
     }
 }
 

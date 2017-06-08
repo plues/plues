@@ -5,6 +5,9 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.provider.RouterProvider;
+import de.hhu.stups.plues.routes.RouteNames;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +19,7 @@ public class ResourceManager {
   private final ExecutorService executorService;
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
+  private final Stage stage;
 
   /**
    * ResourceManager class used to manage resources that need to be closed when shutting down the
@@ -26,9 +30,21 @@ public class ResourceManager {
    */
   @Inject
   public ResourceManager(final Delayed<Store> delayedStore,
-                         final ListeningExecutorService executorService) {
+                         final ListeningExecutorService executorService,
+                         final Stage stage,
+                         final RouterProvider router) {
     this.delayedStore = delayedStore;
     this.executorService = executorService;
+    this.stage = stage;
+
+    router.get().register(RouteNames.SHUTDOWN, (routeName, args) -> {
+      try {
+        this.close();
+      } catch (final InterruptedException exception) {
+        logger.error("Closing resources", exception);
+        Thread.currentThread().interrupt();
+      }
+    });
   }
 
   /**
@@ -36,17 +52,20 @@ public class ResourceManager {
    *
    * @throws InterruptedException thrown if any of the executors throws it.
    */
-  public void close() throws InterruptedException {
+  private void close() throws InterruptedException {
+    stage.close();
+    logger.info("Main stage closed");
+
     delayedStore.whenAvailable(Store::close);
     logger.info("Store closed");
 
-    this.executorService.shutdown();
+    executorService.shutdown();
     logger.info("shutdown");
 
-    this.executorService.awaitTermination(10, TimeUnit.SECONDS);
+    executorService.awaitTermination(10, TimeUnit.SECONDS);
     logger.info("waited for termination");
 
-    this.executorService.shutdownNow();
+    executorService.shutdownNow();
     logger.info("killed");
   }
 }

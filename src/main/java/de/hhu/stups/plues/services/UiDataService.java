@@ -6,6 +6,7 @@ import com.google.inject.Singleton;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 
@@ -24,7 +25,9 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 
 import java.lang.management.ManagementFactory;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -45,8 +48,12 @@ public class UiDataService {
   private final SetProperty<Course> impossibleCoursesProperty
       = new SimpleSetProperty<>(FXCollections.observableSet());
 
-  private final ObjectProperty<Date> lastSavedDate
-      = new SimpleObjectProperty<>(new Date(ManagementFactory.getRuntimeMXBean().getStartTime()));
+  private final ObjectProperty<Session> highlightSessionProperty =
+      new SimpleObjectProperty<>();
+
+  private final ObjectProperty<LocalDateTime> lastSavedDate
+      = new SimpleObjectProperty<>();
+
 
   // property is set when a session should be moved but tasks are running
   private final ObjectProperty<SolverTask<Void>> moveSessionTaskProperty
@@ -55,8 +62,6 @@ public class UiDataService {
   private final IntegerProperty runningTasksProperty = new SimpleIntegerProperty();
 
   private final BooleanProperty cancelAllTasksProperty = new SimpleBooleanProperty(false);
-
-  private final BooleanProperty timetableTabSelected = new SimpleBooleanProperty(false);
 
   private final ExecutorService executorService;
 
@@ -72,21 +77,27 @@ public class UiDataService {
                        final Delayed<Store> delayedStore,
                        final ExecutorService executorService) {
     this.executorService = executorService;
+    //
+    final long startStamp = ManagementFactory.getRuntimeMXBean().getStartTime();
+    final LocalDateTime startTime
+        = LocalDateTime.ofInstant(Instant.ofEpochMilli(startStamp), ZoneId.systemDefault());
+    this.lastSavedDate.set(startTime);
+    //
     delayedStore.whenAvailable(store ->
         solverServiceDelayed.whenAvailable(solverService ->
             this.loadImpossibleCourses(solverService, store)));
   }
 
   @SuppressWarnings("unused")
-  public Date getLastSavedDate() {
+  public LocalDateTime getLastSavedDate() {
     return lastSavedDate.get();
   }
 
-  public void setLastSavedDate(final Date lastSavedDate) {
+  public void setLastSavedDate(final LocalDateTime lastSavedDate) {
     this.lastSavedDate.set(lastSavedDate);
   }
 
-  public ObjectProperty<Date> lastSavedDateProperty() {
+  public ObjectProperty<LocalDateTime> lastSavedDateProperty() {
     return lastSavedDate;
   }
 
@@ -148,7 +159,7 @@ public class UiDataService {
     return cancelAllTasksProperty;
   }
 
-  public BooleanProperty timetableTabSelected() {
-    return timetableTabSelected;
+  public ObjectProperty<Session> highlightSessionProperty() {
+    return highlightSessionProperty;
   }
 }

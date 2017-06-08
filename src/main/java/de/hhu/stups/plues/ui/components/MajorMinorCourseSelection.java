@@ -4,9 +4,9 @@ import com.google.inject.Inject;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ListBinding;
@@ -31,6 +31,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import org.reactfx.Change;
+import org.reactfx.EventStreams;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -41,8 +43,8 @@ import java.util.stream.Collectors;
 
 /**
  * Create the component containing the combo boxes to choose major and minor courses. When using
- * the component we need to initially call {@link #setMajorCourseList(ObservableList)} and {@link
- * #setMinorCourseList(ObservableList)}. As soon as the solver is available the impossible courses
+ * the component we need to initially call {@link #setMajorCourseList(ObservableList)}.
+ * As soon as the solver is available the impossible courses
  * can be highlighted via the {@link #impossibleCoursesProperty} property.
  */
 public class MajorMinorCourseSelection extends GridPane implements Initializable, Observable {
@@ -50,7 +52,6 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private final List<InvalidationListener> listeners = new ArrayList<>();
   // input properties
   private final ListProperty<Course> majorCourseList = new SimpleListProperty<>();
-  private final ListProperty<Course> minorCourseList = new SimpleListProperty<>();
   private final SetProperty<Course> impossibleCoursesProperty = new SimpleSetProperty<>();
   // output properties
   private final ObjectProperty<Course> selectedMajor = new SimpleObjectProperty<>();
@@ -117,9 +118,15 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
 
     cbMinor.itemsProperty().addListener((observable, oldValue, newValue)
         -> cbMinor.getSelectionModel().selectFirst());
+    final Binding<ObservableList<Course>> binding
+        = EventStreams.changesOf(cbMajor.getSelectionModel().selectedItemProperty())
+            .map(Change::getNewValue)
+            .map(Course::getMinorCourses)
+            .map(FXCollections::observableArrayList)
+            .toBinding(FXCollections.emptyObservableList());
 
     cbMajor.itemsProperty().bind(majorCourseList);
-    cbMinor.itemsProperty().bind(new MinorCourseListBinding());
+    cbMinor.itemsProperty().bind(binding);
 
     final ReadOnlyObjectProperty<Course> selectedMajorProperty
         = this.cbMajor.getSelectionModel().selectedItemProperty();
@@ -211,17 +218,9 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     return this.majorCourseList;
   }
 
-  @SuppressWarnings("WeakerAccess")
-  public ListProperty<Course> minorCourseListProperty() {
-    return this.minorCourseList;
-  }
-
   public void setMajorCourseList(final ObservableList<Course> majorCourseList) {
-    this.majorCourseList.set(majorCourseList);
-  }
-
-  public void setMinorCourseList(final ObservableList<Course> minorCourseList) {
-    this.minorCourseList.set(minorCourseList);
+    this.majorCourseList.set(FXCollections.observableArrayList(
+        majorCourseList.stream().filter(Course::isMajor).collect(Collectors.toList())));
   }
 
   private static class ListViewListCellCallback
@@ -270,30 +269,6 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     }
   }
 
-  private class MinorCourseListBinding extends ListBinding<Course> {
-    MinorCourseListBinding() {
-      bind(cbMajor.getSelectionModel().selectedItemProperty(), minorCourseList);
-    }
-
-    @Override
-    public void dispose() {
-      super.dispose();
-      unbind(cbMajor.getSelectionModel().selectedItemProperty(), minorCourseList);
-    }
-
-    @Override
-    protected ObservableList<Course> computeValue() {
-      final Course major = getSelectedMajor();
-      if (major == null) {
-        return minorCourseList;
-      }
-      return minorCourseList.stream()
-          .filter(major::isCombinableWith)
-          .collect(
-              Collectors.collectingAndThen(Collectors.toList(), FXCollections::observableList));
-    }
-  }
-
   private class SelectedCoursesListBinding extends ListBinding<Course> {
     SelectedCoursesListBinding() {
       bind(selectedMajor, selectedMinor);
@@ -307,8 +282,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
 
     @Override
     protected ObservableList<Course> computeValue() {
-      final ObservableList<Course> result
-          = FXCollections.observableArrayList(selectedMajor.get());
+      final ObservableList<Course> result = FXCollections.observableArrayList(selectedMajor.get());
       final Course minor = selectedMinor.get();
       if (minor != null) {
         result.add(minor);

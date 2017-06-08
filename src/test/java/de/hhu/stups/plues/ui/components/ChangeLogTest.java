@@ -17,11 +17,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.reactfx.EventSource;
 import org.testfx.framework.junit.ApplicationTest;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 
 @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
 @RunWith(JUnit4.class)
@@ -42,13 +43,14 @@ public class ChangeLogTest extends ApplicationTest {
     Assert.assertTrue(log0.getCreatedAt().compareTo(log1.getCreatedAt()) > 0);
   }
 
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   @Override
   public void start(final Stage stage) throws Exception {
     final Inflater inflater = new Inflater(new FXMLLoader());
     final Delayed<ObservableStore> delayed = new Delayed<>();
 
     final Log l1 = mock(Log.class);
-    final Date d1 = new Calendar.Builder().setDate(2016, 11, 1).build().getTime();
+    final LocalDateTime d1 = LocalDate.of(2016, 11, 1).atStartOfDay();
     doReturn(d1).when(l1).getCreatedAt();
     doReturn("mon").when(l1).getSrcDay();
     doReturn(1).when(l1).getSrcTime();
@@ -56,7 +58,7 @@ public class ChangeLogTest extends ApplicationTest {
     doReturn(2).when(l1).getTargetTime();
 
     final Log l2 = mock(Log.class);
-    final Date d2 = new Calendar.Builder().setDate(2016, 10, 2).build().getTime();
+    final LocalDateTime d2 = LocalDate.of(2016,10,2).atStartOfDay();
     doReturn(d2).when(l2).getCreatedAt();
     doReturn("tue").when(l2).getSrcDay();
     doReturn(3).when(l2).getSrcTime();
@@ -64,7 +66,7 @@ public class ChangeLogTest extends ApplicationTest {
     doReturn(4).when(l2).getTargetTime();
 
     final Log l3 = mock(Log.class);
-    final Date d3 = new Calendar.Builder().setDate(2016, 11, 4).build().getTime();
+    final LocalDateTime d3 = LocalDate.of(2016, 11, 4).atStartOfDay();
     doReturn(d3).when(l3).getCreatedAt();
     doReturn("wed").when(l3).getSrcDay();
     doReturn(5).when(l3).getSrcTime();
@@ -72,6 +74,7 @@ public class ChangeLogTest extends ApplicationTest {
     doReturn(6).when(l3).getTargetTime();
 
     final ObservableStore store = mock(ObservableStore.class);
+    doReturn(new EventSource<String>()).when(store).getChanges();
     doReturn(Arrays.asList(l1, l2, l3)).when(store).getLogEntries();
 
     final UiDataService dataService = getUiDataService();
@@ -86,7 +89,7 @@ public class ChangeLogTest extends ApplicationTest {
 
   private UiDataService getUiDataService() {
     final UiDataService dataService = mock(UiDataService.class);
-    final Date lastSaveDate = new Calendar.Builder().setDate(2016, 11, 3).build().getTime();
+    final LocalDateTime lastSaveDate = LocalDate.of(2016,11,3).atStartOfDay();
     doReturn(new SimpleObjectProperty<>(lastSaveDate)).when(dataService).lastSavedDateProperty();
     return dataService;
   }

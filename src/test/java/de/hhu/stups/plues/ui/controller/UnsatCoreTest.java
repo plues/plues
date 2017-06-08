@@ -14,7 +14,7 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
-import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
@@ -55,7 +55,7 @@ public class UnsatCoreTest extends ApplicationTest {
       FXCollections.observableArrayList(new AbstractUnit());
   private final ObservableList<Group> groups = FXCollections.observableArrayList(new Group());
   private final ObservableList<Session> sessions = FXCollections.observableArrayList(new Session());
-  private final ObservableList<Course> courseList = UiTestHelper.createCourseList();
+  private final ObservableList<Course> courseList = UiTestDataCreator.createCourseList();
 
   private CombinationOrSingleCourseSelection courseSelection;
 
@@ -95,7 +95,7 @@ public class UnsatCoreTest extends ApplicationTest {
    */
   @Test
   public void testDisableCourseSelectionTaskWaiting() {
-    executorService.submit(UiTestHelper.getSimpleTask(10));
+    executorService.submit(UiTestDataCreator.getSimpleTask(10));
     final UnsatCoreButtonBar checkFeasibilityButtonBar =
         lookup("#checkFeasibilityButtonBar").query();
     Assert.assertFalse(courseSelection.isDisabled());
@@ -343,7 +343,7 @@ public class UnsatCoreTest extends ApplicationTest {
     courseSelection = new CombinationOrSingleCourseSelection(inflater);
     courseSelection.setCourses(courseList);
 
-    final SolverService solverService = UiTestHelper.getMockedSolverService();
+    final SolverService solverService = UiTestDataCreator.getMockedSolverService();
 
     final Delayed<SolverService> delayedSolverService = new Delayed<>();
     delayedSolverService.set(solverService);

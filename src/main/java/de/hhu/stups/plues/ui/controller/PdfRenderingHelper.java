@@ -2,8 +2,10 @@ package de.hhu.stups.plues.ui.controller;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.exceptions.RenderingException;
+
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
+
 import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
@@ -38,7 +40,8 @@ public class PdfRenderingHelper {
 
   private static final Logger logger = LoggerFactory.getLogger(PdfRenderingHelper.class);
 
-  private PdfRenderingHelper() {}
+  private PdfRenderingHelper() {
+  }
 
   /**
    * Unified function to show a pdf. On error callback will be invoked
@@ -154,6 +157,7 @@ public class PdfRenderingHelper {
 
   /**
    * Convert OutputStream to pdf using sax.
+   *
    * @param out The output stream to be converted.
    * @return Finished pdf
    * @throws RenderingException encapsulating error cause
@@ -186,8 +190,10 @@ public class PdfRenderingHelper {
     final FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
 
     try {
-      final Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, pdf);
-      handler = fop.getDefaultHandler();
+      synchronized (FopFactory.class) {
+        final Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, pdf);
+        handler = fop.getDefaultHandler();
+      }
     } catch (final FOPException exc) {
       logger.error("Error creating Fop object", exc);
       throw new RenderingException(exc);

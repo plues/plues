@@ -25,8 +25,8 @@ import java.util.Set;
 public class ImpossibleAbstractUnitsInModule extends VBox implements Initializable {
 
   private Map<Module, Set<AbstractUnit>> impossibleAbstractUnitsInModuleMap;
-  private SimpleListProperty<Module> modules;
-  private SimpleListProperty<AbstractUnit> abstractUnits;
+  private final SimpleListProperty<Module> modules;
+  private final SimpleListProperty<AbstractUnit> abstractUnits;
 
   @FXML
   @SuppressWarnings("unused")
@@ -59,13 +59,13 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(final URL location, final ResourceBundle resources) {
     tableViewAbstractUnits.itemsProperty().bind(abstractUnits);
 
     listViewModules.itemsProperty().bind(modules);
     listViewModules.setCellFactory(param -> new ListCell<Module>() {
       @Override
-      protected void updateItem(Module module, boolean empty) {
+      protected void updateItem(final Module module, final boolean empty) {
         super.updateItem(module, empty);
         if (!empty) {
           setText(module.getTitle());

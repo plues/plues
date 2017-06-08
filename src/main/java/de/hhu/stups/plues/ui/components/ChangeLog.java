@@ -5,12 +5,10 @@ import com.google.inject.Inject;
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ObservableStore;
-import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -27,18 +25,17 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import org.reactfx.Subscription;
 
 import java.net.URL;
-import java.util.Date;
-import java.util.Observable;
-import java.util.Observer;
+import java.time.LocalDateTime;
 import java.util.ResourceBundle;
 
-public class ChangeLog extends VBox implements Initializable, Observer {
+public class ChangeLog extends VBox implements Initializable {
 
   private final Delayed<ObservableStore> delayedStore;
   private final ObservableList<Log> logs;
-  private final ObjectProperty<Date> compare;
+  private final ObjectProperty<LocalDateTime> compare;
 
   @FXML
   @SuppressWarnings("unused")
@@ -54,7 +51,7 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private TableColumn<Log, String> tableColumnTargetTemporary;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Log, Date> tableColumnDateTemporary;
+  private TableColumn<Log, LocalDateTime> tableColumnDateTemporary;
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Log, Session> tableColumnSessionPersistent;
@@ -66,10 +63,11 @@ public class ChangeLog extends VBox implements Initializable, Observer {
   private TableColumn<Log, String> tableColumnTargetPersistent;
   @FXML
   @SuppressWarnings("unused")
-  private TableColumn<Log, Date> tableColumnDatePersistent;
+  private TableColumn<Log, LocalDateTime> tableColumnDatePersistent;
   @FXML
   @SuppressWarnings("unused")
   private TableView<Log> tempTable;
+  private Subscription subscriptions;
 
   /**
    * Constructor to create the change log.
@@ -109,21 +107,16 @@ public class ChangeLog extends VBox implements Initializable, Observer {
     updateBinding();
 
     delayedStore.whenAvailable(store -> {
-      store.addObserver(this);
       logs.addAll(store.getLogEntries());
-    });
-  }
 
-  /**
-   * Add or remove log entries from the {@link #logs}.
-   */
-  @Override
-  public void update(final Observable observable, final Object arg) {
-    if ("removed".equals(arg)) {
-      logs.remove(logs.size() - 1);
-      return;
-    }
-    logs.add(((Store) observable).getLastLogEntry());
+      final Subscription removed = store.getChanges()
+          .filter("removed"::equals)
+          .subscribe(value -> logs.remove(logs.size() - 1));
+      final Subscription added = store.getChanges()
+          .filter(""::equals)
+          .subscribe(value -> logs.add(store.getLastLogEntry()));
+      subscriptions = added.and(removed);
+    });
   }
 
   private void updateBinding() {
@@ -150,7 +143,12 @@ public class ChangeLog extends VBox implements Initializable, Observer {
     return tempTable;
   }
 
+  /**
+   * Free resources before closing the window containing this element.
+   */
   public void dispose() {
-    this.delayedStore.whenAvailable(store -> store.deleteObserver(this));
+    if (this.subscriptions != null) {
+      this.subscriptions.unsubscribe();
+    }
   }
 }

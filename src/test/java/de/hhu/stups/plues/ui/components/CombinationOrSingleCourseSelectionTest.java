@@ -3,7 +3,7 @@ package de.hhu.stups.plues.ui.components;
 import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.collections.ObservableList;
@@ -24,7 +24,7 @@ import org.testfx.util.WaitForAsyncUtils;
 @RunWith(JUnit4.class)
 public class CombinationOrSingleCourseSelectionTest extends ApplicationTest {
   private CombinationOrSingleCourseSelection courseSelection;
-  private ObservableList<Course> courseList = UiTestHelper.createCourseList();
+  private ObservableList<Course> courseList = UiTestDataCreator.createCourseList();
 
   @Test
   public void enabledTest() {
@@ -69,20 +69,16 @@ public class CombinationOrSingleCourseSelectionTest extends ApplicationTest {
         .type(KeyCode.DOWN)
         .type(KeyCode.ENTER);
     Assert.assertEquals(courseList.get(4), courseSelection.getSelectedCourses().get(0));
-    Assert.assertEquals(courseList.get(5), courseSelection.getSelectedCourses().get(1));
+    Assert.assertEquals(courseList.get(7), courseSelection.getSelectedCourses().get(1));
 
     clickOn(courseSelection.getMajorMinorCourseSelection().getMajorComboBox())
-        .type(KeyCode.DOWN)
-        .type(KeyCode.DOWN)
-        .type(KeyCode.DOWN)
         .type(KeyCode.DOWN)
         .type(KeyCode.ENTER);
     clickOn(courseSelection.getMajorMinorCourseSelection().getMinorComboBox())
         .type(KeyCode.UP)
-        .type(KeyCode.UP)
         .type(KeyCode.ENTER);
-    Assert.assertEquals(courseList.get(4), courseSelection.getSelectedCourses().get(0));
-    Assert.assertEquals(courseList.get(2), courseSelection.getSelectedCourses().get(1));
+    Assert.assertEquals(courseList.get(8), courseSelection.getSelectedCourses().get(0));
+    Assert.assertEquals(courseList.get(5), courseSelection.getSelectedCourses().get(1));
 
     clickOn(courseSelection.getRbSingleSelection());
     clickOn(courseSelection.getSingleCourseSelection())

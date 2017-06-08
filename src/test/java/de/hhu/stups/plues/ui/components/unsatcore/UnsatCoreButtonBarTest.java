@@ -2,7 +2,7 @@ package de.hhu.stups.plues.ui.components.unsatcore;
 
 import static org.testfx.api.FxToolkit.setupStage;
 
-import de.hhu.stups.plues.ui.UiTestHelper;
+import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -60,7 +60,7 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
     Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
     Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
 
-    executorService.submit(UiTestHelper.getSimpleTask(5));
+    executorService.submit(UiTestDataCreator.getSimpleTask(5));
     unsatCoreButtonBar.setOnAction((event) -> runSimpleTask(3));
     Assert.assertTrue(unsatCoreButtonBar.getCancelTask().isDisabled());
     Assert.assertFalse(unsatCoreButtonBar.getSubmitTask().isDisabled());
@@ -78,7 +78,7 @@ public class UnsatCoreButtonBarTest extends ApplicationTest {
   }
 
   private void runSimpleTask(final int sleep) {
-    final Task<Boolean> simpleTask = UiTestHelper.getSimpleTask(sleep);
+    final Task<Boolean> simpleTask = UiTestDataCreator.getSimpleTask(sleep);
     unsatCoreButtonBar.taskProperty().set(simpleTask);
     executorService.submit(simpleTask);
 

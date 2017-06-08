@@ -27,7 +27,7 @@ import javafx.scene.layout.VBox;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class ModuleDetailView extends VBox implements Initializable {
+public class ModuleDetailView extends VBox implements Initializable, DetailView {
 
   private final ObjectProperty<Module> moduleProperty;
   private final Router router;
@@ -128,7 +128,7 @@ public class ModuleDetailView extends VBox implements Initializable {
         abstractUnitTableView, router));
   }
 
-  private void bindField(StringProperty stringProperty, String name) {
+  private void bindField(final StringProperty stringProperty, final String name) {
     stringProperty.bind(Bindings.when(moduleProperty.isNotNull())
         .then(Bindings.selectString(moduleProperty, name))
         .otherwise(""));

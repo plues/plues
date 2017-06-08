@@ -7,7 +7,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
+import de.hhu.stups.plues.provider.RouterProvider;
 import de.hhu.stups.plues.routes.RouteNames;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.MainMenuService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.ObservableListeningExecutorService;
@@ -15,11 +17,9 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.SolverLoaderTask;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
-import de.hhu.stups.plues.ui.ResourceManager;
 import de.hhu.stups.plues.ui.components.MainMenuBar;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -49,9 +49,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
+import org.reactfx.EventStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +70,13 @@ public class MainController implements Initializable, Activatable {
   private static final Map<Class, FontAwesomeIcon> iconMap = new HashMap<>();
   private static final FontAwesomeIcon DEFAULT_ICON = FontAwesomeIcon.TASKS;
   private static final ListeningScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE;
+  private static final Task EMPTY_TASK = new Task() {
+    // just an empty task to simulate a pending progress bar
+    @Override
+    protected Object call() throws Exception {
+      return null;
+    }
+  };
 
   static {
     iconMap.put(StoreLoaderTask.class, FontAwesomeIcon.DATABASE);
@@ -80,10 +87,10 @@ public class MainController implements Initializable, Activatable {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final BooleanProperty taskBoxCollapsed = new SimpleBooleanProperty(true);
-  private final ResourceManager resourceManager;
   private final Stage stage;
   private final MainMenuService mainMenuService;
   private final UiDataService uiDataService;
+  private final RouterProvider routerProvider;
 
   private ResourceBundle resources;
 
@@ -114,13 +121,6 @@ public class MainController implements Initializable, Activatable {
   private double visibleDividerPos;
   private boolean fadingInProgress = false;
   private final Provider<Reports> reportsProvider;
-  private final Task emptyTask = new Task() {
-    // just an empty task to simulate a pending progress bar
-    @Override
-    protected Object call() throws Exception {
-      return null;
-    }
-  };
 
   /**
    * MainController component.
@@ -128,60 +128,36 @@ public class MainController implements Initializable, Activatable {
   @Inject
   public MainController(final Stage stage,
                         final ObservableListeningExecutorService executorService,
-                        final ResourceManager resourceManager,
                         final MainMenuService mainMenuService,
                         final UiDataService uiDataService,
-                        final Provider<Reports> reportsProvider) {
+                        final Provider<Reports> reportsProvider,
+                        final RouterProvider routerProvider) {
     this.stage = stage;
-    this.resourceManager = resourceManager;
     this.reportsProvider = reportsProvider;
     this.mainMenuService = mainMenuService;
     this.uiDataService = uiDataService;
+    this.routerProvider = routerProvider;
 
-    executorService.addObserver((observable, arg) -> this.register(arg));
+    executorService.getTasks().filterMap(task -> {
+      if (task instanceof Task<?>) {
+        logger.trace("registering task for Taskview.");
+      } else {
+        logger.trace("Ignoring non-task runnable for Taskview.");
+      }
+      return task instanceof Task<?>;
+    }, task -> ((Task<?>) task)).subscribe(this::register);
 
     logger.info("Starting PlÜS");
   }
 
-  private void register(final Object task) {
-    if (task instanceof Task<?>) {
-      logger.trace("registering task for taskview");
-      Platform.runLater(() -> this.taskProgress.getTasks().add((Task<?>) task));
-    } else {
-      logger.trace("ignoring task for taskview");
-    }
+  private void register(final Task<?> task) {
+    Platform.runLater(() -> this.taskProgress.getTasks().add(task));
   }
 
   @SuppressWarnings("unused")
   private Node getGraphicForTask(final Task<?> task) {
     final FontAwesomeIcon icon = iconMap.getOrDefault(task.getClass(), DEFAULT_ICON);
     return FontAwesomeIconFactory.get().createIcon(icon, "2em");
-  }
-
-  @SuppressWarnings("unused")
-  private void handleKeyPressed(final KeyEvent event) {
-    switch (event.getCode()) {
-      case DIGIT1:
-        tabPane.getSelectionModel().select(0);
-        break;
-      case DIGIT2:
-        tabPane.getSelectionModel().select(1);
-        break;
-      case DIGIT3:
-        tabPane.getSelectionModel().select(2);
-        break;
-      case DIGIT4:
-        tabPane.getSelectionModel().select(3);
-        break;
-      case DIGIT5:
-        tabPane.getSelectionModel().select(4);
-        break;
-      case DIGIT6:
-        tabPane.getSelectionModel().select(5);
-        break;
-      default:
-        break;
-    }
   }
 
   @Override
@@ -192,11 +168,7 @@ public class MainController implements Initializable, Activatable {
 
     mainSplitPane.getItems().remove(boxTaskProgress);
 
-    taskProgress.setGraphicFactory(this::getGraphicForTask);
-
-    taskProgress.prefWidthProperty().bind(scrollPaneTaskProgress.widthProperty());
-    taskProgress.prefHeightProperty().bind(scrollPaneTaskProgress.heightProperty());
-
+    initializeTaskProgress();
     boxTaskProgress.maxWidthProperty().bind(mainSplitPane.widthProperty().divide(3.0));
     boxTaskProgress.prefWidth(0);
     boxTaskProgress.prefWidthProperty().bind(mainSplitPane.widthProperty().divide(4.0));
@@ -213,8 +185,6 @@ public class MainController implements Initializable, Activatable {
 
     mainStatusBar.setText("");
 
-    taskProgress.getTasks().addListener((ListChangeListener<Task<?>>) c ->
-        uiDataService.runningTasksProperty().set(taskProgress.getTasks().size()));
 
     clearStatusBar();
 
@@ -227,7 +197,7 @@ public class MainController implements Initializable, Activatable {
     lbRunningTasks.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
     lbRunningTasks.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
 
-    tabPane.setOnKeyPressed(this::handleKeyPressed);
+    initializeKeyPressedHandler();
 
     reportsTab.setClosable(true);
 
@@ -252,32 +222,39 @@ public class MainController implements Initializable, Activatable {
           mainProgressBar.progressProperty().bind(observable);
         });
 
-    stage.setOnCloseRequest(t -> {
-      try {
-        closeWindowRequest(t);
-        if (!t.isConsumed()) {
-          this.resourceManager.close();
-        }
-      } catch (final InterruptedException exception) {
-        logger.error("Closing resources", exception);
-        Thread.currentThread().interrupt();
-      }
-    });
+    stage.setOnCloseRequest(this::closeWindowRequest);
+  }
 
-    uiDataService.cancelAllTasksProperty().addListener((observable, oldValue, newValue) -> {
-      if (!newValue) {
-        return;
-      }
-      taskProgress.getTasks().forEach(task -> Platform.runLater(() -> task.cancel(true)));
-      uiDataService.cancelAllTasksProperty().set(false);
-    });
+  private void initializeTaskProgress() {
+    taskProgress.setGraphicFactory(this::getGraphicForTask);
+    //
+    taskProgress.prefWidthProperty().bind(scrollPaneTaskProgress.widthProperty());
+    taskProgress.prefHeightProperty().bind(scrollPaneTaskProgress.heightProperty());
+    //
+    uiDataService.runningTasksProperty().bind(
+        EventStreams.sizeOf(taskProgress.getTasks()).toBinding(0));
+    //
+    EventStreams.valuesOf(uiDataService.cancelAllTasksProperty())
+        .filter(shouldCancel -> shouldCancel)
+        .subscribe(newValue -> Platform.runLater(() -> {
+          taskProgress.getTasks().forEach(task -> task.cancel(true));
+          uiDataService.cancelAllTasksProperty().set(false);
+        }));
+  }
 
-    // log if the timetable tab is opened which is needed for undo/redo operations
-    tabPane.getSelectionModel().selectedItemProperty().addListener(
-        (observable, oldValue, newValue) ->
-          uiDataService.timetableTabSelected().set(newValue.equals(tabTimetable)));
-    uiDataService.timetableTabSelected().set(
-        tabPane.getSelectionModel().getSelectedItem().equals(tabTimetable));
+  private void initializeKeyPressedHandler() {
+    EventStreams.eventsOf(stage, KeyEvent.KEY_PRESSED)
+        .map(KeyEvent::getCode)
+        .filterMap(keyCode -> {
+          switch (keyCode) {
+            case DIGIT1: case DIGIT2: case DIGIT3:
+            case DIGIT4: case DIGIT5: case DIGIT6:
+              return true;
+            default:
+              return false;
+          }
+        }, keyCode -> Integer.parseInt(keyCode.getName()) - 1)
+        .subscribe(keyCode -> tabPane.getSelectionModel().select(keyCode));
   }
 
   private void initializeTaskProgressListener() {
@@ -333,7 +310,7 @@ public class MainController implements Initializable, Activatable {
     if (scheduledTasks.size() == 1) {
       mainProgressBar.progressProperty().bind(scheduledTasks.get(0).progressProperty());
     } else {
-      mainProgressBar.progressProperty().bind(emptyTask.progressProperty());
+      mainProgressBar.progressProperty().bind(EMPTY_TASK.progressProperty());
     }
   }
 
@@ -416,8 +393,9 @@ public class MainController implements Initializable, Activatable {
    * Ask user for permission to close window using Alert. User can save database before closing.
    */
   private void closeWindowRequest(final Event event) {
+    final Router router = routerProvider.get();
     if (!mainMenuService.isDatabaseChanged()) {
-      closeWindow();
+      router.transitionTo(RouteNames.SHUTDOWN);
       return;
     }
 
@@ -439,22 +417,14 @@ public class MainController implements Initializable, Activatable {
 
     if (result == save) {
       mainMenuBar.saveFile();
-      closeWindow();
+      router.transitionTo(RouteNames.SHUTDOWN);
     } else if ((result == saveAs && !mainMenuBar.saveFileAs()) || result == cancel) {
       // if the result is to cancel or 'save as' has been canceled we ignore the close request and
       // consume the event, otherwise we close the stage
       event.consume();
     } else {
-      closeWindow();
+      router.transitionTo(RouteNames.SHUTDOWN);
     }
-  }
-
-  /**
-   * Close the application. Should only be called from {@link #closeWindowRequest(Event)}.
-   */
-  private void closeWindow() {
-    stage.close();
-    Platform.exit();
   }
 
   @Override

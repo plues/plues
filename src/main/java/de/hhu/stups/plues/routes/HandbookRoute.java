@@ -56,7 +56,7 @@ public class HandbookRoute implements Route {
 
   }
 
-  private void openFile(String handbook, Path output) {
+  private void openFile(final String handbook, final Path output) {
     try {
       Desktop.getDesktop().open(output.toFile());
     } catch (final IOException exception) {
@@ -64,7 +64,7 @@ public class HandbookRoute implements Route {
     }
   }
 
-  private void openUrl(String handbook, String url) {
+  private void openUrl(final String handbook, final String url) {
     try {
       Desktop.getDesktop().browse(new URI(url));
     } catch (IOException | URISyntaxException exception) {

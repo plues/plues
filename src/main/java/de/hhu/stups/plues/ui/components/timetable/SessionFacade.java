@@ -35,7 +35,7 @@ public class SessionFacade {
    */
   public SessionFacade(final Session session) {
     this.session = session;
-    Set<AbstractUnit> abstractUnits = this.getIntendedAbstractUnits();
+    final Set<AbstractUnit> abstractUnits = this.getIntendedAbstractUnits();
 
     courses = abstractUnits.stream()
       .map(AbstractUnit::getModules)
@@ -73,7 +73,7 @@ public class SessionFacade {
    * Set slot of SessionFacade and session.
    * @param slot SessionFacade.Slot
    */
-  public void setSlot(Slot slot) {
+  public void setSlot(final Slot slot) {
     session.setDay(slot.getDayString());
     session.setTime(slot.getTime());
     Platform.runLater(() -> slotObjectProperty.set(slot));
@@ -111,7 +111,7 @@ public class SessionFacade {
    * @return String representation of the session
    */
   @SuppressWarnings("WeakerAccess")
-  public String displayText(SessionDisplayFormat displayFormat) {
+  public String displayText(final SessionDisplayFormat displayFormat) {
     final String representation;
     switch (displayFormat) {
       case TITLE:

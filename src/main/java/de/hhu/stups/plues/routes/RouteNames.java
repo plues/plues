@@ -20,4 +20,5 @@ public enum RouteNames {
   CHECK_FEASIBILITY_TIMETABLE,
   OPEN_REPORTS,
   CLOSE_APP,
+  SHUTDOWN,
 }
