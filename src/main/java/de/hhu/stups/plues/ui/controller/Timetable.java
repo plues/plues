@@ -10,7 +10,6 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -19,6 +18,7 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TooltipAllocator;
 import de.hhu.stups.plues.ui.components.timetable.MoveSessionDialog;
 import de.hhu.stups.plues.ui.components.timetable.SemesterChooser;
 import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
@@ -138,8 +138,7 @@ public class Timetable extends StackPane implements Initializable, Activatable {
 
     multipleSelectionInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
         FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "14")));
-    multipleSelectionInfo.setTooltip(null);
-    Helpers.showTooltipOnEnter(multipleSelectionInfo, multipleSelectionHint,
+    TooltipAllocator.showTooltipOnEnter(multipleSelectionInfo, multipleSelectionHint,
         new SimpleBooleanProperty(false));
 
     splitPaneDivider = timeTableSplitPane.getDividers().get(0);

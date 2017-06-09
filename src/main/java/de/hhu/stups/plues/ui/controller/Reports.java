@@ -3,7 +3,6 @@ package de.hhu.stups.plues.ui.controller;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -13,6 +12,7 @@ import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TooltipAllocator;
 import de.hhu.stups.plues.ui.components.reports.AbstractUnitPair;
 import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
@@ -214,7 +214,8 @@ public class Reports extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     lbOutOfSyncInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
         FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "12")));
-    Helpers.showTooltipOnEnter(lbOutOfSyncInfo, outOfSyncHint, new SimpleBooleanProperty(false));
+    TooltipAllocator.showTooltipOnEnter(
+        lbOutOfSyncInfo, outOfSyncHint, new SimpleBooleanProperty(false));
 
     btRecomputeData.disableProperty().bind(dataOutOfSync.not());
     btRecomputeData.visibleProperty().bind(dataOutOfSync);

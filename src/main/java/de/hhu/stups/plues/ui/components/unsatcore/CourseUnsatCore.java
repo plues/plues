@@ -3,12 +3,12 @@ package de.hhu.stups.plues.ui.components.unsatcore;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TooltipAllocator;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
@@ -121,8 +121,7 @@ public class CourseUnsatCore extends GridPane implements Initializable {
 
     unsatCoreInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
         FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "18")));
-    unsatCoreInfo.setTooltip(null);
-    Helpers.showTooltipOnEnter(unsatCoreInfo, unsatCoreInfoTooltip,
+    TooltipAllocator.showTooltipOnEnter(unsatCoreInfo, unsatCoreInfoTooltip,
         new SimpleBooleanProperty(false));
 
     storeProperty.addListener((observable, oldValue, store)
