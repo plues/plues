@@ -3,6 +3,7 @@ package de.hhu.stups.plues.routes;
 import com.google.inject.Singleton;
 
 import org.reactfx.EventSource;
+import org.reactfx.EventStream;
 import org.reactfx.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +25,15 @@ public class Router {
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final HashMap<Integer, Subscription> subscriptions;
   private final AtomicInteger counter = new AtomicInteger(0);
+  private final EventStream<NavigationEvent> eventStream;
 
   /**
    * Create a new Router instance.
    */
   public Router() {
     this.eventSource = new EventSource<>();
+    this.eventStream = eventSource.onRecurseQueue();
+
     this.subscriptions = new HashMap<>();
     this.eventSource.subscribe(navigationEvent
         -> logger.debug(String.format("Navigating to %s", navigationEvent)));
@@ -53,7 +57,7 @@ public class Router {
         = navigationEvent -> route.transition(navigationEvent.routeName, navigationEvent.args);
 
     final Subscription subscription
-        = eventSource.filter(navigationEventPredicate).subscribe(navigationEventConsumer);
+        = eventStream.filter(navigationEventPredicate).subscribe(navigationEventConsumer);
 
     subscriptions.put(idx, subscription);
     return idx;
