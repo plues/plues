@@ -36,6 +36,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 
 import org.controlsfx.control.textfield.CustomTextField;
@@ -116,6 +117,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
    */
   public void setAbstractUnits(final List<AbstractUnit> abstractUnits) {
     this.abstractUnits.setAll(abstractUnits);
+    setDefaultTableColumnKeyWidth();
   }
 
   public ObservableList<AbstractUnit> getSelectedAbstractUnits() {
@@ -196,6 +198,23 @@ public class AbstractUnitFilter extends VBox implements Initializable {
             .subtract(tableColumnKey.widthProperty())
             .subtract(tableColumnCheckBox.widthProperty())
             .subtract(20));
+  }
+
+  /**
+   * By default each key in {@link #tableColumnKey} should be visible. Determine the largest key's
+   * width and set the table table column width respectively.
+   */
+  private void setDefaultTableColumnKeyWidth() {
+    final Text tempText = new Text();
+    double maxWidth = 0;
+    for (SelectableAbstractUnit selectableAbstractUnit : unitsTable.getItems()) {
+      tempText.setText(selectableAbstractUnit.getKey());
+      final double keyWidth = tempText.getBoundsInLocal().getWidth();
+      if (keyWidth > maxWidth) {
+        maxWidth = keyWidth;
+      }
+    }
+    tableColumnKey.setPrefWidth(maxWidth + 10.0);
   }
 
   @SuppressWarnings("WeakerAccess")

@@ -27,6 +27,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 
 import org.controlsfx.control.textfield.CustomTextField;
@@ -180,7 +181,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         = new FilteredList<>(selectableCourses.filtered(predicate));
 
     filter.predicateProperty().bind(Bindings.createObjectBinding(
-        () -> row -> row.matches(txtQuery.getText().toLowerCase()),txtQuery.textProperty()));
+        () -> row -> row.matches(txtQuery.getText().toLowerCase()), txtQuery.textProperty()));
     return new SimpleListProperty<>(filter);
   }
 
@@ -189,6 +190,25 @@ public class SetOfCourseSelection extends VBox implements Initializable {
    */
   public void setCourses(final List<Course> courses) {
     this.courses.set(FXCollections.observableList(courses));
+    // set the default table column width for keys
+    tableColumnMasterCourseKey.setPrefWidth(getMaximumKeyStringWidth(tableViewMasterCourse));
+    tableColumnBachelorCourseKey.setPrefWidth(getMaximumKeyStringWidth(tableViewBachelorCourse));
+  }
+
+  /**
+   * Return the largest {@link SelectableCourse#getKey() key} width of a given table view.
+   */
+  private double getMaximumKeyStringWidth(final TableView<SelectableCourse> tableView) {
+    final Text tempText = new Text();
+    double maxWidth = 0;
+    for (SelectableCourse selectableCourse : tableView.getItems()) {
+      tempText.setText(selectableCourse.getKey());
+      final double keyWidth = tempText.getBoundsInLocal().getWidth();
+      if (keyWidth > maxWidth) {
+        maxWidth = keyWidth;
+      }
+    }
+    return maxWidth + 10.0;
   }
 
   @SuppressWarnings("unused")
