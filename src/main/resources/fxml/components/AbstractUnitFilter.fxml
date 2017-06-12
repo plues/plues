@@ -13,39 +13,41 @@
 <?import org.controlsfx.control.textfield.CustomTextField?>
 
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1">
-    <Label styleClass="h2" text="%abstractUnits" />
+    <Label styleClass="h2" text="%abstractUnits"/>
     <HBox alignment="CENTER_LEFT">
-        <CustomTextField fx:id="txtQuery" promptText="%searchAbstractUnit" HBox.hgrow="ALWAYS" />
+        <CustomTextField fx:id="txtQuery" promptText="%searchAbstractUnit" HBox.hgrow="ALWAYS"/>
         <Button fx:id="btClearSelection" onAction="#resetSelection" HBox.hgrow="ALWAYS">
             <tooltip>
-                <Tooltip text="%clear" />
+                <Tooltip text="%clear"/>
             </tooltip>
         </Button>
     </HBox>
     <VBox spacing="7.0" styleClass="windowPaddingSmall">
-        <Label text="%filter" />
+        <Label text="%filter"/>
         <HBox spacing="10.0">
-            <RadioButton fx:id="rbSelected" text="%selected" />
-            <RadioButton fx:id="rbNotSelected" text="%notSelected" />
-            <RadioButton fx:id="rbAll" selected="true" text="%all" />
+            <RadioButton fx:id="rbSelected" text="%selected"/>
+            <RadioButton fx:id="rbNotSelected" text="%notSelected"/>
+            <RadioButton fx:id="rbAll" selected="true" text="%all"/>
         </HBox>
-        <CheckBox fx:id="cbSelectedCoursesOnly" text="%selectedCoursesOnly" />
+        <CheckBox fx:id="cbSelectedCoursesOnly" text="%selectedCoursesOnly"/>
     </VBox>
     <TableView fx:id="unitsTable" editable="true" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="tableColumnCheckBox" maxWidth="30.0" minWidth="30.0" resizable="false" sortable="false">
+            <TableColumn fx:id="tableColumnCheckBox" maxWidth="30.0" minWidth="30.0"
+                         resizable="false" sortable="false">
                 <cellValueFactory>
-                    <PropertyValueFactory property="selected" />
+                    <PropertyValueFactory property="selected"/>
                 </cellValueFactory>
             </TableColumn>
             <TableColumn fx:id="tableColumnKey" editable="false" text="%columnKey">
                 <cellValueFactory>
-                    <PropertyValueFactory property="key" />
+                    <PropertyValueFactory property="key"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="tableColumnTitle" editable="false" resizable="false" text="%columnAbstractUnit">
+            <TableColumn fx:id="tableColumnTitle" editable="false" resizable="false"
+                         text="%columnAbstractUnit">
                 <cellValueFactory>
-                    <PropertyValueFactory property="title" />
+                    <PropertyValueFactory property="title"/>
                 </cellValueFactory>
             </TableColumn>
         </columns>
