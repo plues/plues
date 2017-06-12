@@ -137,7 +137,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
    *
    * @param courseFilter List of courses to be filtered by in TableView
    */
-  public void setCourseFilter(ObservableList<Course> courseFilter) {
+  public void setCourseFilter(final ObservableList<Course> courseFilter) {
     this.courseFilter.set(courseFilter);
   }
 
