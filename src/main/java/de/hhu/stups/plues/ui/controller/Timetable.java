@@ -16,6 +16,7 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.RouteNames;
+import de.hhu.stups.plues.services.HistoryManager;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.TooltipAllocator;
@@ -29,6 +30,7 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
+import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
@@ -65,11 +67,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Timetable extends StackPane implements Initializable, Activatable {
+
+  private static final ExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final Delayed<ObservableStore> delayedStore;
@@ -77,8 +84,9 @@ public class Timetable extends StackPane implements Initializable, Activatable {
   private final UiDataService uiDataService;
   private final ListeningExecutorService executorService;
   private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
-
   private final SetProperty<Integer> conflictedSemesters;
+  private final HistoryManager historyManager;
+
   private double userDefinedDividerPos = 0.15;
   private SplitPane.Divider splitPaneDivider;
 
@@ -113,11 +121,13 @@ public class Timetable extends StackPane implements Initializable, Activatable {
                    final Delayed<ObservableStore> delayedStore,
                    final UiDataService uiDataService,
                    final SessionListViewFactory sessionListViewFactory,
+                   final HistoryManager historyManager,
                    final ListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
     this.sessionListViewFactory = sessionListViewFactory;
     this.uiDataService = uiDataService;
     this.executorService = executorService;
+    this.historyManager = historyManager;
     conflictedSemesters = new SimpleSetProperty<>(FXCollections.emptyObservableSet());
 
     // TODO: remove controller param if possible
@@ -186,6 +196,7 @@ public class Timetable extends StackPane implements Initializable, Activatable {
         uiDataService.moveSessionTaskProperty().set(null);
       }
     });
+
 
     uiDataService.highlightSessionProperty().addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
@@ -311,12 +322,53 @@ public class Timetable extends StackPane implements Initializable, Activatable {
     }
   }
 
+  /**
+   * Highlight a given session, i.e., scroll to the session in its listview, select the list cell
+   * and {@link #highlightListViewForSessionFacade(SessionFacade) highlight the listview} for a few
+   * seconds.
+   */
   private void highlightSession(final Session session) {
     final Optional<SessionFacade> optionalSessionFacade =
         sessions.stream().filter(sessionFacade -> sessionFacade.getId() == session.getId())
             .findFirst();
-    optionalSessionFacade.ifPresent(this::selectSemesterForSession);
+    optionalSessionFacade.ifPresent(sessionFacade -> {
+      selectSemesterForSession(sessionFacade);
+      highlightListViewForSessionFacade(sessionFacade);
+    });
     scrollToSession(session);
+  }
+
+  /**
+   * Highlight a session list view for a few seconds by setting a border color.
+   */
+  private void highlightListViewForSessionFacade(final SessionFacade sessionFacade) {
+    for (final Node node : timeTablePane.getChildren()) {
+      if (node instanceof SessionListView) {
+        final SessionListView sessionListView = (SessionListView) node;
+        if (sessionListView.getItems().contains(sessionFacade)) {
+          EXECUTOR_SERVICE.execute(getHighlightSessionListViewRunnable(sessionListView));
+          return;
+        }
+      }
+    }
+  }
+
+  /**
+   * Create a runnable to highlight a session, wait some seconds and undo the highlighting.
+   */
+  private Runnable getHighlightSessionListViewRunnable(final SessionListView sessionListView) {
+    return () -> {
+      Platform.runLater(() ->
+          sessionListView.setStyle("-fx-border-width: 2px; -fx-border-color: #FF8000;"));
+      try {
+        TimeUnit.MILLISECONDS.sleep(500);
+        Platform.runLater(() -> sessionListView.setStyle("-fx-border-insets: 0;"));
+        historyManager.historyEnabledProperty().set(true);
+      } catch (final InterruptedException interruptedException) {
+        logger.error("Session highlighting interrupted.", interruptedException);
+        Thread.currentThread().interrupt();
+      }
+    };
   }
 
   private void scrollToSession(final Session arg) {
@@ -327,7 +379,7 @@ public class Timetable extends StackPane implements Initializable, Activatable {
     sessionFacade.ifPresent(facade -> timeTablePane.getChildren().forEach(node -> {
       if (node instanceof SessionListView) {
         final SessionListView sessionListView = (SessionListView) node;
-        sessionListView.scrollTo(facade);
+        Platform.runLater(() -> sessionListView.scrollTo(facade));
         sessionListView.getSelectionModel().select(facade);
       }
     }));
