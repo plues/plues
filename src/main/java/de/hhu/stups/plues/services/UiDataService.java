@@ -48,8 +48,8 @@ public class UiDataService {
   private final SetProperty<Course> impossibleCoursesProperty
       = new SimpleSetProperty<>(FXCollections.observableSet());
 
-  private final ObjectProperty<Session> highlightSessionProperty =
-      new SimpleObjectProperty<>();
+  private final ObjectProperty<Session> highlightSessionProperty
+      = new SimpleObjectProperty<>();
 
   private final ObjectProperty<LocalDateTime> lastSavedDate
       = new SimpleObjectProperty<>();
