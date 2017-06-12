@@ -137,20 +137,39 @@ public class Timetable extends StackPane implements Initializable, Activatable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    this.delayedStore.whenAvailable(store -> {
+    delayedStore.whenAvailable(store -> {
       store.getChanges().subscribe(change -> setSessionFacades(store));
 
       timetableSideBar.initializeComponents(store);
       setSessionFacades(store);
+
+      final List<Integer> range = getSemesterRange(store);
+      semesterToggle.setSemesters(range);
     });
 
     timetableSideBar.setParent(this);
 
+    semesterToggle.conflictedSemestersProperty().bind(conflictedSemesters);
+    conflictedSemesters.bind(new ConflictedSemestersBinding());
+
+    initSessionBoxes();
+    initializeSplitPaneDivider();
+    initializeInfoTooltip();
+
+    getChildren().remove(moveSessionDialog);
+    moveSessionDialog.setTranslateZ(1);
+
+    setUiDataServiceListener();
+  }
+
+  private void initializeInfoTooltip() {
     multipleSelectionInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
         FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "14")));
     TooltipAllocator.showTooltipOnEnter(multipleSelectionInfo, multipleSelectionHint,
         new SimpleBooleanProperty(false));
+  }
 
+  private void initializeSplitPaneDivider() {
     splitPaneDivider = timeTableSplitPane.getDividers().get(0);
 
     splitPaneDivider.positionProperty().addListener((observable, oldValue, newValue) -> {
@@ -167,36 +186,12 @@ public class Timetable extends StackPane implements Initializable, Activatable {
         splitPaneDivider.setPosition(timetableSideBar.getMinWidth() / getWidth());
       }
     });
-
-    delayedStore.whenAvailable(store -> {
-      final List<Integer> range = getSemesterRange(store);
-
-      semesterToggle.setSemesters(range);
-
-    });
-    semesterToggle.conflictedSemestersProperty().bind(conflictedSemesters);
-
-    conflictedSemesters.bind(new ConflictedSemestersBinding());
-
-    initSessionBoxes();
-
-    getChildren().remove(moveSessionDialog);
-    moveSessionDialog.setTranslateZ(1);
-
-    setUiDataServiceListener();
   }
 
   private void setUiDataServiceListener() {
     // move session and hide warning automatically when all running tasks finished
-    uiDataService.runningTasksProperty().addListener((observable, oldValue, newValue) -> {
-      final SolverTask<Void> moveSessionTask = uiDataService.moveSessionTaskProperty().get();
-      if (newValue.intValue() == 0 && moveSessionTask != null) {
-        //noinspection ResultOfMethodCallIgnored
-        executorService.submit(moveSessionTask);
-        uiDataService.moveSessionTaskProperty().set(null);
-      }
-    });
-
+    uiDataService.runningTasksProperty().addListener((observable, oldValue, newValue) ->
+        moveSessionIfNoTasksRunning(newValue.intValue()));
 
     uiDataService.highlightSessionProperty().addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
@@ -210,12 +205,32 @@ public class Timetable extends StackPane implements Initializable, Activatable {
         getChildren().remove(moveSessionDialog);
         return;
       }
-      if (uiDataService.runningTasksProperty().greaterThan(1).get()) {
-        moveSessionDialog.setLayoutX(getWidth() / 2);
-        moveSessionDialog.setLayoutY(getHeight() / 2);
-        getChildren().add(moveSessionDialog);
-      }
+      showMoveSessionWarning();
     });
+  }
+
+  /**
+   * Move the session stored in {@link UiDataService#moveSessionTaskProperty()} if there are
+   * currently no runnings tasks described by the given parameter.
+   */
+  private void moveSessionIfNoTasksRunning(final int runningTasks) {
+    final SolverTask<Void> moveSessionTask = uiDataService.moveSessionTaskProperty().get();
+    if (runningTasks == 0 && moveSessionTask != null) {
+      //noinspection ResultOfMethodCallIgnored
+      executorService.submit(moveSessionTask);
+      uiDataService.moveSessionTaskProperty().set(null);
+    }
+  }
+
+  /**
+   * Show the {@link MoveSessionDialog} if more than one task is running.
+   */
+  private void showMoveSessionWarning() {
+    if (uiDataService.runningTasksProperty().greaterThan(1).get()) {
+      moveSessionDialog.setLayoutX(getWidth() / 2);
+      moveSessionDialog.setLayoutY(getHeight() / 2);
+      getChildren().add(moveSessionDialog);
+    }
   }
 
   private void setSessionFacades(final ObservableStore store) {

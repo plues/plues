@@ -63,7 +63,26 @@ public class HistoryManager {
    * Push a {@link Log} on the {@link #undoSessionMoveHistory}.
    */
   public void push(final Log log) {
-    undoSessionMoveHistory.add(undoSessionMoveHistory.size(), log);
+    push(log, undoSessionMoveHistory);
+  }
+
+  /**
+   * Push a {@link Log} on a specific history stack which is either {@link #undoSessionMoveHistory}
+   * or {@link #redoSessionMoveHistory}.
+   */
+  private void push(final Log log,
+                    final ListProperty<Log> sessionMoveHistory) {
+    sessionMoveHistory.add(sessionMoveHistory.size(), log);
+  }
+
+  /**
+   * Pop from a specific history stack.
+   */
+  private Log pop(final ListProperty<Log> sessionMoveHistory) {
+    final int lastIndex = sessionMoveHistory.size() - 1;
+    final Log log = sessionMoveHistory.get(lastIndex);
+    sessionMoveHistory.remove(lastIndex);
+    return log;
   }
 
   /**
@@ -74,14 +93,12 @@ public class HistoryManager {
   public void undoLastMoveOperation() {
     if (!undoSessionMoveHistory.isEmpty() && historyEnabledProperty.get()) {
       historyEnabledProperty().set(false);
+      final Log currentLog = pop(undoSessionMoveHistory);
       delayedSolverService.whenAvailable(SolverService::undoLastMoveOperation);
-      final int lastIndex = undoSessionMoveHistory.size() - 1;
-      final Log currentLog = undoSessionMoveHistory.get(lastIndex);
       delayedStore.whenAvailable(observableStore ->
           observableStore.undoLastMoveOperation(currentLog));
       uiDataService.highlightSessionProperty().set(currentLog.getSession());
-      undoSessionMoveHistory.remove(lastIndex);
-      redoSessionMoveHistory.add(redoSessionMoveHistory.size(), currentLog);
+      push(currentLog, redoSessionMoveHistory);
     }
   }
 
@@ -92,13 +109,11 @@ public class HistoryManager {
   public void redoLastMoveOperation() {
     if (!redoSessionMoveHistory.isEmpty() && historyEnabledProperty().get()) {
       historyEnabledProperty().set(false);
+      final Log currentLog = pop(redoSessionMoveHistory);
       delayedSolverService.whenAvailable(SolverService::redoLastMoveOperation);
-      final int lastIndex = redoSessionMoveHistory.size() - 1;
-      final Log currentLog = redoSessionMoveHistory.get(lastIndex);
       delayedStore.whenAvailable(observableStore ->
           observableStore.redoLastMoveOperation(currentLog));
       uiDataService.highlightSessionProperty().set(currentLog.getSession());
-      redoSessionMoveHistory.remove(lastIndex);
       push(currentLog);
     }
   }
@@ -107,19 +122,21 @@ public class HistoryManager {
    * Undo all move operations.
    */
   public void undoAllMoveOperations() {
-    EXECUTOR_SERVICE.execute(() -> {
-      while (!undoSessionMoveHistory.isEmpty()) {
-        Platform.runLater(this::undoLastMoveOperation);
-        try {
-          TimeUnit.MILLISECONDS.sleep(100);
-        } catch (final InterruptedException interruptedException) {
-          final Logger logger = LoggerFactory.getLogger(getClass());
-          logger.error("Undoing all session move operations has been interrupted.",
-              interruptedException);
-          Thread.currentThread().interrupt();
-        }
+    EXECUTOR_SERVICE.execute(this::undoAllMoveOperationsLoop);
+  }
+
+  private void undoAllMoveOperationsLoop() {
+    while (!undoSessionMoveHistory.isEmpty()) {
+      Platform.runLater(this::undoLastMoveOperation);
+      try {
+        TimeUnit.MILLISECONDS.sleep(100);
+      } catch (final InterruptedException interruptedException) {
+        final Logger logger = LoggerFactory.getLogger(getClass());
+        logger.error("Undoing all session move operations has been interrupted.",
+            interruptedException);
+        Thread.currentThread().interrupt();
       }
-    });
+    }
   }
 
   /**
