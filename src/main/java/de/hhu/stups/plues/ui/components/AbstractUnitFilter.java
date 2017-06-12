@@ -39,6 +39,8 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import org.controlsfx.control.textfield.CustomTextField;
+import org.reactfx.EventStream;
+import org.reactfx.EventStreams;
 
 import java.net.URL;
 import java.util.List;
@@ -166,6 +168,13 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     rbAll.setToggleGroup(filterGroup);
 
     unitsTable.setSelectionModel(null);
+
+    //
+    final EventStream<Integer> eventStream = EventStreams.sizeOf(courseFilter);
+    eventStream.subscribe(size -> cbSelectedCoursesOnly.setDisable(size == 0));
+    eventStream.filter(integer -> integer == 0)
+        .subscribe(integer -> cbSelectedCoursesOnly.setSelected(false));
+    //
 
     tableColumnCheckBox.setCellFactory(CheckBoxTableCell.forTableColumn(tableColumnCheckBox));
 
