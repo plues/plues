@@ -7,6 +7,7 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.entities.Log;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -14,12 +15,21 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 /**
  * The history manager to undo or redo session move operations. The history is disabled if a session
  * is currently dragged but not dropped yet.
  */
 @Singleton
 public class HistoryManager {
+
+  private static final ExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();
 
   private final Delayed<SolverService> delayedSolverService;
   private final Delayed<ObservableStore> delayedStore;
@@ -63,6 +73,7 @@ public class HistoryManager {
    */
   public void undoLastMoveOperation() {
     if (!undoSessionMoveHistory.isEmpty() && historyEnabledProperty.get()) {
+      historyEnabledProperty().set(false);
       delayedSolverService.whenAvailable(SolverService::undoLastMoveOperation);
       final int lastIndex = undoSessionMoveHistory.size() - 1;
       final Log currentLog = undoSessionMoveHistory.get(lastIndex);
@@ -80,6 +91,7 @@ public class HistoryManager {
    */
   public void redoLastMoveOperation() {
     if (!redoSessionMoveHistory.isEmpty() && historyEnabledProperty().get()) {
+      historyEnabledProperty().set(false);
       delayedSolverService.whenAvailable(SolverService::redoLastMoveOperation);
       final int lastIndex = redoSessionMoveHistory.size() - 1;
       final Log currentLog = redoSessionMoveHistory.get(lastIndex);
@@ -95,9 +107,19 @@ public class HistoryManager {
    * Undo all move operations.
    */
   public void undoAllMoveOperations() {
-    while (!undoSessionMoveHistory.isEmpty()) {
-      undoLastMoveOperation();
-    }
+    EXECUTOR_SERVICE.execute(() -> {
+      while (!undoSessionMoveHistory.isEmpty()) {
+        Platform.runLater(this::undoLastMoveOperation);
+        try {
+          TimeUnit.MILLISECONDS.sleep(100);
+        } catch (final InterruptedException interruptedException) {
+          final Logger logger = LoggerFactory.getLogger(getClass());
+          logger.error("Undoing all session move operations has been interrupted.",
+              interruptedException);
+          Thread.currentThread().interrupt();
+        }
+      }
+    });
   }
 
   /**
