@@ -7,6 +7,7 @@ import static java.time.DayOfWeek.TUESDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
@@ -69,6 +70,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -76,7 +78,16 @@ import java.util.stream.IntStream;
 
 public class Timetable extends StackPane implements Initializable, Activatable {
 
-  private static final ExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();
+  private static final ExecutorService EXECUTOR_SERVICE;
+
+  static {
+    final ThreadFactory threadFactoryBuilder
+        = new ThreadFactoryBuilder().setDaemon(true)
+          .setNameFormat("timetable-runner-%d").build();
+
+    EXECUTOR_SERVICE = Executors.newSingleThreadExecutor(threadFactoryBuilder);
+  }
+
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final Delayed<ObservableStore> delayedStore;
