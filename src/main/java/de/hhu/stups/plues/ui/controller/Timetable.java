@@ -206,7 +206,7 @@ public class Timetable extends StackPane implements Initializable, Activatable {
 
   /**
    * Move the session stored in {@link UiDataService#moveSessionTaskProperty()} if there are
-   * currently no runnings tasks described by the given parameter.
+   * currently no running tasks described by the given parameter.
    */
   private void moveSessionIfNoTasksRunning(final int runningTasks) {
     final SolverTask<Void> moveSessionTask = uiDataService.moveSessionTaskProperty().get();
