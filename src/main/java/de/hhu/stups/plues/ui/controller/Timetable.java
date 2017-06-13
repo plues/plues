@@ -388,8 +388,10 @@ public class Timetable extends StackPane implements Initializable, Activatable {
           sessionListView.setStyle("-fx-border-width: 2px; -fx-border-color: #FF8000;"));
       try {
         TimeUnit.MILLISECONDS.sleep(500);
-        Platform.runLater(() -> sessionListView.setStyle("-fx-border-insets: 0;"));
-        historyManager.historyEnabledProperty().set(true);
+        Platform.runLater(() -> {
+          sessionListView.setStyle("-fx-border-insets: 0;");
+          historyManager.historyEnabledProperty().set(true);
+        });
       } catch (final InterruptedException interruptedException) {
         logger.error("Session highlighting interrupted.", interruptedException);
         Thread.currentThread().interrupt();
