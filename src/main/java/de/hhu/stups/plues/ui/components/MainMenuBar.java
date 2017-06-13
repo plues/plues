@@ -618,16 +618,7 @@ public class MainMenuBar extends MenuBar implements Initializable {
     mainMenuService.getDelayedStore().whenAvailable(solverLoader::load);
 
     this.openFileMenuItem.setDisable(true);
-    this.submitTask(storeLoader);
-  }
-
-  private void submitTask(final Task<?> task, final ExecutorService exec) {
-    exec.submit(task);
-  }
-
-  @SuppressWarnings("unused")
-  private void submitTask(final Task<?> task) {
-    this.submitTask(task, this.executor);
+    executor.submit(storeLoader);
   }
 
   /**
