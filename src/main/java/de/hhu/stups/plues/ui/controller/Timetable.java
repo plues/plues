@@ -7,7 +7,6 @@ import static java.time.DayOfWeek.TUESDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
@@ -30,7 +29,6 @@ import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
@@ -54,12 +52,13 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-
+import org.reactfx.util.FxTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,26 +67,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Timetable extends StackPane implements Initializable, Activatable {
-
-  private static final ExecutorService EXECUTOR_SERVICE;
-
-  static {
-    final ThreadFactory threadFactoryBuilder
-        = new ThreadFactoryBuilder().setDaemon(true)
-          .setNameFormat("timetable-runner-%d").build();
-
-    EXECUTOR_SERVICE = Executors.newSingleThreadExecutor(threadFactoryBuilder);
-  }
-
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final Delayed<ObservableStore> delayedStore;
@@ -369,34 +353,18 @@ public class Timetable extends StackPane implements Initializable, Activatable {
    */
   private void highlightListViewForSessionFacade(final SessionFacade sessionFacade) {
     for (final Node node : timeTablePane.getChildren()) {
-      if (node instanceof SessionListView) {
-        final SessionListView sessionListView = (SessionListView) node;
-        if (sessionListView.getItems().contains(sessionFacade)) {
-          EXECUTOR_SERVICE.execute(getHighlightSessionListViewRunnable(sessionListView));
-          return;
-        }
+      if (!(node instanceof SessionListView)
+          || !((SessionListView) node).getItems().contains(sessionFacade)) {
+        continue;
       }
-    }
-  }
-
-  /**
-   * Create a runnable to highlight a session, wait some seconds and undo the highlighting.
-   */
-  private Runnable getHighlightSessionListViewRunnable(final SessionListView sessionListView) {
-    return () -> {
-      Platform.runLater(() ->
-          sessionListView.setStyle("-fx-border-width: 2px; -fx-border-color: #FF8000;"));
-      try {
-        TimeUnit.MILLISECONDS.sleep(500);
-        Platform.runLater(() -> {
-          sessionListView.setStyle("-fx-border-insets: 0;");
+      Platform.runLater(() -> {
+        node.setStyle("-fx-border-width: 2px; -fx-border-color: #FF8000;");
+        FxTimer.runLater(Duration.ofMillis(500), () -> {
+          node.setStyle("-fx-border-insets: 0;");
           historyManager.historyEnabledProperty().set(true);
         });
-      } catch (final InterruptedException interruptedException) {
-        logger.error("Session highlighting interrupted.", interruptedException);
-        Thread.currentThread().interrupt();
-      }
-    };
+      });
+    }
   }
 
   private void scrollToSession(final Session arg) {
