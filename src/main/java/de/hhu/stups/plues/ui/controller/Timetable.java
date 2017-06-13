@@ -52,6 +52,8 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import org.fxmisc.easybind.EasyBind;
+import org.reactfx.EventStreams;
 import org.reactfx.util.FxTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,23 +187,22 @@ public class Timetable extends StackPane implements Initializable, Activatable {
 
   private void setUiDataServiceListener() {
     // move session and hide warning automatically when all running tasks finished
-    uiDataService.runningTasksProperty().addListener((observable, oldValue, newValue) ->
-        moveSessionIfNoTasksRunning(newValue.intValue()));
+    EasyBind.subscribe(uiDataService.runningTasksProperty(), newValue
+        -> moveSessionIfNoTasksRunning(newValue.intValue()));
 
-    uiDataService.highlightSessionProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue != null) {
-        highlightSession(newValue);
-        uiDataService.highlightSessionProperty().set(null);
-      }
-    });
-
-    uiDataService.moveSessionTaskProperty().addListener((observable, oldValue, newValue) -> {
+    EasyBind.subscribe(uiDataService.moveSessionTaskProperty(), newValue -> {
       if (newValue == null) {
         getChildren().remove(moveSessionDialog);
         return;
       }
       showMoveSessionWarning();
     });
+
+    EventStreams.nonNullValuesOf(uiDataService.highlightSessionProperty()).subscribe(newValue -> {
+      highlightSession(newValue);
+      uiDataService.highlightSessionProperty().set(null);
+    });
+
   }
 
   /**
