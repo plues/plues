@@ -207,7 +207,7 @@ public class AbstractUnitFilter extends VBox implements Initializable {
   private void setDefaultTableColumnKeyWidth() {
     final Text tempText = new Text();
     double maxWidth = 0;
-    for (SelectableAbstractUnit selectableAbstractUnit : unitsTable.getItems()) {
+    for (final SelectableAbstractUnit selectableAbstractUnit : unitsTable.getItems()) {
       tempText.setText(selectableAbstractUnit.getKey());
       final double keyWidth = tempText.getBoundsInLocal().getWidth();
       if (keyWidth > maxWidth) {
