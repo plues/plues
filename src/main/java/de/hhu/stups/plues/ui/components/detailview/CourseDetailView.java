@@ -116,10 +116,19 @@ public class CourseDetailView extends VBox implements Initializable, DetailView 
     tableViewMajorOrMinorCourses.setOnMouseClicked(this::tableViewMouseClicked);
     // add major or minor courses according to the current course
     final Course currentCourse = courseProperty.get();
+    //
+    tableViewMajorOrMinorCourses.setVisible(currentCourse.isCombinable());
+    lbMajorOrMinorCourses.setVisible(currentCourse.isCombinable());
+    //
+    if (!currentCourse.isCombinable()) {
+      return;
+    }
+
     tableViewMajorOrMinorCourses.getItems().addAll(currentCourse.isMajor()
         ? currentCourse.getMinorCourses() : currentCourse.getMajorCourses());
     lbMajorOrMinorCourses.setText(courseProperty.get().isMajor()
         ? resources.getString("minorCourses") : resources.getString("majorCourses"));
+
   }
 
   private void tableViewMouseClicked(final MouseEvent mouseEvent) {
