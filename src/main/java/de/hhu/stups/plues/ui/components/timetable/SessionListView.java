@@ -168,7 +168,7 @@ public class SessionListView extends ListView<SessionFacade> {
   private void moveSucceededHandler(final int sessionId) {
     delayedStore.whenAvailable(store -> {
       store.moveSession(sessionId, slot.getDayString(), slot.getTime());
-      Optional<SessionFacade> optionalSessionFacade =
+      final Optional<SessionFacade> optionalSessionFacade =
           sessions.stream().filter(sessionFacade -> sessionFacade.getId() == sessionId).findFirst();
       optionalSessionFacade.ifPresent(sessionFacade -> sessionFacade.setSlot(slot));
       historyManager.push(store.getLastLogEntry());
