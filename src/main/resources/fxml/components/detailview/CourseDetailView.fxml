@@ -4,8 +4,11 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+
 <fx:root type="VBox" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1"
-         prefHeight="200" prefWidth="700" styleClass="windowPadding" spacing="10.0">
+         prefHeight="400" prefWidth="700" styleClass="windowPadding" spacing="10.0">
     <Label text="%course" styleClass="h1"/>
     <GridPane>
         <Label text="%key" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
@@ -30,4 +33,15 @@
             <ColumnConstraints percentWidth="50"/>
         </columnConstraints>
     </GridPane>
+    <VBox spacing="5.0">
+        <Label fx:id="lbMajorOrMinorCourses" styleClass="h2"/>
+        <TableView fx:id="tableViewMajorOrMinorCourses">
+            <columns>
+                <TableColumn fx:id="tableColumnCourseKey" prefWidth="150.0"
+                             text="%columnKey"/>
+                <TableColumn fx:id="tableColumnCourseName" prefWidth="400.0"
+                             text="%columnName"/>
+            </columns>
+        </TableView>
+    </VBox>
 </fx:root>
