@@ -201,7 +201,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   private double getMaximumKeyStringWidth(final TableView<SelectableCourse> tableView) {
     final Text tempText = new Text();
     double maxWidth = 0;
-    for (SelectableCourse selectableCourse : tableView.getItems()) {
+    for (final SelectableCourse selectableCourse : tableView.getItems()) {
       tempText.setText(selectableCourse.getKey());
       final double keyWidth = tempText.getBoundsInLocal().getWidth();
       if (keyWidth > maxWidth) {
