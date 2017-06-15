@@ -39,6 +39,9 @@ public class ChangeLog extends VBox implements Initializable {
   private final ObservableList<Log> logs;
   private final ObjectProperty<LocalDateTime> compare;
 
+  private Subscription subscriptions;
+  private ResourceBundle resources;
+
   @FXML
   @SuppressWarnings("unused")
   private TableView<Log> persistentTable;
@@ -69,7 +72,6 @@ public class ChangeLog extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private TableView<Log> tempTable;
-  private Subscription subscriptions;
 
   /**
    * Constructor to create the change log.
@@ -86,6 +88,23 @@ public class ChangeLog extends VBox implements Initializable {
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    this.resources = resources;
+    initializeTableColumns();
+    updateBinding();
+
+    delayedStore.whenAvailable(store -> {
+      logs.addAll(store.getLogEntries());
+      final Subscription removed = store.getChanges()
+          .filter(storeChange -> storeChange.historyChangeType().isBack())
+          .subscribe(value -> logs.remove(logs.size() - 1));
+      final Subscription added = store.getChanges()
+          .filter(storeChange -> storeChange.historyChangeType().isForward())
+          .subscribe(value -> logs.add(store.getLastLogEntry()));
+      subscriptions = added.and(removed);
+    });
+  }
+
+  private void initializeTableColumns() {
     final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
         srcColumnCallback = param -> new ReadOnlyStringWrapper(
         String.format("%s, %s", resources.getString(param.getValue().getSrcDay()),
@@ -105,20 +124,6 @@ public class ChangeLog extends VBox implements Initializable {
     tableColumnSourcePersistent.setCellValueFactory(srcColumnCallback);
     tableColumnTargetPersistent.setCellValueFactory(targetColumnCallback);
     tableColumnDatePersistent.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
-
-    updateBinding();
-
-    delayedStore.whenAvailable(store -> {
-      logs.addAll(store.getLogEntries());
-
-      final Subscription removed = store.getChanges()
-          .filter(storeChange -> storeChange.historyChangeType().isBack())
-          .subscribe(value -> logs.remove(logs.size() - 1));
-      final Subscription added = store.getChanges()
-          .filter(storeChange -> storeChange.historyChangeType().isForward())
-          .subscribe(value -> logs.add(store.getLastLogEntry()));
-      subscriptions = added.and(removed);
-    });
   }
 
   private void updateBinding() {
