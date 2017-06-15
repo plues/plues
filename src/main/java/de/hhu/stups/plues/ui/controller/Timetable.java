@@ -46,6 +46,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -264,10 +265,16 @@ public class Timetable extends StackPane implements Initializable, Activatable {
 
   private void setSessionFacades(final ObservableStore store) {
     logger.debug("Loading and setting SessionFacades");
-    setSessions(store.getSessions()
-        .stream()
-        .map(SessionFacade::new)
-        .collect(Collectors.toList()));
+    final Task<Void> setSessionsTask = new Task<Void>() {
+      @Override
+      protected Void call() throws Exception {
+        setSessions(store.getSessions().stream().map(SessionFacade::new)
+            .collect(Collectors.toList()));
+        return null;
+      }
+    };
+    final Thread setSessionsThread = new Thread(setSessionsTask);
+    setSessionsThread.start();
   }
 
   private List<Integer> getSemesterRange(final Store store) {
