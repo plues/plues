@@ -345,11 +345,11 @@ public class Timetable extends StackPane implements Initializable, Activatable {
 
   @SuppressWarnings("unused")
   private void setSessions(final List<SessionFacade> sessions) {
-    this.sessions.set(FXCollections.observableList(sessions,
+    Platform.runLater(() -> this.sessions.set(FXCollections.observableList(sessions,
         (SessionFacade session) -> {
           sessionFacadeMap.put(session.getId(), session);
           return new Observable[] {session.slotProperty()};
-        }));
+        })));
   }
 
   /**
