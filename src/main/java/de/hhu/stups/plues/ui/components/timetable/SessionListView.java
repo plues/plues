@@ -194,4 +194,8 @@ public class SessionListView extends ListView<SessionFacade> {
   public void setSessions(final ListProperty<SessionFacade> sessions) {
     this.sessions = sessions;
   }
+
+  public SessionFacade.Slot getSlot() {
+    return slot;
+  }
 }
