@@ -36,7 +36,6 @@ public class HistoryManager {
   private final ListProperty<Log> undoSessionMoveHistory;
   private final ListProperty<Log> redoSessionMoveHistory;
   private final BooleanProperty historyEnabledProperty;
-  private final UiDataService uiDataService;
 
   /**
    * Create the history manager and inject the necessary components. Clear the {@link
@@ -48,7 +47,6 @@ public class HistoryManager {
                         final UiDataService uiDataService) {
     this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
-    this.uiDataService = uiDataService;
 
     undoSessionMoveHistory = new SimpleListProperty<>(FXCollections.observableArrayList());
     redoSessionMoveHistory = new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -97,7 +95,6 @@ public class HistoryManager {
       delayedSolverService.whenAvailable(SolverService::undoLastMoveOperation);
       delayedStore.whenAvailable(observableStore ->
           observableStore.undoLastMoveOperation(currentLog));
-      uiDataService.highlightSessionProperty().set(currentLog.getSession());
       push(currentLog, redoSessionMoveHistory);
     }
   }
@@ -113,7 +110,6 @@ public class HistoryManager {
       delayedSolverService.whenAvailable(SolverService::redoLastMoveOperation);
       delayedStore.whenAvailable(observableStore ->
           observableStore.redoLastMoveOperation(currentLog));
-      uiDataService.highlightSessionProperty().set(currentLog.getSession());
       push(currentLog);
     }
   }
