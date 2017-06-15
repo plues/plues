@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui.components.timetable;
 
+import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -79,7 +80,6 @@ public class SemesterChooser extends Region {
     segmentedButton.getButtons().forEach(button -> {
       button.addEventFilter(MouseEvent.MOUSE_CLICKED, handleMouseClicked);
       button.addEventFilter(KeyEvent.KEY_PRESSED, handleKeyPressed);
-      button.setFocusTraversable(false);
     });
 
     this.setupSubscription(conflictedSemesters);
@@ -157,9 +157,14 @@ public class SemesterChooser extends Region {
    */
   public void setSelectedSemesters(final ObservableSet<Integer> selection) {
     selectedSemesters.unbind();
-    segmentedButton.getButtons().forEach(toggleButton ->
-        toggleButton.setSelected(
-            selection.contains(Integer.parseInt((String) toggleButton.getUserData()))));
+    segmentedButton.getButtons().forEach(toggleButton -> {
+      final boolean select =
+          selection.contains(Integer.parseInt((String) toggleButton.getUserData()));
+      toggleButton.setSelected(select);
+      if (select) {
+        Platform.runLater(toggleButton::requestFocus);
+      }
+    });
     selectedSemesters.bind(selectedSemestersBinding);
   }
 
