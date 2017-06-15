@@ -94,14 +94,21 @@ public class ChangeLog extends VBox implements Initializable {
 
     delayedStore.whenAvailable(store -> {
       logs.addAll(store.getLogEntries());
-      final Subscription removed = store.getChanges()
-          .filter(storeChange -> storeChange.historyChangeType().isBack())
-          .subscribe(value -> logs.remove(logs.size() - 1));
-      final Subscription added = store.getChanges()
-          .filter(storeChange -> storeChange.historyChangeType().isForward())
-          .subscribe(value -> logs.add(store.getLastLogEntry()));
-      subscriptions = added.and(removed);
+      setSubscriptions(store);
     });
+  }
+
+  private void setSubscriptions(final ObservableStore store) {
+    if (store == null) {
+      return;
+    }
+    final Subscription removed = store.getChanges()
+        .filter(storeChange -> storeChange.historyChangeType().isBack())
+        .subscribe(value -> logs.remove(logs.size() - 1));
+    final Subscription added = store.getChanges()
+        .filter(storeChange -> storeChange.historyChangeType().isForward())
+        .subscribe(value -> logs.add(store.getLastLogEntry()));
+    subscriptions = added.and(removed);
   }
 
   private void initializeTableColumns() {
@@ -115,11 +122,26 @@ public class ChangeLog extends VBox implements Initializable {
         String.format("%s, %s", resources.getString(param.getValue().getTargetDay()),
             Helpers.timeMap.get(param.getValue().getTargetTime())));
 
+    setTemporaryColumnCellFactories(srcColumnCallback, targetColumnCallback);
+    setPersistenColumnCellFactories(srcColumnCallback, targetColumnCallback);
+  }
+
+  private void setTemporaryColumnCellFactories(
+      final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
+          srcColumnCallback,
+      final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
+          targetColumnCallback) {
     tableColumnSessionTemporary.setCellValueFactory(new PropertyValueFactory<>("session"));
     tableColumnSourceTemporary.setCellValueFactory(srcColumnCallback);
     tableColumnTargetTemporary.setCellValueFactory(targetColumnCallback);
     tableColumnDateTemporary.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+  }
 
+  private void setPersistenColumnCellFactories(
+      final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
+          srcColumnCallback,
+      final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
+          targetColumnCallback) {
     tableColumnSessionPersistent.setCellValueFactory(new PropertyValueFactory<>("session"));
     tableColumnSourcePersistent.setCellValueFactory(srcColumnCallback);
     tableColumnTargetPersistent.setCellValueFactory(targetColumnCallback);
@@ -130,15 +152,21 @@ public class ChangeLog extends VBox implements Initializable {
     final SortedList<Log> sortedList
         = logs.sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
 
-    final FilteredList<Log> persistentList = new FilteredList<>(sortedList);
-    final FilteredList<Log> tempList = new FilteredList<>(sortedList);
+    updateTemporaryBinding(sortedList);
+    updatePersistensBindings(sortedList);
+  }
 
+  private void updatePersistensBindings(final SortedList<Log> sortedList) {
+    final FilteredList<Log> persistentList = new FilteredList<>(sortedList);
     persistentList.predicateProperty().bind(Bindings.createObjectBinding(
         () -> log -> log.getCreatedAt().compareTo(compare.get()) < 0, compare));
+    getPersistentTable().itemsProperty().bind(new SimpleListProperty<>(persistentList));
+  }
+
+  private void updateTemporaryBinding(final SortedList<Log> sortedList) {
+    final FilteredList<Log> tempList = new FilteredList<>(sortedList);
     tempList.predicateProperty().bind(Bindings.createObjectBinding(
         () -> log -> log.getCreatedAt().compareTo(compare.get()) > 0, compare));
-
-    getPersistentTable().itemsProperty().bind(new SimpleListProperty<>(persistentList));
     getTempTable().itemsProperty().bind(new SimpleListProperty<>(tempList));
   }
 
