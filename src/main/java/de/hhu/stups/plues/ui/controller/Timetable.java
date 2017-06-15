@@ -55,6 +55,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 
 import org.fxmisc.easybind.EasyBind;
@@ -114,6 +115,9 @@ public class Timetable extends StackPane implements Initializable, Activatable {
   @FXML
   @SuppressWarnings("unused")
   private TimetableSideBar timetableSideBar;
+  @FXML
+  @SuppressWarnings("unused")
+  private HBox semesterToggleBox;
 
 
   /**
@@ -149,6 +153,7 @@ public class Timetable extends StackPane implements Initializable, Activatable {
 
       final List<Integer> range = getSemesterRange(store);
       semesterToggle.setSemesters(range);
+      semesterToggleBox.setVisible(true);
     });
 
     timetableSideBar.setParent(this);
