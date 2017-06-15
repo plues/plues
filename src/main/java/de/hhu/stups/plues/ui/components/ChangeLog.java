@@ -9,6 +9,7 @@ import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -25,6 +26,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+
 import org.reactfx.Subscription;
 
 import java.net.URL;
@@ -110,10 +112,10 @@ public class ChangeLog extends VBox implements Initializable {
       logs.addAll(store.getLogEntries());
 
       final Subscription removed = store.getChanges()
-          .filter("removed"::equals)
+          .filter(storeChange -> storeChange.historyChangeType().isBack())
           .subscribe(value -> logs.remove(logs.size() - 1));
       final Subscription added = store.getChanges()
-          .filter(""::equals)
+          .filter(storeChange -> storeChange.historyChangeType().isForward())
           .subscribe(value -> logs.add(store.getLastLogEntry()));
       subscriptions = added.and(removed);
     });
