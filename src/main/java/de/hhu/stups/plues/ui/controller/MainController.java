@@ -17,6 +17,7 @@ import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.MainMenuBar;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -44,6 +45,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
 import org.reactfx.EventStreams;
@@ -104,8 +106,6 @@ public class MainController implements Initializable, Activatable {
   private ProgressBar mainProgressBar;
   @FXML
   private Label lbRunningTasks;
-  @FXML
-  private Tab tabTimetable;
 
   private final Tab reportsTab = new Tab();
 
@@ -229,7 +229,7 @@ public class MainController implements Initializable, Activatable {
     EventStreams.valuesOf(uiDataService.cancelAllTasksProperty())
         .filter(shouldCancel -> shouldCancel)
         .subscribe(newValue -> Platform.runLater(() -> {
-          taskProgress.getTasks().forEach(task -> task.cancel(true));
+          taskProgress.getTasks().forEach(task -> Platform.runLater(() -> task.cancel(true)));
           uiDataService.cancelAllTasksProperty().set(false);
         }));
   }
@@ -239,8 +239,12 @@ public class MainController implements Initializable, Activatable {
         .map(KeyEvent::getCode)
         .filterMap(keyCode -> {
           switch (keyCode) {
-            case DIGIT1: case DIGIT2: case DIGIT3:
-            case DIGIT4: case DIGIT5: case DIGIT6:
+            case DIGIT1:
+            case DIGIT2:
+            case DIGIT3:
+            case DIGIT4:
+            case DIGIT5:
+            case DIGIT6:
               return true;
             default:
               return false;
@@ -265,7 +269,8 @@ public class MainController implements Initializable, Activatable {
     });
 
     EventStreams.merge(EventStreams.eventsOf(lbRunningTasks, MouseEvent.MOUSE_CLICKED),
-        EventStreams.eventsOf(mainProgressBar, MouseEvent.MOUSE_CLICKED)).subscribe(mouseEvent -> {
+        EventStreams.eventsOf(mainProgressBar, MouseEvent.MOUSE_CLICKED))
+        .subscribe(mouseEvent -> {
           if (fadingInProgress) {
             mouseEvent.consume();
             return;
