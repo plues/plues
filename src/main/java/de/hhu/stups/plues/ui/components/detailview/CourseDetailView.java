@@ -58,7 +58,9 @@ public class CourseDetailView extends VBox implements Initializable, DetailView 
   @FXML
   @SuppressWarnings("unused")
   private TableColumn<Course, String> tableColumnCourseName;
-
+  @FXML
+  @SuppressWarnings("unused")
+  private VBox majorOrMinorBox;
   @FXML
   @SuppressWarnings("unused")
   private Label creditPoints;
@@ -121,6 +123,8 @@ public class CourseDetailView extends VBox implements Initializable, DetailView 
     lbMajorOrMinorCourses.setVisible(currentCourse.isCombinable());
     //
     if (!currentCourse.isCombinable()) {
+      getChildren().remove(majorOrMinorBox);
+      setPrefHeight(200.0);
       return;
     }
 

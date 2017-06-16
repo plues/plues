@@ -33,7 +33,7 @@
             <ColumnConstraints percentWidth="50"/>
         </columnConstraints>
     </GridPane>
-    <VBox spacing="5.0">
+    <VBox fx:id="majorOrMinorBox" spacing="5.0">
         <Label fx:id="lbMajorOrMinorCourses" styleClass="h2"/>
         <TableView fx:id="tableViewMajorOrMinorCourses">
             <columns>
