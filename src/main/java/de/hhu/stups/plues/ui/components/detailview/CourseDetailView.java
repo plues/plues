@@ -88,6 +88,16 @@ public class CourseDetailView extends VBox implements Initializable, DetailView 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     this.resources = resources;
+    initializeTextProperties();
+
+    final IntegerBinding cp = Bindings.selectInteger(courseProperty, "creditPoints");
+    this.creditPoints.textProperty().bind(
+        Bindings.when(cp.greaterThan(0)).then(cp.asString()).otherwise("-"));
+
+    courseProperty.addListener((observable, oldValue, newValue) -> initializeTableView());
+  }
+
+  private void initializeTextProperties() {
     this.key.textProperty().bind(Bindings.when(courseProperty.isNotNull()).then(
         Bindings.selectString(courseProperty, "key")).otherwise(""));
 
@@ -102,12 +112,6 @@ public class CourseDetailView extends VBox implements Initializable, DetailView 
 
     this.degree.textProperty().bind(Bindings.when(courseProperty.isNotNull()).then(
         Bindings.selectString(courseProperty, "degree")).otherwise(""));
-
-    final IntegerBinding cp = Bindings.selectInteger(courseProperty, "creditPoints");
-    this.creditPoints.textProperty().bind(
-        Bindings.when(cp.greaterThan(0)).then(cp.asString()).otherwise("-"));
-
-    courseProperty.addListener((observable, oldValue, newValue) -> initializeTableView());
   }
 
   private void initializeTableView() {
