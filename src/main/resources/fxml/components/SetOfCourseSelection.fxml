@@ -9,8 +9,8 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.textfield.CustomTextField?>
-
 <?import javafx.scene.control.Label?>
+
 <fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
     <Label text="%courses" styleClass="h2" />
