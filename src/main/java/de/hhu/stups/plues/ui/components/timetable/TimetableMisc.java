@@ -1,17 +1,21 @@
-package de.hhu.stups.plues;
+package de.hhu.stups.plues.ui.components.timetable;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.ui.controller.Timetable;
 
-import java.io.File;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.time.DayOfWeek;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public final class Helpers {
+/**
+ * Provide some static methods useful for working with the {@link Timetable}.
+ */
+public class TimetableMisc {
+
+  TimetableMisc() {
+  }
 
   public static final Map<String, String> timeIntervalMap;
 
@@ -52,28 +56,6 @@ public final class Helpers {
     tempMap.put(DayOfWeek.SATURDAY, "sat");
     tempMap.put(DayOfWeek.SUNDAY, "sun");
     shortDayOfWeekMap = Collections.unmodifiableMap(tempMap);
-  }
-
-
-  private Helpers() {
-  }
-
-  /**
-   * Expand a path (gives as string) to an absolute path. If the path starts with ~ it is replaced
-   * with the current user's home directory.
-   *
-   * @param base String
-   * @return Path absulute path representation of the argument
-   */
-  public static Path expandPath(final String base) {
-    // handle ~ in paths
-    final String basePath;
-    if (base.startsWith("~" + File.separator)) {
-      basePath = System.getProperty("user.home") + base.substring(1);
-    } else {
-      basePath = base;
-    }
-    return FileSystems.getDefault().getPath(basePath).toAbsolutePath();
   }
 
   /**

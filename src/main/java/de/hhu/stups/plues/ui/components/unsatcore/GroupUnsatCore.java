@@ -2,13 +2,14 @@ package de.hhu.stups.plues.ui.components.unsatcore;
 
 import com.google.inject.Inject;
 
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.detailview.DetailViewHelper;
+import de.hhu.stups.plues.ui.components.timetable.TimetableMisc;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -88,8 +89,8 @@ public class GroupUnsatCore extends VBox implements Initializable {
         -> Bindings.selectString(param, "value", "unit", "title"));
     tableColumnGroupUnitSemesters.setCellValueFactory(param
         -> new SimpleStringProperty(param.getValue().getUnit().getSemesters().stream()
-            .map(String::valueOf)
-            .collect(Collectors.joining(","))));
+        .map(String::valueOf)
+        .collect(Collectors.joining(","))));
 
     // display a bullet-list of sessions to represent the group
     tableColumnGroupSessions.setCellFactory(param -> new TableCell<Group, Set<Session>>() {
@@ -104,7 +105,7 @@ public class GroupUnsatCore extends VBox implements Initializable {
         setText(item.stream()
             .map(s -> {
               String dayString = resources.getString(
-                  Helpers.shortDayOfWeekMap.get(s.getDayOfWeekMap().get(s.getDay())));
+                  TimetableMisc.shortDayOfWeekMap.get(s.getDayOfWeekMap().get(s.getDay())));
               String timeString = String.valueOf(6 + s.getTime() * 2) + ":30";
 
               return String.format("%s%s - %s%n", prefix, dayString, timeString);

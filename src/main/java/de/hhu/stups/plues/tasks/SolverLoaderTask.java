@@ -3,7 +3,6 @@ package de.hhu.stups.plues.tasks;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.modelgenerator.FileType;
 import de.hhu.stups.plues.modelgenerator.Renderer;
@@ -12,7 +11,9 @@ import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.prob.SolverException;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
+
 import javafx.concurrent.Task;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,7 @@ public class SolverLoaderTask extends Task<Solver> {
    */
   @Inject
   public SolverLoaderTask(final SolverFactory sf,
-      final Properties pp, @Assisted final Store store) {
+                          final Properties pp, @Assisted final Store store) {
 
     this.resources = ResourceBundle.getBundle("lang.tasks");
     this.solverFactory = sf;
@@ -75,7 +76,7 @@ public class SolverLoaderTask extends Task<Solver> {
       // use bundled files
       this.copyModelsToTemp();
     } else {
-      final Path p = Helpers.expandPath(modelBase);
+      final Path p = PreparePath.expandPath(modelBase);
       if (!new File(p.toString()).exists()) {
         logger.error("Path does not exist");
         throw new IllegalArgumentException("Path does not exist");

@@ -3,11 +3,11 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.ui.components.timetable.TimetableMisc;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
@@ -115,12 +115,12 @@ public class ChangeLog extends VBox implements Initializable {
     final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
         srcColumnCallback = param -> new ReadOnlyStringWrapper(
         String.format("%s, %s", resources.getString(param.getValue().getSrcDay()),
-            Helpers.timeMap.get(param.getValue().getSrcTime())));
+            TimetableMisc.timeMap.get(param.getValue().getSrcTime())));
 
     final Callback<TableColumn.CellDataFeatures<Log, String>, ObservableValue<String>>
         targetColumnCallback = param -> new ReadOnlyStringWrapper(
         String.format("%s, %s", resources.getString(param.getValue().getTargetDay()),
-            Helpers.timeMap.get(param.getValue().getTargetTime())));
+            TimetableMisc.timeMap.get(param.getValue().getTargetTime())));
 
     setTemporaryColumnCellFactories(srcColumnCallback, targetColumnCallback);
     setPersistenColumnCellFactories(srcColumnCallback, targetColumnCallback);

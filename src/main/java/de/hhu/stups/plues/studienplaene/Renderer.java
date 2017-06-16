@@ -1,11 +1,12 @@
 package de.hhu.stups.plues.studienplaene;
 
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
+import de.hhu.stups.plues.ui.components.timetable.TimetableMisc;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.exceptions.RenderingException;
+
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import org.jtwig.environment.EnvironmentConfiguration;
@@ -42,7 +43,7 @@ public class Renderer {
     setup(store, feasibilityResult, major, minor, colorScheme);
   }
 
-  public Renderer(final Store store,
+  Renderer(final Store store,
                   final FeasibilityResult feasibilityResult,
                   final Course major,
                   final ColorScheme colorScheme) {
@@ -80,7 +81,7 @@ public class Renderer {
         .with("minor", minor)
         .with("semesters", this.semesters)
         .with("modules", colorMap)
-        .with("times", Helpers.timeIntervalMap)
+        .with("times", TimetableMisc.timeIntervalMap)
         .with("date", formattedDate)
         .with("logo", logo)
         .with("fonts", fonts);

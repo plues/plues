@@ -3,7 +3,6 @@ package de.hhu.stups.plues.ui.controller;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.RouteNames;
@@ -13,6 +12,7 @@ import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
+import de.hhu.stups.plues.ui.components.timetable.TimetableMisc;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -128,7 +128,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
     }
     final Optional<ResultBox> containsBox = resultBoxWrapper.getItems().stream().filter(
         resultBox -> majorCourse.equals(resultBox.getMajorCourse())
-            && Helpers.equalCoursesOrNull(minorCourse, resultBox.getMinorCourse()))
+            && TimetableMisc.equalCoursesOrNull(minorCourse, resultBox.getMinorCourse()))
         .findFirst();
     if (containsBox.isPresent()) {
       toTopOfListview(containsBox.get());

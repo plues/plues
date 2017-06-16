@@ -1,12 +1,12 @@
 package de.hhu.stups.plues.ui.components.timetable;
 
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
 import de.hhu.stups.plues.data.entities.Session;
+
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -38,16 +38,16 @@ public class SessionFacade {
     final Set<AbstractUnit> abstractUnits = this.getIntendedAbstractUnits();
 
     courses = abstractUnits.stream()
-      .map(AbstractUnit::getModules)
-      .flatMap(Set::stream)
-      .map(Module::getCourses)
-      .flatMap(Set::stream)
-      .collect(Collectors.toSet());
+        .map(AbstractUnit::getModules)
+        .flatMap(Set::stream)
+        .map(Module::getCourses)
+        .flatMap(Set::stream)
+        .collect(Collectors.toSet());
 
     abstractUnitKeys = abstractUnits.stream()
-      .map(AbstractUnit::getKey)
-      .sorted(String::compareTo)
-      .collect(Collectors.toList());
+        .map(AbstractUnit::getKey)
+        .sorted(String::compareTo)
+        .collect(Collectors.toList());
 
     slotObjectProperty.set(new Slot(getDayOfWeek(), session.getTime()));
   }
@@ -71,6 +71,7 @@ public class SessionFacade {
 
   /**
    * Set slot of SessionFacade and session.
+   *
    * @param slot SessionFacade.Slot
    */
   public void setSlot(final Slot slot) {
@@ -107,6 +108,7 @@ public class SessionFacade {
   /**
    * Compute a text representation for the current session based on a given
    * {@link de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat}.
+   *
    * @param displayFormat SessionDisplayFormat
    * @return String representation of the session
    */
@@ -119,7 +121,7 @@ public class SessionFacade {
         break;
       case ABSTRACT_UNIT_KEYS:
         final String unitKeys = this.getAbstractUnitKeys().stream()
-              .map(SessionFacade::trimUnitKey).collect(Collectors.joining(", "));
+            .map(SessionFacade::trimUnitKey).collect(Collectors.joining(", "));
         // display session title if there are no abstract units
         representation = unitKeys.isEmpty() ? this.toString() : unitKeys;
         break;
@@ -141,21 +143,22 @@ public class SessionFacade {
     final List<String> splittedKey = Arrays.asList(unitKey.split("-"));
     if ("w".equalsIgnoreCase(splittedKey.get(0))) {
       return splittedKey.subList(2, splittedKey.size()).stream()
-        .collect(Collectors.joining("-"));
+          .collect(Collectors.joining("-"));
     } else {
       return splittedKey.subList(1, splittedKey.size()).stream()
-        .collect(Collectors.joining("-"));
+          .collect(Collectors.joining("-"));
     }
   }
 
   /**
    * Build a displayTextComparator to compare sessionFacade objects based on a given
    * SessionDisplayFormat.
+   *
    * @param sessionDisplayFormat SessionDisplayFormat
    * @return Comparator for SessionFacade objects
    */
   public static Comparator<SessionFacade> displayTextComparator(
-        final SessionDisplayFormat sessionDisplayFormat) {
+      final SessionDisplayFormat sessionDisplayFormat) {
 
     switch (sessionDisplayFormat) {
       case TITLE:
@@ -174,7 +177,8 @@ public class SessionFacade {
 
     /**
      * Create a new Slot object.
-     * @param day DayOfWeek for the slot
+     *
+     * @param day  DayOfWeek for the slot
      * @param time integer representing the time slot
      */
     public Slot(final DayOfWeek day, final Integer time) {
@@ -208,7 +212,7 @@ public class SessionFacade {
      */
     @SuppressWarnings("WeakerAccess")
     public String getDayString() {
-      final String dayString = Helpers.shortDayOfWeekMap.get(day);
+      final String dayString = TimetableMisc.shortDayOfWeekMap.get(day);
 
       if (dayString == null) {
         return "sun";
@@ -270,6 +274,7 @@ public class SessionFacade {
 
   /**
    * Compute all abstract Units this session is associated to.
+   *
    * @return Set of abstract units
    */
   public Set<AbstractUnit> getIntendedAbstractUnits() {

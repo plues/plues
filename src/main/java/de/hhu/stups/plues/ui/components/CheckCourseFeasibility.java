@@ -3,10 +3,10 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.ui.components.timetable.TimetableMisc;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
@@ -115,7 +115,7 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     }
     final Optional<FeasibilityBox> containsBox = feasibilityBoxWrapper.getItems().stream().filter(
         feasibilityBox -> majorCourse.equals(feasibilityBox.getMajorCourse())
-            && Helpers.equalCoursesOrNull(minorCourse, feasibilityBox.getMinorCourse()))
+            && TimetableMisc.equalCoursesOrNull(minorCourse, feasibilityBox.getMinorCourse()))
         .findFirst();
     if (containsBox.isPresent()) {
       toTopOfListview(containsBox.get());
