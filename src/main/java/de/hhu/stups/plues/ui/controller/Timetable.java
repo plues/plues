@@ -322,7 +322,6 @@ public class Timetable extends StackPane implements Initializable, Activatable {
         final SortedList<SessionFacade> sortedSessions, final SessionFacade.Slot slot) {
     final SessionListView view = sessionListViewFactory.create(slot);
 
-    view.setSessions(sessions);
     final FilteredList<SessionFacade> slotSessions
         = sortedSessions.filtered(facade -> facade.getSlot().equals(slot));
     final FilteredList<SessionFacade> filteredSessions = new FilteredList<>(slotSessions);
