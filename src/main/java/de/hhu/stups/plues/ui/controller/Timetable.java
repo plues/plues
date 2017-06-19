@@ -31,7 +31,6 @@ import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
@@ -57,7 +56,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-
 import org.fxmisc.easybind.EasyBind;
 import org.reactfx.util.FxTimer;
 import org.slf4j.Logger;
@@ -307,24 +305,24 @@ public class Timetable extends StackPane implements Initializable, Activatable {
     final int offY = 1;
     final int widthX = 5;
 
+    final SortedList<SessionFacade> sortedSessions = sessions.sorted();
+    sortedSessions.comparatorProperty().bind(Bindings.createObjectBinding(
+        () -> SessionFacade.displayTextComparator(uiDataService.getSessionDisplayFormat()),
+            uiDataService.sessionDisplayFormatProperty()));
+
     IntStream.range(0, 35).forEach(i -> {
       final SessionFacade.Slot slot = getSlot(i, widthX);
 
-      final ListView<SessionFacade> view = getSessionFacadeListView(slot);
+      final ListView<SessionFacade> view = getSessionFacadeListView(sortedSessions, slot);
       timeTablePane.add(view, i % widthX + offX, (i / widthX) + offY);
     });
   }
 
-  private ListView<SessionFacade> getSessionFacadeListView(final SessionFacade.Slot slot) {
+  private ListView<SessionFacade> getSessionFacadeListView(
+        final SortedList<SessionFacade> sortedSessions, final SessionFacade.Slot slot) {
     final SessionListView view = sessionListViewFactory.create(slot);
 
     view.setSessions(sessions);
-
-    final SortedList<SessionFacade> sortedSessions = sessions.sorted();
-    sortedSessions.comparatorProperty().bind(Bindings.createObjectBinding(
-        () -> SessionFacade.displayTextComparator(uiDataService.getSessionDisplayFormat()),
-        uiDataService.sessionDisplayFormatProperty()));
-
     final FilteredList<SessionFacade> slotSessions
         = sortedSessions.filtered(facade -> facade.getSlot().equals(slot));
     final FilteredList<SessionFacade> filteredSessions = new FilteredList<>(slotSessions);
