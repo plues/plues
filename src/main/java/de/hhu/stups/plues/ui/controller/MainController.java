@@ -315,8 +315,11 @@ public class MainController implements Initializable, Activatable {
    */
   private void removeTaskProgressBox() {
     clearStatusBar();
-    FxTimer.runLater(java.time.Duration.ofSeconds(3),
-        () -> taskBoxCollapsed.setValue(taskProgress.getTasks().isEmpty()));
+    FxTimer.runLater(java.time.Duration.ofSeconds(3), () -> {
+      if (taskProgress.getTasks().isEmpty()) {
+        taskBoxCollapsed.setValue(true);
+      }
+    });
   }
 
   /**
