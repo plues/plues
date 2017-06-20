@@ -31,17 +31,19 @@ import de.hhu.stups.plues.ui.components.timetable.TimetableSideBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.SetBinding;
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleSetProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -56,6 +58,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+
 import org.fxmisc.easybind.EasyBind;
 import org.reactfx.util.FxTimer;
 import org.slf4j.Logger;
@@ -67,6 +70,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -84,10 +88,10 @@ public class Timetable extends StackPane implements Initializable, Activatable {
   private final SessionListViewFactory sessionListViewFactory;
   private final UiDataService uiDataService;
   private final ListeningExecutorService executorService;
-  private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
   private final SetProperty<Integer> conflictedSemesters;
   private final HistoryManager historyManager;
   private final Map<Integer, SessionFacade> sessionFacadeMap;
+  private final Map<SessionFacade.Slot, ObservableList<SessionFacade>> slotSessionFacadeMap;
 
   private double userDefinedDividerPos = 0.15;
   private SplitPane.Divider splitPaneDivider;
@@ -135,9 +139,8 @@ public class Timetable extends StackPane implements Initializable, Activatable {
     this.historyManager = historyManager;
     conflictedSemesters = new SimpleSetProperty<>(FXCollections.emptyObservableSet());
     sessionFacadeMap = new HashMap<>();
+    slotSessionFacadeMap = new HashMap<>();
 
-    // TODO: remove controller param if possible
-    // TODO: currently not possible because of dependency circle
     inflater.inflate("components/Timetable", this, this, "timetable", "Days", "Column");
   }
 
@@ -197,8 +200,10 @@ public class Timetable extends StackPane implements Initializable, Activatable {
                                    final DayOfWeek targetDayOfWeek,
                                    final Integer targetTime) {
     final SessionFacade sessionFacade = sessionFacadeMap.get(session.getId());
+    slotSessionFacadeMap.get(sessionFacade.getSlot()).remove(sessionFacade);
     final SessionFacade.Slot slot = new SessionFacade.Slot(targetDayOfWeek, targetTime);
     sessionFacade.setSlot(slot);
+    slotSessionFacadeMap.get(slot).add(sessionFacade);
     highlightSession(sessionFacade, slot);
   }
 
@@ -305,21 +310,34 @@ public class Timetable extends StackPane implements Initializable, Activatable {
     final int offY = 1;
     final int widthX = 5;
 
-    final SortedList<SessionFacade> sortedSessions = sessions.sorted();
-    sortedSessions.comparatorProperty().bind(Bindings.createObjectBinding(
-        () -> SessionFacade.displayTextComparator(uiDataService.getSessionDisplayFormat()),
-            uiDataService.sessionDisplayFormatProperty()));
-
     IntStream.range(0, 35).forEach(i -> {
       final SessionFacade.Slot slot = getSlot(i, widthX);
-
-      final ListView<SessionFacade> view = getSessionFacadeListView(sortedSessions, slot);
+      final ObservableList<SessionFacade> sessionFacadeList =
+          FXCollections.observableList(FXCollections.observableArrayList(),
+              (SessionFacade session) -> {
+                sessionFacadeMap.put(session.getId(), session);
+                return new Observable[] {session.slotProperty()};
+              });
+      final SortedList<SessionFacade> sortedList = sessionFacadeList.sorted();
+      sortedList.comparatorProperty().bind(getSessionComparator());
+      slotSessionFacadeMap.put(slot, sessionFacadeList);
+      final ListView<SessionFacade> view = getSessionFacadeListView(sortedList, slot);
       timeTablePane.add(view, i % widthX + offX, (i / widthX) + offY);
     });
   }
 
+  /**
+   * Sort the session according to the current {@link UiDataService#sessionDisplayFormatProperty
+   * session display format}.
+   */
+  private ObservableValue<Comparator<SessionFacade>> getSessionComparator() {
+    return Bindings.createObjectBinding(
+        () -> SessionFacade.displayTextComparator(uiDataService.getSessionDisplayFormat()),
+        uiDataService.sessionDisplayFormatProperty());
+  }
+
   private ListView<SessionFacade> getSessionFacadeListView(
-        final SortedList<SessionFacade> sortedSessions, final SessionFacade.Slot slot) {
+      final SortedList<SessionFacade> sortedSessions, final SessionFacade.Slot slot) {
     final SessionListView view = sessionListViewFactory.create(slot);
 
     final FilteredList<SessionFacade> slotSessions
@@ -342,11 +360,14 @@ public class Timetable extends StackPane implements Initializable, Activatable {
 
   @SuppressWarnings("unused")
   private void setSessions(final List<SessionFacade> sessions) {
-    Platform.runLater(() -> this.sessions.set(FXCollections.observableList(sessions,
-        (SessionFacade session) -> {
-          sessionFacadeMap.put(session.getId(), session);
-          return new Observable[] {session.slotProperty()};
-        })));
+    sessions.forEach(sessionFacade -> Platform.runLater(() -> {
+      final ObservableList<SessionFacade> observableList =
+          slotSessionFacadeMap.get(sessionFacade.getSlot());
+      if (observableList != null) { // some sessions are on the weekend like "blockseminare"
+        observableList.add(sessionFacade);
+        sessionFacadeMap.put(sessionFacade.getId(), sessionFacade);
+      }
+    }));
   }
 
   /**
@@ -460,11 +481,11 @@ public class Timetable extends StackPane implements Initializable, Activatable {
     @Override
     protected ObservableSet<Integer> computeValue() {
       final Set<Integer> sessionIds = new HashSet<>(uiDataService.conflictMarkedSessionsProperty());
-      return sessions.filtered(facade -> sessionIds.contains(facade.getId())).stream()
-          .map(SessionFacade::getUnitSemesters)
+      return sessionFacadeMap.entrySet().stream()
+          .filter(entry -> sessionIds.contains(entry.getKey()))
+          .map(entry -> entry.getValue().getUnitSemesters())
           .flatMap(Collection::stream)
-          .collect(
-              Collectors.collectingAndThen(Collectors.toSet(), FXCollections::observableSet));
+          .collect(Collectors.collectingAndThen(Collectors.toSet(), FXCollections::observableSet));
     }
   }
 
