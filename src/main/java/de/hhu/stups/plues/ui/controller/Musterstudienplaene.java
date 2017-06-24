@@ -95,11 +95,11 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
 
     // disable list-view selection
     resultBoxWrapper.getSelectionModel().selectedIndexProperty().addListener(
-      (observable, oldValue, newValue) ->
+        (observable, oldValue, newValue) ->
         Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
 
     delayedStore.whenAvailable(store
-      -> courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors())));
+        -> courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors())));
 
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 
@@ -140,15 +140,15 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
       minorCourse = null;
     }
     final Optional<ResultBox> containsBox = resultBoxWrapper.getItems().stream().filter(
-      resultBox -> majorCourse.equals(resultBox.getMajorCourse())
+        resultBox -> majorCourse.equals(resultBox.getMajorCourse())
         && TimetableMisc.equalCoursesOrNull(minorCourse, resultBox.getMinorCourse()))
-      .findFirst();
+        .findFirst();
     if (containsBox.isPresent()) {
       toTopOfListview(containsBox.get());
       return;
     }
     resultBoxWrapper.getItems().add(0, resultBoxFactory.create(majorCourse, minorCourse,
-      resultBoxWrapper, colorSchemeSelection.selectedColorScheme()));
+        resultBoxWrapper, colorSchemeSelection.selectedColorScheme()));
     resultBoxWrapper.scrollTo(0);
   }
 
