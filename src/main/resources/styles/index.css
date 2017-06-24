@@ -123,6 +123,10 @@
     -fx-font-size: 20;
 }
 
+.h3 {
+    -fx-font-size: 15;
+}
+
 .split-pane-divider {
     -fx-background-color: #D8D8D8;
     -fx-padding: 0 0.1em 0 0.1em;
@@ -167,6 +171,10 @@
 
 .windowPadding {
     -fx-padding: 20px 20px 20px 20px;
+}
+
+.windowPaddingTopOnly {
+    -fx-padding: 20px 0 0 0;
 }
 
 .windowPaddingSmall {
