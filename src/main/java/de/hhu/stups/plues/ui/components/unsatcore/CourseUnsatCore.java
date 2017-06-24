@@ -8,13 +8,9 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
-import de.hhu.stups.plues.ui.TooltipAllocator;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -26,8 +22,6 @@ import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
@@ -53,12 +47,6 @@ public class CourseUnsatCore extends GridPane implements Initializable {
   private final BooleanProperty taskScheduledProperty;
   private final ExecutorService executorService;
 
-  @FXML
-  @SuppressWarnings("unused")
-  private Label unsatCoreInfo;
-  @FXML
-  @SuppressWarnings("unused")
-  private Tooltip unsatCoreInfoTooltip;
   @FXML
   @SuppressWarnings("unused")
   private VBox contentBox;
@@ -118,11 +106,6 @@ public class CourseUnsatCore extends GridPane implements Initializable {
       courseIsInfeasible.set(false);
       checkFeasibilityButtonBar.taskProperty().set(null);
     });
-
-    unsatCoreInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
-        FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "18")));
-    TooltipAllocator.showTooltipOnEnter(unsatCoreInfo, unsatCoreInfoTooltip,
-        new SimpleBooleanProperty(false));
 
     storeProperty.addListener((observable, oldValue, store)
         -> courseSelection.setCourses(store.getCourses()));

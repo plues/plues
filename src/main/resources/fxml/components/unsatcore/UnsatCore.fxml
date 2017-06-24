@@ -8,12 +8,24 @@
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.GridPane?>
+<?import de.hhu.stups.plues.ui.components.ControllerHeader?>
+<?import javafx.scene.layout.RowConstraints?>
 
-<fx:root type="javafx.scene.layout.VBox" styleClass="windowPadding" spacing="20.0"
+<?import javafx.scene.layout.ColumnConstraints?>
+<fx:root type="GridPane" alignment="center" styleClass="windowPadding" vgap="10.0"
          xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-    <CourseUnsatCore fx:id="courseUnsatCore"/>
-    <Accordion fx:id="stepwisePanesAccordion" expandedPane="$modulesPane" GridPane.rowIndex="1"
-               GridPane.columnIndex="0">
+    <columnConstraints>
+        <ColumnConstraints percentWidth="100.0"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints percentHeight="5.0"/>
+        <RowConstraints percentHeight="35.0"/>
+        <RowConstraints percentHeight="60.0"/>
+    </rowConstraints>
+    <ControllerHeader fx:id="controllerHeader" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+    <CourseUnsatCore fx:id="courseUnsatCore" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+    <Accordion fx:id="stepwisePanesAccordion" expandedPane="$modulesPane" GridPane.columnIndex="0"
+               GridPane.rowIndex="2">
         <panes>
             <TitledPane fx:id="modulesPane" text="%modulesPaneTitle" minWidth="0" minHeight="0">
                 <ModuleUnsatCore fx:id="moduleUnsatCore"/>

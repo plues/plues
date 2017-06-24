@@ -11,6 +11,7 @@ import de.hhu.stups.plues.ui.batchgeneration.CollectPdfRenderingTasksTask;
 import de.hhu.stups.plues.ui.components.BatchResultBox;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
+import de.hhu.stups.plues.ui.components.ControllerHeader;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
@@ -73,6 +74,9 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   @FXML
   @SuppressWarnings("unused")
+  private ControllerHeader controllerHeader;
+  @FXML
+  @SuppressWarnings("unused")
   private Button btGenerateAll;
   @FXML
   @SuppressWarnings("unused")
@@ -132,6 +136,12 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     btSaveToFolder.disableProperty().bind(generationSucceeded.emptyProperty());
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
+    initializeControllerHeader(resources);
+  }
+
+  private void initializeControllerHeader(final ResourceBundle resources) {
+    controllerHeader.setTitle(resources.getString("title"));
+    controllerHeader.setInfoText(resources.getString("info"));
   }
 
   /**
