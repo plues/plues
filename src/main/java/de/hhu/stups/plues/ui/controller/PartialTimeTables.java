@@ -128,7 +128,8 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     colorSchemeSelection.defaultInitialization();
-    colorSchemeSelection.disableProperty().bind(courseSelection.disabledProperty());
+    colorSchemeSelection.disableProperty().bind(courseSelection
+        .getMajorComboBox().disabledProperty());
 
     pdfRenderingService.colorSchemeProperty().bind(colorSchemeSelection.selectedColorScheme());
     final BooleanBinding selectionBinding = storeProperty.isNull().or(checkRunning);

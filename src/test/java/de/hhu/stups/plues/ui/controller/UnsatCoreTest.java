@@ -16,6 +16,7 @@ import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
+import de.hhu.stups.plues.ui.components.ControllerHeader;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.components.unsatcore.AbstractUnitUnsatCore;
@@ -84,7 +85,7 @@ public class UnsatCoreTest extends ApplicationTest {
     final UnsatCoreButtonBar checkFeasibilityButtonBar =
         lookup("#checkFeasibilityButtonBar").query();
     clickOn(checkFeasibilityButtonBar.getBtSubmitTask());
-    sleep(500, TimeUnit.MILLISECONDS);
+    sleep(1000, TimeUnit.MILLISECONDS);
     Assert.assertTrue(courseUnsatCore.taskRunningProperty().get());
     Assert.assertTrue(courseSelection.isDisabled());
   }
@@ -373,6 +374,8 @@ public class UnsatCoreTest extends ApplicationTest {
         return () -> groupUnsatCore;
       } else if (type.equals(SessionUnsatCore.class)) {
         return () -> sessionUnsatCore;
+      } else if (type.equals(ControllerHeader.class)) {
+        return () -> new ControllerHeader(new Inflater(new FXMLLoader()));
       }
       return new JavaFXBuilderFactory().getBuilder(type);
     });

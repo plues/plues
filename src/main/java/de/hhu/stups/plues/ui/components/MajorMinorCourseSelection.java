@@ -105,7 +105,6 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    disableProperty().bindBidirectional(cbMajor.disableProperty());
     cbMajor.setConverter(new CourseConverter());
     cbMinor.setConverter(new CourseConverter());
 
@@ -136,6 +135,7 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
         = Bindings.selectBoolean(selectedMajorProperty, "combinable").not();
     cbMajor.disableProperty().bind(majorCourseList.emptyProperty());
     cbMinor.disableProperty().bind(majorNotCombinable.or(majorCourseList.emptyProperty()));
+    cbMajor.disableProperty().addListener((observable, oldValue, newValue) -> setDisable(newValue));
 
     impossibleCoursesProperty.addListener((observable, oldValue, newValue) -> {
       cbMajor.setCellFactory(getCallbackForImpossibleCourses(newValue));

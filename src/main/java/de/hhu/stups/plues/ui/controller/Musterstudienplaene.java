@@ -87,7 +87,8 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     colorSchemeSelection.defaultInitialization();
-    colorSchemeSelection.disableProperty().bind(courseSelection.disabledProperty());
+    colorSchemeSelection.disableProperty().bind(courseSelection
+        .getMajorComboBox().disabledProperty());
 
     btGenerate.disableProperty().bind(solverProperty.not());
 
