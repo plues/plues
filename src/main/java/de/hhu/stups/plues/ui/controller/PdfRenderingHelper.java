@@ -67,7 +67,7 @@ public class PdfRenderingHelper {
    *
    * @param file Temporary file to show pdf
    */
-  static void showPdf(final Path file) {
+  public static void showPdf(final Path file) {
     showPdf(file, null);
   }
 

@@ -5,20 +5,26 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
+import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 public class BatchResultBox extends GridPane implements Initializable {
 
   private final PdfRenderingTask task;
+  private final ObjectProperty<Path> pdfPathProperty;
+
 
   @FXML
   @SuppressWarnings("unused")
@@ -46,6 +52,9 @@ public class BatchResultBox extends GridPane implements Initializable {
     assert task != null;
     this.task = task;
 
+    pdfPathProperty = new SimpleObjectProperty<>();
+    task.setOnSucceeded(event -> pdfPathProperty.set((Path) event.getSource().getValue()));
+
     inflater.inflate("components/BatchResultBox", this, this, "batchTimetable");
   }
 
@@ -59,6 +68,15 @@ public class BatchResultBox extends GridPane implements Initializable {
     final Course minor = task.getMinor();
     if (minor != null) {
       lbMinor.textProperty().bind(Bindings.selectString(minor, "fullName"));
+    }
+  }
+
+  /**
+   * Show the generated pdf located at {@link #pdfPathProperty}.
+   */
+  public void showPdf() {
+    if (pdfPathProperty.isNotNull().get()) {
+      PdfRenderingHelper.showPdf(pdfPathProperty.get());
     }
   }
 }

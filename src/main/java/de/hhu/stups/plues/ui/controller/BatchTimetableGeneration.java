@@ -14,7 +14,6 @@ import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.ControllerHeader;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -28,7 +27,6 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
-import org.fxmisc.easybind.EasyBind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,9 +118,12 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    // disable list-view selection
-    EasyBind.subscribe(listView.getSelectionModel().selectionModeProperty(),
-        selectionMode -> Platform.runLater(() -> listView.getSelectionModel().select(-1)));
+    listView.setOnMouseClicked(event -> {
+      if (event.getClickCount() == 2) {
+        final BatchResultBox batchResultBox = listView.getSelectionModel().getSelectedItem();
+        batchResultBox.showPdf();
+      }
+    });
 
     colorSchemeSelection.defaultInitialization();
     colorSchemeSelection.setPercentWidth(50.0);
@@ -214,8 +215,8 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   private List<PdfRenderingTask> getSuccessfulTasks(final Collection<PdfRenderingTask> tasks) {
     return tasks.stream()
-        .filter(pdfRenderingTask -> pdfRenderingTask.getState() == Worker.State.SUCCEEDED)
-        .collect(Collectors.toList());
+      .filter(pdfRenderingTask -> pdfRenderingTask.getState() == Worker.State.SUCCEEDED)
+      .collect(Collectors.toList());
   }
 
   /**
