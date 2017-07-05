@@ -458,7 +458,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
     return change -> {
       final ResultGridCell cell = cellMap.get(change.getKey());
 
-      if (cell.getResultState() == ResultState.IMPOSSIBLE) {
+      if (cell == null || cell.getResultState() == ResultState.IMPOSSIBLE) {
         return;
       }
 
