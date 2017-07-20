@@ -70,6 +70,8 @@ import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
+import static de.hhu.stups.plues.ui.components.OpenFileHandler.tryOpenFile;
+
 public class Reports extends VBox implements Initializable {
 
   private final ObjectProperty<ReportData> reportData = new SimpleObjectProperty<>();
@@ -525,31 +527,21 @@ public class Reports extends VBox implements Initializable {
 
         // write to file
         final File file = File.createTempFile("report", ".pdf");
-        try (OutputStream stream = new FileOutputStream(file)) {
+        try (final OutputStream stream = new FileOutputStream(file)) {
           final ByteArrayOutputStream pdf = PdfRenderingHelper.toPdf(out);
           pdf.writeTo(stream);
           tryOpenFile(file);
         }
-      } catch (RenderingException | IOException exc) {
+      } catch (final RenderingException | IOException exc) {
         logger.error("Exception while rendering reports", exc);
       }
-    }
-
-    private void tryOpenFile(final File file) {
-      SwingUtilities.invokeLater(() -> {
-        try {
-          Desktop.getDesktop().open(file);
-        } catch (final IOException exc) {
-          logger.error("Exception while opening pdf", exc);
-        }
-      });
     }
   }
 
   /**
    * Free resources held by this component before it is closed.
    */
-  public void dispose() {
+  void dispose() {
     if (storeChanges != null) {
       storeChanges.unsubscribe();
     }
