@@ -1,5 +1,7 @@
 package de.hhu.stups.plues.ui.controller;
 
+import static de.hhu.stups.plues.ui.components.OpenFileHandler.tryOpenFile;
+
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
@@ -47,7 +49,6 @@ import org.reactfx.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -67,10 +68,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
-
-import javax.swing.SwingUtilities;
-
-import static de.hhu.stups.plues.ui.components.OpenFileHandler.tryOpenFile;
 
 public class Reports extends VBox implements Initializable {
 
@@ -263,8 +260,20 @@ public class Reports extends VBox implements Initializable {
     this.reportData.set(reportData);
   }
 
+  /**
+   * Free resources held by this component before it is closed.
+   */
+  void dispose() {
+    if (storeChanges != null) {
+      storeChanges.unsubscribe();
+    }
+  }
+
   private static final class PrintReportData {
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final String faculty;
+    private final Map<String, String> resources;
     private Map<Course, Set<Module>> mandatoryModules;
     private Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits;
     private Set<Unit> redundantUnitGroups;
@@ -283,10 +292,6 @@ public class Reports extends VBox implements Initializable {
     private List<AbstractUnit> abstractUnitsWithoutUnits;
     private Map<Module, Set<AbstractUnit>>
         impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits;
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final String faculty;
-    private final Map<String, String> resources;
 
     PrintReportData(final Store store, final ReportData reportData,
                     final Map<String, String> resources) {
@@ -325,10 +330,10 @@ public class Reports extends VBox implements Initializable {
         } else {
           conflicts.put(module,
               new ArrayList<>(Collections.singletonList(
-                  new ModuleAbstractUnitUnitSemesterConflicts.Conflict(
-                      store.getAbstractUnitById(conflict.getAbstractUnitId()),
-                      store.getUnitById(conflict.getUnitId()),
-                      conflict.getAbstractUnitSemesters()))));
+              new ModuleAbstractUnitUnitSemesterConflicts.Conflict(
+                store.getAbstractUnitById(conflict.getAbstractUnitId()),
+                store.getUnitById(conflict.getUnitId()),
+                conflict.getAbstractUnitSemesters()))));
         }
       });
       this.moduleAbstractUnitUnitSemesterConflicts = conflicts;
@@ -337,74 +342,74 @@ public class Reports extends VBox implements Initializable {
     private void calculateImpossibleCourseModuleAbstractUnitPairs(final Store store,
                                                                   final ReportData reportData) {
       this.impossibleCourseModuleAbstractUnitPairs =
-          reportData.getImpossibleCourseModuleAbstractUnitPairs()
-              .entrySet().stream().collect(Collectors.toMap(
-                entry -> store.getCourseByKey(entry.getKey()),
-                entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
-                    innerEntry -> store.getModuleById(innerEntry.getKey()),
-                    innerEntry -> innerEntry.getValue().stream().map(
-                      pair -> new AbstractUnitPair(store.getAbstractUnitById(pair.getFirst()),
-                          store.getAbstractUnitById(pair.getSecond())))
-                        .collect(Collectors.toSet())))));
+        reportData.getImpossibleCourseModuleAbstractUnitPairs()
+          .entrySet().stream().collect(Collectors.toMap(
+            entry -> store.getCourseByKey(entry.getKey()),
+            entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
+              innerEntry -> store.getModuleById(innerEntry.getKey()),
+              innerEntry -> innerEntry.getValue().stream().map(
+                pair -> new AbstractUnitPair(store.getAbstractUnitById(pair.getFirst()),
+                store.getAbstractUnitById(pair.getSecond())))
+              .collect(Collectors.toSet())))));
     }
 
     private void calculateImpossibleCourseModuleAbstractUnits(final Store store,
                                                               final ReportData reportData) {
       this.impossibleCourseModuleAbstractUnits =
-          reportData.getImpossibleCourseModuleAbstractUnits()
-              .entrySet().stream().collect(Collectors.toMap(
-                entry -> store.getCourseByKey(entry.getKey()),
-                entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
-                  innerEntry -> store.getModuleById(innerEntry.getKey()),
-                  innerEntry -> innerEntry.getValue().stream().map(
-                      store::getAbstractUnitById).collect(Collectors.toSet())))));
+        reportData.getImpossibleCourseModuleAbstractUnits()
+          .entrySet().stream().collect(Collectors.toMap(
+            entry -> store.getCourseByKey(entry.getKey()),
+            entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
+              innerEntry -> store.getModuleById(innerEntry.getKey()),
+              innerEntry -> innerEntry.getValue().stream().map(
+              store::getAbstractUnitById).collect(Collectors.toSet())))));
     }
 
     private void calculateRedundantUnitGroups(final Store store,
                                               final ReportData reportData) {
       this.redundantUnitGroups = reportData.getRedundantUnitGroups().keySet().stream()
-          .map(store::getUnitById).collect(Collectors.toSet());
+        .map(store::getUnitById).collect(Collectors.toSet());
     }
 
     private void calculateImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits(
         final Store store,
         final ReportData reportData) {
       this.impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits =
-          reportData.getImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits()
-              .entrySet().stream().collect(Collectors.toMap(
-                entry -> store.getModuleById(entry.getKey()),
-                entry -> entry.getValue().stream().map(
-                  store::getAbstractUnitById).collect(Collectors.toSet())));
+        reportData.getImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits()
+          .entrySet().stream().collect(Collectors.toMap(
+            entry -> store.getModuleById(entry.getKey()),
+            entry -> entry.getValue().stream().map(
+            store::getAbstractUnitById).collect(Collectors.toSet())));
     }
 
     private void calculateQuasiMandatoryModuleAbstractUnits(final Store store,
                                                             final ReportData reportData) {
       this.quasiMandatoryModuleAbstractUnits =
-          reportData.getQuasiMandatoryModuleAbstractUnits()
-              .entrySet().stream().collect(Collectors.toMap(
-                entry -> store.getModuleById(entry.getKey()),
-                entry -> entry.getValue().stream().map(
-                  store::getAbstractUnitById).collect(Collectors.toSet())));
+        reportData.getQuasiMandatoryModuleAbstractUnits()
+          .entrySet().stream().collect(Collectors.toMap(
+            entry -> store.getModuleById(entry.getKey()),
+            entry -> entry.getValue().stream().map(
+            store::getAbstractUnitById).collect(Collectors.toSet())));
     }
 
     private void calculateMandatoryModules(final Store store,
                                            final ReportData reportData) {
       this.mandatoryModules = reportData.getMandatoryModules()
-          .entrySet().stream().collect(Collectors.toMap(
-              entry -> store.getCourseByKey(entry.getKey()),
-              entry -> entry.getValue().stream().map(
-                  store::getModuleById).collect(Collectors.toSet())));
+        .entrySet().stream().collect(Collectors.toMap(
+          entry -> store.getCourseByKey(entry.getKey()),
+          entry -> entry.getValue().stream().map(
+            store::getModuleById).collect(Collectors.toSet())));
     }
 
     private void calculateImpossibleCourses(final Store store,
                                             final ReportData reportData) {
       this.impossibleCourses
-          = getCoursesByKeys(store, reportData.getImpossibleCourses());
+        = getCoursesByKeys(store, reportData.getImpossibleCourses());
       this.impossibleCoursesBecauseOfImpossibleModules
-          = getCoursesByKeys(store, reportData.getImpossibleCoursesBecauseofImpossibleModules());
+        = getCoursesByKeys(store, reportData.getImpossibleCoursesBecauseofImpossibleModules());
       this.impossibleCoursesBecauseOfImpossibleModuleCombinations
-          = getCoursesByKeys(store,
-          reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations());
+        = getCoursesByKeys(store,
+        reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations());
     }
 
     private List<Course> getCoursesByKeys(final Store store, final Set<String> courseKeys) {
@@ -414,15 +419,15 @@ public class Reports extends VBox implements Initializable {
     private void calculateImpossibleModules(final Store store,
                                             final ReportData reportData) {
       this.incompleteModules = reportData.getIncompleteModules()
-          .stream().map(store::getModuleById).collect(Collectors.toList());
+        .stream().map(store::getModuleById).collect(Collectors.toList());
       this.impossibleModulesBecauseOfMissingElectiveAbstractUnits =
-          reportData.getImpossibleModulesBecauseOfMissingElectiveAbstractUnits()
-              .stream().map(store::getModuleById).collect(Collectors.toList());
+        reportData.getImpossibleModulesBecauseOfMissingElectiveAbstractUnits()
+          .stream().map(store::getModuleById).collect(Collectors.toList());
     }
 
     private void calculateUnitsWithoutAbstractUnits(final Store store) {
       this.unitsWithoutAbstractUnits = store.getUnits().stream()
-          .filter(unit -> unit.getAbstractUnits().isEmpty()).collect(Collectors.toList());
+        .filter(unit -> unit.getAbstractUnits().isEmpty()).collect(Collectors.toList());
     }
 
     Map<Course, Set<Module>> getMandatoryModules() {
@@ -499,23 +504,23 @@ public class Reports extends VBox implements Initializable {
             .with("resources", resources)
             .with("incompleteModules", incompleteModules)
             .with("impossibleModulesBecauseOfMissingElectiveAbstractUnits",
-                impossibleModulesBecauseOfMissingElectiveAbstractUnits)
+            impossibleModulesBecauseOfMissingElectiveAbstractUnits)
             .with("impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits",
-                impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits)
+            impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits)
             .with("impossibleCourses", impossibleCourses)
             .with("impossibleCoursesBecauseOfImpossibleModules",
-                impossibleCoursesBecauseOfImpossibleModules)
+            impossibleCoursesBecauseOfImpossibleModules)
             .with("impossibleCoursesBecauseOfImpossibleModuleCombinations",
-                impossibleCoursesBecauseOfImpossibleModuleCombinations)
+            impossibleCoursesBecauseOfImpossibleModuleCombinations)
             .with("abstractUnitsWithoutUnits", abstractUnitsWithoutUnits)
             .with("unitsWithoutAbstractUnits", unitsWithoutAbstractUnits)
             .with("moduleAbstractUnitUnitSemesterConflicts",
-                moduleAbstractUnitUnitSemesterConflicts)
+            moduleAbstractUnitUnitSemesterConflicts)
             .with("mandatoryModules", mandatoryModules)
             .with("quasiMandatoryModuleAbstractUnits", quasiMandatoryModuleAbstractUnits)
             .with("redundantUnitGroups", redundantUnitGroups)
             .with("impossibleCourseModuleAbstractUnitPairs",
-                impossibleCourseModuleAbstractUnitPairs)
+            impossibleCourseModuleAbstractUnitPairs)
             .with("impossibleCourseModuleAbstractUnits", impossibleCourseModuleAbstractUnits)
             .with("logo", logo);
 
@@ -535,15 +540,6 @@ public class Reports extends VBox implements Initializable {
       } catch (final RenderingException | IOException exc) {
         logger.error("Exception while rendering reports", exc);
       }
-    }
-  }
-
-  /**
-   * Free resources held by this component before it is closed.
-   */
-  void dispose() {
-    if (storeChanges != null) {
-      storeChanges.unsubscribe();
     }
   }
 }
