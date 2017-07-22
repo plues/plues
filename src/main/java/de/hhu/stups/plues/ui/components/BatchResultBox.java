@@ -25,6 +25,7 @@ public class BatchResultBox extends GridPane implements Initializable {
   private final PdfRenderingTask task;
   private final ObjectProperty<Path> pdfPathProperty;
 
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -60,6 +61,8 @@ public class BatchResultBox extends GridPane implements Initializable {
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
+    this.resources = resources;
+
     taskProgressIndicator.sizeProperty().set(30.0);
     taskProgressIndicator.taskProperty().set(task);
 
@@ -77,6 +80,40 @@ public class BatchResultBox extends GridPane implements Initializable {
   public void showPdf() {
     if (pdfPathProperty.isNotNull().get()) {
       PdfRenderingHelper.showPdf(pdfPathProperty.get());
+    }
+  }
+
+  @SuppressWarnings("unused")
+  public String getMajorCourseName() {
+    return task.getMajor().getFullName();
+  }
+
+  /**
+   * Return the full name of the {@link #task}'s minor course or an empty string if null.
+   */
+  @SuppressWarnings("unused")
+  public String getMinorCourseName() {
+    if (task.getMinor() == null) {
+      return "";
+    }
+    return task.getMinor().getFullName();
+  }
+
+  /**
+   * Return a string describing the final state of the {@link #task}. Used in the Jtwig template,
+   * and thus, might be considered to be unused in the java code.
+   */
+  @SuppressWarnings("unused")
+  public String getTaskStateString() {
+    switch (task.getState()) {
+      case SUCCEEDED:
+        return resources.getString("succeeded");
+      case CANCELLED:
+        return resources.getString("cancelled");
+      case FAILED:
+        return resources.getString("failed");
+      default:
+        return "";
     }
   }
 }
