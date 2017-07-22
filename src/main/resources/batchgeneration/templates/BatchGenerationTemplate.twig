@@ -14,54 +14,44 @@
                 </fo:inline>
             </fo:block>
             <fo:block text-align="center" font-size="30pt" font-weight="bold">
-                PlÜS - Änderungsprotokoll
-            </fo:block>
-            <fo:block text-align="center" font-size="15pt" font-style="italic">
-                {{ faculty }}
+                PlÜS - Ergebnisse aller Studiengänge
             </fo:block>
             <fo:block text-align="center" font-size="15pt" font-style="italic">
                 {{ date }}
             </fo:block>
         </fo:flow>
     </fo:page-sequence>
-    {% if changeLogs|length > 0 %}
+    {% if batchResultBoxes|length > 0 %}
         <fo:page-sequence master-reference="hoch">
             <fo:flow flow-name="xsl-region-body">
                 <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                   <fo:table-column column-width="25%"/>
-                   <fo:table-column column-width="25%"/>
-                   <fo:table-column column-width="25%"/>
-                   <fo:table-column column-width="25%"/>
+                   <fo:table-column column-width="45%"/>
+                   <fo:table-column column-width="45%"/>
+                   <fo:table-column column-width="10%"/>
                    <fo:table-header>
                        <fo:table-row height="0.4cm" font-size="12pt">
                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">Veranstaltung</fo:block>
+                               <fo:block text-align="center">Hauptfach</fo:block>
                            </fo:table-cell>
                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">Quelle</fo:block>
+                               <fo:block text-align="center">Nebenfach</fo:block>
                            </fo:table-cell>
                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">Ziel</fo:block>
-                           </fo:table-cell>
-                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
-                               <fo:block text-align="center">Datum</fo:block>
+                               <fo:block text-align="center">Ergebnis</fo:block>
                            </fo:table-cell>
                        </fo:table-row>
                    </fo:table-header>
                    <fo:table-body>
-                       {% for changeLog in changeLogs%}
+                       {% for batchResultBox in batchResultBoxes %}
                            <fo:table-row height="0.4cm">
                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                   <fo:block text-align="left">{{ changeLog.getSession().toString() }}</fo:block>
+                                   <fo:block text-align="left">{{ batchResultBox.getMajorCourseName() }}</fo:block>
                                </fo:table-cell>
                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                   <fo:block text-align="left">{{ resources.get(changeLog.getSrcDay()) }} - {{ timeMap.get(changeLog.getSrcTime()) }}</fo:block>
+                                   <fo:block text-align="left">{{ batchResultBox.getMinorCourseName() }}</fo:block>
                                </fo:table-cell>
                                <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                   <fo:block text-align="left">{{ resources.get(changeLog.getTargetDay()) }} - {{ timeMap.get(changeLog.getTargetTime()) }}</fo:block>
-                               </fo:table-cell>
-                               <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
-                                   <fo:block text-align="left">{{ changeLog.getCreatedAt().toString() }}</fo:block>
+                                   <fo:block text-align="left">{{ batchResultBox.getTaskStateString() }}</fo:block>
                                </fo:table-cell>
                            </fo:table-row>
                        {% endfor %}
