@@ -1,7 +1,5 @@
 package de.hhu.stups.plues.ui.components;
 
-import static de.hhu.stups.plues.ui.components.OpenFileHandler.tryOpenFile;
-
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
@@ -11,7 +9,6 @@ import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.timetable.TimetableMisc;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
-import de.hhu.stups.plues.ui.exceptions.RenderingException;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
@@ -33,20 +30,9 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import org.jtwig.JtwigModel;
-import org.jtwig.JtwigTemplate;
-import org.jtwig.environment.EnvironmentConfiguration;
-import org.jtwig.environment.EnvironmentConfigurationBuilder;
 import org.reactfx.Subscription;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -56,7 +42,6 @@ import java.util.ResourceBundle;
 
 public class ChangeLog extends VBox implements Initializable {
 
-  private final Logger logger = LoggerFactory.getLogger(getClass());
   private final Delayed<ObservableStore> delayedStore;
   private final ObservableList<Log> logs;
   private final ObjectProperty<LocalDateTime> compare;
@@ -131,32 +116,13 @@ public class ChangeLog extends VBox implements Initializable {
   }
 
   /**
-   * Print the {@link #persistentTable persistent changes}.
+   * Export the {@link #persistentTable persistent changes} to a printable PDF file.
    */
   @FXML
   @SuppressWarnings("unused")
   public void printChangeLog() {
-    try {
-      final JtwigModel model = getJtwigModel();
-      final EnvironmentConfiguration config = EnvironmentConfigurationBuilder.configuration()
-          .render().withOutputCharset(Charset.forName("utf8")).and().build();
-
-      // load template
-      final ByteArrayOutputStream out = new ByteArrayOutputStream();
-      final JtwigTemplate template =
-          JtwigTemplate.classpathTemplate("/changelog/templates/ChangeLogTemplate.twig", config);
-      template.render(model, out);
-
-      // write to file
-      final File file = File.createTempFile("changelog", ".pdf");
-      try (final OutputStream stream = new FileOutputStream(file)) {
-        final ByteArrayOutputStream pdf = PdfRenderingHelper.toPdf(out);
-        pdf.writeTo(stream);
-        tryOpenFile(file);
-      }
-    } catch (final RenderingException | IOException exc) {
-      logger.error("Exception while rendering changelogs", exc);
-    }
+    PdfRenderingHelper.writeJtwigTemplateToPdfFile(getJtwigModel(),
+        "/changelog/templates/ChangeLogTemplate.twig", "changelog");
   }
 
   private JtwigModel getJtwigModel() {

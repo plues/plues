@@ -1,7 +1,5 @@
 package de.hhu.stups.plues.ui.controller;
 
-import static de.hhu.stups.plues.ui.components.OpenFileHandler.tryOpenFile;
-
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
@@ -26,7 +24,6 @@ import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterCo
 import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
-import de.hhu.stups.plues.ui.exceptions.RenderingException;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
@@ -42,20 +39,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 import org.jtwig.JtwigModel;
-import org.jtwig.JtwigTemplate;
-import org.jtwig.environment.EnvironmentConfiguration;
-import org.jtwig.environment.EnvironmentConfigurationBuilder;
 import org.reactfx.Subscription;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -271,7 +257,6 @@ public class Reports extends VBox implements Initializable {
 
   private static final class PrintReportData {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final String faculty;
     private final Map<String, String> resources;
     private Map<Course, Set<Module>> mandatoryModules;
@@ -489,57 +474,41 @@ public class Reports extends VBox implements Initializable {
     }
 
     void print() {
-      try {
-        final URL logo = getClass().getResource("/images/HHU_Logo.jpeg");
-        final EnvironmentConfiguration config = EnvironmentConfigurationBuilder.configuration()
-            .render().withOutputCharset(Charset.forName("utf8")).and().build();
+      PdfRenderingHelper.writeJtwigTemplateToPdfFile(getJtwigModel(),
+          "/reports/templates/reportTemplate.twig", "report");
+    }
 
-        final LocalDate date = LocalDate.now();
-        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        final String formattedDate = date.format(formatter);
+    private JtwigModel getJtwigModel() {
+      final URL logo = getClass().getResource("/images/HHU_Logo.jpeg");
+      final LocalDate date = LocalDate.now();
+      final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+      final String formattedDate = date.format(formatter);
 
-        final JtwigModel model = JtwigModel.newModel()
-            .with("date", formattedDate)
-            .with("faculty", faculty)
-            .with("resources", resources)
-            .with("incompleteModules", incompleteModules)
-            .with("impossibleModulesBecauseOfMissingElectiveAbstractUnits",
-            impossibleModulesBecauseOfMissingElectiveAbstractUnits)
-            .with("impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits",
-            impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits)
-            .with("impossibleCourses", impossibleCourses)
-            .with("impossibleCoursesBecauseOfImpossibleModules",
-            impossibleCoursesBecauseOfImpossibleModules)
-            .with("impossibleCoursesBecauseOfImpossibleModuleCombinations",
-            impossibleCoursesBecauseOfImpossibleModuleCombinations)
-            .with("abstractUnitsWithoutUnits", abstractUnitsWithoutUnits)
-            .with("unitsWithoutAbstractUnits", unitsWithoutAbstractUnits)
-            .with("moduleAbstractUnitUnitSemesterConflicts",
-            moduleAbstractUnitUnitSemesterConflicts)
-            .with("mandatoryModules", mandatoryModules)
-            .with("quasiMandatoryModuleAbstractUnits", quasiMandatoryModuleAbstractUnits)
-            .with("redundantUnitGroups", redundantUnitGroups)
-            .with("impossibleCourseModuleAbstractUnitPairs",
-            impossibleCourseModuleAbstractUnitPairs)
-            .with("impossibleCourseModuleAbstractUnits", impossibleCourseModuleAbstractUnits)
-            .with("logo", logo);
-
-        // load template
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final JtwigTemplate template =
-            JtwigTemplate.classpathTemplate("/reports/templates/reportTemplate.twig", config);
-        template.render(model, out);
-
-        // write to file
-        final File file = File.createTempFile("report", ".pdf");
-        try (final OutputStream stream = new FileOutputStream(file)) {
-          final ByteArrayOutputStream pdf = PdfRenderingHelper.toPdf(out);
-          pdf.writeTo(stream);
-          tryOpenFile(file);
-        }
-      } catch (final RenderingException | IOException exc) {
-        logger.error("Exception while rendering reports", exc);
-      }
+      return JtwigModel.newModel()
+        .with("date", formattedDate)
+        .with("faculty", faculty)
+        .with("resources", resources)
+        .with("incompleteModules", incompleteModules)
+        .with("impossibleModulesBecauseOfMissingElectiveAbstractUnits",
+          impossibleModulesBecauseOfMissingElectiveAbstractUnits)
+        .with("impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits",
+          impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits)
+        .with("impossibleCourses", impossibleCourses)
+        .with("impossibleCoursesBecauseOfImpossibleModules",
+          impossibleCoursesBecauseOfImpossibleModules)
+        .with("impossibleCoursesBecauseOfImpossibleModuleCombinations",
+          impossibleCoursesBecauseOfImpossibleModuleCombinations)
+        .with("abstractUnitsWithoutUnits", abstractUnitsWithoutUnits)
+        .with("unitsWithoutAbstractUnits", unitsWithoutAbstractUnits)
+        .with("moduleAbstractUnitUnitSemesterConflicts",
+          moduleAbstractUnitUnitSemesterConflicts)
+        .with("mandatoryModules", mandatoryModules)
+        .with("quasiMandatoryModuleAbstractUnits", quasiMandatoryModuleAbstractUnits)
+        .with("redundantUnitGroups", redundantUnitGroups)
+        .with("impossibleCourseModuleAbstractUnitPairs",
+          impossibleCourseModuleAbstractUnitPairs)
+        .with("impossibleCourseModuleAbstractUnits", impossibleCourseModuleAbstractUnits)
+        .with("logo", logo);
     }
   }
 }
