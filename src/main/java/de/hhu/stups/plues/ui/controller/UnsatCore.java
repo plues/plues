@@ -8,6 +8,7 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.components.ControllerHeader;
 import de.hhu.stups.plues.ui.components.unsatcore.AbstractUnitUnsatCore;
 import de.hhu.stups.plues.ui.components.unsatcore.CourseUnsatCore;
 import de.hhu.stups.plues.ui.components.unsatcore.GroupUnsatCore;
@@ -26,7 +27,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.GridPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -35,12 +36,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class UnsatCore extends VBox implements Initializable, Activatable {
+public class UnsatCore extends GridPane implements Initializable, Activatable {
 
   private final ObjectProperty<SolverService> solverService;
   private final ObjectProperty<Store> store;
   private final ExecutorService executorService;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private ControllerHeader controllerHeader;
   @FXML
   @SuppressWarnings("unused")
   private Accordion stepwisePanesAccordion;
@@ -97,6 +101,7 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     initializeModuleUnsatCore();
     initializeAbstractUnitUnsatCore();
     initializeGroupUnsatCore();
+    initializeControllerHeader(resources);
 
     modulesPane.visibleProperty().bind(moduleUnsatCore.moduleProperty().emptyProperty().not());
     abstractUnitsPane.visibleProperty().bind(
@@ -104,6 +109,11 @@ public class UnsatCore extends VBox implements Initializable, Activatable {
     groupPane.visibleProperty().bind(groupUnsatCore.groupProperty().emptyProperty().not());
     sessionPane.visibleProperty().bind(sessionUnsatCore.sessionProperty().emptyProperty().not());
     sessionUnsatCore.coursesProperty().bind(courseUnsatCore.coursesProperty());
+  }
+
+  private void initializeControllerHeader(final ResourceBundle resources) {
+    controllerHeader.setTitle(resources.getString("unsatCore"));
+    controllerHeader.setInfoText(resources.getString("unsatCoreExplanation"));
   }
 
   private void initializeCourseUnsatCore() {

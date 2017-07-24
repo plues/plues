@@ -11,20 +11,16 @@ import de.hhu.stups.plues.services.HistoryManager;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
-
 import javafx.application.Platform;
-import javafx.beans.property.ListProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class SessionListView extends ListView<SessionFacade> {
@@ -37,7 +33,6 @@ public class SessionListView extends ListView<SessionFacade> {
   private final UiDataService uiDataService;
   private final HistoryManager historyManager;
   private final ListeningExecutorService executorService;
-  private ListProperty<SessionFacade> sessions;
 
   /**
    * Custom implementation of ListView for sessions.
@@ -168,9 +163,6 @@ public class SessionListView extends ListView<SessionFacade> {
   private void moveSucceededHandler(final int sessionId) {
     delayedStore.whenAvailable(store -> {
       store.moveSession(sessionId, slot.getDayString(), slot.getTime());
-      Optional<SessionFacade> optionalSessionFacade =
-          sessions.stream().filter(sessionFacade -> sessionFacade.getId() == sessionId).findFirst();
-      optionalSessionFacade.ifPresent(sessionFacade -> sessionFacade.setSlot(slot));
       historyManager.push(store.getLastLogEntry());
     });
   }
@@ -191,7 +183,7 @@ public class SessionListView extends ListView<SessionFacade> {
     });
   }
 
-  public void setSessions(final ListProperty<SessionFacade> sessions) {
-    this.sessions = sessions;
+  public SessionFacade.Slot getSlot() {
+    return slot;
   }
 }

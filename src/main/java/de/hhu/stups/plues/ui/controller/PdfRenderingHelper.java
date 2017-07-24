@@ -1,5 +1,7 @@
 package de.hhu.stups.plues.ui.controller;
 
+import static de.hhu.stups.plues.ui.components.OpenFileHandler.tryOpenFile;
+
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.exceptions.RenderingException;
 
@@ -10,6 +12,10 @@ import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.xmlgraphics.util.MimeConstants;
+import org.jtwig.JtwigModel;
+import org.jtwig.JtwigTemplate;
+import org.jtwig.environment.EnvironmentConfiguration;
+import org.jtwig.environment.EnvironmentConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -21,7 +27,10 @@ import java.awt.Desktop;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -67,7 +76,7 @@ public class PdfRenderingHelper {
    *
    * @param file Temporary file to show pdf
    */
-  static void showPdf(final Path file) {
+  public static void showPdf(final Path file) {
     showPdf(file, null);
   }
 
@@ -215,5 +224,34 @@ public class PdfRenderingHelper {
     }
 
     return saxParser;
+  }
+
+  /**
+   * Given a {@link JtwigModel}, the path to the template file rooted in src/main/resources/
+   * and the file output name.
+   */
+  public static void writeJtwigTemplateToPdfFile(final JtwigModel model,
+                                                 final String templateResourcePath,
+                                                 final String fileOutputName) {
+    try {
+      final EnvironmentConfiguration config = EnvironmentConfigurationBuilder.configuration()
+          .render().withOutputCharset(Charset.forName("utf8")).and().build();
+
+      // load template
+      final ByteArrayOutputStream out = new ByteArrayOutputStream();
+      final JtwigTemplate template =
+          JtwigTemplate.classpathTemplate(templateResourcePath, config);
+      template.render(model, out);
+
+      // write to file
+      final File file = File.createTempFile(fileOutputName, ".pdf");
+      try (final OutputStream stream = new FileOutputStream(file)) {
+        final ByteArrayOutputStream pdf = PdfRenderingHelper.toPdf(out);
+        pdf.writeTo(stream);
+        tryOpenFile(file);
+      }
+    } catch (final RenderingException | IOException exc) {
+      logger.error("Exception while rendering changelogs", exc);
+    }
   }
 }

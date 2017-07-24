@@ -19,6 +19,7 @@ import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
+import de.hhu.stups.plues.ui.components.ControllerHeader;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
@@ -137,12 +138,14 @@ public class MusterstudienplaeneTest extends ApplicationTest {
   public void start(final Stage stage) throws Exception {
     final FXMLLoader loader = new FXMLLoader();
     loader.setBuilderFactory(type -> {
-      if (type.equals(MajorMinorCourseSelection.class)) {
-        return () -> courseSelection;
+      if (type.equals(TaskProgressIndicator.class)) {
+        return () -> new TaskProgressIndicator(new Inflater(new FXMLLoader()));
+      } else if (type.equals(ControllerHeader.class)) {
+        return () -> new ControllerHeader(new Inflater(new FXMLLoader()));
       } else if (type.equals(ColorSchemeSelection.class)) {
         return () -> new ColorSchemeSelection(new Inflater(new FXMLLoader()));
-      } else if (type.equals(TaskProgressIndicator.class)) {
-        return () -> new TaskProgressIndicator(new Inflater(new FXMLLoader()));
+      } else if (type.equals(MajorMinorCourseSelection.class)) {
+        return () -> courseSelection;
       }
       return new JavaFXBuilderFactory().getBuilder(type);
     });

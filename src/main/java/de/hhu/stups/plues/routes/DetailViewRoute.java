@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import de.hhu.stups.plues.data.entities.AbstractUnit;
+import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleLevel;
 import de.hhu.stups.plues.data.entities.Session;
@@ -16,6 +17,7 @@ import de.hhu.stups.plues.ui.components.detailview.SessionDetailView;
 import de.hhu.stups.plues.ui.components.detailview.UnitDetailView;
 import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
 import de.hhu.stups.plues.ui.layout.SceneFactory;
+
 import javafx.scene.Parent;
 import javafx.stage.Stage;
 
@@ -58,7 +60,10 @@ public class DetailViewRoute implements Route {
       case ABSTRACT_UNIT_DETAIL_VIEW:
         return getDetailView((AbstractUnit) args[0]);
       case COURSE_DETAIL_VIEW:
-        return getDetailView((ModuleLevel) args[0]);
+        if (args[0] instanceof ModuleLevel) {
+          return getDetailView((ModuleLevel) args[0]);
+        }
+        return getDetailView((Course) args[0]);
       case SESSION_DETAIL_VIEW:
         final SessionFacade facade;
         if (args[0] instanceof SessionFacade) {
@@ -87,8 +92,12 @@ public class DetailViewRoute implements Route {
   }
 
   private DetailView getDetailView(final ModuleLevel moduleLevel) {
+    return getDetailView(moduleLevel.getCourse());
+  }
+
+  private DetailView getDetailView(final Course course) {
     final CourseDetailView courseDetailView = courseDetailViewProvider.get();
-    courseDetailView.setCourse(moduleLevel.getCourse());
+    courseDetailView.setCourse(course);
     return courseDetailView;
   }
 

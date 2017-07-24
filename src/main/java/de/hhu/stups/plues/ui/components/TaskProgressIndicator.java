@@ -5,9 +5,9 @@ import static javafx.concurrent.Worker.State.SUCCEEDED;
 
 import com.google.inject.Inject;
 
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ui.TaskBindings;
 import de.hhu.stups.plues.ui.TaskStateColor;
+import de.hhu.stups.plues.ui.TooltipAllocator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
@@ -88,9 +88,9 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
     taskStateIcon.visibleProperty().bind(visibleProperty());
     boxProgressIndicator.visibleProperty().bind(visibleProperty());
 
-    Helpers.showTooltipOnEnter(taskStateIcon, taskStateIconTooltip,
+    TooltipAllocator.showTooltipOnEnter(taskStateIcon, taskStateIconTooltip,
         new SimpleBooleanProperty(false));
-    Helpers.showTooltipOnEnter(progressIndicator, taskRunningTooltip,
+    TooltipAllocator.showTooltipOnEnter(progressIndicator, taskRunningTooltip,
         new SimpleBooleanProperty(false));
 
     taskProperty.addListener((observable, oldValue, newValue) -> {
@@ -115,7 +115,7 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
     return taskProperty;
   }
 
-  public DoubleProperty sizeProperty() {
+  DoubleProperty sizeProperty() {
     return sizeProperty;
   }
 
@@ -188,7 +188,7 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
     return msg;
   }
 
-  public Label getTaskStateIcon() {
+  Label getTaskStateIcon() {
     return taskStateIcon;
   }
 }

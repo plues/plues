@@ -10,6 +10,7 @@ import de.hhu.stups.plues.ui.components.CheckCourseFeasibility;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.CombinationOrSingleCourseSelection;
 import de.hhu.stups.plues.ui.components.ConflictTree;
+import de.hhu.stups.plues.ui.components.ControllerHeader;
 import de.hhu.stups.plues.ui.components.MainMenuBar;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.SetOfCourseSelection;
@@ -90,5 +91,6 @@ class ComponentsModule extends AbstractModule {
     bind(HistoryManager.class);
     bind(ColorSchemeSelection.class);
     bind(MoveSessionDialog.class);
+    bind(ControllerHeader.class);
   }
 }

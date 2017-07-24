@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
+<?import de.hhu.stups.plues.ui.components.ControllerHeader?>
 
 <fx:root alignment="center" type="GridPane" vgap="10.0" styleClass="windowPadding"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
@@ -17,24 +18,26 @@
         <ColumnConstraints percentWidth="80.0"/>
     </columnConstraints>
     <rowConstraints>
+        <RowConstraints percentHeight="5.0"/>
         <RowConstraints percentHeight="10.0"/>
         <RowConstraints percentHeight="5.0"/>
         <RowConstraints percentHeight="5.0"/>
-        <RowConstraints percentHeight="75.0"/>
+        <RowConstraints percentHeight="70.0"/>
         <RowConstraints percentHeight="5.0"/>
     </rowConstraints>
+    <ControllerHeader fx:id="controllerHeader" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
     <MajorMinorCourseSelection fx:id="courseSelection" GridPane.columnIndex="0"
-                               GridPane.halignment="CENTER" GridPane.rowIndex="0"/>
+                               GridPane.halignment="CENTER" GridPane.rowIndex="1"/>
     <ColorSchemeSelection fx:id="colorSchemeSelection" GridPane.columnIndex="0"
-                          GridPane.halignment="CENTER" GridPane.rowIndex="1"/>
+                          GridPane.halignment="CENTER" GridPane.rowIndex="2"/>
     <Button fx:id="btChoose" onAction="#btChoosePressed" prefWidth="300" text="%choose"
-            GridPane.halignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="2"
+            GridPane.halignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="3"
             defaultButton="true"/>
     <ScrollPane fx:id="scrollPane" styleClass="windowPadding" GridPane.columnIndex="0"
-                GridPane.rowIndex="3" visible="false" maxHeight="Infinity" maxWidth="Infinity">
+                GridPane.rowIndex="4" visible="false" maxHeight="Infinity" maxWidth="Infinity">
         <VBox fx:id="modulesUnits" spacing="25"/>
     </ScrollPane>
-    <HBox fx:id="buttonBox" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="4"
+    <HBox fx:id="buttonBox" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="5"
           alignment="CENTER">
         <Button fx:id="btGenerate" onAction="#btGeneratePressed" text="%generate" visible="false"/>
         <Button fx:id="btCancel" onAction="#btCancelPressed" text="%cancel" visible="false"/>

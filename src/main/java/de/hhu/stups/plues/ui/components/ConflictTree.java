@@ -3,14 +3,15 @@ package de.hhu.stups.plues.ui.components;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.UiDataService;
+import de.hhu.stups.plues.ui.components.timetable.TimetableMisc;
 import de.hhu.stups.plues.ui.controller.Timetable;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -140,7 +141,7 @@ public class ConflictTree extends VBox implements Initializable {
     // time of the day
     sortedSessionsByDay.entrySet().forEach(dayOfWeekEntry -> {
       final TreeItem<Object> dayRootItem = new TreeItem<>(resources.getString(
-          Helpers.shortDayOfWeekMap.get(dayOfWeekEntry.getKey())));
+          TimetableMisc.shortDayOfWeekMap.get(dayOfWeekEntry.getKey())));
       dayRootItem.setExpanded(true);
       groupSessionsByTime(sortedSessionsByDay.get(dayOfWeekEntry.getKey())).entrySet()
           .forEach(timeAtDayEntry -> {
@@ -158,7 +159,7 @@ public class ConflictTree extends VBox implements Initializable {
   private Map<String, ArrayList<Session>> groupSessionsByTime(final ArrayList<Session> sessions) {
     final Map<String, ArrayList<Session>> sortedSessionsByTime = new HashMap<>(sessions.size());
     sessions.forEach(session -> {
-      final String timeString = Helpers.timeMap.get(session.getTime());
+      final String timeString = TimetableMisc.timeMap.get(session.getTime());
       if (!sortedSessionsByTime.containsKey(timeString)) {
         sortedSessionsByTime.put(timeString, new ArrayList<>());
       }
@@ -202,9 +203,9 @@ public class ConflictTree extends VBox implements Initializable {
       final String semesters;
       if (param.getValue().getValue() instanceof Session) {
         semesters = ((Session) param.getValue().getValue()).getGroup().getUnit().getSemesters()
-          .stream()
-          .map(String::valueOf)
-          .collect(Collectors.joining(", "));
+            .stream()
+            .map(String::valueOf)
+            .collect(Collectors.joining(", "));
       } else {
         semesters = "";
       }

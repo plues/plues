@@ -3,7 +3,6 @@ package de.hhu.stups.plues.ui.controller;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
@@ -13,6 +12,7 @@ import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.prob.ReportData;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TooltipAllocator;
 import de.hhu.stups.plues.ui.components.reports.AbstractUnitPair;
 import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
@@ -24,7 +24,6 @@ import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterCo
 import de.hhu.stups.plues.ui.components.reports.QuasiMandatoryModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.RedundantUnitGroups;
 import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits;
-import de.hhu.stups.plues.ui.exceptions.RenderingException;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
@@ -40,21 +39,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 import org.jtwig.JtwigModel;
-import org.jtwig.JtwigTemplate;
-import org.jtwig.environment.EnvironmentConfiguration;
-import org.jtwig.environment.EnvironmentConfigurationBuilder;
 import org.reactfx.Subscription;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.awt.Desktop;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -67,8 +54,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
-
-import javax.swing.SwingUtilities;
 
 public class Reports extends VBox implements Initializable {
 
@@ -214,7 +199,8 @@ public class Reports extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     lbOutOfSyncInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
         FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "12")));
-    Helpers.showTooltipOnEnter(lbOutOfSyncInfo, outOfSyncHint, new SimpleBooleanProperty(false));
+    TooltipAllocator.showTooltipOnEnter(
+        lbOutOfSyncInfo, outOfSyncHint, new SimpleBooleanProperty(false));
 
     btRecomputeData.disableProperty().bind(dataOutOfSync.not());
     btRecomputeData.visibleProperty().bind(dataOutOfSync);
@@ -260,8 +246,19 @@ public class Reports extends VBox implements Initializable {
     this.reportData.set(reportData);
   }
 
+  /**
+   * Free resources held by this component before it is closed.
+   */
+  void dispose() {
+    if (storeChanges != null) {
+      storeChanges.unsubscribe();
+    }
+  }
+
   private static final class PrintReportData {
 
+    private final String faculty;
+    private final Map<String, String> resources;
     private Map<Course, Set<Module>> mandatoryModules;
     private Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits;
     private Set<Unit> redundantUnitGroups;
@@ -280,10 +277,6 @@ public class Reports extends VBox implements Initializable {
     private List<AbstractUnit> abstractUnitsWithoutUnits;
     private Map<Module, Set<AbstractUnit>>
         impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits;
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final String faculty;
-    private final Map<String, String> resources;
 
     PrintReportData(final Store store, final ReportData reportData,
                     final Map<String, String> resources) {
@@ -322,10 +315,10 @@ public class Reports extends VBox implements Initializable {
         } else {
           conflicts.put(module,
               new ArrayList<>(Collections.singletonList(
-                  new ModuleAbstractUnitUnitSemesterConflicts.Conflict(
-                      store.getAbstractUnitById(conflict.getAbstractUnitId()),
-                      store.getUnitById(conflict.getUnitId()),
-                      conflict.getAbstractUnitSemesters()))));
+              new ModuleAbstractUnitUnitSemesterConflicts.Conflict(
+                store.getAbstractUnitById(conflict.getAbstractUnitId()),
+                store.getUnitById(conflict.getUnitId()),
+                conflict.getAbstractUnitSemesters()))));
         }
       });
       this.moduleAbstractUnitUnitSemesterConflicts = conflicts;
@@ -334,74 +327,74 @@ public class Reports extends VBox implements Initializable {
     private void calculateImpossibleCourseModuleAbstractUnitPairs(final Store store,
                                                                   final ReportData reportData) {
       this.impossibleCourseModuleAbstractUnitPairs =
-          reportData.getImpossibleCourseModuleAbstractUnitPairs()
-              .entrySet().stream().collect(Collectors.toMap(
-                entry -> store.getCourseByKey(entry.getKey()),
-                entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
-                    innerEntry -> store.getModuleById(innerEntry.getKey()),
-                    innerEntry -> innerEntry.getValue().stream().map(
-                      pair -> new AbstractUnitPair(store.getAbstractUnitById(pair.getFirst()),
-                          store.getAbstractUnitById(pair.getSecond())))
-                        .collect(Collectors.toSet())))));
+        reportData.getImpossibleCourseModuleAbstractUnitPairs()
+          .entrySet().stream().collect(Collectors.toMap(
+            entry -> store.getCourseByKey(entry.getKey()),
+            entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
+              innerEntry -> store.getModuleById(innerEntry.getKey()),
+              innerEntry -> innerEntry.getValue().stream().map(
+                pair -> new AbstractUnitPair(store.getAbstractUnitById(pair.getFirst()),
+                store.getAbstractUnitById(pair.getSecond())))
+              .collect(Collectors.toSet())))));
     }
 
     private void calculateImpossibleCourseModuleAbstractUnits(final Store store,
                                                               final ReportData reportData) {
       this.impossibleCourseModuleAbstractUnits =
-          reportData.getImpossibleCourseModuleAbstractUnits()
-              .entrySet().stream().collect(Collectors.toMap(
-                entry -> store.getCourseByKey(entry.getKey()),
-                entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
-                  innerEntry -> store.getModuleById(innerEntry.getKey()),
-                  innerEntry -> innerEntry.getValue().stream().map(
-                      store::getAbstractUnitById).collect(Collectors.toSet())))));
+        reportData.getImpossibleCourseModuleAbstractUnits()
+          .entrySet().stream().collect(Collectors.toMap(
+            entry -> store.getCourseByKey(entry.getKey()),
+            entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
+              innerEntry -> store.getModuleById(innerEntry.getKey()),
+              innerEntry -> innerEntry.getValue().stream().map(
+              store::getAbstractUnitById).collect(Collectors.toSet())))));
     }
 
     private void calculateRedundantUnitGroups(final Store store,
                                               final ReportData reportData) {
       this.redundantUnitGroups = reportData.getRedundantUnitGroups().keySet().stream()
-          .map(store::getUnitById).collect(Collectors.toSet());
+        .map(store::getUnitById).collect(Collectors.toSet());
     }
 
     private void calculateImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits(
         final Store store,
         final ReportData reportData) {
       this.impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits =
-          reportData.getImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits()
-              .entrySet().stream().collect(Collectors.toMap(
-                entry -> store.getModuleById(entry.getKey()),
-                entry -> entry.getValue().stream().map(
-                  store::getAbstractUnitById).collect(Collectors.toSet())));
+        reportData.getImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits()
+          .entrySet().stream().collect(Collectors.toMap(
+            entry -> store.getModuleById(entry.getKey()),
+            entry -> entry.getValue().stream().map(
+            store::getAbstractUnitById).collect(Collectors.toSet())));
     }
 
     private void calculateQuasiMandatoryModuleAbstractUnits(final Store store,
                                                             final ReportData reportData) {
       this.quasiMandatoryModuleAbstractUnits =
-          reportData.getQuasiMandatoryModuleAbstractUnits()
-              .entrySet().stream().collect(Collectors.toMap(
-                entry -> store.getModuleById(entry.getKey()),
-                entry -> entry.getValue().stream().map(
-                  store::getAbstractUnitById).collect(Collectors.toSet())));
+        reportData.getQuasiMandatoryModuleAbstractUnits()
+          .entrySet().stream().collect(Collectors.toMap(
+            entry -> store.getModuleById(entry.getKey()),
+            entry -> entry.getValue().stream().map(
+            store::getAbstractUnitById).collect(Collectors.toSet())));
     }
 
     private void calculateMandatoryModules(final Store store,
                                            final ReportData reportData) {
       this.mandatoryModules = reportData.getMandatoryModules()
-          .entrySet().stream().collect(Collectors.toMap(
-              entry -> store.getCourseByKey(entry.getKey()),
-              entry -> entry.getValue().stream().map(
-                  store::getModuleById).collect(Collectors.toSet())));
+        .entrySet().stream().collect(Collectors.toMap(
+          entry -> store.getCourseByKey(entry.getKey()),
+          entry -> entry.getValue().stream().map(
+            store::getModuleById).collect(Collectors.toSet())));
     }
 
     private void calculateImpossibleCourses(final Store store,
                                             final ReportData reportData) {
       this.impossibleCourses
-          = getCoursesByKeys(store, reportData.getImpossibleCourses());
+        = getCoursesByKeys(store, reportData.getImpossibleCourses());
       this.impossibleCoursesBecauseOfImpossibleModules
-          = getCoursesByKeys(store, reportData.getImpossibleCoursesBecauseofImpossibleModules());
+        = getCoursesByKeys(store, reportData.getImpossibleCoursesBecauseofImpossibleModules());
       this.impossibleCoursesBecauseOfImpossibleModuleCombinations
-          = getCoursesByKeys(store,
-          reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations());
+        = getCoursesByKeys(store,
+        reportData.getImpossibleCoursesBecauseOfImpossibleModuleCombinations());
     }
 
     private List<Course> getCoursesByKeys(final Store store, final Set<String> courseKeys) {
@@ -411,15 +404,15 @@ public class Reports extends VBox implements Initializable {
     private void calculateImpossibleModules(final Store store,
                                             final ReportData reportData) {
       this.incompleteModules = reportData.getIncompleteModules()
-          .stream().map(store::getModuleById).collect(Collectors.toList());
+        .stream().map(store::getModuleById).collect(Collectors.toList());
       this.impossibleModulesBecauseOfMissingElectiveAbstractUnits =
-          reportData.getImpossibleModulesBecauseOfMissingElectiveAbstractUnits()
-              .stream().map(store::getModuleById).collect(Collectors.toList());
+        reportData.getImpossibleModulesBecauseOfMissingElectiveAbstractUnits()
+          .stream().map(store::getModuleById).collect(Collectors.toList());
     }
 
     private void calculateUnitsWithoutAbstractUnits(final Store store) {
       this.unitsWithoutAbstractUnits = store.getUnits().stream()
-          .filter(unit -> unit.getAbstractUnits().isEmpty()).collect(Collectors.toList());
+        .filter(unit -> unit.getAbstractUnits().isEmpty()).collect(Collectors.toList());
     }
 
     Map<Course, Set<Module>> getMandatoryModules() {
@@ -481,76 +474,41 @@ public class Reports extends VBox implements Initializable {
     }
 
     void print() {
-      try {
-        final URL logo = getClass().getResource("/images/HHU_Logo.jpeg");
-        final EnvironmentConfiguration config = EnvironmentConfigurationBuilder.configuration()
-            .render().withOutputCharset(Charset.forName("utf8")).and().build();
-
-        final LocalDate date = LocalDate.now();
-        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        final String formattedDate = date.format(formatter);
-
-        final JtwigModel model = JtwigModel.newModel()
-            .with("date", formattedDate)
-            .with("faculty", faculty)
-            .with("resources", resources)
-            .with("incompleteModules", incompleteModules)
-            .with("impossibleModulesBecauseOfMissingElectiveAbstractUnits",
-                impossibleModulesBecauseOfMissingElectiveAbstractUnits)
-            .with("impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits",
-                impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits)
-            .with("impossibleCourses", impossibleCourses)
-            .with("impossibleCoursesBecauseOfImpossibleModules",
-                impossibleCoursesBecauseOfImpossibleModules)
-            .with("impossibleCoursesBecauseOfImpossibleModuleCombinations",
-                impossibleCoursesBecauseOfImpossibleModuleCombinations)
-            .with("abstractUnitsWithoutUnits", abstractUnitsWithoutUnits)
-            .with("unitsWithoutAbstractUnits", unitsWithoutAbstractUnits)
-            .with("moduleAbstractUnitUnitSemesterConflicts",
-                moduleAbstractUnitUnitSemesterConflicts)
-            .with("mandatoryModules", mandatoryModules)
-            .with("quasiMandatoryModuleAbstractUnits", quasiMandatoryModuleAbstractUnits)
-            .with("redundantUnitGroups", redundantUnitGroups)
-            .with("impossibleCourseModuleAbstractUnitPairs",
-                impossibleCourseModuleAbstractUnitPairs)
-            .with("impossibleCourseModuleAbstractUnits", impossibleCourseModuleAbstractUnits)
-            .with("logo", logo);
-
-        // load template
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final JtwigTemplate template =
-            JtwigTemplate.classpathTemplate("/reports/templates/reportTemplate.twig", config);
-        template.render(model, out);
-
-        // write to file
-        final File file = File.createTempFile("report", ".pdf");
-        try (OutputStream stream = new FileOutputStream(file)) {
-          final ByteArrayOutputStream pdf = PdfRenderingHelper.toPdf(out);
-          pdf.writeTo(stream);
-          tryOpenFile(file);
-        }
-      } catch (RenderingException | IOException exc) {
-        logger.error("Exception while rendering reports", exc);
-      }
+      PdfRenderingHelper.writeJtwigTemplateToPdfFile(getJtwigModel(),
+          "/reports/templates/reportTemplate.twig", "report");
     }
 
-    private void tryOpenFile(final File file) {
-      SwingUtilities.invokeLater(() -> {
-        try {
-          Desktop.getDesktop().open(file);
-        } catch (final IOException exc) {
-          logger.error("Exception while opening pdf", exc);
-        }
-      });
-    }
-  }
+    private JtwigModel getJtwigModel() {
+      final URL logo = getClass().getResource("/images/HHU_Logo.jpeg");
+      final LocalDate date = LocalDate.now();
+      final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+      final String formattedDate = date.format(formatter);
 
-  /**
-   * Free resources held by this component before it is closed.
-   */
-  public void dispose() {
-    if (storeChanges != null) {
-      storeChanges.unsubscribe();
+      return JtwigModel.newModel()
+        .with("date", formattedDate)
+        .with("faculty", faculty)
+        .with("resources", resources)
+        .with("incompleteModules", incompleteModules)
+        .with("impossibleModulesBecauseOfMissingElectiveAbstractUnits",
+          impossibleModulesBecauseOfMissingElectiveAbstractUnits)
+        .with("impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits",
+          impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits)
+        .with("impossibleCourses", impossibleCourses)
+        .with("impossibleCoursesBecauseOfImpossibleModules",
+          impossibleCoursesBecauseOfImpossibleModules)
+        .with("impossibleCoursesBecauseOfImpossibleModuleCombinations",
+          impossibleCoursesBecauseOfImpossibleModuleCombinations)
+        .with("abstractUnitsWithoutUnits", abstractUnitsWithoutUnits)
+        .with("unitsWithoutAbstractUnits", unitsWithoutAbstractUnits)
+        .with("moduleAbstractUnitUnitSemesterConflicts",
+          moduleAbstractUnitUnitSemesterConflicts)
+        .with("mandatoryModules", mandatoryModules)
+        .with("quasiMandatoryModuleAbstractUnits", quasiMandatoryModuleAbstractUnits)
+        .with("redundantUnitGroups", redundantUnitGroups)
+        .with("impossibleCourseModuleAbstractUnitPairs",
+          impossibleCourseModuleAbstractUnitPairs)
+        .with("impossibleCourseModuleAbstractUnits", impossibleCourseModuleAbstractUnits)
+        .with("logo", logo);
     }
   }
 }

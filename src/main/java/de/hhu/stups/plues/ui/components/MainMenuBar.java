@@ -17,6 +17,7 @@ import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -39,6 +40,7 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
+
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,12 +187,13 @@ public class MainMenuBar extends MenuBar implements Initializable {
     final HistoryManager historyManager = mainMenuService.getHistoryManager();
     //
     final BooleanBinding tasksRunning = uiDataService.runningTasksProperty().greaterThan(0);
-    final BooleanBinding canUndo = historyManager.undoHistoryEmptyProperty().or(tasksRunning);
+    final BooleanBinding canUndo = historyManager.undoHistoryEmptyProperty().or(tasksRunning)
+        .or(historyManager.historyEnabledProperty().not());
 
     undoLastMenuItem.disableProperty().bind(canUndo);
     undoAllMenuItem.disableProperty().bind(canUndo);
-    redoLastMenuItem.disableProperty().bind(
-        historyManager.redoHistoryEmptyProperty().or(tasksRunning));
+    redoLastMenuItem.disableProperty().bind(historyManager.redoHistoryEmptyProperty()
+        .or(tasksRunning).or(historyManager.historyEnabledProperty().not()));
     //
 
     mainMenuService.getDelayedSolverService().whenAvailable(solverService -> {
@@ -615,16 +618,7 @@ public class MainMenuBar extends MenuBar implements Initializable {
     mainMenuService.getDelayedStore().whenAvailable(solverLoader::load);
 
     this.openFileMenuItem.setDisable(true);
-    this.submitTask(storeLoader);
-  }
-
-  private void submitTask(final Task<?> task, final ExecutorService exec) {
-    exec.submit(task);
-  }
-
-  @SuppressWarnings("unused")
-  private void submitTask(final Task<?> task) {
-    this.submitTask(task, this.executor);
+    executor.submit(storeLoader);
   }
 
   /**

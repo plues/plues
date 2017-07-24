@@ -27,9 +27,11 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 
 import org.controlsfx.control.textfield.CustomTextField;
+import org.fxmisc.easybind.EasyBind;
 
 import java.net.URL;
 import java.util.HashSet;
@@ -103,46 +105,61 @@ public class SetOfCourseSelection extends VBox implements Initializable {
   public void initialize(final URL location, final ResourceBundle resources) {
     txtQuery.setLeft(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SEARCH, "12"));
 
-    tableColumnMasterCheckBox.setCellFactory(
-        CheckBoxTableCell.forTableColumn(tableColumnMasterCheckBox));
-
-    tableColumnBachelorCheckBox.setCellFactory(
-        CheckBoxTableCell.forTableColumn(tableColumnBachelorCheckBox));
-
-    tableViewMasterCourse.setSelectionModel(null);
-    tableViewBachelorCourse.setSelectionModel(null);
-
-    tableViewMasterCourse.setId("batchListView");
-    tableViewBachelorCourse.setId("batchListView");
-
     initializeSearch();
+    initializeTableViewMaster();
+    initializeTableViewBachelor();
+    initializeTitledPanes();
 
     selectableCourses.bind(new SelectableCoursesBinding());
-
     courses.addListener((observable, oldValue, newValue) -> hideEmptyCourseList());
+    selectedCourses.bind(new SelectedCoursesBinding());
+  }
 
-    tableViewMasterCourse.itemsProperty().bind(newFilteredProperty(SelectableCourse::isMaster));
-    tableViewBachelorCourse.itemsProperty().bind(newFilteredProperty(SelectableCourse::isBachelor));
+  private void initializeTitledPanes() {
+    bindInverseExpandedProperty(titledPaneMasterCourse, titledPaneBachelorCourse);
+    bindInverseExpandedProperty(titledPaneBachelorCourse,titledPaneMasterCourse);
+  }
 
-    tableViewMasterCourse.itemsProperty().addListener(observable
-        -> titledPaneMasterCourse.setExpanded(!tableViewMasterCourse.getItems().isEmpty()));
+  private void bindInverseExpandedProperty(final TitledPane titledPane1,
+                                           final TitledPane titledPane2) {
+    EasyBind.subscribe(titledPane1.expandedProperty(), aBoolean -> {
+      if (aBoolean) {
+        titledPane2.setExpanded(false);
+      }
+    });
+  }
+
+  private void initializeTableViewBachelor() {
+    tableColumnBachelorCheckBox.setCellFactory(
+        CheckBoxTableCell.forTableColumn(tableColumnBachelorCheckBox));
+    initializeTableView(tableViewBachelorCourse, newFilteredProperty(SelectableCourse::isBachelor));
     tableViewBachelorCourse.itemsProperty().addListener(observable
         -> titledPaneBachelorCourse.setExpanded(!tableViewBachelorCourse.getItems().isEmpty()));
-
-    // last column is bound to take the remaining space
     tableColumnBachelorCourseTitle.prefWidthProperty().bind(
         tableViewBachelorCourse.widthProperty()
             .subtract(tableColumnBachelorCheckBox.widthProperty())
             .subtract(tableColumnBachelorCourseKey.widthProperty())
             .subtract(20));
+  }
 
+  private void initializeTableViewMaster() {
+    tableColumnMasterCheckBox.setCellFactory(
+        CheckBoxTableCell.forTableColumn(tableColumnMasterCheckBox));
+    initializeTableView(tableViewMasterCourse, newFilteredProperty(SelectableCourse::isMaster));
+    tableViewMasterCourse.itemsProperty().addListener(observable
+        -> titledPaneMasterCourse.setExpanded(!tableViewMasterCourse.getItems().isEmpty()));
     tableColumnMasterCourseTitle.prefWidthProperty().bind(
         tableViewMasterCourse.widthProperty()
             .subtract(tableColumnMasterCheckBox.widthProperty())
             .subtract(tableColumnMasterCourseKey.widthProperty())
             .subtract(20));
+  }
 
-    selectedCourses.bind(new SelectedCoursesBinding());
+  private void initializeTableView(final TableView<SelectableCourse> tableView,
+                                   final ListProperty<SelectableCourse> coursesProperty) {
+    tableView.setId("batchListView");
+    tableView.setSelectionModel(null);
+    tableView.itemsProperty().bind(coursesProperty);
   }
 
   private void initializeSearch() {
@@ -180,7 +197,7 @@ public class SetOfCourseSelection extends VBox implements Initializable {
         = new FilteredList<>(selectableCourses.filtered(predicate));
 
     filter.predicateProperty().bind(Bindings.createObjectBinding(
-        () -> row -> row.matches(txtQuery.getText().toLowerCase()),txtQuery.textProperty()));
+        () -> row -> row.matches(txtQuery.getText().toLowerCase()), txtQuery.textProperty()));
     return new SimpleListProperty<>(filter);
   }
 
@@ -189,6 +206,25 @@ public class SetOfCourseSelection extends VBox implements Initializable {
    */
   public void setCourses(final List<Course> courses) {
     this.courses.set(FXCollections.observableList(courses));
+    // set the default table column width for keys
+    tableColumnMasterCourseKey.setPrefWidth(getMaximumKeyStringWidth(tableViewMasterCourse));
+    tableColumnBachelorCourseKey.setPrefWidth(getMaximumKeyStringWidth(tableViewBachelorCourse));
+  }
+
+  /**
+   * Return the largest {@link SelectableCourse#getKey() key} width of a given table view.
+   */
+  private double getMaximumKeyStringWidth(final TableView<SelectableCourse> tableView) {
+    final Text tempText = new Text();
+    double maxWidth = 0;
+    for (final SelectableCourse selectableCourse : tableView.getItems()) {
+      tempText.setText(selectableCourse.getKey());
+      final double keyWidth = tempText.getBoundsInLocal().getWidth();
+      if (keyWidth > maxWidth) {
+        maxWidth = keyWidth;
+      }
+    }
+    return maxWidth + 10.0;
   }
 
   @SuppressWarnings("unused")

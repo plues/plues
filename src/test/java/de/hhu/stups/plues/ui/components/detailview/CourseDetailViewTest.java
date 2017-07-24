@@ -4,6 +4,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.hhu.stups.plues.ui.layout.SceneFactory;
 
@@ -72,7 +73,7 @@ public class CourseDetailViewTest extends ApplicationTest {
   public void start(final Stage stage) throws Exception {
     final Inflater inflater = new Inflater(new FXMLLoader());
 
-    final CourseDetailView courseDetailView = new CourseDetailView(inflater);
+    final CourseDetailView courseDetailView = new CourseDetailView(inflater, new Router());
     courseDetailView.setCourse(course);
 
     stage.setScene(SceneFactory.create(courseDetailView));

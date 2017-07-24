@@ -8,6 +8,7 @@
 <?import de.hhu.stups.plues.ui.components.CheckCourseFeasibility?>
 <?import javafx.geometry.Insets?>
 
+<?import javafx.scene.control.Separator?>
 <fx:root type="javafx.scene.control.TabPane" side="LEFT" prefWidth="300.0"
          styleClass="sideBarTabPane" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
@@ -17,6 +18,7 @@
                 <Insets top="10.0"/>
             </padding>
             <SetOfCourseSelection fx:id="setOfCourseSelection"/>
+            <Separator />
             <AbstractUnitFilter fx:id="abstractUnitFilter" VBox.vgrow="ALWAYS"/>
         </VBox>
     </Tab>

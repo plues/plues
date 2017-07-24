@@ -3,12 +3,13 @@ package de.hhu.stups.plues.tasks;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ObservableStore;
 import de.hhu.stups.plues.data.SqliteStore;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.StoreException;
+
 import javafx.concurrent.Task;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,7 @@ public class StoreLoaderTask extends Task<Store> {
 
   /**
    * Constructor to create store loader task.
+   *
    * @param storePath Path where to find store
    */
   @Inject
@@ -66,7 +68,7 @@ public class StoreLoaderTask extends Task<Store> {
 
   private void checkExportDatabase() throws IOException {
 
-    final Path dbPath = Helpers.expandPath(this.path);
+    final Path dbPath = PreparePath.expandPath(this.path);
     updateProgress(1, MAX_STEPS);
 
     updateMessage(resources.getString("workLocation"));

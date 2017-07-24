@@ -20,7 +20,8 @@
     <SplitPane fx:id="timeTableSplitPane" dividerPositions="0.15">
         <TimetableSideBar fx:id="timetableSideBar"/>
         <VBox spacing="10.0">
-            <HBox styleClass="windowPaddingTiny" spacing="5.0">
+            <HBox fx:id="semesterToggleBox" styleClass="windowPaddingTiny" spacing="5.0"
+                  visible="false">
                 <Label text="%semester"/>
                 <SemesterChooser fx:id="semesterToggle"/>
                 <Label fx:id="multipleSelectionInfo" alignment="TOP_LEFT">

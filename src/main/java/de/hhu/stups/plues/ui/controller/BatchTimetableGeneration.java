@@ -11,9 +11,9 @@ import de.hhu.stups.plues.ui.batchgeneration.CollectPdfRenderingTasksTask;
 import de.hhu.stups.plues.ui.components.BatchResultBox;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
+import de.hhu.stups.plues.ui.components.ControllerHeader;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -27,7 +27,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
-import org.fxmisc.easybind.EasyBind;
+import org.jtwig.JtwigModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +38,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -73,6 +75,9 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   @FXML
   @SuppressWarnings("unused")
+  private ControllerHeader controllerHeader;
+  @FXML
+  @SuppressWarnings("unused")
   private Button btGenerateAll;
   @FXML
   @SuppressWarnings("unused")
@@ -83,6 +88,9 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   @FXML
   @SuppressWarnings("unused")
   private Button btCancel;
+  @FXML
+  @SuppressWarnings("unused")
+  private Button btPrint;
   @FXML
   @SuppressWarnings("unused")
   private ListView<BatchResultBox> listView;
@@ -116,9 +124,12 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    // disable list-view selection
-    EasyBind.subscribe(listView.getSelectionModel().selectionModeProperty(),
-        selectionMode -> Platform.runLater(() -> listView.getSelectionModel().select(-1)));
+    listView.setOnMouseClicked(event -> {
+      if (event.getClickCount() == 2) {
+        final BatchResultBox batchResultBox = listView.getSelectionModel().getSelectedItem();
+        batchResultBox.showPdf();
+      }
+    });
 
     colorSchemeSelection.defaultInitialization();
     colorSchemeSelection.setPercentWidth(50.0);
@@ -130,8 +141,15 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
     btSaveToZip.disableProperty().bind(generationSucceeded.emptyProperty());
     btSaveToFolder.disableProperty().bind(generationSucceeded.emptyProperty());
+    btPrint.disableProperty().bind(generationSucceeded.emptyProperty());
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
+    initializeControllerHeader(resources);
+  }
+
+  private void initializeControllerHeader(final ResourceBundle resources) {
+    controllerHeader.setTitle(resources.getString("title"));
+    controllerHeader.setInfoText(resources.getString("info"));
   }
 
   /**
@@ -204,8 +222,8 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   private List<PdfRenderingTask> getSuccessfulTasks(final Collection<PdfRenderingTask> tasks) {
     return tasks.stream()
-        .filter(pdfRenderingTask -> pdfRenderingTask.getState() == Worker.State.SUCCEEDED)
-        .collect(Collectors.toList());
+      .filter(pdfRenderingTask -> pdfRenderingTask.getState() == Worker.State.SUCCEEDED)
+      .collect(Collectors.toList());
   }
 
   /**
@@ -272,6 +290,29 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
         logger.error("Could not save pdf file to the selected folder.", exception);
       }
     });
+  }
+
+  /**
+   * Export the results from the batch timetable generation to a printable .pdf file.
+   */
+  @FXML
+  @SuppressWarnings("unused")
+  public void printBatchResults() {
+    PdfRenderingHelper.writeJtwigTemplateToPdfFile(getJtwigModel(),
+        "/batchgeneration/templates/BatchGenerationTemplate.twig", "all_courses_checked");
+  }
+
+  private JtwigModel getJtwigModel() {
+    final URL logo = getClass().getResource("/images/HHU_Logo.jpeg");
+
+    final LocalDate date = LocalDate.now();
+    final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    final String formattedDate = date.format(formatter);
+
+    return JtwigModel.newModel()
+      .with("date", formattedDate)
+      .with("batchResultBoxes", listView.getItems())
+      .with("logo", logo);
   }
 
   /**

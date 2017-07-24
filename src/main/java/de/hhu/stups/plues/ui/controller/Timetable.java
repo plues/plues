@@ -10,15 +10,18 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.StoreChange;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.data.entities.Session;
 import de.hhu.stups.plues.routes.RouteNames;
+import de.hhu.stups.plues.services.HistoryManager;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.TooltipAllocator;
 import de.hhu.stups.plues.ui.components.timetable.MoveSessionDialog;
 import de.hhu.stups.plues.ui.components.timetable.SemesterChooser;
 import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
@@ -29,19 +32,22 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 
+import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.SetBinding;
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleSetProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -50,19 +56,25 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 
+import org.fxmisc.easybind.EasyBind;
+import org.reactfx.util.FxTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -76,9 +88,11 @@ public class Timetable extends StackPane implements Initializable, Activatable {
   private final SessionListViewFactory sessionListViewFactory;
   private final UiDataService uiDataService;
   private final ListeningExecutorService executorService;
-  private final ListProperty<SessionFacade> sessions = new SimpleListProperty<>();
-
   private final SetProperty<Integer> conflictedSemesters;
+  private final HistoryManager historyManager;
+  private final Map<Integer, SessionFacade> sessionFacadeMap;
+  private final Map<SessionFacade.Slot, ObservableList<SessionFacade>> slotSessionFacadeMap;
+
   private double userDefinedDividerPos = 0.15;
   private SplitPane.Divider splitPaneDivider;
 
@@ -103,6 +117,9 @@ public class Timetable extends StackPane implements Initializable, Activatable {
   @FXML
   @SuppressWarnings("unused")
   private TimetableSideBar timetableSideBar;
+  @FXML
+  @SuppressWarnings("unused")
+  private HBox semesterToggleBox;
 
 
   /**
@@ -113,35 +130,91 @@ public class Timetable extends StackPane implements Initializable, Activatable {
                    final Delayed<ObservableStore> delayedStore,
                    final UiDataService uiDataService,
                    final SessionListViewFactory sessionListViewFactory,
+                   final HistoryManager historyManager,
                    final ListeningExecutorService executorService) {
     this.delayedStore = delayedStore;
     this.sessionListViewFactory = sessionListViewFactory;
     this.uiDataService = uiDataService;
     this.executorService = executorService;
+    this.historyManager = historyManager;
     conflictedSemesters = new SimpleSetProperty<>(FXCollections.emptyObservableSet());
+    sessionFacadeMap = new HashMap<>();
+    slotSessionFacadeMap = new HashMap<>();
 
-    // TODO: remove controller param if possible
-    // TODO: currently not possible because of dependency circle
     inflater.inflate("components/Timetable", this, this, "timetable", "Days", "Column");
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
-    this.delayedStore.whenAvailable(store -> {
-      store.getChanges().subscribe(change -> setSessionFacades(store));
+    delayedStore.whenAvailable(store -> {
+      store.getChanges().subscribe(this::handleStoreChanges);
 
       timetableSideBar.initializeComponents(store);
       setSessionFacades(store);
+
+      final List<Integer> range = getSemesterRange(store);
+      semesterToggle.setSemesters(range);
+      semesterToggleBox.setVisible(true);
     });
 
     timetableSideBar.setParent(this);
 
+    semesterToggle.conflictedSemestersProperty().bind(conflictedSemesters);
+    conflictedSemesters.bind(new ConflictedSemestersBinding());
+
+    initSessionBoxes();
+    initializeSplitPaneDivider();
+    initializeInfoTooltip();
+
+    getChildren().remove(moveSessionDialog);
+    moveSessionDialog.setTranslateZ(1);
+
+    setUiDataServiceListener();
+  }
+
+  /**
+   * {@link #updateSessionFacade(Session, DayOfWeek, Integer) Update}  the changed {@link
+   * SessionFacade} according to the {@link de.hhu.stups.plues.HistoryChangeType}, i.e., either
+   * going back (undo) or forward (redo, move).
+   */
+  private void handleStoreChanges(final StoreChange change) {
+    final Log log = change.getLog();
+    final DayOfWeek dayOfWeek;
+    final Integer time;
+    switch (change.historyChangeType()) {
+      case BACK:
+        dayOfWeek = change.getSession().getDayOfWeekMap().get(log.getSrcDay());
+        time = log.getSrcTime();
+        break;
+      case FORWARD:
+        dayOfWeek = change.getSession().getDayOfWeekMap().get(log.getTargetDay());
+        time = log.getTargetTime();
+        break;
+      default:
+        return;
+    }
+    updateSessionFacade(change.getSession(), dayOfWeek, time);
+  }
+
+  private void updateSessionFacade(final Session session,
+                                   final DayOfWeek targetDayOfWeek,
+                                   final Integer targetTime) {
+    final SessionFacade sessionFacade = sessionFacadeMap.get(session.getId());
+    slotSessionFacadeMap.get(sessionFacade.getSlot()).remove(sessionFacade);
+    final SessionFacade.Slot slot = new SessionFacade.Slot(targetDayOfWeek, targetTime);
+    sessionFacade.setSlot(slot);
+    slotSessionFacadeMap.get(slot).add(sessionFacade);
+    highlightSession(sessionFacade, slot);
+  }
+
+  private void initializeInfoTooltip() {
     multipleSelectionInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
         FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "14")));
-    multipleSelectionInfo.setTooltip(null);
-    Helpers.showTooltipOnEnter(multipleSelectionInfo, multipleSelectionHint,
+    TooltipAllocator.showTooltipOnEnter(multipleSelectionInfo, multipleSelectionHint,
         new SimpleBooleanProperty(false));
+  }
 
+  private void initializeSplitPaneDivider() {
     splitPaneDivider = timeTableSplitPane.getDividers().get(0);
 
     splitPaneDivider.positionProperty().addListener((observable, oldValue, newValue) -> {
@@ -158,62 +231,58 @@ public class Timetable extends StackPane implements Initializable, Activatable {
         splitPaneDivider.setPosition(timetableSideBar.getMinWidth() / getWidth());
       }
     });
-
-    delayedStore.whenAvailable(store -> {
-      final List<Integer> range = getSemesterRange(store);
-
-      semesterToggle.setSemesters(range);
-
-    });
-    semesterToggle.conflictedSemestersProperty().bind(conflictedSemesters);
-
-    conflictedSemesters.bind(new ConflictedSemestersBinding());
-
-    initSessionBoxes();
-
-    getChildren().remove(moveSessionDialog);
-    moveSessionDialog.setTranslateZ(1);
-
-    setUiDataServiceListener();
   }
 
   private void setUiDataServiceListener() {
     // move session and hide warning automatically when all running tasks finished
-    uiDataService.runningTasksProperty().addListener((observable, oldValue, newValue) -> {
-      final SolverTask<Void> moveSessionTask = uiDataService.moveSessionTaskProperty().get();
-      if (newValue.intValue() == 0 && moveSessionTask != null) {
-        //noinspection ResultOfMethodCallIgnored
-        executorService.submit(moveSessionTask);
-        uiDataService.moveSessionTaskProperty().set(null);
-      }
-    });
+    EasyBind.subscribe(uiDataService.runningTasksProperty(), newValue
+        -> moveSessionIfNoTasksRunning(newValue.intValue()));
 
-    uiDataService.highlightSessionProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue != null) {
-        highlightSession(newValue);
-        uiDataService.highlightSessionProperty().set(null);
-      }
-    });
-
-    uiDataService.moveSessionTaskProperty().addListener((observable, oldValue, newValue) -> {
+    EasyBind.subscribe(uiDataService.moveSessionTaskProperty(), newValue -> {
       if (newValue == null) {
         getChildren().remove(moveSessionDialog);
         return;
       }
-      if (uiDataService.runningTasksProperty().greaterThan(1).get()) {
-        moveSessionDialog.setLayoutX(getWidth() / 2);
-        moveSessionDialog.setLayoutY(getHeight() / 2);
-        getChildren().add(moveSessionDialog);
-      }
+      showMoveSessionWarning();
     });
+  }
+
+  /**
+   * Move the session stored in {@link UiDataService#moveSessionTaskProperty()} if there are
+   * currently no running tasks described by the given parameter.
+   */
+  private void moveSessionIfNoTasksRunning(final int runningTasks) {
+    final SolverTask<Void> moveSessionTask = uiDataService.moveSessionTaskProperty().get();
+    if (runningTasks == 0 && moveSessionTask != null) {
+      //noinspection ResultOfMethodCallIgnored
+      executorService.submit(moveSessionTask);
+      uiDataService.moveSessionTaskProperty().set(null);
+    }
+  }
+
+  /**
+   * Show the {@link MoveSessionDialog} if more than one task is running.
+   */
+  private void showMoveSessionWarning() {
+    if (uiDataService.runningTasksProperty().greaterThan(1).get()) {
+      moveSessionDialog.setLayoutX(getWidth() / 2);
+      moveSessionDialog.setLayoutY(getHeight() / 2);
+      getChildren().add(moveSessionDialog);
+    }
   }
 
   private void setSessionFacades(final ObservableStore store) {
     logger.debug("Loading and setting SessionFacades");
-    setSessions(store.getSessions()
-        .stream()
-        .map(SessionFacade::new)
-        .collect(Collectors.toList()));
+    final Task<Void> setSessionsTask = new Task<Void>() {
+      @Override
+      protected Void call() throws Exception {
+        setSessions(store.getSessions().stream().map(SessionFacade::new)
+            .collect(Collectors.toList()));
+        return null;
+      }
+    };
+    final Thread setSessionsThread = new Thread(setSessionsTask);
+    setSessionsThread.start();
   }
 
   private List<Integer> getSemesterRange(final Store store) {
@@ -243,21 +312,33 @@ public class Timetable extends StackPane implements Initializable, Activatable {
 
     IntStream.range(0, 35).forEach(i -> {
       final SessionFacade.Slot slot = getSlot(i, widthX);
-
-      final ListView<SessionFacade> view = getSessionFacadeListView(slot);
+      final ObservableList<SessionFacade> sessionFacadeList =
+          FXCollections.observableList(FXCollections.observableArrayList(),
+              (SessionFacade session) -> {
+                sessionFacadeMap.put(session.getId(), session);
+                return new Observable[] {session.slotProperty()};
+              });
+      final SortedList<SessionFacade> sortedList = sessionFacadeList.sorted();
+      sortedList.comparatorProperty().bind(getSessionComparator());
+      slotSessionFacadeMap.put(slot, sessionFacadeList);
+      final ListView<SessionFacade> view = getSessionFacadeListView(sortedList, slot);
       timeTablePane.add(view, i % widthX + offX, (i / widthX) + offY);
     });
   }
 
-  private ListView<SessionFacade> getSessionFacadeListView(final SessionFacade.Slot slot) {
-    final SessionListView view = sessionListViewFactory.create(slot);
-
-    view.setSessions(sessions);
-
-    final SortedList<SessionFacade> sortedSessions = sessions.sorted();
-    sortedSessions.comparatorProperty().bind(Bindings.createObjectBinding(
+  /**
+   * Sort the session according to the current {@link UiDataService#sessionDisplayFormatProperty
+   * session display format}.
+   */
+  private ObservableValue<Comparator<SessionFacade>> getSessionComparator() {
+    return Bindings.createObjectBinding(
         () -> SessionFacade.displayTextComparator(uiDataService.getSessionDisplayFormat()),
-        uiDataService.sessionDisplayFormatProperty()));
+        uiDataService.sessionDisplayFormatProperty());
+  }
+
+  private ListView<SessionFacade> getSessionFacadeListView(
+      final SortedList<SessionFacade> sortedSessions, final SessionFacade.Slot slot) {
+    final SessionListView view = sessionListViewFactory.create(slot);
 
     final FilteredList<SessionFacade> slotSessions
         = sortedSessions.filtered(facade -> facade.getSlot().equals(slot));
@@ -279,8 +360,14 @@ public class Timetable extends StackPane implements Initializable, Activatable {
 
   @SuppressWarnings("unused")
   private void setSessions(final List<SessionFacade> sessions) {
-    this.sessions.set(FXCollections.observableList(sessions,
-        (SessionFacade session) -> new Observable[] {session.slotProperty()}));
+    sessions.forEach(sessionFacade -> Platform.runLater(() -> {
+      final ObservableList<SessionFacade> observableList =
+          slotSessionFacadeMap.get(sessionFacade.getSlot());
+      if (observableList != null) { // some sessions are on the weekend like "blockseminare"
+        observableList.add(sessionFacade);
+        sessionFacadeMap.put(sessionFacade.getId(), sessionFacade);
+      }
+    }));
   }
 
   /**
@@ -312,26 +399,52 @@ public class Timetable extends StackPane implements Initializable, Activatable {
     }
   }
 
-  private void highlightSession(final Session session) {
-    final Optional<SessionFacade> optionalSessionFacade =
-        sessions.stream().filter(sessionFacade -> sessionFacade.getId() == session.getId())
-            .findFirst();
-    optionalSessionFacade.ifPresent(this::selectSemesterForSession);
-    scrollToSession(session);
+  /**
+   * Highlight a given session, i.e., scroll to the session in its listview, select the list cell
+   * and {@link #highlightListViewForSlot(SessionFacade.Slot) highlight the listview} for a few
+   * seconds.
+   */
+  private void highlightSession(final SessionFacade sessionFacade,
+                                final SessionFacade.Slot slot) {
+    selectSemesterForSession(sessionFacade);
+    highlightListViewForSlot(slot);
+    scrollToSessionFacade(sessionFacade);
   }
 
-  private void scrollToSession(final Session arg) {
-    final Optional<SessionFacade> sessionFacade = sessions.stream()
-        .filter(facade -> facade.getId() == arg.getId()).findFirst();
+  /**
+   * Highlight a session list view for a few seconds by setting a border color.
+   */
+  private void highlightListViewForSlot(final SessionFacade.Slot slot) {
+    for (final Node node : timeTablePane.getChildren()) {
+      if (!(node instanceof SessionListView)
+          || !slot.equals(((SessionListView) node).getSlot())) {
+        continue;
+      }
+      Platform.runLater(() -> {
+        node.setStyle("-fx-border-width: 2px; -fx-border-color: #FF8000;");
+        FxTimer.runLater(Duration.ofMillis(500), () -> {
+          node.setStyle("-fx-border-insets: 0;");
+          historyManager.historyEnabledProperty().set(true);
+        });
+      });
+      return;
+    }
+  }
 
-    sessionFacade.ifPresent(this::selectSemesterForSession);
-    sessionFacade.ifPresent(facade -> timeTablePane.getChildren().forEach(node -> {
+  private void scrollToSession(final Session session) {
+    final SessionFacade sessionFacade = sessionFacadeMap.get(session.getId());
+    scrollToSessionFacade(sessionFacade);
+  }
+
+  private void scrollToSessionFacade(final SessionFacade sessionFacade) {
+    selectSemesterForSession(sessionFacade);
+    timeTablePane.getChildren().forEach(node -> {
       if (node instanceof SessionListView) {
         final SessionListView sessionListView = (SessionListView) node;
-        sessionListView.scrollTo(facade);
-        sessionListView.getSelectionModel().select(facade);
+        Platform.runLater(() -> sessionListView.scrollTo(sessionFacade));
+        sessionListView.getSelectionModel().select(sessionFacade);
       }
-    }));
+    });
   }
 
   private void selectSemesterForSession(final SessionFacade facade) {
@@ -368,11 +481,11 @@ public class Timetable extends StackPane implements Initializable, Activatable {
     @Override
     protected ObservableSet<Integer> computeValue() {
       final Set<Integer> sessionIds = new HashSet<>(uiDataService.conflictMarkedSessionsProperty());
-      return sessions.filtered(facade -> sessionIds.contains(facade.getId())).stream()
-          .map(SessionFacade::getUnitSemesters)
+      return sessionFacadeMap.entrySet().stream()
+          .filter(entry -> sessionIds.contains(entry.getKey()))
+          .map(entry -> entry.getValue().getUnitSemesters())
           .flatMap(Collection::stream)
-          .collect(
-              Collectors.collectingAndThen(Collectors.toSet(), FXCollections::observableSet));
+          .collect(Collectors.collectingAndThen(Collectors.toSet(), FXCollections::observableSet));
     }
   }
 

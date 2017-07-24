@@ -13,25 +13,23 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import de.hhu.stups.plues.ui.components.ControllerHeader?>
 
-<fx:root prefHeight="700.0" prefWidth="800.0" type="javafx.scene.layout.GridPane"
+<fx:root type="GridPane" prefHeight="700.0" prefWidth="800.0" styleClass="windowPaddingTopOnly"
          xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <columnConstraints>
         <ColumnConstraints percentWidth="100.0"/>
     </columnConstraints>
     <rowConstraints>
         <RowConstraints percentHeight="5.0"/>
-        <RowConstraints minHeight="10.0" percentHeight="5.0" prefHeight="30.0"/>
         <RowConstraints percentHeight="5.0"/>
         <RowConstraints percentHeight="65.0"/>
         <RowConstraints percentHeight="15.0"/>
         <RowConstraints percentHeight="10.0"/>
     </rowConstraints>
-    <Label styleClass="h2" text="%header" GridPane.columnIndex="0"
-           GridPane.halignment="CENTER" GridPane.rowIndex="0"/>
-    <Label text="%explanationStats" GridPane.columnIndex="0" GridPane.halignment="CENTER"
-           GridPane.rowIndex="1"/>
-    <HBox alignment="CENTER" spacing="20.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+    <ControllerHeader fx:id="controllerHeader" GridPane.columnIndex="0" GridPane.halignment="CENTER"
+                      GridPane.rowIndex="0"/>
+    <HBox alignment="CENTER" spacing="20.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
         <HBox spacing="10.0">
             <Label text="%feasibleCourses"/>
             <Label fx:id="lbFeasibleCourseAmount"/>
@@ -50,7 +48,7 @@
         </HBox>
     </HBox>
     <Accordion fx:id="accordionConflictMatrices" prefHeight="Infinity" prefWidth="Infinity"
-               GridPane.columnIndex="0" GridPane.rowIndex="3">
+               GridPane.columnIndex="0" GridPane.rowIndex="2">
         <panes>
             <TitledPane fx:id="titledPaneCombinableCourses" text="%headCombinable" minWidth="0"
                         minHeight="0">
@@ -96,7 +94,7 @@
             </TitledPane>
         </panes>
     </Accordion>
-    <HBox alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="4">
+    <HBox alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="3">
         <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </padding>
@@ -142,7 +140,7 @@
         </GridPane>
     </HBox>
     <HBox alignment="CENTER" prefHeight="Infinity" prefWidth="Infinity" GridPane.columnIndex="0"
-          GridPane.rowIndex="5" spacing="10.0">
+          GridPane.rowIndex="4" spacing="10.0">
         <Button fx:id="btCheckAll" onAction="#checkAll" text="%checkAll"/>
         <Button fx:id="btCancelCheckAll" onAction="#cancelCheckAll" text="%cancelCheckAll"/>
     </HBox>

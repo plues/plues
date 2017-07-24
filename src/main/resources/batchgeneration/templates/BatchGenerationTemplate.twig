@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" font-family="sans-serif">
+    <fo:layout-master-set>
+        <fo:simple-page-master master-name="hoch" page-width="21.0cm" page-height="29.7cm" margin="1cm">
+            <fo:region-body extent="1cm"/>
+        </fo:simple-page-master>
+    </fo:layout-master-set>
+    <fo:page-sequence master-reference="hoch">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block text-align="right">
+                <fo:inline>
+                    <fo:external-graphic src="{{ logo }}"
+                                     content-height="5cm" content-width="7cm"/>
+                </fo:inline>
+            </fo:block>
+            <fo:block text-align="center" font-size="30pt" font-weight="bold">
+                PlÜS - Ergebnisse aller Studiengänge
+            </fo:block>
+            <fo:block text-align="center" font-size="15pt" font-style="italic">
+                {{ date }}
+            </fo:block>
+        </fo:flow>
+    </fo:page-sequence>
+    {% if batchResultBoxes|length > 0 %}
+        <fo:page-sequence master-reference="hoch">
+            <fo:flow flow-name="xsl-region-body">
+                <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
+                   <fo:table-column column-width="45%"/>
+                   <fo:table-column column-width="45%"/>
+                   <fo:table-column column-width="10%"/>
+                   <fo:table-header>
+                       <fo:table-row height="0.4cm" font-size="12pt">
+                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                               <fo:block text-align="center">Hauptfach</fo:block>
+                           </fo:table-cell>
+                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                               <fo:block text-align="center">Nebenfach</fo:block>
+                           </fo:table-cell>
+                           <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">
+                               <fo:block text-align="center">Ergebnis</fo:block>
+                           </fo:table-cell>
+                       </fo:table-row>
+                   </fo:table-header>
+                   <fo:table-body>
+                       {% for batchResultBox in batchResultBoxes %}
+                           <fo:table-row height="0.4cm">
+                               <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
+                                   <fo:block text-align="left">{{ batchResultBox.getMajorCourseName() }}</fo:block>
+                               </fo:table-cell>
+                               <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
+                                   <fo:block text-align="left">{{ batchResultBox.getMinorCourseName() }}</fo:block>
+                               </fo:table-cell>
+                               <fo:table-cell border-style="solid" border-width="0.5pt" font-size="10pt" padding-left="2pt">
+                                   <fo:block text-align="left">{{ batchResultBox.getTaskStateString() }}</fo:block>
+                               </fo:table-cell>
+                           </fo:table-row>
+                       {% endfor %}
+                   </fo:table-body>
+                </fo:table>
+            </fo:flow>
+        </fo:page-sequence>
+    {% endif %}
+</fo:root>

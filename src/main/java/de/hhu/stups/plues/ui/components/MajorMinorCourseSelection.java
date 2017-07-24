@@ -133,7 +133,9 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
 
     final BooleanBinding majorNotCombinable
         = Bindings.selectBoolean(selectedMajorProperty, "combinable").not();
-    cbMinor.disableProperty().bind(majorNotCombinable);
+    cbMajor.disableProperty().bind(majorCourseList.emptyProperty());
+    cbMinor.disableProperty().bind(majorNotCombinable.or(majorCourseList.emptyProperty()));
+    disableProperty().bind(majorCourseList.emptyProperty());
 
     impossibleCoursesProperty.addListener((observable, oldValue, newValue) -> {
       cbMajor.setCellFactory(getCallbackForImpossibleCourses(newValue));

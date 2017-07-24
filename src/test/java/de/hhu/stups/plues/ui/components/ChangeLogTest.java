@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.StoreChange;
 import de.hhu.stups.plues.data.entities.Log;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -74,7 +75,7 @@ public class ChangeLogTest extends ApplicationTest {
     doReturn(6).when(l3).getTargetTime();
 
     final ObservableStore store = mock(ObservableStore.class);
-    doReturn(new EventSource<String>()).when(store).getChanges();
+    doReturn(new EventSource<StoreChange>()).when(store).getChanges();
     doReturn(Arrays.asList(l1, l2, l3)).when(store).getLogEntries();
 
     final UiDataService dataService = getUiDataService();

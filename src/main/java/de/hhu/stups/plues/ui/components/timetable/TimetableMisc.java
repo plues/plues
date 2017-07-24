@@ -1,22 +1,21 @@
-package de.hhu.stups.plues;
+package de.hhu.stups.plues.ui.components.timetable;
 
 import de.hhu.stups.plues.data.entities.Course;
+import de.hhu.stups.plues.ui.controller.Timetable;
 
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.geometry.Point2D;
-import javafx.scene.Node;
-import javafx.scene.control.Tooltip;
-
-import java.io.File;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.time.DayOfWeek;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public final class Helpers {
+/**
+ * Provide some static methods useful for working with the {@link Timetable}.
+ */
+public class TimetableMisc {
+
+  TimetableMisc() {
+  }
 
   public static final Map<String, String> timeIntervalMap;
 
@@ -59,52 +58,10 @@ public final class Helpers {
     shortDayOfWeekMap = Collections.unmodifiableMap(tempMap);
   }
 
-
-  private Helpers() {
-  }
-
-  /**
-   * Expand a path (gives as string) to an absolute path. If the path starts with ~ it is replaced
-   * with the current user's home directory.
-   *
-   * @param base String
-   * @return Path absulute path representation of the argument
-   */
-  public static Path expandPath(final String base) {
-    // handle ~ in paths
-    final String basePath;
-    if (base.startsWith("~" + File.separator)) {
-      basePath = System.getProperty("user.home") + base.substring(1);
-    } else {
-      basePath = base;
-    }
-    return FileSystems.getDefault().getPath(basePath).toAbsolutePath();
-  }
-
   /**
    * Check if two courses are equal or both are null.
    */
   public static boolean equalCoursesOrNull(final Course course1, final Course course2) {
     return (course1 == null && course2 == null) || (course1 != null && course1.equals(course2));
-  }
-
-  /**
-   * Show the tooltip immediately when the mouse enters the node and accept a boolean property that
-   * can handle individual exceptions when to hide the tooltip or respectively not even show it. If
-   * there is no hide exception just pass a simple boolean property set to false.
-   */
-  public static void showTooltipOnEnter(final Node node, final Tooltip tooltip,
-                                        final ReadOnlyBooleanProperty hide) {
-    node.setOnMouseEntered(event -> {
-      if (tooltip.getText().isEmpty() || hide.get()) {
-        tooltip.hide();
-        return;
-      }
-      final Point2D pos = node.localToScreen(
-          node.getLayoutBounds().getMaxX(),
-          node.getLayoutBounds().getMaxY());
-      tooltip.show(node, pos.getX(), pos.getY());
-    });
-    node.setOnMouseExited(event -> tooltip.hide());
   }
 }

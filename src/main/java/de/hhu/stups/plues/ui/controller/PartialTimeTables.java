@@ -1,3 +1,4 @@
+
 package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
@@ -15,9 +16,11 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.ui.components.CheckBoxGroup;
 import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
+import de.hhu.stups.plues.ui.components.ControllerHeader;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -57,6 +60,9 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   private final Delayed<Store> delayedStore;
   private final PdfRenderingService pdfRenderingService;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private ControllerHeader controllerHeader;
   @FXML
   @SuppressWarnings("unused")
   private MajorMinorCourseSelection courseSelection;
@@ -122,8 +128,10 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     colorSchemeSelection.defaultInitialization();
-    pdfRenderingService.colorSchemeProperty().bind(colorSchemeSelection.selectedColorScheme());
+    colorSchemeSelection.disableProperty().bind(courseSelection
+        .getMajorComboBox().disabledProperty());
 
+    pdfRenderingService.colorSchemeProperty().bind(colorSchemeSelection.selectedColorScheme());
     final BooleanBinding selectionBinding = storeProperty.isNull().or(checkRunning);
 
     btChoose.disableProperty().bind(selectionBinding);
@@ -152,6 +160,12 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 
     this.solverProperty.bind(this.pdfRenderingService.availableProperty());
+    initializeControllerHeader(resources);
+  }
+
+  private void initializeControllerHeader(final ResourceBundle resources) {
+    controllerHeader.setTitle(resources.getString("titlePartial"));
+    controllerHeader.setInfoText(resources.getString("infoPartial"));
   }
 
   /**
@@ -218,15 +232,15 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     //
     final Map<Module, List<AbstractUnit>> unitChoice
         = cbgs.stream().collect(Collectors.toMap(
-            CheckBoxGroup::getModule,
-            CheckBoxGroup::getSelectedAbstractUnits));
+        CheckBoxGroup::getModule,
+        CheckBoxGroup::getSelectedAbstractUnits));
     //
     final Map<Course, List<Module>> moduleChoice
         = cbgs.stream()
-          .collect(Collectors.groupingBy(
-              CheckBoxGroup::getCourse,
-              Collectors.mapping(
-                  CheckBoxGroup::getModule, Collectors.toList())));
+        .collect(Collectors.groupingBy(
+            CheckBoxGroup::getCourse,
+            Collectors.mapping(
+                CheckBoxGroup::getModule, Collectors.toList())));
 
 
     final CourseSelection selectedCourses

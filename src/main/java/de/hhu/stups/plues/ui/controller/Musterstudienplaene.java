@@ -3,17 +3,19 @@ package de.hhu.stups.plues.ui.controller;
 import com.google.inject.Inject;
 
 import de.hhu.stups.plues.Delayed;
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
+import de.hhu.stups.plues.ui.components.ControllerHeader;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
+import de.hhu.stups.plues.ui.components.timetable.TimetableMisc;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -39,6 +41,9 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
   private final ResultBoxFactory resultBoxFactory;
   private final UiDataService uiDataService;
 
+  @FXML
+  @SuppressWarnings("unused")
+  private ControllerHeader controllerHeader;
   @FXML
   @SuppressWarnings("unused")
   private MajorMinorCourseSelection courseSelection;
@@ -82,6 +87,8 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
     colorSchemeSelection.defaultInitialization();
+    colorSchemeSelection.disableProperty().bind(courseSelection
+        .getMajorComboBox().disabledProperty());
 
     btGenerate.disableProperty().bind(solverProperty.not());
 
@@ -90,7 +97,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
     // disable list-view selection
     resultBoxWrapper.getSelectionModel().selectedIndexProperty().addListener(
         (observable, oldValue, newValue) ->
-            Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
+        Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
 
     delayedStore.whenAvailable(store
         -> courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors())));
@@ -98,6 +105,13 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
+
+    initializeControllerHeader(resources);
+  }
+
+  private void initializeControllerHeader(final ResourceBundle resources) {
+    controllerHeader.setTitle(resources.getString("titlePDF"));
+    controllerHeader.setInfoText(resources.getString("infoPDF"));
   }
 
   /**
@@ -128,7 +142,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
     }
     final Optional<ResultBox> containsBox = resultBoxWrapper.getItems().stream().filter(
         resultBox -> majorCourse.equals(resultBox.getMajorCourse())
-            && Helpers.equalCoursesOrNull(minorCourse, resultBox.getMinorCourse()))
+        && TimetableMisc.equalCoursesOrNull(minorCourse, resultBox.getMinorCourse()))
         .findFirst();
     if (containsBox.isPresent()) {
       toTopOfListview(containsBox.get());

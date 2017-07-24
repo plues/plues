@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui.components.timetable;
 
+import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -16,6 +17,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
+
 import org.controlsfx.control.SegmentedButton;
 import org.fxmisc.easybind.EasyBind;
 
@@ -75,9 +77,9 @@ public class SemesterChooser extends Region {
     final EventHandler<MouseEvent> handleMouseClicked = this::handleMouseClicked;
     final EventHandler<KeyEvent> handleKeyPressed = this::handleKeyPressed;
 
-    segmentedButton.getButtons().forEach(o -> {
-      o.addEventFilter(MouseEvent.MOUSE_CLICKED, handleMouseClicked);
-      o.addEventFilter(KeyEvent.KEY_PRESSED, handleKeyPressed);
+    segmentedButton.getButtons().forEach(button -> {
+      button.addEventFilter(MouseEvent.MOUSE_CLICKED, handleMouseClicked);
+      button.addEventFilter(KeyEvent.KEY_PRESSED, handleKeyPressed);
     });
 
     this.setupSubscription(conflictedSemesters);
@@ -86,9 +88,8 @@ public class SemesterChooser extends Region {
   private void setupSubscription(final ObservableSet<Integer> semesters) {
     segmentedButton.getButtons().forEach(o -> {
       //
-      final BooleanBinding conflictProperty
-          = Bindings.createBooleanBinding(
-            () -> semesters.contains(Integer.parseInt((String) o.getUserData())), semesters);
+      final BooleanBinding conflictProperty = Bindings.createBooleanBinding(() ->
+          semesters.contains(Integer.parseInt((String) o.getUserData())), semesters);
       //
       // collect bindings in an instance variable to avoid collection due to weak references
       this.bindings.add(conflictProperty);
@@ -151,21 +152,28 @@ public class SemesterChooser extends Region {
 
   /**
    * Set the semesters semesters that should be selected in the component.
+   *
    * @param selection Set of semesters to be selected.
    */
   public void setSelectedSemesters(final ObservableSet<Integer> selection) {
     selectedSemesters.unbind();
-    segmentedButton.getButtons().forEach(toggleButton
-        -> toggleButton.setSelected(
-            selection.contains(Integer.parseInt((String) toggleButton.getUserData()))));
+    segmentedButton.getButtons().forEach(toggleButton -> {
+      final boolean select =
+          selection.contains(Integer.parseInt((String) toggleButton.getUserData()));
+      toggleButton.setSelected(select);
+      if (select) {
+        Platform.runLater(toggleButton::requestFocus);
+      }
+    });
     selectedSemesters.bind(selectedSemestersBinding);
   }
 
   /**
    * Set the semesters that should be highlighted as containing a conflict.
+   *
    * @param semesters Set of semesters that should be highlighted.
    */
-  public void setConflictedSemesters(final ObservableSet<Integer> semesters) {
+  void setConflictedSemesters(final ObservableSet<Integer> semesters) {
     this.conflictedSemesters.set(semesters);
   }
 
@@ -179,6 +187,7 @@ public class SemesterChooser extends Region {
 
   /**
    * Set the list of semesters to be displayed by the component.
+   *
    * @param semesters List of integers
    */
   public void setSemesters(final List<Integer> semesters) {
@@ -213,7 +222,7 @@ public class SemesterChooser extends Region {
       @Override
       protected ObservableList<ToggleButton> computeValue() {
         return FXCollections.observableList(segmentedButton.getButtons(),
-          button -> new Observable[] { button.selectedProperty() });
+            button -> new Observable[] {button.selectedProperty()});
       }
     }
   }

@@ -5,20 +5,27 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
+import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 public class BatchResultBox extends GridPane implements Initializable {
 
   private final PdfRenderingTask task;
+  private final ObjectProperty<Path> pdfPathProperty;
+
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -46,11 +53,16 @@ public class BatchResultBox extends GridPane implements Initializable {
     assert task != null;
     this.task = task;
 
+    pdfPathProperty = new SimpleObjectProperty<>();
+    task.setOnSucceeded(event -> pdfPathProperty.set((Path) event.getSource().getValue()));
+
     inflater.inflate("components/BatchResultBox", this, this, "batchTimetable");
   }
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
+    this.resources = resources;
+
     taskProgressIndicator.sizeProperty().set(30.0);
     taskProgressIndicator.taskProperty().set(task);
 
@@ -59,6 +71,49 @@ public class BatchResultBox extends GridPane implements Initializable {
     final Course minor = task.getMinor();
     if (minor != null) {
       lbMinor.textProperty().bind(Bindings.selectString(minor, "fullName"));
+    }
+  }
+
+  /**
+   * Show the generated pdf located at {@link #pdfPathProperty}.
+   */
+  public void showPdf() {
+    if (pdfPathProperty.isNotNull().get()) {
+      PdfRenderingHelper.showPdf(pdfPathProperty.get());
+    }
+  }
+
+  @SuppressWarnings("unused")
+  public String getMajorCourseName() {
+    return task.getMajor().getFullName();
+  }
+
+  /**
+   * Return the full name of the {@link #task}'s minor course or an empty string if null.
+   */
+  @SuppressWarnings("unused")
+  public String getMinorCourseName() {
+    if (task.getMinor() == null) {
+      return "";
+    }
+    return task.getMinor().getFullName();
+  }
+
+  /**
+   * Return a string describing the final state of the {@link #task}. Used in the Jtwig template,
+   * and thus, might be considered to be unused in the java code.
+   */
+  @SuppressWarnings("unused")
+  public String getTaskStateString() {
+    switch (task.getState()) {
+      case SUCCEEDED:
+        return resources.getString("succeeded");
+      case CANCELLED:
+        return resources.getString("cancelled");
+      case FAILED:
+        return resources.getString("failed");
+      default:
+        return "";
     }
   }
 }

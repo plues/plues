@@ -96,8 +96,6 @@ public class MajorMinorCourseSelectionTest extends ApplicationTest {
     Assert.assertNotNull(minor);
     Assert.assertEquals(2, courses.size());
 
-    courseSelection.setDisable(true);
-
     Assert.assertEquals(major, courseSelection.getSelectedMajor());
     Assert.assertEquals(minor, courseSelection.getSelectedMinor());
     Assert.assertEquals(courses, courseSelection.getSelectedCourses());

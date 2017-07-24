@@ -2,14 +2,15 @@ package de.hhu.stups.plues.ui.components.detailview;
 
 import com.google.inject.Inject;
 
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.components.timetable.SessionFacade;
+import de.hhu.stups.plues.ui.components.timetable.TimetableMisc;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ObjectProperty;
@@ -96,7 +97,7 @@ public class SessionDetailView extends VBox implements Initializable, DetailView
       if (newValue != null) {
         final SessionFacade.Slot slot = newValue.getSlot();
         lbSession.setText(resources.getString(slot.getDayString()) + ", "
-            + Helpers.timeMap.get(slot.getTime()));
+            + TimetableMisc.timeMap.get(slot.getTime()));
       }
     });
 

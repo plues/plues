@@ -1,8 +1,5 @@
 package de.hhu.stups.plues.ui.controller;
 
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -20,17 +17,16 @@ import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.MainMenuBar;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
@@ -49,9 +45,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.control.TaskProgressView;
 import org.reactfx.EventStreams;
+import org.reactfx.util.FxTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,16 +58,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class MainController implements Initializable, Activatable {
 
   private static final Map<Class, FontAwesomeIcon> iconMap = new HashMap<>();
   private static final FontAwesomeIcon DEFAULT_ICON = FontAwesomeIcon.TASKS;
-  private static final ListeningScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE;
   private static final Task EMPTY_TASK = new Task() {
     // just an empty task to simulate a pending progress bar
     @Override
@@ -112,8 +106,6 @@ public class MainController implements Initializable, Activatable {
   private ProgressBar mainProgressBar;
   @FXML
   private Label lbRunningTasks;
-  @FXML
-  private Tab tabTimetable;
 
   private final Tab reportsTab = new Tab();
 
@@ -237,7 +229,7 @@ public class MainController implements Initializable, Activatable {
     EventStreams.valuesOf(uiDataService.cancelAllTasksProperty())
         .filter(shouldCancel -> shouldCancel)
         .subscribe(newValue -> Platform.runLater(() -> {
-          taskProgress.getTasks().forEach(task -> task.cancel(true));
+          taskProgress.getTasks().forEach(task -> Platform.runLater(() -> task.cancel(true)));
           uiDataService.cancelAllTasksProperty().set(false);
         }));
   }
@@ -247,8 +239,12 @@ public class MainController implements Initializable, Activatable {
         .map(KeyEvent::getCode)
         .filterMap(keyCode -> {
           switch (keyCode) {
-            case DIGIT1: case DIGIT2: case DIGIT3:
-            case DIGIT4: case DIGIT5: case DIGIT6:
+            case DIGIT1:
+            case DIGIT2:
+            case DIGIT3:
+            case DIGIT4:
+            case DIGIT5:
+            case DIGIT6:
               return true;
             default:
               return false;
@@ -260,7 +256,7 @@ public class MainController implements Initializable, Activatable {
   private void initializeTaskProgressListener() {
     final ObservableList<Task<?>> scheduledTasks = taskProgress.getTasks();
 
-    scheduledTasks.addListener((ListChangeListener.Change<? extends Task<?>> change) -> {
+    EventStreams.changesOf(scheduledTasks).subscribe(change -> {
       if (scheduledTasks.isEmpty()) {
         removeTaskProgressBox();
       } else {
@@ -272,16 +268,15 @@ public class MainController implements Initializable, Activatable {
       }
     });
 
-    final EventHandler<MouseEvent> mouseEventEventHandler = event -> {
-      if (fadingInProgress) {
-        event.consume();
-        return;
-      }
-      taskBoxCollapsed.setValue(!taskBoxCollapsed.get());
-    };
-
-    lbRunningTasks.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
-    mainProgressBar.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEventEventHandler);
+    EventStreams.merge(EventStreams.eventsOf(lbRunningTasks, MouseEvent.MOUSE_CLICKED),
+        EventStreams.eventsOf(mainProgressBar, MouseEvent.MOUSE_CLICKED))
+        .subscribe(mouseEvent -> {
+          if (fadingInProgress) {
+            mouseEvent.consume();
+            return;
+          }
+          taskBoxCollapsed.setValue(!taskBoxCollapsed.get());
+        });
   }
 
   /**
@@ -314,27 +309,17 @@ public class MainController implements Initializable, Activatable {
     }
   }
 
-  static {
-    final ThreadFactory threadFactoryBuilder = new ThreadFactoryBuilder().setDaemon(true)
-        .setNameFormat("task-progress-hide-runner-%d").build();
-
-    SCHEDULED_EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(
-        Executors.newSingleThreadScheduledExecutor(threadFactoryBuilder));
-  }
-
   /**
    * Wait some time and hide the {@link #taskProgress task progress view} if there are no running
    * tasks anymore.
    */
   private void removeTaskProgressBox() {
     clearStatusBar();
-    //noinspection ResultOfMethodCallIgnored
-    SCHEDULED_EXECUTOR_SERVICE.schedule(() ->
-        Platform.runLater(() -> {
-          if (taskProgress.getTasks().isEmpty()) {
-            taskBoxCollapsed.setValue(true);
-          }
-        }), 3, TimeUnit.SECONDS);
+    FxTimer.runLater(java.time.Duration.ofSeconds(3), () -> {
+      if (taskProgress.getTasks().isEmpty()) {
+        taskBoxCollapsed.setValue(true);
+      }
+    });
   }
 
   /**

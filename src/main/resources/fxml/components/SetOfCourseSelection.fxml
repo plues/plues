@@ -9,9 +9,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.textfield.CustomTextField?>
+<?import javafx.scene.control.Label?>
 
 <fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
+    <Label text="%courses" styleClass="h3" />
     <HBox alignment="CENTER_LEFT">
         <CustomTextField fx:id="txtQuery" promptText="%searchCourse" HBox.hgrow="ALWAYS"/>
         <Button fx:id="btClearSelection" onAction="#btClearSelectionSubmit" HBox.hgrow="ALWAYS">

@@ -2,9 +2,10 @@ package de.hhu.stups.plues.ui.components.conflictmatrix;
 
 import com.google.inject.assistedinject.Assisted;
 
-import de.hhu.stups.plues.Helpers;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.ResultState;
+import de.hhu.stups.plues.ui.TooltipAllocator;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -112,7 +113,7 @@ public class ResultGridCell extends Pane {
     label.prefWidthProperty().bind(widthProperty());
     label.prefHeightProperty().bind(heightProperty());
     tooltip = new Tooltip(resources.getString("legendImpossible"));
-    Helpers.showTooltipOnEnter(label, tooltip, contextMenu.showingProperty());
+    TooltipAllocator.showTooltipOnEnter(label, tooltip, contextMenu.showingProperty());
     getChildren().add(label);
   }
 
@@ -127,8 +128,7 @@ public class ResultGridCell extends Pane {
     label.prefWidthProperty().bind(widthProperty());
     label.prefHeightProperty().bind(heightProperty());
     tooltip = new Tooltip(resources.getString("legendInfeasible"));
-    Helpers.showTooltipOnEnter(label, tooltip,
-        contextMenu.showingProperty());
+    TooltipAllocator.showTooltipOnEnter(label, tooltip, contextMenu.showingProperty());
     getChildren().add(label);
   }
 
@@ -161,7 +161,7 @@ public class ResultGridCell extends Pane {
       tooltip = new Tooltip(resources.getString("major") + ": "
           + courseNames[0].getName() + "\n" + resources.getString("minor") + ": "
           + courseNames[1].getName());
-      Helpers.showTooltipOnEnter(label, tooltip, contextMenu.showingProperty());
+      TooltipAllocator.showTooltipOnEnter(label, tooltip, contextMenu.showingProperty());
       getChildren().add(label);
     }
   }
