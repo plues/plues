@@ -252,7 +252,7 @@ public class ResultBox extends VBox implements Initializable {
 
   @FXML
   private void savePdf() {
-    PdfRenderingHelper.savePdf(pdf.get(), major, minor, lbErrorMsg);
+    PdfRenderingHelper.savePdf(pdf.get(), major, minor, errorMsgProperty);
   }
 
   @FXML
