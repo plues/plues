@@ -86,17 +86,15 @@ public class PdfRenderingHelper {
    * printed on label if present or on stack trace.
    *
    * @param pdf              Path to pdf to save
-   * @param major            Major course for pdf
-   * @param minor            Minor course for pdf (could be null)
+   * @param destinationPath  The absolute path where to save the pdf.
    * @param errorMsgProperty String binding referring to a label displaying errors.
    */
-  public static void savePdf(final Path pdf, final Course major, final Course minor,
+  public static void savePdf(final Path pdf,
+                             final Path destinationPath,
                              final StringProperty errorMsgProperty) {
-    final File file = getTargetFile(major, minor);
-
-    if (file != null) {
+    if (destinationPath != null) {
       try {
-        Files.copy(pdf, Paths.get(file.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(pdf, destinationPath, StandardCopyOption.REPLACE_EXISTING);
       } catch (final IOException exc) {
         logger.error(MSG, exc);
 
@@ -114,7 +112,7 @@ public class PdfRenderingHelper {
    * @param minorCourse Minor course
    * @return File object representing the choosen file by user
    */
-  private static File getTargetFile(final Course majorCourse, final Course minorCourse) {
+  public static File getTargetFile(final Course majorCourse, final Course minorCourse) {
 
     final String documentName;
     documentName = getDocumentName(majorCourse, minorCourse);
@@ -124,7 +122,7 @@ public class PdfRenderingHelper {
     //
     final Preferences preferences = Preferences.userNodeForPackage(PdfRenderingHelper.class);
     final File initialDirectory = new File(
-        preferences.get(PDF_SAVE_DIR, System.getProperty("user.home")));
+      preferences.get(PDF_SAVE_DIR, System.getProperty("user.home")));
 
     if (initialDirectory.isDirectory()) {
       fileChooser.setInitialDirectory(initialDirectory);
@@ -173,7 +171,7 @@ public class PdfRenderingHelper {
    * @throws RenderingException encapsulating error cause
    */
   public static ByteArrayOutputStream toPdf(final ByteArrayOutputStream out)
-      throws RenderingException {
+    throws RenderingException {
 
     final ByteArrayOutputStream pdf = new ByteArrayOutputStream();
 
@@ -194,7 +192,7 @@ public class PdfRenderingHelper {
   }
 
   private static DefaultHandler getFopHandler(final ByteArrayOutputStream pdf)
-      throws RenderingException {
+    throws RenderingException {
 
     final DefaultHandler handler;
     final FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
@@ -236,12 +234,12 @@ public class PdfRenderingHelper {
                                                  final String fileOutputName) {
     try {
       final EnvironmentConfiguration config = EnvironmentConfigurationBuilder.configuration()
-          .render().withOutputCharset(Charset.forName("utf8")).and().build();
+        .render().withOutputCharset(Charset.forName("utf8")).and().build();
 
       // load template
       final ByteArrayOutputStream out = new ByteArrayOutputStream();
       final JtwigTemplate template =
-          JtwigTemplate.classpathTemplate(templateResourcePath, config);
+        JtwigTemplate.classpathTemplate(templateResourcePath, config);
       template.render(model, out);
 
       // write to file

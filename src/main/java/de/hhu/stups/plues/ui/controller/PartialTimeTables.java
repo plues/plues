@@ -1,4 +1,3 @@
-
 package de.hhu.stups.plues.ui.controller;
 
 import com.google.inject.Inject;
@@ -37,8 +36,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -238,9 +239,9 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     final Map<Course, List<Module>> moduleChoice
         = cbgs.stream()
         .collect(Collectors.groupingBy(
-            CheckBoxGroup::getCourse,
-            Collectors.mapping(
-                CheckBoxGroup::getModule, Collectors.toList())));
+        CheckBoxGroup::getCourse,
+        Collectors.mapping(
+          CheckBoxGroup::getModule, Collectors.toList())));
 
 
     final CourseSelection selectedCourses
@@ -285,7 +286,8 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     final Course major = courseSelection.getSelectedMajor();
     final Course minor = courseSelection.getSelectedMinor();
 
-    PdfRenderingHelper.savePdf(pdf.get(), major, minor, null);
+    final File destinationFile = PdfRenderingHelper.getTargetFile(major, minor);
+    PdfRenderingHelper.savePdf(pdf.get(), Paths.get(destinationFile.getAbsolutePath()), null);
   }
 
   /**
