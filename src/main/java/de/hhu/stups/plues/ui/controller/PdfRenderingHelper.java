@@ -5,7 +5,7 @@ import static de.hhu.stups.plues.ui.components.OpenFileHandler.tryOpenFile;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.exceptions.RenderingException;
 
-import javafx.scene.control.Label;
+import javafx.beans.property.StringProperty;
 import javafx.stage.FileChooser;
 
 import org.apache.fop.apps.FOPException;
@@ -34,6 +34,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 
@@ -84,23 +85,23 @@ public class PdfRenderingHelper {
    * Unified function to save a pdf for a given major and minor course. Error messages will be
    * printed on label if present or on stack trace.
    *
-   * @param pdf        Path to pdf to save
-   * @param major      Major course for pdf
-   * @param minor      Minor course for pdf (could be null)
-   * @param lbErrorMsg Label to print error messages on. Can be null
+   * @param pdf              Path to pdf to save
+   * @param major            Major course for pdf
+   * @param minor            Minor course for pdf (could be null)
+   * @param errorMsgProperty String binding referring to a label displaying errors.
    */
   public static void savePdf(final Path pdf, final Course major, final Course minor,
-                             final Label lbErrorMsg) {
+                             final StringProperty errorMsgProperty) {
     final File file = getTargetFile(major, minor);
 
     if (file != null) {
       try {
-        Files.copy(pdf, Paths.get(file.getAbsolutePath()));
+        Files.copy(pdf, Paths.get(file.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
       } catch (final IOException exc) {
         logger.error(MSG, exc);
 
-        if (lbErrorMsg != null) {
-          lbErrorMsg.setText(MSG);
+        if (errorMsgProperty != null) {
+          errorMsgProperty.set(MSG);
         }
       }
     }
