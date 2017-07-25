@@ -122,7 +122,7 @@ public class PdfRenderingHelper {
     //
     final Preferences preferences = Preferences.userNodeForPackage(PdfRenderingHelper.class);
     final File initialDirectory = new File(
-      preferences.get(PDF_SAVE_DIR, System.getProperty("user.home")));
+        preferences.get(PDF_SAVE_DIR, System.getProperty("user.home")));
 
     if (initialDirectory.isDirectory()) {
       fileChooser.setInitialDirectory(initialDirectory);
@@ -171,7 +171,7 @@ public class PdfRenderingHelper {
    * @throws RenderingException encapsulating error cause
    */
   public static ByteArrayOutputStream toPdf(final ByteArrayOutputStream out)
-    throws RenderingException {
+      throws RenderingException {
 
     final ByteArrayOutputStream pdf = new ByteArrayOutputStream();
 
@@ -192,7 +192,7 @@ public class PdfRenderingHelper {
   }
 
   private static DefaultHandler getFopHandler(final ByteArrayOutputStream pdf)
-    throws RenderingException {
+      throws RenderingException {
 
     final DefaultHandler handler;
     final FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
@@ -234,12 +234,12 @@ public class PdfRenderingHelper {
                                                  final String fileOutputName) {
     try {
       final EnvironmentConfiguration config = EnvironmentConfigurationBuilder.configuration()
-        .render().withOutputCharset(Charset.forName("utf8")).and().build();
+          .render().withOutputCharset(Charset.forName("utf8")).and().build();
 
       // load template
       final ByteArrayOutputStream out = new ByteArrayOutputStream();
       final JtwigTemplate template =
-        JtwigTemplate.classpathTemplate(templateResourcePath, config);
+          JtwigTemplate.classpathTemplate(templateResourcePath, config);
       template.render(model, out);
 
       // write to file
