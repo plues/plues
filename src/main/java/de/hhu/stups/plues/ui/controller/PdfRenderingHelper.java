@@ -4,10 +4,8 @@ import static de.hhu.stups.plues.ui.components.OpenFileHandler.tryOpenFile;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.exceptions.RenderingException;
-
 import javafx.beans.property.StringProperty;
 import javafx.stage.FileChooser;
-
 import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
@@ -33,7 +31,6 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
