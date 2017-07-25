@@ -46,19 +46,19 @@ public class ResultBox extends VBox implements Initializable {
 
   // lists of actions for each possible state
   private static final ObservableList<Actions> succeededActions
-    = FXCollections.observableArrayList(Actions.SHOW,
-    Actions.SAVE_AS,
-    Actions.OPEN_IN_TIMETABLE,
-    Actions.GENERATE_PARTIAL,
-    Actions.REMOVE);
+      = FXCollections.observableArrayList(Actions.SHOW,
+      Actions.SAVE_AS,
+      Actions.OPEN_IN_TIMETABLE,
+      Actions.GENERATE_PARTIAL,
+      Actions.REMOVE);
   private static final ObservableList<Actions> failedActions
-    = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE, Actions.REMOVE);
+      = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE, Actions.REMOVE);
   private static final ObservableList<Actions> cancelledActions
-    = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
-    Actions.RESTART_COMPUTATION,
-    Actions.REMOVE);
+      = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
+      Actions.RESTART_COMPUTATION,
+      Actions.REMOVE);
   private static final ObservableList<Actions> scheduledActions
-    = FXCollections.observableArrayList(Actions.CANCEL);
+      = FXCollections.observableArrayList(Actions.CANCEL);
   private final Course major;
   private final Course minor;
   private final Router router;
@@ -129,17 +129,17 @@ public class ResultBox extends VBox implements Initializable {
     initializeCourseLabels();
 
     lbErrorMsg.textProperty().bind(
-      Bindings.createStringBinding(() -> {
-        final String errorMsg = errorMsgProperty.get();
-        if (errorMsg == null) {
-          return "";
-        }
-        return resources.getString(errorMsg);
-      }, errorMsgProperty));
+        Bindings.createStringBinding(() -> {
+          final String errorMsg = errorMsgProperty.get();
+          if (errorMsg == null) {
+            return "";
+          }
+          return resources.getString(errorMsg);
+        }, errorMsgProperty));
 
     cbAction.setConverter(new ActionsStringConverter(resources));
     cbAction.itemsProperty().addListener((observable, oldValue, newValue) ->
-      cbAction.getSelectionModel().selectFirst());
+        cbAction.getSelectionModel().selectFirst());
 
     pdfRenderingService.colorSchemeProperty().bind(colorScheme);
     runSolverTask();
@@ -247,7 +247,7 @@ public class ResultBox extends VBox implements Initializable {
   private void savePdf() {
     final File destinationFile = PdfRenderingHelper.getTargetFile(major, minor);
     PdfRenderingHelper.savePdf(pdf.get(), Paths.get(destinationFile.getAbsolutePath()),
-      errorMsgProperty);
+        errorMsgProperty);
   }
 
   @FXML
