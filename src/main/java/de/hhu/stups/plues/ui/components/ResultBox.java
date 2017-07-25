@@ -34,27 +34,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
+import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 import javax.annotation.Nullable;
 
 public class ResultBox extends VBox implements Initializable {
-
-  private final Course major;
-  private final Course minor;
-
-  private PdfRenderingTask task;
-  private ResultState resultState;
-
-  private final Router router;
-  private final PdfRenderingService pdfRenderingService;
-  private final ListView<ResultBox> parent;
-  private final ReadOnlyObjectProperty<ColorScheme> colorScheme;
-
-  private final StringProperty errorMsgProperty = new SimpleStringProperty();
-  private final ObjectProperty<Path> pdf = new SimpleObjectProperty<>();
 
   // lists of actions for each possible state
   private static final ObservableList<Actions> succeededActions
@@ -63,19 +51,24 @@ public class ResultBox extends VBox implements Initializable {
       Actions.OPEN_IN_TIMETABLE,
       Actions.GENERATE_PARTIAL,
       Actions.REMOVE);
-
   private static final ObservableList<Actions> failedActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE, Actions.REMOVE);
-
   private static final ObservableList<Actions> cancelledActions
       = FXCollections.observableArrayList(Actions.OPEN_IN_TIMETABLE,
       Actions.RESTART_COMPUTATION,
       Actions.REMOVE);
-
   private static final ObservableList<Actions> scheduledActions
       = FXCollections.observableArrayList(Actions.CANCEL);
-
-
+  private final Course major;
+  private final Course minor;
+  private final Router router;
+  private final PdfRenderingService pdfRenderingService;
+  private final ListView<ResultBox> parent;
+  private final ReadOnlyObjectProperty<ColorScheme> colorScheme;
+  private final StringProperty errorMsgProperty = new SimpleStringProperty();
+  private final ObjectProperty<Path> pdf = new SimpleObjectProperty<>();
+  private PdfRenderingTask task;
+  private ResultState resultState;
   @FXML
   @SuppressWarnings("unused")
   private TaskProgressIndicator taskProgressIndicator;
@@ -98,11 +91,11 @@ public class ResultBox extends VBox implements Initializable {
   /**
    * Constructor for ResultBox.
    *
-   * @param inflater             Inflater to handle fxml loader tasks
-   * @param major                Major course
-   * @param minor                Minor course if present, else null
-   * @param parent               The parent wrapper (VBox) to remove a single result box.
-   * @param colorScheme          The selected color scheme for generating a pdf.
+   * @param inflater    Inflater to handle fxml loader tasks
+   * @param major       Major course
+   * @param minor       Minor course if present, else null
+   * @param parent      The parent wrapper (VBox) to remove a single result box.
+   * @param colorScheme The selected color scheme for generating a pdf.
    */
   @Inject
   @SuppressWarnings("WeakerAccess")
@@ -252,7 +245,9 @@ public class ResultBox extends VBox implements Initializable {
 
   @FXML
   private void savePdf() {
-    PdfRenderingHelper.savePdf(pdf.get(), major, minor, lbErrorMsg);
+    final File destinationFile = PdfRenderingHelper.getTargetFile(major, minor);
+    PdfRenderingHelper.savePdf(pdf.get(), Paths.get(destinationFile.getAbsolutePath()),
+        errorMsgProperty);
   }
 
   @FXML
