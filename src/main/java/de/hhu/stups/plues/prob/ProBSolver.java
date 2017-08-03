@@ -516,6 +516,9 @@ public class ProBSolver implements Solver {
         Mappers.mapQuasiMandatoryModuleAbstractUnits((Set) data.get(
             "impossible_modules_because_of_incomplte_quasi_mandatory_abstract_units")));
 
+    report.setGroupsWithInnerConflicts(
+        Mappers.mapGroups((Set) data.get("groups_with_inner_conflicts")));
+
     return report;
   }
 

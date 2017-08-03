@@ -19,6 +19,8 @@ public class ReportData {
       impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits;
   private Set<String> impossibleCoursesBecauseOfImpossibleModuleCombinations;
   private Set<ModuleAbstractUnitUnitSemesterConflict> moduleAbstractUnitUnitSemesterConflicts;
+  private Set<Integer> groupsWithInnerConflicts;
+
 
   ReportData() {
     // package private constructor
@@ -226,10 +228,18 @@ public class ReportData {
     return impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits;
   }
 
-  public void setImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits(
-      final Map<Integer, Set<Integer>>
-          impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits) {
+  void setImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits(
+    final Map<Integer, Set<Integer>>
+      impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits) {
     this.impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits =
         impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits;
+  }
+
+  void setGroupsWithInnerConflicts(final Set<Integer> groupsWithInnerConflicts) {
+    this.groupsWithInnerConflicts = groupsWithInnerConflicts;
+  }
+
+  public Set<Integer> getGroupsWithInnerConflicts() {
+    return groupsWithInnerConflicts;
   }
 }
