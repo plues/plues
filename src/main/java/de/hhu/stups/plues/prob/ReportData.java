@@ -229,7 +229,7 @@ public class ReportData {
   }
 
   void setImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits(
-    final Map<Integer, Set<Integer>>
+      final Map<Integer, Set<Integer>>
       impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits) {
     this.impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits =
         impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits;
