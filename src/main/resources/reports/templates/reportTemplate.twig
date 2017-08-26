@@ -144,6 +144,17 @@
             </fo:flow>
         </fo:page-sequence>
     {% endif %}
+    {% if unitsForGroupsWithConflicts|length > 0 %}
+        <fo:page-sequence master-reference="hoch">
+            <fo:flow flow-name="xsl-region-body">
+                <fo:block font-size="18pt">
+                    8. {{ resources.get("title.GroupsWithConflicts") }}
+                </fo:block>
+                {% include '/reports/templates/GroupsWithConflicts.twig' with
+                    { units: unitsForGroupsWithConflicts, resources: resources } only %}
+            </fo:flow>
+        </fo:page-sequence>
+    {% endif %}
     {% if impossibleCourseModuleAbstractUnits|length > 0 %}
         <fo:page-sequence master-reference="quer">
             <fo:flow flow-name="xsl-region-body">
