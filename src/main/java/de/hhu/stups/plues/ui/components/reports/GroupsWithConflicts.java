@@ -1,7 +1,10 @@
 package de.hhu.stups.plues.ui.components.reports;
 
+import com.google.inject.Inject;
+
 import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -11,7 +14,6 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 
-import javax.inject.Inject;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -19,7 +21,8 @@ import java.util.Set;
 
 public class GroupsWithConflicts extends VBox implements Initializable {
 
-  private final ListProperty<Unit> unitsForGroupsWithConflicts;
+  private final ListProperty<Unit> unitsForGroupsWithConflicts =
+      new SimpleListProperty<>(FXCollections.observableArrayList());
 
   @FXML
   @SuppressWarnings("unused")
@@ -27,9 +30,8 @@ public class GroupsWithConflicts extends VBox implements Initializable {
 
   @Inject
   public GroupsWithConflicts(final Inflater inflater) {
-    unitsForGroupsWithConflicts = new SimpleListProperty<>(FXCollections.observableArrayList());
     inflater.inflate("/components/reports/GroupsWithConflicts",
-      this, this, "reports", "Column");
+        this, this, "reports", "Column");
   }
 
   @Override
@@ -48,6 +50,6 @@ public class GroupsWithConflicts extends VBox implements Initializable {
 
   public void setData(final Set<Unit> unitsForGroupsWithConflicts) {
     this.unitsForGroupsWithConflicts.addAll(
-      FXCollections.observableArrayList(new ArrayList<>(unitsForGroupsWithConflicts)));
+        FXCollections.observableArrayList(new ArrayList<>(unitsForGroupsWithConflicts)));
   }
 }
