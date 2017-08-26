@@ -21,6 +21,7 @@ import de.hhu.stups.plues.ui.components.detailview.ModuleDetailView;
 import de.hhu.stups.plues.ui.components.detailview.SessionDetailView;
 import de.hhu.stups.plues.ui.components.detailview.UnitDetailView;
 import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits;
+import de.hhu.stups.plues.ui.components.reports.GroupsWithConflicts;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleAbstractUnitsInModule;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnits;
@@ -73,6 +74,7 @@ class ComponentsModule extends AbstractModule {
     bind(ModuleAbstractUnitUnitSemesterConflicts.class);
     bind(AbstractUnitsWithoutUnits.class);
     bind(UnitsWithoutAbstractUnits.class);
+    bind(GroupsWithConflicts.class);
     bind(ConflictTree.class);
     bind(CourseUnsatCore.class);
     bind(TimetableSideBar.class);
