@@ -10,8 +10,8 @@ import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
-import de.hhu.stups.plues.studienplaene.ColorScheme;
 import de.hhu.stups.plues.studienplaene.Renderer;
+import de.hhu.stups.plues.ui.components.PdfGenerationSettings;
 import de.hhu.stups.plues.ui.exceptions.RenderingException;
 
 import javafx.application.Platform;
@@ -40,7 +40,7 @@ public class PdfRenderingTask extends Task<Path> {
   private final Course major;
   private final Course minor;
   private final SolverTask<FeasibilityResult> solverTask;
-  private final ReadOnlyObjectProperty<ColorScheme> colorSchemeProperty;
+  private final ReadOnlyObjectProperty<PdfGenerationSettings> pdfGenerationSettingsProperty;
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final ResourceBundle resources;
@@ -68,14 +68,14 @@ public class PdfRenderingTask extends Task<Path> {
                              @Assisted("major") final Course major,
                              @Assisted("minor") @Nullable final Course minor,
                              @Assisted final SolverTask<FeasibilityResult> solverTask,
-                             @Assisted final ReadOnlyObjectProperty<ColorScheme>
-                                 colorSchemeProperty) {
+                             @Assisted final ReadOnlyObjectProperty<PdfGenerationSettings>
+                                 pdfGenerationSettingsProperty) {
     this.delayedStore = delayedStore;
     this.resources = ResourceBundle.getBundle("lang.tasks");
     this.major = major;
     this.minor = minor;
     this.solverTask = solverTask;
-    this.colorSchemeProperty = colorSchemeProperty;
+    this.pdfGenerationSettingsProperty = pdfGenerationSettingsProperty;
 
     updateTitle(this.buildTitle());
     updateProgress(0, 100);
@@ -163,7 +163,7 @@ public class PdfRenderingTask extends Task<Path> {
 
   private Renderer getRenderer(final Store store, final FeasibilityResult result) {
     try {
-      return new Renderer(store, result, major, minor, colorSchemeProperty.get());
+      return new Renderer(store, result, major, minor, pdfGenerationSettingsProperty.get());
     } catch (final NullPointerException exc) {
       logger.error("Exception rendering PDF", exc);
       throw exc;

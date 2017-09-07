@@ -4,6 +4,8 @@ import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Group;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.Session;
+import de.hhu.stups.plues.ui.components.PdfGenerationSettings;
+import de.hhu.stups.plues.ui.components.UnitDisplayFormat;
 
 import java.awt.Color;
 import java.util.Arrays;
@@ -17,15 +19,17 @@ class DataStoreWrapper {
   private final Map<String, String> colorMap;
   private final Map<String, String> fonts;
   private final ColorPalette colors;
+  private final UnitDisplayFormat unitDisplayFormat;
 
-  DataStoreWrapper(final ColorScheme colorScheme, final DataPreparatory data) {
+  DataStoreWrapper(final PdfGenerationSettings pdfGenerationSettings, final DataPreparatory data) {
     for (int k = 0; k < semesters.length; k++) {
       semesters[k] = new HashMap<>();
     }
+    final ColorScheme colorScheme = pdfGenerationSettings.colorSchemeProperty().get();
     colors = colorScheme.isGrayscale() ? new Grayscale() : new Colored(colorScheme.getColors());
     colorMap = new HashMap<>();
+    unitDisplayFormat = pdfGenerationSettings.unitDisplayFormatProperty().get();
     fonts = new HashMap<>();
-
     createData(data);
   }
 
@@ -63,7 +67,7 @@ class DataStoreWrapper {
   private StringBuilder getTitleBuilder(final AbstractUnit abstractUnit, final Group group,
                                         final Session session) {
 
-    final StringBuilder title = new StringBuilder(abstractUnit.getTitle());
+    final StringBuilder title = new StringBuilder(getTitleOrKeyForDisplayFormat(abstractUnit));
 
     title.append(getTitlePart(session));
     title.append(getTitlePart(group));
@@ -136,9 +140,9 @@ class DataStoreWrapper {
 
   private String getFontColor(final Color backgroundColor) {
     final double brightness
-        = 1 - (0.299 * backgroundColor.getRed()
-        + 0.587 * backgroundColor.getGreen()
-        + 0.114 * backgroundColor.getBlue()) / 255;
+      = 1 - (0.299 * backgroundColor.getRed()
+      + 0.587 * backgroundColor.getGreen()
+      + 0.114 * backgroundColor.getBlue()) / 255;
 
     return (brightness < 0.5) ? "black" : "white";
   }
@@ -172,5 +176,16 @@ class DataStoreWrapper {
 
   final Map<String, String> getFonts() {
     return fonts;
+  }
+
+  private String getTitleOrKeyForDisplayFormat(final AbstractUnit abstractUnit) {
+    final String title = abstractUnit.getTitle();
+    if (unitDisplayFormat.isTitle()) {
+      return title;
+    } else {
+      final String key = abstractUnit.getKey();
+      // if an abstract unit has no key we display its title
+      return key != null ? key : title;
+    }
   }
 }
