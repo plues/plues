@@ -17,7 +17,9 @@ import de.hhu.stups.plues.ui.components.CheckBoxGroupFactory;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.ControllerHeader;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
+import de.hhu.stups.plues.ui.components.PdfGenerationSettings;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
+import de.hhu.stups.plues.ui.components.UnitDisplayFormatSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.binding.BooleanBinding;
@@ -58,6 +60,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   private final UiDataService uiDataService;
   private final ObjectProperty<Path> pdf;
   private final ObjectProperty<PdfRenderingTask> currentTaskProperty;
+  private final ObjectProperty<PdfGenerationSettings> pdfGenerationSettingsProperty;
   private final Delayed<Store> delayedStore;
   private final PdfRenderingService pdfRenderingService;
 
@@ -97,6 +100,9 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   @FXML
   @SuppressWarnings("unused")
   private ColorSchemeSelection colorSchemeSelection;
+  @FXML
+  @SuppressWarnings("unused")
+  private UnitDisplayFormatSelection unitDisplayFormatSelection;
 
   /**
    * Constructor for partial time table controller.
@@ -122,6 +128,8 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     this.selectionChanged = new SimpleBooleanProperty(false);
     this.pdf = new SimpleObjectProperty<>();
     currentTaskProperty = new SimpleObjectProperty<>();
+    pdfGenerationSettingsProperty = new SimpleObjectProperty<>(
+      new PdfGenerationSettings(null, null));
 
     inflater.inflate("PartialTimeTables", this, this, "musterstudienplaene");
   }
@@ -130,9 +138,13 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   public final void initialize(final URL location, final ResourceBundle resources) {
     colorSchemeSelection.defaultInitialization();
     colorSchemeSelection.disableProperty().bind(courseSelection
-        .getMajorComboBox().disabledProperty());
+      .getMajorComboBox().disabledProperty());
 
-    pdfRenderingService.colorSchemeProperty().bind(colorSchemeSelection.selectedColorScheme());
+    pdfGenerationSettingsProperty.get().colorSchemeProperty()
+      .bind(colorSchemeSelection.selectedColorScheme());
+    pdfGenerationSettingsProperty.get().unitDisplayFormatProperty()
+      .bind(unitDisplayFormatSelection.selectedDisplayFormatProperty());
+    pdfRenderingService.pdfGenerationSettingsProperty().bind(pdfGenerationSettingsProperty);
     final BooleanBinding selectionBinding = storeProperty.isNull().or(checkRunning);
 
     btChoose.disableProperty().bind(selectionBinding);
@@ -225,29 +237,29 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     checkRunning.set(true);
 
     final List<CheckBoxGroup> cbgs = modulesUnits.getChildren().stream()
-        .filter(node -> node instanceof CheckBoxGroup)
-        .map(o -> (CheckBoxGroup) o)
-        .peek(cbg -> cbg.setOnSelectionChanged(selectionChanged))
-        .filter(cbg -> !cbg.getSelectedAbstractUnits().isEmpty())
-        .collect(Collectors.toList());
+      .filter(node -> node instanceof CheckBoxGroup)
+      .map(o -> (CheckBoxGroup) o)
+      .peek(cbg -> cbg.setOnSelectionChanged(selectionChanged))
+      .filter(cbg -> !cbg.getSelectedAbstractUnits().isEmpty())
+      .collect(Collectors.toList());
     //
     final Map<Module, List<AbstractUnit>> unitChoice
-        = cbgs.stream().collect(Collectors.toMap(
-        CheckBoxGroup::getModule,
-        CheckBoxGroup::getSelectedAbstractUnits));
+      = cbgs.stream().collect(Collectors.toMap(
+      CheckBoxGroup::getModule,
+      CheckBoxGroup::getSelectedAbstractUnits));
     //
     final Map<Course, List<Module>> moduleChoice
-        = cbgs.stream()
-        .collect(Collectors.groupingBy(
+      = cbgs.stream()
+      .collect(Collectors.groupingBy(
         CheckBoxGroup::getCourse,
         Collectors.mapping(
           CheckBoxGroup::getModule, Collectors.toList())));
 
 
     final CourseSelection selectedCourses
-        = new CourseSelection(courseSelection.getSelectedCourses().toArray(new Course[0]));
+      = new CourseSelection(courseSelection.getSelectedCourses().toArray(new Course[0]));
     final PdfRenderingTask task
-        = pdfRenderingService.getTask(selectedCourses, moduleChoice, unitChoice);
+      = pdfRenderingService.getTask(selectedCourses, moduleChoice, unitChoice);
     wireUpTask(task);
     pdfRenderingService.submit(task);
   }

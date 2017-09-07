@@ -9,6 +9,7 @@
 <?import javafx.scene.control.ListView?>
 <?import de.hhu.stups.plues.ui.components.ControllerHeader?>
 
+<?import de.hhu.stups.plues.ui.components.UnitDisplayFormatSelection?>
 <fx:root alignment="center" type="GridPane" vgap="10.0" styleClass="windowPadding"
          xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1">
     <columnConstraints>
@@ -19,16 +20,19 @@
         <RowConstraints percentHeight="10.0"/>
         <RowConstraints percentHeight="5.0"/>
         <RowConstraints percentHeight="5.0"/>
-        <RowConstraints percentHeight="75.0"/>
+        <RowConstraints percentHeight="5.0"/>
+        <RowConstraints percentHeight="70.0"/>
     </rowConstraints>
     <ControllerHeader fx:id="controllerHeader" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
     <MajorMinorCourseSelection fx:id="courseSelection" GridPane.columnIndex="0"
                                GridPane.halignment="CENTER" GridPane.rowIndex="1"/>
-    <ColorSchemeSelection fx:id="colorSchemeSelection" GridPane.columnIndex="0"
-                          GridPane.halignment="CENTER" GridPane.rowIndex="2"/>
+    <ColorSchemeSelection fx:id="colorSchemeSelection" GridPane.columnIndex="0" GridPane.halignment="CENTER"
+                          GridPane.rowIndex="2"/>
+    <UnitDisplayFormatSelection fx:id="unitDisplayFormatSelection" GridPane.columnIndex="0" GridPane.halignment="CENTER"
+                                GridPane.rowIndex="3"/>
     <Button fx:id="btGenerate" onAction="#btGeneratePressed" prefWidth="300" text="%generate"
-            GridPane.halignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="3"
+            GridPane.halignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="4"
             defaultButton="true"/>
     <ListView fx:id="resultBoxWrapper" id="batchListView" maxWidth="Infinity" maxHeight="Infinity"
-              GridPane.columnIndex="0" GridPane.rowIndex="4" focusTraversable="false"/>
+              GridPane.columnIndex="0" GridPane.rowIndex="5" focusTraversable="false"/>
 </fx:root>

@@ -4,14 +4,13 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.RowConstraints?>
-<fx:root type="javafx.scene.layout.GridPane" alignment="CENTER" xmlns="http://javafx.com/javafx/8"
-         xmlns:fx="http://javafx.com/fxml/1" vgap="10.0">
-    <children>
-        <ComboBox fx:id="cbMajor" maxWidth="Infinity" GridPane.columnIndex="0"
-                  GridPane.rowIndex="0"/>
-        <ComboBox fx:id="cbMinor" maxWidth="Infinity" GridPane.columnIndex="0"
-                  GridPane.rowIndex="1"/>
-    </children>
+
+<fx:root type="GridPane" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+         vgap="10.0">
+    <ComboBox fx:id="cbMajor" maxWidth="Infinity" GridPane.columnIndex="0"
+              GridPane.rowIndex="0"/>
+    <ComboBox fx:id="cbMinor" maxWidth="Infinity" GridPane.columnIndex="0"
+              GridPane.rowIndex="1"/>
     <columnConstraints>
         <ColumnConstraints fx:id="columnConstraints" percentWidth="80.0"/>
     </columnConstraints>

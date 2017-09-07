@@ -11,8 +11,10 @@ import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.ControllerHeader;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
+import de.hhu.stups.plues.ui.components.PdfGenerationSettings;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
+import de.hhu.stups.plues.ui.components.UnitDisplayFormatSelection;
 import de.hhu.stups.plues.ui.components.timetable.TimetableMisc;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
@@ -40,6 +42,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
   private final BooleanProperty solverProperty;
   private final ResultBoxFactory resultBoxFactory;
   private final UiDataService uiDataService;
+  private PdfGenerationSettings pdfGenerationSettings;
 
   @FXML
   @SuppressWarnings("unused")
@@ -56,6 +59,9 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
   @FXML
   @SuppressWarnings("unused")
   private ListView<ResultBox> resultBoxWrapper;
+  @FXML
+  @SuppressWarnings("unused")
+  private UnitDisplayFormatSelection unitDisplayFormatSelection;
 
   /**
    * This view presents a selection of major and minor courses where the user can choose a
@@ -78,9 +84,8 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
     this.delayedSolverService = delayedSolverService;
     this.resultBoxFactory = resultBoxFactory;
     this.uiDataService = uiDataService;
-
     this.solverProperty = new SimpleBooleanProperty(false);
-
+    this.pdfGenerationSettings = new PdfGenerationSettings(null,null);
     inflater.inflate("Musterstudienplaene", this, this, "musterstudienplaene");
   }
 
@@ -88,7 +93,11 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
   public final void initialize(final URL location, final ResourceBundle resources) {
     colorSchemeSelection.defaultInitialization();
     colorSchemeSelection.disableProperty().bind(courseSelection
-        .getMajorComboBox().disabledProperty());
+      .getMajorComboBox().disabledProperty());
+
+    pdfGenerationSettings.colorSchemeProperty().bind(colorSchemeSelection.selectedColorScheme());
+    pdfGenerationSettings.unitDisplayFormatProperty()
+      .bind(unitDisplayFormatSelection.selectedDisplayFormatProperty());
 
     btGenerate.disableProperty().bind(solverProperty.not());
 
@@ -96,11 +105,11 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
 
     // disable list-view selection
     resultBoxWrapper.getSelectionModel().selectedIndexProperty().addListener(
-        (observable, oldValue, newValue) ->
+      (observable, oldValue, newValue) ->
         Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
 
     delayedStore.whenAvailable(store
-        -> courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors())));
+      -> courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors())));
 
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 
@@ -141,15 +150,15 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
       minorCourse = null;
     }
     final Optional<ResultBox> containsBox = resultBoxWrapper.getItems().stream().filter(
-        resultBox -> majorCourse.equals(resultBox.getMajorCourse())
+      resultBox -> majorCourse.equals(resultBox.getMajorCourse())
         && TimetableMisc.equalCoursesOrNull(minorCourse, resultBox.getMinorCourse()))
-        .findFirst();
+      .findFirst();
     if (containsBox.isPresent()) {
       toTopOfListview(containsBox.get());
       return;
     }
     resultBoxWrapper.getItems().add(0, resultBoxFactory.create(majorCourse, minorCourse,
-        resultBoxWrapper, colorSchemeSelection.selectedColorScheme()));
+      resultBoxWrapper, pdfGenerationSettings));
     resultBoxWrapper.scrollTo(0);
   }
 
