@@ -75,8 +75,8 @@ public class PartialTimeTablesTest extends ApplicationTest {
     sleep(200, TimeUnit.MILLISECONDS);
     assertTrue(scrollPane.isVisible());
     clickOn(courseSelection.getMajorComboBox())
-        .type(KeyCode.DOWN)
-        .type(KeyCode.ENTER);
+      .type(KeyCode.DOWN)
+      .type(KeyCode.ENTER);
     assertFalse(scrollPane.isVisible());
     Platform.runLater(() -> partialTimeTables.btChoosePressed());
     sleep(200, TimeUnit.MILLISECONDS);
@@ -136,8 +136,8 @@ public class PartialTimeTablesTest extends ApplicationTest {
     assertTrue(btCancel.isVisible());
 
     clickOn(courseSelection.getMajorComboBox())
-        .type(KeyCode.DOWN)
-        .type(KeyCode.ENTER);
+      .type(KeyCode.DOWN)
+      .type(KeyCode.ENTER);
     assertFalse(btGenerate.isVisible());
     assertFalse(btShow.isVisible());
     assertFalse(btSave.isVisible());
@@ -195,7 +195,7 @@ public class PartialTimeTablesTest extends ApplicationTest {
     delayedStore.set(store);
 
     final UiDataService uiDataService = new UiDataService(delayedSolverService, delayedStore,
-        executorService);
+      executorService);
 
     final Module majorModule = new Module();
     majorModule.setTitle("Major Module");
@@ -212,26 +212,27 @@ public class PartialTimeTablesTest extends ApplicationTest {
 
     courseSelection = new MajorMinorCourseSelection(inflater);
     Platform.runLater(() -> courseSelection.setMajorCourseList(FXCollections.observableArrayList(
-        Arrays.asList(UiTestDataCreator.getMockedMajorCourse(modules),
-            UiTestDataCreator.getMockedMajorCourse(modules)))));
+      Arrays.asList(UiTestDataCreator.getMockedMajorCourse(modules),
+        UiTestDataCreator.getMockedMajorCourse(modules)))));
 
     final CheckBoxGroupFactory checkBoxGroupFactory = mock(CheckBoxGroupFactory.class);
     when(checkBoxGroupFactory.create(any(), any()))
-        .thenAnswer(invocation -> new CheckBoxGroup(inflater, courseSelection.getSelectedMajor(),
-            majorModule));
+      .thenAnswer(invocation -> new CheckBoxGroup(inflater, courseSelection.getSelectedMajor(),
+        majorModule));
 
     final PdfRenderingService pdfRenderingService = mock(PdfRenderingService.class);
     doAnswer(invocation ->
-        executorService.submit((PdfRenderingTask)invocation.getArgument(0)))
+      executorService.submit((PdfRenderingTask) invocation.getArgument(0)))
       .when(pdfRenderingService).submit(any());
     when(pdfRenderingService.getTask(any(), any(), any()))
       .thenReturn(UiTestDataCreator.getWaitingPdfRenderingTask());
-    when(pdfRenderingService.colorSchemeProperty()).thenReturn(new SimpleObjectProperty<>());
+    when(pdfRenderingService.pdfGenerationSettingsProperty())
+      .thenReturn(new SimpleObjectProperty<>());
     when(pdfRenderingService.availableProperty())
       .thenReturn(new SimpleBooleanProperty(true));
 
     partialTimeTables = new PartialTimeTables(inflater, uiDataService, delayedStore,
-        pdfRenderingService, checkBoxGroupFactory);
+      pdfRenderingService, checkBoxGroupFactory);
 
     final Scene scene = new Scene(partialTimeTables, 400, 500);
 

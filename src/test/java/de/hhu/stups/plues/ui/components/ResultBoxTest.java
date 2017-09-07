@@ -16,7 +16,6 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Scene;
@@ -107,17 +106,17 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
     final PdfRenderingService pdfRenderingService = mock(PdfRenderingService.class);
     doAnswer(invocation ->
-      Executors.newSingleThreadExecutor().submit((PdfRenderingTask)invocation.getArgument(0)))
+      Executors.newSingleThreadExecutor().submit((PdfRenderingTask) invocation.getArgument(0)))
       .when(pdfRenderingService).submit(any());
     when(pdfRenderingService.getTask(any())).thenReturn(task);
-    when(pdfRenderingService.colorSchemeProperty()).thenReturn(mock(ObjectProperty.class));
+    when(pdfRenderingService.pdfGenerationSettingsProperty()).thenReturn(mock(ObjectProperty.class));
     when(pdfRenderingService.availableProperty())
       .thenReturn(new SimpleBooleanProperty(true));
 
     final ResultBox resultBox = new ResultBox(
-        inflater, new Router(), pdfRenderingService,
-        major, minor, new ListView<>(),
-        new SimpleObjectProperty<>(UiTestDataCreator.getColorScheme()));
+      inflater, new Router(), pdfRenderingService,
+      major, minor, new ListView<>(),
+      new PdfGenerationSettings(UiTestDataCreator.getColorScheme(), UnitDisplayFormat.TITLE));
 
     final Scene scene = new Scene(resultBox, 200, 200);
     stage.setScene(scene);
