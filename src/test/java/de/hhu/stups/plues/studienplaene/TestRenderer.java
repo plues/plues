@@ -31,8 +31,8 @@ public class TestRenderer extends TestBase {
   @Test
   public void testItWorksForColor() throws RenderingException, IOException {
     final Renderer renderer =
-      new Renderer(store, result, course,
-        new PdfGenerationSettings(UiTestDataCreator.getColorScheme(), UnitDisplayFormat.TITLE));
+        new Renderer(store, result, course,
+            new PdfGenerationSettings(UiTestDataCreator.getColorScheme(), UnitDisplayFormat.TITLE));
     final ByteArrayOutputStream result = renderer.getResult();
 
     final File pdf = File.createTempFile("color", ".pdf");
@@ -46,7 +46,7 @@ public class TestRenderer extends TestBase {
   public void testItWorksForGrayscale() throws RenderingException, IOException {
     final ColorScheme colorScheme = new ColorScheme("", ColorChoice.GRAYSCALE, new HashSet<>());
     final Renderer renderer = new Renderer(store, result, course,
-      new PdfGenerationSettings(colorScheme, UnitDisplayFormat.TITLE));
+        new PdfGenerationSettings(colorScheme, UnitDisplayFormat.TITLE));
     final ByteArrayOutputStream result = renderer.getResult();
 
     final File pdf = File.createTempFile("gray", ".pdf");

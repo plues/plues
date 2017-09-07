@@ -129,7 +129,7 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     this.pdf = new SimpleObjectProperty<>();
     currentTaskProperty = new SimpleObjectProperty<>();
     pdfGenerationSettingsProperty = new SimpleObjectProperty<>(
-      new PdfGenerationSettings(null, null));
+        new PdfGenerationSettings(null, null));
 
     inflater.inflate("PartialTimeTables", this, this, "musterstudienplaene");
   }
@@ -138,12 +138,12 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   public final void initialize(final URL location, final ResourceBundle resources) {
     colorSchemeSelection.defaultInitialization();
     colorSchemeSelection.disableProperty().bind(courseSelection
-      .getMajorComboBox().disabledProperty());
+        .getMajorComboBox().disabledProperty());
 
     pdfGenerationSettingsProperty.get().colorSchemeProperty()
-      .bind(colorSchemeSelection.selectedColorScheme());
+        .bind(colorSchemeSelection.selectedColorScheme());
     pdfGenerationSettingsProperty.get().unitDisplayFormatProperty()
-      .bind(unitDisplayFormatSelection.selectedDisplayFormatProperty());
+        .bind(unitDisplayFormatSelection.selectedDisplayFormatProperty());
     pdfRenderingService.pdfGenerationSettingsProperty().bind(pdfGenerationSettingsProperty);
     final BooleanBinding selectionBinding = storeProperty.isNull().or(checkRunning);
 
@@ -237,29 +237,29 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     checkRunning.set(true);
 
     final List<CheckBoxGroup> cbgs = modulesUnits.getChildren().stream()
-      .filter(node -> node instanceof CheckBoxGroup)
-      .map(o -> (CheckBoxGroup) o)
-      .peek(cbg -> cbg.setOnSelectionChanged(selectionChanged))
-      .filter(cbg -> !cbg.getSelectedAbstractUnits().isEmpty())
-      .collect(Collectors.toList());
+        .filter(node -> node instanceof CheckBoxGroup)
+        .map(o -> (CheckBoxGroup) o)
+        .peek(cbg -> cbg.setOnSelectionChanged(selectionChanged))
+        .filter(cbg -> !cbg.getSelectedAbstractUnits().isEmpty())
+        .collect(Collectors.toList());
     //
     final Map<Module, List<AbstractUnit>> unitChoice
-      = cbgs.stream().collect(Collectors.toMap(
-      CheckBoxGroup::getModule,
-      CheckBoxGroup::getSelectedAbstractUnits));
+        = cbgs.stream().collect(Collectors.toMap(
+        CheckBoxGroup::getModule,
+        CheckBoxGroup::getSelectedAbstractUnits));
     //
     final Map<Course, List<Module>> moduleChoice
-      = cbgs.stream()
-      .collect(Collectors.groupingBy(
-        CheckBoxGroup::getCourse,
-        Collectors.mapping(
-          CheckBoxGroup::getModule, Collectors.toList())));
+        = cbgs.stream()
+        .collect(Collectors.groupingBy(
+            CheckBoxGroup::getCourse,
+            Collectors.mapping(
+                CheckBoxGroup::getModule, Collectors.toList())));
 
 
     final CourseSelection selectedCourses
-      = new CourseSelection(courseSelection.getSelectedCourses().toArray(new Course[0]));
+        = new CourseSelection(courseSelection.getSelectedCourses().toArray(new Course[0]));
     final PdfRenderingTask task
-      = pdfRenderingService.getTask(selectedCourses, moduleChoice, unitChoice);
+        = pdfRenderingService.getTask(selectedCourses, moduleChoice, unitChoice);
     wireUpTask(task);
     pdfRenderingService.submit(task);
   }

@@ -47,11 +47,12 @@ public class TestHalfSemester extends TestBase {
 
 
     final FeasibilityResult result =
-      new FeasibilityResult(moduleChoice, abstractUnitChoice, semesterChoice, groupChoice);
+        new FeasibilityResult(moduleChoice, abstractUnitChoice, semesterChoice, groupChoice);
 
     final DataPreparatory data = new DataPreparatory(store, result);
     final DataStoreWrapper wrap = new DataStoreWrapper(
-      new PdfGenerationSettings(UiTestDataCreator.getColorScheme(), UnitDisplayFormat.TITLE), data);
+        new PdfGenerationSettings(UiTestDataCreator.getColorScheme(),
+            UnitDisplayFormat.TITLE), data);
 
     semesters = wrap.getSemesters();
   }

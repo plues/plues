@@ -28,7 +28,7 @@ public class PdfRenderingService {
   private final ExecutorService executor;
   private final SimpleBooleanProperty available = new SimpleBooleanProperty(false);
   private final SimpleObjectProperty<PdfGenerationSettings> pdfGenerationSettingsProperty =
-    new SimpleObjectProperty<>();
+      new SimpleObjectProperty<>();
 
   /**
    * xxx.
@@ -61,7 +61,7 @@ public class PdfRenderingService {
     }
     final SolverService solverService = delayedSolverService.get();
     final SolverTask<FeasibilityResult> solverTask
-      = solverService.computeFeasibilityTask(courseSelection.getCourses().toArray(new Course[0]));
+        = solverService.computeFeasibilityTask(courseSelection.getCourses().toArray(new Course[0]));
     return getPdfRenderingTask(courseSelection, solverTask);
   }
 
@@ -85,8 +85,8 @@ public class PdfRenderingService {
     final SolverService solverService = delayedSolverService.get();
     //
     final SolverTask<FeasibilityResult> solverTask
-      = solverService.computePartialFeasibility(courseSelection.getCourses(),
-      moduleChoice, unitChoice);
+        = solverService.computePartialFeasibility(courseSelection.getCourses(),
+        moduleChoice, unitChoice);
     //
     return getPdfRenderingTask(courseSelection, solverTask);
   }
@@ -98,7 +98,8 @@ public class PdfRenderingService {
     if (courseSelection.isCombination()) {
       minor = courseSelection.getMinor();
     }
-    return renderingTaskFactory.create(major, minor, solverTask, this.pdfGenerationSettingsProperty);
+    return renderingTaskFactory.create(major, minor, solverTask,
+        this.pdfGenerationSettingsProperty);
   }
 
   public void submit(final PdfRenderingTask task) {

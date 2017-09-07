@@ -127,7 +127,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     this.generationRunning = new SimpleBooleanProperty(false);
     this.generationSucceeded = new SimpleListProperty<>();
     pdfGenerationSettingsProperty = new SimpleObjectProperty<>(
-      new PdfGenerationSettings(null, null));
+        new PdfGenerationSettings(null, null));
 
     inflater.inflate("BatchTimetableGeneration", this, this, "batchTimetable");
   }
@@ -135,9 +135,9 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     pdfGenerationSettingsProperty.get().colorSchemeProperty()
-      .bind(colorSchemeSelection.selectedColorScheme());
+        .bind(colorSchemeSelection.selectedColorScheme());
     pdfGenerationSettingsProperty.get().unitDisplayFormatProperty()
-      .bind(unitDisplayFormatSelection.selectedDisplayFormatProperty());
+        .bind(unitDisplayFormatSelection.selectedDisplayFormatProperty());
 
     listView.setOnMouseClicked(event -> {
       if (event.getClickCount() == 2) {
@@ -153,7 +153,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     btGenerateAll.disableProperty().bind(solverProperty.not().or(generationRunning));
     colorSchemeSelection.disableProperty().bind(solverProperty.not().or(generationRunning));
     btCancel.disableProperty().bind(
-      solverProperty.not().or(btGenerateAll.disabledProperty().not()));
+        solverProperty.not().or(btGenerateAll.disabledProperty().not()));
 
     btSaveToZip.disableProperty().bind(generationSucceeded.emptyProperty());
     btSaveToFolder.disableProperty().bind(generationSucceeded.emptyProperty());
@@ -238,8 +238,8 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   private List<PdfRenderingTask> getSuccessfulTasks(final Collection<PdfRenderingTask> tasks) {
     return tasks.stream()
-      .filter(pdfRenderingTask -> pdfRenderingTask.getState() == Worker.State.SUCCEEDED)
-      .collect(Collectors.toList());
+        .filter(pdfRenderingTask -> pdfRenderingTask.getState() == Worker.State.SUCCEEDED)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -269,7 +269,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     fileChooser.setTitle("Choose the zip file's location");
 
     final FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
-      "zip-Archive (*.zip)", "*.zip");
+        "zip-Archive (*.zip)", "*.zip");
     fileChooser.getExtensionFilters().add(extFilter);
 
     final File selectedFile = fileChooser.showSaveDialog(null);
@@ -315,7 +315,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   @SuppressWarnings("unused")
   public void printBatchResults() {
     PdfRenderingHelper.writeJtwigTemplateToPdfFile(getJtwigModel(),
-      "/batchgeneration/templates/BatchGenerationTemplate.twig", "all_courses_checked");
+        "/batchgeneration/templates/BatchGenerationTemplate.twig", "all_courses_checked");
   }
 
   private JtwigModel getJtwigModel() {
@@ -326,9 +326,9 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     final String formattedDate = date.format(formatter);
 
     return JtwigModel.newModel()
-      .with("date", formattedDate)
-      .with("batchResultBoxes", listView.getItems())
-      .with("logo", logo);
+        .with("date", formattedDate)
+        .with("batchResultBoxes", listView.getItems())
+        .with("logo", logo);
   }
 
   /**
@@ -342,13 +342,13 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       this.generationSucceeded.forEach(task -> addEntryToZip(zipOutputStream, task));
     } catch (final IOException exception) {
       logger.error("Could not save the zip archive to the selected location.",
-        exception);
+          exception);
     }
   }
 
   private void addEntryToZip(final ZipOutputStream zipOutputStream, final PdfRenderingTask task) {
     final String fileName = PdfRenderingHelper.getDocumentName(
-      task.getMajor(), task.getMinor());
+        task.getMajor(), task.getMinor());
 
     final Path source = task.getValue();
 

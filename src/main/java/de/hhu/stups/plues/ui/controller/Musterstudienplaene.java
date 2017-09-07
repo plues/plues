@@ -85,7 +85,7 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
     this.resultBoxFactory = resultBoxFactory;
     this.uiDataService = uiDataService;
     this.solverProperty = new SimpleBooleanProperty(false);
-    this.pdfGenerationSettings = new PdfGenerationSettings(null,null);
+    this.pdfGenerationSettings = new PdfGenerationSettings(null, null);
     inflater.inflate("Musterstudienplaene", this, this, "musterstudienplaene");
   }
 
@@ -93,11 +93,11 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
   public final void initialize(final URL location, final ResourceBundle resources) {
     colorSchemeSelection.defaultInitialization();
     colorSchemeSelection.disableProperty().bind(courseSelection
-      .getMajorComboBox().disabledProperty());
+        .getMajorComboBox().disabledProperty());
 
     pdfGenerationSettings.colorSchemeProperty().bind(colorSchemeSelection.selectedColorScheme());
     pdfGenerationSettings.unitDisplayFormatProperty()
-      .bind(unitDisplayFormatSelection.selectedDisplayFormatProperty());
+        .bind(unitDisplayFormatSelection.selectedDisplayFormatProperty());
 
     btGenerate.disableProperty().bind(solverProperty.not());
 
@@ -105,11 +105,11 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
 
     // disable list-view selection
     resultBoxWrapper.getSelectionModel().selectedIndexProperty().addListener(
-      (observable, oldValue, newValue) ->
-        Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
+        (observable, oldValue, newValue) ->
+            Platform.runLater(() -> resultBoxWrapper.getSelectionModel().select(-1)));
 
     delayedStore.whenAvailable(store
-      -> courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors())));
+        -> courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors())));
 
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 
@@ -150,15 +150,15 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
       minorCourse = null;
     }
     final Optional<ResultBox> containsBox = resultBoxWrapper.getItems().stream().filter(
-      resultBox -> majorCourse.equals(resultBox.getMajorCourse())
-        && TimetableMisc.equalCoursesOrNull(minorCourse, resultBox.getMinorCourse()))
-      .findFirst();
+        resultBox -> majorCourse.equals(resultBox.getMajorCourse())
+            && TimetableMisc.equalCoursesOrNull(minorCourse, resultBox.getMinorCourse()))
+        .findFirst();
     if (containsBox.isPresent()) {
       toTopOfListview(containsBox.get());
       return;
     }
     resultBoxWrapper.getItems().add(0, resultBoxFactory.create(majorCourse, minorCourse,
-      resultBoxWrapper, pdfGenerationSettings));
+        resultBoxWrapper, pdfGenerationSettings));
     resultBoxWrapper.scrollTo(0);
   }
 

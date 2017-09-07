@@ -70,8 +70,8 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     assertTrue(resultBoxWrapper.isVisible());
     assertEquals(1, resultBoxWrapper.getItems().size());
     clickOn(courseSelection.getMajorComboBox())
-      .type(KeyCode.DOWN)
-      .type(KeyCode.ENTER);
+        .type(KeyCode.DOWN)
+        .type(KeyCode.ENTER);
     clickOn(musterstudienplaene.getBtGenerate());
     assertTrue(resultBoxWrapper.isVisible());
     assertEquals(2, resultBoxWrapper.getItems().size());
@@ -88,8 +88,8 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     assertTrue(resultBoxWrapper.isVisible());
     assertEquals(1, resultBoxWrapper.getItems().size());
     clickOn(courseSelection.getMajorComboBox())
-      .type(KeyCode.DOWN)
-      .type(KeyCode.ENTER);
+        .type(KeyCode.DOWN)
+        .type(KeyCode.ENTER);
     clickOn(musterstudienplaene.getBtGenerate());
     assertTrue(resultBoxWrapper.isVisible());
     assertEquals(2, resultBoxWrapper.getItems().size());
@@ -97,8 +97,8 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     assertTrue(resultBoxWrapper.isVisible());
     assertEquals(2, resultBoxWrapper.getItems().size());
     clickOn(courseSelection.getMajorComboBox())
-      .type(KeyCode.DOWN)
-      .type(KeyCode.ENTER);
+        .type(KeyCode.DOWN)
+        .type(KeyCode.ENTER);
     clickOn(musterstudienplaene.getBtGenerate());
     assertTrue(resultBoxWrapper.isVisible());
     assertEquals(3, resultBoxWrapper.getItems().size());
@@ -109,22 +109,22 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     assertFalse(resultBoxWrapper.isVisible());
     clickOn(musterstudienplaene.getBtGenerate());
     clickOn(courseSelection.getMajorComboBox())
-      .type(KeyCode.DOWN)
-      .type(KeyCode.ENTER);
+        .type(KeyCode.DOWN)
+        .type(KeyCode.ENTER);
     clickOn(musterstudienplaene.getBtGenerate());
     sleep(500, TimeUnit.MILLISECONDS);
     assertEquals(2, resultBoxWrapper.getItems().size());
     assertTrue(resultBoxWrapper.isVisible());
     final ResultBox existingResultBox = resultBoxWrapper.getItems().get(1);
     clickOn(courseSelection.getMajorComboBox())
-      .type(KeyCode.UP)
-      .type(KeyCode.ENTER);
+        .type(KeyCode.UP)
+        .type(KeyCode.ENTER);
     clickOn(musterstudienplaene.getBtGenerate());
     sleep(500, TimeUnit.MILLISECONDS);
     assertEquals(existingResultBox, resultBoxWrapper.getItems().get(0));
     clickOn(courseSelection.getMajorComboBox())
-      .type(KeyCode.DOWN)
-      .type(KeyCode.ENTER);
+        .type(KeyCode.DOWN)
+        .type(KeyCode.ENTER);
     clickOn(musterstudienplaene.getBtGenerate());
     sleep(500, TimeUnit.MILLISECONDS);
     assertEquals(existingResultBox, resultBoxWrapper.getItems().get(1));
@@ -163,7 +163,7 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     delayedStore.set(store);
 
     final UiDataService uiDataService = new UiDataService(delayedSolverService, delayedStore,
-      executorService);
+        executorService);
 
     final Router router = new Router();
 
@@ -172,26 +172,27 @@ public class MusterstudienplaeneTest extends ApplicationTest {
 
     final PdfRenderingService pdfRenderingService = mock(PdfRenderingService.class);
     doAnswer(invocation ->
-      executorService.submit((PdfRenderingTask) invocation.getArgument(0)))
-      .when(pdfRenderingService).submit(any());
+        executorService.submit((PdfRenderingTask) invocation.getArgument(0)))
+        .when(pdfRenderingService).submit(any());
     when(pdfRenderingService.getTask(any()))
-      .thenReturn(UiTestDataCreator.getWaitingPdfRenderingTask());
+        .thenReturn(UiTestDataCreator.getWaitingPdfRenderingTask());
     when(pdfRenderingService.pdfGenerationSettingsProperty())
-      .thenReturn(new SimpleObjectProperty<>());
+        .thenReturn(new SimpleObjectProperty<>());
     when(pdfRenderingService.availableProperty())
-      .thenReturn(new SimpleBooleanProperty(true));
+        .thenReturn(new SimpleBooleanProperty(true));
 
     final ResultBoxFactory resultBoxFactory = mock(ResultBoxFactory.class);
     when(resultBoxFactory.create(any(), any(), any(), any()))
-      .thenAnswer(invocation ->
-        new ResultBox(inflater, router, pdfRenderingService,
-          courseSelection.getSelectedMajor(),
-          courseSelection.getSelectedMinor(),
-          resultBoxWrapper,
-          new PdfGenerationSettings(UiTestDataCreator.getColorScheme(), UnitDisplayFormat.TITLE)));
+        .thenAnswer(invocation ->
+            new ResultBox(inflater, router, pdfRenderingService,
+                courseSelection.getSelectedMajor(),
+                courseSelection.getSelectedMinor(),
+                resultBoxWrapper,
+                new PdfGenerationSettings(UiTestDataCreator.getColorScheme(),
+                    UnitDisplayFormat.TITLE)));
 
     musterstudienplaene = new Musterstudienplaene(inflater, delayedStore, delayedSolverService,
-      uiDataService, resultBoxFactory);
+        uiDataService, resultBoxFactory);
     resultBoxWrapper = musterstudienplaene.getResultBoxWrapper();
 
     final Scene scene = new Scene(musterstudienplaene, 400, 500);

@@ -45,9 +45,9 @@ public class Renderer {
   }
 
   Renderer(final Store store,
-                  final FeasibilityResult feasibilityResult,
-                  final Course major,
-                  final PdfGenerationSettings pdfGenerationSettings) {
+           final FeasibilityResult feasibilityResult,
+           final Course major,
+           final PdfGenerationSettings pdfGenerationSettings) {
     setup(store, feasibilityResult, major, null, pdfGenerationSettings);
   }
 

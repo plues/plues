@@ -1,7 +1,9 @@
 package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
+
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
@@ -29,16 +31,20 @@ public class UnitDisplayFormatSelection extends GridPane implements Initializabl
   @SuppressWarnings("unused")
   private ColumnConstraints columnConstraints;
 
+  /**
+   * Initialize property and inflate the layout.
+   */
   @Inject
   public UnitDisplayFormatSelection(final Inflater inflater) {
     selectedDisplayFormatProperty = new SimpleObjectProperty<>();
-    inflater.inflate("components/UnitDisplayFormatSelection", this, this, "unitDisplayFormatSelection");
+    inflater.inflate("components/UnitDisplayFormatSelection", this, this,
+        "unitDisplayFormatSelection");
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
     selectedDisplayFormatProperty
-      .bind(cbPdfUnitDisplayFormat.getSelectionModel().selectedItemProperty());
+        .bind(cbPdfUnitDisplayFormat.getSelectionModel().selectedItemProperty());
     cbPdfUnitDisplayFormat.setConverter(new StringConverter<UnitDisplayFormat>() {
       @Override
       public String toString(final UnitDisplayFormat unitDisplayFormat) {
