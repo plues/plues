@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+
+<fx:root type="GridPane" alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <HBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="10.0">
+        <Label text="%pdfUnitDisplayFormat"/>
+        <ComboBox fx:id="cbPdfUnitDisplayFormat" prefWidth="200.0"/>
+    </HBox>
+    <columnConstraints>
+        <ColumnConstraints fx:id="columnConstraints" percentWidth="80.0"/>
+    </columnConstraints>
+</fx:root>
