@@ -26,6 +26,7 @@ import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
 import de.hhu.stups.plues.ui.components.UnitDisplayFormat;
+import de.hhu.stups.plues.ui.components.UnitDisplayFormatSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
@@ -146,6 +147,8 @@ public class MusterstudienplaeneTest extends ApplicationTest {
         return () -> new ControllerHeader(new Inflater(new FXMLLoader()));
       } else if (type.equals(ColorSchemeSelection.class)) {
         return () -> new ColorSchemeSelection(new Inflater(new FXMLLoader()));
+      } else if (type.equals(UnitDisplayFormatSelection.class)) {
+        return () -> new UnitDisplayFormatSelection(new Inflater(new FXMLLoader()));
       } else if (type.equals(MajorMinorCourseSelection.class)) {
         return () -> courseSelection;
       }
