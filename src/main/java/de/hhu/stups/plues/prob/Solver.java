@@ -39,8 +39,8 @@ public interface Solver {
    * @param courses            List of course keys as String
    * @param moduleChoice       map of course key to a set of module IDs already completed in that
    *                           course.
-   * @param abstractUnitChoice List of abstract unit IDs already compleated
-   * @return FeasiblityResult
+   * @param abstractUnitChoice List of abstract unit IDs already completed
+   * @return {@link FeasibilityResult}
    * @throws SolverException if no result could be found or the solver did not exit cleanly (e.g.
    *                         interrupt)
    */
