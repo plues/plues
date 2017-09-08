@@ -152,6 +152,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
     btGenerateAll.disableProperty().bind(solverProperty.not().or(generationRunning));
     colorSchemeSelection.disableProperty().bind(solverProperty.not().or(generationRunning));
+    unitDisplayFormatSelection.disableProperty().bind(solverProperty.not().or(generationRunning));
     btCancel.disableProperty().bind(
         solverProperty.not().or(btGenerateAll.disabledProperty().not()));
 
