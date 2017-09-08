@@ -66,21 +66,33 @@
             <graphic>
                 <FontAwesomeIconView glyphName="CLOCK_ALT" size="14"/>
             </graphic>
+            <fx:define>
+                <ToggleGroup fx:id="timeoutToggleGroup"/>
+            </fx:define>
             <RadioMenuItem fx:id="fifteenSecondsMenuItem" text="%timeout.fifteenSeconds"
-                           disable="true" selected="true" mnemonicParsing="false"
-                           onAction="#setTimeoutFifteenSeconds"/>
+                           disable="true" mnemonicParsing="false"
+                           toggleGroup="$timeoutToggleGroup"
+                           onAction="#setTimeout" userData="15"/>
             <RadioMenuItem fx:id="oneMinuteMenuItem" text="%timeout.oneMinute" disable="true"
-                           selected="true" mnemonicParsing="false"
-                           onAction="#setTimeoutOneMinute"/>
+                           mnemonicParsing="false"
+                           toggleGroup="$timeoutToggleGroup"
+                           onAction="#setTimeout" userData="60"/>
+            <RadioMenuItem fx:id="twoMinutesMenuItem" text="%timeout.twoMinutes" disable="true"
+                           mnemonicParsing="false"
+                           toggleGroup="$timeoutToggleGroup"
+                           onAction="#setTimeout" userData="120"/>
             <RadioMenuItem fx:id="threeMinutesMenuItem" text="%timeout.threeMinutes"
                            disable="true" mnemonicParsing="false"
-                           onAction="#setTimeoutThreeMinutes"/>
+                           toggleGroup="$timeoutToggleGroup"
+                           onAction="#setTimeout" userData="180"/>
             <RadioMenuItem fx:id="fiveMinutesMenuItem" text="%timeout.fiveMinutes"
                            disable="true" mnemonicParsing="false"
-                           onAction="#setTimeoutFiveMinutes"/>
+                           toggleGroup="$timeoutToggleGroup"
+                           onAction="#setTimeout" userData="300"/>
             <RadioMenuItem fx:id="twentyMinutesMenuItem" text="%timeout.twentyMinutes"
                            disable="true" mnemonicParsing="false"
-                           onAction="#setTimeoutTwentyMinutes"/>
+                           toggleGroup="$timeoutToggleGroup"
+                           onAction="#setTimeout" userData="1200"/>
             <MenuItem fx:id="setTimeoutMenuItem" text="%timeout.Title" disable="true"
                       mnemonicParsing="false" onAction="#setTimeoutCustom"/>
         </Menu>

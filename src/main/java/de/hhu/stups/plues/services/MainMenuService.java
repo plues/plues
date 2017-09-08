@@ -5,10 +5,10 @@ import com.google.inject.Singleton;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.ObservableStore;
+import de.hhu.stups.plues.injector.Timeout;
 import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.tasks.StoreLoaderTaskFactory;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
-
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -16,7 +16,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +33,7 @@ public class MainMenuService {
   private final DoubleProperty storeLoaderProgressProperty;
   private final StoreLoaderTaskFactory storeLoaderTaskFactory;
   private final HistoryManager historyManager;
+  private int timeout;
 
   /**
    * Constructor of the service between the main controller and the menu bar. Mainly just
@@ -45,12 +45,14 @@ public class MainMenuService {
                          final UiDataService uiDataService,
                          final StoreLoaderTaskFactory storeLoaderTaskFactory,
                          final Stage stage,
-                         final HistoryManager historyManager) {
+                         final HistoryManager historyManager,
+                         @Timeout final int timeout) {
     this.delayedSolverService = delayedSolverService;
     this.delayedStore = delayedStore;
     this.storeLoaderTaskFactory = storeLoaderTaskFactory;
     this.stage = stage;
     this.historyManager = historyManager;
+    this.timeout = timeout;
     databaseChangedProperty = new SimpleBooleanProperty(false);
     storeLoaderProgressProperty = new SimpleDoubleProperty(0.0);
 
@@ -60,6 +62,22 @@ public class MainMenuService {
     // reset unsaved flag.
     uiDataService.lastSavedDateProperty().addListener(
         (observable, oldValue, newValue) -> databaseChangedProperty.setValue(false));
+  }
+
+  public int getTimeout() {
+    return timeout;
+  }
+
+  /**
+   * Set the timeout in the solver service to the provided value.
+   * @param timeout int
+   */
+  public void setTimeout(final int timeout) {
+    this.timeout = timeout;
+    this.getDelayedSolverService().whenAvailable(solverService -> {
+      solverService.setTimeout(timeout);
+      logger.info("Timeout set to " + timeout + " seconds");
+    });
   }
 
   /**

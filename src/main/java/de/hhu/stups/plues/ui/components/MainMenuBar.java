@@ -17,7 +17,6 @@ import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -40,7 +39,6 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
-
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,10 +81,12 @@ public class MainMenuBar extends MenuBar implements Initializable {
   private final SolverLoaderImpl solverLoader;
   private final ExecutorService executor;
   private final Preferences userPreferences;
-  private final ToggleGroup timeoutPreferenceToggle = new ToggleGroup();
   @FXML
   @SuppressWarnings("unused")
   private ToggleGroup sessionPreferenceToggle;
+  @FXML
+  @SuppressWarnings("unused")
+  private ToggleGroup timeoutToggleGroup;
   private final Properties properties;
   private final Router router;
   private final MainMenuService mainMenuService;
@@ -131,21 +131,6 @@ public class MainMenuBar extends MenuBar implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private MenuItem aboutMenuItem;
-  @FXML
-  @SuppressWarnings("unused")
-  private RadioMenuItem fifteenSecondsMenuItem;
-  @FXML
-  @SuppressWarnings("unused")
-  private RadioMenuItem oneMinuteMenuItem;
-  @FXML
-  @SuppressWarnings("unused")
-  private RadioMenuItem threeMinutesMenuItem;
-  @FXML
-  @SuppressWarnings("unused")
-  private RadioMenuItem fiveMinutesMenuItem;
-  @FXML
-  @SuppressWarnings("unused")
-  private RadioMenuItem twentyMinutesMenuItem;
 
   /**
    * Constructor of the main menu bar.
@@ -192,11 +177,15 @@ public class MainMenuBar extends MenuBar implements Initializable {
     mainMenuService.getDelayedSolverService().whenAvailable(solverService -> {
       openReportsMenuItem.setDisable(false);
       setTimeoutMenuItem.setDisable(false);
-      fifteenSecondsMenuItem.setDisable(false);
-      oneMinuteMenuItem.setDisable(false);
-      threeMinutesMenuItem.setDisable(false);
-      fiveMinutesMenuItem.setDisable(false);
-      twentyMinutesMenuItem.setDisable(false);
+      //
+      timeoutToggleGroup.getToggles().forEach(toggle -> {
+        final RadioMenuItem t = ((RadioMenuItem) toggle);
+        t.setDisable(false);
+        final int timeout = Integer.parseInt(t.getUserData().toString());
+        if (mainMenuService.getTimeout() == timeout) {
+          t.setSelected(true);
+        }
+      });
     });
 
     mainMenuService.getDelayedStore().whenAvailable(observableStore -> {
@@ -253,11 +242,12 @@ public class MainMenuBar extends MenuBar implements Initializable {
     uiDataService.setSessionDisplayFormatProperty(userFormat);
 
 
-    fifteenSecondsMenuItem.setToggleGroup(timeoutPreferenceToggle);
-    oneMinuteMenuItem.setToggleGroup(timeoutPreferenceToggle);
-    threeMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
-    fiveMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
-    twentyMinutesMenuItem.setToggleGroup(timeoutPreferenceToggle);
+    sessionPreferenceToggle.getToggles().stream().filter(toggle -> {
+      final SessionDisplayFormat toggleValue
+          = SessionDisplayFormat.valueOf(toggle.getUserData().toString());
+      return userFormat == toggleValue;
+    }).findFirst().ifPresent(toggle -> toggle.setSelected(true));
+    sessionPreferenceToggle.selectedToggleProperty().addListener(this::updateSessionDisplayFormat);
   }
 
   private void initializeCustomTimeoutMenuItem() {
@@ -265,13 +255,13 @@ public class MainMenuBar extends MenuBar implements Initializable {
       return;
     }
     customTimeoutItem = new RadioMenuItem();
-    customTimeoutItem.setToggleGroup(timeoutPreferenceToggle);
+    customTimeoutItem.setToggleGroup(timeoutToggleGroup);
 
     final int lastButOne = selectTimeoutMenu.getItems().size() - 1;
     selectTimeoutMenu.getItems().add(lastButOne, customTimeoutItem);
 
     customTimeoutItem.addEventHandler(MouseEvent.MOUSE_CLICKED, event ->
-        setTimeout(customTimeoutProperty.get()));
+        mainMenuService.setTimeout(customTimeoutProperty.get()));
 
     customTimeoutProperty.addListener((observable, oldValue, newValue) -> {
       customTimeoutItem.setText(String.format(resources.getString("timeout.custom"), newValue));
@@ -478,39 +468,19 @@ public class MainMenuBar extends MenuBar implements Initializable {
     router.transitionTo(RouteNames.CHANGELOG, resources.getString("logTitle"));
   }
 
+  /**
+   * Event handler for timeout proferences in menu bar.
+   * @param event ActionEvent
+   */
   @FXML
   @SuppressWarnings("unused")
-  private void setTimeoutFifteenSeconds() {
-    fifteenSecondsMenuItem.setSelected(true);
-    setTimeout(15);
-  }
-
-  @FXML
-  @SuppressWarnings("unused")
-  private void setTimeoutOneMinute() {
-    oneMinuteMenuItem.setSelected(true);
-    setTimeout(60);
-  }
-
-  @FXML
-  @SuppressWarnings("unused")
-  private void setTimeoutThreeMinutes() {
-    threeMinutesMenuItem.setSelected(true);
-    setTimeout(180);
-  }
-
-  @FXML
-  @SuppressWarnings("unused")
-  private void setTimeoutFiveMinutes() {
-    fiveMinutesMenuItem.setSelected(true);
-    setTimeout(300);
-  }
-
-  @FXML
-  @SuppressWarnings("unused")
-  private void setTimeoutTwentyMinutes() {
-    twentyMinutesMenuItem.setSelected(true);
-    setTimeout(1200);
+  private void setTimeout(final ActionEvent event) {
+    final RadioMenuItem item = (RadioMenuItem) event.getSource();
+    item.setSelected(true);
+    //
+    final int timeout = Integer.parseInt(item.getUserData().toString());
+    //
+    mainMenuService.setTimeout(timeout);
   }
 
   @FXML
@@ -528,7 +498,7 @@ public class MainMenuBar extends MenuBar implements Initializable {
         try {
           initializeCustomTimeoutMenuItem();
           final int timeoutValue = Double.valueOf(timeout).intValue();
-          setTimeout(timeoutValue);
+          mainMenuService.setTimeout(timeoutValue);
           customTimeoutProperty.setValue(timeoutValue);
         } catch (final NumberFormatException exception) {
           logger.error("Incorrect input: " + timeout);
@@ -595,18 +565,6 @@ public class MainMenuBar extends MenuBar implements Initializable {
 
     this.openFileMenuItem.setDisable(true);
     executor.submit(storeLoader);
-  }
-
-  /**
-   * Set timeout for solver tasks.
-   *
-   * @param timeout New timeout
-   */
-  private void setTimeout(final int timeout) {
-    mainMenuService.getDelayedSolverService().whenAvailable(solverService -> {
-      solverService.setTimeout(timeout);
-      logger.info("Timeout set to " + timeout + " seconds");
-    });
   }
 
   private class ExportXmlTask extends Task<Void> {
