@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.tasks;
 
+import static com.jayway.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -156,7 +157,7 @@ public class SolverTaskTest extends ApplicationTest {
   }
 
   @Test
-  public void testTaskTimeout() throws InterruptedException {
+  public void testTaskTimeout() throws Exception {
     // don't run this test on travis since it is non-deterministic whereat it should
     // succeed all the time
     Assume.assumeFalse("true".equals(System.getenv("TRAVIS")));
@@ -168,6 +169,8 @@ public class SolverTaskTest extends ApplicationTest {
     final SolverTask<Integer> solverTask
         = new SolverTask<>(TITLE, new TestSolver(), c, 3, TimeUnit.SECONDS);
     executor.submit(solverTask);
+
+    await().atMost(10, TimeUnit.SECONDS).until(solverTask::isCancelled);
 
     try {
       solverTask.get();
@@ -184,7 +187,6 @@ public class SolverTaskTest extends ApplicationTest {
 
       assertEquals(taskProperties.getState(), Worker.State.CANCELLED);
       assertTrue(taskProperties.isCancelled());
-
     }
   }
 

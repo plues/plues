@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -14,7 +15,9 @@ import de.be4.classicalb.core.parser.exceptions.BCompoundException;
 import de.prob.animator.domainobjects.ClassicalB;
 import de.prob.animator.domainobjects.EvalElementType;
 import de.prob.animator.domainobjects.FormulaExpand;
+import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.model.classicalb.ClassicalBModel;
+import de.prob.model.representation.AbstractModel;
 import de.prob.scripting.Api;
 import de.prob.scripting.ModelTranslationError;
 import de.prob.statespace.State;
@@ -41,6 +44,7 @@ public class ProBSolverTest {
   private Trace trace;
   private StateSpace stateSpace;
   private CommandFactory commandFactory;
+  private AbstractModel model;
 
   @Test
   public void unsatCoreModules() throws Exception {
@@ -61,10 +65,11 @@ public class ProBSolverTest {
     final String[] modelReturnValues = new String[] {"{au2, au123}"};
 
     final String op = "unsatCoreAbstractUnits";
-    final String predicate = "uc_modules={1, 99}";
+    final String predicate = "uc_modules={mod2, mod123}";
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
     final Set<Integer> uc = solver.unsatCoreAbstractUnits(Arrays.asList(2, 123));
+
     assertEquals(2, uc.size());
     assertTrue(uc.contains(2));
     assertTrue(uc.contains(123));
@@ -75,7 +80,7 @@ public class ProBSolverTest {
     final String[] modelReturnValues = new String[] {"{group32, group2123}"};
 
     final String op = "unsatCoreGroups";
-    final String predicate = "uc_modules={1, 99}, uc_abstract_units={2, 87}";
+    final String predicate = "uc_modules={mod2, mod87} & uc_abstract_units={au1, au99}";
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
     final Set<Integer> uc = solver.unsatCoreGroups(Arrays.asList(1, 99), Arrays.asList(2, 87));
@@ -89,7 +94,7 @@ public class ProBSolverTest {
     final String[] modelReturnValues = new String[] {"{session77, session1234}"};
 
     final String op = "unsatCoreSessions";
-    final String predicate = "uc_groups={1, 99}";
+    final String predicate = "uc_groups={group1, group99}";
     setupOperationCanBeExecuted(modelReturnValues, op, predicate);
 
     final Set<Integer> uc = solver.unsatCoreSessions(Arrays.asList(1, 99));
@@ -106,20 +111,16 @@ public class ProBSolverTest {
   public void setUp() throws SolverException, IOException, ModelTranslationError {
     this.stateSpace = mock(StateSpace.class);
     this.trace = mock(Trace.class);
+    this.model = mock(ClassicalBModel.class);
+
 
     final Api api = mock(Api.class);
-    final ClassicalBModel model = mock(ClassicalBModel.class);
-    final ClassicalB evalElement = mock(ClassicalB.class);
     final State state = mock(State.class);
-
-    when(evalElement.getKind()).thenReturn(String.valueOf(EvalElementType.PREDICATE));
-
 
     when(api.b_load("model")).thenReturn(stateSpace);
     when(stateSpace.asType(Trace.class)).thenReturn(trace);
 
     when(stateSpace.getModel()).thenReturn(model);
-    when(model.parseFormula(anyString())).thenReturn(evalElement);
 
     when(trace.getCurrentState()).thenReturn(state);
     when(state.getId()).thenReturn("TEST-STATE-ID");
@@ -142,20 +143,28 @@ public class ProBSolverTest {
   @Test
   public void checkFeasibilityFeasibleCourse() throws Exception {
     final String[] t = new String[] {};
+    setupOperationCanBeExecuted(t, "check", "ccss={\"NoFoo\"}");
+    setupOperationCanBeExecuted(t, "check", "ccss={\"NoBar\"}");
     setupOperationCanBeExecuted(t, "check", "ccss={\"NoFoo\", \"NoBar\"}");
-    assertTrue(solver.checkFeasibility("foo", "bar"));
-    final OperationPredicateKey key = new OperationPredicateKey("check", "ccss={\"foo\", \"bar\"}");
+    assertTrue(solver.checkFeasibility("NoFoo", "NoBar"));
+    final OperationPredicateKey key
+        = new OperationPredicateKey("check", "ccss={\"NoFoo\", \"NoBar\"}");
     assertTrue(solver.getOperationExecutionCache().containsKey(key));
   }
 
   @Test(expected = SolverException.class)
   public void checkFeasibilityInfeasibleCourse() throws Exception {
+    setupOperationCanBeExecuted(new String[] {}, "check", "ccss={\"NoFoo\"}");
+    setupOperationCanBeExecuted(new String[] {}, "check", "ccss={\"NoBar\"}");
     setupOperationCannotBeExecuted("check", "ccss={\"NoFoo\", \"NoBar\"}");
+    //
     solver.checkFeasibility("NoFoo", "NoBar");
   }
 
   @Test
   public void checkFeasibilityInfeasibleCourseCache() throws Exception {
+    setupOperationCanBeExecuted(new String[] {},"check", "ccss={\"NoFoo\"}");
+    setupOperationCanBeExecuted(new String[] {},"check", "ccss={\"NoBar\"}");
     setupOperationCannotBeExecuted("check", "ccss={\"NoFoo\", \"NoBar\"}");
     try {
       solver.checkFeasibility("NoFoo", "NoBar");
@@ -299,7 +308,7 @@ public class ProBSolverTest {
     assertTrue(solver.getOperationExecutionCache().isEmpty());
 
     verify(this.commandFactory).create(
-        eq(stateSpace), eq("TEST-STATE-ID"), eq(op), any(ClassicalB.class), eq(1));
+        eq(stateSpace), eq("TEST-STATE-ID"), eq(op), any(IEvalElement.class), eq(1));
 
     verify(stateSpace).execute(any(GetOperationByPredicateCommandDelegate.class));
   }
@@ -331,8 +340,11 @@ public class ProBSolverTest {
     final GetOperationByPredicateCommandDelegate cmd
         = mock(GetOperationByPredicateCommandDelegate.class);
 
+    final IEvalElement evalElement = mock(IEvalElement.class);
+    when(this.model.parseFormula(pred)).thenReturn(evalElement);
+
     when(this.commandFactory.create(
-      eq(stateSpace), anyString(), eq(op), any(ClassicalB.class), eq(1))).thenReturn(cmd);
+      eq(stateSpace), anyString(), eq(op), eq(evalElement), eq(1))).thenReturn(cmd);
 
     when(cmd.hasErrors()).thenReturn(true);
     when(cmd.getErrors()).thenReturn(new ArrayList<>());
@@ -361,8 +373,11 @@ public class ProBSolverTest {
     final GetOperationByPredicateCommandDelegate cmd
         = mock(GetOperationByPredicateCommandDelegate.class);
 
+    final IEvalElement evalElement = mock(IEvalElement.class);
+    when(this.model.parseFormula(eq(predicate))).thenReturn(evalElement);
+
     when(this.commandFactory.create(
-      eq(stateSpace), anyString(), eq(op), any(ClassicalB.class), eq(1))).thenReturn(cmd);
+      eq(stateSpace), anyString(), eq(op), eq(evalElement), eq(1))).thenReturn(cmd);
 
     when(cmd.isCompleted()).thenReturn(true);
     when(cmd.isInterrupted()).thenReturn(false);
