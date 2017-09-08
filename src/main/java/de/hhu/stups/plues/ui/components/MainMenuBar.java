@@ -178,15 +178,9 @@ public class MainMenuBar extends MenuBar implements Initializable {
       openReportsMenuItem.setDisable(false);
       setTimeoutMenuItem.setDisable(false);
       //
-      timeoutToggleGroup.getToggles().forEach(toggle -> {
-        final RadioMenuItem t = ((RadioMenuItem) toggle);
-        t.setDisable(false);
-        final int timeout = Integer.parseInt(t.getUserData().toString());
-        if (mainMenuService.getTimeout() == timeout) {
-          t.setSelected(true);
-        }
-      });
+      this.enableTimeoutToggles();
     });
+
 
     mainMenuService.getDelayedStore().whenAvailable(observableStore -> {
       exportStateMenuItem.setDisable(false);
@@ -198,6 +192,16 @@ public class MainMenuBar extends MenuBar implements Initializable {
     if (this.properties.get(DB_PATH) != null) {
       loadData((String) this.properties.get(DB_PATH));
     }
+  }
+
+  private void enableTimeoutToggles() {
+    timeoutToggleGroup.getToggles().forEach(toggle -> {
+      final RadioMenuItem t = ((RadioMenuItem) toggle);
+      final int timeout = Integer.parseInt(t.getUserData().toString());
+      //
+      t.setDisable(false);
+      t.setSelected(mainMenuService.getTimeout() == timeout);
+    });
   }
 
   private void initializeMenu() {
