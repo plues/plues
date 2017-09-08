@@ -5,7 +5,7 @@ This is the main application component of the
 [PlÜS](https://github.com/plues) built using the [Prob2
 Java API](https://www3.hhu.de/stups/prob/index.php/ProB_Java_API).
 
-**Current Version:** 2.6.0
+**Current Version:** 2.7.0-SNAPSHOT
 
 [![Build Status](https://travis-ci.org/plues/plues.svg?style=flat-square)](https://travis-ci.org/plues/plues)
 [![SonarQube Quality Gate](https://sonarqube.com/api/badges/gate?key=plues:develop)](https://sonarqube.com/dashboard?id=plues%3Adevelop)
