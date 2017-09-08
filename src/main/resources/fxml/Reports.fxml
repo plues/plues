@@ -16,6 +16,7 @@
 <?import de.hhu.stups.plues.ui.components.reports.ModuleAbstractUnitUnitSemesterConflicts?>
 <?import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits?>
 <?import de.hhu.stups.plues.ui.components.reports.UnitsWithoutAbstractUnits?>
+<?import de.hhu.stups.plues.ui.components.reports.GroupsWithConflicts?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Tooltip?>
 
@@ -90,6 +91,9 @@
             </TitledPane>
             <TitledPane text="%title.RedundantUnitGroups" minWidth="0" minHeight="0">
                 <RedundantUnitGroups fx:id="redundantUnitGroups"/>
+            </TitledPane>
+            <TitledPane text="%title.GroupsWithConflicts" minWidth="0" minHeight="0">
+                <GroupsWithConflicts fx:id="groupsWithConflicts"/>
             </TitledPane>
             <TitledPane text="%title.ImpossibleCourseModuleAbstractUnits" minWidth="0"
                         minHeight="0">

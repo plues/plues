@@ -21,9 +21,12 @@ import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.ControllerHeader;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
+import de.hhu.stups.plues.ui.components.PdfGenerationSettings;
 import de.hhu.stups.plues.ui.components.ResultBox;
 import de.hhu.stups.plues.ui.components.ResultBoxFactory;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
+import de.hhu.stups.plues.ui.components.UnitDisplayFormat;
+import de.hhu.stups.plues.ui.components.UnitDisplayFormatSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
@@ -144,6 +147,8 @@ public class MusterstudienplaeneTest extends ApplicationTest {
         return () -> new ControllerHeader(new Inflater(new FXMLLoader()));
       } else if (type.equals(ColorSchemeSelection.class)) {
         return () -> new ColorSchemeSelection(new Inflater(new FXMLLoader()));
+      } else if (type.equals(UnitDisplayFormatSelection.class)) {
+        return () -> new UnitDisplayFormatSelection(new Inflater(new FXMLLoader()));
       } else if (type.equals(MajorMinorCourseSelection.class)) {
         return () -> courseSelection;
       }
@@ -166,19 +171,18 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     final Router router = new Router();
 
     courseSelection = new MajorMinorCourseSelection(inflater);
-    Platform.runLater(() -> {
-      courseSelection.setMajorCourseList(courseList);
-    });
+    Platform.runLater(() -> courseSelection.setMajorCourseList(courseList));
 
     final PdfRenderingService pdfRenderingService = mock(PdfRenderingService.class);
     doAnswer(invocation ->
-      executorService.submit((PdfRenderingTask)invocation.getArgument(0)))
-      .when(pdfRenderingService).submit(any());
+        executorService.submit((PdfRenderingTask) invocation.getArgument(0)))
+        .when(pdfRenderingService).submit(any());
     when(pdfRenderingService.getTask(any()))
-      .thenReturn(UiTestDataCreator.getWaitingPdfRenderingTask());
-    when(pdfRenderingService.colorSchemeProperty()).thenReturn(new SimpleObjectProperty<>());
+        .thenReturn(UiTestDataCreator.getWaitingPdfRenderingTask());
+    when(pdfRenderingService.pdfGenerationSettingsProperty())
+        .thenReturn(new SimpleObjectProperty<>());
     when(pdfRenderingService.availableProperty())
-      .thenReturn(new SimpleBooleanProperty(true));
+        .thenReturn(new SimpleBooleanProperty(true));
 
     final ResultBoxFactory resultBoxFactory = mock(ResultBoxFactory.class);
     when(resultBoxFactory.create(any(), any(), any(), any()))
@@ -186,7 +190,9 @@ public class MusterstudienplaeneTest extends ApplicationTest {
             new ResultBox(inflater, router, pdfRenderingService,
                 courseSelection.getSelectedMajor(),
                 courseSelection.getSelectedMinor(),
-                resultBoxWrapper, new SimpleObjectProperty<>(UiTestDataCreator.getColorScheme())));
+                resultBoxWrapper,
+                new PdfGenerationSettings(UiTestDataCreator.getColorScheme(),
+                    UnitDisplayFormat.TITLE)));
 
     musterstudienplaene = new Musterstudienplaene(inflater, delayedStore, delayedSolverService,
         uiDataService, resultBoxFactory);

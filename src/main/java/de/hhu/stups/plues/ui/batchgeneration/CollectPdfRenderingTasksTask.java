@@ -8,10 +8,10 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.keys.CourseSelection;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.services.SolverService;
-import de.hhu.stups.plues.studienplaene.ColorScheme;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.components.PdfGenerationSettings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
@@ -30,7 +30,7 @@ public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
   private final PdfRenderingTaskFactory taskFactory;
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final List<Course> majors;
-  private final ObjectProperty<ColorScheme> colorSchemeProperty;
+  private final ObjectProperty<PdfGenerationSettings> pdfGenerationSettingsProperty;
 
   @Inject
   CollectPdfRenderingTasksTask(final Delayed<Store> store,
@@ -41,7 +41,7 @@ public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
     this.solverService = solverService.get();
     this.courseSelectionCollector = courseSelectionCollector;
     this.taskFactory = factory;
-    colorSchemeProperty = new SimpleObjectProperty<>();
+    pdfGenerationSettingsProperty = new SimpleObjectProperty<>();
 
     updateTitle(ResourceBundle.getBundle("lang.tasks").getString("preparing"));
     updateProgress(0, 100);
@@ -74,11 +74,11 @@ public class CollectPdfRenderingTasksTask extends Task<Set<PdfRenderingTask>> {
       minor = null;
       task = solverService.computeFeasibilityTask(major);
     }
-    return taskFactory.create(major, minor, task, colorSchemeProperty);
+    return taskFactory.create(major, minor, task, pdfGenerationSettingsProperty);
   }
 
-  public ObjectProperty<ColorScheme> colorSchemeProperty() {
-    return colorSchemeProperty;
+  public ObjectProperty<PdfGenerationSettings> pdfGenerationSettingsProperty() {
+    return pdfGenerationSettingsProperty;
   }
 
   @Override

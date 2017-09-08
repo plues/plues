@@ -5,8 +5,8 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
-import de.hhu.stups.plues.studienplaene.ColorScheme;
 
+import de.hhu.stups.plues.ui.components.PdfGenerationSettings;
 import javafx.beans.property.ReadOnlyObjectProperty;
 
 import javax.annotation.Nullable;
@@ -17,5 +17,6 @@ public interface PdfRenderingTaskFactory {
   PdfRenderingTask create(@Assisted("major") Course major,
                           @Assisted("minor") @Nullable Course minor,
                           @Assisted SolverTask<FeasibilityResult> solverTask,
-                          @Assisted ReadOnlyObjectProperty<ColorScheme> colorScheme);
+                          @Assisted ReadOnlyObjectProperty<PdfGenerationSettings>
+                            pdfGenerationSettingsProperty);
 }

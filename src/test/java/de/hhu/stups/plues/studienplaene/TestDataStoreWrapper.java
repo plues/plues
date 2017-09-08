@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import de.hhu.stups.plues.ui.UiTestDataCreator;
 
+import de.hhu.stups.plues.ui.components.PdfGenerationSettings;
+import de.hhu.stups.plues.ui.components.UnitDisplayFormat;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +24,9 @@ public class TestDataStoreWrapper extends TestBase {
   public void setUp() throws URISyntaxException {
     super.setUp();
     final DataPreparatory data = new DataPreparatory(store, result);
-    final DataStoreWrapper wrap = new DataStoreWrapper(UiTestDataCreator.getColorScheme(), data);
+    final DataStoreWrapper wrap = new DataStoreWrapper(
+        new PdfGenerationSettings(UiTestDataCreator.getColorScheme(),
+            UnitDisplayFormat.TITLE), data);
     semesters = wrap.getSemesters();
   }
 

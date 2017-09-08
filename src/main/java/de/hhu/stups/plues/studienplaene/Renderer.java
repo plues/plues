@@ -3,6 +3,7 @@ package de.hhu.stups.plues.studienplaene;
 import de.hhu.stups.plues.data.Store;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.prob.FeasibilityResult;
+import de.hhu.stups.plues.ui.components.PdfGenerationSettings;
 import de.hhu.stups.plues.ui.components.timetable.TimetableMisc;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.exceptions.RenderingException;
@@ -39,24 +40,24 @@ public class Renderer {
                   final FeasibilityResult feasibilityResult,
                   final Course major,
                   final Course minor,
-                  final ColorScheme colorScheme) {
-    setup(store, feasibilityResult, major, minor, colorScheme);
+                  final PdfGenerationSettings pdfGenerationSettings) {
+    setup(store, feasibilityResult, major, minor, pdfGenerationSettings);
   }
 
   Renderer(final Store store,
-                  final FeasibilityResult feasibilityResult,
-                  final Course major,
-                  final ColorScheme colorScheme) {
-    setup(store, feasibilityResult, major, null, colorScheme);
+           final FeasibilityResult feasibilityResult,
+           final Course major,
+           final PdfGenerationSettings pdfGenerationSettings) {
+    setup(store, feasibilityResult, major, null, pdfGenerationSettings);
   }
 
   private void setup(final Store store,
                      final FeasibilityResult feasibilityResult,
                      final Course major,
                      @Nullable final Course minor,
-                     final ColorScheme colorScheme) {
+                     final PdfGenerationSettings pdfGenerationSettings) {
     final DataPreparatory prep = new DataPreparatory(store, feasibilityResult);
-    final DataStoreWrapper wrap = new DataStoreWrapper(colorScheme, prep);
+    final DataStoreWrapper wrap = new DataStoreWrapper(pdfGenerationSettings, prep);
 
     this.major = major.getLongName();
     if (minor != null) {

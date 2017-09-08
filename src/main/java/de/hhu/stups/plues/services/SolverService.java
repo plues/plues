@@ -209,10 +209,9 @@ public class SolverService {
    * @return SolverTask to compute unsat core of abstract units
    */
   public SolverTask<Set<Integer>> unsatCoreAbstractUnits(final List<Module> modules) {
-    final String msg = "";
     final List<Integer> moduleIds = modules.stream()
         .map(Module::getId).collect(Collectors.toList());
-    final String title = String.format(resources.getString("unsatCoreAbstractUnits"), msg);
+    final String title = String.format(resources.getString("unsatCoreAbstractUnits"), "");
     //
     return new SolverTask<>(title, solver, () -> solver.unsatCoreAbstractUnits(moduleIds), timeout);
   }
@@ -227,12 +226,11 @@ public class SolverService {
    */
   public SolverTask<Set<Integer>> unsatCoreGroups(final List<AbstractUnit> abstractUnits,
                                                   final List<Module> modules) {
-    final String msg = "";
     final List<Integer> abstractUnitIds = abstractUnits.stream().map(AbstractUnit::getId)
         .collect(Collectors.toList());
     final List<Integer> moduleIds = modules.stream()
         .map(Module::getId).collect(Collectors.toList());
-    final String title = String.format(resources.getString("unsatCoreGroups"), msg);
+    final String title = String.format(resources.getString("unsatCoreGroups"), "");
 
     return new SolverTask<>(title, solver,
         () -> solver.unsatCoreGroups(abstractUnitIds, moduleIds), timeout);
@@ -246,9 +244,8 @@ public class SolverService {
    * @return SolverTask to compute unsat core of sessions
    */
   public SolverTask<Set<Integer>> unsatCoreSessions(final List<Group> groups) {
-    final String msg = "";
     final List<Integer> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
-    final String title = String.format(resources.getString("unsatCoreSessions"), msg);
+    final String title = String.format(resources.getString("unsatCoreSessions"), "");
     //
     return new SolverTask<>(title, solver, () -> solver.unsatCoreSessions(groupIds), timeout);
   }

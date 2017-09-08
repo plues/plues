@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import de.hhu.stups.plues.prob.FeasibilityResult;
 import de.hhu.stups.plues.ui.UiTestDataCreator;
 
+import de.hhu.stups.plues.ui.components.PdfGenerationSettings;
+import de.hhu.stups.plues.ui.components.UnitDisplayFormat;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,15 +42,17 @@ public class TestHalfSemester extends TestBase {
     moduleChoice.put("foo", integerSet);
 
     final Map<Integer, Set<Integer>> abstractUnitChoice = new HashMap<>();
-    abstractUnitChoice.put(1, IntStream.range(1,5).boxed().collect(Collectors.toSet()));
-    abstractUnitChoice.put(3, IntStream.rangeClosed(5,9).boxed().collect(Collectors.toSet()));
+    abstractUnitChoice.put(1, IntStream.range(1, 5).boxed().collect(Collectors.toSet()));
+    abstractUnitChoice.put(3, IntStream.rangeClosed(5, 9).boxed().collect(Collectors.toSet()));
 
 
     final FeasibilityResult result =
         new FeasibilityResult(moduleChoice, abstractUnitChoice, semesterChoice, groupChoice);
 
     final DataPreparatory data = new DataPreparatory(store, result);
-    final DataStoreWrapper wrap = new DataStoreWrapper(UiTestDataCreator.getColorScheme(), data);
+    final DataStoreWrapper wrap = new DataStoreWrapper(
+        new PdfGenerationSettings(UiTestDataCreator.getColorScheme(),
+            UnitDisplayFormat.TITLE), data);
 
     semesters = wrap.getSemesters();
   }

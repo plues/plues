@@ -12,11 +12,15 @@ import de.hhu.stups.plues.ui.components.BatchResultBox;
 import de.hhu.stups.plues.ui.components.BatchResultBoxFactory;
 import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.ControllerHeader;
+import de.hhu.stups.plues.ui.components.PdfGenerationSettings;
+import de.hhu.stups.plues.ui.components.UnitDisplayFormatSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
@@ -64,6 +68,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   private final BooleanProperty solverProperty;
   private final BooleanProperty generationRunning;
   private final SimpleListProperty<PdfRenderingTask> generationSucceeded;
+  private final ObjectProperty<PdfGenerationSettings> pdfGenerationSettingsProperty;
 
   private final BatchResultBoxFactory batchResultBoxFactory;
   private final ExecutorService executor;
@@ -97,6 +102,9 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   @FXML
   @SuppressWarnings("unused")
   private ColorSchemeSelection colorSchemeSelection;
+  @FXML
+  @SuppressWarnings("unused")
+  private UnitDisplayFormatSelection unitDisplayFormatSelection;
 
   /**
    * Constructor.
@@ -118,12 +126,19 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     this.solverProperty = new SimpleBooleanProperty(false);
     this.generationRunning = new SimpleBooleanProperty(false);
     this.generationSucceeded = new SimpleListProperty<>();
+    pdfGenerationSettingsProperty = new SimpleObjectProperty<>(
+        new PdfGenerationSettings(null, null));
 
     inflater.inflate("BatchTimetableGeneration", this, this, "batchTimetable");
   }
 
   @Override
   public void initialize(final URL location, final ResourceBundle resources) {
+    pdfGenerationSettingsProperty.get().colorSchemeProperty()
+        .bind(colorSchemeSelection.selectedColorScheme());
+    pdfGenerationSettingsProperty.get().unitDisplayFormatProperty()
+        .bind(unitDisplayFormatSelection.selectedDisplayFormatProperty());
+
     listView.setOnMouseClicked(event -> {
       if (event.getClickCount() == 2) {
         final BatchResultBox batchResultBox = listView.getSelectionModel().getSelectedItem();
@@ -133,6 +148,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
     colorSchemeSelection.defaultInitialization();
     colorSchemeSelection.setPercentWidth(50.0);
+    unitDisplayFormatSelection.setPercentWidth(50.0);
 
     btGenerateAll.disableProperty().bind(solverProperty.not().or(generationRunning));
     colorSchemeSelection.disableProperty().bind(solverProperty.not().or(generationRunning));
@@ -165,7 +181,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     listView.getItems().clear();
 
     fillPoolTask = collectPdfRenderingTasksTaskProvider.get();
-    fillPoolTask.colorSchemeProperty().set(colorSchemeSelection.selectedColorScheme().get());
+    fillPoolTask.pdfGenerationSettingsProperty().set(pdfGenerationSettingsProperty.get());
 
     fillPoolTask.setOnSucceeded(event -> {
       fillPoolTask.getValue().forEach(task -> {
@@ -222,8 +238,8 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   private List<PdfRenderingTask> getSuccessfulTasks(final Collection<PdfRenderingTask> tasks) {
     return tasks.stream()
-      .filter(pdfRenderingTask -> pdfRenderingTask.getState() == Worker.State.SUCCEEDED)
-      .collect(Collectors.toList());
+        .filter(pdfRenderingTask -> pdfRenderingTask.getState() == Worker.State.SUCCEEDED)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -310,9 +326,9 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     final String formattedDate = date.format(formatter);
 
     return JtwigModel.newModel()
-      .with("date", formattedDate)
-      .with("batchResultBoxes", listView.getItems())
-      .with("logo", logo);
+        .with("date", formattedDate)
+        .with("batchResultBoxes", listView.getItems())
+        .with("logo", logo);
   }
 
   /**

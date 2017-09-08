@@ -6,11 +6,10 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.keys.CourseSelection;
 import de.hhu.stups.plues.prob.FeasibilityResult;
-import de.hhu.stups.plues.services.SolverService;
-import de.hhu.stups.plues.studienplaene.ColorScheme;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.tasks.PdfRenderingTaskFactory;
 import de.hhu.stups.plues.tasks.SolverTask;
+import de.hhu.stups.plues.ui.components.PdfGenerationSettings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -28,7 +27,8 @@ public class PdfRenderingService {
   private final PdfRenderingTaskFactory renderingTaskFactory;
   private final ExecutorService executor;
   private final SimpleBooleanProperty available = new SimpleBooleanProperty(false);
-  private final SimpleObjectProperty<ColorScheme> colorScheme = new SimpleObjectProperty<>();
+  private final SimpleObjectProperty<PdfGenerationSettings> pdfGenerationSettingsProperty =
+      new SimpleObjectProperty<>();
 
   /**
    * xxx.
@@ -86,7 +86,7 @@ public class PdfRenderingService {
     //
     final SolverTask<FeasibilityResult> solverTask
         = solverService.computePartialFeasibility(courseSelection.getCourses(),
-          moduleChoice, unitChoice);
+        moduleChoice, unitChoice);
     //
     return getPdfRenderingTask(courseSelection, solverTask);
   }
@@ -98,14 +98,15 @@ public class PdfRenderingService {
     if (courseSelection.isCombination()) {
       minor = courseSelection.getMinor();
     }
-    return renderingTaskFactory.create(major, minor, solverTask, this.colorScheme);
+    return renderingTaskFactory.create(major, minor, solverTask,
+        this.pdfGenerationSettingsProperty);
   }
 
   public void submit(final PdfRenderingTask task) {
     this.executor.submit(task);
   }
 
-  public ObjectProperty<ColorScheme> colorSchemeProperty() {
-    return this.colorScheme;
+  public ObjectProperty<PdfGenerationSettings> pdfGenerationSettingsProperty() {
+    return this.pdfGenerationSettingsProperty;
   }
 }

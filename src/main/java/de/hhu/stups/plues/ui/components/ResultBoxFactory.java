@@ -15,5 +15,5 @@ public interface ResultBoxFactory {
   ResultBox create(@Assisted("major") Course major,
                    @Assisted("minor") Course minor,
                    @Assisted("parent") ListView<ResultBox> parent,
-                   @Assisted ReadOnlyObjectProperty<ColorScheme> colorScheme);
+                   @Assisted PdfGenerationSettings pdfGenerationSettings);
 }

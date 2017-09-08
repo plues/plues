@@ -24,6 +24,7 @@ import de.hhu.stups.plues.ui.components.ColorSchemeSelection;
 import de.hhu.stups.plues.ui.components.ControllerHeader;
 import de.hhu.stups.plues.ui.components.MajorMinorCourseSelection;
 import de.hhu.stups.plues.ui.components.TaskProgressIndicator;
+import de.hhu.stups.plues.ui.components.UnitDisplayFormatSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.application.Platform;
@@ -178,6 +179,8 @@ public class PartialTimeTablesTest extends ApplicationTest {
         return () -> new ColorSchemeSelection(new Inflater(new FXMLLoader()));
       } else if (type.equals(MajorMinorCourseSelection.class)) {
         return () -> courseSelection;
+      } else if (type.equals(UnitDisplayFormatSelection.class)) {
+        return () -> new UnitDisplayFormatSelection(new Inflater(new FXMLLoader()));
       } else if (type.equals(ControllerHeader.class)) {
         return () -> new ControllerHeader(new Inflater(new FXMLLoader()));
       }
@@ -222,13 +225,14 @@ public class PartialTimeTablesTest extends ApplicationTest {
 
     final PdfRenderingService pdfRenderingService = mock(PdfRenderingService.class);
     doAnswer(invocation ->
-        executorService.submit((PdfRenderingTask)invocation.getArgument(0)))
-      .when(pdfRenderingService).submit(any());
+        executorService.submit((PdfRenderingTask) invocation.getArgument(0)))
+        .when(pdfRenderingService).submit(any());
     when(pdfRenderingService.getTask(any(), any(), any()))
-      .thenReturn(UiTestDataCreator.getWaitingPdfRenderingTask());
-    when(pdfRenderingService.colorSchemeProperty()).thenReturn(new SimpleObjectProperty<>());
+        .thenReturn(UiTestDataCreator.getWaitingPdfRenderingTask());
+    when(pdfRenderingService.pdfGenerationSettingsProperty())
+        .thenReturn(new SimpleObjectProperty<>());
     when(pdfRenderingService.availableProperty())
-      .thenReturn(new SimpleBooleanProperty(true));
+        .thenReturn(new SimpleBooleanProperty(true));
 
     partialTimeTables = new PartialTimeTables(inflater, uiDataService, delayedStore,
         pdfRenderingService, checkBoxGroupFactory);

@@ -9,7 +9,6 @@ import de.hhu.stups.plues.prob.ResultState;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.services.PdfRenderingService;
-import de.hhu.stups.plues.studienplaene.ColorScheme;
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.ui.controller.PdfRenderingHelper;
 import de.hhu.stups.plues.ui.layout.Inflater;
@@ -64,11 +63,12 @@ public class ResultBox extends VBox implements Initializable {
   private final Router router;
   private final PdfRenderingService pdfRenderingService;
   private final ListView<ResultBox> parent;
-  private final ReadOnlyObjectProperty<ColorScheme> colorScheme;
+  private final ObjectProperty<PdfGenerationSettings> pdfGenerationSettingsProperty;
   private final StringProperty errorMsgProperty = new SimpleStringProperty();
   private final ObjectProperty<Path> pdf = new SimpleObjectProperty<>();
   private PdfRenderingTask task;
   private ResultState resultState;
+
   @FXML
   @SuppressWarnings("unused")
   private TaskProgressIndicator taskProgressIndicator;
@@ -91,11 +91,12 @@ public class ResultBox extends VBox implements Initializable {
   /**
    * Constructor for ResultBox.
    *
-   * @param inflater    Inflater to handle fxml loader tasks
-   * @param major       Major course
-   * @param minor       Minor course if present, else null
-   * @param parent      The parent wrapper (VBox) to remove a single result box.
-   * @param colorScheme The selected color scheme for generating a pdf.
+   * @param inflater              Inflater to handle fxml loader tasks
+   * @param major                 Major course
+   * @param minor                 Minor course if present, else null
+   * @param parent                The parent wrapper (VBox) to remove a single result box.
+   * @param pdfGenerationSettings The specific settings for generating the PDF like the color
+   *                              scheme and the unit display format.
    */
   @Inject
   @SuppressWarnings("WeakerAccess")
@@ -105,12 +106,12 @@ public class ResultBox extends VBox implements Initializable {
                    @Assisted("major") final Course major,
                    @Nullable @Assisted("minor") final Course minor,
                    @Assisted("parent") final ListView<ResultBox> parent,
-                   @Assisted final ReadOnlyObjectProperty<ColorScheme> colorScheme) {
+                   @Assisted final PdfGenerationSettings pdfGenerationSettings) {
     super();
     this.router = router;
     this.pdfRenderingService = pdfRenderingService;
     this.parent = parent;
-    this.colorScheme = colorScheme;
+    this.pdfGenerationSettingsProperty = new SimpleObjectProperty<>(pdfGenerationSettings);
 
     this.major = major;
     this.minor = minor;
@@ -141,7 +142,7 @@ public class ResultBox extends VBox implements Initializable {
     cbAction.itemsProperty().addListener((observable, oldValue, newValue) ->
         cbAction.getSelectionModel().selectFirst());
 
-    pdfRenderingService.colorSchemeProperty().bind(colorScheme);
+    pdfRenderingService.pdfGenerationSettingsProperty().bind(pdfGenerationSettingsProperty);
     runSolverTask();
 
     showUsedColorSchemePreview();
@@ -149,7 +150,8 @@ public class ResultBox extends VBox implements Initializable {
 
   private void showUsedColorSchemePreview() {
     colorPreviewBox.getChildren().clear();
-    colorScheme.get().addColorPreviews(colorPreviewBox, 5, 15.0);
+    pdfGenerationSettingsProperty.get().colorSchemeProperty().get()
+        .addColorPreviews(colorPreviewBox, 5, 15.0);
     colorPreviewBox.getChildren().remove(colorPreviewBox.getChildren().size() - 1);
   }
 

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -62,8 +63,9 @@ public class ProBSolver implements Solver {
     final long t2 = System.nanoTime();
     logger.info("Loaded machine in {} ms.", TimeUnit.NANOSECONDS.toMillis(t2 - t1));
     //
-    this.stateSpace.getSubscribedFormulas()
+    new HashSet<>(this.stateSpace.getSubscribedFormulas())
         .forEach(it -> stateSpace.unsubscribe(this.stateSpace, it));
+
 
     final long t3 = System.nanoTime();
     this.trace = traceFrom(stateSpace);
@@ -513,6 +515,9 @@ public class ProBSolver implements Solver {
     report.setImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits(
         Mappers.mapQuasiMandatoryModuleAbstractUnits((Set) data.get(
             "impossible_modules_because_of_incomplte_quasi_mandatory_abstract_units")));
+
+    report.setGroupsWithInnerConflicts(
+        Mappers.mapGroups((Set) data.get("groups_with_inner_conflicts")));
 
     return report;
   }

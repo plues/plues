@@ -15,6 +15,7 @@ import de.hhu.stups.plues.tasks.SolverTask;
 import de.hhu.stups.plues.ui.TooltipAllocator;
 import de.hhu.stups.plues.ui.components.reports.AbstractUnitPair;
 import de.hhu.stups.plues.ui.components.reports.AbstractUnitsWithoutUnits;
+import de.hhu.stups.plues.ui.components.reports.GroupsWithConflicts;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnitPairs;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourseModuleAbstractUnits;
 import de.hhu.stups.plues.ui.components.reports.ImpossibleCourses;
@@ -47,6 +48,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -69,8 +71,8 @@ public class Reports extends VBox implements Initializable {
   private int courseAmount;
   private int unitAmount;
   private Map<String, String> resources;
-
   private PrintReportData printReportData;
+
   @FXML
   @SuppressWarnings("unused")
   private Label lbCourseAmount;
@@ -128,6 +130,9 @@ public class Reports extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private ModuleAbstractUnitUnitSemesterConflicts moduleAbstractUnitUnitSemesterConflicts;
+  @FXML
+  @SuppressWarnings("unused")
+  private GroupsWithConflicts groupsWithConflicts;
   @FXML
   @SuppressWarnings("unused")
   private AbstractUnitsWithoutUnits abstractUnitsWithoutUnits;
@@ -193,6 +198,7 @@ public class Reports extends VBox implements Initializable {
     unitsWithoutAbstractUnits.setData(printReportData.getUnitsWithoutAbstractUnits());
     moduleAbstractUnitUnitSemesterConflicts.setData(
         printReportData.getModuleAbstractUnitUnitSemesterConflicts());
+    groupsWithConflicts.setData(new HashSet<>(printReportData.getUnitsForGroupsWithConflicts()));
   }
 
   @Override
@@ -275,6 +281,7 @@ public class Reports extends VBox implements Initializable {
     private List<Course> impossibleCoursesBecauseOfImpossibleModules;
     private List<Course> impossibleCoursesBecauseOfImpossibleModuleCombinations;
     private List<AbstractUnit> abstractUnitsWithoutUnits;
+    private Set<Unit> unitsForGroupsWithConflicts;
     private Map<Module, Set<AbstractUnit>>
         impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits;
 
@@ -292,9 +299,17 @@ public class Reports extends VBox implements Initializable {
       calculateUnitsWithoutAbstractUnits(store);
       calculateQuasiMandatoryModuleAbstractUnits(store, reportData);
       calculateImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits(store, reportData);
+      calculateUnitsForGroupsWithConflicts(store, reportData);
 
       this.faculty = store.getInfoByKey("name");
       this.resources = resources;
+    }
+
+    private void calculateUnitsForGroupsWithConflicts(final Store store,
+                                                      final ReportData reportData) {
+      this.unitsForGroupsWithConflicts = reportData.getGroupsWithInnerConflicts()
+        .stream().map(groupId -> store.getGroupById(groupId).getUnit())
+        .collect(Collectors.toSet());
     }
 
     private void calculateAbstractUnitsWithoutUnits(final Store store) {
@@ -315,10 +330,10 @@ public class Reports extends VBox implements Initializable {
         } else {
           conflicts.put(module,
               new ArrayList<>(Collections.singletonList(
-              new ModuleAbstractUnitUnitSemesterConflicts.Conflict(
-                store.getAbstractUnitById(conflict.getAbstractUnitId()),
-                store.getUnitById(conflict.getUnitId()),
-                conflict.getAbstractUnitSemesters()))));
+                new ModuleAbstractUnitUnitSemesterConflicts.Conflict(
+                  store.getAbstractUnitById(conflict.getAbstractUnitId()),
+                  store.getUnitById(conflict.getUnitId()),
+                  conflict.getAbstractUnitSemesters()))));
         }
       });
       this.moduleAbstractUnitUnitSemesterConflicts = conflicts;
@@ -334,8 +349,8 @@ public class Reports extends VBox implements Initializable {
               innerEntry -> store.getModuleById(innerEntry.getKey()),
               innerEntry -> innerEntry.getValue().stream().map(
                 pair -> new AbstractUnitPair(store.getAbstractUnitById(pair.getFirst()),
-                store.getAbstractUnitById(pair.getSecond())))
-              .collect(Collectors.toSet())))));
+                  store.getAbstractUnitById(pair.getSecond())))
+                  .collect(Collectors.toSet())))));
     }
 
     private void calculateImpossibleCourseModuleAbstractUnits(final Store store,
@@ -347,7 +362,7 @@ public class Reports extends VBox implements Initializable {
             entry -> entry.getValue().entrySet().stream().collect(Collectors.toMap(
               innerEntry -> store.getModuleById(innerEntry.getKey()),
               innerEntry -> innerEntry.getValue().stream().map(
-              store::getAbstractUnitById).collect(Collectors.toSet())))));
+                store::getAbstractUnitById).collect(Collectors.toSet())))));
     }
 
     private void calculateRedundantUnitGroups(final Store store,
@@ -364,7 +379,7 @@ public class Reports extends VBox implements Initializable {
           .entrySet().stream().collect(Collectors.toMap(
             entry -> store.getModuleById(entry.getKey()),
             entry -> entry.getValue().stream().map(
-            store::getAbstractUnitById).collect(Collectors.toSet())));
+              store::getAbstractUnitById).collect(Collectors.toSet())));
     }
 
     private void calculateQuasiMandatoryModuleAbstractUnits(final Store store,
@@ -374,7 +389,7 @@ public class Reports extends VBox implements Initializable {
           .entrySet().stream().collect(Collectors.toMap(
             entry -> store.getModuleById(entry.getKey()),
             entry -> entry.getValue().stream().map(
-            store::getAbstractUnitById).collect(Collectors.toSet())));
+              store::getAbstractUnitById).collect(Collectors.toSet())));
     }
 
     private void calculateMandatoryModules(final Store store,
@@ -434,6 +449,10 @@ public class Reports extends VBox implements Initializable {
 
     List<Course> getImpossibleCourses() {
       return impossibleCourses;
+    }
+
+    Set<Unit> getUnitsForGroupsWithConflicts() {
+      return unitsForGroupsWithConflicts;
     }
 
     List<Course> getImpossibleCoursesBecauseOfImpossibleModuleCombinations() {
@@ -507,6 +526,7 @@ public class Reports extends VBox implements Initializable {
         .with("redundantUnitGroups", redundantUnitGroups)
         .with("impossibleCourseModuleAbstractUnitPairs",
           impossibleCourseModuleAbstractUnitPairs)
+        .with("unitsForGroupsWithConflicts", unitsForGroupsWithConflicts)
         .with("impossibleCourseModuleAbstractUnits", impossibleCourseModuleAbstractUnits)
         .with("logo", logo);
     }
