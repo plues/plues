@@ -83,8 +83,10 @@ public class MainMenuBar extends MenuBar implements Initializable {
   private final SolverLoaderImpl solverLoader;
   private final ExecutorService executor;
   private final Preferences userPreferences;
-  private final ToggleGroup sessionPreferenceToggle = new ToggleGroup();
   private final ToggleGroup timeoutPreferenceToggle = new ToggleGroup();
+  @FXML
+  @SuppressWarnings("unused")
+  private ToggleGroup sessionPreferenceToggle;
   private final Properties properties;
   private final Router router;
   private final MainMenuService mainMenuService;
@@ -144,15 +146,6 @@ public class MainMenuBar extends MenuBar implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private RadioMenuItem twentyMinutesMenuItem;
-  @FXML
-  @SuppressWarnings("unused")
-  private RadioMenuItem rbMenuItemSessionName;
-  @FXML
-  @SuppressWarnings("unused")
-  private RadioMenuItem rbMenuItemSessionId;
-  @FXML
-  @SuppressWarnings("unused")
-  private RadioMenuItem rbMenuItemSessionKey;
 
   /**
    * Constructor of the main menu bar.
@@ -256,26 +249,9 @@ public class MainMenuBar extends MenuBar implements Initializable {
   }
 
   private void initializeViewMenuItems() {
-    rbMenuItemSessionName.setToggleGroup(sessionPreferenceToggle);
-    rbMenuItemSessionId.setToggleGroup(sessionPreferenceToggle);
-    rbMenuItemSessionKey.setToggleGroup(sessionPreferenceToggle);
-
     final SessionDisplayFormat userFormat = getSessionDisplayFormatFromPreferences();
     uiDataService.setSessionDisplayFormatProperty(userFormat);
 
-    switch (userFormat) {
-      case TITLE:
-        rbMenuItemSessionName.setSelected(true);
-        break;
-      case ABSTRACT_UNIT_KEYS:
-        rbMenuItemSessionKey.setSelected(true);
-        break;
-      case UNIT_KEY:
-      default:
-        rbMenuItemSessionId.setSelected(true);
-        break;
-    }
-    sessionPreferenceToggle.selectedToggleProperty().addListener(this::updateSessionDisplayFormat);
 
     fifteenSecondsMenuItem.setToggleGroup(timeoutPreferenceToggle);
     oneMinuteMenuItem.setToggleGroup(timeoutPreferenceToggle);
