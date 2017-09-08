@@ -154,14 +154,16 @@ public class ResultBox extends VBox implements Initializable {
   }
 
   private void showUsedPdfSettings() {
+    final PdfGenerationSettings pdfGenerationSettings = pdfGenerationSettingsProperty.get();
     colorPreviewBox.getChildren().clear();
-    pdfGenerationSettingsProperty.get().colorSchemeProperty().get()
+    pdfGenerationSettings.colorSchemeProperty().get()
         .addColorPreviews(colorPreviewBox, 5, 15.0);
     colorPreviewBox.getChildren().remove(colorPreviewBox.getChildren().size() - 1);
-    lbUnitDisplayFormat.textProperty().bind(Bindings.createStringBinding(() ->
-        resources.getString("unitDisplayFormat") + " "
-            + (pdfGenerationSettingsProperty.get().unitDisplayFormatProperty().get().isTitle()
-            ? resources.getString("title") : resources.getString("id"))));
+    lbUnitDisplayFormat.textProperty().bind(Bindings.createStringBinding(() -> {
+      final String titleOrKey = (pdfGenerationSettings.unitDisplayFormatProperty().get().isTitle()
+          ? resources.getString("title") : resources.getString("id"));
+      return resources.getString("unitDisplayFormat") + " " + titleOrKey;
+    }));
   }
 
   /**
