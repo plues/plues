@@ -4,9 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.hhu.stups.plues.data.entities.Course;
-import de.hhu.stups.plues.studienplaene.ColorScheme;
-
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.scene.control.ListView;
 
 @FunctionalInterface
