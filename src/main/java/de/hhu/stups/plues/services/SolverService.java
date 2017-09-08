@@ -34,15 +34,16 @@ public class SolverService {
   private final ResourceBundle resources = ResourceBundle.getBundle("lang.solverTask");
   private final ReadOnlyMapProperty<CourseSelection, ResultState> courseSelectionResults;
   private final String langTimeout = ResourceBundle.getBundle("lang.tasks").getString("timeout");
-  private int timeout = 60;
+  private int timeout;
 
   /**
    * Create a new SolverService instance. Using executorService to run tasks executed by solver.
    *
    * @param solver Solver object to execute operations on ProB instance.
    */
-  public SolverService(final Solver solver) {
+  public SolverService(final Solver solver, final int timeout) {
     this.solver = solver;
+    this.timeout = timeout;
     courseSelectionResults = new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
   }
 

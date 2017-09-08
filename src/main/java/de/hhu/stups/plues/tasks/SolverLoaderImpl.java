@@ -1,9 +1,11 @@
 package de.hhu.stups.plues.tasks;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
+import de.hhu.stups.plues.injector.Timeout;
 import de.hhu.stups.plues.prob.Solver;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.ui.components.ExceptionDialog;
@@ -16,15 +18,18 @@ public class SolverLoaderImpl implements SolverLoader {
   private final Delayed<SolverService> delayedSolverService;
   private final SolverLoaderTaskFactory solverLoaderTaskFactory;
   private final ExecutorService executor;
+  private final int timeout;
 
   @Inject
   SolverLoaderImpl(final Delayed<SolverService> delayedSolverService,
+                   @Timeout final int timeout,
                    final SolverLoaderTaskFactory solverLoaderTaskFactory,
                    final ExecutorService executorService) {
 
     this.delayedSolverService = delayedSolverService;
     this.solverLoaderTaskFactory = solverLoaderTaskFactory;
     this.executor = executorService;
+    this.timeout = timeout;
   }
 
   private SolverLoaderTask getSolverLoaderTask(final Store store) {
@@ -34,7 +39,7 @@ public class SolverLoaderImpl implements SolverLoader {
 
     solverLoader.setOnSucceeded(event -> {
       final Solver s = (Solver) event.getSource().getValue();
-      Platform.runLater(() -> this.delayedSolverService.set(new SolverService(s)));
+      Platform.runLater(() -> this.delayedSolverService.set(new SolverService(s, this.timeout)));
     });
     //
     solverLoader.setOnFailed(event -> Platform.runLater(() -> {

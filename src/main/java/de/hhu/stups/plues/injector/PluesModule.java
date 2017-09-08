@@ -136,4 +136,10 @@ public class PluesModule extends AbstractModule {
     return fxmlLoader;
   }
 
+  @Provides
+  @Timeout
+  final int provideDefaultTimeout() {
+    return 120;
+  }
+
 }
