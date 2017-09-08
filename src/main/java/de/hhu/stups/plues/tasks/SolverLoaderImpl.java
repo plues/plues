@@ -1,7 +1,6 @@
 package de.hhu.stups.plues.tasks;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.Store;
