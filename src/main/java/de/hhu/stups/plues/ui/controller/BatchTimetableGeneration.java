@@ -150,6 +150,13 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     colorSchemeSelection.setPercentWidth(50.0);
     unitDisplayFormatSelection.setPercentWidth(50.0);
 
+    delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
+
+    initializeDisableProperties();
+    initializeControllerHeader(resources);
+  }
+
+  private void initializeDisableProperties() {
     btGenerateAll.disableProperty().bind(solverProperty.not().or(generationRunning));
     colorSchemeSelection.disableProperty().bind(solverProperty.not().or(generationRunning));
     unitDisplayFormatSelection.disableProperty().bind(solverProperty.not().or(generationRunning));
@@ -159,9 +166,6 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     btSaveToZip.disableProperty().bind(generationSucceeded.emptyProperty());
     btSaveToFolder.disableProperty().bind(generationSucceeded.emptyProperty());
     btPrint.disableProperty().bind(generationSucceeded.emptyProperty());
-
-    delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
-    initializeControllerHeader(resources);
   }
 
   private void initializeControllerHeader(final ResourceBundle resources) {
