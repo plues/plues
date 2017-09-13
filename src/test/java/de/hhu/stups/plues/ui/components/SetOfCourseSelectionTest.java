@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SetOfCourseSelectionTest extends ApplicationTest {
   private SetOfCourseSelection courseSelection;
-  private ObservableList<Course> courseList = UiTestDataCreator.createCourseList();
+  private final ObservableList<Course> courseList = UiTestDataCreator.createCourseList();
 
   private List<Node> masterCheckBoxes;
   private List<Node> bachelorCheckBoxes;
