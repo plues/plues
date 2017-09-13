@@ -5,8 +5,8 @@ plugins {
     id 'eclipse'
     id 'findbugs'
     id 'checkstyle'
-    id 'edu.sc.seis.launch4j' version '1.6.1'
-    id "edu.sc.seis.macAppBundle" version "2.1.6"
+    id 'edu.sc.seis.launch4j' version '2.4.1'
+    id "edu.sc.seis.macAppBundle" version "2.1.7"
     id 'jacoco'
 }
 
