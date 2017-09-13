@@ -360,7 +360,7 @@ public class ProBSolverTest {
 
     final Transition transition = mock(Transition.class);
     when(trace.getCurrentTransition()).thenReturn(transition);
-    when(transition.evaluate(FormulaExpand.expand)).thenReturn(transition);
+    when(transition.evaluate(FormulaExpand.EXPAND)).thenReturn(transition);
     when(transition.getTranslatedReturnValues()).thenReturn(
         Arrays.stream(modelReturnValues).map(s -> {
           try {
