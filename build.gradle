@@ -96,7 +96,7 @@ launch4j {
     messagesJreVersionError = "JRE Version Error"
 }
 
-task winZip(dependsOn: "launch4j", type: Zip) {
+task winZip(dependsOn: "createExe", type: Zip) {
     def outdir = "${project.buildDir}/launch4j"
     // project.launch4j.outputDir not working as expected
     def libdir = "${project.buildDir}/launch4j/${project.launch4j.libraryDir}"
