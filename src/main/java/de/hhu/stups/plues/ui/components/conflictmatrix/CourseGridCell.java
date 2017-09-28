@@ -56,7 +56,7 @@ public class CourseGridCell extends Pane {
 
   @SuppressWarnings("unused")
   private void showContextMenu(final MouseEvent event) {
-    if (!enabledProperty.get() && course.isCombinable()) {
+    if ((!enabledProperty.get() && course.isCombinable()) || !course.isCombinable()) {
       return;
     }
     if (tooltip != null) {
