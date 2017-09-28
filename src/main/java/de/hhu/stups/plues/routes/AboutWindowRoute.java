@@ -24,10 +24,12 @@ public class AboutWindowRoute implements Route {
     final String title = (String) args[0];
 
     final Stage aboutStage = new Stage();
+    //
     aboutWindow.setPadding(new Insets(10.0, 10.0, 10.0, 10.0));
     aboutStage.setTitle(title);
     aboutStage.setScene(SceneFactory.create(aboutWindow));
-    aboutStage.setResizable(false);
+    aboutStage.setResizable(true);
+    //
     aboutStage.show();
   }
 }
