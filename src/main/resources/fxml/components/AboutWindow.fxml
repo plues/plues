@@ -1,35 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<fx:root prefHeight="400" prefWidth="550" styleClass="windowPadding" type="GridPane"
+         xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 
-<fx:root xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1"
-         type="GridPane" prefWidth="550" prefHeight="400" styleClass="windowPadding">
-    <Label fx:id="logo" GridPane.rowIndex="0" GridPane.columnIndex="1" textAlignment="RIGHT"/>
-    <Label GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
-    <Label text="%developer" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2"
-           style="-fx-font-size: 24"/>
-    <Label text="David Schneider" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-    <Label text="%ui_model" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-    <Label text="Michael Leuschel" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-    <Label text="%model" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-    <Label text="Tobias Witt" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-    <Label text="%ui" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
-    <Label text="Philip Höfges" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-    <Label text="%ui" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
-    <Label text="Joshua Schmidt" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-    <Label text="%ui" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+    <Label fx:id="logo" alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308"
+           GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER"
+           GridPane.rowIndex="0"/>
 
-    <Label text="Niklas Bertram" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
-    <Label text="%handbook" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+    <Label fx:id="version" styleClass="h1" alignment="CENTER" contentDisplay="CENTER"
+           maxWidth="1.7976931348623157E308" GridPane.columnIndex="0"
+           GridPane.columnSpan="2" GridPane.rowIndex="1"/>
 
-    <Label GridPane.rowIndex="9" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
-    <Label text="%footer" wrapText="true" GridPane.rowIndex="10" GridPane.columnIndex="0"
-           GridPane.columnSpan="2"/>
+    <Label GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2"
+           GridPane.rowSpan="2"/>
+
+    <Label alignment="TOP_LEFT" text="%revision" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+    <Label fx:id="revision" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+    <Label alignment="TOP_LEFT" text="%buildDate" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+    <Label fx:id="buildDate" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
+    <Label alignment="TOP_LEFT" text="%solverVersion" GridPane.columnIndex="0"
+           GridPane.rowIndex="6"/>
+    <Label fx:id="solverVersion" text="..." wrapText="true" GridPane.columnIndex="1"
+           GridPane.rowIndex="6"/>
+
+    <Label alignment="TOP_LEFT" text="%cliversion" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+    <Label fx:id="cliVersion" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+
+
+    <Label GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="8"
+           GridPane.rowSpan="2"/>
+
+    <Label alignment="TOP_LEFT" text="%developer" GridPane.columnIndex="0" GridPane.rowIndex="10"/>
+    <Label text="David Schneider, Michael Leuschel, Tobias Witt, Philip Höfges, Joshua Schmidt, Niklas Bertram"
+           wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="10"/>
+
+    <Label GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="11"
+           GridPane.rowSpan="1"/>
+    <Label text="%footer" wrapText="true" GridPane.columnIndex="0" GridPane.columnSpan="2"
+           GridPane.rowIndex="13"/>
 
     <columnConstraints>
-        <ColumnConstraints percentWidth="50"/>
-        <ColumnConstraints percentWidth="50"/>
+        <ColumnConstraints percentWidth="35"/>
+        <ColumnConstraints percentWidth="65"/>
     </columnConstraints>
 </fx:root>
