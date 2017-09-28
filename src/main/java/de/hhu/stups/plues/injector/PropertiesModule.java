@@ -15,7 +15,7 @@ class PropertiesModule extends AbstractModule {
 
   private static Properties setupProperties() {
     final Properties defaults = new Properties();
-    final Properties properties = loadProperties(defaults, "main", "local");
+    final Properties properties = loadProperties(defaults, "main", "plues-build", "local");
 
     // settings that can be overridden in env vars
     final String[] env = new String[] {"MODELPATH", "DBPATH"};
