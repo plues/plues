@@ -85,9 +85,11 @@ public class MainController implements Initializable, Activatable {
   private final MainMenuService mainMenuService;
   private final UiDataService uiDataService;
   private final RouterProvider routerProvider;
+  private final Tab reportsTab = new Tab();
+  private final Provider<Reports> reportsProvider;
+  private final BooleanProperty progressVisibleProperty;
 
   private ResourceBundle resources;
-
   @FXML
   private MainMenuBar mainMenuBar;
   @FXML
@@ -106,13 +108,9 @@ public class MainController implements Initializable, Activatable {
   private ProgressBar mainProgressBar;
   @FXML
   private Label lbRunningTasks;
-
-  private final Tab reportsTab = new Tab();
-
   private SplitPane.Divider mainSplitPaneDivider;
   private double visibleDividerPos;
   private boolean fadingInProgress = false;
-  private final Provider<Reports> reportsProvider;
 
   /**
    * MainController component.
@@ -129,6 +127,7 @@ public class MainController implements Initializable, Activatable {
     this.mainMenuService = mainMenuService;
     this.uiDataService = uiDataService;
     this.routerProvider = routerProvider;
+    progressVisibleProperty = new SimpleBooleanProperty(false);
 
     executorService.getTasks().filterMap(task -> {
       if (task instanceof Task<?>) {
@@ -185,9 +184,11 @@ public class MainController implements Initializable, Activatable {
 
     mainProgressBar.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
     mainProgressBar.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
+    mainProgressBar.visibleProperty().bind(progressVisibleProperty);
 
     lbRunningTasks.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
     lbRunningTasks.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
+    lbRunningTasks.visibleProperty().bind(progressVisibleProperty);
 
     initializeKeyPressedHandler();
 
@@ -206,11 +207,8 @@ public class MainController implements Initializable, Activatable {
 
     mainMenuService.getStoreLoaderProgressProperty().addListener(
         (observable, oldValue, newValue) -> {
-          if (mainStatusBar.getRightItems().contains(lbRunningTasks)) {
-            return;
-          }
           lbRunningTasks.setText(resources.getString("loadStore"));
-          mainStatusBar.getRightItems().addAll(lbRunningTasks, mainProgressBar);
+          progressVisibleProperty.set(true);
           mainProgressBar.progressProperty().bind(observable);
         });
 
@@ -260,9 +258,7 @@ public class MainController implements Initializable, Activatable {
       if (scheduledTasks.isEmpty()) {
         removeTaskProgressBox();
       } else {
-        if (!mainStatusBar.getRightItems().contains(mainProgressBar)) {
-          mainStatusBar.getRightItems().addAll(lbRunningTasks, mainProgressBar);
-        }
+        progressVisibleProperty.set(true);
         bindProgressPropertyIfNecessary(scheduledTasks);
         setStatusBarText(scheduledTasks.size(), taskBoxCollapsed.get());
       }
@@ -358,8 +354,7 @@ public class MainController implements Initializable, Activatable {
   private void clearStatusBar() {
     mainStatusBar.setText("");
     mainProgressBar.progressProperty().unbind();
-    mainStatusBar.getRightItems().remove(lbRunningTasks);
-    mainStatusBar.getRightItems().remove(mainProgressBar);
+    progressVisibleProperty.set(false);
   }
 
   /**
