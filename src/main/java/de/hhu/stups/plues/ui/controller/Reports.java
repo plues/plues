@@ -33,6 +33,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -171,7 +172,7 @@ public class Reports extends VBox implements Initializable {
     reportData.addListener((observable, oldValue, newValue) ->
         delayedStore.whenAvailable(store -> {
           btPrint.setDisable(false);
-          printReportData = new PrintReportData(store, newValue, resources);
+          printReportData = new PrintReportData(store, newValue, executorService, resources);
           setSpecificData();
           lbImpossibleCoursesAmount.setText(String.valueOf(newValue.getImpossibleCourses().size()));
         }));
@@ -265,6 +266,7 @@ public class Reports extends VBox implements Initializable {
 
     private final String faculty;
     private final Map<String, String> resources;
+    private final ExecutorService executorService;
     private Map<Course, Set<Module>> mandatoryModules;
     private Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnits;
     private Set<Unit> redundantUnitGroups;
@@ -286,6 +288,7 @@ public class Reports extends VBox implements Initializable {
         impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits;
 
     PrintReportData(final Store store, final ReportData reportData,
+                    final ExecutorService executorService,
                     final Map<String, String> resources) {
       calculateAbstractUnitsWithoutUnits(store);
       calculateImpossibleCourseModuleAbstractUnitPairs(store, reportData);
@@ -301,6 +304,7 @@ public class Reports extends VBox implements Initializable {
       calculateImpossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits(store, reportData);
       calculateUnitsForGroupsWithConflicts(store, reportData);
 
+      this.executorService = executorService;
       this.faculty = store.getInfoByKey("name");
       this.resources = resources;
     }
@@ -493,8 +497,15 @@ public class Reports extends VBox implements Initializable {
     }
 
     void print() {
-      PdfRenderingHelper.writeJtwigTemplateToPdfFile(getJtwigModel(),
-          "/reports/templates/reportTemplate.twig", "report");
+      final Task<Void> task = new Task<Void>() {
+        @Override
+        protected Void call() throws Exception {
+          PdfRenderingHelper.writeJtwigTemplateToPdfFile(getJtwigModel(),
+              "/reports/templates/reportTemplate.twig", "report");
+          return null;
+        }
+      };
+      this.executorService.submit(task);
     }
 
     private JtwigModel getJtwigModel() {
