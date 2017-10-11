@@ -268,7 +268,8 @@ public class MainController implements Initializable, Activatable {
     });
 
     EventStreams.merge(EventStreams.eventsOf(lbRunningTasks, MouseEvent.MOUSE_CLICKED),
-        EventStreams.eventsOf(boxProgressBar, MouseEvent.MOUSE_CLICKED))
+        EventStreams.eventsOf(boxProgressBar, MouseEvent.MOUSE_CLICKED),
+        EventStreams.eventsOf(mainProgressBar, MouseEvent.MOUSE_CLICKED))
         .subscribe(mouseEvent -> {
           if (fadingInProgress) {
             mouseEvent.consume();
