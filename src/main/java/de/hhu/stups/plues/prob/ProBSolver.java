@@ -14,7 +14,6 @@ import de.prob.statespace.Transition;
 import de.prob.translator.types.BObject;
 import de.prob.translator.types.Record;
 import de.prob.translator.types.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -238,14 +237,33 @@ public class ProBSolver implements Solver {
   public final synchronized Boolean checkFeasibility(final String... courses)
       throws SolverException {
 
+    // if we have more than one course we check each separately before checking the combination
+    // of courses
+    boolean error = false;
+    //
+    if (courses.length > 1) {
+      for (final String course : courses) {
+        if (!checkOperation(course)) {
+          error = true;
+          break;
+        }
+      }
+    }
+    //
+    error = error || !checkOperation(courses);
+    if (error) {
+      throw new SolverException("Could not execute operation " + CHECK + " - "
+        + Arrays.toString(courses));
+    }
+    //
+    return true;
+  }
+
+  private Boolean checkOperation(final String... courses) throws SolverException {
     final String predicate = getFeasibilityPredicate(courses);
     final SolverResult result = executeOperation(CHECK, predicate);
 
-    if (!result.succeeded()) {
-      throw new SolverException("Could not execute operation " + CHECK + " - " + predicate);
-    }
-
-    return true;
+    return result.succeeded();
   }
 
   /**

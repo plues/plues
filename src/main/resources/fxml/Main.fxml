@@ -18,9 +18,9 @@
 <?import org.controlsfx.control.TaskProgressView?>
 <?import de.hhu.stups.plues.ui.components.MainMenuBar?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-      prefHeight="800.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="de.hhu.stups.plues.ui.controller.MainController" fx:id="mainController">
+<VBox maxHeight="Infinity" maxWidth="Infinity" minHeight="0" minWidth="0" prefHeight="800.0" prefWidth="800.0"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.hhu.stups.plues.ui.controller.MainController"
+      fx:id="mainController">
     <MainMenuBar fx:id="mainMenuBar"/>
     <SplitPane fx:id="mainSplitPane" dividerPositions="1.0">
         <VBox>
@@ -46,8 +46,8 @@
             </TabPane>
         </VBox>
         <VBox fx:id="boxTaskProgress" minWidth="0.0">
-            <ScrollPane fx:id="scrollPaneTaskProgress" VBox.vgrow="ALWAYS" hbarPolicy="NEVER"
-                        fitToHeight="true" fitToWidth="true">
+            <ScrollPane fx:id="scrollPaneTaskProgress" VBox.vgrow="ALWAYS" hbarPolicy="NEVER" fitToHeight="true"
+                        fitToWidth="true">
                 <TaskProgressView fx:id="taskProgress"/>
             </ScrollPane>
         </VBox>
@@ -58,7 +58,9 @@
         </padding>
         <rightItems>
             <Label fx:id="lbRunningTasks" id="statusBarLabel"/>
-            <ProgressBar fx:id="mainProgressBar"/>
+            <VBox fx:id="boxProgressBar" alignment="CENTER">
+                <ProgressBar fx:id="mainProgressBar"/>
+            </VBox>
         </rightItems>
     </StatusBar>
 </VBox>

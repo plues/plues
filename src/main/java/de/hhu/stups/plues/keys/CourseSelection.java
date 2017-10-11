@@ -77,7 +77,7 @@ public class CourseSelection {
     return courses;
   }
 
-  public boolean isStandalone() {
+  boolean isStandalone() {
     return isStandalone;
   }
 

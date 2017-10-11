@@ -68,6 +68,7 @@ public class ResultBox extends VBox implements Initializable {
   private final ObjectProperty<Path> pdf = new SimpleObjectProperty<>();
   private PdfRenderingTask task;
   private ResultState resultState;
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -87,6 +88,9 @@ public class ResultBox extends VBox implements Initializable {
   @FXML
   @SuppressWarnings("unused")
   private HBox colorPreviewBox;
+  @FXML
+  @SuppressWarnings("unused")
+  private Label lbUnitDisplayFormat;
 
   /**
    * Constructor for ResultBox.
@@ -127,6 +131,7 @@ public class ResultBox extends VBox implements Initializable {
 
   @Override
   public final void initialize(final URL location, final ResourceBundle resources) {
+    this.resources = resources;
     initializeCourseLabels();
 
     lbErrorMsg.textProperty().bind(
@@ -145,14 +150,20 @@ public class ResultBox extends VBox implements Initializable {
     pdfRenderingService.pdfGenerationSettingsProperty().bind(pdfGenerationSettingsProperty);
     runSolverTask();
 
-    showUsedColorSchemePreview();
+    showUsedPdfSettings();
   }
 
-  private void showUsedColorSchemePreview() {
+  private void showUsedPdfSettings() {
+    final PdfGenerationSettings pdfGenerationSettings = pdfGenerationSettingsProperty.get();
     colorPreviewBox.getChildren().clear();
-    pdfGenerationSettingsProperty.get().colorSchemeProperty().get()
+    pdfGenerationSettings.colorSchemeProperty().get()
         .addColorPreviews(colorPreviewBox, 5, 15.0);
     colorPreviewBox.getChildren().remove(colorPreviewBox.getChildren().size() - 1);
+    lbUnitDisplayFormat.textProperty().bind(Bindings.createStringBinding(() -> {
+      final String titleOrKey = (pdfGenerationSettings.unitDisplayFormatProperty().get().isTitle()
+          ? resources.getString("title") : resources.getString("id"));
+      return resources.getString("unitDisplayFormat") + " " + titleOrKey;
+    }));
   }
 
   /**
@@ -162,7 +173,7 @@ public class ResultBox extends VBox implements Initializable {
     interrupt();
     //
     initSolverTask();
-    showUsedColorSchemePreview();
+    showUsedPdfSettings();
     pdfRenderingService.submit(task);
   }
 

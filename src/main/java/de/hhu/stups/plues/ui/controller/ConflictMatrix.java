@@ -62,7 +62,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private final ConflictMatrixService conflictMatrixService;
   private final LongProperty impossibleCoursesAmount = new SimpleLongProperty(0L);
   private final MapProperty<CourseSelection, ResultState> results
-      = new SimpleMapProperty<>(FXCollections.emptyObservableMap());
+      = new SimpleMapProperty<>(FXCollections.observableHashMap());
   private final Map<CourseSelection, ResultGridCell> cellMap = new HashMap<>();
   private final EventSource<Course> checkCourseCombinationsEventSource = new EventSource<>();
 
@@ -181,6 +181,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
     paneLegendImpossible.getChildren().addAll(new Circle(5, 5, 2), new Circle(10, 5, 2),
         new Circle(5, 10, 2), new Circle(10, 10, 2), new Circle(5, 15, 2));
 
+    results.bind(conflictMatrixService.resultsProperty());
   }
 
   private void initializeStats() {

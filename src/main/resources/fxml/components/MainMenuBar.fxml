@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.MenuBar?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioMenuItem?>
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
-
+<?import javafx.scene.control.ToggleGroup?>
 <fx:root type="MenuBar" useSystemMenuBar="true" xmlns="http://javafx.com/javafx/8.0.76-ea"
          xmlns:fx="http://javafx.com/fxml/1">
     <Menu mnemonicParsing="false" text="%file">
@@ -66,21 +66,33 @@
             <graphic>
                 <FontAwesomeIconView glyphName="CLOCK_ALT" size="14"/>
             </graphic>
+            <fx:define>
+                <ToggleGroup fx:id="timeoutToggleGroup"/>
+            </fx:define>
             <RadioMenuItem fx:id="fifteenSecondsMenuItem" text="%timeout.fifteenSeconds"
-                           disable="true" selected="true" mnemonicParsing="false"
-                           onAction="#setTimeoutFifteenSeconds"/>
+                           disable="true" mnemonicParsing="false"
+                           toggleGroup="$timeoutToggleGroup"
+                           onAction="#setTimeout" userData="15"/>
             <RadioMenuItem fx:id="oneMinuteMenuItem" text="%timeout.oneMinute" disable="true"
-                           selected="true" mnemonicParsing="false"
-                           onAction="#setTimeoutOneMinute"/>
+                           mnemonicParsing="false"
+                           toggleGroup="$timeoutToggleGroup"
+                           onAction="#setTimeout" userData="60"/>
+            <RadioMenuItem fx:id="twoMinutesMenuItem" text="%timeout.twoMinutes" disable="true"
+                           mnemonicParsing="false"
+                           toggleGroup="$timeoutToggleGroup"
+                           onAction="#setTimeout" userData="120"/>
             <RadioMenuItem fx:id="threeMinutesMenuItem" text="%timeout.threeMinutes"
                            disable="true" mnemonicParsing="false"
-                           onAction="#setTimeoutThreeMinutes"/>
+                           toggleGroup="$timeoutToggleGroup"
+                           onAction="#setTimeout" userData="180"/>
             <RadioMenuItem fx:id="fiveMinutesMenuItem" text="%timeout.fiveMinutes"
                            disable="true" mnemonicParsing="false"
-                           onAction="#setTimeoutFiveMinutes"/>
+                           toggleGroup="$timeoutToggleGroup"
+                           onAction="#setTimeout" userData="300"/>
             <RadioMenuItem fx:id="twentyMinutesMenuItem" text="%timeout.twentyMinutes"
                            disable="true" mnemonicParsing="false"
-                           onAction="#setTimeoutTwentyMinutes"/>
+                           toggleGroup="$timeoutToggleGroup"
+                           onAction="#setTimeout" userData="1200"/>
             <MenuItem fx:id="setTimeoutMenuItem" text="%timeout.Title" disable="true"
                       mnemonicParsing="false" onAction="#setTimeoutCustom"/>
         </Menu>
@@ -90,11 +102,17 @@
             <graphic>
                 <FontAwesomeIconView glyphName="CALENDAR" size="14"/>
             </graphic>
+            <fx:define>
+                <ToggleGroup fx:id="sessionPreferenceToggle"/>
+            </fx:define>
             <RadioMenuItem fx:id="rbMenuItemSessionName" mnemonicParsing="false"
+                           toggleGroup="$sessionPreferenceToggle"
                            text="%display.UnitTitle" userData="TITLE"/>
             <RadioMenuItem fx:id="rbMenuItemSessionId" mnemonicParsing="false"
+                           toggleGroup="$sessionPreferenceToggle"
                            text="%display.UnitId" userData="UNIT_KEY"/>
             <RadioMenuItem fx:id="rbMenuItemSessionKey" mnemonicParsing="false"
+                           toggleGroup="$sessionPreferenceToggle"
                            text="%display.AbstractUnitKeys" userData="ABSTRACT_UNIT_KEYS"/>
         </Menu>
     </Menu>

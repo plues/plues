@@ -30,7 +30,7 @@ public class GroupsWithConflicts extends VBox implements Initializable {
 
   @Inject
   public GroupsWithConflicts(final Inflater inflater) {
-    inflater.inflate("/components/reports/GroupsWithConflicts",
+    inflater.inflate("components/reports/GroupsWithConflicts",
         this, this, "reports", "Column");
   }
 
