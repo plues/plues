@@ -108,6 +108,9 @@ public class MainController implements Initializable, Activatable {
   private ProgressBar mainProgressBar;
   @FXML
   private Label lbRunningTasks;
+  @FXML
+  private VBox boxProgressBar;
+
   private SplitPane.Divider mainSplitPaneDivider;
   private double visibleDividerPos;
   private boolean fadingInProgress = false;
@@ -176,14 +179,14 @@ public class MainController implements Initializable, Activatable {
 
     mainStatusBar.setText("");
 
-
     clearStatusBar();
 
     taskBoxCollapsed.addListener((observable, oldValue, shouldHide) ->
         hideTaskProgressBox(shouldHide));
 
-    mainProgressBar.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
-    mainProgressBar.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
+    boxProgressBar.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
+    boxProgressBar.setOnMouseExited(event -> stage.getScene().setCursor(Cursor.DEFAULT));
+    boxProgressBar.visibleProperty().bind(progressVisibleProperty);
     mainProgressBar.visibleProperty().bind(progressVisibleProperty);
 
     lbRunningTasks.setOnMouseEntered(event -> stage.getScene().setCursor(Cursor.HAND));
@@ -265,7 +268,7 @@ public class MainController implements Initializable, Activatable {
     });
 
     EventStreams.merge(EventStreams.eventsOf(lbRunningTasks, MouseEvent.MOUSE_CLICKED),
-        EventStreams.eventsOf(mainProgressBar, MouseEvent.MOUSE_CLICKED))
+        EventStreams.eventsOf(boxProgressBar, MouseEvent.MOUSE_CLICKED))
         .subscribe(mouseEvent -> {
           if (fadingInProgress) {
             mouseEvent.consume();

@@ -58,7 +58,9 @@
         </padding>
         <rightItems>
             <Label fx:id="lbRunningTasks" id="statusBarLabel"/>
-            <ProgressBar fx:id="mainProgressBar"/>
+            <VBox fx:id="boxProgressBar" alignment="CENTER">
+                <ProgressBar fx:id="mainProgressBar"/>
+            </VBox>
         </rightItems>
     </StatusBar>
 </VBox>
