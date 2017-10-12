@@ -264,8 +264,7 @@ public class MainMenuBar extends MenuBar implements Initializable {
     final int lastButOne = selectTimeoutMenu.getItems().size() - 1;
     selectTimeoutMenu.getItems().add(lastButOne, customTimeoutItem);
 
-    customTimeoutItem.addEventHandler(MouseEvent.MOUSE_CLICKED, event ->
-        mainMenuService.setTimeout(customTimeoutProperty.get()));
+    customTimeoutItem.setOnAction(event -> mainMenuService.setTimeout(customTimeoutProperty.get()));
 
     customTimeoutProperty.addListener((observable, oldValue, newValue) -> {
       customTimeoutItem.setText(String.format(resources.getString("timeout.custom"), newValue));
