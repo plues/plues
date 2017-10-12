@@ -299,7 +299,9 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     final Course minor = courseSelection.getSelectedMinor();
 
     final File destinationFile = PdfRenderingHelper.getTargetFile(major, minor);
-    PdfRenderingHelper.savePdf(pdf.get(), Paths.get(destinationFile.getAbsolutePath()), null);
+    if (destinationFile != null) {
+      PdfRenderingHelper.savePdf(pdf.get(), Paths.get(destinationFile.getAbsolutePath()), null);
+    }
   }
 
   /**

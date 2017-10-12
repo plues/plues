@@ -67,7 +67,8 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   private final BooleanProperty solverProperty;
   private final BooleanProperty generationRunning;
-  private final SimpleListProperty<PdfRenderingTask> generationSucceeded;
+  private final SimpleListProperty<PdfRenderingTask> succeededRenderingTasks;
+  private final BooleanProperty generationSucceeded;
   private final ObjectProperty<PdfGenerationSettings> pdfGenerationSettingsProperty;
 
   private final BatchResultBoxFactory batchResultBoxFactory;
@@ -125,7 +126,9 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
     this.solverProperty = new SimpleBooleanProperty(false);
     this.generationRunning = new SimpleBooleanProperty(false);
-    this.generationSucceeded = new SimpleListProperty<>();
+    this.succeededRenderingTasks = new SimpleListProperty<>();
+    generationSucceeded = new SimpleBooleanProperty(false);
+
     pdfGenerationSettingsProperty = new SimpleObjectProperty<>(
         new PdfGenerationSettings(null, null));
 
@@ -163,9 +166,9 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     btCancel.disableProperty().bind(
         solverProperty.not().or(btGenerateAll.disabledProperty().not()));
 
-    btSaveToZip.disableProperty().bind(generationSucceeded.emptyProperty());
-    btSaveToFolder.disableProperty().bind(generationSucceeded.emptyProperty());
-    btPrint.disableProperty().bind(generationSucceeded.emptyProperty());
+    btSaveToZip.disableProperty().bind(succeededRenderingTasks.emptyProperty());
+    btSaveToFolder.disableProperty().bind(succeededRenderingTasks.emptyProperty());
+    btPrint.disableProperty().bind(generationSucceeded.not());
   }
 
   private void initializeControllerHeader(final ResourceBundle resources) {
@@ -180,9 +183,10 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
   @FXML
   @SuppressWarnings("unused")
   private void generateAll() {
+    generationSucceeded.set(false);
     generationRunning.setValue(true);
     //
-    generationSucceeded.clear();
+    succeededRenderingTasks.clear();
     listView.getItems().clear();
 
     fillPoolTask = collectPdfRenderingTasksTaskProvider.get();
@@ -204,12 +208,12 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
     fillPoolTask.setOnCancelled(event -> {
       generationRunning.setValue(false);
-      generationSucceeded.clear();
+      succeededRenderingTasks.clear();
     });
 
     fillPoolTask.setOnFailed(event -> {
       generationRunning.setValue(false);
-      generationSucceeded.clear();
+      succeededRenderingTasks.clear();
     });
     executor.submit(fillPoolTask);
   }
@@ -222,20 +226,28 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       final Collection<PdfRenderingTask> executedTasks = executePoolTask.getValue();
       final List<PdfRenderingTask> result = getSuccessfulTasks(executedTasks);
 
-      generationSucceeded.set(FXCollections.observableList(result));
+      succeededRenderingTasks.set(FXCollections.observableList(result));
+      //
+      generationSucceeded.set(true);
       generationRunning.setValue(false);
     });
 
     renderingTask.setOnCancelled(event -> {
       logger.info("PDF generation task cancelled.");
+
+      generationSucceeded.set(true);
       generationRunning.setValue(false);
-      generationSucceeded.clear();
+
+      succeededRenderingTasks.clear();
     });
 
     renderingTask.setOnFailed(event -> {
       logger.info("PDF generation task failed.");
+
+      generationSucceeded.set(true);
       generationRunning.setValue(false);
-      generationSucceeded.clear();
+
+      succeededRenderingTasks.clear();
     });
 
     return renderingTask;
@@ -299,7 +311,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     }
     final Path dir = selectedDirectory.toPath();
 
-    this.generationSucceeded.forEach(task -> {
+    this.succeededRenderingTasks.forEach(task -> {
       final String fileName = PdfRenderingHelper.getDocumentName(task.getMajor(), task.getMinor());
       final Path source = task.getValue();
 
@@ -344,7 +356,7 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
    */
   private void tempFilesToZip(final Path target) {
     try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(target))) {
-      this.generationSucceeded.forEach(task -> addEntryToZip(zipOutputStream, task));
+      this.succeededRenderingTasks.forEach(task -> addEntryToZip(zipOutputStream, task));
     } catch (final IOException exception) {
       logger.error("Could not save the zip archive to the selected location.",
           exception);
