@@ -37,7 +37,6 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
