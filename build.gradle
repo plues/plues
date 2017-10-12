@@ -41,7 +41,7 @@ checkstyle {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-version = "2.7.1"
+version = "2.7.2"
 
 mainClassName = "de.hhu.stups.plues.ui.Main"
 
