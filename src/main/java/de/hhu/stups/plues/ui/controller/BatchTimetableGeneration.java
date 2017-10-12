@@ -226,20 +226,27 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
       final Collection<PdfRenderingTask> executedTasks = executePoolTask.getValue();
       final List<PdfRenderingTask> result = getSuccessfulTasks(executedTasks);
 
-      generationSucceeded.set(true);
       succeededRenderingTasks.set(FXCollections.observableList(result));
+      //
+      generationSucceeded.set(true);
       generationRunning.setValue(false);
     });
 
     renderingTask.setOnCancelled(event -> {
       logger.info("PDF generation task cancelled.");
+
+      generationSucceeded.set(true);
       generationRunning.setValue(false);
+
       succeededRenderingTasks.clear();
     });
 
     renderingTask.setOnFailed(event -> {
       logger.info("PDF generation task failed.");
+
+      generationSucceeded.set(true);
       generationRunning.setValue(false);
+
       succeededRenderingTasks.clear();
     });
 
