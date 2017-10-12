@@ -4,6 +4,9 @@
         <fo:simple-page-master master-name="hoch" page-width="21.0cm" page-height="29.7cm" margin="1cm">
             <fo:region-body extent="1cm"/>
         </fo:simple-page-master>
+        <fo:simple-page-master master-name="quer" page-width="29.7cm" page-height="21.0cm" margin="1cm">
+            <fo:region-body extent="1cm"/>
+        </fo:simple-page-master>
     </fo:layout-master-set>
     <fo:page-sequence master-reference="hoch">
         <fo:flow flow-name="xsl-region-body">
@@ -22,12 +25,12 @@
         </fo:flow>
     </fo:page-sequence>
     {% if batchResultBoxes|length > 0 %}
-        <fo:page-sequence master-reference="hoch">
+        <fo:page-sequence master-reference="quer">
             <fo:flow flow-name="xsl-region-body">
                 <fo:table border-style="transparent" width="100%" table-layout="fixed" break-after="page">
-                   <fo:table-column column-width="45%"/>
-                   <fo:table-column column-width="45%"/>
-                   <fo:table-column column-width="10%"/>
+                   <fo:table-column column-width="42.5%"/>
+                   <fo:table-column column-width="42.5%"/>
+                   <fo:table-column column-width="15%"/>
                    <fo:table-header>
                        <fo:table-row height="0.4cm" font-size="12pt">
                            <fo:table-cell font-weight="bold" border-style="solid" border-width="2pt">

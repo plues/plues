@@ -41,7 +41,7 @@ checkstyle {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-version = "2.7.1"
+version = "2.7.2"
 
 mainClassName = "de.hhu.stups.plues.ui.Main"
 
@@ -78,7 +78,7 @@ dependencies {
     compile 'org.jtwig:jtwig-core:5.86.1.RELEASE'
 
     compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-3'
-    compile 'org.controlsfx:controlsfx:8.40.13'
+    compile 'org.controlsfx:controlsfx:8.40.14'
     compile 'de.codecentric.centerdevice:centerdevice-nsmenufx:2.1.5'
 
     compile group: 'org.fxmisc.easybind', name: 'easybind', version: '1.0.3'
