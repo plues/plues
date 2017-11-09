@@ -11,7 +11,6 @@ Java API](https://www3.hhu.de/stups/prob/index.php/ProB_Java_API).
 [![SonarQube Quality Gate](https://sonarqube.com/api/badges/gate?key=plues:develop)](https://sonarqube.com/dashboard?id=plues%3Adevelop)
 [![SonarQube Coverage](https://sonarqube.com/api/badges/measure?key=plues:develop&metric=coverage)](https://sonarqube.com/component_measures/domain/Coverage?id=plues%3Adevelop)
 [![SonarQube Tech Debt](https://sonarqube.com/api/badges/measure?key=plues:develop&metric=sqale_debt_ratio)](https://sonarqube.com/component_measures/domain/Maintainability?id=plues%3Adevelop)
-[![Dependency Status](https://www.versioneye.com/user/projects/57a33b001dadcb004d680562/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/57a33b001dadcb004d680562)
 [![codebeat badge](https://codebeat.co/badges/6216d53c-afad-4808-8da8-2cf748f0016d)](https://codebeat.co/projects/github-com-plues-plues)
 [![Code Climate](https://codeclimate.com/github/plues/plues/badges/gpa.svg)](https://codeclimate.com/github/plues/plues)
 
