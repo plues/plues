@@ -13,7 +13,7 @@ buildscript {
         // Add dependency for build script,
         // so we can access Git from our
         // build script.
-        classpath group: 'org.ajoberstar', name: 'grgit', version: '1.8.0-rc.1'
+        classpath group: 'org.ajoberstar', name: 'grgit', version: '2.1.0'
     }
 }
 plugins {
@@ -23,15 +23,15 @@ plugins {
     id 'eclipse'
     id 'findbugs'
     id 'checkstyle'
-    id 'edu.sc.seis.launch4j' version '2.4.1'
-    id "edu.sc.seis.macAppBundle" version "2.1.7"
+    id 'edu.sc.seis.launch4j' version '2.4.2'
+    id "edu.sc.seis.macAppBundle" version "2.1.9"
     id 'jacoco'
     id 'com.github.ben-manes.versions' version '0.17.0'
 }
 
 
 ext {
-    git = Grgit.open(file('.'))
+    git = Grgit.open()
     revision = git.head().id
 }
 
@@ -72,18 +72,18 @@ repositories {
 }
 
 dependencies {
-    compile 'com.google.code.findbugs:annotations:3.0.1u2'
+    compile 'com.google.code.findbugs:annotations:3.0.1'
     compile 'org.apache.xmlgraphics:fop:2.2'
     compile 'org.apache.xmlgraphics:batik-i18n:1.9.1'
     compile 'org.apache.xmlgraphics:batik-constants:1.9.1'
     compile 'org.jtwig:jtwig-core:5.86.1.RELEASE'
 
-    compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-3'
+    compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-5'
     compile 'org.controlsfx:controlsfx:8.40.14'
     compile 'de.codecentric.centerdevice:centerdevice-nsmenufx:2.1.5'
 
     compile group: 'org.fxmisc.easybind', name: 'easybind', version: '1.0.3'
-    compile group: 'de.hhu.stups', name: 'de.prob2.kernel', version: '3.2.4'
+    compile group: 'de.hhu.stups', name: 'de.prob2.kernel', version: '3.2.5'
 
     compile 'com.google.inject.extensions:guice-assistedinject:4.1.0'
 
@@ -98,14 +98,14 @@ dependencies {
     compile project(':model-generator')
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile 'org.mockito:mockito-core:2.10.+'
+    testCompile 'org.mockito:mockito-core:2.12.+'
     testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
 
     // provides org.testfx.api, org.testfx.matcher to the test source set.
-    testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.6-alpha")
+    testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.8-alpha")
     // provides org.testfx.framework.junit to the test source set.
-    testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.6-alpha")
-    testRuntime 'org.testfx:openjfx-monocle:1.8.0_20'
+    testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.8-alpha")
+    testRuntime 'org.testfx:openjfx-monocle:8u76-b04'
 }
 
 launch4j {
