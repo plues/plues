@@ -72,7 +72,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.google.code.findbugs:annotations:3.0.1'
+    compile 'com.google.code.findbugs:annotations:3.0.1u2'
     compile 'org.apache.xmlgraphics:fop:2.2'
     compile 'org.apache.xmlgraphics:batik-i18n:1.9.1'
     compile 'org.apache.xmlgraphics:batik-constants:1.9.1'
@@ -105,7 +105,7 @@ dependencies {
     testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.8-alpha")
     // provides org.testfx.framework.junit to the test source set.
     testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.8-alpha")
-    testRuntime 'org.testfx:openjfx-monocle:8u76-b04'
+    testRuntime 'org.testfx:openjfx-monocle:1.8.0_20'
 }
 
 launch4j {
