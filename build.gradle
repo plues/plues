@@ -3,8 +3,6 @@ import java.time.Clock
 import java.time.format.DateTimeFormatter
 import org.ajoberstar.grgit.Grgit
 
-import static org.gradle.util.Clock.*
-
 buildscript {
     repositories {
         mavenCentral()
