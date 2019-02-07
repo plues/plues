@@ -11,7 +11,7 @@ buildscript {
         // Add dependency for build script,
         // so we can access Git from our
         // build script.
-        classpath group: 'org.ajoberstar', name: 'grgit', version: '2.1.0'
+        classpath 'org.ajoberstar.grgit:grgit-core:3.0.0'
     }
 }
 plugins {
@@ -29,7 +29,7 @@ plugins {
 
 
 ext {
-    git = Grgit.open()
+    git = Grgit.open(dir: System.getProperty("user.dir"))
     revision = git.head().id
 }
 
