@@ -19,7 +19,7 @@ plugins {
     id 'application'
     id 'idea'
     id 'eclipse'
-    id 'findbugs'
+    id "com.github.spotbugs" version "1.6.9"
     id 'checkstyle'
     id 'edu.sc.seis.launch4j' version '2.4.2'
     id "edu.sc.seis.macAppBundle" version "2.1.9"
