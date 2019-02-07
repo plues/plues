@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+@SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
 public class SessionDetailViewTest extends ApplicationTest {
 
   private final Store store;
@@ -52,7 +53,6 @@ public class SessionDetailViewTest extends ApplicationTest {
    * Test constructor.
    */
   @SuppressWarnings("ResultOfMethodCallIgnored")
-  @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   public SessionDetailViewTest() {
     store = mock(Store.class);
 
