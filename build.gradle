@@ -106,7 +106,7 @@ dependencies {
     compile project(':model-generator')
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile 'org.mockito:mockito-core:2.13.+'
+    testCompile 'org.mockito:mockito-core:2.25.0'
     testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
 
     // provides org.testfx.api, org.testfx.matcher to the test source set.
