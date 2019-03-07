@@ -26,6 +26,7 @@ plugins {
     id "edu.sc.seis.macAppBundle" version "2.3.0"
     id 'jacoco'
     id 'com.github.ben-manes.versions' version '0.17.0'
+    id "org.openjfx.javafxplugin" version "0.0.6" apply false
 }
 
 
@@ -114,6 +115,21 @@ dependencies {
     testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.8-alpha")
     testRuntime 'org.testfx:openjfx-monocle:1.8.0_20'
 }
+
+if (JavaVersion.current().java11Compatible) {
+	apply plugin: "org.openjfx.javafxplugin"
+	javafx {
+		modules = [
+			"javafx.base",
+			"javafx.controls",
+			"javafx.fxml",
+			"javafx.graphics",
+			"javafx.swing",
+			"javafx.web",
+		]
+	}
+}
+
 
 launch4j {
     mainClassName = project.mainClassName
