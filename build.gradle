@@ -173,7 +173,7 @@ macAppBundle {
 }
 
 if (JavaVersion.current() > 8) {
-    org.gradle.jvmargs=--add-opens=java.base/java.util=ALL-UNNAMED
+    org.gradle.jvmargs='--add-opens=java.base/java.util=ALL-UNNAMED'
 }
 
 /*
