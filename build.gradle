@@ -172,17 +172,17 @@ macAppBundle {
 
 }
 
-if (JavaVersion.current() != '1.8') {
-    org.gradle.jvmargs='--add-opens=java.base/java.util=ALL-UNNAMED'
-}
-
 /*
  * Allows you to run the UI tests in headless mode by calling gradle with the -Pheadless=true argument
  */
 if (project.hasProperty('headless') ? project.headless : false) {
     println "Running UI Tests Headless"
     test {
-        jvmArgs = ['-Djava.awt.headless=true', '-Dtestfx.robot=glass', '-Dtestfx.headless=true', '-Dprism.order=sw', '-Dprism.text=t2k', '-Dglass.gtk.uiScale=2.0']
+    	if (JavaVersion.current() == '1.8') {
+        	jvmArgs = ['-Djava.awt.headless=true', '-Dtestfx.robot=glass', '-Dtestfx.headless=true', '-Dprism.order=sw', '-Dprism.text=t2k', '-Dglass.gtk.uiScale=2.0']
+    	} else {
+		jvmArgs = ['--add-opens=java.base/java.util=ALL-UNNAMED', '-Djava.awt.headless=true', '-Dtestfx.robot=glass', '-Dtestfx.headless=true', '-Dprism.order=sw', '-Dprism.text=t2k', '-Dglass.gtk.uiScale=2.0']
+	}
     }
 }
 test {
