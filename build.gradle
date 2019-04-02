@@ -181,7 +181,6 @@ if (project.hasProperty('headless') ? project.headless : false) {
     	if (JavaVersion.current() == '1.8') {
         	jvmArgs = ['-Djava.awt.headless=true', '-Dtestfx.robot=glass', '-Dtestfx.headless=true', '-Dprism.order=sw', '-Dprism.text=t2k', '-Dglass.gtk.uiScale=2.0']
     	} else {
-		GRADLE_OPTS=--add-opens=java.base/java.util=ALL-UNNAMED
 		jvmArgs = ['-Djava.awt.headless=true', '-Dtestfx.robot=glass', '-Dtestfx.headless=true', '-Dprism.order=sw', '-Dprism.text=t2k', '-Dglass.gtk.uiScale=2.0']
 	}
     }
