@@ -172,7 +172,7 @@ macAppBundle {
 
 }
 
-if (JavaVersion.current() > 8) {
+if (JavaVersion.current() != '1.8') {
     org.gradle.jvmargs='--add-opens=java.base/java.util=ALL-UNNAMED'
 }
 
