@@ -110,10 +110,10 @@ dependencies {
     testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
 
     // provides org.testfx.api, org.testfx.matcher to the test source set.
-    testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.8-alpha")
+    testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.15-alpha")
     // provides org.testfx.framework.junit to the test source set.
-    testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.8-alpha")
-    testRuntime 'org.testfx:openjfx-monocle:1.8.0_20'
+    testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.15-alpha")
+    testRuntime 'org.testfx:openjfx-monocle:jdk-11+26'
 }
 
 if (JavaVersion.current().java11Compatible) {
