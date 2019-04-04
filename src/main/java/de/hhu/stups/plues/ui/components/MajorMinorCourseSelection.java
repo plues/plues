@@ -262,6 +262,9 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private static class CourseConverter extends StringConverter<Course> {
     @Override
     public String toString(final Course object) {
+      if(object == null) {
+        return "";
+      }
       return object.getFullName();
     }
 

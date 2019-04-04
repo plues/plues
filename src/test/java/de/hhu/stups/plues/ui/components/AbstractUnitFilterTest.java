@@ -129,6 +129,7 @@ public class AbstractUnitFilterTest extends ApplicationTest {
     clickOn(cb); // click on checkbox again
     units = lookup("#unitsTable").query(); // collect units again
 
+    //Race Condition?
     Assert.assertEquals(0, units.getItems().size());
 
     clickOn((RadioButton) lookup("#rbNotSelected").query());

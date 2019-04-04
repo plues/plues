@@ -110,11 +110,12 @@ dependencies {
     testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
 
     // provides org.testfx.api, org.testfx.matcher to the test source set.
-    testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.8-alpha")
+    testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.15-alpha")
     // provides org.testfx.framework.junit to the test source set.
-    testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.8-alpha")
-    testRuntime 'org.testfx:openjfx-monocle:8u76-b04'
+    testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.15-alpha")
+    testRuntime 'org.testfx:openjfx-monocle:jdk-11+26'
 }
+
 
 if (JavaVersion.current().java11Compatible) {
 	apply plugin: "org.openjfx.javafxplugin"
@@ -172,10 +173,43 @@ macAppBundle {
 
 }
 
+// Module export/open declarations for Java 9+
+def exports = []
+def opens = []
+
+// Required by centerdevice-nsmenufx (as of version 2.1.6; see https://github.com/codecentric/NSMenuFX/issues/29)
+exports += [
+        "javafx.controls/com.sun.javafx.scene.control",
+        "javafx.graphics/com.sun.glass.ui",
+        "javafx.graphics/com.sun.javafx.menu",
+        "javafx.graphics/com.sun.javafx.tk",
+]
+opens += [
+        "javafx.graphics/com.sun.glass.ui.mac",
+        "javafx.graphics/com.sun.javafx.tk.quantum",
+]
+
+// Required by controlsfx (as of version 11.0.0-RC2; see https://github.com/controlsfx/controlsfx/issues/1100)
+exports += [
+        "javafx.graphics/com.sun.javafx.css",
+        "javafx.base/com.sun.javafx.runtime",
+]
+
+// Required by richtextfx (as of version 0.9.x; planned to be fixed in 0.10, see https://github.com/FXMisc/RichTextFX/issues/776)
+exports += [
+        "javafx.graphics/com.sun.javafx.geom",
+        "javafx.graphics/com.sun.javafx.scene.text",
+]
+opens += [
+        "javafx.graphics/com.sun.javafx.text",
+        "javafx.graphics/javafx.scene.text",
+]
+
 if (JavaVersion.current().java9Compatible) {
-	applicationDefaultJvmArgs += "--add-opens=java.base/java.util=ALL-UNNAMED "
-	applicationDefaultJvmArgs += "--add-exports=java.base/java.util=ALL-UNNAMED"
+    applicationDefaultJvmArgs += exports.collect {"--add-exports=${it}=ALL-UNNAMED".toString()}
+    applicationDefaultJvmArgs += opens.collect {"--add-opens=${it}=ALL-UNNAMED".toString()}
 }
+
 
 /*
  * Allows you to run the UI tests in headless mode by calling gradle with the -Pheadless=true argument

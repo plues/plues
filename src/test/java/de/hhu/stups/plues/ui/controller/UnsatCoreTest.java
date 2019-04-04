@@ -86,6 +86,7 @@ public class UnsatCoreTest extends ApplicationTest {
         lookup("#checkFeasibilityButtonBar").query();
     clickOn(checkFeasibilityButtonBar.getBtSubmitTask());
     sleep(1000, TimeUnit.MILLISECONDS);
+    //Race Condition?
     Assert.assertTrue(courseUnsatCore.taskRunningProperty().get());
     Assert.assertTrue(courseSelection.isDisabled());
   }
