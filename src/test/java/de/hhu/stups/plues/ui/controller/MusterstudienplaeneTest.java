@@ -113,7 +113,7 @@ public class MusterstudienplaeneTest extends ApplicationTest {
         .type(KeyCode.DOWN)
         .type(KeyCode.ENTER);
     clickOn(musterstudienplaene.getBtGenerate());
-    sleep(500, TimeUnit.MILLISECONDS);
+    sleep(2000, TimeUnit.MILLISECONDS);
     assertEquals(2, resultBoxWrapper.getItems().size());
     assertTrue(resultBoxWrapper.isVisible());
     final ResultBox existingResultBox = resultBoxWrapper.getItems().get(1);
@@ -121,13 +121,13 @@ public class MusterstudienplaeneTest extends ApplicationTest {
         .type(KeyCode.UP)
         .type(KeyCode.ENTER);
     clickOn(musterstudienplaene.getBtGenerate());
-    sleep(500, TimeUnit.MILLISECONDS);
+    sleep(2000, TimeUnit.MILLISECONDS);
     assertEquals(existingResultBox, resultBoxWrapper.getItems().get(0));
     clickOn(courseSelection.getMajorComboBox())
         .type(KeyCode.DOWN)
         .type(KeyCode.ENTER);
     clickOn(musterstudienplaene.getBtGenerate());
-    sleep(500, TimeUnit.MILLISECONDS);
+    sleep(2000, TimeUnit.MILLISECONDS);
     assertEquals(existingResultBox, resultBoxWrapper.getItems().get(1));
   }
 
