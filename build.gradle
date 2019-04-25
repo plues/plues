@@ -113,7 +113,7 @@ dependencies {
     testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.15-alpha")
     // provides org.testfx.framework.junit to the test source set.
     testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.15-alpha")
-    testCompile 'org.testfx:openjfx-monocle:jdk-11+26'
+    testRuntime 'org.testfx:openjfx-monocle:jdk-11+26'
 }
 
 
