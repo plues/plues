@@ -72,9 +72,9 @@ public class ModuleUnsatCore extends VBox implements Initializable {
     modulesTable.itemsProperty().bind(modules);
     modulesTable.setOnMouseClicked(DetailViewHelper.getModuleMouseHandler(
         modulesTable, router));
-    tableColumnModuleType.setCellValueFactory(param -> param.getValue().getModuleLevels() == null ?
-      new SimpleStringProperty("") :
-      param.getValue().getModuleLevels().stream()
+    tableColumnModuleType.setCellValueFactory(param -> param.getValue().getModuleLevels() == null
+        ? new SimpleStringProperty("") :
+        param.getValue().getModuleLevels().stream()
           .filter(moduleLevel -> this.courses.contains(moduleLevel.getCourse()))
           .map(ModuleLevel::getMandatory)
           .distinct()
