@@ -85,7 +85,7 @@ public class UnsatCoreTest extends ApplicationTest {
     final UnsatCoreButtonBar checkFeasibilityButtonBar =
         lookup("#checkFeasibilityButtonBar").query();
     clickOn(checkFeasibilityButtonBar.getBtSubmitTask());
-    sleep(1000, TimeUnit.MILLISECONDS);
+    sleep(2000, TimeUnit.MILLISECONDS);
     //Race Condition?
     Assert.assertTrue(courseUnsatCore.taskRunningProperty().get());
     Assert.assertTrue(courseSelection.isDisabled());
@@ -97,7 +97,7 @@ public class UnsatCoreTest extends ApplicationTest {
    */
   @Test
   public void testDisableCourseSelectionTaskWaiting() {
-    executorService.submit(UiTestDataCreator.getSimpleTask(10));
+    executorService.submit(UiTestDataCreator.getSimpleTask(1));
     final UnsatCoreButtonBar checkFeasibilityButtonBar =
         lookup("#checkFeasibilityButtonBar").query();
     Assert.assertFalse(courseSelection.isDisabled());
