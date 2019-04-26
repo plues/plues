@@ -1,9 +1,5 @@
 package de.hhu.stups.plues.ui.components.detailview;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-
 import de.hhu.stups.plues.data.entities.AbstractUnit;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.data.entities.ModuleAbstractUnitSemester;
@@ -11,13 +7,11 @@ import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.hhu.stups.plues.ui.layout.SceneFactory;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.internal.stubbing.answers.ThrowsException;
@@ -26,6 +20,10 @@ import org.testfx.framework.junit.ApplicationTest;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 public class AbstractUnitDetailViewTest extends ApplicationTest {
 
