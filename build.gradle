@@ -45,8 +45,7 @@ targetCompatibility = 1.8
 version = "2.8.0-SNAPSHOT"
 
 mainClassName = "de.hhu.stups.plues.ui.Main"
-
-applicationDefaultJvmArgs = ["-Dapple.awt.UIElement=true"]
+applicationDefaultJvmArgs = ["-Dapple.awt.UIElement=true", "-Xss2M"]
 def appName = "plues-" + project.version
 
 allprojects {
@@ -87,7 +86,7 @@ dependencies {
     compile group: "de.jensd", name: "fontawesomefx-commons", version: "9.1.2-jpms"
     // Cannot update to the next higher version (4.7.0-9), because its class files are compiled for Java 9.
     compile group: "de.jensd", name: "fontawesomefx-fontawesome", version: "4.7.0-5"
-    compile 'org.controlsfx:controlsfx:8.40.14'
+    compile 'org.controlsfx:controlsfx:11.0.0'
     compile 'de.codecentric.centerdevice:centerdevice-nsmenufx:2.1.5'
 
     compile group: 'org.fxmisc.easybind', name: 'easybind', version: '1.0.3'
