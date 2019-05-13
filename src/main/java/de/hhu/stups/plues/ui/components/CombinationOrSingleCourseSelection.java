@@ -1,10 +1,8 @@
 package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
-
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;
@@ -17,15 +15,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
 
 /**
  * This component offers the {@link MajorMinorCourseSelection} as well as the possibility to
@@ -35,7 +30,7 @@ import java.util.ResourceBundle;
  * {@link #selectedCourses observable list} and can be accessed via {@link #getSelectedCourses}.
  * Impossible courses can be initialized via {@link #impossibleCoursesProperty}.
  */
-public class CombinationOrSingleCourseSelection extends VBox implements Initializable {
+public class CombinationOrSingleCourseSelection extends VBox {
 
   private final ListProperty<Course> selectedCourses;
   private final ToggleGroup toggleGroup;
@@ -70,8 +65,8 @@ public class CombinationOrSingleCourseSelection extends VBox implements Initiali
         "combinationOrSingleCourseSelection");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     disableProperty().addListener((observable, oldValue, newValue) -> {
       if (newValue) {
         rbCombination.disableProperty().bind(new SimpleBooleanProperty(true));

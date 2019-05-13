@@ -1,7 +1,6 @@
 package de.hhu.stups.plues.ui.controller;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.Delayed;
@@ -40,6 +39,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
+import org.mockito.internal.stubbing.answers.ThrowsException;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
@@ -51,11 +51,10 @@ public class UnsatCoreTest extends ApplicationTest {
 
   private final ExecutorService executorService = Executors.newSingleThreadExecutor();
   private final Store store;
-  private final ObservableList<Module> modules = FXCollections.observableArrayList(new Module());
-  private final ObservableList<AbstractUnit> abstractUnits =
-      FXCollections.observableArrayList(new AbstractUnit());
-  private final ObservableList<Group> groups = FXCollections.observableArrayList(new Group());
-  private final ObservableList<Session> sessions = FXCollections.observableArrayList(new Session());
+  private final ObservableList<Module> modules;
+  private final ObservableList<AbstractUnit> abstractUnits;
+  private final ObservableList<Group> groups;
+  private final ObservableList<Session> sessions;
   private final ObservableList<Course> courseList = UiTestDataCreator.createCourseList();
 
   private CombinationOrSingleCourseSelection courseSelection;
@@ -67,7 +66,11 @@ public class UnsatCoreTest extends ApplicationTest {
   private SessionUnsatCore sessionUnsatCore;
 
   public UnsatCoreTest() {
-    store = mock(Store.class);
+    store = mock(Store.class, new ThrowsException(new RuntimeException()));
+    modules = FXCollections.observableArrayList(mock(Module.class));
+    abstractUnits = FXCollections.observableArrayList(mock(AbstractUnit.class));
+    groups = FXCollections.observableArrayList(mock(Group.class));
+    sessions = FXCollections.observableArrayList(mock(Session.class));
   }
 
   /**
@@ -350,7 +353,7 @@ public class UnsatCoreTest extends ApplicationTest {
     final Delayed<SolverService> delayedSolverService = new Delayed<>();
     delayedSolverService.set(solverService);
     final Delayed<Store> delayedStore = new Delayed<>();
-    when(store.getCourses()).thenReturn(courseList);
+    doReturn(courseList).when(store).getCourses();
     delayedStore.set(store);
 
     final UiDataService uiDataService = new UiDataService(delayedSolverService, delayedStore,

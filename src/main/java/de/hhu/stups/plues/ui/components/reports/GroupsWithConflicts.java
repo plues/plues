@@ -9,17 +9,14 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.ResourceBundle;
 import java.util.Set;
 
-public class GroupsWithConflicts extends VBox implements Initializable {
+public class GroupsWithConflicts extends VBox {
 
   private final ListProperty<Unit> unitsForGroupsWithConflicts =
       new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -34,8 +31,8 @@ public class GroupsWithConflicts extends VBox implements Initializable {
         this, this, "reports", "Column");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     listViewUnitsForGroups.itemsProperty().bind(unitsForGroupsWithConflicts);
     listViewUnitsForGroups.setCellFactory(param -> new ListCell<Unit>() {
       @Override

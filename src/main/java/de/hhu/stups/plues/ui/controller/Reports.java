@@ -35,7 +35,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
@@ -58,7 +57,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
-public class Reports extends VBox implements Initializable {
+public class Reports extends VBox {
 
   private final ObjectProperty<ReportData> reportData = new SimpleObjectProperty<>();
   private final BooleanProperty dataOutOfSync = new SimpleBooleanProperty(false);
@@ -73,6 +72,9 @@ public class Reports extends VBox implements Initializable {
   private int unitAmount;
   private Map<String, String> resources;
   private PrintReportData printReportData;
+
+  @FXML
+  private ResourceBundle resourceBundle;
 
   @FXML
   @SuppressWarnings("unused")
@@ -202,8 +204,8 @@ public class Reports extends VBox implements Initializable {
     groupsWithConflicts.setData(new HashSet<>(printReportData.getUnitsForGroupsWithConflicts()));
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     lbOutOfSyncInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
         FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "12")));
     TooltipAllocator.showTooltipOnEnter(
@@ -220,9 +222,9 @@ public class Reports extends VBox implements Initializable {
     lbSessionAmount.setText(String.valueOf(sessionAmount));
     lbModelVersion.setText(String.valueOf(properties.get("model_version")));
 
-    this.resources = resources.keySet().stream()
+    this.resources = resourceBundle.keySet().stream()
         .filter(s -> s.startsWith("title.") || s.startsWith("column")).collect(Collectors.toList())
-        .stream().collect(Collectors.toMap(o -> o, resources::getString));
+        .stream().collect(Collectors.toMap(o -> o, resourceBundle::getString));
   }
 
   @FXML

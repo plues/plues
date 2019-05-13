@@ -11,18 +11,15 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import java.net.URL;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 
-public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializable {
+public class QuasiMandatoryModuleAbstractUnits extends VBox {
 
   private Map<Module, Set<AbstractUnit>> quasiMandatoryModuleAbstractUnitsMap;
   private final SimpleListProperty<Module> modules;
@@ -66,8 +63,8 @@ public class QuasiMandatoryModuleAbstractUnits extends VBox implements Initializ
         this, this, "reports", "Column");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     tableViewQuasiMandatoryModules.itemsProperty().bind(modules);
     tableViewAbstractUnits.itemsProperty().bind(abstractUnits);
     tableViewAbstractUnits.setOnMouseClicked(

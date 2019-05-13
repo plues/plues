@@ -24,11 +24,12 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 
-public class CourseDetailView extends VBox implements Initializable, DetailView {
+public class CourseDetailView extends VBox implements DetailView {
 
   private final ObjectProperty<Course> courseProperty;
   private final Router router;
 
+  @FXML
   private ResourceBundle resources;
 
   @FXML
@@ -85,9 +86,8 @@ public class CourseDetailView extends VBox implements Initializable, DetailView 
     return name.getText();
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
+  @FXML
+  public void initialize() {
     initializeTextProperties();
 
     final IntegerBinding cp = Bindings.selectInteger(courseProperty, "creditPoints");

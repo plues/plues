@@ -28,7 +28,6 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -47,7 +46,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,7 +62,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 
-public class MainMenuBar extends MenuBar implements Initializable {
+public class MainMenuBar extends MenuBar {
 
   private static final String SESSION_FORMAT_PREF_KEY = "sessionFormat";
   private static final String LAST_DB_OPEN_DIR = "LAST_DB_OPEN_DIR";
@@ -92,6 +90,8 @@ public class MainMenuBar extends MenuBar implements Initializable {
 
   private Boolean undoRedoInProgress = false;
   private RadioMenuItem customTimeoutItem;
+
+  @FXML
   private ResourceBundle resources;
 
   @FXML
@@ -156,8 +156,8 @@ public class MainMenuBar extends MenuBar implements Initializable {
     logger.info("Version: " + properties.get("version"));
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     this.resources = resources;
     initializeMenu();
 

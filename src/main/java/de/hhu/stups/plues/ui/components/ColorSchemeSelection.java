@@ -9,14 +9,12 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
-import java.net.URL;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.ResourceBundle;
@@ -26,8 +24,9 @@ import java.util.Set;
  * Presents a combo box with selectable {@link ColorScheme color schemes}. Mainly used to determine
  * the color for PDFs to be generated.
  */
-public class ColorSchemeSelection extends GridPane implements Initializable {
+public class ColorSchemeSelection extends GridPane {
 
+  @FXML
   private ResourceBundle resources;
 
   @FXML
@@ -42,10 +41,7 @@ public class ColorSchemeSelection extends GridPane implements Initializable {
     inflater.inflate("components/ColorSchemeSelection", this, this, "colorSchemeSelection");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
-
+  public void initialize() {
     cbColorSchemeSelection.setCellFactory(param -> getColorSchemeListCell());
     cbColorSchemeSelection.setButtonCell(getColorSchemeListCell());
     cbColorSchemeSelection.getItems().addListener((ListChangeListener<ColorScheme>) change ->

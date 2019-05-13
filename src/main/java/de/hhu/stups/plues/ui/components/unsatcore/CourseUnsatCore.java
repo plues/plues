@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutorService;
  * registered using {@link #registerTask(SolverTask)} in order to disable the {@link
  * #courseSelection}.
  */
-public class CourseUnsatCore extends GridPane implements Initializable {
+public class CourseUnsatCore extends GridPane {
 
   private final ObjectProperty<Store> storeProperty;
   private final ObjectProperty<SolverService> solverServiceProperty;
@@ -46,6 +46,9 @@ public class CourseUnsatCore extends GridPane implements Initializable {
   private final BooleanProperty taskRunningProperty;
   private final BooleanProperty taskScheduledProperty;
   private final ExecutorService executorService;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -89,8 +92,8 @@ public class CourseUnsatCore extends GridPane implements Initializable {
     return unsatCoreButtonBar;
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     checkFeasibilityButtonBar.setSubmitText(resources.getString("checkFeasibility"));
     checkFeasibilityButtonBar.setShowIconOnSucceeded(true);
     checkFeasibilityButtonBar.disableProperty().bind(solverServiceProperty.isNull()

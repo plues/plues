@@ -18,17 +18,14 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 
-import java.net.URL;
-import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class AbstractUnitDetailView extends VBox implements Initializable, DetailView {
+public class AbstractUnitDetailView extends VBox implements DetailView {
 
   private final ObjectProperty<AbstractUnit> abstractUnitProperty;
   private final Router router;
@@ -92,8 +89,8 @@ public class AbstractUnitDetailView extends VBox implements Initializable, Detai
     return title.getText();
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     initializeLabels();
 
     tableViewUnits.itemsProperty().bind(new UnitListBinding(abstractUnitProperty));

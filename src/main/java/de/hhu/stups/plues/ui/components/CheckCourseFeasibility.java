@@ -1,14 +1,12 @@
 package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
-
 import de.hhu.stups.plues.Delayed;
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.services.SolverService;
 import de.hhu.stups.plues.services.UiDataService;
 import de.hhu.stups.plues.ui.components.timetable.TimetableMisc;
 import de.hhu.stups.plues.ui.layout.Inflater;
-
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -17,18 +15,15 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.Set;
 
-public class CheckCourseFeasibility extends VBox implements Initializable {
+public class CheckCourseFeasibility extends VBox {
 
   private final FeasibilityBoxFactory feasibilityBoxFactory;
   private final BooleanProperty solverAvailableProperty;
@@ -71,8 +66,8 @@ public class CheckCourseFeasibility extends VBox implements Initializable {
     inflater.inflate("components/CheckCourseFeasibility", this, this, "checkCourseFeasibility");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     feasibilityBoxWrapper.visibleProperty().bind(
         Bindings.isEmpty(feasibilityBoxWrapper.getItems()).not());
     // disable list-view selection

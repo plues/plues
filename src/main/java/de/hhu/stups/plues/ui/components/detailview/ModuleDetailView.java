@@ -16,7 +16,6 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -24,13 +23,15 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
-import java.net.URL;
 import java.util.ResourceBundle;
 
-public class ModuleDetailView extends VBox implements Initializable, DetailView {
+public class ModuleDetailView extends VBox implements DetailView {
 
   private final ObjectProperty<Module> moduleProperty;
   private final Router router;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -89,8 +90,8 @@ public class ModuleDetailView extends VBox implements Initializable, DetailView 
     inflater.inflate("/components/detailview/ModuleDetailView", this, this, "detailView", "Column");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     bindField(pordnr.textProperty(), "pordnr");
     bindField(title.textProperty(), "title");
     bindField(electiveUnits.textProperty(), "electiveUnits");

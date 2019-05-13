@@ -25,16 +25,17 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 
-import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class Musterstudienplaene extends GridPane implements Initializable, Activatable {
+public class Musterstudienplaene extends GridPane implements Activatable {
+
+  @FXML
+  private ResourceBundle resources;
 
   private final Delayed<Store> delayedStore;
   private final Delayed<SolverService> delayedSolverService;
@@ -89,8 +90,8 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
     inflater.inflate("Musterstudienplaene", this, this, "musterstudienplaene");
   }
 
-  @Override
-  public final void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     colorSchemeSelection.defaultInitialization();
     colorSchemeSelection.disableProperty().bind(courseSelection
         .getMajorComboBox().disabledProperty());
@@ -115,10 +116,10 @@ public class Musterstudienplaene extends GridPane implements Initializable, Acti
 
     delayedSolverService.whenAvailable(s -> this.solverProperty.set(true));
 
-    initializeControllerHeader(resources);
+    initializeControllerHeader();
   }
 
-  private void initializeControllerHeader(final ResourceBundle resources) {
+  private void initializeControllerHeader() {
     controllerHeader.setTitle(resources.getString("titlePDF"));
     controllerHeader.setInfoText(resources.getString("infoPDF"));
   }

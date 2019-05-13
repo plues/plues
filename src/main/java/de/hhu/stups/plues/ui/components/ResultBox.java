@@ -25,7 +25,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -34,14 +33,13 @@ import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
 import java.io.File;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 import javax.annotation.Nullable;
 
-public class ResultBox extends VBox implements Initializable {
+public class ResultBox extends VBox {
 
   // lists of actions for each possible state
   private static final ObservableList<Actions> succeededActions
@@ -68,6 +66,8 @@ public class ResultBox extends VBox implements Initializable {
   private final ObjectProperty<Path> pdf = new SimpleObjectProperty<>();
   private PdfRenderingTask task;
   private ResultState resultState;
+
+  @FXML
   private ResourceBundle resources;
 
   @FXML
@@ -129,8 +129,8 @@ public class ResultBox extends VBox implements Initializable {
     return new Course[] {major, minor};
   }
 
-  @Override
-  public final void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public final void initialize() {
     this.resources = resources;
     initializeCourseLabels();
 

@@ -34,7 +34,7 @@ public class CourseDetailViewTest extends ApplicationTest {
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   @SuppressWarnings("ResultOfMethodCallIgnored")
   public CourseDetailViewTest() {
-    course = mock(Course.class, new ThrowsException(new RuntimeException()));
+    course = mock(Course.class);
 
     doReturn(KEY).when(course).getKey();
     doReturn(FULL_NAME).when(course).getFullName();

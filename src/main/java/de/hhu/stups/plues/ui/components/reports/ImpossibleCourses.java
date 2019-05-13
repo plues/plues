@@ -13,7 +13,6 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
@@ -22,16 +21,18 @@ import javafx.scene.text.Text;
 
 import org.controlsfx.control.SegmentedButton;
 
-import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class ImpossibleCourses extends VBox implements Initializable {
+public class ImpossibleCourses extends VBox {
 
   private final SimpleListProperty<Course> impossibleCoursesList;
   private final SimpleListProperty<Course> impossibleCoursesBecauseOfImpossibleModulesList;
   private final SimpleListProperty<Course>
       impossibleCoursesBecauseOfImpossibleModuleCombinationsList;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -77,8 +78,8 @@ public class ImpossibleCourses extends VBox implements Initializable {
     inflater.inflate("components/reports/ImpossibleCourses", this, this, "reports", "Column");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     segmentedButtons.setToggleGroup(new PersistentToggleGroup());
     tableViewImpossibleCourses.itemsProperty().bind(new CourseListBinding());
     tableViewImpossibleCourses.setOnMouseClicked(

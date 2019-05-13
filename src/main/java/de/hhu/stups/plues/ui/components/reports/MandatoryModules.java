@@ -16,19 +16,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 
-public class MandatoryModules extends VBox implements Initializable {
+public class MandatoryModules extends VBox {
 
   private final ObservableMap<Course, Set<Module>> mandatoryModulesMap;
   private final SimpleListProperty<Course> courses;
@@ -70,8 +67,8 @@ public class MandatoryModules extends VBox implements Initializable {
     inflater.inflate("components/reports/MandatoryModules", this, this, "reports", "Column");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     tableViewCourses.itemsProperty().bind(courses);
     tableViewCourses.setOnMouseClicked(
         DetailViewHelper.getCourseMouseHandler(tableViewCourses, router));

@@ -43,6 +43,7 @@ import javafx.stage.Stage;
 
 import org.junit.After;
 import org.junit.Test;
+import org.mockito.internal.stubbing.answers.ThrowsException;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
@@ -61,7 +62,7 @@ public class MusterstudienplaeneTest extends ApplicationTest {
   private Musterstudienplaene musterstudienplaene;
 
   public MusterstudienplaeneTest() {
-    store = mock(Store.class);
+    store = mock(Store.class, new ThrowsException(new RuntimeException()));
   }
 
   @Test

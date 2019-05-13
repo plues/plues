@@ -9,7 +9,6 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
@@ -17,12 +16,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import java.net.URL;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 
-public class ImpossibleAbstractUnitsInModule extends VBox implements Initializable {
+public class ImpossibleAbstractUnitsInModule extends VBox {
 
   private Map<Module, Set<AbstractUnit>> impossibleAbstractUnitsInModuleMap;
   private final SimpleListProperty<Module> modules;
@@ -58,8 +55,8 @@ public class ImpossibleAbstractUnitsInModule extends VBox implements Initializab
         this, this, "reports", "Column");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     tableViewAbstractUnits.itemsProperty().bind(abstractUnits);
 
     listViewModules.itemsProperty().bind(modules);

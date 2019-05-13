@@ -7,20 +7,21 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
 
-import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
  * A simple component to select the {@link UnitDisplayFormat} to be used for the PDF timetable
  * generation. This is either the title or the key of an abstract unit.
  */
-public class UnitDisplayFormatSelection extends GridPane implements Initializable {
+public class UnitDisplayFormatSelection extends GridPane {
+
+  @FXML
+  private ResourceBundle resources;
 
   private ObjectProperty<UnitDisplayFormat> selectedDisplayFormatProperty;
 
@@ -41,8 +42,8 @@ public class UnitDisplayFormatSelection extends GridPane implements Initializabl
         "unitDisplayFormatSelection");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     selectedDisplayFormatProperty
         .bind(cbPdfUnitDisplayFormat.getSelectionModel().selectedItemProperty());
     cbPdfUnitDisplayFormat.setConverter(new StringConverter<UnitDisplayFormat>() {

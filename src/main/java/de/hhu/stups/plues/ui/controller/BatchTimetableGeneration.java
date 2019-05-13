@@ -24,7 +24,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
@@ -59,7 +58,7 @@ import java.util.zip.ZipOutputStream;
  * are finished the user is able to store the pdf files persistently in a {@link
  * #savePersistentFolder folder} or a {@link #savePersistentZip zip archive}.
  */
-public class BatchTimetableGeneration extends GridPane implements Initializable {
+public class BatchTimetableGeneration extends GridPane {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -78,6 +77,9 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
 
   private CollectPdfRenderingTasksTask fillPoolTask;
   private BatchPdfRenderingTask executePoolTask;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -135,8 +137,8 @@ public class BatchTimetableGeneration extends GridPane implements Initializable 
     inflater.inflate("BatchTimetableGeneration", this, this, "batchTimetable");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     pdfGenerationSettingsProperty.get().colorSchemeProperty()
         .bind(colorSchemeSelection.selectedColorScheme());
     pdfGenerationSettingsProperty.get().unitDisplayFormatProperty()
