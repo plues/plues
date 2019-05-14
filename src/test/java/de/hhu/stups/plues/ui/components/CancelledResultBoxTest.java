@@ -2,6 +2,7 @@ package de.hhu.stups.plues.ui.components;
 
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.Glyph;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -17,7 +18,7 @@ public class CancelledResultBoxTest extends ResultBoxTest {
   public CancelledResultBoxTest() {
     super();
     this.setTask(new TestPdfTask());
-    FontAwesome.Glyph glyph = FontAwesome.Glyph.QUESTION;
+    Glyph glyph = new Glyph("FontAwesome", FontAwesome.Glyph.QUESTION);
     glyph.setFontSize(50);
     this.setIcon(glyph);
   }
