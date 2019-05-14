@@ -12,7 +12,9 @@ public class FailureResultBoxTest extends ResultBoxTest {
   public FailureResultBoxTest() {
     super();
     this.setTask(new TestPdfTask());
-    this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.REMOVE, "50"));
+    FontAwesome.Glyph glyph = FontAwesome.Glyph.REMOVE;
+    glyph.setFontSize(50);
+    this.setIcon(glyph);
   }
 
   private static final class TestPdfTask extends PdfRenderingTask {

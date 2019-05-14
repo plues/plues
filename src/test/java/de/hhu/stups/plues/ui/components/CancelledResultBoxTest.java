@@ -18,7 +18,9 @@ public class CancelledResultBoxTest extends ResultBoxTest {
   public CancelledResultBoxTest() {
     super();
     this.setTask(new TestPdfTask());
-    this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.QUESTION, "50"));
+    FontAwesome.Glyph glyph = FontAwesome.Glyph.QUESTION;
+    glyph.setFontSize(50);
+    this.setIcon(glyph);
   }
 
 
