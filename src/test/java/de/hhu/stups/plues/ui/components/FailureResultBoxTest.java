@@ -1,8 +1,7 @@
 package de.hhu.stups.plues.ui.components;
 
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import org.controlsfx.glyphfont.FontAwesome;
 
 public class FailureResultBoxTest extends ResultBoxTest {
 

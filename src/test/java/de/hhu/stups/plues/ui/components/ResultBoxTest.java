@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class ResultBoxTest extends ApplicationTest {
   private final Course major;
   private final Course minor;
-  private Text icon;
+  private Label icon;
   private PdfRenderingTask task;
 
   /**
@@ -77,7 +77,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Test
   public void testIcon() {
-    final Text mark = this.icon;
+    final Label mark = this.icon;
 
     final TaskProgressIndicator taskProgressIndicator = lookup("#taskProgressIndicator").query();
     final Label icon = taskProgressIndicator.getTaskStateIcon();
@@ -125,7 +125,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
     stage.show();
   }
 
-  void setIcon(final Text icon) {
+  void setIcon(final Label icon) {
     this.icon = icon;
   }
 
