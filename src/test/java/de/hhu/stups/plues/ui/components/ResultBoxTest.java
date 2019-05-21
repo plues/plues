@@ -2,8 +2,8 @@ package de.hhu.stups.plues.ui.components;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.api.FxToolkit.setupStage;
 
@@ -62,7 +62,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Before
   public void sleepBeforeTests() {
-    this.sleep(500, TimeUnit.MILLISECONDS); // sleep briefly for Task to finish
+    this.sleep(1000, TimeUnit.MILLISECONDS); // sleep briefly for Task to finish
   }
 
   @Test
@@ -109,12 +109,9 @@ public abstract class ResultBoxTest extends ApplicationTest {
         Executors.newSingleThreadExecutor()
             .submit((PdfRenderingTask) invocation.getArgument(0)))
         .when(pdfRenderingService).submit(any());
-    when(pdfRenderingService.getTask(any())).thenReturn(task);
-    when(pdfRenderingService.pdfGenerationSettingsProperty())
-        .thenReturn(mock(ObjectProperty.class));
-    when(pdfRenderingService.availableProperty())
-        .thenReturn(new SimpleBooleanProperty(true));
-
+    doReturn(task).when(pdfRenderingService).getTask(any());
+    doReturn(mock(ObjectProperty.class)).when(pdfRenderingService).pdfGenerationSettingsProperty();
+    doReturn(new SimpleBooleanProperty(true)).when(pdfRenderingService).availableProperty();
     final ResultBox resultBox = new ResultBox(
         inflater, new Router(), pdfRenderingService,
         major, minor, new ListView<>(),
