@@ -30,7 +30,6 @@ import de.hhu.stups.plues.ui.components.UnitDisplayFormat;
 import de.hhu.stups.plues.ui.components.UnitDisplayFormatSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
@@ -50,6 +49,7 @@ import org.testfx.util.WaitForAsyncUtils;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class MusterstudienplaeneTest extends ApplicationTest {
 
@@ -165,6 +165,7 @@ public class MusterstudienplaeneTest extends ApplicationTest {
 
     final Delayed<Store> delayedStore = new Delayed<>();
     doReturn(courseList).when(store).getCourses();
+    doReturn(courseList.stream().filter(Course::isMajor).collect(Collectors.toList())).when(store).getMajors();
     delayedStore.set(store);
 
     final UiDataService uiDataService = new UiDataService(delayedSolverService, delayedStore,
@@ -173,7 +174,7 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     final Router router = new Router();
 
     courseSelection = new MajorMinorCourseSelection(inflater);
-    Platform.runLater(() -> courseSelection.setMajorCourseList(courseList));
+    courseSelection.setMajorCourseList(courseList);
 
     final PdfRenderingService pdfRenderingService = mock(PdfRenderingService.class);
     doAnswer(invocation ->
