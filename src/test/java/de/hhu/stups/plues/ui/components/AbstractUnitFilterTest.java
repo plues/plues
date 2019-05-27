@@ -122,14 +122,16 @@ public class AbstractUnitFilterTest extends ApplicationTest {
   @Test
   public void testLiveUpdate() {
     TableView<AbstractUnitFilter.SelectableAbstractUnit> units = lookup("#unitsTable").query();
-    final CheckBoxTableCell cb = (CheckBoxTableCell) units.lookup(".table-row-cell .table-cell");
+    CheckBoxTableCell cb = (CheckBoxTableCell) units.lookup(".table-row-cell .table-cell");
 
     clickOn(cb); // click on checkbox
     clickOn((RadioButton) lookup("#rbSelected").query()); // filter by selected
-    clickOn(cb); // click on checkbox again
-    units = lookup("#unitsTable").query(); // collect units again
 
-    //Race Condition?
+    cb = (CheckBoxTableCell) units.lookup(".table-row-cell .table-cell");
+    clickOn(cb); // click on checkbox again
+
+    units = lookup("#unitsTable").query(); // collect units again
+    
     Assert.assertEquals(0, units.getItems().size());
 
     clickOn((RadioButton) lookup("#rbNotSelected").query());
