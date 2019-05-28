@@ -74,7 +74,7 @@ public class CheckBoxGroup extends VBox {
 
     moduleBox.setText(module.getTitle());
 
-    allSelected.addListener((observable, oldValue, newValue) -> moduleBox.setSelected(newValue));
+    moduleBox.selectedProperty().bind(allSelected);
 
     moduleBox.setOnAction(e ->
         children.forEach(box -> ((CheckBox) box).setSelected(moduleBox.isSelected())));
