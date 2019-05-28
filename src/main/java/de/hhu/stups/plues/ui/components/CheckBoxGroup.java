@@ -72,12 +72,18 @@ public class CheckBoxGroup extends VBox {
       allSelected = allSelected.and(cb.selectedProperty());
     }
 
+    final BooleanBinding selected = allSelected;
+
     moduleBox.setText(module.getTitle());
 
-    moduleBox.selectedProperty().bind(allSelected);
+    selected.addListener((observable, oldValue, newValue) -> moduleBox.setSelected(newValue));
 
-    moduleBox.setOnAction(e ->
-        children.forEach(box -> ((CheckBox) box).setSelected(moduleBox.isSelected())));
+    moduleBox.setOnAction(e -> {
+      //Rebind selected property of moduleBox first, otherwise it will not be updated by listener of selected
+      moduleBox.selectedProperty().unbind();
+      children.forEach(box -> ((CheckBox) box).setSelected(moduleBox.isSelected()));
+      moduleBox.selectedProperty().bind(selected);
+    });
   }
 
   /**
