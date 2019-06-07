@@ -1,8 +1,10 @@
 package de.hhu.stups.plues.ui.components;
 
 import com.google.inject.Inject;
+
 import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.ui.layout.Inflater;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ListBinding;
 import javafx.beans.property.ListProperty;

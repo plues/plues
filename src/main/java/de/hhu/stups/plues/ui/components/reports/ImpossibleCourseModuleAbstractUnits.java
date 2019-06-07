@@ -13,7 +13,6 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;

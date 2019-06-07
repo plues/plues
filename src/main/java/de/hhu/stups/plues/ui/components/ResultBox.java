@@ -312,7 +312,7 @@ public class ResultBox extends VBox {
 
     @Override
     public String toString(final Actions value) {
-      if(value == null) {
+      if (value == null) {
         return "";
       }
       return resources.getString(value.getKey());
