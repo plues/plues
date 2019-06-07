@@ -1,6 +1,8 @@
 package de.hhu.stups.plues.ui.controller;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.Delayed;

@@ -165,7 +165,10 @@ public class MusterstudienplaeneTest extends ApplicationTest {
 
     final Delayed<Store> delayedStore = new Delayed<>();
     doReturn(courseList).when(store).getCourses();
-    doReturn(courseList.stream().filter(Course::isMajor).collect(Collectors.toList())).when(store).getMajors();
+    doReturn(courseList.stream()
+      .filter(Course::isMajor)
+      .collect(Collectors.toList()))
+      .when(store).getMajors();
     delayedStore.set(store);
 
     final UiDataService uiDataService = new UiDataService(delayedSolverService, delayedStore,
