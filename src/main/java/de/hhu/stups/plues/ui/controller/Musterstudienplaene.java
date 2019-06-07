@@ -111,7 +111,7 @@ public class Musterstudienplaene extends GridPane implements Activatable {
 
 
     delayedStore.whenAvailable(store ->
-      courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors())));
+        courseSelection.setMajorCourseList(FXCollections.observableList(store.getMajors())));
 
     courseSelection.impossibleCoursesProperty().bind(uiDataService.impossibleCoursesProperty());
 
