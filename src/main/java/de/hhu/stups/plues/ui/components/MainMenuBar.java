@@ -158,7 +158,6 @@ public class MainMenuBar extends MenuBar {
 
   @FXML
   public void initialize() {
-    this.resources = resources;
     initializeMenu();
 
     final HistoryManager historyManager = mainMenuService.getHistoryManager();
@@ -592,6 +591,9 @@ public class MainMenuBar extends MenuBar {
       try (ByteArrayOutputStream exportXmlStream =
                new XmlExporter(mainMenuService.getDelayedStore().get()).export();
            OutputStream outputStream = new FileOutputStream(selectedFile)) {
+        if(exportXmlStream == null) {
+          return;
+        }
         updateProgress(2, 3);
 
         updateMessage(resources.getString("export.write"));

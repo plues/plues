@@ -131,7 +131,6 @@ public class ResultBox extends VBox {
 
   @FXML
   public final void initialize() {
-    this.resources = resources;
     initializeCourseLabels();
 
     lbErrorMsg.textProperty().bind(

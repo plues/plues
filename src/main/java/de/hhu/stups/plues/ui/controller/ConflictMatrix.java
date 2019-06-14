@@ -160,7 +160,6 @@ public class ConflictMatrix extends GridPane {
 
   @FXML
   public void initialize() {
-    this.resources = resources;
     initializeStats();
 
     controllerHeader.setInfoText(resources.getString("explanationStats"));

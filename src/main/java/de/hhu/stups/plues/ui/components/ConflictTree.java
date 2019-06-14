@@ -79,7 +79,6 @@ public class ConflictTree extends VBox {
   }
 
   public void initialize() {
-    this.resources = resources;
     conflictTreeTableView.setShowRoot(false);
     conflictTreeTableView.setPrefHeight(175.0);
 

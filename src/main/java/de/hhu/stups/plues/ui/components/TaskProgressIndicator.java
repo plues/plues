@@ -72,7 +72,6 @@ public class TaskProgressIndicator extends StackPane {
 
   @FXML
   public void initialize() {
-    this.resources = resources;
 
     showIconOnSucceededProperty().addListener((observable, oldValue, newValue) ->
         bindTaskStateVisibility(taskProperty.get()));

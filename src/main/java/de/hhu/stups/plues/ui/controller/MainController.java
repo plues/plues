@@ -155,8 +155,6 @@ public class MainController implements Activatable {
 
   @FXML
   public final void initialize() {
-    this.resources = resources;
-
     reportsTab.setText(resources.getString("reportsTitle"));
 
     mainSplitPane.getItems().remove(boxTaskProgress);

@@ -102,7 +102,6 @@ public class ChangeLog extends VBox {
 
   @FXML
   public void initialize() {
-    this.resources = resources;
     initializeTableColumns();
     updateBinding();
 
