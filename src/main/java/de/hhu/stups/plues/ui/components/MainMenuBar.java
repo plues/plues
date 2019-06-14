@@ -591,7 +591,7 @@ public class MainMenuBar extends MenuBar {
       try (ByteArrayOutputStream exportXmlStream =
                new XmlExporter(mainMenuService.getDelayedStore().get()).export();
            OutputStream outputStream = new FileOutputStream(selectedFile)) {
-        if(exportXmlStream == null) {
+        if (exportXmlStream == null) {
           return;
         }
         updateProgress(2, 3);
