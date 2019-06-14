@@ -20,7 +20,7 @@ plugins {
     id 'application'
     id 'idea'
     id 'eclipse'
-    //id "com.github.spotbugs" version "2.0.0"
+    id "com.github.spotbugs" version "2.0.0"
     id 'checkstyle'
     id 'edu.sc.seis.launch4j' version '2.4.2'
     id "edu.sc.seis.macAppBundle" version "2.3.0"
