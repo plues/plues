@@ -139,7 +139,7 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     setupStage(Stage::close);
   }
 
-  @SuppressWarnings({"RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT"})
+  @SuppressWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   @Override
   public void start(final Stage stage) throws Exception {
     final FXMLLoader loader = new FXMLLoader();

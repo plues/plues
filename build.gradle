@@ -39,8 +39,8 @@ checkstyle {
     toolVersion = "7.5.1"
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
 
 version = "2.8.0-SNAPSHOT"
 
@@ -69,8 +69,6 @@ repositories {
     }
     maven { url 'https://jitpack.io' }
     maven {
-        // For the FontAwesomeFX fork that is compatible with Java 8 and 9:
-        // https://github.com/xzel23/fontawesomefx
         name "dua3 Bintray"
         url "https://dl.bintray.com/dua3/public"
     }
@@ -84,7 +82,6 @@ dependencies {
     compile 'org.jtwig:jtwig-core:5.86.1.RELEASE'
 
     compile group: "de.jensd", name: "fontawesomefx-commons", version: "9.1.2-jpms"
-    // Cannot update to the next higher version (4.7.0-9), because its class files are compiled for Java 9.
     compile group: "de.jensd", name: "fontawesomefx-fontawesome", version: "4.7.0-5"
     compile 'org.controlsfx:controlsfx:11.0.0'
     compile 'de.codecentric.centerdevice:centerdevice-nsmenufx:2.1.5'
