@@ -36,7 +36,7 @@
            GridPane.rowSpan="2"/>
 
     <Label alignment="TOP_LEFT" text="%developer" GridPane.columnIndex="0" GridPane.rowIndex="10"/>
-    <Label text="David Schneider, Michael Leuschel, Tobias Witt, Philip Höfges, Joshua Schmidt, Niklas Bertram"
+    <Label text="David Schneider, Michael Leuschel, Tobias Witt, Philip Höfges, Joshua Schmidt, Niklas Bertram, Fabian Vu"
            wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="10"/>
 
     <Label GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="11"
