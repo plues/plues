@@ -110,8 +110,8 @@ public abstract class ResultBoxTest extends ApplicationTest {
             .submit((PdfRenderingTask) invocation.getArgument(0)))
         .when(pdfRenderingService).submit(any());
     doReturn(task).when(pdfRenderingService).getTask(any());
-    doReturn(mock(ObjectProperty.class)).when(pdfRenderingService).pdfGenerationSettingsProperty();
-    doReturn(new SimpleBooleanProperty(true)).when(pdfRenderingService).availableProperty();
+    doReturn(mock(ObjectProperty.class)).when(pdfRenderingService.pdfGenerationSettingsProperty());
+    doReturn(new SimpleBooleanProperty(true)).when(pdfRenderingService.availableProperty());
     final ResultBox resultBox = new ResultBox(
         inflater, new Router(), pdfRenderingService,
         major, minor, new ListView<>(),

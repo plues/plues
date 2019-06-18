@@ -355,7 +355,7 @@ public class UnsatCoreTest extends ApplicationTest {
     final Delayed<SolverService> delayedSolverService = new Delayed<>();
     delayedSolverService.set(solverService);
     final Delayed<Store> delayedStore = new Delayed<>();
-    doReturn(courseList).when(store).getCourses();
+    doReturn(courseList).when(store.getCourses());
     delayedStore.set(store);
 
     final UiDataService uiDataService = new UiDataService(delayedSolverService, delayedStore,

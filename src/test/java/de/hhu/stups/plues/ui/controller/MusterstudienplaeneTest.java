@@ -164,11 +164,11 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     delayedSolverService.set(solverService);
 
     final Delayed<Store> delayedStore = new Delayed<>();
-    doReturn(courseList).when(store).getCourses();
+    doReturn(courseList).when(store.getCourses());
     doReturn(courseList.stream()
       .filter(Course::isMajor)
       .collect(Collectors.toList()))
-      .when(store).getMajors();
+      .when(store.getMajors());
     delayedStore.set(store);
 
     final UiDataService uiDataService = new UiDataService(delayedSolverService, delayedStore,
