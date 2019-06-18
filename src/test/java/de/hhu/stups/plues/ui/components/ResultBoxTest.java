@@ -14,6 +14,7 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXMLLoader;
@@ -92,7 +93,8 @@ public abstract class ResultBoxTest extends ApplicationTest {
   }
 
   @Override
-  @SuppressWarnings({"unchecked", "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT"})
+  @SuppressWarnings("unchecked")
+  @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   public void start(final Stage stage) throws Exception {
     final FXMLLoader loader = new FXMLLoader();
     loader.setBuilderFactory(type -> {

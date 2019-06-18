@@ -28,6 +28,7 @@ import de.hhu.stups.plues.ui.components.unsatcore.SessionUnsatCore;
 import de.hhu.stups.plues.ui.components.unsatcore.UnsatCoreButtonBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -321,7 +322,7 @@ public class UnsatCoreTest extends ApplicationTest {
     setupStage(Stage::close);
   }
 
-  @SuppressWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+  @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   @Override
   public void start(final Stage stage) throws Exception {
     final FXMLLoader subLoader = new FXMLLoader();

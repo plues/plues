@@ -17,6 +17,7 @@ import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -587,7 +588,7 @@ public class MainMenuBar extends MenuBar {
       return null;
     }
 
-    @SuppressWarnings({"NP_LOAD_OF_KNOWN_NULL_VALUE", "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE",
+    @SuppressFBWarnings({"NP_LOAD_OF_KNOWN_NULL_VALUE", "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE",
         "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
     private void writeZipFile() {
       try (ByteArrayOutputStream exportXmlStream =

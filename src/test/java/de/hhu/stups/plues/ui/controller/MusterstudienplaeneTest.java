@@ -30,6 +30,7 @@ import de.hhu.stups.plues.ui.components.UnitDisplayFormat;
 import de.hhu.stups.plues.ui.components.UnitDisplayFormatSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
@@ -139,7 +140,7 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     setupStage(Stage::close);
   }
 
-  @SuppressWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+  @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   @Override
   public void start(final Stage stage) throws Exception {
     final FXMLLoader loader = new FXMLLoader();

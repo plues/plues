@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.io.Files;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.SimpleStringProperty;
 
 import org.junit.Before;
@@ -25,7 +26,7 @@ public class PdfRenderingHelperTest {
   /**
    * Copy test file to temporary folder.
    */
-  @SuppressWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
+  @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
   @Before
   public void setup() throws IOException {
     try (final InputStream fileStream = getClass().getResourceAsStream("/test.pdf")) {
