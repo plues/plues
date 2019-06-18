@@ -4,6 +4,7 @@ This is the main application component of the
 [ProB](https://www3.hhu.de/stups/prob/) based timetable validation tool
 [PlÜS](https://github.com/plues) built using the [Prob2
 Java API](https://www3.hhu.de/stups/prob/index.php/ProB_Java_API).
+**Java 11 is required for using PlÜS.**
 
 **Current Version:** 2.8.0-SNAPSHOT
 
