@@ -588,7 +588,7 @@ public class MainMenuBar extends MenuBar {
     }
 
     @SuppressWarnings({"NP_LOAD_OF_KNOWN_NULL_VALUE", "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE",
-      "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
+        "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
     private void writeZipFile() {
       try (ByteArrayOutputStream exportXmlStream =
                new XmlExporter(mainMenuService.getDelayedStore().get()).export();
