@@ -65,7 +65,7 @@ __DBPATH__ defines the path to the database used to generate the data machines.
 **Make sure to initialize the git submodules used in this project.**
 
 To run the application you will need a copy of the
-[data](https://github.com/plues/data) and models repositories.
+[data](https://github.com/plues/data) and [models](https://github.com/plues/models) repositories.
 
 Make sure you are in the correct branch of each repository.
 
