@@ -71,7 +71,16 @@ Make sure you are in the correct branch of each repository.
 
 * Run `make dist` in each repository to generate the files needed for the server.
 * Set __dbpath/DBPATH__ to the path of the dist directory in the checkout of the data repository.
+
+```bash
+DBPATH=../data/philfak-data.sqlite3
+```
+
 * Set __modelpath/MODELPATH__ to the path of the dist directory in the checkout of the models repository.
+
+```bash
+MODELPATH=../models
+```
 
 The application can be started either by running `./gradlew run` or using your IDE.
 
