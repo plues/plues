@@ -97,6 +97,12 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.25' // MIT
     compile 'ch.qos.logback:logback-core:1.2.3' // EPL
     compile 'ch.qos.logback:logback-classic:1.2.3' // EPL
+
+    compile "javax.xml.bind:jaxb-api:2.2.11"
+    compile "com.sun.xml.bind:jaxb-core:2.2.11"
+    compile "com.sun.xml.bind:jaxb-impl:2.2.11"
+    compile "javax.activation:activation:1.1.1"
+
     compile group: 'org.codehaus.janino', name: 'janino', version: '3.0.8'
 
     compile project(':model-generator')
