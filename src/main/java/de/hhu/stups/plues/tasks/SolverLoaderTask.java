@@ -123,6 +123,7 @@ public class SolverLoaderTask extends Task<Solver> {
     logger.trace("Done exporting model files.");
   }
 
+  @SuppressWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
   private Path moveModelsArchive(final Path tmpDirectory) throws IOException {
     final ClassLoader classLoader = MainController.class.getClassLoader();
     try (final InputStream zipStream = classLoader.getResourceAsStream(MODELS_ZIP)) {

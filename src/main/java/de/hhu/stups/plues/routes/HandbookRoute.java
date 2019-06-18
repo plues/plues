@@ -29,6 +29,7 @@ public class HandbookRoute implements Route {
     this.format = format;
   }
 
+  @SuppressWarnings({"NP_LOAD_OF_KNOWN_NULL_VALUE","RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
   @Override
   public void transition(final RouteNames routeName, final Object... args) {
     final String handbook = this.format.getFileName();
