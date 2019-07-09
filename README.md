@@ -12,8 +12,6 @@ Java API](https://www3.hhu.de/stups/prob/index.php/ProB_Java_API).
 [![codebeat badge](https://codebeat.co/badges/6216d53c-afad-4808-8da8-2cf748f0016d)](https://codebeat.co/projects/github-com-plues-plues)
 [![Code Climate](https://codeclimate.com/github/plues/plues/badges/gpa.svg)](https://codeclimate.com/github/plues/plues)
 
-**Latest Release:**
-
 ## Configuration
 
 The application can be configured using environment variables or a properties
