@@ -136,3 +136,6 @@ src/main/resources/doc
 prob_log.txt
 ProB.log.*log
 src/main/resources/plues-build.properties
+model-generator
+data
+models

@@ -13,19 +13,16 @@ import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.VBox;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class CheckBoxGroup extends VBox implements Initializable {
+public class CheckBoxGroup extends VBox {
 
   private final Course course;
   private final Module module;
@@ -62,8 +59,8 @@ public class CheckBoxGroup extends VBox implements Initializable {
     inflater.inflate("components/CheckBoxGroup", this, this);
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     final ObservableList<Node> children = unitsBox.getChildren();
     BooleanBinding allSelected = Bindings.createBooleanBinding(() -> true);
 
@@ -75,12 +72,19 @@ public class CheckBoxGroup extends VBox implements Initializable {
       allSelected = allSelected.and(cb.selectedProperty());
     }
 
+    final BooleanBinding selected = allSelected;
+
     moduleBox.setText(module.getTitle());
 
-    allSelected.addListener((observable, oldValue, newValue) -> moduleBox.setSelected(newValue));
+    selected.addListener((observable, oldValue, newValue) -> moduleBox.setSelected(newValue));
 
-    moduleBox.setOnAction(e ->
-        children.forEach(box -> ((CheckBox) box).setSelected(moduleBox.isSelected())));
+    moduleBox.setOnAction(e -> {
+      //Rebind selected property of moduleBox first,
+      //otherwise it will not be updated by listener of selected
+      moduleBox.selectedProperty().unbind();
+      children.forEach(box -> ((CheckBox) box).setSelected(moduleBox.isSelected()));
+      moduleBox.selectedProperty().bind(selected);
+    });
   }
 
   /**

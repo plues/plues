@@ -7,19 +7,16 @@ import de.hhu.stups.plues.data.entities.Course;
 import de.hhu.stups.plues.data.entities.Module;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import java.net.URL;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ImpossibleCourseModuleAbstractUnitPairs extends VBox implements Initializable {
+public class ImpossibleCourseModuleAbstractUnitPairs extends VBox {
 
   private static final String PAIR_FORMAT = "%s, %s";
 
@@ -36,8 +33,8 @@ public class ImpossibleCourseModuleAbstractUnitPairs extends VBox implements Ini
         this, this, "reports");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     treeViewCourseModuleAbstractUnitPairs.setRoot(new TreeItem<>());
     txtExplanation.wrappingWidthProperty().bind(
         treeViewCourseModuleAbstractUnitPairs.widthProperty().subtract(25.0));

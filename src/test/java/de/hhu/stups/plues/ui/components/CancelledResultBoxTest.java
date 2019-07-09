@@ -1,8 +1,8 @@
 package de.hhu.stups.plues.ui.components;
 
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.Glyph;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -18,7 +18,9 @@ public class CancelledResultBoxTest extends ResultBoxTest {
   public CancelledResultBoxTest() {
     super();
     this.setTask(new TestPdfTask());
-    this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.QUESTION, "50"));
+    Glyph glyph = new Glyph("FontAwesome", FontAwesome.Glyph.QUESTION);
+    glyph.setFontSize(50);
+    this.setIcon(glyph);
   }
 
 

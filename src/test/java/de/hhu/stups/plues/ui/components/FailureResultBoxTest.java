@@ -1,8 +1,8 @@
 package de.hhu.stups.plues.ui.components;
 
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.Glyph;
 
 public class FailureResultBoxTest extends ResultBoxTest {
 
@@ -12,7 +12,9 @@ public class FailureResultBoxTest extends ResultBoxTest {
   public FailureResultBoxTest() {
     super();
     this.setTask(new TestPdfTask());
-    this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.REMOVE, "50"));
+    Glyph glyph = new Glyph("FontAwesome", FontAwesome.Glyph.REMOVE);
+    glyph.setFontSize(50);
+    this.setIcon(glyph);
   }
 
   private static final class TestPdfTask extends PdfRenderingTask {

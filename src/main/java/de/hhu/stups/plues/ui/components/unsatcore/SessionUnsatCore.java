@@ -28,12 +28,15 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class SessionUnsatCore extends VBox implements Initializable {
+public class SessionUnsatCore extends VBox {
 
   private final ListProperty<Session> sessionsProperty;
   private final ListProperty<Course> coursesProperty;
   private final Router router;
   private final UiDataService uiDataService;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -73,8 +76,8 @@ public class SessionUnsatCore extends VBox implements Initializable {
         this, this, "unsatCore", "Column", "Days");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     txtExplanation.wrappingWidthProperty().bind(widthProperty().subtract(300));
 
     sessionsTable.itemsProperty().bind(sessionsProperty);

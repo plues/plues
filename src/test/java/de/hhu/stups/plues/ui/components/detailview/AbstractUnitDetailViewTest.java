@@ -11,13 +11,11 @@ import de.hhu.stups.plues.data.entities.Unit;
 import de.hhu.stups.plues.routes.Router;
 import de.hhu.stups.plues.ui.layout.Inflater;
 import de.hhu.stups.plues.ui.layout.SceneFactory;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.internal.stubbing.answers.ThrowsException;
@@ -26,6 +24,7 @@ import org.testfx.framework.junit.ApplicationTest;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
 
 public class AbstractUnitDetailViewTest extends ApplicationTest {
 

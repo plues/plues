@@ -28,7 +28,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -53,14 +52,13 @@ import org.reactfx.util.FxTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 @Singleton
-public class MainController implements Initializable, Activatable {
+public class MainController implements Activatable {
 
   private static final Map<Class, FontAwesomeIcon> iconMap = new HashMap<>();
   private static final FontAwesomeIcon DEFAULT_ICON = FontAwesomeIcon.TASKS;
@@ -89,6 +87,7 @@ public class MainController implements Initializable, Activatable {
   private final Provider<Reports> reportsProvider;
   private final BooleanProperty progressVisibleProperty;
 
+  @FXML
   private ResourceBundle resources;
   @FXML
   private MainMenuBar mainMenuBar;
@@ -154,10 +153,8 @@ public class MainController implements Initializable, Activatable {
     return FontAwesomeIconFactory.get().createIcon(icon, "2em");
   }
 
-  @Override
-  public final void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
-
+  @FXML
+  public final void initialize() {
     reportsTab.setText(resources.getString("reportsTitle"));
 
     mainSplitPane.getItems().remove(boxTaskProgress);

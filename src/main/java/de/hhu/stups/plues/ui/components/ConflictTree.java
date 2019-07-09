@@ -16,13 +16,11 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.layout.VBox;
 
-import java.net.URL;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -38,15 +36,18 @@ import java.util.stream.Collectors;
  * {@link Timetable}. This component is dynamically added to a {@link FeasibilityBox} in case the
  * specific combination of courses is infeasible and we have found an unsat core.
  */
-public class ConflictTree extends VBox implements Initializable {
+public class ConflictTree extends VBox {
 
   private final UiDataService uiDataService;
   private final Router router;
   private final Delayed<Store> delayedStore;
-  private ResourceBundle resources;
 
   private ListProperty<Integer> unsatCoreProperty;
   private List<Session> conflictSessions;
+
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -77,9 +78,7 @@ public class ConflictTree extends VBox implements Initializable {
     inflater.inflate("components/ConflictTree", this, this, "conflictTree", "Column", "Days");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
+  public void initialize() {
     conflictTreeTableView.setShowRoot(false);
     conflictTreeTableView.setPrefHeight(175.0);
 

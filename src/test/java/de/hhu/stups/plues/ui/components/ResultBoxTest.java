@@ -2,8 +2,8 @@ package de.hhu.stups.plues.ui.components;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.api.FxToolkit.setupStage;
 
@@ -14,6 +14,7 @@ import de.hhu.stups.plues.tasks.PdfRenderingTask;
 import de.hhu.stups.plues.ui.UiTestDataCreator;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXMLLoader;
@@ -39,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class ResultBoxTest extends ApplicationTest {
   private final Course major;
   private final Course minor;
-  private Text icon;
+  private Label icon;
   private PdfRenderingTask task;
 
   /**
@@ -62,7 +63,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Before
   public void sleepBeforeTests() {
-    this.sleep(500, TimeUnit.MILLISECONDS); // sleep briefly for Task to finish
+    this.sleep(1000, TimeUnit.MILLISECONDS); // sleep briefly for Task to finish
   }
 
   @Test
@@ -77,7 +78,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Test
   public void testIcon() {
-    final Text mark = this.icon;
+    final Label mark = this.icon;
 
     final TaskProgressIndicator taskProgressIndicator = lookup("#taskProgressIndicator").query();
     final Label icon = taskProgressIndicator.getTaskStateIcon();
@@ -93,6 +94,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
 
   @Override
   @SuppressWarnings("unchecked")
+  @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   public void start(final Stage stage) throws Exception {
     final FXMLLoader loader = new FXMLLoader();
     loader.setBuilderFactory(type -> {
@@ -109,12 +111,9 @@ public abstract class ResultBoxTest extends ApplicationTest {
         Executors.newSingleThreadExecutor()
             .submit((PdfRenderingTask) invocation.getArgument(0)))
         .when(pdfRenderingService).submit(any());
-    when(pdfRenderingService.getTask(any())).thenReturn(task);
-    when(pdfRenderingService.pdfGenerationSettingsProperty())
-        .thenReturn(mock(ObjectProperty.class));
-    when(pdfRenderingService.availableProperty())
-        .thenReturn(new SimpleBooleanProperty(true));
-
+    doReturn(task).when(pdfRenderingService).getTask(any());
+    doReturn(mock(ObjectProperty.class)).when(pdfRenderingService).pdfGenerationSettingsProperty();
+    doReturn(new SimpleBooleanProperty(true)).when(pdfRenderingService).availableProperty();
     final ResultBox resultBox = new ResultBox(
         inflater, new Router(), pdfRenderingService,
         major, minor, new ListView<>(),
@@ -125,7 +124,7 @@ public abstract class ResultBoxTest extends ApplicationTest {
     stage.show();
   }
 
-  void setIcon(final Text icon) {
+  void setIcon(final Label icon) {
     this.icon = icon;
   }
 

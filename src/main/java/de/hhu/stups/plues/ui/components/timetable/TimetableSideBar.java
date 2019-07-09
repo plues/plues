@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 
-public class TimetableSideBar extends TabPane implements Initializable {
+public class TimetableSideBar extends TabPane {
 
   private static final String SIDE_BAR_TAB_LAYOUT = "sideBarTabLayout";
 
@@ -73,8 +73,8 @@ public class TimetableSideBar extends TabPane implements Initializable {
     inflater.inflate("components/timetable/TimetableSideBar", this, this, "timetable");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     VBox.setVgrow(this, Priority.ALWAYS);
 
     addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> {

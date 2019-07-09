@@ -5,16 +5,12 @@ notification:
 language: java
 matrix:
   include:
-    - jdk: oraclejdk8
-    - jdk: oraclejdk9  
-    # We can't test on Java 10. OpenJDK 10 doesn't include JavaFX (and there's no good way to install it). Oracle JDK 10 (which includes JavaFX) is no longer supported by Travis.
     - jdk: openjdk11
 addons:
   apt:
     packages:
     - lib32z1
     - lib32ncurses5
-    - oracle-java8-installer
   sonarcloud:
     branches:
       - master

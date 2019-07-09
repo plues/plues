@@ -35,7 +35,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
@@ -58,7 +57,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
-public class Reports extends VBox implements Initializable {
+public class Reports extends VBox {
 
   private final ObjectProperty<ReportData> reportData = new SimpleObjectProperty<>();
   private final BooleanProperty dataOutOfSync = new SimpleBooleanProperty(false);
@@ -71,8 +70,11 @@ public class Reports extends VBox implements Initializable {
   private int sessionAmount;
   private int courseAmount;
   private int unitAmount;
-  private Map<String, String> resources;
+  private Map<String, String> resourcesMap;
   private PrintReportData printReportData;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -153,7 +155,7 @@ public class Reports extends VBox implements Initializable {
                  final Properties properties) {
     this.executorService = executorService;
     this.properties = properties;
-    resources = new HashMap<>();
+    resourcesMap = new HashMap<>();
 
     delayedStore.whenAvailable(store -> {
       groupAmount = store.getGroups().size();
@@ -172,7 +174,7 @@ public class Reports extends VBox implements Initializable {
     reportData.addListener((observable, oldValue, newValue) ->
         delayedStore.whenAvailable(store -> {
           btPrint.setDisable(false);
-          printReportData = new PrintReportData(store, newValue, executorService, resources);
+          printReportData = new PrintReportData(store, newValue, executorService, resourcesMap);
           setSpecificData();
           lbImpossibleCoursesAmount.setText(String.valueOf(newValue.getImpossibleCourses().size()));
         }));
@@ -202,8 +204,8 @@ public class Reports extends VBox implements Initializable {
     groupsWithConflicts.setData(new HashSet<>(printReportData.getUnitsForGroupsWithConflicts()));
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     lbOutOfSyncInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->
         FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE, "12")));
     TooltipAllocator.showTooltipOnEnter(
@@ -219,8 +221,8 @@ public class Reports extends VBox implements Initializable {
     lbGroupAmount.setText(String.valueOf(groupAmount));
     lbSessionAmount.setText(String.valueOf(sessionAmount));
     lbModelVersion.setText(String.valueOf(properties.get("model_version")));
-
-    this.resources = resources.keySet().stream()
+    System.out.println(resources == null);
+    this.resourcesMap = resources.keySet().stream()
         .filter(s -> s.startsWith("title.") || s.startsWith("column")).collect(Collectors.toList())
         .stream().collect(Collectors.toMap(o -> o, resources::getString));
   }
@@ -254,7 +256,7 @@ public class Reports extends VBox implements Initializable {
   }
 
   /**
-   * Free resources held by this component before it is closed.
+   * Free resourcesMap held by this component before it is closed.
    */
   void dispose() {
     if (storeChanges != null) {
@@ -517,7 +519,7 @@ public class Reports extends VBox implements Initializable {
       return JtwigModel.newModel()
         .with("date", formattedDate)
         .with("faculty", faculty)
-        .with("resources", resources)
+        .with("resourcesMap", resources)
         .with("incompleteModules", incompleteModules)
         .with("impossibleModulesBecauseOfMissingElectiveAbstractUnits",
           impossibleModulesBecauseOfMissingElectiveAbstractUnits)

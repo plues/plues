@@ -29,7 +29,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -39,7 +38,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.io.File;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -48,7 +46,7 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 
-public class PartialTimeTables extends GridPane implements Initializable, Activatable {
+public class PartialTimeTables extends GridPane implements Activatable {
 
   private final BooleanProperty solverProperty;
   private final BooleanProperty checkRunning;
@@ -63,6 +61,9 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
   private final ObjectProperty<PdfGenerationSettings> pdfGenerationSettingsProperty;
   private final Delayed<Store> delayedStore;
   private final PdfRenderingService pdfRenderingService;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -134,8 +135,8 @@ public class PartialTimeTables extends GridPane implements Initializable, Activa
     inflater.inflate("PartialTimeTables", this, this, "musterstudienplaene");
   }
 
-  @Override
-  public final void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public final void initialize() {
     colorSchemeSelection.defaultInitialization();
     colorSchemeSelection.disableProperty().bind(courseSelection
         .getMajorComboBox().disabledProperty());

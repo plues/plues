@@ -15,21 +15,22 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 
-import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class UnitDetailView extends VBox implements Initializable, DetailView {
+public class UnitDetailView extends VBox implements DetailView {
 
   private final ObjectProperty<Unit> unitProperty;
   private final Router router;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -83,8 +84,8 @@ public class UnitDetailView extends VBox implements Initializable, DetailView {
     return unitProperty.get().getTitle();
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     key.textProperty().bind(Bindings.selectString(unitProperty, "key"));
 
     title.textProperty().bind(Bindings.selectString(unitProperty, "title"));

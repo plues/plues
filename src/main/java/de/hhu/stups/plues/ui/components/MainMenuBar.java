@@ -17,6 +17,7 @@ import de.hhu.stups.plues.tasks.StoreLoaderTask;
 import de.hhu.stups.plues.ui.components.timetable.SessionDisplayFormat;
 import de.hhu.stups.plues.ui.controller.MainController;
 import de.hhu.stups.plues.ui.layout.Inflater;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -28,7 +29,6 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -47,7 +47,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,7 +63,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 
-public class MainMenuBar extends MenuBar implements Initializable {
+public class MainMenuBar extends MenuBar {
 
   private static final String SESSION_FORMAT_PREF_KEY = "sessionFormat";
   private static final String LAST_DB_OPEN_DIR = "LAST_DB_OPEN_DIR";
@@ -92,6 +91,8 @@ public class MainMenuBar extends MenuBar implements Initializable {
 
   private Boolean undoRedoInProgress = false;
   private RadioMenuItem customTimeoutItem;
+
+  @FXML
   private ResourceBundle resources;
 
   @FXML
@@ -156,9 +157,8 @@ public class MainMenuBar extends MenuBar implements Initializable {
     logger.info("Version: " + properties.get("version"));
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
+  @FXML
+  public void initialize() {
     initializeMenu();
 
     final HistoryManager historyManager = mainMenuService.getHistoryManager();
@@ -588,10 +588,15 @@ public class MainMenuBar extends MenuBar implements Initializable {
       return null;
     }
 
+    @SuppressFBWarnings({"NP_LOAD_OF_KNOWN_NULL_VALUE", "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE",
+        "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
     private void writeZipFile() {
       try (ByteArrayOutputStream exportXmlStream =
                new XmlExporter(mainMenuService.getDelayedStore().get()).export();
            OutputStream outputStream = new FileOutputStream(selectedFile)) {
+        if (exportXmlStream == null) {
+          return;
+        }
         updateProgress(2, 3);
 
         updateMessage(resources.getString("export.write"));

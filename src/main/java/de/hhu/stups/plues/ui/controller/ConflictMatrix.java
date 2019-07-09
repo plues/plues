@@ -26,7 +26,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableSet;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -41,7 +40,6 @@ import javafx.scene.shape.Circle;
 import org.fxmisc.easybind.EasyBind;
 import org.reactfx.EventSource;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -53,7 +51,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ConflictMatrix extends GridPane implements Initializable {
+public class ConflictMatrix extends GridPane {
 
   private static final String VERTICAL = "vertical";
   private static final String HORIZONTAL = "";
@@ -66,6 +64,7 @@ public class ConflictMatrix extends GridPane implements Initializable {
   private final Map<CourseSelection, ResultGridCell> cellMap = new HashMap<>();
   private final EventSource<Course> checkCourseCombinationsEventSource = new EventSource<>();
 
+  @FXML
   private ResourceBundle resources;
 
   @FXML
@@ -159,9 +158,8 @@ public class ConflictMatrix extends GridPane implements Initializable {
     inflater.inflate("ConflictMatrix", this, this, "conflictMatrix");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
+  @FXML
+  public void initialize() {
     initializeStats();
 
     controllerHeader.setInfoText(resources.getString("explanationStats"));

@@ -1,7 +1,8 @@
 package de.hhu.stups.plues.ui.controller;
 
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+
 import static org.testfx.api.FxToolkit.setupStage;
 
 import de.hhu.stups.plues.Delayed;
@@ -27,6 +28,7 @@ import de.hhu.stups.plues.ui.components.unsatcore.SessionUnsatCore;
 import de.hhu.stups.plues.ui.components.unsatcore.UnsatCoreButtonBar;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -40,6 +42,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
+import org.mockito.internal.stubbing.answers.ThrowsException;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
@@ -51,11 +54,10 @@ public class UnsatCoreTest extends ApplicationTest {
 
   private final ExecutorService executorService = Executors.newSingleThreadExecutor();
   private final Store store;
-  private final ObservableList<Module> modules = FXCollections.observableArrayList(new Module());
-  private final ObservableList<AbstractUnit> abstractUnits =
-      FXCollections.observableArrayList(new AbstractUnit());
-  private final ObservableList<Group> groups = FXCollections.observableArrayList(new Group());
-  private final ObservableList<Session> sessions = FXCollections.observableArrayList(new Session());
+  private final ObservableList<Module> modules;
+  private final ObservableList<AbstractUnit> abstractUnits;
+  private final ObservableList<Group> groups;
+  private final ObservableList<Session> sessions;
   private final ObservableList<Course> courseList = UiTestDataCreator.createCourseList();
 
   private CombinationOrSingleCourseSelection courseSelection;
@@ -67,7 +69,11 @@ public class UnsatCoreTest extends ApplicationTest {
   private SessionUnsatCore sessionUnsatCore;
 
   public UnsatCoreTest() {
-    store = mock(Store.class);
+    store = mock(Store.class, new ThrowsException(new RuntimeException()));
+    modules = FXCollections.observableArrayList(mock(Module.class));
+    abstractUnits = FXCollections.observableArrayList(mock(AbstractUnit.class));
+    groups = FXCollections.observableArrayList(mock(Group.class));
+    sessions = FXCollections.observableArrayList(mock(Session.class));
   }
 
   /**
@@ -85,7 +91,8 @@ public class UnsatCoreTest extends ApplicationTest {
     final UnsatCoreButtonBar checkFeasibilityButtonBar =
         lookup("#checkFeasibilityButtonBar").query();
     clickOn(checkFeasibilityButtonBar.getBtSubmitTask());
-    sleep(1000, TimeUnit.MILLISECONDS);
+    sleep(2000, TimeUnit.MILLISECONDS);
+    //Race Condition?
     Assert.assertTrue(courseUnsatCore.taskRunningProperty().get());
     Assert.assertTrue(courseSelection.isDisabled());
   }
@@ -96,7 +103,7 @@ public class UnsatCoreTest extends ApplicationTest {
    */
   @Test
   public void testDisableCourseSelectionTaskWaiting() {
-    executorService.submit(UiTestDataCreator.getSimpleTask(10));
+    executorService.submit(UiTestDataCreator.getSimpleTask(1));
     final UnsatCoreButtonBar checkFeasibilityButtonBar =
         lookup("#checkFeasibilityButtonBar").query();
     Assert.assertFalse(courseSelection.isDisabled());
@@ -315,6 +322,7 @@ public class UnsatCoreTest extends ApplicationTest {
     setupStage(Stage::close);
   }
 
+  @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   @Override
   public void start(final Stage stage) throws Exception {
     final FXMLLoader subLoader = new FXMLLoader();
@@ -349,7 +357,7 @@ public class UnsatCoreTest extends ApplicationTest {
     final Delayed<SolverService> delayedSolverService = new Delayed<>();
     delayedSolverService.set(solverService);
     final Delayed<Store> delayedStore = new Delayed<>();
-    when(store.getCourses()).thenReturn(courseList);
+    doReturn(courseList).when(store).getCourses();
     delayedStore.set(store);
 
     final UiDataService uiDataService = new UiDataService(delayedSolverService, delayedStore,
