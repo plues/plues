@@ -92,7 +92,7 @@ public class ImpossibleModules extends VBox {
   }
 
   @FXML
-  public void initialize(final ResourceBundle resources) {
+  public void initialize() {
     getChildren().remove(tableViewIncompleteAbstractUnits);
     segmentedButtons.setToggleGroup(new PersistentToggleGroup());
 

@@ -70,11 +70,11 @@ public class Reports extends VBox {
   private int sessionAmount;
   private int courseAmount;
   private int unitAmount;
-  private Map<String, String> resources;
+  private Map<String, String> resourcesMap;
   private PrintReportData printReportData;
 
   @FXML
-  private ResourceBundle resourceBundle;
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -155,7 +155,7 @@ public class Reports extends VBox {
                  final Properties properties) {
     this.executorService = executorService;
     this.properties = properties;
-    resources = new HashMap<>();
+    resourcesMap = new HashMap<>();
 
     delayedStore.whenAvailable(store -> {
       groupAmount = store.getGroups().size();
@@ -174,7 +174,7 @@ public class Reports extends VBox {
     reportData.addListener((observable, oldValue, newValue) ->
         delayedStore.whenAvailable(store -> {
           btPrint.setDisable(false);
-          printReportData = new PrintReportData(store, newValue, executorService, resources);
+          printReportData = new PrintReportData(store, newValue, executorService, resourcesMap);
           setSpecificData();
           lbImpossibleCoursesAmount.setText(String.valueOf(newValue.getImpossibleCourses().size()));
         }));
@@ -221,10 +221,10 @@ public class Reports extends VBox {
     lbGroupAmount.setText(String.valueOf(groupAmount));
     lbSessionAmount.setText(String.valueOf(sessionAmount));
     lbModelVersion.setText(String.valueOf(properties.get("model_version")));
-
-    this.resources = resourceBundle.keySet().stream()
+    System.out.println(resources == null);
+    this.resourcesMap = resources.keySet().stream()
         .filter(s -> s.startsWith("title.") || s.startsWith("column")).collect(Collectors.toList())
-        .stream().collect(Collectors.toMap(o -> o, resourceBundle::getString));
+        .stream().collect(Collectors.toMap(o -> o, resources::getString));
   }
 
   @FXML
@@ -256,7 +256,7 @@ public class Reports extends VBox {
   }
 
   /**
-   * Free resources held by this component before it is closed.
+   * Free resourcesMap held by this component before it is closed.
    */
   void dispose() {
     if (storeChanges != null) {
@@ -519,7 +519,7 @@ public class Reports extends VBox {
       return JtwigModel.newModel()
         .with("date", formattedDate)
         .with("faculty", faculty)
-        .with("resources", resources)
+        .with("resourcesMap", resources)
         .with("incompleteModules", incompleteModules)
         .with("impossibleModulesBecauseOfMissingElectiveAbstractUnits",
           impossibleModulesBecauseOfMissingElectiveAbstractUnits)
