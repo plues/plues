@@ -4,22 +4,15 @@ This is the main application component of the
 [ProB](https://www3.hhu.de/stups/prob/) based timetable validation tool
 [PlÜS](https://github.com/plues) built using the [Prob2
 Java API](https://www3.hhu.de/stups/prob/index.php/ProB_Java_API).
-**Java 11 is required for using PlÜS.**
+**Java 11 or newer is required for using PlÜS.**
 
 **Current Version:** 2.8.0-SNAPSHOT
 
 [![Build Status](https://travis-ci.org/plues/plues.svg?style=flat-square)](https://travis-ci.org/plues/plues)
-[![SonarQube Quality Gate](https://sonarqube.com/api/badges/gate?key=plues:develop)](https://sonarqube.com/dashboard?id=plues%3Adevelop)
-[![SonarQube Coverage](https://sonarqube.com/api/badges/measure?key=plues:develop&metric=coverage)](https://sonarqube.com/component_measures/domain/Coverage?id=plues%3Adevelop)
-[![SonarQube Tech Debt](https://sonarqube.com/api/badges/measure?key=plues:develop&metric=sqale_debt_ratio)](https://sonarqube.com/component_measures/domain/Maintainability?id=plues%3Adevelop)
 [![codebeat badge](https://codebeat.co/badges/6216d53c-afad-4808-8da8-2cf748f0016d)](https://codebeat.co/projects/github-com-plues-plues)
 [![Code Climate](https://codeclimate.com/github/plues/plues/badges/gpa.svg)](https://codeclimate.com/github/plues/plues)
 
 **Latest Release:**
-
-[![SonarQube Quality Gate](https://sonarqube.com/api/badges/gate?key=plues)](https://sonarqube.com/dashboard?id=plues)
-[![SonarQube Coverage](https://sonarqube.com/api/badges/measure?key=plues&metric=coverage)](https://sonarqube.com/component_measures/domain/Coverage?id=plues)
-[![SonarQube Tech Debt](https://sonarqube.com/api/badges/measure?key=plues&metric=sqale_debt_ratio)](https://sonarqube.com/component_measures/domain/Maintainability?id=plues)
 
 ## Configuration
 
