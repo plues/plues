@@ -24,23 +24,24 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 
-import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class UnsatCore extends GridPane implements Initializable, Activatable {
+public class UnsatCore extends GridPane implements Activatable {
 
   private final ObjectProperty<SolverService> solverService;
   private final ObjectProperty<Store> store;
   private final ExecutorService executorService;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -95,13 +96,13 @@ public class UnsatCore extends GridPane implements Initializable, Activatable {
     inflater.inflate("components/unsatcore/UnsatCore", this, this, "unsatCore");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     initializeCourseUnsatCore();
     initializeModuleUnsatCore();
     initializeAbstractUnitUnsatCore();
     initializeGroupUnsatCore();
-    initializeControllerHeader(resources);
+    initializeControllerHeader();
 
     modulesPane.visibleProperty().bind(moduleUnsatCore.moduleProperty().emptyProperty().not());
     abstractUnitsPane.visibleProperty().bind(
@@ -111,7 +112,7 @@ public class UnsatCore extends GridPane implements Initializable, Activatable {
     sessionUnsatCore.coursesProperty().bind(courseUnsatCore.coursesProperty());
   }
 
-  private void initializeControllerHeader(final ResourceBundle resources) {
+  private void initializeControllerHeader() {
     controllerHeader.setTitle(resources.getString("unsatCore"));
     controllerHeader.setInfoText(resources.getString("unsatCoreExplanation"));
   }

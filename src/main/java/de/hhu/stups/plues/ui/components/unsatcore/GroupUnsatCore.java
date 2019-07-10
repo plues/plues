@@ -31,11 +31,14 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class GroupUnsatCore extends VBox implements Initializable {
+public class GroupUnsatCore extends VBox {
 
   private final ListProperty<Group> groups;
   private final ListProperty<AbstractUnit> abstractUnits;
   private final Router router;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -76,8 +79,8 @@ public class GroupUnsatCore extends VBox implements Initializable {
         "Days");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     txtExplanation.wrappingWidthProperty().bind(widthProperty().subtract(150));
 
     groupsTable.itemsProperty().bind(groups);

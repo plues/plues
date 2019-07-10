@@ -23,7 +23,7 @@ import javafx.scene.layout.HBox;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class UnsatCoreButtonBar extends HBox implements Initializable {
+public class UnsatCoreButtonBar extends HBox {
 
   private final StringProperty submitTextProperty;
   private final ObjectProperty<Task> taskProperty;
@@ -52,8 +52,8 @@ public class UnsatCoreButtonBar extends HBox implements Initializable {
     inflater.inflate("components/unsatcore/UnsatCoreButtonBar", this, this, "unsatCore");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     btSubmitTask.textProperty().bind(submitTextProperty);
     btSubmitTask.disableProperty().bind(disabledProperty());
 

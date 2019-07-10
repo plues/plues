@@ -1,9 +1,8 @@
-import java.time.LocalDateTime
-import java.time.Clock
-import java.time.format.DateTimeFormatter
 import org.ajoberstar.grgit.Grgit
 
-import static org.gradle.util.Clock.*
+import java.time.Clock
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 buildscript {
     repositories {
@@ -13,7 +12,7 @@ buildscript {
         // Add dependency for build script,
         // so we can access Git from our
         // build script.
-        classpath group: 'org.ajoberstar', name: 'grgit', version: '1.8.0-rc.1'
+        classpath 'org.ajoberstar.grgit:grgit-core:3.0.0'
     }
 }
 plugins {
@@ -21,16 +20,18 @@ plugins {
     id 'application'
     id 'idea'
     id 'eclipse'
-    id 'findbugs'
+    id "com.github.spotbugs" version "2.0.0"
     id 'checkstyle'
-    id 'edu.sc.seis.launch4j' version '2.4.1'
-    id "edu.sc.seis.macAppBundle" version "2.1.7"
+    id 'edu.sc.seis.launch4j' version '2.4.2'
+    id "edu.sc.seis.macAppBundle" version "2.3.0"
     id 'jacoco'
+    id 'com.github.ben-manes.versions' version '0.17.0'
+    id "org.openjfx.javafxplugin" version "0.0.7" apply false
 }
 
 
 ext {
-    git = Grgit.open(file('.'))
+    git = Grgit.open(dir: System.getProperty("user.dir"))
     revision = git.head().id
 }
 
@@ -38,14 +39,13 @@ checkstyle {
     toolVersion = "7.5.1"
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
 
-version = "2.7.2"
+version = "2.8.0"
 
 mainClassName = "de.hhu.stups.plues.ui.Main"
-
-applicationDefaultJvmArgs = ["-Dapple.awt.UIElement=true"]
+applicationDefaultJvmArgs = ["-Dapple.awt.UIElement=true", "-Xss2M"]
 def appName = "plues-" + project.version
 
 allprojects {
@@ -68,6 +68,10 @@ repositories {
         url "https://oss.sonatype.org/content/repositories/releases"
     }
     maven { url 'https://jitpack.io' }
+    maven {
+        name "dua3 Bintray"
+        url "https://dl.bintray.com/dua3/public"
+    }
 }
 
 dependencies {
@@ -77,12 +81,13 @@ dependencies {
     compile 'org.apache.xmlgraphics:batik-constants:1.9.1'
     compile 'org.jtwig:jtwig-core:5.86.1.RELEASE'
 
-    compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-3'
-    compile 'org.controlsfx:controlsfx:8.40.14'
-    compile 'de.codecentric.centerdevice:centerdevice-nsmenufx:2.1.5'
+    compile group: "de.jensd", name: "fontawesomefx-commons", version: "9.1.2-jpms"
+    compile group: "de.jensd", name: "fontawesomefx-fontawesome", version: "4.7.0-5"
+    compile 'org.controlsfx:controlsfx:11.0.0'
+    compile 'de.codecentric.centerdevice:centerdevice-nsmenufx:2.1.6'
 
     compile group: 'org.fxmisc.easybind', name: 'easybind', version: '1.0.3'
-    compile group: 'de.hhu.stups', name: 'de.prob2.kernel', version: '3.2.4'
+    compile group: 'de.hhu.stups', name: 'de.prob2.kernel', version: '3.2.7'
 
     compile 'com.google.inject.extensions:guice-assistedinject:4.1.0'
 
@@ -92,20 +97,42 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.25' // MIT
     compile 'ch.qos.logback:logback-core:1.2.3' // EPL
     compile 'ch.qos.logback:logback-classic:1.2.3' // EPL
-    compile group: 'org.codehaus.janino', name: 'janino', version: '3.0.7'
+
+    compile "javax.xml.bind:jaxb-api:2.2.11"
+    compile "com.sun.xml.bind:jaxb-core:2.2.11"
+    compile "com.sun.xml.bind:jaxb-impl:2.2.11"
+    compile "javax.activation:activation:1.1.1"
+
+    compile group: 'org.codehaus.janino', name: 'janino', version: '3.0.8'
 
     compile project(':model-generator')
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile 'org.mockito:mockito-core:2.10.+'
+    testCompile 'org.mockito:mockito-core:2.25.0'
     testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
 
     // provides org.testfx.api, org.testfx.matcher to the test source set.
-    testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.6-alpha")
+    testCompile(group: "org.testfx", name: "testfx-core", version: "4.0.15-alpha")
     // provides org.testfx.framework.junit to the test source set.
-    testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.6-alpha")
-    testRuntime 'org.testfx:openjfx-monocle:1.8.0_20'
+    testCompile(group: "org.testfx", name: "testfx-junit", version: "4.0.15-alpha")
+    testRuntime 'org.testfx:openjfx-monocle:jdk-11+26'
 }
+
+
+if (JavaVersion.current().java11Compatible) {
+	apply plugin: "org.openjfx.javafxplugin"
+	javafx {
+		modules = [
+			"javafx.base",
+			"javafx.controls",
+			"javafx.fxml",
+			"javafx.graphics",
+			"javafx.swing",
+			"javafx.web",
+		]
+	}
+}
+
 
 launch4j {
     mainClassName = project.mainClassName
@@ -147,13 +174,52 @@ macAppBundle {
     javaProperties.put("apple.laf.useScreenMenuBar", "true")
 
 }
+
+// Module export/open declarations for Java 9+
+def exports = []
+def opens = []
+
+// Required by centerdevice-nsmenufx (as of version 2.1.6; see https://github.com/codecentric/NSMenuFX/issues/29)
+exports += [
+        "javafx.controls/com.sun.javafx.scene.control",
+        "javafx.graphics/com.sun.glass.ui",
+        "javafx.graphics/com.sun.javafx.menu",
+        "javafx.graphics/com.sun.javafx.tk",
+]
+opens += [
+        "javafx.graphics/com.sun.glass.ui.mac",
+        "javafx.graphics/com.sun.javafx.tk.quantum",
+]
+
+// Required by controlsfx (as of version 11.0.0-RC2; see https://github.com/controlsfx/controlsfx/issues/1100)
+exports += [
+        "javafx.graphics/com.sun.javafx.css",
+        "javafx.base/com.sun.javafx.runtime",
+]
+
+// Required by richtextfx (as of version 0.9.x; planned to be fixed in 0.10, see https://github.com/FXMisc/RichTextFX/issues/776)
+exports += [
+        "javafx.graphics/com.sun.javafx.geom",
+        "javafx.graphics/com.sun.javafx.scene.text",
+]
+opens += [
+        "javafx.graphics/com.sun.javafx.text",
+        "javafx.graphics/javafx.scene.text",
+]
+
+if (JavaVersion.current().java11Compatible) {
+    applicationDefaultJvmArgs += exports.collect {"--add-exports=${it}=ALL-UNNAMED".toString()}
+    applicationDefaultJvmArgs += opens.collect {"--add-opens=${it}=ALL-UNNAMED".toString()}
+}
+
+
 /*
  * Allows you to run the UI tests in headless mode by calling gradle with the -Pheadless=true argument
  */
 if (project.hasProperty('headless') ? project.headless : false) {
     println "Running UI Tests Headless"
     test {
-        jvmArgs = ['-Djava.awt.headless=true', '-Dtestfx.robot=glass', '-Dtestfx.headless=true', '-Dprism.order=sw', '-Dprism.text=t2k']
+    	jvmArgs = ['-Djava.awt.headless=true', '-Dtestfx.robot=glass', '-Dtestfx.headless=true', '-Dprism.order=sw', '-Dprism.text=t2k', '-Dglass.gtk.uiScale=2.0']
     }
 }
 test {

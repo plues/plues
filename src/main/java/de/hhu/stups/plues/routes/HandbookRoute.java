@@ -3,6 +3,7 @@ package de.hhu.stups.plues.routes;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,8 @@ public class HandbookRoute implements Route {
     this.format = format;
   }
 
+  @SuppressFBWarnings({"NP_LOAD_OF_KNOWN_NULL_VALUE","RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE",
+      "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
   @Override
   public void transition(final RouteNames routeName, final Object... args) {
     final String handbook = this.format.getFileName();

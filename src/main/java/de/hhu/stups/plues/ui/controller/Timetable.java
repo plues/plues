@@ -49,7 +49,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -64,7 +63,6 @@ import org.reactfx.util.FxTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.util.Arrays;
@@ -75,13 +73,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Timetable extends StackPane implements Initializable, Activatable {
+public class Timetable extends StackPane implements Activatable {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final Delayed<ObservableStore> delayedStore;
@@ -144,8 +141,8 @@ public class Timetable extends StackPane implements Initializable, Activatable {
     inflater.inflate("components/Timetable", this, this, "timetable", "Days", "Column");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     delayedStore.whenAvailable(store -> {
       store.getChanges().subscribe(this::handleStoreChanges);
 

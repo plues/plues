@@ -1,11 +1,12 @@
 package de.hhu.stups.plues.ui.components;
 
 import de.hhu.stups.plues.tasks.PdfRenderingTask;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.Glyph;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 
 public class SuccessfulResultBoxTest extends ResultBoxTest {
 
@@ -15,7 +16,9 @@ public class SuccessfulResultBoxTest extends ResultBoxTest {
   public SuccessfulResultBoxTest() {
     super();
     this.setTask(new TestPdfTask());
-    this.setIcon(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK, "50"));
+    Glyph glyph = new Glyph("FontAwesome", FontAwesome.Glyph.CHECK);
+    glyph.setFontSize(50);
+    this.setIcon(glyph);
   }
 
   private static final class TestPdfTask extends PdfRenderingTask {

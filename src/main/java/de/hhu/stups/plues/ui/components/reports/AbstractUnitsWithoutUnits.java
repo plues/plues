@@ -9,17 +9,14 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
 
-public class AbstractUnitsWithoutUnits extends VBox implements Initializable {
+public class AbstractUnitsWithoutUnits extends VBox {
 
   private final Router router;
   @FXML
@@ -48,8 +45,8 @@ public class AbstractUnitsWithoutUnits extends VBox implements Initializable {
         this, this, "reports", "Column");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     tableViewAbstractUnits.setOnMouseClicked(
         DetailViewHelper.getAbstractUnitMouseHandler(tableViewAbstractUnits, router));
     txtExplanation.wrappingWidthProperty().bind(

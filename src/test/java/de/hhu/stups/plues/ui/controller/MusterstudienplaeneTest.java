@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testfx.api.FxToolkit.setupStage;
@@ -29,7 +30,7 @@ import de.hhu.stups.plues.ui.components.UnitDisplayFormat;
 import de.hhu.stups.plues.ui.components.UnitDisplayFormatSelection;
 import de.hhu.stups.plues.ui.layout.Inflater;
 
-import javafx.application.Platform;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
@@ -42,12 +43,14 @@ import javafx.stage.Stage;
 
 import org.junit.After;
 import org.junit.Test;
+import org.mockito.internal.stubbing.answers.ThrowsException;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class MusterstudienplaeneTest extends ApplicationTest {
 
@@ -60,7 +63,7 @@ public class MusterstudienplaeneTest extends ApplicationTest {
   private Musterstudienplaene musterstudienplaene;
 
   public MusterstudienplaeneTest() {
-    store = mock(Store.class);
+    store = mock(Store.class, new ThrowsException(new RuntimeException()));
   }
 
   @Test
@@ -113,7 +116,7 @@ public class MusterstudienplaeneTest extends ApplicationTest {
         .type(KeyCode.DOWN)
         .type(KeyCode.ENTER);
     clickOn(musterstudienplaene.getBtGenerate());
-    sleep(500, TimeUnit.MILLISECONDS);
+    sleep(2000, TimeUnit.MILLISECONDS);
     assertEquals(2, resultBoxWrapper.getItems().size());
     assertTrue(resultBoxWrapper.isVisible());
     final ResultBox existingResultBox = resultBoxWrapper.getItems().get(1);
@@ -121,13 +124,13 @@ public class MusterstudienplaeneTest extends ApplicationTest {
         .type(KeyCode.UP)
         .type(KeyCode.ENTER);
     clickOn(musterstudienplaene.getBtGenerate());
-    sleep(500, TimeUnit.MILLISECONDS);
+    sleep(2000, TimeUnit.MILLISECONDS);
     assertEquals(existingResultBox, resultBoxWrapper.getItems().get(0));
     clickOn(courseSelection.getMajorComboBox())
         .type(KeyCode.DOWN)
         .type(KeyCode.ENTER);
     clickOn(musterstudienplaene.getBtGenerate());
-    sleep(500, TimeUnit.MILLISECONDS);
+    sleep(2000, TimeUnit.MILLISECONDS);
     assertEquals(existingResultBox, resultBoxWrapper.getItems().get(1));
   }
 
@@ -137,6 +140,7 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     setupStage(Stage::close);
   }
 
+  @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
   @Override
   public void start(final Stage stage) throws Exception {
     final FXMLLoader loader = new FXMLLoader();
@@ -162,7 +166,11 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     delayedSolverService.set(solverService);
 
     final Delayed<Store> delayedStore = new Delayed<>();
-    when(store.getCourses()).thenReturn(courseList);
+    doReturn(courseList).when(store).getCourses();
+    doReturn(courseList.stream()
+      .filter(Course::isMajor)
+      .collect(Collectors.toList()))
+      .when(store).getMajors();
     delayedStore.set(store);
 
     final UiDataService uiDataService = new UiDataService(delayedSolverService, delayedStore,
@@ -171,7 +179,7 @@ public class MusterstudienplaeneTest extends ApplicationTest {
     final Router router = new Router();
 
     courseSelection = new MajorMinorCourseSelection(inflater);
-    Platform.runLater(() -> courseSelection.setMajorCourseList(courseList));
+    courseSelection.setMajorCourseList(courseList);
 
     final PdfRenderingService pdfRenderingService = mock(PdfRenderingService.class);
     doAnswer(invocation ->

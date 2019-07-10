@@ -12,19 +12,18 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
 
-public class BatchResultBox extends GridPane implements Initializable {
+public class BatchResultBox extends GridPane {
 
   private final PdfRenderingTask task;
   private final ObjectProperty<Path> pdfPathProperty;
 
+  @FXML
   private ResourceBundle resources;
 
   @FXML
@@ -59,10 +58,8 @@ public class BatchResultBox extends GridPane implements Initializable {
     inflater.inflate("components/BatchResultBox", this, this, "batchTimetable");
   }
 
-  @Override
-  public final void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
-
+  @FXML
+  public final void initialize() {
     taskProgressIndicator.sizeProperty().set(30.0);
     taskProgressIndicator.taskProperty().set(task);
 

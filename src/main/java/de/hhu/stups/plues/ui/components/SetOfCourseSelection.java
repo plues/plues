@@ -20,7 +20,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -33,15 +32,13 @@ import javafx.util.Callback;
 import org.controlsfx.control.textfield.CustomTextField;
 import org.fxmisc.easybind.EasyBind;
 
-import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("WeakerAccess")
-public class SetOfCourseSelection extends VBox implements Initializable {
+public class SetOfCourseSelection extends VBox {
 
   private final ListProperty<Course> selectedCourses;
 
@@ -101,8 +98,8 @@ public class SetOfCourseSelection extends VBox implements Initializable {
     inflater.inflate("components/SetOfCourseSelection", this, this, "filter", "Column");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     txtQuery.setLeft(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SEARCH, "12"));
 
     initializeSearch();

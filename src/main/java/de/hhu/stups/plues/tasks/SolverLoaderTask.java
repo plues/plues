@@ -12,6 +12,7 @@ import de.hhu.stups.plues.prob.SolverException;
 import de.hhu.stups.plues.prob.SolverFactory;
 import de.hhu.stups.plues.ui.controller.MainController;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.concurrent.Task;
 
 import org.slf4j.Logger;
@@ -123,6 +124,7 @@ public class SolverLoaderTask extends Task<Solver> {
     logger.trace("Done exporting model files.");
   }
 
+  @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
   private Path moveModelsArchive(final Path tmpDirectory) throws IOException {
     final ClassLoader classLoader = MainController.class.getClassLoader();
     try (final InputStream zipStream = classLoader.getResourceAsStream(MODELS_ZIP)) {

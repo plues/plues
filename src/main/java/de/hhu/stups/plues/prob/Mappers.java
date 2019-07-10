@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 
@@ -60,7 +61,7 @@ final class Mappers {
         bObject -> {
           final Tuple mc = (Tuple) bObject;
           final Set modules = (Set) mc.getSecond();
-          return modules.stream()
+          return (java.util.Set<Integer>) modules.stream()
               .map(m -> mapValue(m.toString(), MODULE_PREFIX))
               .collect(
                 Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
@@ -173,7 +174,7 @@ final class Mappers {
     Collections::unmodifiableMap));
   }
 
-  static java.util.Set<Integer> extractModules(final Set incompleteModules) {
+  static java.util.Set<Integer> extractModules(final Set incompleteModules) { 
     return incompleteModules.stream().collect(
       Collectors.collectingAndThen(
         Collectors.mapping(
@@ -184,7 +185,6 @@ final class Mappers {
 
   static Map<Integer, java.util.Set<Integer>> mapQuasiMandatoryModuleAbstractUnits(
       final Set quasiMandatoryModuleAbstractUnits) {
-
     return quasiMandatoryModuleAbstractUnits.stream().collect(Collectors.collectingAndThen(
       Collectors.groupingBy(bObject
           -> mapValue(((Tuple)bObject).getFirst().toString(), MODULE_PREFIX),

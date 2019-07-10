@@ -10,15 +10,11 @@ import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
-public class ControllerHeader extends HBox implements Initializable {
+public class ControllerHeader extends HBox {
 
   @FXML
   @SuppressWarnings("unused")
@@ -35,8 +31,8 @@ public class ControllerHeader extends HBox implements Initializable {
     inflater.inflate("components/ControllerHeader", this, this);
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     TooltipAllocator.showTooltipOnEnter(lbControllerInfo, controllerInfoTooltip,
         new SimpleBooleanProperty(false));
     lbControllerInfo.graphicProperty().bind(Bindings.createObjectBinding(() ->

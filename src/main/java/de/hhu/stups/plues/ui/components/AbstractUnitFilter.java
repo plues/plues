@@ -25,7 +25,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -43,15 +42,13 @@ import org.controlsfx.control.textfield.CustomTextField;
 import org.reactfx.EventStream;
 import org.reactfx.EventStreams;
 
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("WeakerAccess")
-public class AbstractUnitFilter extends VBox implements Initializable {
+public class AbstractUnitFilter extends VBox {
 
   private final ToggleGroup filterGroup;
   private final ListProperty<AbstractUnit> selectedAbstractUnits;
@@ -161,8 +158,8 @@ public class AbstractUnitFilter extends VBox implements Initializable {
     rbAll.setSelected(true);
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     txtQuery.setLeft(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SEARCH, "12"));
 
     rbSelected.setToggleGroup(filterGroup);

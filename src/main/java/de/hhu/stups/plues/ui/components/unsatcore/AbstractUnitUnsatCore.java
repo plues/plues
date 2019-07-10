@@ -32,11 +32,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class AbstractUnitUnsatCore extends VBox implements Initializable {
+public class AbstractUnitUnsatCore extends VBox {
 
   private final ListProperty<Module> modules;
   private final ListProperty<AbstractUnit> abstractUnitsProperty;
   private final Router router;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -76,8 +79,8 @@ public class AbstractUnitUnsatCore extends VBox implements Initializable {
         this, this, "unsatCore", "Column");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     txtExplanation.wrappingWidthProperty().bind(widthProperty().subtract(150));
 
     abstractUnitsTable.itemsProperty().bind(abstractUnitsProperty);

@@ -22,7 +22,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -34,10 +33,8 @@ import javafx.util.StringConverter;
 import org.reactfx.Change;
 import org.reactfx.EventStreams;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,7 +44,7 @@ import java.util.stream.Collectors;
  * As soon as the solver is available the impossible courses
  * can be highlighted via the {@link #impossibleCoursesProperty} property.
  */
-public class MajorMinorCourseSelection extends GridPane implements Initializable, Observable {
+public class MajorMinorCourseSelection extends GridPane implements Observable {
 
   private final List<InvalidationListener> listeners = new ArrayList<>();
   // input properties
@@ -103,8 +100,8 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
     return selectedCourses;
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     cbMajor.setConverter(new CourseConverter());
     cbMinor.setConverter(new CourseConverter());
 
@@ -262,6 +259,9 @@ public class MajorMinorCourseSelection extends GridPane implements Initializable
   private static class CourseConverter extends StringConverter<Course> {
     @Override
     public String toString(final Course object) {
+      if (object == null) {
+        return "";
+      }
       return object.getFullName();
     }
 

@@ -9,18 +9,15 @@ import de.hhu.stups.plues.ui.layout.Inflater;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.ResourceBundle;
 import java.util.Set;
 
-public class RedundantUnitGroups extends VBox implements Initializable {
+public class RedundantUnitGroups extends VBox {
 
   private final Router router;
 
@@ -43,8 +40,8 @@ public class RedundantUnitGroups extends VBox implements Initializable {
     inflater.inflate("components/reports/RedundantUnitGroups", this, this, "reports", "Column");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     txtExplanation.wrappingWidthProperty().bind(
         tableViewRedundantUnitGroups.widthProperty().subtract(25.0));
     

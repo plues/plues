@@ -21,14 +21,12 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
-import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
@@ -38,12 +36,13 @@ import java.util.ResourceBundle;
  * #showIconOnSucceededProperty} can be set to false to hide the state icon when the task succeeded.
  * When adjusting the {@link #sizeProperty} the {@link #taskProperty} should be set prior to that.
  */
-public class TaskProgressIndicator extends StackPane implements Initializable {
+public class TaskProgressIndicator extends StackPane {
 
   private final ObjectProperty<Task> taskProperty;
   private final BooleanProperty showIconOnSucceededProperty;
   private final DoubleProperty sizeProperty;
 
+  @FXML
   private ResourceBundle resources;
 
   @FXML
@@ -71,9 +70,8 @@ public class TaskProgressIndicator extends StackPane implements Initializable {
     inflater.inflate("components/TaskProgressIndicator", this, this, "tasks");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
+  @FXML
+  public void initialize() {
 
     showIconOnSucceededProperty().addListener((observable, oldValue, newValue) ->
         bindTaskStateVisibility(taskProperty.get()));

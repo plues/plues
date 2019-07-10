@@ -21,7 +21,6 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -40,7 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-public class ChangeLog extends VBox implements Initializable {
+public class ChangeLog extends VBox {
 
   private final Delayed<ObservableStore> delayedStore;
   private final ObservableList<Log> logs;
@@ -48,8 +47,10 @@ public class ChangeLog extends VBox implements Initializable {
   private final Map<String, String> resourcesMap;
 
   private Subscription subscriptions;
-  private ResourceBundle resources;
   private String faculty;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -99,9 +100,8 @@ public class ChangeLog extends VBox implements Initializable {
     inflater.inflate("components/ChangeLog", this, this, "ChangeLog", "Days");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
-    this.resources = resources;
+  @FXML
+  public void initialize() {
     initializeTableColumns();
     updateBinding();
 

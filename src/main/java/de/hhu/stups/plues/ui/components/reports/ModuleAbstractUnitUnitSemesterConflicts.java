@@ -17,7 +17,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollBar;
@@ -27,15 +26,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Initializable {
+public class ModuleAbstractUnitUnitSemesterConflicts extends VBox {
 
   private final SimpleListProperty<Module> modules
       = new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -95,8 +92,8 @@ public class ModuleAbstractUnitUnitSemesterConflicts extends VBox implements Ini
         this, this, "reports", "Column");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     tableViewModules.itemsProperty().bind(modules);
     tableViewModules.setOnMouseClicked(
         DetailViewHelper.getModuleMouseHandler(tableViewModules, router));

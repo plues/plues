@@ -16,7 +16,6 @@ import javafx.beans.property.SimpleMapProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
@@ -25,19 +24,21 @@ import javafx.scene.text.Text;
 
 import org.controlsfx.control.SegmentedButton;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class ImpossibleModules extends VBox implements Initializable {
+public class ImpossibleModules extends VBox {
 
   private final SimpleListProperty<Module> incompleteModules;
   private final SimpleListProperty<Module> impossibleModulesBecauseOfMissingElectiveAbstractUnits;
   private final SimpleMapProperty<Module, Set<AbstractUnit>>
       impossibleModulesBecauseOfIncompleteQuasiMandatoryAbstractUnits;
   private final Router router;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -90,8 +91,8 @@ public class ImpossibleModules extends VBox implements Initializable {
     inflater.inflate("components/reports/ImpossibleModules", this, this, "reports", "Column");
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     getChildren().remove(tableViewIncompleteAbstractUnits);
     segmentedButtons.setToggleGroup(new PersistentToggleGroup());
 

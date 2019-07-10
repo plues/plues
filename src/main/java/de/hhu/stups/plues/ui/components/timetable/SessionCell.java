@@ -25,7 +25,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-class SessionCell extends ListCell<SessionFacade> implements Initializable {
+class SessionCell extends ListCell<SessionFacade> {
 
   private static final String CONFLICTED_SESSION = "conflicted-session";
   private final Router router;
@@ -61,8 +61,8 @@ class SessionCell extends ListCell<SessionFacade> implements Initializable {
     inflater.inflate("components/SessionCell", content, this);
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     setOnDragDetected(this::dragItem);
     setOnMousePressed(this::clickItem);
 

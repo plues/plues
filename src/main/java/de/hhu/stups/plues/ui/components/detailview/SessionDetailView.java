@@ -18,22 +18,23 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
-import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SessionDetailView extends VBox implements Initializable, DetailView {
+public class SessionDetailView extends VBox implements DetailView {
 
   private final ObjectProperty<SessionFacade> sessionProperty = new SimpleObjectProperty<>();
   private final Router router;
+
+  @FXML
+  private ResourceBundle resources;
 
   @FXML
   @SuppressWarnings("unused")
@@ -91,8 +92,8 @@ public class SessionDetailView extends VBox implements Initializable, DetailView
     this.sessionProperty.set(sessionFacade);
   }
 
-  @Override
-  public void initialize(final URL location, final ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     sessionProperty.addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
         final SessionFacade.Slot slot = newValue.getSlot();
