@@ -6,7 +6,7 @@ This is the main application component of the
 Java API](https://www3.hhu.de/stups/prob/index.php/ProB_Java_API).
 **Java 11 or newer is required for using PlÜS.**
 
-**Current Version:** 2.8.0-SNAPSHOT
+**Current Version:** 2.8.0
 
 [![Build Status](https://travis-ci.org/plues/plues.svg?style=flat-square)](https://travis-ci.org/plues/plues)
 [![codebeat badge](https://codebeat.co/badges/6216d53c-afad-4808-8da8-2cf748f0016d)](https://codebeat.co/projects/github-com-plues-plues)

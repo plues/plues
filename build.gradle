@@ -42,7 +42,7 @@ checkstyle {
 sourceCompatibility = 1.11
 targetCompatibility = 1.11
 
-version = "2.8.0-SNAPSHOT"
+version = "2.8.0"
 
 mainClassName = "de.hhu.stups.plues.ui.Main"
 applicationDefaultJvmArgs = ["-Dapple.awt.UIElement=true", "-Xss2M"]
