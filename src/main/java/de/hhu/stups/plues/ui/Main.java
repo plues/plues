@@ -1,11 +1,15 @@
 package de.hhu.stups.plues.ui;
 
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import de.hhu.stups.plues.injector.PluesModule;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import javafx.application.Application;
 import javafx.stage.Stage;
 
