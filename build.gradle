@@ -27,7 +27,7 @@ plugins {
     id 'jacoco'
     id 'com.github.ben-manes.versions' version '0.17.0'
     id "org.openjfx.javafxplugin" version "0.0.7"
-    id 'org.beryx.runtime' version '1.2.0'
+    id 'org.beryx.runtime' version '1.2.1'
 }
 
 
