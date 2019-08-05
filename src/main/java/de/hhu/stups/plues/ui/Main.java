@@ -1,10 +1,7 @@
 package de.hhu.stups.plues.ui;
 
-import static com.google.inject.Stage.PRODUCTION;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import de.hhu.stups.plues.injector.PluesModule;
 import de.hhu.stups.plues.routes.RouteNames;
 import de.hhu.stups.plues.routes.Router;
@@ -12,13 +9,10 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import static com.google.inject.Stage.PRODUCTION;
+
 
 public class Main extends Application {
-
-
-  public static void main(final String[] args) {
-    launch(args);
-  }
 
   @Override
   @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
