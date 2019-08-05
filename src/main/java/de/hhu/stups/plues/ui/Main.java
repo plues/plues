@@ -1,5 +1,6 @@
 package de.hhu.stups.plues.ui;
 
+import static com.google.inject.Stage.PRODUCTION;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -12,8 +13,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-
-import static com.google.inject.Stage.PRODUCTION;
 
 
 public class Main extends Application {
