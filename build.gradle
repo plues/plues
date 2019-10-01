@@ -45,6 +45,7 @@ targetCompatibility = 11
 version = "2.8.0-SNAPSHOT"
 
 mainClassName = "de.hhu.stups.plues.ui.Plues"
+
 applicationDefaultJvmArgs = ["-Dapple.awt.UIElement=true", "-Xss2M"]
 def appName = "plues-" + project.version
 
@@ -267,4 +268,11 @@ task createBuildConstants {
 
 compileJava {
     dependsOn createBuildConstants
+}
+
+startScripts {
+    doLast {
+        windowsScript.text = windowsScript.text.replaceAll('set CLASSPATH=.*', 'set CLASSPATH=.;%APP_HOME%/lib/*')
+        windowsScript.text = windowsScript.text.replaceAll('DEFAULT_JVM_OPTS', 'JAVA_OPTIONS')
+    }
 }
