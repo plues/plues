@@ -22,9 +22,10 @@ cache:
   directories:
   - $HOME/.gradle/caches/
   - $HOME/.gradle/wrapper/
+services:
+  - xvfb
 before_install:
   - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
 script:
   - ./gradlew --stacktrace -Pheadless=true check
   # - ./gradlew --stacktrace -Pheadless=true jacocoTestReport

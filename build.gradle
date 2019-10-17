@@ -22,11 +22,11 @@ plugins {
     id 'eclipse'
     id "com.github.spotbugs" version "2.0.0"
     id 'checkstyle'
-    id 'edu.sc.seis.launch4j' version '2.4.2'
+    id 'edu.sc.seis.launch4j' version '2.4.6'
     id "edu.sc.seis.macAppBundle" version "2.3.0"
     id 'jacoco'
     id 'com.github.ben-manes.versions' version '0.17.0'
-    id "org.openjfx.javafxplugin" version "0.0.7" apply false
+    id "org.openjfx.javafxplugin" version "0.0.7"
 }
 
 
@@ -39,12 +39,13 @@ checkstyle {
     toolVersion = "7.5.1"
 }
 
-sourceCompatibility = 1.11
-targetCompatibility = 1.11
+sourceCompatibility = 11
+targetCompatibility = 11
 
 version = "2.8.0"
 
-mainClassName = "de.hhu.stups.plues.ui.Main"
+mainClassName = "de.hhu.stups.plues.ui.Plues"
+
 applicationDefaultJvmArgs = ["-Dapple.awt.UIElement=true", "-Xss2M"]
 def appName = "plues-" + project.version
 
@@ -73,6 +74,19 @@ repositories {
         url "https://dl.bintray.com/dua3/public"
     }
 }
+
+
+javafx {
+    modules = [
+            "javafx.base",
+            "javafx.controls",
+            "javafx.fxml",
+            "javafx.graphics",
+            "javafx.swing",
+            "javafx.web",
+    ]
+}
+
 
 dependencies {
     compile 'com.google.code.findbugs:annotations:3.0.1u2'
@@ -105,6 +119,9 @@ dependencies {
 
     compile group: 'org.codehaus.janino', name: 'janino', version: '3.0.8'
 
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+
     compile project(':model-generator')
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
@@ -118,20 +135,6 @@ dependencies {
     testRuntime 'org.testfx:openjfx-monocle:jdk-11+26'
 }
 
-
-if (JavaVersion.current().java11Compatible) {
-	apply plugin: "org.openjfx.javafxplugin"
-	javafx {
-		modules = [
-			"javafx.base",
-			"javafx.controls",
-			"javafx.fxml",
-			"javafx.graphics",
-			"javafx.swing",
-			"javafx.web",
-		]
-	}
-}
 
 
 launch4j {
@@ -207,10 +210,9 @@ opens += [
         "javafx.graphics/javafx.scene.text",
 ]
 
-if (JavaVersion.current().java11Compatible) {
-    applicationDefaultJvmArgs += exports.collect {"--add-exports=${it}=ALL-UNNAMED".toString()}
-    applicationDefaultJvmArgs += opens.collect {"--add-opens=${it}=ALL-UNNAMED".toString()}
-}
+
+applicationDefaultJvmArgs += exports.collect {"--add-exports=${it}=ALL-UNNAMED".toString()}
+applicationDefaultJvmArgs += opens.collect {"--add-opens=${it}=ALL-UNNAMED".toString()}
 
 
 /*
@@ -263,6 +265,14 @@ task createBuildConstants {
     }
 }
 
+
 compileJava {
     dependsOn createBuildConstants
+}
+
+startScripts {
+    doLast {
+        windowsScript.text = windowsScript.text.replaceAll('set CLASSPATH=.*', 'set CLASSPATH=.;%APP_HOME%/lib/*')
+        windowsScript.text = windowsScript.text.replaceAll('DEFAULT_JVM_OPTS', 'JAVA_OPTIONS')
+    }
 }
